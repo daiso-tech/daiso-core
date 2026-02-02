@@ -377,6 +377,12 @@ export class Cache<TType = unknown> implements ICache<TType> {
                             ttl,
                         })
                         .detach();
+                } else {
+                    this.eventBus
+                        .dispatch(CACHE_EVENTS.KEY_EXISTS, {
+                            key: keyObj,
+                        })
+                        .detach();
                 }
                 return hasAdded;
             } catch (error: unknown) {

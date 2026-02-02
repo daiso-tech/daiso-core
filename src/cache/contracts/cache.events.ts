@@ -40,6 +40,16 @@ export type AddedCacheEvent<TType = unknown> = {
 };
 
 /**
+ * The event is dispatched when trying to add an key that exists.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
+ * @group Events
+ */
+export type KeyExistsCacheEvent = {
+    key: IKey;
+};
+
+/**
  * The event is dispatched when key is updated.
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
@@ -112,6 +122,7 @@ export const CACHE_EVENTS = {
     FOUND: "FOUND",
     NOT_FOUND: "NOT_FOUND",
     ADDED: "ADDED",
+    KEY_EXISTS: "KEY_EXISTS",
     UPDATED: "UPDATED",
     REMOVED: "REMOVED",
     INCREMENTED: "INCREMENTED",
@@ -129,6 +140,7 @@ export type CacheEventMap<TType = unknown> = {
     [CACHE_EVENTS.FOUND]: FoundCacheEvent<TType>;
     [CACHE_EVENTS.NOT_FOUND]: NotFoundCacheEvent;
     [CACHE_EVENTS.ADDED]: AddedCacheEvent<TType>;
+    [CACHE_EVENTS.KEY_EXISTS]: KeyExistsCacheEvent;
     [CACHE_EVENTS.UPDATED]: UpdatedCacheEvent<TType>;
     [CACHE_EVENTS.REMOVED]: RemovedCacheEvent;
     [CACHE_EVENTS.INCREMENTED]: IncrementedCacheEvent;
