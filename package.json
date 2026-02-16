@@ -57,7 +57,13 @@
         "multitenant",
         "duration",
         "time-span",
-        "typescript"
+        "typescript",
+        "file-system",
+        "aws-s3",
+        "minio",
+        "digital-ocean-spaces",
+        "cloudflare-r2",
+        "supabase-storage"
     ],
     "exports": {
         "./backoff-policies": {
@@ -140,6 +146,18 @@
             "types": "./dist/circuit-breaker/implementations/test-utilities/_module-exports.d.ts",
             "import": "./dist/circuit-breaker/implementations/test-utilities/_module-exports.js"
         },
+
+        
+
+        "./codec/contracts": {
+            "types": "./dist/codec/contracts/_module-exports.d.ts",
+            "import": "./dist/codec/contracts/_module-exports.js"
+        },
+        "./codec/base-64-codec": {
+            "types": "./dist/codec/implementations/base-64-codec/_module-exports.d.ts",
+            "import": "./dist/codec/implementations/base-64-codec/_module-exports.js"
+        },
+
         "./collection": {
             "types": "./dist/collection/implementations/_module-exports.d.ts",
             "import": "./dist/collection/implementations/_module-exports.js"
@@ -171,6 +189,42 @@
         "./event-bus/test-utilities": {
             "types": "./dist/event-bus/implementations/test-utilities/_module-exports.d.ts",
             "import": "./dist/event-bus/implementations/test-utilities/_module-exports.js"
+        },
+        "./file-size": {
+            "types": "./dist/file-size/implementations/_module-exports.d.ts",
+            "import": "./dist/file-size/implementations/_module-exports.js"
+        },
+        "./file-size/contracts": {
+            "types": "./dist/file-size/contracts/_module-exports.d.ts",
+            "import": "./dist/file-size/contracts/_module-exports.js"
+        },
+        "./file-storage": {
+            "types": "./dist/file-storage/implementations/derivables/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/derivables/_module-exports.js"
+        },
+        "./file-storage/contracts": {
+            "types": "./dist/file-storage/contracts/_module-exports.d.ts",
+            "import": "./dist/file-storage/contracts/_module-exports.js"
+        },
+        "./file-storage/s3-file-storage-adapter": {
+            "types": "./dist/file-storage/implementations/adapters/s3-file-storage-adapter/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/adapters/s3-file-storage-adapter/_module-exports.js"
+        },
+        "./file-storage/fs-file-storage-adapter": {
+            "types": "./dist/file-storage/implementations/adapters/fs-file-storage-adapter/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/adapters/fs-file-storage-adapter/_module-exports.js"
+        },
+        "./file-storage/memory-file-storage-adapter": {
+            "types": "./dist/file-storage/implementations/adapters/memory-file-storage-adapter/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/adapters/memory-file-storage-adapter/_module-exports.js"
+        },
+        "./file-storage/no-op-file-storage-adapter": {
+            "types": "./dist/file-storage/implementations/adapters/no-op-file-storage-adapter/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/adapters/no-op-file-storage-adapter/_module-exports.js"
+        },
+        "./file-storage/test-utilities": {
+            "types": "./dist/file-storage/implementations/test-utilities/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/test-utilities/_module-exports.js"
         },
         "./hooks": {
             "types": "./dist/hooks/_module-exports.d.ts",
@@ -382,6 +436,8 @@
         "release": "npm run build && npx changeset publish"
     },
     "devDependencies": {
+        "@aws-sdk/client-s3": "^3.990.0",
+        "@aws-sdk/s3-request-presigner": "^3.990.0",
         "@changesets/cli": "^2.27.7",
         "@standard-schema/spec": "^1.0.0",
         "@testcontainers/mongodb": "^10.13.2",
@@ -389,6 +445,8 @@
         "@testcontainers/postgresql": "^11.0.0",
         "@testcontainers/redis": "^10.13.2",
         "@types/better-sqlite3": "^7.6.13",
+        "@types/etag": "^1.8.4",
+        "@types/mime-types": "^3.0.1",
         "@types/pg": "^8.15.4",
         "@types/uuid": "^10.0.0",
         "@typescript-eslint/eslint-plugin": "^8.1.0",
@@ -420,11 +478,19 @@
         "zod": "^3.25.49"
     },
     "peerDependencies": {
+        "@aws-sdk/client-s3": "^3.990.0",
+        "@aws-sdk/s3-request-presigner": "^3.990.0",
         "ioredis": "^5.0.0",
         "kysely": "^0.28.0",
         "mongodb": "^6.0.0"
     },
     "peerDependenciesMeta": {
+        "@aws-sdk/client-s3": {
+            "optional": true
+        },
+        "@aws-sdk/s3-request-presigner": {
+            "optional": true
+        },
         "mongodb": {
             "optional": true
         },
@@ -438,6 +504,8 @@
     "dependencies": {
         "@lukeed/ms": "^2.0.2",
         "escape-string-regexp": "^5.0.0",
+        "etag": "^1.8.1",
+        "mime-types": "^3.0.2",
         "superjson": "^2.2.2",
         "uuid": "^11.0.5"
     }
