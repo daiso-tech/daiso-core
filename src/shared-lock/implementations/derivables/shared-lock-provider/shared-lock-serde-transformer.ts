@@ -6,7 +6,6 @@ import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import {
-    type IDatabaseSharedLockAdapter,
     type ISharedLockAdapter,
     type SharedLockAdapterVariants,
     type SharedLockEventMap,
@@ -39,9 +38,7 @@ export class SharedLockSerdeTransformer
     implements ISerdeTransformer<SharedLock, ISerializedSharedLock>
 {
     private readonly adapter: ISharedLockAdapter;
-    private readonly originalAdapter:
-        | ISharedLockAdapter
-        | IDatabaseSharedLockAdapter;
+    private readonly originalAdapter: SharedLockAdapterVariants;
     private readonly namespace: INamespace;
     private readonly defaultBlockingInterval: TimeSpan;
     private readonly defaultBlockingTime: TimeSpan;

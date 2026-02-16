@@ -16,10 +16,10 @@ import {
     LOCK_STATE,
     isLockError,
     type ILockState,
-    type IDatabaseLockAdapter,
     type ILockExpiredState,
     type ILockAcquiredState,
     type ILockUnavailableState,
+    type LockAdapterVariants,
 } from "@/lock/contracts/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import { type ITask } from "@/task/contracts/_module.js";
@@ -45,7 +45,7 @@ export type LockSettings = {
     serdeTransformerName: string;
     namespace: INamespace;
     adapter: ILockAdapter;
-    originalAdapter: IDatabaseLockAdapter | ILockAdapter;
+    originalAdapter: LockAdapterVariants;
     eventDispatcher: IEventDispatcher<LockEventMap>;
     key: IKey;
     lockId: string;
@@ -73,7 +73,7 @@ export class Lock implements ILock {
 
     private readonly namespace: INamespace;
     private readonly adapter: ILockAdapter;
-    private readonly originalAdapter: IDatabaseLockAdapter | ILockAdapter;
+    private readonly originalAdapter: LockAdapterVariants;
     private readonly eventDispatcher: IEventDispatcher<LockEventMap>;
     private readonly _key: IKey;
     private readonly lockId: string;
@@ -118,7 +118,7 @@ export class Lock implements ILock {
         return this.serdeTransformerName;
     }
 
-    _internal_getAdapter(): IDatabaseLockAdapter | ILockAdapter {
+    _internal_getAdapter(): LockAdapterVariants {
         return this.originalAdapter;
     }
 

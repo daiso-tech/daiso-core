@@ -6,7 +6,6 @@ import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
 import { type AsyncMiddlewareFn } from "@/hooks/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import {
-    type IDatabaseSemaphoreAdapter,
     type ISemaphoreAdapter,
     type SemaphoreAdapterVariants,
     type SemaphoreEventMap,
@@ -77,9 +76,7 @@ export class Semaphore implements ISemaphore {
     private readonly slotId: string;
     private readonly limit: number;
     private readonly adapter: ISemaphoreAdapter;
-    private readonly originalAdapter:
-        | ISemaphoreAdapter
-        | IDatabaseSemaphoreAdapter;
+    private readonly originalAdapter: SemaphoreAdapterVariants;
     private readonly eventDispatcher: IEventDispatcher<SemaphoreEventMap>;
     private readonly _key: IKey;
     private _ttl: TimeSpan | null;
@@ -126,7 +123,7 @@ export class Semaphore implements ISemaphore {
         return this.serdeTransformerName;
     }
 
-    _internal_getAdapter(): IDatabaseSemaphoreAdapter | ISemaphoreAdapter {
+    _internal_getAdapter(): SemaphoreAdapterVariants {
         return this.originalAdapter;
     }
 

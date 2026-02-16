@@ -15,7 +15,6 @@ import {
     LimitReachedReaderSemaphoreError,
     SHARED_LOCK_EVENTS,
     SHARED_LOCK_STATE,
-    type IDatabaseSharedLockAdapter,
     type ISharedLock,
     type ISharedLockAdapter,
     type ISharedLockExpiredState,
@@ -25,6 +24,7 @@ import {
     type ISharedLockState,
     type ISharedLockWriterAcquiredState,
     type ISharedLockWriterUnavailableState,
+    type SharedLockAdapterVariants,
     type SharedLockAquireBlockingSettings,
     type SharedLockEventMap,
 } from "@/shared-lock/contracts/_module.js";
@@ -56,7 +56,7 @@ export type SharedLockSettings = {
     serdeTransformerName: string;
     namespace: INamespace;
     adapter: ISharedLockAdapter;
-    originalAdapter: IDatabaseSharedLockAdapter | ISharedLockAdapter;
+    originalAdapter: SharedLockAdapterVariants;
     eventDispatcher: IEventDispatcher<SharedLockEventMap>;
     limit: number;
     key: IKey;
@@ -88,9 +88,7 @@ export class SharedLock implements ISharedLock {
 
     private readonly namespace: INamespace;
     private readonly adapter: ISharedLockAdapter;
-    private readonly originalAdapter:
-        | IDatabaseSharedLockAdapter
-        | ISharedLockAdapter;
+    private readonly originalAdapter: SharedLockAdapterVariants;
     private readonly eventDispatcher: IEventDispatcher<SharedLockEventMap>;
     private readonly _key: IKey;
     private readonly lockId: string;
@@ -138,7 +136,7 @@ export class SharedLock implements ISharedLock {
         return this.serdeTransformerName;
     }
 
-    _internal_getAdapter(): IDatabaseSharedLockAdapter | ISharedLockAdapter {
+    _internal_getAdapter(): SharedLockAdapterVariants {
         return this.originalAdapter;
     }
 
