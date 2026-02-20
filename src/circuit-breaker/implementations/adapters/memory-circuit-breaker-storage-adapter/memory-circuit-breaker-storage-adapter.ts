@@ -39,14 +39,14 @@ export class MemoryCircuitBreakerStorageAdapter<TType = unknown>
     /**
      * Removes all in-memory circuit breaker data.
      */
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async deInit(): Promise<void> {
+    deInit(): Promise<void> {
         this.map.clear();
+        return Promise.resolve();
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    private async upsert(key: string, state: TType): Promise<void> {
+    private upsert(key: string, state: TType): Promise<void> {
         this.map.set(key, state);
+        return Promise.resolve();
     }
 
     async transaction<TValue>(
@@ -61,13 +61,12 @@ export class MemoryCircuitBreakerStorageAdapter<TType = unknown>
         });
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async find(key: string): Promise<TType | null> {
-        return this.map.get(key) ?? null;
+        return Promise.resolve(this.map.get(key) ?? null);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async remove(key: string): Promise<void> {
         this.map.delete(key);
+        return Promise.resolve();
     }
 }

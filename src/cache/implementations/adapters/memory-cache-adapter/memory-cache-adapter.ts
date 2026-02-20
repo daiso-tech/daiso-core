@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/require-await */
 /**
  * @module Cache
  */
@@ -32,8 +31,10 @@ export class MemoryCacheAdapter<TType = unknown>
      */
     constructor(private readonly map: Map<string, unknown> = new Map()) {}
 
-    async get(key: string): Promise<TType | null> {
-        return (this.map.get(key) ?? null) as TType;
+    get(key: string): Promise<TType | null> {
+        return Promise.resolve(
+            this.map.get(key) ?? null,
+        ) as Promise<TType | null>;
     }
 
     async getAndRemove(key: string): Promise<TType | null> {
@@ -42,11 +43,7 @@ export class MemoryCacheAdapter<TType = unknown>
         return value;
     }
 
-    async add(
-        key: string,
-        value: TType,
-        ttl: TimeSpan | null,
-    ): Promise<boolean> {
+    add(key: string, value: TType, ttl: TimeSpan | null): Promise<boolean> {
         const hasNotKey = !this.map.has(key);
         if (hasNotKey) {
             this.map.set(key, value);
@@ -60,7 +57,7 @@ export class MemoryCacheAdapter<TType = unknown>
                 }, ttl.toMilliseconds()),
             );
         }
-        return hasNotKey;
+        return Promise.resolve(hasNotKey);
     }
 
     async put(
@@ -73,15 +70,15 @@ export class MemoryCacheAdapter<TType = unknown>
         return hasKey;
     }
 
-    async update(key: string, value: TType): Promise<boolean> {
+    update(key: string, value: TType): Promise<boolean> {
         const hasKey = this.map.has(key);
         if (hasKey) {
             this.map.set(key, value);
         }
-        return hasKey;
+        return Promise.resolve(hasKey);
     }
 
-    async increment(key: string, value: number): Promise<boolean> {
+    increment(key: string, value: number): Promise<boolean> {
         const prevValue = this.map.get(key);
         const hasKey = prevValue !== undefined;
         if (hasKey) {
@@ -93,16 +90,16 @@ export class MemoryCacheAdapter<TType = unknown>
             const newValue = prevValue + value;
             this.map.set(key, newValue as TType);
         }
-        return hasKey;
+        return Promise.resolve(hasKey);
     }
 
-    async remove(key: string): Promise<boolean> {
+    remove(key: string): Promise<boolean> {
         clearTimeout(this.timeoutMap.get(key));
         this.timeoutMap.delete(key);
-        return this.map.delete(key);
+        return Promise.resolve(this.map.delete(key));
     }
 
-    async removeMany(keys: Array<string>): Promise<boolean> {
+    removeMany(keys: Array<string>): Promise<boolean> {
         let deleteCount = 0;
         for (const key of keys) {
             clearTimeout(this.timeoutMap.get(key));
@@ -112,15 +109,16 @@ export class MemoryCacheAdapter<TType = unknown>
                 deleteCount++;
             }
         }
-        return deleteCount > 0;
+        return Promise.resolve(deleteCount > 0);
     }
 
-    async removeAll(): Promise<void> {
+    removeAll(): Promise<void> {
         this.map.clear();
         this.timeoutMap.clear();
+        return Promise.resolve();
     }
 
-    async removeByKeyPrefix(prefix: string): Promise<void> {
+    removeByKeyPrefix(prefix: string): Promise<void> {
         for (const key of this.map.keys()) {
             if (key.startsWith(prefix)) {
                 clearTimeout(this.timeoutMap.get(key));
@@ -128,5 +126,6 @@ export class MemoryCacheAdapter<TType = unknown>
                 this.map.delete(key);
             }
         }
+        return Promise.resolve();
     }
 }

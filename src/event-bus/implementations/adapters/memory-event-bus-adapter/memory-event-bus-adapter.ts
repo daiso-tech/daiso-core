@@ -40,26 +40,24 @@ export class MemoryEventBusAdapter implements IEventBusAdapter {
         this.eventEmitter = eventEmitter;
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async addListener(
+    addListener(
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
     ): Promise<void> {
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.eventEmitter.on(eventName, listener);
+        return Promise.resolve();
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async removeListener(
+    removeListener(
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
     ): Promise<void> {
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.eventEmitter.off(eventName, listener);
+        return Promise.resolve();
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async dispatch(eventName: string, eventData: BaseEvent): Promise<void> {
+    dispatch(eventName: string, eventData: BaseEvent): Promise<void> {
         this.eventEmitter.emit(eventName, eventData);
+        return Promise.resolve();
     }
 }

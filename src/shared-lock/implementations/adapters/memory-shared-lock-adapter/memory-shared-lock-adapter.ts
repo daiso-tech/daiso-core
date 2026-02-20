@@ -86,7 +86,6 @@ export class MemorySharedLockAdapter
     /**
      * Removes all in-memory shared-lock data.
      */
-    // eslint-disable-next-line @typescript-eslint/require-await
     async deInit(): Promise<void> {
         for (const [key, sharedLock] of this.map) {
             const writerLock = sharedLock.writerLock;
@@ -105,9 +104,9 @@ export class MemorySharedLockAdapter
 
             this.map.delete(key);
         }
+        return Promise.resolve();
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async acquireWriter(
         key: string,
         lockId: string,
@@ -116,12 +115,12 @@ export class MemorySharedLockAdapter
         const sharedLock = this.map.get(key);
         const readerSemaphore = sharedLock?.readerSemaphore ?? null;
         if (readerSemaphore !== null) {
-            return false;
+            return Promise.resolve(false);
         }
         let writerLock = sharedLock?.writerLock ?? null;
 
         if (writerLock !== null) {
-            return writerLock.owner === lockId;
+            return Promise.resolve(writerLock.owner === lockId);
         }
 
         if (ttl === null) {
@@ -149,23 +148,22 @@ export class MemorySharedLockAdapter
             });
         }
 
-        return true;
+        return Promise.resolve(true);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async releaseWriter(key: string, lockId: string): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const readerSemaphore = sharedLock?.readerSemaphore ?? null;
         if (readerSemaphore !== null) {
-            return false;
+            return Promise.resolve(false);
         }
         const writerLock = sharedLock?.writerLock ?? null;
 
         if (writerLock === null) {
-            return false;
+            return Promise.resolve(false);
         }
         if (writerLock.owner !== lockId) {
-            return false;
+            return Promise.resolve(false);
         }
 
         if (writerLock.hasExpiration) {
@@ -173,20 +171,19 @@ export class MemorySharedLockAdapter
         }
         this.map.delete(key);
 
-        return true;
+        return Promise.resolve(true);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async forceReleaseWriter(key: string): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const readerSemaphore = sharedLock?.readerSemaphore ?? null;
         if (readerSemaphore !== null) {
-            return false;
+            return Promise.resolve(false);
         }
         const writerLock = sharedLock?.writerLock ?? null;
 
         if (writerLock === null) {
-            return false;
+            return Promise.resolve(false);
         }
 
         if (writerLock.hasExpiration) {
@@ -195,10 +192,9 @@ export class MemorySharedLockAdapter
 
         this.map.delete(key);
 
-        return true;
+        return Promise.resolve(true);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async refreshWriter(
         key: string,
         lockId: string,
@@ -207,18 +203,18 @@ export class MemorySharedLockAdapter
         const sharedLock = this.map.get(key);
         const readerSemaphore = sharedLock?.readerSemaphore ?? null;
         if (readerSemaphore !== null) {
-            return false;
+            return Promise.resolve(false);
         }
         const writerLock = sharedLock?.writerLock ?? null;
 
         if (writerLock === null) {
-            return false;
+            return Promise.resolve(false);
         }
         if (writerLock.owner !== lockId) {
-            return false;
+            return Promise.resolve(false);
         }
         if (!writerLock.hasExpiration) {
-            return false;
+            return Promise.resolve(false);
         }
 
         clearTimeout(writerLock.timeoutId);
@@ -233,16 +229,15 @@ export class MemorySharedLockAdapter
             },
         });
 
-        return true;
+        return Promise.resolve(true);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async acquireReader(settings: SharedLockAcquireSettings): Promise<boolean> {
         const { key, lockId, limit, ttl } = settings;
         const sharedLock = this.map.get(key);
         const writerLock = sharedLock?.writerLock ?? null;
         if (writerLock !== null) {
-            return false;
+            return Promise.resolve(false);
         }
         let readerSemaphore = sharedLock?.readerSemaphore ?? null;
 
@@ -258,11 +253,11 @@ export class MemorySharedLockAdapter
         }
 
         if (readerSemaphore.slots.size >= readerSemaphore.limit) {
-            return false;
+            return Promise.resolve(false);
         }
 
         if (readerSemaphore.slots.has(lockId)) {
-            return true;
+            return Promise.resolve(true);
         }
 
         if (ttl === null) {
@@ -286,25 +281,24 @@ export class MemorySharedLockAdapter
             writerLock: null,
         });
 
-        return true;
+        return Promise.resolve(true);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async releaseReader(key: string, lockId: string): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const writerLock = sharedLock?.writerLock ?? null;
         if (writerLock !== null) {
-            return false;
+            return Promise.resolve(false);
         }
         const readerSemaphore = sharedLock?.readerSemaphore ?? null;
 
         if (readerSemaphore === null) {
-            return false;
+            return Promise.resolve(false);
         }
 
         const slot = readerSemaphore.slots.get(lockId);
         if (slot === undefined) {
-            return false;
+            return Promise.resolve(false);
         }
 
         if (slot.timeoutId !== null) {
@@ -321,20 +315,19 @@ export class MemorySharedLockAdapter
             this.map.delete(key);
         }
 
-        return true;
+        return Promise.resolve(true);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async forceReleaseAllReaders(key: string): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const writerLock = sharedLock?.writerLock ?? null;
         if (writerLock !== null) {
-            return false;
+            return Promise.resolve(false);
         }
         const readerSemaphore = sharedLock?.readerSemaphore ?? null;
 
         if (readerSemaphore === null) {
-            return false;
+            return Promise.resolve(false);
         }
         const hasSlots = readerSemaphore.slots.size > 0;
         for (const [slotId, { timeoutId }] of readerSemaphore.slots) {
@@ -342,10 +335,9 @@ export class MemorySharedLockAdapter
             readerSemaphore.slots.delete(slotId);
         }
         this.map.delete(key);
-        return hasSlots;
+        return Promise.resolve(hasSlots);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async refreshReader(
         key: string,
         lockId: string,
@@ -354,19 +346,19 @@ export class MemorySharedLockAdapter
         const sharedLock = this.map.get(key);
         const writerLock = sharedLock?.writerLock ?? null;
         if (writerLock !== null) {
-            return false;
+            return Promise.resolve(false);
         }
         const readerSemaphore = sharedLock?.readerSemaphore ?? null;
 
         if (!readerSemaphore) {
-            return false;
+            return Promise.resolve(false);
         }
         const slot = readerSemaphore.slots.get(lockId);
         if (slot === undefined) {
-            return false;
+            return Promise.resolve(false);
         }
         if (slot.timeoutId === null) {
-            return false;
+            return Promise.resolve(false);
         }
 
         clearTimeout(slot.timeoutId);
@@ -387,10 +379,9 @@ export class MemorySharedLockAdapter
             writerLock: null,
         });
 
-        return true;
+        return Promise.resolve(true);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async forceRelease(key: string): Promise<boolean> {
         const [hasReleasedAllReaders, hasReleasedWriter] = await Promise.all([
             this.forceReleaseAllReaders(key),
@@ -399,12 +390,11 @@ export class MemorySharedLockAdapter
         return hasReleasedAllReaders || hasReleasedWriter;
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async getState(key: string): Promise<ISharedLockAdapterState | null> {
         const sharedLock = this.map.get(key);
 
         if (sharedLock === undefined) {
-            return null;
+            return Promise.resolve(null);
         }
 
         const { writerLock, readerSemaphore } = sharedLock;
@@ -414,14 +404,14 @@ export class MemorySharedLockAdapter
             readerSemaphore !== null &&
             readerSemaphore.slots.size === 0
         ) {
-            return null;
+            return Promise.resolve(null);
         }
         if (
             writerLock === null &&
             readerSemaphore !== null &&
             readerSemaphore.slots.size !== 0
         ) {
-            return {
+            return Promise.resolve({
                 writer: null,
                 reader: {
                     limit: readerSemaphore.limit,
@@ -431,7 +421,7 @@ export class MemorySharedLockAdapter
                         ),
                     ),
                 },
-            };
+            });
         }
 
         if (
@@ -439,13 +429,13 @@ export class MemorySharedLockAdapter
             writerLock !== null &&
             !writerLock.hasExpiration
         ) {
-            return {
+            return Promise.resolve({
                 reader: null,
                 writer: {
                     owner: writerLock.owner,
                     expiration: null,
                 },
-            };
+            });
         }
         if (
             readerSemaphore === null &&
@@ -453,20 +443,20 @@ export class MemorySharedLockAdapter
             writerLock.hasExpiration &&
             writerLock.expiration <= new Date()
         ) {
-            return null;
+            return Promise.resolve(null);
         }
         if (
             readerSemaphore === null &&
             writerLock !== null &&
             writerLock.hasExpiration
         ) {
-            return {
+            return Promise.resolve({
                 reader: null,
                 writer: {
                     owner: writerLock.owner,
                     expiration: writerLock.expiration,
                 },
-            };
+            });
         }
 
         throw new UnexpectedError(

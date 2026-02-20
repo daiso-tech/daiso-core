@@ -55,7 +55,6 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     /**
      * Removes all in-memory lock data.
      */
-    // eslint-disable-next-line @typescript-eslint/require-await
     async deInit(): Promise<void> {
         for (const [key, lockData] of this.map) {
             if (lockData.hasExpiration) {
@@ -63,9 +62,9 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
             }
             this.map.delete(key);
         }
+        return Promise.resolve();
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async acquire(
         key: string,
         lockId: string,
@@ -73,7 +72,7 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     ): Promise<boolean> {
         let lock = this.map.get(key);
         if (lock !== undefined) {
-            return lock.owner === lockId;
+            return Promise.resolve(lock.owner === lockId);
         }
 
         if (ttl === null) {
@@ -95,17 +94,16 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
             this.map.set(key, lock);
         }
 
-        return true;
+        return Promise.resolve(true);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async release(key: string, lockId: string): Promise<boolean> {
         const lock = this.map.get(key);
         if (lock === undefined) {
-            return false;
+            return Promise.resolve(false);
         }
         if (lock.owner !== lockId) {
-            return false;
+            return Promise.resolve(false);
         }
 
         if (lock.hasExpiration) {
@@ -113,15 +111,14 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
         }
         this.map.delete(key);
 
-        return true;
+        return Promise.resolve(true);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async forceRelease(key: string): Promise<boolean> {
         const lock = this.map.get(key);
 
         if (lock === undefined) {
-            return false;
+            return Promise.resolve(false);
         }
 
         if (lock.hasExpiration) {
@@ -130,10 +127,9 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
 
         this.map.delete(key);
 
-        return true;
+        return Promise.resolve(true);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async refresh(
         key: string,
         lockId: string,
@@ -141,13 +137,13 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     ): Promise<boolean> {
         const lock = this.map.get(key);
         if (lock === undefined) {
-            return false;
+            return Promise.resolve(false);
         }
         if (lock.owner !== lockId) {
-            return false;
+            return Promise.resolve(false);
         }
         if (!lock.hasExpiration) {
-            return false;
+            return Promise.resolve(false);
         }
 
         clearTimeout(lock.timeoutId);
@@ -159,27 +155,26 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
             timeoutId,
         });
 
-        return true;
+        return Promise.resolve(true);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async getState(key: string): Promise<ILockAdapterState | null> {
         const lockData = this.map.get(key);
         if (lockData === undefined) {
-            return null;
+            return Promise.resolve(null);
         }
         if (!lockData.hasExpiration) {
-            return {
+            return Promise.resolve({
                 owner: lockData.owner,
                 expiration: null,
-            };
+            });
         }
         if (lockData.expiration <= new Date()) {
-            return null;
+            return Promise.resolve(null);
         }
-        return {
+        return Promise.resolve({
             owner: lockData.owner,
             expiration: lockData.expiration,
-        };
+        });
     }
 }

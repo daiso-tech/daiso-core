@@ -39,13 +39,13 @@ export class MemoryRateLimiterStorageAdapter<TType>
         private readonly map = new Map<string, MemoryRateLimiterData<TType>>(),
     ) {}
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async deInit(): Promise<void> {
+    deInit(): Promise<void> {
         for (const [key, { timeoutId }] of this.map) {
             clearTimeout(timeoutId);
             this.map.delete(key);
         }
         this.map.clear();
+        return Promise.resolve();
     }
 
     async transaction<TValue>(
@@ -55,8 +55,7 @@ export class MemoryRateLimiterStorageAdapter<TType>
         >,
     ): Promise<TValue> {
         return await fn({
-            // eslint-disable-next-line @typescript-eslint/require-await
-            upsert: async (
+            upsert: (
                 key: string,
                 state: TType,
                 expiration: Date,
@@ -70,6 +69,7 @@ export class MemoryRateLimiterStorageAdapter<TType>
                     expiration,
                     timeoutId,
                 });
+                return Promise.resolve();
             },
             find: (key: string): Promise<IRateLimiterData<TType> | null> => {
                 return this.find(key);
@@ -77,25 +77,24 @@ export class MemoryRateLimiterStorageAdapter<TType>
         });
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async find(key: string): Promise<IRateLimiterData<TType> | null> {
+    find(key: string): Promise<IRateLimiterData<TType> | null> {
         const data = this.map.get(key);
         if (data === undefined) {
-            return null;
+            return Promise.resolve(null);
         }
-        return {
+        return Promise.resolve({
             state: data.state,
             expiration: data.expiration,
-        };
+        });
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async remove(key: string): Promise<void> {
+    remove(key: string): Promise<void> {
         const data = this.map.get(key);
         if (data === undefined) {
-            return;
+            return Promise.resolve();
         }
         clearTimeout(data.timeoutId);
         this.map.delete(key);
+        return Promise.resolve();
     }
 }
