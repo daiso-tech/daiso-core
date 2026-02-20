@@ -2,6 +2,8 @@
  * @module Serde
  */
 
+import { Buffer } from "node:buffer";
+
 import { type TestAPI, type ExpectStatic, beforeEach, vi } from "vitest";
 
 import {
