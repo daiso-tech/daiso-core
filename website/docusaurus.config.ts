@@ -20,7 +20,7 @@ const config: Config = {
     favicon: "img/favicon.ico",
 
     // Set the production url of your site here
-    url: "https://daiso-core.vercel.app/",
+    url: "https://www.daiso-tech.dev/",
 
     // Set the /<baseUrl>/ pathname under which your site is served
     // For GitHub pages deployment, it is often '/<projectName>/'
@@ -138,7 +138,7 @@ const config: Config = {
                     position: "left",
                 },
                 {
-                    href: "https://github.com/daiso-tech/daiso-core/daiso-core/",
+                    href: "https://github.com/daiso-tech/daiso-core/",
                     label: "GitHub",
                     position: "right",
                 },
