@@ -5,12 +5,13 @@
 import {
     type ICircuitBreakerStorageAdapter,
     type ICircuitBreakerStorageAdapterTransaction,
-} from "@/circuit-breaker/contracts/circuit-breaker-storage-adapter.contract.js";
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ICircuitBreakerProvider,
+} from "@/circuit-breaker/contracts/_module.js";
 import { type IDeinitizable, type InvokableFn } from "@/utilities/_module.js";
 
 /**
- * Note the `MemoryCircuitBreakerStorageAdapter` is limited to single process usage and cannot be shared across multiple servers or different processes.
- * This adapter is meant for testing.
+ * This `MemoryCircuitBreakerStorageAdapter` is used for easily facking {@link ICircuitBreakerProvider | `ICircuitBreakerProvider`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter"`
  * @group Adapters

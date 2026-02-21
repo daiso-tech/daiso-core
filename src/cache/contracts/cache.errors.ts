@@ -30,7 +30,7 @@ export class KeyNotFoundCacheError extends Error {
 }
 
 /**
- * The error is thrown when a key is not found
+ * The error is thrown when a key already exists found
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Errors

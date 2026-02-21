@@ -11,7 +11,7 @@ import {
     type WritableFileAdapterContent,
     type WritableFileAdapterStream,
     type FildeAdapterSignedUrlSettings,
-} from "@/file-storage/contracts/file-storage-adapter.contract.js";
+} from "@/file-storage/contracts/_module.js";
 
 /**
  * This `NoOpFileStorageAdapter` will do nothing and is used for easily mocking {@link ISignedFileStorageAdapter | `ISignedFileStorageAdapter`} for testing.

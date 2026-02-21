@@ -8,10 +8,12 @@ import {
     type BaseEvent,
     type EventListenerFn,
     type IEventBusAdapter,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type IEventBus,
 } from "@/event-bus/contracts/_module.js";
 
 /**
- * To utilize the `MemoryEventBusAdapter`, you must create instance of it.
+ * This `MemoryEventBusAdapter` is used for easily facking {@link IEventBus | `IEventBus`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/memory-event-bus"`
  * @group Adapters

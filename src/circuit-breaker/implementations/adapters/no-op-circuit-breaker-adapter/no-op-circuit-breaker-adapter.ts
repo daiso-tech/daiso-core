@@ -4,12 +4,16 @@
 
 import {
     CIRCUIT_BREAKER_STATE,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ICircuitBreakerProvider,
     type CircuitBreakerState,
     type CircuitBreakerStateTransition,
     type ICircuitBreakerAdapter,
 } from "@/circuit-breaker/contracts/_module.js";
 
 /**
+ * This `NoOpCircuitBreakerAdapter` will do nothing and is used for easily mocking {@link ICircuitBreakerProvider | `ICircuitBreakerProvider`} for testing.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/no-op-circuit-breaker-adapter"`
  * @group Adapters
  */

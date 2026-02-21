@@ -2,11 +2,15 @@
  * @module Cache
  */
 
-import { type ICacheAdapter } from "@/cache/contracts/_module.js";
+import {
+    type ICacheAdapter,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ICache,
+} from "@/cache/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- * To utilize the `MemoryCacheAdapter`, you must create instance of it.
+ * This `MemoryCacheAdapter` is used for easily facking {@link ICache | `ICache`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache/memory-cache-adapter"`
  * @group Adapters

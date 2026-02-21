@@ -7,6 +7,8 @@ import { Buffer } from "node:buffer";
 import etag from "etag";
 
 import {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type IFileStorage,
     type IFileStorageAdapter,
     type FileAdapterMetadata,
     type FileAdapterStream,
@@ -14,8 +16,7 @@ import {
     type WritableFileAdapterContent,
     type WritableFileAdapterStream,
     FILE_WRITE_ENUM,
-} from "@/file-storage/contracts/file-storage-adapter.contract.js";
-import { ResolveFileStream } from "@/file-storage/implementations/derivables/file-storage/resolve-file-stream.js";
+} from "@/file-storage/contracts/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/memory-file-storage-adapter"`
@@ -32,6 +33,8 @@ export type MemoryFile = {
 };
 
 /**
+ * This `MemoryFileStorageAdapter` is used for easily facking {@link IFileStorage | `IFileStorage`} for testing.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/memory-file-storage-adapter"`
  * @group Adapters
  */
@@ -101,7 +104,7 @@ export class MemoryFileStorageAdapter implements IFileStorageAdapter {
             return Promise.resolve(false);
         }
         let totalData = Buffer.from([]);
-        for await (const chunk of new ResolveFileStream(stream.data)) {
+        for await (const chunk of stream.data) {
             totalData = Buffer.concat([totalData, chunk]);
         }
         this.map.set(key, {
@@ -143,7 +146,7 @@ export class MemoryFileStorageAdapter implements IFileStorageAdapter {
             return Promise.resolve(false);
         }
         let totalData = Buffer.from([]);
-        for await (const chunk of new ResolveFileStream(stream.data)) {
+        for await (const chunk of stream.data) {
             totalData = Buffer.concat([totalData, chunk]);
         }
         file = {
@@ -178,7 +181,7 @@ export class MemoryFileStorageAdapter implements IFileStorageAdapter {
         stream: WritableFileAdapterStream,
     ): Promise<boolean> {
         let totalData = Buffer.from([]);
-        for await (const chunk of new ResolveFileStream(stream.data)) {
+        for await (const chunk of stream.data) {
             totalData = Buffer.concat([totalData, chunk]);
         }
         const exists = this.map.has(key);

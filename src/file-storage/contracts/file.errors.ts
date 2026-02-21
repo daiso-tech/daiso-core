@@ -5,6 +5,8 @@
 import { type IKey } from "@/namespace/contracts/_module.js";
 
 /**
+ * The error is thrown when a file key is not found
+ *
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
  * @group Errors
  */
@@ -28,6 +30,8 @@ export class KeyNotFoundFileError extends Error {
 }
 
 /**
+ * The error is thrown when a file key already exists found
+ *
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
  * @group Errors
  */
@@ -51,6 +55,8 @@ export class KeyExistsFileError extends Error {
 }
 
 /**
+ * The error is thrown when file key is invalid.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
  * @group Errors
  */

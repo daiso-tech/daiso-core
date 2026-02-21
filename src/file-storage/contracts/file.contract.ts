@@ -21,6 +21,8 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
  */
 export type FildeSignedUrlOptions = {
     /**
+     * The ttl of signed url.
+     *
      * @default
      * ```ts
      * import { TimeSpan } from "@daiso-tech/time-span"
@@ -31,7 +33,7 @@ export type FildeSignedUrlOptions = {
     ttl?: ITimeSpan;
 
     /**
-     * The content type will be infered when creating the IFile object.
+     * The content type will be infered by key.
      */
     contentType?: string | null;
 
@@ -132,7 +134,9 @@ export type IReadableFile = {
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
  * @group Contracts
  */
-export type ArrayBufferLikeable = { buffer: ArrayBufferLike };
+export type ArrayBufferLikeable = {
+    buffer: ArrayBufferLike;
+};
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`

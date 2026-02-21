@@ -3,6 +3,8 @@
  */
 
 import {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ISharedLockProvider,
     type ISharedLockAdapter,
     type ISharedLockAdapterState,
     type SharedLockAcquireSettings,
@@ -55,7 +57,7 @@ export type MemorySharedLockData = {
 
 /**
  * Note the `MemorySharedLockAdapter` is limited to single process usage and cannot be shared across multiple servers or different processes.
- * This adapter is meant for testing.
+ * This adapter is meant for easily facking {@link ISharedLockProvider | `ISharedLockProvider`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/memory-shared-lock-adapter"`
  * @group Adapters
