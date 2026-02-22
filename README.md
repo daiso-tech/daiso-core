@@ -8,7 +8,7 @@
 
 `@daiso-tech/core` is a **TypeScript-first backend toolkit** designed for building resilient web applications and API servers. It provides a suite of decoupled, high-performance components that work seamlessly across any JavaScript runtime.
 
-[**Explore the Docs**](https://daiso-core.vercel.app/docs/installation) | [**NPM Package**](https://www.npmjs.com/package/@daiso-tech/core)
+[**Explore the Docs**](http://daiso-tech.dev/docs/installation) | [**NPM Package**](https://www.npmjs.com/package/@daiso-tech/core)
 
 ---
 
