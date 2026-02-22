@@ -148,6 +148,14 @@
             "types": "./dist/collection/contracts/_module-exports.d.ts",
             "import": "./dist/collection/contracts/_module-exports.js"
         },
+        "./context": {
+            "types": "./dist/context/implementations/_module-exports.d.ts",
+            "import": "./dist/context/implementations/_module-exports.js"
+        },
+        "./context/contracts": {
+            "types": "./dist/context/contracts/_module-exports.d.ts",
+            "import": "./dist/context/contracts/_module-exports.js"
+        },
         "./event-bus": {
             "types": "./dist/event-bus/implementations/derivables/_module-exports.d.ts",
             "import": "./dist/event-bus/implementations/derivables/_module-exports.js"
