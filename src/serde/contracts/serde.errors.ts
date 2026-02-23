@@ -9,7 +9,7 @@
  * @group Errors
  */
 export class SerializationSerdeError extends Error {
-    static create(error: unknown): DeserializationSerdeError {
+    static create(error: unknown): SerializationSerdeError {
         return new SerializationSerdeError(
             `Serialization error "${String(error)}" occured`,
             error,

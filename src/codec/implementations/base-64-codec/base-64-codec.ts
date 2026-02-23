@@ -1,4 +1,8 @@
-import { type ICodec } from "@/codec/contracts/_module.js";
+import {
+    type ICodec,
+    EncodingError,
+    DecodingError,
+} from "@/codec/contracts/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/codec/base-64-codec"`
@@ -6,10 +10,18 @@ import { type ICodec } from "@/codec/contracts/_module.js";
  */
 export class Base64Codec implements ICodec<string, string> {
     encode(decodedValue: string): string {
-        return btoa(decodedValue);
+        try {
+            return btoa(decodedValue);
+        } catch (error: unknown) {
+            throw EncodingError.create(error);
+        }
     }
 
     decode(encodedValue: string): string {
-        return atob(encodedValue);
+        try {
+            return atob(encodedValue);
+        } catch (error: unknown) {
+            throw DecodingError.create(error);
+        }
     }
 }
