@@ -64,12 +64,12 @@ export type S3FileStorageAdapterSettings = {
     /**
      * @default true
      */
-    enableAccuratePut: boolean;
+    enableAccuratePut?: boolean;
 
     /**
      * @default true
      */
-    enableAccurateDownload: boolean;
+    enableAccurateDownload?: boolean;
 
     /**
      * @default

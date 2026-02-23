@@ -10,6 +10,7 @@ import {
 } from "vitest";
 
 import { type IFileStorage } from "@/file-storage/contracts/_module.js";
+import { type ISerde } from "@/serde/contracts/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
@@ -21,7 +22,10 @@ export type FileStorageTestSuiteSettings = {
     test: TestAPI;
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
-    createFileStorage: () => Promisable<IFileStorage>;
+    createFileStorage: () => Promisable<{
+        fileStorage: IFileStorage;
+        serde: ISerde;
+    }>;
     /**
      * @default false
      */

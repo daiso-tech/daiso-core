@@ -17,6 +17,7 @@ import {
     type WritableFileAdapterStream,
     FILE_WRITE_ENUM,
 } from "@/file-storage/contracts/_module.js";
+import { type IDeinitizable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/memory-file-storage-adapter"`
@@ -38,8 +39,15 @@ export type MemoryFile = {
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/memory-file-storage-adapter"`
  * @group Adapters
  */
-export class MemoryFileStorageAdapter implements IFileStorageAdapter {
+export class MemoryFileStorageAdapter
+    implements IFileStorageAdapter, IDeinitizable
+{
     constructor(private readonly map = new Map<string, MemoryFile>()) {}
+
+    deInit(): Promise<void> {
+        this.map.clear();
+        return Promise.resolve();
+    }
 
     exists(key: string): Promise<boolean> {
         return Promise.resolve(this.map.has(key));

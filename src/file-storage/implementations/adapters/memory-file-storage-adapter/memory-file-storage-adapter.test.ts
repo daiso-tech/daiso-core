@@ -6,7 +6,7 @@ import {
 } from "@/file-storage/implementations/adapters/memory-file-storage-adapter/_module.js";
 import { fileStorageAdapterTestSuite } from "@/file-storage/implementations/test-utilities/file-storage-adapter.test-suite.js";
 
-describe("class: SignedFileStorageAdapter", () => {
+describe("class: MemoryFileStorageAdapter", () => {
     let map = new Map<string, MemoryFile>();
     let adapter: MemoryFileStorageAdapter;
     beforeEach(() => {
@@ -22,17 +22,5 @@ describe("class: SignedFileStorageAdapter", () => {
         beforeEach,
         expect,
         describe,
-    });
-    describe("method: getPublicUrl", () => {
-        test.todo("Write tests!!!");
-    });
-    describe("method: getSignedDownloadUrl", () => {
-        test.todo("Write tests!!!");
-    });
-    describe("method: getSignedUploadUrl", () => {
-        test.todo("Write tests!!!");
-    });
-    describe("method: deInit", () => {
-        test.todo("Should clear map");
     });
 });
