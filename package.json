@@ -5,7 +5,7 @@
     "author": "Yousif Abdulkarim",
     "license": "Apache-2.0",
     "type": "module",
-    "homepage": "http://daiso-core.vercel.app/",
+    "homepage": "http://daiso-tech.dev/",
     "description": "The library offers flexible, framework-agnostic solutions for modern web applications, built on adaptable components that integrate seamlessly with popular frameworks like Next Js.",
     "repository": {
         "type": "git",
