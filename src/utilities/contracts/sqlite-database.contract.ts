@@ -3,7 +3,6 @@
  */
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  * @group Contracts
  */
@@ -18,7 +17,6 @@ export type ISqliteStatement = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  * @group Contracts
  */

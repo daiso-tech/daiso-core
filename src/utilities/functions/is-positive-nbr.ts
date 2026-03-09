@@ -3,7 +3,6 @@
  */
 
 /**
- *
  * @internal
  */
 export function isPositiveNbr(nbr: number, fieldName: string = "Number"): void {

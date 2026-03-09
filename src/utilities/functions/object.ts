@@ -6,7 +6,6 @@
  * @internal
  */
 export function objectSize(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     object: Record<string | number | symbol, any>,
 ): number {
     let size = 0;
@@ -23,7 +22,6 @@ export function objectSize(
  * @internal
  */
 export function isObjectEmpty(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     object: Record<string | number | symbol, any>,
 ): boolean {
     return objectSize(object) === 0;

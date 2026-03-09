@@ -29,7 +29,6 @@ export class UnregisteredAdapterError extends Error {
 }
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  * @group Errors
  */

@@ -5,7 +5,6 @@
 import { isIterable } from "@/utilities/functions/is-iterable.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  */
 export type OneOrMore<TItem> = TItem | Iterable<TItem>;

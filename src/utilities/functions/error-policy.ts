@@ -17,7 +17,6 @@ import {
 import { type AnyClass } from "@/utilities/types/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  * @group Utilities
  */
@@ -56,7 +55,6 @@ export type ErrorPolicy<TError = unknown> =
     | ErrorPolicyBoolSetting;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  * @group Utilities
  */
