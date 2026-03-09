@@ -38,7 +38,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/test-utilities"`
  * @group Utilities
  */
@@ -119,7 +118,7 @@ export function semaphoreProviderTestSuite(
     }
 
     const RETURN_VALUE = "RETURN_VALUE";
-    describe("Reusable tests:", () => {
+    describe("ISemaphoreProvider tests:", () => {
         beforeEach(async () => {
             const { semaphoreProvider: semaphoreProvider_, serde: serde_ } =
                 await createSemaphoreProvider();

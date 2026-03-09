@@ -72,7 +72,6 @@ export type LimitReachedSemaphoreEvent = SemaphoreEventBase;
 export type RefreshedSemaphoreEvent = SemaphoreEventBase;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Events
  */
@@ -81,7 +80,6 @@ export type UnexpectedErrorSemaphoreEvent = SemaphoreEventBase & {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Events
  */
@@ -97,7 +95,6 @@ export const SEMAPHORE_EVENTS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Events
  */

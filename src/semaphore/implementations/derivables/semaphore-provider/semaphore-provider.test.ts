@@ -74,7 +74,7 @@ describe("class: SemaphoreProvider", () => {
             const result = await deserializedSemaphore2.acquire();
             expect(result).toBe(true);
         });
-        test("Should differentiate between different adapters and the same namespace", async () => {
+        test("Should differentiate between different adapters that have same namespace", async () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
             const lockNamespace = new Namespace("@lock");
             const eventNamespace = new Namespace("@event-bus/semaphore");

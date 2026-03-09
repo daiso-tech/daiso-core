@@ -18,7 +18,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/test-utilities"`
  * @group Utilities
  */
@@ -80,7 +79,7 @@ export function databaseSemaphoreAdapterTestSuite(
 ): void {
     const { expect, test, createAdapter, describe, beforeEach } = settings;
     let adapter: IDatabaseSemaphoreAdapter;
-    describe("Reusable tests:", () => {
+    describe("IDatabaseSemaphoreAdapter tests:", () => {
         beforeEach(async () => {
             adapter = await createAdapter();
         });

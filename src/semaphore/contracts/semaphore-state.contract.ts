@@ -5,7 +5,6 @@
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
@@ -17,7 +16,6 @@ export const SEMAPHORE_STATE = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
@@ -25,7 +23,6 @@ export type SemaphoreStateLiterals =
     (typeof SEMAPHORE_STATE)[keyof typeof SEMAPHORE_STATE];
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
@@ -34,7 +31,6 @@ export type ISemaphoreExpiredState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
@@ -47,7 +43,6 @@ export type ISemaphoreUnacquiredState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
@@ -61,7 +56,6 @@ export type ISemaphoreAcquiredState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
@@ -72,7 +66,6 @@ export type ISemaphoreLimitReachedState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
