@@ -6,7 +6,6 @@ import { type ISerde } from "@/serde/contracts/serde.contract.js";
 import { type OneOrMore } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
  * @group Contracts
  */
@@ -38,7 +37,6 @@ export type ISerializable<TSerializedValue extends SerializedValueBase> = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
  * @group Contracts
  */

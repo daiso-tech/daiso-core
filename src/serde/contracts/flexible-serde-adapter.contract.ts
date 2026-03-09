@@ -5,7 +5,6 @@
 import { type ISerde } from "@/serde/contracts/serde.contract.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
  * @group Contracts
  */

@@ -9,7 +9,7 @@
  * @group Errors
  */
 export class SerializationSerdeError extends Error {
-    static create(error: unknown): DeserializationSerdeError {
+    static create(error: unknown): SerializationSerdeError {
         return new SerializationSerdeError(
             `Serialization error "${String(error)}" occured`,
             error,
@@ -53,7 +53,6 @@ export class DeserializationSerdeError extends Error {
 }
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
  * @group Errors
  */
@@ -63,7 +62,6 @@ export const SERDE_ERRORS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
  * @group Errors
  */
@@ -72,7 +70,6 @@ export type AllSerdeErrors =
     | DeserializationSerdeError;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
  * @group Errors
  */
