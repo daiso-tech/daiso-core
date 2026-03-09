@@ -325,7 +325,7 @@ const noOpSharedLockAdapter = new NoOpSharedLockAdapter();
 ```
 
 :::info
-The `NoOpSharedLockAdapter` is useful when you want to mock out or disable your `SharedLockProvider` instance.
+The `NoOpSharedLockAdapter` is useful when you want to mock out or disable your [`SharedLockProvider`](https://daiso-tech.github.io/daiso-core/classes/SharedLock.SharedLockProvider.html) instance.
 :::
 
 ## Further information
