@@ -29,7 +29,6 @@ import { type ISerializable } from "@/serde/contracts/_module.js";
 import { type IterableValue, type Lazyable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  * @group Contracts
  */
@@ -41,7 +40,6 @@ export type Collapse<TValue> = TValue extends
     : TValue;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  * @group Contracts
  */

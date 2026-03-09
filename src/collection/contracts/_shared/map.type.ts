@@ -5,7 +5,6 @@
 import { type Invokable, type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
 export type Map<TInput, TCollection, TOutput> = Invokable<
@@ -14,7 +13,6 @@ export type Map<TInput, TCollection, TOutput> = Invokable<
 >;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
 export type AsyncMap<TInput, TCollection, TOutput> = Invokable<

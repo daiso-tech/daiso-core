@@ -5,7 +5,6 @@
 import { type Invokable, type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
 export type PredicateFn<TInput, TCollection> = Invokable<
@@ -14,7 +13,6 @@ export type PredicateFn<TInput, TCollection> = Invokable<
 >;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
 export type PredicateGuardFn<
@@ -24,7 +22,6 @@ export type PredicateGuardFn<
 > = (item: TInput, index: number, collection: TCollection) => item is TOutput;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
 export type PredicateGuardInvokableObject<
@@ -40,7 +37,6 @@ export type PredicateGuardInvokableObject<
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
 export type PredicateGuardInvokable<
@@ -52,7 +48,6 @@ export type PredicateGuardInvokable<
     | PredicateGuardInvokableObject<TInput, TCollection, TOutput>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
 export type PredicateInvokable<
@@ -64,7 +59,6 @@ export type PredicateInvokable<
     | PredicateGuardInvokable<TInput, TCollection, TOutput>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
 export type AsyncPredicateInvokable<TInput, TCollection> = Invokable<
@@ -73,7 +67,6 @@ export type AsyncPredicateInvokable<TInput, TCollection> = Invokable<
 >;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
 export type AsyncPredicate<

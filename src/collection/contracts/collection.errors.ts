@@ -75,7 +75,6 @@ export class EmptyCollectionError extends Error {
 }
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  * @group Errors
  */
