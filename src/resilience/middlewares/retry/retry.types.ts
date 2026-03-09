@@ -11,7 +11,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -25,7 +24,6 @@ export type OnRetryAttemptData<
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -35,7 +33,6 @@ export type OnExecutionAttempt<
 > = Invokable<[data: OnRetryAttemptData<TParameters, TContext>]>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -51,7 +48,6 @@ export type OnRetryDelayData<
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -61,7 +57,6 @@ export type OnRetryDelay<
 > = Invokable<[data: OnRetryDelayData<TParameters, TContext>]>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -81,7 +76,6 @@ export type RetryCallbacks<
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */

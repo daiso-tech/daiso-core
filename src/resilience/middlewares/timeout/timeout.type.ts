@@ -8,7 +8,6 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Invokable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -22,7 +21,6 @@ export type OnTimeoutData<
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -32,7 +30,6 @@ export type OnTimeout<
 > = Invokable<[data: OnTimeoutData<TParameters, TContext>]>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -47,7 +44,6 @@ export type TimeoutCallbacks<
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */

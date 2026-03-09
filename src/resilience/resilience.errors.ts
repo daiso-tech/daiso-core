@@ -3,7 +3,6 @@
  */
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Errors
  */
@@ -15,7 +14,6 @@ export class TimeoutResilienceError extends Error {
 }
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Errors
  */
@@ -27,7 +25,6 @@ export class RetryResilienceError extends AggregateError {
 }
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Errors
  */
@@ -37,14 +34,12 @@ export const RESILIENCE_ERRORS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Errors
  */
 export type AllResilienceErrors = RetryResilienceError | TimeoutResilienceError;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Errors
  */
