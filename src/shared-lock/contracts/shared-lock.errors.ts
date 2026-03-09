@@ -91,7 +91,6 @@ export class FailedReleaseReaderSemaphoreError extends Error {
 }
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
  */
@@ -102,7 +101,6 @@ export const READER_SEMAPHORE_ERRORS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
  */
@@ -112,7 +110,6 @@ export type AllReaderSemaphoreErrors =
     | FailedReleaseReaderSemaphoreError;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
  */
@@ -211,7 +208,6 @@ export class FailedRefreshWriterLockError extends Error {
 }
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
  */
@@ -222,7 +218,6 @@ export const WRITER_LOCK_ERRORS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
  */
@@ -232,7 +227,6 @@ export type AllWriterLockErrors =
     | FailedRefreshWriterLockError;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
  */
@@ -248,7 +242,6 @@ export function isWriterLockError(
 }
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
  */
@@ -258,7 +251,6 @@ export const SHARED_LOCK_ERRORS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
  */
@@ -267,7 +259,6 @@ export type AllSharedLockErrors =
     | AllReaderSemaphoreErrors;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
  */

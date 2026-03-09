@@ -2,7 +2,7 @@
  * @module SharedLock
  */
 
-import { type IEventDispatcher } from "@/event-bus/contracts/event-bus.contract.js";
+import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
 import { type AsyncMiddlewareFn } from "@/hooks/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import {
@@ -15,7 +15,6 @@ import {
     LimitReachedReaderSemaphoreError,
     SHARED_LOCK_EVENTS,
     SHARED_LOCK_STATE,
-    type IDatabaseSharedLockAdapter,
     type ISharedLock,
     type ISharedLockAdapter,
     type ISharedLockExpiredState,
@@ -25,6 +24,7 @@ import {
     type ISharedLockState,
     type ISharedLockWriterAcquiredState,
     type ISharedLockWriterUnavailableState,
+    type SharedLockAdapterVariants,
     type SharedLockAquireBlockingSettings,
     type SharedLockEventMap,
 } from "@/shared-lock/contracts/_module.js";
@@ -56,7 +56,7 @@ export type SharedLockSettings = {
     serdeTransformerName: string;
     namespace: INamespace;
     adapter: ISharedLockAdapter;
-    originalAdapter: IDatabaseSharedLockAdapter | ISharedLockAdapter;
+    originalAdapter: SharedLockAdapterVariants;
     eventDispatcher: IEventDispatcher<SharedLockEventMap>;
     limit: number;
     key: IKey;
@@ -88,9 +88,7 @@ export class SharedLock implements ISharedLock {
 
     private readonly namespace: INamespace;
     private readonly adapter: ISharedLockAdapter;
-    private readonly originalAdapter:
-        | IDatabaseSharedLockAdapter
-        | ISharedLockAdapter;
+    private readonly originalAdapter: SharedLockAdapterVariants;
     private readonly eventDispatcher: IEventDispatcher<SharedLockEventMap>;
     private readonly _key: IKey;
     private readonly lockId: string;
@@ -138,7 +136,7 @@ export class SharedLock implements ISharedLock {
         return this.serdeTransformerName;
     }
 
-    _internal_getAdapter(): IDatabaseSharedLockAdapter | ISharedLockAdapter {
+    _internal_getAdapter(): SharedLockAdapterVariants {
         return this.originalAdapter;
     }
 
@@ -220,7 +218,7 @@ export class SharedLock implements ISharedLock {
     acquireReader(): ITask<boolean> {
         return new Task(async () => {
             return await this.adapter.acquireReader({
-                key: this._key.get(),
+                key: this._key.toString(),
                 lockId: this.lockId,
                 limit: this.limit,
                 ttl: this._ttl,
@@ -288,7 +286,7 @@ export class SharedLock implements ISharedLock {
     releaseReader(): ITask<boolean> {
         return new Task(async () => {
             return await this.adapter.releaseReader(
-                this._key.get(),
+                this._key.toString(),
                 this.lockId,
             );
         }).pipe([
@@ -324,7 +322,9 @@ export class SharedLock implements ISharedLock {
 
     forceReleaseAllReaders(): ITask<boolean> {
         return new Task(async () => {
-            return await this.adapter.forceReleaseAllReaders(this._key.get());
+            return await this.adapter.forceReleaseAllReaders(
+                this._key.toString(),
+            );
         }).pipe([
             this.handleUnexpectedError(),
             async (args, next) => {
@@ -343,7 +343,7 @@ export class SharedLock implements ISharedLock {
     refreshReader(ttl: ITimeSpan = this.defaultRefreshTime): ITask<boolean> {
         return new Task(async () => {
             return await this.adapter.refreshReader(
-                this._key.get(),
+                this._key.toString(),
                 this.lockId,
                 TimeSpan.fromTimeSpan(ttl),
             );
@@ -412,7 +412,7 @@ export class SharedLock implements ISharedLock {
     acquireWriter(): ITask<boolean> {
         return new Task(async () => {
             return await this.adapter.acquireWriter(
-                this._key.get(),
+                this._key.toString(),
                 this.lockId,
                 this._ttl,
             );
@@ -479,7 +479,7 @@ export class SharedLock implements ISharedLock {
     releaseWriter(): ITask<boolean> {
         return new Task(async () => {
             return await this.adapter.releaseWriter(
-                this._key.get(),
+                this._key.toString(),
                 this.lockId,
             );
         }).pipe([
@@ -515,7 +515,7 @@ export class SharedLock implements ISharedLock {
 
     forceReleaseWriter(): ITask<boolean> {
         return new Task(async () => {
-            return await this.adapter.forceReleaseWriter(this._key.get());
+            return await this.adapter.forceReleaseWriter(this._key.toString());
         }).pipe([
             this.handleUnexpectedError(),
             async (args, next) => {
@@ -534,7 +534,7 @@ export class SharedLock implements ISharedLock {
     refreshWriter(ttl: ITimeSpan = this.defaultRefreshTime): ITask<boolean> {
         return new Task(async () => {
             return await this.adapter.refreshWriter(
-                this._key.get(),
+                this._key.toString(),
                 this.lockId,
                 TimeSpan.fromTimeSpan(ttl),
             );
@@ -576,8 +576,8 @@ export class SharedLock implements ISharedLock {
         });
     }
 
-    get key(): string {
-        return this._key.toString();
+    get key(): IKey {
+        return this._key;
     }
 
     get id(): string {
@@ -590,13 +590,13 @@ export class SharedLock implements ISharedLock {
 
     forceRelease(): ITask<boolean> {
         return new Task(async () => {
-            return await this.adapter.forceRelease(this._key.get());
+            return await this.adapter.forceRelease(this._key.toString());
         }).pipe([this.handleUnexpectedError()]);
     }
 
     getState(): ITask<ISharedLockState> {
         return new Task<ISharedLockState>(async () => {
-            const state = await this.adapter.getState(this._key.get());
+            const state = await this.adapter.getState(this._key.toString());
             if (state === null) {
                 return {
                     type: SHARED_LOCK_STATE.EXPIRED,

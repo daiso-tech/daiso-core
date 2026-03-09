@@ -5,7 +5,6 @@
 import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -18,7 +17,6 @@ export type IWriterLockExpirationData = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -58,7 +56,6 @@ export type IReaderSemaphoreData = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */

@@ -75,7 +75,6 @@ export type UnavailableSharedLockEvent = LockEventBase;
 export type RefreshedWriterLockEvent = LockEventBase;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
  */
@@ -89,7 +88,6 @@ export const WRITER_LOCK_EVENTS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
  */
@@ -155,7 +153,6 @@ export type FailedReleaseReaderSemaphoreEvent = LockEventBase;
 export type RefreshedReaderSemaphoreEvent = LockEventBase;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
  */
@@ -171,7 +168,6 @@ export const READER_SEMAPHORE_EVENTS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
  */
@@ -185,7 +181,6 @@ export type ReaderSemaphoreEventMap = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
  */
@@ -194,7 +189,6 @@ export type UnexpectedErrorSharedLockEvent = LockEventBase & {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
  */
@@ -206,7 +200,6 @@ export const SHARED_LOCK_EVENTS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
  */

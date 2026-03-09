@@ -23,7 +23,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/mongodb-shared-lock-adapter"`
  * @group Adapters
  */
@@ -37,7 +36,6 @@ export type MongodbSharedLockAdapterSettings = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/mongodb-shared-lock"`
  * @group Adapters
  */
@@ -47,7 +45,6 @@ export type MongodbWriterLockSubDocument = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/mongodb-shared-lock"`
  * @group Adapters
  */
@@ -57,7 +54,6 @@ export type MongodbReaderSemaphoreSlotSubDocument = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/mongodb-shared-lock"`
  * @group Adapters
  */
@@ -67,7 +63,6 @@ export type MongodbReaderSemaphoreDocument = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/mongodb-shared-lock-adapter"`
  * @group Adapters
  */
