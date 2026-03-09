@@ -57,7 +57,6 @@ export type UntrackedFailureRateLimiterEvent = RateLimiterEventBase & {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Events
  */
@@ -70,7 +69,6 @@ export const RATE_LIMITER_EVENTS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Events
  */

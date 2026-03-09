@@ -7,7 +7,6 @@ import { type IRateLimiterProvider } from "@/rate-limiter/contracts/rate-limiter
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Errors
  */

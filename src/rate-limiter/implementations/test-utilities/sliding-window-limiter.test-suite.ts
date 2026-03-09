@@ -21,7 +21,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/test-utilities"`
  * @group TestUtilities
  */
@@ -91,7 +90,7 @@ export function slidingWindowLimiterTestSuite(
     const { expect, test, createAdapter, describe, beforeEach } = settings;
     let adapter: IRateLimiterAdapter;
     const waitTime = TimeSpan.fromTimeSpan(backoffPolicySettings.delay);
-    describe("Reusable tests:", () => {
+    describe("sliding-window-limiter IRateLimiterAdapter tests:", () => {
         beforeEach(async () => {
             adapter = await createAdapter();
         });

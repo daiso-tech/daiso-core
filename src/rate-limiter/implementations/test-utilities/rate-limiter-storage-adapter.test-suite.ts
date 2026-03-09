@@ -17,7 +17,6 @@ import { TimeSpan } from "@/time-span/implementations/time-span.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/test-utilities"`
  * @group TestUtilities
  */
@@ -61,7 +60,7 @@ export function rateLimiterStorageAdapterTestSuite(
     const { expect, test, createAdapter, describe, beforeEach } = settings;
     let adapter: IRateLimiterStorageAdapter<string>;
 
-    describe("Reusable tests:", () => {
+    describe("IRateLimiterStorageAdapter tests:", () => {
         beforeEach(async () => {
             adapter =
                 (await createAdapter()) as IRateLimiterStorageAdapter<string>;

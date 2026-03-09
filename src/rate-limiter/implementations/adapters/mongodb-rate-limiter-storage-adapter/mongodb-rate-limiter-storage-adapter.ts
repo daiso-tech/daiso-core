@@ -15,7 +15,7 @@ import {
     type IRateLimiterStorageAdapter,
     type IRateLimiterStorageAdapterTransaction,
 } from "@/rate-limiter/contracts/_module.js";
-import { type ISerde } from "@/serde/contracts/serde.contract.js";
+import { type ISerde } from "@/serde/contracts/_module.js";
 import {
     type IDeinitizable,
     type IInitizable,
