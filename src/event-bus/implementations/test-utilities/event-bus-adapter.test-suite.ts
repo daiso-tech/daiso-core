@@ -20,7 +20,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/test-utilities"`
  * @group TestUtilities
  */
@@ -51,7 +50,7 @@ export function eventBusAdapterTestSuite(
 
     const TTL = TimeSpan.fromMilliseconds(50);
 
-    describe("Reusable tests:", () => {
+    describe("IEventBusAdapter tests:", () => {
         beforeEach(async () => {
             adapter = await createAdapter();
         });

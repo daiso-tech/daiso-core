@@ -18,7 +18,6 @@ import {
 } from "@/serde/implementations/adapters/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter"`
  * @group Adapters
  */

@@ -25,7 +25,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
  * @group Derivables
  */
@@ -34,7 +33,6 @@ export type EventMapSchema<TEventMap extends BaseEventMap = BaseEventMap> = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
  * @group Derivables
  */
@@ -55,16 +53,15 @@ export type EventBusSettingsBase<
     /**
      * @default
      * ```ts
-     * import { Namespace } from "@daiso-tech/core/namespace";
+     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
      *
-     * new Namespace("@event-bus")
+     * new NoOpNamespace()
      * ```
      */
     namespace?: INamespace;
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
  * @group Derivables
  */

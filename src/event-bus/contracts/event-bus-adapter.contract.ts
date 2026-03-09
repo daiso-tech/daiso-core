@@ -5,21 +5,18 @@
 import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
  * @group Contracts
  */
 export type BaseEvent = Record<string, unknown>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
  * @group Contracts
  */
 export type EventListenerFn<TEvent> = InvokableFn<[event: TEvent]>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
  * @group Contracts
  */
@@ -31,7 +28,6 @@ export type IEventBusDispatcherAdapter = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
  * @group Contracts
  */
