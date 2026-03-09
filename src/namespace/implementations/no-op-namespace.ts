@@ -17,10 +17,14 @@ class NoOpKey implements IKey {
     toString(): string {
         return this.key;
     }
+
+    equals(value: IKey): boolean {
+        return this.toString() === value.toString();
+    }
 }
 
 /**
- * This `NoOpNamespace` will disable namespacing.
+ * The `NoOpNamespace` will disable namespacing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/namespace"`
  * @group Adapters

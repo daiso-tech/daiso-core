@@ -23,7 +23,7 @@ type KeySettings = {
 /**
  * @internal
  */
-class Key {
+class Key implements IKey {
     private readonly prefixArr: Array<string>;
     private readonly key: string;
     private readonly delimeter: string;
@@ -48,6 +48,10 @@ class Key {
             [...this.prefixArr, this.key],
             this.delimeter,
         );
+    }
+
+    equals(value: IKey): boolean {
+        return this.toString() === value.toString();
     }
 }
 
