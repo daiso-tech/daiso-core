@@ -274,7 +274,7 @@ The `Lock` class exposes instance variables such as:
 const lock = lockProvider.create("resource");
 
 // Will return the key of the lock which is "resource"
-console.log(lock.key);
+console.log(lock.key.toString());
 
 // Will return the id of the lock
 console.log(lock.id);
@@ -282,6 +282,10 @@ console.log(lock.id);
 // Will return the ttl of the lock
 console.log(lock.ttl);
 ```
+
+:::info
+The `key` field is an object that implements [`IKey`](../namespace.md) contract.
+:::
 
 ### Lock id
 
@@ -311,7 +315,7 @@ In most cases, setting a custom lock id is unnecessary. Misusing this feature co
 
 ### Namespacing
 
-You can use the `Namespace` class to group related locks without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace`.
+You can use the `Namespace` class to group related locks without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
 
 :::info
 For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
@@ -428,7 +432,9 @@ await lock
 ### Serialization and deserialization of lock
 
 Locks can be serialized, allowing them to be transmitted over the network to another server and later deserialized for reuse.
+
 This means you can, for example, acquire the lock on the main server, transfer it to a queue worker server, and release it there.
+
 In order to serialize or deserialize a lock you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `LockProvider`. 
 
 Manually serializing and deserializing the lock:
@@ -502,7 +508,7 @@ await eventBus.dispatch("sending-lock-over-network", {
 
 // The other servers will recieve the serialized lock and automattically deserialize it.
 await eventBus.addListener("sending-lock-over-network", ({ lock }) => {
-    // The lock is serialized and can be used
+    // The lock is deserialized and can be used
     console.log("LOCK:", lock);
 });
 ```
@@ -582,11 +588,11 @@ const redisLockProvider = new LockProvider({
 
 The library includes 3 additional contracts:
 
-- `ILock` - Allows only manipulation of the lock.
+- [`ILock`](https://daiso-tech.github.io/daiso-core/types/Lock.ILock.html) - Allows only for manipulating of the lock.
 
-- `ILockProviderBase` - Allows only creation of locks.
+- [`ILockProviderBase`](https://daiso-tech.github.io/daiso-core/types/Lock.ILockProviderBase.html) - Allows only for creation of locks.
 
-- `ILockListenable` – Allows only to listening to lock events.
+- [`ILockListenable`](https://daiso-tech.github.io/daiso-core/types/Lock.ILockListenable.html) - Allows only to listening to lock events.
 
 This seperation makes it easy to visually distinguish the 3 contracts, making it immediately obvious that they serve different purposes.
 
