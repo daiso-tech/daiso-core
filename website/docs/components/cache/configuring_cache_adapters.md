@@ -345,7 +345,7 @@ const noOpCacheAdapter = new NoOpCacheAdapter();
 ```
 
 :::info
-The `NoOpCacheAdapter` is useful when you want to mock out or disable your `Cache` class instance.
+The `NoOpCacheAdapter` is useful when you want to mock out or disable your [`Cache`](https://daiso-tech.github.io/daiso-core/classes/Cache.Cache.html) class instance.
 :::
 
 :::info
