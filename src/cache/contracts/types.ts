@@ -7,7 +7,6 @@ import { type ICacheBase } from "@/cache/contracts/cache.contract.js";
 import { type IDatabaseCacheAdapter } from "@/cache/contracts/database-cache-adapter.contract.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Contracts
  */
@@ -16,7 +15,6 @@ export type CacheAdapterVariants<TType = unknown> =
     | IDatabaseCacheAdapter<TType>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Contracts
  */

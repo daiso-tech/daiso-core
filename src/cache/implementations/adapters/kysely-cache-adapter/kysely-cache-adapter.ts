@@ -244,8 +244,7 @@ export class KyselyCacheAdapter<TType = unknown>
 
         if (this.shouldRemoveExpiredKeys && this.timeoutId === null) {
             this.timeoutId = setInterval(() => {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                this.removeAllExpired();
+                void this.removeAllExpired();
             }, this.expiredKeysRemovalInterval.toMilliseconds());
         }
     }

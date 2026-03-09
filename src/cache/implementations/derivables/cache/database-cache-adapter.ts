@@ -108,7 +108,9 @@ export class DatabaseCacheAdapter<TType = unknown>
             }
 
             if (typeof storedValue !== "number") {
-                throw new TypeError("!!__MESSAGE__!!");
+                throw new TypeError(
+                    `Key value type is invalid must be number but got instead "${typeof storedValue}"`,
+                );
             }
 
             await trx.upsert(key, (storedValue + value) as TType);

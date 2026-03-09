@@ -30,7 +30,7 @@ export class KeyNotFoundCacheError extends Error {
 }
 
 /**
- * The error is thrown when a key is not found
+ * The error is thrown when a key already exists found
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Errors
@@ -55,7 +55,6 @@ export class KeyExistsCacheError extends Error {
 }
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Errors
  */
@@ -64,14 +63,12 @@ export const CACHE_ERRORS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Errors
  */
 export type AllCacheErrors = KeyNotFoundCacheError;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Errors
  */

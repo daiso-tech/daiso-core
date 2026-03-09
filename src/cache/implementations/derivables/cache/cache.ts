@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
 /**
  * @module Cache
  */
@@ -37,7 +36,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */
@@ -56,9 +54,9 @@ export type CacheSettingsBase<TType = unknown> = {
     /**
      * @default
      * ```ts
-     * import { Namespace } from "@daiso-tech/core/namespace";
+     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
      *
-     * new Namespace("@cache")
+     * new NoOpNamespace()
      * ```
      */
     namespace?: INamespace;
@@ -91,7 +89,6 @@ export type CacheSettingsBase<TType = unknown> = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */
@@ -100,7 +97,6 @@ export type CacheSettings<TType = unknown> = CacheSettingsBase<TType> & {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */
@@ -377,6 +373,12 @@ export class Cache<TType = unknown> implements ICache<TType> {
                             ttl,
                         })
                         .detach();
+                } else {
+                    this.eventBus
+                        .dispatch(CACHE_EVENTS.KEY_EXISTS, {
+                            key: keyObj,
+                        })
+                        .detach();
                 }
                 return hasAdded;
             } catch (error: unknown) {
@@ -623,6 +625,11 @@ export class Cache<TType = unknown> implements ICache<TType> {
 
     removeMany(keys: Iterable<string>): ITask<boolean> {
         return new Task(async () => {
+            if (typeof keys === "string") {
+                throw new TypeError(
+                    `You cannot pass a string as keys to "removeMany" method.`,
+                );
+            }
             const keysArr = [...keys];
             if (keysArr.length === 0) {
                 return true;

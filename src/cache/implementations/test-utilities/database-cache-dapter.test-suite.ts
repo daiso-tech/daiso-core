@@ -87,7 +87,7 @@ export function databaseCacheAdapterTestSuite(
     });
     const KEY = "a";
 
-    describe("Reusable tests:", () => {
+    describe("IDatabaseCacheAdapter tests:", () => {
         describe("method: find", () => {
             test("Should return null when key does not exists", async () => {
                 const data = await adapter.find(KEY);

@@ -25,7 +25,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache/mongodb-cache-adapter"`
  * @group Adapters
  */
@@ -40,7 +39,6 @@ export type MongodbCacheAdapterSettings = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache/mongodb-cache-adapter"`
  * @group Adapters
  */
