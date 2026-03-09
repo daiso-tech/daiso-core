@@ -2,7 +2,7 @@
  * @module Lock
  */
 
-import { type ILockState } from "@/lock/contracts/lock-state.contract.js";
+import { type ILockState } from "@/lock/contracts/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type FailedAcquireLockError,
@@ -11,6 +11,7 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type FailedRefreshLockError,
 } from "@/lock/contracts/lock.errors.js";
+import { type IKey } from "@/namespace/contracts/_module.js";
 import { type ITask } from "@/task/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
@@ -20,7 +21,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
@@ -30,7 +30,6 @@ export type LockAquireBlockingSettings = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
@@ -40,7 +39,7 @@ export type ILockStateMethods = {
     /**
      * The `key` of the `ILock` instance.
      */
-    readonly key: string;
+    readonly key: IKey;
 
     /**
      * The `id` of the `ILock` instance.
@@ -54,7 +53,6 @@ export type ILockStateMethods = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
@@ -146,7 +144,6 @@ export type ILockBase = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */

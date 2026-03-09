@@ -5,7 +5,6 @@
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
@@ -16,14 +15,12 @@ export const LOCK_STATE = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
 export type LockStateLiterals = (typeof LOCK_STATE)[keyof typeof LOCK_STATE];
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
@@ -32,7 +29,6 @@ export type ILockExpiredState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
@@ -42,7 +38,6 @@ export type ILockUnavailableState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
@@ -52,7 +47,6 @@ export type ILockAcquiredState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */

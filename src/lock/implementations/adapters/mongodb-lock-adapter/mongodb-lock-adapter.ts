@@ -17,7 +17,6 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import { type IDeinitizable, type IInitizable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/mongodb-lock-adapter"`
  * @group Adapters
  */
@@ -31,7 +30,6 @@ export type MongodbLockAdapterSettings = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/mongodb-lock-adapter"`
  * @group Adapters
  */

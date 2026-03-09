@@ -6,7 +6,6 @@ import { type IDatabaseLockAdapter } from "@/lock/contracts/database-lock-adapte
 import { type ILockAdapter } from "@/lock/contracts/lock-adapter.contract.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */

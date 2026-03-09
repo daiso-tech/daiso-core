@@ -38,7 +38,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock"`
  * @group Derivables
  */
@@ -46,9 +45,9 @@ export type LockProviderSettingsBase = {
     /**
      * @default
      * ```ts
-     * import { Namespace } from "@daiso-tech/core/namespace";
+     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
      *
-     * new Namespace("@lock")
+     * new NoOpNamespace()
      * ```
      */
     namespace?: INamespace;
@@ -137,7 +136,6 @@ export type LockProviderSettingsBase = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock"`
  * @group Derivables
  */
