@@ -9,7 +9,6 @@ import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 import { type ErrorPolicySettings } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Contracts
  */
@@ -20,7 +19,6 @@ export const CIRCUIT_BREAKER_TRIGGER = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Contracts
  */
@@ -28,7 +26,6 @@ export type CircuitBreakerTrigger =
     (typeof CIRCUIT_BREAKER_TRIGGER)[keyof typeof CIRCUIT_BREAKER_TRIGGER];
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Contracts
  */
@@ -45,7 +42,6 @@ export type CircuitBreakerProviderCreateSettings = ErrorPolicySettings & {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Contracts
  */
@@ -69,7 +65,6 @@ export type ICircuitBreakerListenable =
     IEventListenable<CircuitBreakerEventMap>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Contracts
  */

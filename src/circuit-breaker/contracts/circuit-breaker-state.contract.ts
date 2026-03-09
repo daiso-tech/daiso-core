@@ -3,7 +3,6 @@
  */
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Contracts
  */
@@ -15,7 +14,6 @@ export const CIRCUIT_BREAKER_STATE = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Contracts
  */

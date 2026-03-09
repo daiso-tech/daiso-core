@@ -13,7 +13,6 @@ import { type ICircuitBreakerStorageAdapter } from "@/circuit-breaker/contracts/
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/test-utilities"`
  * @group TestUtilities
  */
@@ -57,7 +56,7 @@ export function circuitBreakerStorageAdapterTestSuite(
     const { expect, test, createAdapter, describe, beforeEach } = settings;
     let adapter: ICircuitBreakerStorageAdapter<string>;
 
-    describe("Reusable tests:", () => {
+    describe("ICircuitBreakerStorageAdapter tests:", () => {
         beforeEach(async () => {
             adapter =
                 (await createAdapter()) as ICircuitBreakerStorageAdapter<string>;

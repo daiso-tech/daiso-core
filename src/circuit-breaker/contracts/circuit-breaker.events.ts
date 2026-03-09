@@ -77,7 +77,6 @@ export type ResetedCircuitBreakerEvent = CircuitBreakerEventBase;
 export type IsolatedCircuitBreakerEvent = CircuitBreakerEventBase;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Events
  */
@@ -92,7 +91,6 @@ export const CIRCUIT_BREAKER_EVENTS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Events
  */

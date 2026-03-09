@@ -13,8 +13,8 @@ import {
 import {
     type ICircuitBreakerStorageAdapter,
     type ICircuitBreakerStorageAdapterTransaction,
-} from "@/circuit-breaker/contracts/circuit-breaker-storage-adapter.contract.js";
-import { type ISerde } from "@/serde/contracts/serde.contract.js";
+} from "@/circuit-breaker/contracts/_module.js";
+import { type ISerde } from "@/serde/contracts/_module.js";
 import {
     type IDeinitizable,
     type IInitizable,

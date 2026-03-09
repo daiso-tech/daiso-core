@@ -27,7 +27,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
@@ -36,7 +35,6 @@ export type DatabaseCircuitBreakerAdapters<TAdapters extends string> = Partial<
 >;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */

@@ -5,12 +5,13 @@
 import {
     type ICircuitBreakerStorageAdapter,
     type ICircuitBreakerStorageAdapterTransaction,
-} from "@/circuit-breaker/contracts/circuit-breaker-storage-adapter.contract.js";
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ICircuitBreakerProvider,
+} from "@/circuit-breaker/contracts/_module.js";
 import { type IDeinitizable, type InvokableFn } from "@/utilities/_module.js";
 
 /**
- * Note the `MemoryCircuitBreakerStorageAdapter` is limited to single process usage and cannot be shared across multiple servers or different processes.
- * This adapter is meant for testing.
+ * The `MemoryCircuitBreakerStorageAdapter` is used for easily facking {@link ICircuitBreakerProvider | `ICircuitBreakerProvider`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter"`
  * @group Adapters
@@ -39,14 +40,14 @@ export class MemoryCircuitBreakerStorageAdapter<TType = unknown>
     /**
      * Removes all in-memory circuit breaker data.
      */
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async deInit(): Promise<void> {
+    deInit(): Promise<void> {
         this.map.clear();
+        return Promise.resolve();
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    private async upsert(key: string, state: TType): Promise<void> {
+    private upsert(key: string, state: TType): Promise<void> {
         this.map.set(key, state);
+        return Promise.resolve();
     }
 
     async transaction<TValue>(
@@ -61,13 +62,12 @@ export class MemoryCircuitBreakerStorageAdapter<TType = unknown>
         });
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async find(key: string): Promise<TType | null> {
-        return this.map.get(key) ?? null;
+        return Promise.resolve(this.map.get(key) ?? null);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async remove(key: string): Promise<void> {
         this.map.delete(key);
+        return Promise.resolve();
     }
 }

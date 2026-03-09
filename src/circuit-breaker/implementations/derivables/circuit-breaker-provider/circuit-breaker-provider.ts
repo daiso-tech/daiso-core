@@ -32,7 +32,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
@@ -40,9 +39,9 @@ export type CircuitBreakerProviderSettingsBase = {
     /**
      * @default
      * ```ts
-     * import { Namespace } from "@daiso-tech/core/namespace";
+     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
      *
-     * new Namespace("@circuit-breaker")
+     * new NoOpNamespace()
      * ```
      */
     namespace?: INamespace;
@@ -118,7 +117,6 @@ export type CircuitBreakerProviderSettingsBase = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
