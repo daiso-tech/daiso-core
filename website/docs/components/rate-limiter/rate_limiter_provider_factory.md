@@ -44,7 +44,7 @@ const rateLimiterProviderFactory = new RateLimiterProviderFactory({
 });
 ```
 
-### Usage examples
+### Usage
 
 #### 1. Using the default adapter
 
@@ -146,7 +146,7 @@ await rateLimiterProviderFactory
   });
 ```
 
-### Usage examples
+### Usage
 
 #### 1. Using the default adapter
 

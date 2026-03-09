@@ -137,14 +137,18 @@ The `RateLimiter` class exposes instance variables such as:
 const rateLimiter = rateLimiterProvider.create("resource");
 
 // Will return the key of the rate-limiter which is "resource"
-console.log(rateLimiter.key);
+console.log(rateLimiter.key.toString());
 ```
+
+:::info
+The `key` field is an object that implements [`IKey`](../namespace.md) contract.
+:::
 
 ## Patterns
 
 ### Namespacing
 
-You can use the `Namespace` class to group related rate-limiters without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace`.
+You can use the `Namespace` class to group related rate-limiters without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
 
 :::info
 For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
@@ -256,7 +260,7 @@ await eventBus.dispatch("sending-rate-limiter-over-network", {
 
 // The other servers will recieve the serialized rateLimiter and automattically deserialize it.
 await eventBus.addListener("sending-rate-limiter-over-network", ({ rateLimiter }) => {
-    // The rateLimiter is serialized and can be used
+    // The rateLimiter is deserialized and can be used
     console.log("RATE_LIMITER:", rateLimiter);
 });
 ```
@@ -341,11 +345,11 @@ const redisRateLimiterProvider = new RateLimiterProvider({
 
 The library includes 3 additional contracts:
 
-- `IRateLimiter` - Allows only manipulation of the lock.
+- [`IRateLimiter`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiter.html) - Allows only for manipulating of the lock.
 
-- `IRateLimiterProviderBase` - Allows only creation of locks.
+- [`IRateLimiterProviderBase`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiterProviderBase.html) - Allows only for creation of locks.
 
-- `IRateLimiterListenable` – Allows only to listening to lock events.
+- [`IRateLimiterListenable`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiterListenable.html) - Allows only to listening to lock events.
 
 This seperation makes it easy to visually distinguish the 3 contracts, making it immediately obvious that they serve different purposes.
 
