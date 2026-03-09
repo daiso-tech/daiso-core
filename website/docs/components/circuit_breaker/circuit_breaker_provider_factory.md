@@ -44,7 +44,7 @@ const circuitBreakerProviderFactory = new CircuitBreakerProviderFactory({
 });
 ```
 
-### Usage examples
+### Usage
 
 #### 1. Using the default adapter
 
@@ -146,7 +146,7 @@ await circuitBreakerProviderFactory
   });
 ```
 
-### Usage examples
+### Usage
 
 #### 1. Using the default adapter
 

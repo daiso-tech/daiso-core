@@ -149,7 +149,7 @@ const noOpCircuitBreakerAdapter = new NoOpCircuitBreakerAdapter();
 ```
 
 :::info
-The `NoOpCircuitBreakerAdapter` is useful when you want to mock out or disable your `CircuitBreakerProvider` instance.
+The `NoOpCircuitBreakerAdapter` is useful when you want to mock out or disable your [`CircuitBreakerProvider`](https://daiso-tech.github.io/daiso-core/classes/CircuitBreaker.CircuitBreakerProvider.html) instance.
 :::
 
 ## KyselyCircuitBreakerStorageAdapter
@@ -352,7 +352,7 @@ const noOpCircuitBreakerStorageAdapter = new NoOpCircuitBreakerStorageAdapter();
 ```
 
 :::info
-The `NoOpCircuitBreakerStorageAdapter` is useful when you want to mock out or disable your `DatabaseCircuitBreakerAdapter` instance.
+The `NoOpCircuitBreakerStorageAdapter` is useful when you want to mock out or disable your [`DatabaseCircuitBreakerAdapter`](https://daiso-tech.github.io/daiso-core/classes/CircuitBreaker.DatabaseCircuitBreakerAdapter.html) instance.
 :::
 
 ## Further information

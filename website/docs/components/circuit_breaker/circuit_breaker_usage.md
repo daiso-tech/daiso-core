@@ -187,14 +187,18 @@ The `CircuitBreaker` class exposes instance variables such as:
 const circuitBreaker = circuitBreakerProvider.create("resource");
 
 // Will return the key of the circuit-breaker which is "resource"
-console.log(circuitBreaker.key);
+console.log(circuitBreaker.key.toString());
 ```
+
+:::info
+The `key` field is an object that implements [`IKey`](../namespace.md) contract.
+:::
 
 ## Patterns
 
 ### Namespacing
 
-You can use the `Namespace` class to group related circuit-breakers without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace`.
+You can use the `Namespace` class to group related circuit-breakers without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
 
 :::info
 For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
@@ -306,7 +310,7 @@ await eventBus.dispatch("sending-circuit-breaker-over-network", {
 
 // The other servers will recieve the serialized circuitBreaker and automattically deserialize it.
 await eventBus.addListener("sending-circuit-breaker-over-network", ({ circuitBreaker }) => {
-    // The circuitBreaker is serialized and can be used
+    // The circuitBreaker is deserialized and can be used
     console.log("CIRCUIT_BREAKER:", circuitBreaker);
 });
 ```
@@ -392,11 +396,11 @@ const redisCircuitBreakerProvider = new CircuitBreakerProvider({
 
 The library includes 3 additional contracts:
 
-- `ICircuitBreaker` - Allows only manipulation of the lock.
+- [`ICircuitBreaker`](https://daiso-tech.github.io/daiso-core/types/CircuitBreaker.ICircuitBreaker.html) - Allows only for manipulating of the lock.
 
-- `ICircuitBreakerProviderBase` - Allows only creation of locks.
+- [`ICircuitBreakerProviderBase`](https://daiso-tech.github.io/daiso-core/types/CircuitBreaker.ICircuitBreakerProviderBase.html) - Allows only for creation of locks.
 
-- `ICircuitBreakerListenable` – Allows only to listening to lock events.
+- [`ICircuitBreakerListenable`](https://daiso-tech.github.io/daiso-core/types/CircuitBreaker.ICircuitBreakerListenable.html) - Allows only to listening to lock events.
 
 This seperation makes it easy to visually distinguish the 3 contracts, making it immediately obvious that they serve different purposes.
 
