@@ -343,7 +343,7 @@ const semaphore = semaphoreProvider.create("resource", {
 });
 
 // Will return the key of the semaphore which is "resource"
-console.log(semaphore.key);
+console.log(semaphore.key.toString());
 
 // Will return the id of the semaphore
 console.log(semaphore.id);
@@ -352,6 +352,9 @@ console.log(semaphore.id);
 console.log(semaphore.ttl);
 ```
 
+:::info
+The `key` field is an object that implements [`IKey`](../namespace.md) contract.
+:::
 
 ### Semaphore slot id
 
@@ -379,7 +382,7 @@ In most cases, setting a slot id is unnecessary.
 
 ### Namespacing
 
-You can use the `Namespace` class to group related semaphores without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace`.
+You can use the `Namespace` class to group related semaphores without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
 
 :::info
 For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
@@ -589,7 +592,7 @@ await eventBus.dispatch("sending-semaphore-over-network", {
 
 // The other servers will recieve the serialized semaphore and automattically deserialize it.
 await eventBus.addListener("sending-semaphore-over-network", ({ semaphore }) => {
-    // The semaphore is serialized and can be used
+    // The semaphore is deserialized and can be used
     console.log("SEMAPHORE:", semaphore);
 });
 ```
@@ -669,11 +672,11 @@ const redisSemaphoreProvider = new SemaphoreProvider({
 
 The library includes 3 additional contracts:
 
-- `ISemaphore` - Allows only manipulation of the semaphore.
+- [`ISemaphore`](https://daiso-tech.github.io/daiso-core/types/Semaphore.ISemaphore.html) - Allows only for manipulating of the semaphore.
 
-- `ISemaphoreProviderBase` - Allows only creation of semaphores.
+- [`ISemaphoreProviderBase`](https://daiso-tech.github.io/daiso-core/types/Semaphore.ISemaphoreProviderBase.html) - Allows only for creation of semaphores.
 
-- `ISemaphoreListenable` – Allows only to listening to semaphore events.
+- [`ISemaphoreListenable`](https://daiso-tech.github.io/daiso-core/types/Semaphore.ISemaphoreListenable.html) - Allows only to listening to semaphore events.
 
 This seperation makes it easy to visually distinguish the 3 contracts, making it immediately obvious that they serve different purposes.
 
