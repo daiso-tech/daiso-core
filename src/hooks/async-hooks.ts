@@ -18,14 +18,12 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/hooks"`
  */
 export type GetSignal<TParameters extends Array<unknown> = Array<unknown>> =
     Invokable<[arguments_: TParameters], AbortSignal | undefined>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/hooks"`
  */
 export type ForwardSignal<TParameters> = Invokable<
@@ -80,7 +78,6 @@ export type AbortSignalBinder<
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/hooks"`
  */
 export type AsyncNextFunc<
@@ -89,7 +86,6 @@ export type AsyncNextFunc<
 > = InvokableFn<TParameters, PromiseLike<TReturn>>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/hooks"`
  */
 export type AsyncContext<
@@ -104,7 +100,6 @@ export type AsyncContext<
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/hooks"`
  */
 export type AsyncMiddlewareFn<
@@ -121,7 +116,6 @@ export type AsyncMiddlewareFn<
 >;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/hooks"`
  */
 export type IAsyncMiddlewareObject<
@@ -138,7 +132,6 @@ export type IAsyncMiddlewareObject<
 >;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/hooks"`
  */
 export type AsyncMiddleware<
@@ -150,7 +143,6 @@ export type AsyncMiddleware<
     | AsyncMiddlewareFn<TParameters, TReturn, TContext>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/hooks"`
  */
 export type AsyncHooksSettings<
