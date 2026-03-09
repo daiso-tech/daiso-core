@@ -1,5 +1,4 @@
 ---
-sidebar_position: 10
 tags:
  - Utilities
 keywords:
@@ -37,7 +36,10 @@ const newNamespace = namespace.appendRoot("sub");
 console.log(newNamespace.toString());
 
 // Logs "@my-namespace:sub:_rt:my-key"
-console.log(namespace.create("my-key").toString());
+console.log(newNamespace.create("my-key").toString());
+
+// Logs false because they use different namespaces
+console.log(newNamspace.create("my-key").equals(namespace.create("my-key")))
 ```
 
 :::info
@@ -71,7 +73,7 @@ Bothe `Namespace` and `INoOpNamepace` implement `INamespace` contract.
 The `INamespace` contract used for easily swaping between `Namespace` and `NoOpNamespace` class without changing your code.
 
 ```ts
-export type IKey = {
+export interface IKey extends IEquals<IKey> {
     get(): string;
 
     toString(): string;
