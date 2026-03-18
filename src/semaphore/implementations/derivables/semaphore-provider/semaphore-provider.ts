@@ -10,6 +10,7 @@ import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type IDatabaseSemaphoreAdapter,
     type ISemaphore,
     type ISemaphoreAdapter,
@@ -37,7 +38,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
  * @group Derivables
  */
@@ -45,9 +45,9 @@ export type SemaphoreProviderSettingsBase = {
     /**
      * @default
      * ```ts
-     * import { Namespace } from "@daiso-tech/core/namespace";
+     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
      *
-     * new Namespace("@semaphore")
+     * new NoOpNamespace()
      * ```
      */
     namespace?: INamespace;
@@ -136,7 +136,6 @@ export type SemaphoreProviderSettingsBase = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
  * @group Derivables
  */
@@ -157,9 +156,7 @@ export type SemaphoreProviderSettings = SemaphoreProviderSettingsBase & {
 export class SemaphoreProvider implements ISemaphoreProvider {
     private readonly eventBus: IEventBus<SemaphoreEventMap>;
     private readonly adapter: ISemaphoreAdapter;
-    private readonly originalAdapter:
-        | ISemaphoreAdapter
-        | IDatabaseSemaphoreAdapter;
+    private readonly originalAdapter: SemaphoreAdapterVariants;
     private readonly namespace: INamespace;
     private readonly defaultTtl: TimeSpan | null;
     private readonly defaultBlockingInterval: TimeSpan;

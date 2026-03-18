@@ -112,8 +112,8 @@ export class CircuitBreaker implements ICircuitBreaker {
         return this.adapter;
     }
 
-    get key(): string {
-        return this._key.get();
+    get key(): IKey {
+        return this._key;
     }
 
     getState(): ITask<CircuitBreakerState> {
@@ -275,7 +275,7 @@ export class CircuitBreaker implements ICircuitBreaker {
 
     isolate(): ITask<void> {
         return new Task(async () => {
-            await this.adapter.isolate(this.key);
+            await this.adapter.isolate(this._key.toString());
             this.eventDispatcher
                 .dispatch(CIRCUIT_BREAKER_EVENTS.ISOLATED, {
                     circuitBreaker: this,

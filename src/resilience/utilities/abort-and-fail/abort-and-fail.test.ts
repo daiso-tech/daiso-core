@@ -35,7 +35,6 @@ describe("function: abortAndFail", () => {
     test("Should forward error", async () => {
         class ErrorA extends Error {}
         const abortController = new AbortController();
-        // eslint-disable-next-line @typescript-eslint/require-await
         const promise = abortAndFail(
             Promise.reject(new ErrorA()),
             abortController.signal,

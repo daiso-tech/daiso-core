@@ -7,7 +7,6 @@ import { type ISemaphoreProvider } from "@/semaphore/contracts/semaphore-provide
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
@@ -19,7 +18,6 @@ export type SemaphoreAcquireSettings = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */

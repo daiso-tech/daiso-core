@@ -14,7 +14,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { callInvokable, isInvokable, withJitter } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  */
 export type LinearBackoffSettings = {

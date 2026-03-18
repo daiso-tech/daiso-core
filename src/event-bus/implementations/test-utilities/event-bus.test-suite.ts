@@ -16,7 +16,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/test-utilities"`
  * @group TestUtilities
  */
@@ -46,7 +45,7 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
     let eventBus: IEventBus<{
         add: AddEvent;
     }>;
-    describe("Reusable tests:", () => {
+    describe("IEventBus tests:", () => {
         beforeEach(async () => {
             eventBus = await createEventBus();
         });

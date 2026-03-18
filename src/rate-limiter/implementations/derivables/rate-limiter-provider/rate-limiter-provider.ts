@@ -28,7 +28,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
  * @group Derivables
  */
@@ -36,9 +35,9 @@ export type RateLimiterProviderSettingsBase = {
     /**
      * @default
      * ```ts
-     * import { Namespace } from "@daiso-tech/core/namespace";
+     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
      *
-     * new Namespace("@rate-limiter")
+     * new NoOpNamespace()
      * ```
      */
     namespace?: INamespace;
@@ -97,7 +96,6 @@ export type RateLimiterProviderSettingsBase = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
  * @group Derivables
  */

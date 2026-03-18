@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 sidebar_label: Creating adapters
 pagination_label: Creating rate-limiter adapters
 tags:

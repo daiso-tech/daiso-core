@@ -3,7 +3,6 @@
  */
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  */
 export type IterableValue<TInput = unknown> =
@@ -11,7 +10,6 @@ export type IterableValue<TInput = unknown> =
     | ArrayLike<TInput>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  */
 export type AsyncIterableValue<TInput = unknown> =

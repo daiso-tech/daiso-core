@@ -88,7 +88,6 @@ export class FailedRefreshLockError extends Error {
 }
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Errors
  */
@@ -99,7 +98,6 @@ export const LOCK_ERRORS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Errors
  */
@@ -109,7 +107,6 @@ export type AllLockErrors =
     | FailedRefreshLockError;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Errors
  */

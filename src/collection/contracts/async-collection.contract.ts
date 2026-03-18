@@ -34,7 +34,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
 export type AsyncCollapse<TValue> = TValue extends

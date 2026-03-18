@@ -2,6 +2,8 @@
  * @module Serde
  */
 
+import { Buffer } from "node:buffer";
+
 import { type TestAPI, type ExpectStatic, beforeEach, vi } from "vitest";
 
 import {
@@ -11,7 +13,6 @@ import {
 } from "@/serde/contracts/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/serde/test-utilities"`
  * @group TestUtilities
  */

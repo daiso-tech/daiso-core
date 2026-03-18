@@ -5,7 +5,6 @@
 import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Contracts
  */

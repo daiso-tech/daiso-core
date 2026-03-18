@@ -16,7 +16,6 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 export type ISharedLockListenable = IEventListenable<SharedLockEventMap>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -35,7 +34,6 @@ export type SharedLockProviderCreateSettings = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */

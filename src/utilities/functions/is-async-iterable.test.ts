@@ -5,10 +5,9 @@ import { isAsyncIterable } from "@/utilities/functions/is-async-iterable.js";
 describe("function: isAsyncIterable", () => {
     test("Should return true when AsyncIterable", () => {
         const asyncIterable: AsyncIterable<unknown> = {
-            // eslint-disable-next-line @typescript-eslint/require-await
             async *[Symbol.asyncIterator](): AsyncIterator<unknown> {
-                yield 1;
-                yield 2;
+                yield Promise.resolve(1);
+                yield Promise.resolve(2);
             },
         };
 

@@ -430,15 +430,14 @@ describe("class: RateLimiterProvider", () => {
 
                     const limit = 5;
                     class ErrorA extends Error {}
+                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                        limit,
+                        onlyError: true,
+                    });
                     try {
-                        await rateLimiterProvider
-                            .create(KEY, {
-                                limit,
-                                onlyError: true,
-                            })
-                            .runOrFail(() => {
-                                throw new ErrorA("Unexpected error");
-                            });
+                        await rateLimiter.runOrFail(() => {
+                            throw new ErrorA("Unexpected error");
+                        });
                     } catch {
                         /* EMPTY */
                     }
@@ -450,7 +449,7 @@ describe("class: RateLimiterProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as IRateLimiterStateMethods["getState"],
-                                key: KEY,
+                                key: rateLimiter.key,
                                 limit,
                             } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
                             error: expect.any(ErrorA),
@@ -520,16 +519,15 @@ describe("class: RateLimiterProvider", () => {
                     class ErrorA extends Error {}
                     class ErrorB extends Error {}
                     const limit = 5;
+                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                        limit,
+                        onlyError: true,
+                        errorPolicy: ErrorA,
+                    });
                     try {
-                        await rateLimiterProvider
-                            .create(KEY, {
-                                limit,
-                                onlyError: true,
-                                errorPolicy: ErrorA,
-                            })
-                            .runOrFail(() => {
-                                throw new ErrorB("Unexpected error");
-                            });
+                        await rateLimiter.runOrFail(() => {
+                            throw new ErrorB("Unexpected error");
+                        });
                     } catch {
                         /* EMPTY */
                     }
@@ -541,7 +539,7 @@ describe("class: RateLimiterProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as IRateLimiterStateMethods["getState"],
-                                key: KEY,
+                                key: rateLimiter.key,
                                 limit,
                             } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
                             error: expect.any(ErrorB),
@@ -571,15 +569,14 @@ describe("class: RateLimiterProvider", () => {
                     );
 
                     class ErrorA extends Error {}
+                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                        limit,
+                        onlyError: true,
+                    });
                     try {
-                        await rateLimiterProvider
-                            .create(KEY, {
-                                limit,
-                                onlyError: true,
-                            })
-                            .runOrFail(() => {
-                                throw new ErrorA("Unexpected error");
-                            });
+                        await rateLimiter.runOrFail(() => {
+                            throw new ErrorA("Unexpected error");
+                        });
                     } catch {
                         /* EMPTY */
                     }
@@ -591,7 +588,7 @@ describe("class: RateLimiterProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as IRateLimiterStateMethods["getState"],
-                                key: KEY,
+                                key: rateLimiter.key,
                                 limit,
                             } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
                         } satisfies AllowedRateLimiterEvent),
@@ -620,15 +617,14 @@ describe("class: RateLimiterProvider", () => {
                     );
 
                     class ErrorA extends Error {}
+                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                        limit,
+                        onlyError: true,
+                    });
                     try {
-                        await rateLimiterProvider
-                            .create(KEY, {
-                                limit,
-                                onlyError: true,
-                            })
-                            .runOrFail(() => {
-                                throw new ErrorA("Unexpected error");
-                            });
+                        await rateLimiter.runOrFail(() => {
+                            throw new ErrorA("Unexpected error");
+                        });
                     } catch {
                         /* EMPTY */
                     }
@@ -640,7 +636,7 @@ describe("class: RateLimiterProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as IRateLimiterStateMethods["getState"],
-                                key: KEY,
+                                key: rateLimiter.key,
                                 limit,
                             } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
                         } satisfies BlockedRateLimiterEvent),
@@ -668,12 +664,11 @@ describe("class: RateLimiterProvider", () => {
                         handlerFn,
                     );
 
-                    await rateLimiterProvider
-                        .create(KEY, {
-                            limit,
-                            onlyError: true,
-                        })
-                        .runOrFail(() => {});
+                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                        limit,
+                        onlyError: true,
+                    });
+                    await rateLimiter.runOrFail(() => {});
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -682,7 +677,7 @@ describe("class: RateLimiterProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as IRateLimiterStateMethods["getState"],
-                                key: KEY,
+                                key: rateLimiter.key,
                                 limit,
                             } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
                         } satisfies AllowedRateLimiterEvent),
@@ -713,15 +708,14 @@ describe("class: RateLimiterProvider", () => {
                     );
 
                     class ErrorA extends Error {}
+                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                        limit,
+                        onlyError: false,
+                    });
                     try {
-                        await rateLimiterProvider
-                            .create(KEY, {
-                                limit,
-                                onlyError: false,
-                            })
-                            .runOrFail(() => {
-                                throw new ErrorA("Unexpected error");
-                            });
+                        await rateLimiter.runOrFail(() => {
+                            throw new ErrorA("Unexpected error");
+                        });
                     } catch {
                         /* EMPTY */
                     }
@@ -733,7 +727,7 @@ describe("class: RateLimiterProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as IRateLimiterStateMethods["getState"],
-                                key: KEY,
+                                key: rateLimiter.key,
                                 limit,
                             } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
                         } satisfies AllowedRateLimiterEvent),
@@ -762,15 +756,14 @@ describe("class: RateLimiterProvider", () => {
                     );
 
                     class ErrorA extends Error {}
+                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                        limit,
+                        onlyError: false,
+                    });
                     try {
-                        await rateLimiterProvider
-                            .create(KEY, {
-                                limit,
-                                onlyError: false,
-                            })
-                            .runOrFail(() => {
-                                throw new ErrorA("Unexpected error");
-                            });
+                        await rateLimiter.runOrFail(() => {
+                            throw new ErrorA("Unexpected error");
+                        });
                     } catch {
                         /* EMPTY */
                     }
@@ -782,7 +775,7 @@ describe("class: RateLimiterProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as IRateLimiterStateMethods["getState"],
-                                key: KEY,
+                                key: rateLimiter.key,
                                 limit,
                             } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
                         } satisfies BlockedRateLimiterEvent),
@@ -810,12 +803,11 @@ describe("class: RateLimiterProvider", () => {
                         handlerFn,
                     );
 
-                    await rateLimiterProvider
-                        .create(KEY, {
-                            limit,
-                            onlyError: false,
-                        })
-                        .runOrFail(() => {});
+                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                        limit,
+                        onlyError: false,
+                    });
+                    await rateLimiter.runOrFail(() => {});
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -824,7 +816,7 @@ describe("class: RateLimiterProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as IRateLimiterStateMethods["getState"],
-                                key: KEY,
+                                key: rateLimiter.key,
                                 limit,
                             } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
                         } satisfies AllowedRateLimiterEvent),
@@ -852,13 +844,12 @@ describe("class: RateLimiterProvider", () => {
                         handlerFn,
                     );
 
+                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                        limit,
+                        onlyError: false,
+                    });
                     try {
-                        await rateLimiterProvider
-                            .create(KEY, {
-                                limit,
-                                onlyError: false,
-                            })
-                            .runOrFail(() => {});
+                        await rateLimiter.runOrFail(() => {});
                     } catch {
                         /* EMPTY */
                     }
@@ -870,7 +861,7 @@ describe("class: RateLimiterProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as IRateLimiterStateMethods["getState"],
-                                key: KEY,
+                                key: rateLimiter.key,
                                 limit,
                             } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
                         } satisfies BlockedRateLimiterEvent),
@@ -889,7 +880,10 @@ describe("class: RateLimiterProvider", () => {
                     handlerFn,
                 );
 
-                await rateLimiterProvider.create(KEY, { limit: 10 }).reset();
+                const rateLimiter = rateLimiterProvider.create(KEY, {
+                    limit: 10,
+                });
+                await rateLimiter.reset();
 
                 expect(handlerFn).toHaveBeenCalledOnce();
                 expect(handlerFn).toHaveBeenCalledWith(
@@ -898,7 +892,7 @@ describe("class: RateLimiterProvider", () => {
                             getState: expect.any(
                                 Function,
                             ) as IRateLimiterStateMethods["getState"],
-                            key: KEY,
+                            key: rateLimiter.key,
                             limit: 10,
                         } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
                     } satisfies ResetedRateLimiterEvent),

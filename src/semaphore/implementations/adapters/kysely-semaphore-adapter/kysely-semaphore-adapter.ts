@@ -21,7 +21,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/kysely-semaphore-adapter"`
  * @group Adapters
  */
@@ -31,7 +30,6 @@ export type KyselySemaphoreTable = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/kysely-semaphore-adapter"`
  * @group Adapters
  */
@@ -44,7 +42,6 @@ export type KyselySemaphoreSlotTable = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/kysely-semaphore-adapter"`
  * @group Adapters
  */
@@ -54,7 +51,6 @@ export type KyselySemaphoreTables = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/kysely-semaphore-adapter"`
  * @group Adapters
  */

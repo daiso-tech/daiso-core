@@ -3,7 +3,6 @@
  */
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
 export type EnsureMap<TInput> = TInput extends

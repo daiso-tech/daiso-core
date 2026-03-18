@@ -3,7 +3,6 @@
  */
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  * @group Contracts
  */
@@ -12,7 +11,6 @@ export type IEquals<TValue> = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  * @group Contracts
  */
@@ -21,7 +19,6 @@ export type IGreaterThan<TValue> = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  * @group Contracts
  */
@@ -30,7 +27,6 @@ export type IGreaterThanOrEquals<TValue> = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  * @group Contracts
  */
@@ -39,7 +35,6 @@ export type ILessThan<TValue> = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  * @group Contracts
  */
@@ -48,7 +43,6 @@ export type ILessThanOrEquals<TValue> = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  * @group Contracts
  */

@@ -19,7 +19,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
  * @group Derivables
  */
@@ -28,7 +27,6 @@ export type SemaphoreAdapters<TAdapters extends string> = Partial<
 >;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
  * @group Derivables
  */

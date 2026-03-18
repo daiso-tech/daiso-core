@@ -22,7 +22,6 @@ declare module "ioredis" {
 }
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache/redis-cache-adapter"`
  * @group Adapters
  */

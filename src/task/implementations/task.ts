@@ -374,7 +374,6 @@ export class Task<TValue> implements ITask<TValue> {
         if (this.promise === null) {
             this.promise = this.invokable.invoke();
         }
-        // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
         return this.promise.then(onfulfilled, onrejected);
     }
 

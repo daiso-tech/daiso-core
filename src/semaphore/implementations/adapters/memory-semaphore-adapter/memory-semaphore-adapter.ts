@@ -3,6 +3,8 @@
  */
 
 import {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ISemaphoreProvider,
     type ISemaphoreAdapter,
     type ISemaphoreAdapterState,
     type SemaphoreAcquireSettings,
@@ -11,7 +13,6 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import { type IDeinitizable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/memory-semaphore-adapter"`
  * @group Adapters
  */
@@ -28,7 +29,7 @@ export type MemorySemaphoreAdapterData = {
 
 /**
  * Note the `MemorySemaphoreAdapter` is limited to single process usage and cannot be shared across multiple servers or different processes.
- * This adapter is meant for testing.
+ * This adapter is meant for easily facking {@link ISemaphoreProvider | `ISemaphoreProvider`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/memory-semaphore-adapter"`
  * @group Adapters
@@ -59,7 +60,6 @@ export class MemorySemaphoreAdapter
     /**
      * Removes all in-memory semaphore data.
      */
-    // eslint-disable-next-line @typescript-eslint/require-await
     async deInit(): Promise<void> {
         for (const [key, semaphoreData] of this.map) {
             for (const [slotId, slotData] of semaphoreData.slots) {
@@ -70,9 +70,9 @@ export class MemorySemaphoreAdapter
             }
             this.map.delete(key);
         }
+        return Promise.resolve();
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async acquire(settings: SemaphoreAcquireSettings): Promise<boolean> {
         const { key, slotId, limit, ttl } = settings;
         let semaphore = this.map.get(key);
@@ -86,11 +86,11 @@ export class MemorySemaphoreAdapter
         }
 
         if (semaphore.slots.size >= semaphore.limit) {
-            return false;
+            return Promise.resolve(false);
         }
 
         if (semaphore.slots.has(slotId)) {
-            return true;
+            return Promise.resolve(true);
         }
 
         if (ttl === null) {
@@ -111,19 +111,17 @@ export class MemorySemaphoreAdapter
 
         this.map.set(key, semaphore);
 
-        return true;
+        return Promise.resolve(true);
     }
-
-    // eslint-disable-next-line @typescript-eslint/require-await
     async release(key: string, slotId: string): Promise<boolean> {
         const semaphore = this.map.get(key);
         if (!semaphore) {
-            return false;
+            return Promise.resolve(false);
         }
 
         const slot = semaphore.slots.get(slotId);
         if (slot === undefined) {
-            return false;
+            return Promise.resolve(false);
         }
 
         if (slot.timeoutId !== null) {
@@ -137,14 +135,12 @@ export class MemorySemaphoreAdapter
             this.map.delete(key);
         }
 
-        return true;
+        return Promise.resolve(true);
     }
-
-    // eslint-disable-next-line @typescript-eslint/require-await
     async forceReleaseAll(key: string): Promise<boolean> {
         const semaphore = this.map.get(key);
         if (semaphore === undefined) {
-            return false;
+            return Promise.resolve(false);
         }
         const hasSlots = semaphore.slots.size > 0;
         for (const [slotId, { timeoutId }] of semaphore.slots) {
@@ -152,10 +148,9 @@ export class MemorySemaphoreAdapter
             semaphore.slots.delete(slotId);
         }
         this.map.delete(key);
-        return hasSlots;
+        return Promise.resolve(hasSlots);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async refresh(
         key: string,
         slotId: string,
@@ -163,14 +158,14 @@ export class MemorySemaphoreAdapter
     ): Promise<boolean> {
         const semaphore = this.map.get(key);
         if (!semaphore) {
-            return false;
+            return Promise.resolve(false);
         }
         const slot = semaphore.slots.get(slotId);
         if (slot === undefined) {
-            return false;
+            return Promise.resolve(false);
         }
         if (slot.timeoutId === null) {
-            return false;
+            return Promise.resolve(false);
         }
 
         clearTimeout(slot.timeoutId);
@@ -185,25 +180,24 @@ export class MemorySemaphoreAdapter
         });
         this.map.set(key, semaphore);
 
-        return true;
+        return Promise.resolve(true);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async getState(key: string): Promise<ISemaphoreAdapterState | null> {
         const semaphore = this.map.get(key);
         if (semaphore === undefined) {
-            return null;
+            return Promise.resolve(null);
         }
         if (semaphore.slots.size === 0) {
-            return null;
+            return Promise.resolve(null);
         }
-        return {
+        return Promise.resolve({
             limit: semaphore.limit,
             acquiredSlots: new Map(
                 [...semaphore.slots.entries()].map(
                     ([key, value]) => [key, value.expiration] as const,
                 ),
             ),
-        };
+        });
     }
 }

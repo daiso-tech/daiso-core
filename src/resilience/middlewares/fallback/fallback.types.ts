@@ -10,7 +10,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -26,7 +25,6 @@ export type OnFallbackData<
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -37,7 +35,6 @@ export type OnFallback<
 > = Invokable<[data: OnFallbackData<TParameters, TFallbackValue, TContext>]>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -53,7 +50,6 @@ export type FallbackCallbacks<
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */

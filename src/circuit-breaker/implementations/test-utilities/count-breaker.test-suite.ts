@@ -27,7 +27,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/test-utilities"`
  * @group TestUtilities
  */
@@ -100,7 +99,7 @@ export function countBreakerTestSuite(
     const { expect, test, createAdapter, describe, beforeEach } = settings;
     let adapter: ICircuitBreakerAdapter;
     const waitTime = TimeSpan.fromTimeSpan(backoffPolicySettings.delay);
-    describe("Reusable tests:", () => {
+    describe("count-breaker ICircuitBreakerAdapter tests:", () => {
         beforeEach(async () => {
             adapter = await createAdapter();
         });

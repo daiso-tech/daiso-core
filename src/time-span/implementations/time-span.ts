@@ -12,7 +12,6 @@ import {
 import { UnexpectedError, type IComparable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/time-span"`
  * @group Implementations
  */
@@ -22,7 +21,6 @@ export type SerializedTimeSpan = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/time-span"`
  * @group Implementations
  */
@@ -46,7 +44,7 @@ export type TimeSpanFromDateRangeSettings = {
 
 /**
  * The `TimeSpan` class is used for representing time interval.
- * `TimeSpan` cannot be negative.
+ * `TimeSpan` class cannot be negative, if you pass negative number it will be converted to 0.
  *
  * IMPORT_PATH: `"@daiso-tech/core/time-span"`
  * @group Implementations

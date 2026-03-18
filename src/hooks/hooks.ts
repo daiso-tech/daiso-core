@@ -14,7 +14,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/hooks"`
  */
 export type NextFunc<
@@ -23,7 +22,6 @@ export type NextFunc<
 > = InvokableFn<TParameters, TReturn>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/hooks"`
  */
 export type Context<TContext extends HookContext = HookContext> = {
@@ -32,7 +30,6 @@ export type Context<TContext extends HookContext = HookContext> = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/hooks"`
  */
 export type MiddlewareFn<
@@ -49,7 +46,6 @@ export type MiddlewareFn<
 >;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/hooks"`
  */
 export type IMiddlewareObject<
@@ -66,7 +62,6 @@ export type IMiddlewareObject<
 >;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/hooks"`
  */
 export type Middleware<
@@ -78,7 +73,6 @@ export type Middleware<
     | MiddlewareFn<TParameters, TReturn, TContext>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/hooks"`
  */
 export type HooksSettings<TContext extends HookContext = HookContext> = {

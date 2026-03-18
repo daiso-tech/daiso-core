@@ -15,7 +15,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache/test-utilities"`
  * @group TestUtilities
  */
@@ -82,7 +81,7 @@ export function cacheAdapterTestSuite(
     });
 
     const TTL = TimeSpan.fromMilliseconds(50);
-    describe("Reusable tests:", () => {
+    describe("ICacheAdapter tests:", () => {
         describe("method: get", () => {
             test("Should return the value when key exists", async () => {
                 await adapter.add("a", 1, null);
@@ -263,7 +262,7 @@ export function cacheAdapterTestSuite(
                 await adapter.increment("a", 1);
                 expect(await adapter.get("a")).toBeNull();
             });
-            test("Should throw TypeError key value is not number type", async () => {
+            test("Should throw TypeError when value is not number type", async () => {
                 await adapter.add("a", "str", null);
                 await Task.delay(TTL.divide(4));
                 await expect(adapter.increment("a", 1)).rejects.toBeInstanceOf(
@@ -272,6 +271,11 @@ export function cacheAdapterTestSuite(
             });
         });
         describe("method: removeMany", () => {
+            test("Should return false when all keys does not exists", async () => {
+                const result = await adapter.removeMany(["a", "b", "c"]);
+
+                expect(result).toBe(false);
+            });
             test("Should return true when one key exists", async () => {
                 await adapter.add("a", 1, null);
                 await Task.delay(TTL.divide(4));

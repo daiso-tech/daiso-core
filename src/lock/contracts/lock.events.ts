@@ -73,7 +73,6 @@ export type UnavailableLockEvent = LockEventBase;
 export type RefreshedLockEvent = LockEventBase;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Events
  */
@@ -82,7 +81,6 @@ export type UnexpectedErrorLockEvent = LockEventBase & {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Events
  */
@@ -98,7 +96,6 @@ export const LOCK_EVENTS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Events
  */

@@ -25,7 +25,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
  * @group Derivables
  */
@@ -34,7 +33,6 @@ export type DatabaseRateLimiterAdapters<TAdapters extends string> = Partial<
 >;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
  * @group Derivables
  */

@@ -46,12 +46,12 @@ export type CacheWriteSettings = {
 };
 
 /**
- * The `ICacheBase` contract defines a way for as key-value pairs independent of data storage.
+ * The `IReadableCache` contract defines a way reading for as key-value pairs independent of data storage.
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Contracts
  */
-export type ICacheBase<TType = unknown> = {
+export type IReadableCache<TType = unknown> = {
     /**
      * The `exists` method returns true when `key` is found otherwise false will be returned.
      */
@@ -75,12 +75,6 @@ export type ICacheBase<TType = unknown> = {
     getOrFail(key: string): ITask<TType>;
 
     /**
-     * The `getAndRemove` method returns the value when `key` is found otherwise null will be returned.
-     * The key will be removed after it is returned.
-     */
-    getAndRemove(key: string): ITask<TType | null>;
-
-    /**
      * The `getOr` method will retrieve the given `key` if found otherwise `defaultValue` will be returned.
      *
      * @param defaultValue - can be regular value, sync or async {@link Invokable | `Invokable`} value and {@link ITask | `ITask`} value.
@@ -89,6 +83,20 @@ export type ICacheBase<TType = unknown> = {
         key: string,
         defaultValue: AsyncLazyable<NoneFunc<TType>>,
     ): ITask<TType>;
+};
+
+/**
+ * The `ICacheBase` contract defines a way for storing and reading as key-value pairs independent of data storage.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
+ * @group Contracts
+ */
+export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
+    /**
+     * The `getAndRemove` method returns the value when `key` is found otherwise null will be returned.
+     * The key will be removed after it is returned.
+     */
+    getAndRemove(key: string): ITask<TType | null>;
 
     /**
      * The `getOrAdd` method will retrieve the given `key` if found otherwise `valueToAdd` will be added and returned.
@@ -127,8 +135,7 @@ export type ICacheBase<TType = unknown> = {
     ): ITask<void>;
 
     /**
-     * The `put` method replaces th given `key` with the given `value` and `ttl` if the `key` exists
-     * othwerwise it will add the given `value` with the given `ttl`.
+     * The `put` methods upsert the given key and replaces the ttl when updated.
      *
      * @param ttl - If null is passed, the item will not expire.
      *

@@ -40,9 +40,8 @@ describe("class: AsyncIterableCollection", () => {
             const arr = ["a", "bc", "c", "a", "d", "a"],
                 collection = new AsyncIterableCollection(arr),
                 predicateFn = (item: string): boolean => item === "a",
-                // eslint-disable-next-line @typescript-eslint/require-await
                 newCollection = collection.filter(async (item) =>
-                    predicateFn(item),
+                    Promise.resolve(predicateFn(item)),
                 );
             expect(await newCollection.toArray()).toEqual(
                 arr.filter(predicateFn),
@@ -80,9 +79,8 @@ describe("class: AsyncIterableCollection", () => {
             const arr = ["a", "bc", "c", "a", "d", "a"],
                 collection = new AsyncIterableCollection(arr),
                 predicateFn = (item: string): boolean => item === "a",
-                // eslint-disable-next-line @typescript-eslint/require-await
                 newCollection = collection.reject(async (item) =>
-                    predicateFn(item),
+                    Promise.resolve(predicateFn(item)),
                 );
             expect(await newCollection.toArray()).toEqual(
                 arr.filter((item) => !predicateFn(item)),
@@ -111,9 +109,8 @@ describe("class: AsyncIterableCollection", () => {
             const arr = [2, 3, 4, 5],
                 collection = new AsyncIterableCollection(arr),
                 mapFunction = (item: number): number => item ** 2,
-                // eslint-disable-next-line @typescript-eslint/require-await
                 newCollection = collection.map(async (item) =>
-                    mapFunction(item),
+                    Promise.resolve(mapFunction(item)),
                 );
             expect(await newCollection.toArray()).toEqual(arr.map(mapFunction));
         });
@@ -173,9 +170,8 @@ describe("class: AsyncIterableCollection", () => {
             const arr = ["a", "b", "c", "d"],
                 collection = new AsyncIterableCollection(arr),
                 seperator = "_#_",
-                result = await collection.reduce(
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (firstItem, item) => firstItem + seperator + item,
+                result = await collection.reduce(async (firstItem, item) =>
+                    Promise.resolve(firstItem + seperator + item),
                 );
             expect(result).toBe(arr.join(seperator));
         });
@@ -235,12 +231,11 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should apply flatmap when given an AsyncIterable", async () => {
             const asyncIterable: AsyncIterable<string> = {
-                // eslint-disable-next-line @typescript-eslint/require-await
                 async *[Symbol.asyncIterator](): AsyncIterator<string> {
-                    yield "a";
-                    yield "ab";
-                    yield "b";
-                    yield "ba";
+                    yield Promise.resolve("a");
+                    yield Promise.resolve("ab");
+                    yield Promise.resolve("b");
+                    yield Promise.resolve("ba");
                 },
             };
             const collection = new AsyncIterableCollection(asyncIterable),
@@ -289,12 +284,9 @@ describe("class: AsyncIterableCollection", () => {
                     "b",
                     "ba",
                 ]),
-                // eslint-disable-next-line @typescript-eslint/require-await
-                newCollection = collection.flatMap(async (item, index) => [
-                    index,
-                    item,
-                    item.length,
-                ]);
+                newCollection = collection.flatMap(async (item, index) =>
+                    Promise.resolve([index, item, item.length]),
+                );
             expect(await newCollection.toArray()).toEqual([
                 0,
                 "a",
@@ -386,10 +378,9 @@ describe("class: AsyncIterableCollection", () => {
                     "cccc",
                 ]),
                 newCollection = collection.change(
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (item) => item.length >= 2,
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (item) => item.slice(0, -1),
+                    async (item) => Promise.resolve(item.length >= 2),
+
+                    async (item) => Promise.resolve(item.slice(0, -1)),
                 );
             expect(await newCollection.toArray()).toEqual([
                 "a",
@@ -693,8 +684,9 @@ describe("class: AsyncIterableCollection", () => {
                 "b",
             ]);
             expect(
-                // eslint-disable-next-line @typescript-eslint/require-await
-                await collection.percentage(async (item) => item === "a"),
+                await collection.percentage(async (item) =>
+                    Promise.resolve(item === "a"),
+                ),
             ).toBe(50);
         });
         test("Should throw EmptyCollectionError when collection is empty", async () => {
@@ -760,10 +752,12 @@ describe("class: AsyncIterableCollection", () => {
                 "c",
                 "a",
             ]);
-            // eslint-disable-next-line @typescript-eslint/require-await
-            expect(await collection.some(async (item) => item === "b")).toBe(
-                true,
-            );
+
+            expect(
+                await collection.some(async (item) =>
+                    Promise.resolve(item === "b"),
+                ),
+            ).toBe(true);
         });
     });
     describe("method: every", () => {
@@ -830,8 +824,9 @@ describe("class: AsyncIterableCollection", () => {
                 "a",
             ]);
             expect(
-                // eslint-disable-next-line @typescript-eslint/require-await
-                await collection.every(async (item) => item.length === 1),
+                await collection.every(async (item) =>
+                    Promise.resolve(item.length === 1),
+                ),
             ).toBe(true);
         });
     });
@@ -874,8 +869,9 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should work with async predicate function", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4]),
-                // eslint-disable-next-line @typescript-eslint/require-await
-                newCollection = collection.takeUntil(async (item) => item >= 3);
+                newCollection = collection.takeUntil(async (item) =>
+                    Promise.resolve(item >= 3),
+                );
             expect(await newCollection.toArray()).toEqual([1, 2]);
         });
     });
@@ -898,8 +894,9 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should work with async predicate function", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4]),
-                // eslint-disable-next-line @typescript-eslint/require-await
-                newCollection = collection.takeWhile(async (item) => item < 3);
+                newCollection = collection.takeWhile(async (item) =>
+                    Promise.resolve(item < 3),
+                );
             expect(await newCollection.toArray()).toEqual([1, 2]);
         });
     });
@@ -942,8 +939,9 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should work with async predicate function", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4]),
-                // eslint-disable-next-line @typescript-eslint/require-await
-                newCollection = collection.skipUntil(async (item) => item >= 3);
+                newCollection = collection.skipUntil(async (item) =>
+                    Promise.resolve(item >= 3),
+                );
             expect(await newCollection.toArray()).toEqual([3, 4]);
         });
     });
@@ -966,8 +964,9 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should work with async predicate function", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4]),
-                // eslint-disable-next-line @typescript-eslint/require-await
-                newCollection = collection.skipWhile(async (item) => item <= 3);
+                newCollection = collection.skipWhile(async (item) =>
+                    Promise.resolve(item <= 3),
+                );
             expect(await newCollection.toArray()).toEqual([4]);
         });
     });
@@ -994,9 +993,8 @@ describe("class: AsyncIterableCollection", () => {
             const arr1 = ["a", "b", "c"],
                 collection = new AsyncIterableCollection(arr1),
                 arr2 = [1, 2, 3],
-                // eslint-disable-next-line @typescript-eslint/require-await
                 newCollection = collection.when(true, async (collection) =>
-                    collection.append(arr2),
+                    Promise.resolve(collection.append(arr2)),
                 );
             expect(await newCollection.toArray()).toEqual([...arr1, ...arr2]);
         });
@@ -1022,9 +1020,8 @@ describe("class: AsyncIterableCollection", () => {
         test("Should work with async modifier function", async () => {
             const collection = new AsyncIterableCollection<string>([]),
                 arr2 = [1, 2, 3],
-                // eslint-disable-next-line @typescript-eslint/require-await
                 newCollection = collection.whenEmpty(async (collection) =>
-                    collection.append(arr2),
+                    Promise.resolve(collection.append(arr2)),
                 );
             expect(await newCollection.toArray()).toEqual(arr2);
         });
@@ -1052,9 +1049,8 @@ describe("class: AsyncIterableCollection", () => {
             const arr1 = ["a", "b", "c"],
                 collection = new AsyncIterableCollection(arr1),
                 arr2 = [1, 2, 3],
-                // eslint-disable-next-line @typescript-eslint/require-await
                 newCollection = collection.whenNot(false, async (collection) =>
-                    collection.append(arr2),
+                    Promise.resolve(collection.append(arr2)),
                 );
             expect(await newCollection.toArray()).toEqual([...arr1, ...arr2]);
         });
@@ -1081,9 +1077,8 @@ describe("class: AsyncIterableCollection", () => {
             const arr1 = ["a", "b", "c"],
                 collection = new AsyncIterableCollection(arr1),
                 arr2 = [1, 2, 3],
-                // eslint-disable-next-line @typescript-eslint/require-await
                 newCollection = collection.whenNotEmpty(async (collection) =>
-                    collection.append(arr2),
+                    Promise.resolve(collection.append(arr2)),
                 );
             expect(await newCollection.toArray()).toEqual([...arr1, ...arr2]);
         });
@@ -1129,8 +1124,9 @@ describe("class: AsyncIterableCollection", () => {
             const arr = ["a", "ab", "abc"],
                 collection = new AsyncIterableCollection(arr).tap(
                     (collection) => {
-                        // eslint-disable-next-line @typescript-eslint/require-await
-                        collection.map(async (item) => item.length);
+                        collection.map(async (item) =>
+                            Promise.resolve(item.length),
+                        );
                     },
                 );
             expect(await collection.toArray()).toEqual(arr);
@@ -1223,9 +1219,8 @@ describe("class: AsyncIterableCollection", () => {
         test("Should work with async predicate function", async () => {
             const arr = ["a", 1, "b", 2, "c", 3, "d", 4, "e", 5],
                 collection = new AsyncIterableCollection(arr),
-                newCollection = collection.partition(
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (item) => typeof item === "string",
+                newCollection = collection.partition(async (item) =>
+                    Promise.resolve(typeof item === "string"),
                 );
             expect(
                 await newCollection.map((item) => item.toArray()).toArray(),
@@ -1536,12 +1531,9 @@ describe("class: AsyncIterableCollection", () => {
                     },
                 ],
                 collection = new AsyncIterableCollection<Person>(arr),
-                newCollection = collection.groupBy(
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (item) => {
-                        return item.name;
-                    },
-                );
+                newCollection = collection.groupBy(async (item) => {
+                    return Promise.resolve(item.name);
+                });
             expect(
                 await newCollection
                     .map(
@@ -1692,12 +1684,9 @@ describe("class: AsyncIterableCollection", () => {
                     "b",
                     "cccc",
                 ]),
-                newCollection = collection.unique(
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (item) => {
-                        return item.length;
-                    },
-                );
+                newCollection = collection.unique(async (item) => {
+                    return Promise.resolve(item.length);
+                });
             expect(await newCollection.toArray()).toEqual([
                 "a",
                 "bb",
@@ -1739,12 +1728,11 @@ describe("class: AsyncIterableCollection", () => {
         test("Should remove all elements matches the given AsyncIterable", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]);
             const asyncIterable: AsyncIterable<number> = {
-                // eslint-disable-next-line @typescript-eslint/require-await
                 async *[Symbol.asyncIterator](): AsyncIterator<number> {
-                    yield 2;
-                    yield 4;
-                    yield 6;
-                    yield 8;
+                    yield Promise.resolve(2);
+                    yield Promise.resolve(4);
+                    yield Promise.resolve(6);
+                    yield Promise.resolve(8);
                 },
             };
             const difference = collection.difference(asyncIterable);
@@ -1790,11 +1778,10 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should work with AsyncIterable", async () => {
             const asyncIterable: AsyncIterable<string> = {
-                // eslint-disable-next-line @typescript-eslint/require-await
                 async *[Symbol.asyncIterator](): AsyncIterator<string> {
-                    yield "f";
-                    yield "o";
-                    yield "o";
+                    yield Promise.resolve("f");
+                    yield Promise.resolve("o");
+                    yield Promise.resolve("o");
                 },
             };
             const result = await new AsyncIterableCollection("abc")
@@ -1830,11 +1817,10 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should work with AsyncIterable", async () => {
             const asyncIterable: AsyncIterable<string> = {
-                // eslint-disable-next-line @typescript-eslint/require-await
                 async *[Symbol.asyncIterator](): AsyncIterator<string> {
-                    yield "f";
-                    yield "o";
-                    yield "o";
+                    yield Promise.resolve("f");
+                    yield Promise.resolve("o");
+                    yield Promise.resolve("o");
                 },
             };
             const result = await new AsyncIterableCollection("abc")
@@ -2240,9 +2226,8 @@ describe("class: AsyncIterableCollection", () => {
                     },
                 ],
                 collection = new AsyncIterableCollection(persons),
-                item = await collection.first(
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (person) => person.name === "Joe",
+                item = await collection.first(async (person) =>
+                    Promise.resolve(person.name === "Joe"),
                 );
             expect(item).toEqual(persons[0]);
         });
@@ -2300,8 +2285,7 @@ describe("class: AsyncIterableCollection", () => {
             test("Async function", async () => {
                 const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]),
                     item = await collection.firstOr(
-                        // eslint-disable-next-line @typescript-eslint/require-await
-                        async () => "a",
+                        async () => Promise.resolve("a"),
                         (item) => item === 6,
                     );
                 expect(item).toBe("a");
@@ -2382,8 +2366,8 @@ describe("class: AsyncIterableCollection", () => {
                 collection = new AsyncIterableCollection(persons),
                 item = await collection.firstOr(
                     null,
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (person) => person.name === "Joe",
+
+                    async (person) => Promise.resolve(person.name === "Joe"),
                 );
             expect(item).toEqual(persons[0]);
         });
@@ -2413,8 +2397,8 @@ describe("class: AsyncIterableCollection", () => {
                 collection = new AsyncIterableCollection(persons),
                 item = await collection.firstOr(
                     null,
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (person) => person.name === "Joe",
+
+                    async (person) => Promise.resolve(person.name === "Joe"),
                 );
             expect(item).toEqual(persons[0]);
         });
@@ -2502,9 +2486,8 @@ describe("class: AsyncIterableCollection", () => {
                     },
                 ],
                 collection = new AsyncIterableCollection(persons),
-                item = await collection.firstOrFail(
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (person) => person.name === "Joe",
+                item = await collection.firstOrFail(async (person) =>
+                    Promise.resolve(person.name === "Joe"),
                 );
             expect(item).toEqual(persons[0]);
         });
@@ -2585,9 +2568,8 @@ describe("class: AsyncIterableCollection", () => {
                     },
                 ],
                 collection = new AsyncIterableCollection(persons),
-                item = await collection.last(
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (person) => person.name === "Joe",
+                item = await collection.last(async (person) =>
+                    Promise.resolve(person.name === "Joe"),
                 );
             expect(item).toEqual(persons[2]);
         });
@@ -2645,8 +2627,7 @@ describe("class: AsyncIterableCollection", () => {
             test("Async function", async () => {
                 const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]),
                     item = await collection.lastOr(
-                        // eslint-disable-next-line @typescript-eslint/require-await
-                        async () => "a",
+                        async () => Promise.resolve("a"),
                         (item) => item === 6,
                     );
                 expect(item).toBe("a");
@@ -2654,8 +2635,7 @@ describe("class: AsyncIterableCollection", () => {
             test("ITask", async () => {
                 const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]),
                     item = await collection.lastOr(
-                        // eslint-disable-next-line @typescript-eslint/require-await
-                        new Task(async () => "a"),
+                        new Task(async () => Promise.resolve("a")),
                         (item) => item === 6,
                     );
                 expect(item).toBe("a");
@@ -2701,8 +2681,8 @@ describe("class: AsyncIterableCollection", () => {
                 collection = new AsyncIterableCollection(persons),
                 item = await collection.lastOr(
                     null,
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (person) => person.name === "Joe",
+
+                    async (person) => Promise.resolve(person.name === "Joe"),
                 );
             expect(item).toEqual(persons[2]);
         });
@@ -2790,9 +2770,8 @@ describe("class: AsyncIterableCollection", () => {
                     },
                 ],
                 collection = new AsyncIterableCollection(persons),
-                item = await collection.lastOrFail(
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (person) => person.name === "Joe",
+                item = await collection.lastOrFail(async (person) =>
+                    Promise.resolve(person.name === "Joe"),
                 );
             expect(item).toEqual(persons[2]);
         });
@@ -2834,8 +2813,9 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should work with async predicate function", async () => {
             const collection = new AsyncIterableCollection(["a", "b", "c"]),
-                // eslint-disable-next-line @typescript-eslint/require-await
-                item = await collection.before(async (item) => item === "b");
+                item = await collection.before(async (item) =>
+                    Promise.resolve(item === "b"),
+                );
             expect(item).toBe("a");
         });
     });
@@ -2870,8 +2850,7 @@ describe("class: AsyncIterableCollection", () => {
             test("Async function", async () => {
                 const collection = new AsyncIterableCollection(["a", "b", "c"]),
                     item = await collection.beforeOr(
-                        // eslint-disable-next-line @typescript-eslint/require-await
-                        async () => -1,
+                        async () => Promise.resolve(-1),
                         (item) => item === "a",
                     );
                 expect(item).toBe(-1);
@@ -2879,8 +2858,7 @@ describe("class: AsyncIterableCollection", () => {
             test("ITask", async () => {
                 const collection = new AsyncIterableCollection(["a", "b", "c"]),
                     item = await collection.beforeOr(
-                        // eslint-disable-next-line @typescript-eslint/require-await
-                        new Task(async () => -1),
+                        new Task(async () => Promise.resolve(-1)),
                         (item) => item === "a",
                     );
                 expect(item).toBe(-1);
@@ -2906,8 +2884,7 @@ describe("class: AsyncIterableCollection", () => {
             test("Async function", async () => {
                 const collection = new AsyncIterableCollection(["a", "b", "c"]),
                     item = await collection.beforeOr(
-                        // eslint-disable-next-line @typescript-eslint/require-await
-                        async () => -1,
+                        async () => Promise.resolve(-1),
                         (item) => item === "d",
                     );
                 expect(item).toBe(-1);
@@ -2915,8 +2892,7 @@ describe("class: AsyncIterableCollection", () => {
             test("ITask", async () => {
                 const collection = new AsyncIterableCollection(["a", "b", "c"]),
                     item = await collection.beforeOr(
-                        // eslint-disable-next-line @typescript-eslint/require-await
-                        new Task(async () => -1),
+                        new Task(async () => Promise.resolve(-1)),
                         (item) => item === "d",
                     );
                 expect(item).toBe(-1);
@@ -2944,8 +2920,8 @@ describe("class: AsyncIterableCollection", () => {
             const collection = new AsyncIterableCollection(["a", "b", "c"]),
                 item = await collection.beforeOr(
                     -1,
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (item) => item === "b",
+
+                    async (item) => Promise.resolve(item === "b"),
                 );
             expect(item).toBe("a");
         });
@@ -2991,9 +2967,8 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should work with async predicate function", async () => {
             const collection = new AsyncIterableCollection(["a", "b", "c"]),
-                item = await collection.beforeOrFail(
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (item) => item === "b",
+                item = await collection.beforeOrFail(async (item) =>
+                    Promise.resolve(item === "b"),
                 );
             expect(item).toBe("a");
         });
@@ -3035,8 +3010,9 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should work with async predicate function", async () => {
             const collection = new AsyncIterableCollection(["a", "b", "c"]),
-                // eslint-disable-next-line @typescript-eslint/require-await
-                item = await collection.after(async (item) => item === "b");
+                item = await collection.after(async (item) =>
+                    Promise.resolve(item === "b"),
+                );
             expect(item).toBe("c");
         });
     });
@@ -3068,8 +3044,7 @@ describe("class: AsyncIterableCollection", () => {
             test("Async function", async () => {
                 const collection = new AsyncIterableCollection(["a", "b", "c"]),
                     item = await collection.afterOr(
-                        // eslint-disable-next-line @typescript-eslint/require-await
-                        async () => -1,
+                        async () => Promise.resolve(-1),
                         (item) => item === "c",
                     );
                 expect(item).toBe(-1);
@@ -3077,8 +3052,7 @@ describe("class: AsyncIterableCollection", () => {
             test("ITask", async () => {
                 const collection = new AsyncIterableCollection(["a", "b", "c"]),
                     item = await collection.afterOr(
-                        // eslint-disable-next-line @typescript-eslint/require-await
-                        new Task(async () => -1),
+                        new Task(async () => Promise.resolve(-1)),
                         (item) => item === "c",
                     );
                 expect(item).toBe(-1);
@@ -3101,8 +3075,7 @@ describe("class: AsyncIterableCollection", () => {
             test("Async function", async () => {
                 const collection = new AsyncIterableCollection(["a", "b", "c"]),
                     item = await collection.afterOr(
-                        // eslint-disable-next-line @typescript-eslint/require-await
-                        async () => -1,
+                        async () => Promise.resolve(-1),
                         (item) => item === "d",
                     );
                 expect(item).toBe(-1);
@@ -3110,8 +3083,7 @@ describe("class: AsyncIterableCollection", () => {
             test("ITask", async () => {
                 const collection = new AsyncIterableCollection(["a", "b", "c"]),
                     item = await collection.afterOr(
-                        // eslint-disable-next-line @typescript-eslint/require-await
-                        new Task(async () => -1),
+                        new Task(async () => Promise.resolve(-1)),
                         (item) => item === "d",
                     );
                 expect(item).toBe(-1);
@@ -3139,8 +3111,8 @@ describe("class: AsyncIterableCollection", () => {
             const collection = new AsyncIterableCollection(["a", "b", "c"]),
                 item = await collection.afterOr(
                     -1,
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (item) => item === "b",
+
+                    async (item) => Promise.resolve(item === "b"),
                 );
             expect(item).toBe("c");
         });
@@ -3186,9 +3158,8 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should work with async predicate function", async () => {
             const collection = new AsyncIterableCollection(["a", "b", "c"]),
-                item = await collection.afterOrFail(
-                    // eslint-disable-next-line @typescript-eslint/require-await
-                    async (item) => item === "b",
+                item = await collection.afterOrFail(async (item) =>
+                    Promise.resolve(item === "b"),
                 );
             expect(item).toBe("c");
         });
@@ -3262,10 +3233,12 @@ describe("class: AsyncIterableCollection", () => {
                 "c",
                 "b",
             ]);
-            // eslint-disable-next-line @typescript-eslint/require-await
-            expect(await collection.sole(async (item) => item === "c")).toBe(
-                "c",
-            );
+
+            expect(
+                await collection.sole(async (item) =>
+                    Promise.resolve(item === "c"),
+                ),
+            ).toBe("c");
         });
     });
     describe("method: nth", () => {
@@ -3325,10 +3298,12 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should work with async predicate function", async () => {
             const collection = new AsyncIterableCollection(["b", "b"]);
-            // eslint-disable-next-line @typescript-eslint/require-await
-            expect(await collection.count(async (item) => item === "b")).toBe(
-                2,
-            );
+
+            expect(
+                await collection.count(async (item) =>
+                    Promise.resolve(item === "b"),
+                ),
+            ).toBe(2);
         });
     });
     describe("method: size", () => {
@@ -3425,8 +3400,9 @@ describe("class: AsyncIterableCollection", () => {
                 "c",
             ]);
             expect(
-                // eslint-disable-next-line @typescript-eslint/require-await
-                await collection.searchFirst(async (item) => item === "b"),
+                await collection.searchFirst(async (item) =>
+                    Promise.resolve(item === "b"),
+                ),
             ).toBe(1);
         });
     });
@@ -3469,8 +3445,9 @@ describe("class: AsyncIterableCollection", () => {
                 "c",
             ]);
             expect(
-                // eslint-disable-next-line @typescript-eslint/require-await
-                await collection.searchLast(async (item) => item === "b"),
+                await collection.searchLast(async (item) =>
+                    Promise.resolve(item === "b"),
+                ),
             ).toBe(2);
         });
     });
@@ -3506,9 +3483,10 @@ describe("class: AsyncIterableCollection", () => {
             const arr1 = [1, 2, 3],
                 collection = new AsyncIterableCollection(arr1),
                 arr2: Array<number> = [];
-            // eslint-disable-next-line @typescript-eslint/require-await
+
             await collection.forEach(async (item) => {
                 arr2.push(item);
+                return Promise.resolve();
             });
             expect(arr2).toEqual(arr1);
         });

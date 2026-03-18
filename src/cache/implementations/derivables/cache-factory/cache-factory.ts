@@ -22,7 +22,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */
@@ -31,7 +30,6 @@ export type CacheAdapters<TAdapters extends string = string> = Partial<
 >;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */

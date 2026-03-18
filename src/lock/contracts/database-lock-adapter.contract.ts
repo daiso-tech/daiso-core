@@ -5,7 +5,6 @@
 import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
@@ -18,7 +17,6 @@ export type ILockExpirationData = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
@@ -30,7 +28,6 @@ export type ILockData = ILockExpirationData & {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */

@@ -20,7 +20,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock"`
  * @group Derivables
  */
@@ -29,7 +28,6 @@ export type LockAdapters<TAdapters extends string> = Partial<
 >;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock"`
  * @group Derivables
  */

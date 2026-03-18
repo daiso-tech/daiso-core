@@ -3,7 +3,6 @@
  */
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/time-span/contracts"`
  * @group Contracts
  */

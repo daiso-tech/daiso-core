@@ -5,7 +5,6 @@
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Contracts
  */
@@ -16,7 +15,6 @@ export const RATE_LIMITER_STATE = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Contracts
  */
@@ -24,7 +22,6 @@ export type RateLimiterStateLiterals =
     (typeof RATE_LIMITER_STATE)[keyof typeof RATE_LIMITER_STATE];
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Contracts
  */
@@ -33,7 +30,6 @@ export type RateLimiterExpiredState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Contracts
  */
@@ -46,7 +42,6 @@ export type RateLimiterAllowedState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Contracts
  */
@@ -59,7 +54,6 @@ export type RateLimiterBlockedState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Contracts
  */

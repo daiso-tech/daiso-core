@@ -16,7 +16,6 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 export type ISemaphoreListenable = IEventListenable<SemaphoreEventMap>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
@@ -32,7 +31,6 @@ export type SemaphoreProviderCreateSettings = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */

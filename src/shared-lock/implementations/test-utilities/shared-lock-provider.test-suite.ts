@@ -48,7 +48,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/test-utilities"`
  * @group Utilities
  */
@@ -129,7 +128,7 @@ export function sharedLockProviderTestSuite(
     }
     const RETURN_VALUE = "RETURN_VALUE";
 
-    describe("Reusable tests:", () => {
+    describe("ISharedLockProvider tests:", () => {
         beforeEach(async () => {
             const { sharedLockProvider: sharedLockProvider_, serde: serde_ } =
                 await createSharedLockProvider();

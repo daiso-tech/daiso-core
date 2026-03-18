@@ -41,7 +41,7 @@ const cacheFactory = new CacheFactory({
 });
 ```
 
-## Usage examples
+## Usage
 
 ### 1. Using the default adapter
 

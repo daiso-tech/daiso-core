@@ -25,7 +25,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/kysely-shared-lock-adapter"`
  * @group Adapters
  */
@@ -39,7 +38,6 @@ export type KyselyWriterLockTable = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/kysely-shared-lock-adapter"`
  * @group Adapters
  */
@@ -49,7 +47,6 @@ export type KyselyReaderSemaphoreTable = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/kysely-shared-lock-adapter"`
  * @group Adapters
  */
@@ -62,7 +59,6 @@ export type KyselyReaderSemaphoreSlotTable = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/kysely-shared-lock-adapter"`
  * @group Adapters
  */
@@ -73,7 +69,6 @@ export type KyselySharedLockTables = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/kysely-shared-lock-adapter"`
  * @group Adapters
  */

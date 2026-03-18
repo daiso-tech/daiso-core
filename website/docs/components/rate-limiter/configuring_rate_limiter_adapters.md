@@ -149,7 +149,7 @@ const noOpRateLimiterAdapter = new NoOpRateLimiterAdapter();
 ```
 
 :::info
-The `NoOpRateLimiterAdapter` is useful when you want to mock out or disable your `RateLimiterProvider` instance.
+The `NoOpRateLimiterAdapter` is useful when you want to mock out or disable your [`RateLimiterProvider`](https://daiso-tech.github.io/daiso-core/classes/RateLimiter.RateLimiterProvider.html) instance.
 :::
 
 ## KyselyRateLimiterStorageAdapter
@@ -352,7 +352,7 @@ const noOpRateLimiterStorageAdapter = new NoOpRateLimiterStorageAdapter();
 ```
 
 :::info
-The `NoOpRateLimiterStorageAdapter` is useful when you want to mock out or disable your `DatabaseRateLimiterAdapter` instance.
+The `NoOpRateLimiterStorageAdapter` is useful when you want to mock out or disable your [`DatabaseRateLimiterAdapter`](https://daiso-tech.github.io/daiso-core/classes/RateLimiter.DatabaseRateLimiterAdapter.html) instance.
 :::
 
 ## Further information

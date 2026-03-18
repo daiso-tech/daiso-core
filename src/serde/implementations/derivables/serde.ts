@@ -41,7 +41,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/serde/deriavables"`
  * @group Derivables
  */
@@ -158,7 +157,6 @@ export type SerdeSettings = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/serde/deriavables"`
  * @group Derivables
  */

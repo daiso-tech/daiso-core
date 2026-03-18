@@ -15,7 +15,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/test-utilities"`
  * @group Utilities
  */
@@ -77,7 +76,7 @@ export function semaphoreAdapterTestSuite(
         await Task.delay(time.addMilliseconds(10));
     }
 
-    describe("Reusable tests:", () => {
+    describe("ISemaphoreAdapter tests:", () => {
         beforeEach(async () => {
             adapter = await createAdapter();
         });

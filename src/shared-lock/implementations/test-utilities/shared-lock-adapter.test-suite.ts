@@ -18,7 +18,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/test-utilities"`
  * @group Utilities
  */
@@ -80,7 +79,7 @@ export function sharedLockAdapterTestSuite(
         await Task.delay(time.addMilliseconds(10));
     }
 
-    describe("Reusable tests:", () => {
+    describe("ISharedLockAdapter tests:", () => {
         beforeEach(async () => {
             adapter = await createAdapter();
         });

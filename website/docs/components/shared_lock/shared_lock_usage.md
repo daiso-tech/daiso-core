@@ -531,7 +531,7 @@ const sharedLock = sharedLockProvider.create("resource", {
 });
 
 // Will return the key of the shared-lock which is "resource"
-console.log(sharedLock.key);
+console.log(sharedLock.key.toString());
 
 // Will return the id of the shared-lock
 console.log(sharedLock.id);
@@ -540,6 +540,9 @@ console.log(sharedLock.id);
 console.log(sharedLock.ttl);
 ```
 
+:::info
+The `key` field is an object that implements [`IKey`](../namespace.md) contract.
+:::
 
 ### Shared-lock id
 
@@ -567,7 +570,7 @@ In most cases, setting a shared-lock id is unnecessary.
 
 ### Namespacing
 
-You can use the `Namespace` class to group related shared-locks without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace`.
+You can use the `Namespace` class to group related shared-locks without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
 
 :::info
 For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
@@ -847,7 +850,7 @@ await eventBus.dispatch("sending-shared-lock-over-network", {
 
 // The other servers will recieve the serialized shared-lock and automattically deserialize it.
 await eventBus.addListener("sending-shared-lock-over-network", ({ sharedLock }) => {
-    // The shared-lock is serialized and can be used
+    // The shared-lock is deserialized and can be used
     console.log("SHARED_LOCK:", sharedLock);
 });
 ```
@@ -929,15 +932,15 @@ const redisSharedLockProvider = new SharedLockProvider({
 
 The library includes 3 additional contracts:
 
-- `ISharedLock` - Allows only manipulation of the shared-lock.
+- [`ISharedLock`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLock.html) - Allows only for manipulating of the shared-lock.
 
-- `IWriterLock` - Allows only manipulation of the shared-lock as writer.
+- [`IWriterLock`](https://daiso-tech.github.io/daiso-core/types/SharedLock.IWriterLock.html) - Allows only for manipulating of the shared-lock as writer.
 
-- `IReaderSemaphore` - Allows only manipulation of the shared-lock as reader.
+- [`IReaderSemaphore`](https://daiso-tech.github.io/daiso-core/types/SharedLock.IReaderSemaphore.html) - Allows only for manipulating of the shared-lock as reader.
 
-- `ISharedLockProviderBase` - Allows only creation of shared-locks.
+- [`ISharedLockProviderBase`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLockProviderBase.html) - Allows only for creation of shared-locks.
 
-- `ISharedLockListenable` – Allows only to listening to shared-lock events.
+- [`ISharedLockListenable`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLockListenable.html) - Allows only to listening to shared-lock events.
 
 This seperation makes it easy to visually distinguish the 3 contracts, making it immediately obvious that they serve different purposes.
 

@@ -10,28 +10,24 @@ import { type ITask } from "@/task/contracts/_module.js";
 import { type IInvokableObject } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
  * @group Contracts
  */
 export type BaseEventMap = Record<string, BaseEvent>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
  * @group Contracts
  */
 export type Unsubscribe = () => ITask<void>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
  * @group Contracts
  */
 export type IEventListenerObject<TEvent> = IInvokableObject<[event: TEvent]>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
  * @group Contracts
  */

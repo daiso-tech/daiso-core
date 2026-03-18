@@ -13,7 +13,7 @@ import { type IKey } from "@/namespace/contracts/_module.js";
 export class OpenCircuitBreakerError extends Error {
     static create(key: IKey, cause?: unknown): OpenCircuitBreakerError {
         return new OpenCircuitBreakerError(
-            `Circuit breaker for key "${key.get()}" in opened state. All calls are being blocked until transitioned to half opened state.`,
+            `Circuit breaker for key "${key.get()}" is in opened state. All calls are being blocked until transitioned to half opened state.`,
             cause,
         );
     }
@@ -50,7 +50,6 @@ export class IsolatedCircuitBreakerError extends Error {
 }
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Errors
  */
@@ -60,14 +59,12 @@ export const CIRCUIT_BREAKER_ERRORS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Errors
  */
 export type AllCircuitBreakerErrors = OpenCircuitBreakerError;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Errors
  */

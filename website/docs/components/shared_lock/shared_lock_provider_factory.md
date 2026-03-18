@@ -34,7 +34,7 @@ const sharedLockProvider = new SharedLockProviderFactory({
 });
 ```
 
-## Usage examples
+## Usage
 
 ### 1. Using the default adapter
 

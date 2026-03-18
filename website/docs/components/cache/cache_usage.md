@@ -36,18 +36,19 @@ const cache = new Cache({
 ```
 
 :::info
-Here is a complete list of settings for the `Cache` class.
+Here is a complete list of settings for the [`Cache`](https://daiso-tech.github.io/daiso-core/types/Cache.CacheSettingsBase.html) class.
 :::
 
 ## Cache basics
 
 ### Adding keys
 
-You can add a key and provide a optional TTL to overide the default:
+You can add a key with a optional TTL to overide the default:
 
 ```ts
 await cache.add("a", "value", { ttl: TimeSpan.fromSeconds("1") });
 ```
+The method returns true if the key does not exists.
 
 :::danger
 Note `Cache` class instance uses `Task` instead of a regular `Promise`. This means you must either await the `Task` or call its `detach` method to run it.
@@ -78,7 +79,7 @@ await cache.missing("a");
 
 ### Updating keys
 
-You can update a key value and true will be returned if the key exists and was updated:
+You can update a key and true will be returned if the key exists and was updated:
 
 ```ts
 await cache.update("a", 2);
@@ -96,12 +97,13 @@ You can decrement the a key and true will be returned if the key exists and was 
 await cache.decrement("a", 1);
 ```
 
-You can replace the key value with a given TTL if the key exists otherwise the key will be added:
+You can perform an upsert that replaces the ttl when updated. True will be returned if the key was updated otherwise false is returned:
 
 ```ts
 await cache.put("a", 2);
-await cache.put("a", 2, { ttl: TimeSpan.fromSeconds(3) });
+await cache.put("a", 4, { ttl: TimeSpan.fromSeconds(3) });
 ```
+
 
 ### Removing keys
 
@@ -309,7 +311,7 @@ You can enable jitter in the following methods: `addOrFail`, `put` and `getOrAdd
 
 ### Namespacing
 
-You can use the `Namespace` class to group related data without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace`.
+You can use the `Namespace` class to group related data without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
 
 :::info
 For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
@@ -422,13 +424,15 @@ const redisCache = new Cache({
 
 :::
 
-### Separating manipulating cache and listening
+### Separating reading cache, manipulating cache and listening
 
 The library includes two additional contracts:
 
-- `ICacheBase` - Allows only manipulate the cache.
+- [`IReadableCache`](https://daiso-tech.github.io/daiso-core/types/Cache.IReadableCache.html) - Allows only for reading cache.
 
-- `ICacheListenable` – Allows only listening to cache events.
+- [`ICacheBase`](https://daiso-tech.github.io/daiso-core/types/Cache.ICacheBase.html) - Allows only for reading and manipulating the cache.
+
+- [`ICacheListenable`](https://daiso-tech.github.io/daiso-core/types/Cache.ICacheListenable.html) - Allows only for listening to cache events.
 
 This seperation makes it easy to visually distinguish the two contracts, making it immediately obvious that they serve different purposes.
 
@@ -436,6 +440,7 @@ This seperation makes it easy to visually distinguish the two contracts, making 
 import type {
     ICache,
     ICacheBase,
+    IReadableCache,
     ICacheListenable,
     CACHE_EVENTS,
 } from "@daiso-tech/core/cache/contracts";
@@ -444,13 +449,21 @@ import { MemoryCacheAdapter } from "@daiso-tech/core/cache/adapter/memory-cache-
 import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBus } from "@daiso-tech/core/event-bus/memory-event-bus";
 
-function manipulatingFunc(cache: ICacheBase): Promise<void> {
+async function readingFunc(cache: IReadableCache): Promise<void> {
+    // You cannot access the listener methods
+    // You cannot access write methods like put, add and update
+    // You will get typescript error if you try
+
+    console.lolg("reading only:", await cache.get("a"))
+}
+async function manipulatingFunc(cache: ICacheBase): Promise<void> {
     // You cannot access the listener methods
     // You will get typescript error if you try
 
     await cache.add("a", 1);
+    console.lolg("writing and reading:", await cache.get("a"))
 }
-function listenerFunc(cacheListenable: ICacheListenable): Promise<void> {
+async function listenerFunc(cacheListenable: ICacheListenable): Promise<void> {
     // You cannot access the cache methods
     // You will get typescript error if you try
 

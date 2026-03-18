@@ -16,7 +16,6 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 export type ILockListenable = IEventListenable<LockEventMap>;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
@@ -33,7 +32,6 @@ export type LockProviderCreateSettings = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */

@@ -17,7 +17,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/test-utilities"`
  * @group Utilities
  */
@@ -79,7 +78,7 @@ export function databaseLockAdapterTestSuite(
 ): void {
     const { expect, test, createAdapter, describe, beforeEach } = settings;
 
-    describe("Reusable tests:", () => {
+    describe("IDatabaseLockAdapter tests:", () => {
         let adapter: IDatabaseLockAdapter;
         beforeEach(async () => {
             adapter = await createAdapter();

@@ -5,7 +5,6 @@
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -15,7 +14,6 @@ export const SHARED_LOCK_WRITER_STATE = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -23,7 +21,6 @@ export type SharedLockWriterStateLiterals =
     (typeof SHARED_LOCK_WRITER_STATE)[keyof typeof SHARED_LOCK_WRITER_STATE];
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -34,7 +31,6 @@ export const SHARED_LOCK_READER_STATE = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -42,7 +38,6 @@ export type SharedLockReaderStateLiterals =
     (typeof SHARED_LOCK_READER_STATE)[keyof typeof SHARED_LOCK_READER_STATE];
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -53,7 +48,6 @@ export const SHARED_LOCK_STATE = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -61,7 +55,6 @@ export type SharedLockState =
     (typeof SHARED_LOCK_STATE)[keyof typeof SHARED_LOCK_STATE];
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -70,7 +63,6 @@ export type ISharedLockExpiredState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -81,7 +73,6 @@ export type ISharedLockWriterUnavailableState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -92,7 +83,6 @@ export type ISharedLockWriterAcquiredState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -101,7 +91,6 @@ export type ISharedLockWriterState =
     | ISharedLockWriterAcquiredState;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -114,7 +103,6 @@ export type ISharedLockReaderUnacquiredState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -128,7 +116,6 @@ export type ISharedLockReaderAcquiredState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -139,7 +126,6 @@ export type ISharedLockReaderLimitReachedState = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
@@ -149,7 +135,6 @@ export type ISharedLockReaderState =
     | ISharedLockReaderLimitReachedState;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */

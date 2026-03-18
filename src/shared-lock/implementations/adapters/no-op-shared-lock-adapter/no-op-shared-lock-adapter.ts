@@ -12,7 +12,7 @@ import {
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- * This `NoOpSharedLockAdapter` will do nothing and is used for easily mocking {@link ISharedLockProvider | `ISharedLockProvider`} for testing.
+ * The `NoOpSharedLockAdapter` will do nothing and is used for easily mocking {@link ISharedLockProvider | `ISharedLockProvider`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/no-op-shared-lock-adapter"`
  * @group Adapters

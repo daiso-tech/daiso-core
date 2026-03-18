@@ -88,7 +88,6 @@ export class FailedReleaseSemaphoreError extends Error {
 }
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Errors
  */
@@ -99,7 +98,6 @@ export const SEMAPHORE_ERRORS = {
 } as const;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Errors
  */
@@ -109,7 +107,6 @@ export type AllSemaphoreErrors =
     | FailedReleaseSemaphoreError;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Errors
  */

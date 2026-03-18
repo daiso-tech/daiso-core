@@ -19,7 +19,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type IDeinitizable, type IInitizable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/mongodb-semaphore-adapter"`
  * @group Adapters
  */
@@ -29,7 +28,6 @@ export type MongodbSemaphoreSlotSubDocument = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/mongodb-semaphore-adapter"`
  * @group Adapters
  */
@@ -42,7 +40,6 @@ export type MongodbSemaphoreDocument = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/mongodb-semaphore-adapter"`
  * @group Adapters
  */

@@ -36,7 +36,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/test-utilities"`
  * @group Utilities
  */
@@ -118,7 +117,7 @@ export function lockProviderTestSuite(
     }
 
     const RETURN_VALUE = "RETURN_VALUE";
-    describe("Reusable tests:", () => {
+    describe("ILockProvider tests:", () => {
         beforeEach(async () => {
             const { lockProvider: lockProvider_, serde: serde_ } =
                 await createLockProvider();

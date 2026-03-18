@@ -20,7 +20,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/kysely-lock-adapter"`
  * @group Adapters
  */
@@ -34,7 +33,6 @@ export type KyselyLockTable = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/kysely-lock-adapter"`
  * @group Adapters
  */
@@ -43,7 +41,6 @@ export type KyselyLockTables = {
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/lock/kysely-lock-adapter"`
  * @group Adapters
  */

@@ -34,7 +34,7 @@ const semaphoreProvider = new SemaphoreProviderFactory({
 });
 ```
 
-## Usage examples
+## Usage
 
 ### 1. Using the default adapter
 

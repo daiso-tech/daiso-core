@@ -580,7 +580,7 @@ describe("class: CircuitBreakerProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as ICircuitBreakerStateMethods["getState"],
-                                key: KEY,
+                                key: circuitBreaker.key,
                             } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
                             error: expect.any(Error),
                         } satisfies TrackedFailureCircuitBreakerEvent),
@@ -622,7 +622,7 @@ describe("class: CircuitBreakerProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as ICircuitBreakerStateMethods["getState"],
-                                key: KEY,
+                                key: circuitBreaker.key,
                             } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
                         } satisfies TrackedSlowCallCircuitBreakerEvent),
                     );
@@ -661,7 +661,7 @@ describe("class: CircuitBreakerProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as ICircuitBreakerStateMethods["getState"],
-                                key: KEY,
+                                key: circuitBreaker.key,
                             } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
                         } satisfies TrackedSuccessCircuitBreakerEvent),
                     );
@@ -774,7 +774,7 @@ describe("class: CircuitBreakerProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as ICircuitBreakerStateMethods["getState"],
-                                key: KEY,
+                                key: circuitBreaker.key,
                             } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
                             error: expect.any(Error),
                         } satisfies TrackedFailureCircuitBreakerEvent),
@@ -845,7 +845,7 @@ describe("class: CircuitBreakerProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as ICircuitBreakerStateMethods["getState"],
-                                key: KEY,
+                                key: circuitBreaker.key,
                             } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
                         } satisfies TrackedSlowCallCircuitBreakerEvent),
                     );
@@ -886,7 +886,7 @@ describe("class: CircuitBreakerProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as ICircuitBreakerStateMethods["getState"],
-                                key: KEY,
+                                key: circuitBreaker.key,
                             } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
                         } satisfies TrackedSuccessCircuitBreakerEvent),
                     );
@@ -1026,7 +1026,7 @@ describe("class: CircuitBreakerProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as ICircuitBreakerStateMethods["getState"],
-                                key: KEY,
+                                key: circuitBreaker.key,
                             } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
                         } satisfies TrackedSlowCallCircuitBreakerEvent),
                     );
@@ -1061,7 +1061,7 @@ describe("class: CircuitBreakerProvider", () => {
                                 getState: expect.any(
                                     Function,
                                 ) as ICircuitBreakerStateMethods["getState"],
-                                key: KEY,
+                                key: circuitBreaker.key,
                             } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
                         } satisfies TrackedSuccessCircuitBreakerEvent),
                     );
@@ -1204,7 +1204,7 @@ describe("class: CircuitBreakerProvider", () => {
                             getState: expect.any(
                                 Function,
                             ) as ICircuitBreakerStateMethods["getState"],
-                            key: KEY,
+                            key: circuitBreaker.key,
                         } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
                         from: CIRCUIT_BREAKER_STATE.CLOSED,
                         to: CIRCUIT_BREAKER_STATE.OPEN,
@@ -1223,7 +1223,8 @@ describe("class: CircuitBreakerProvider", () => {
                     handlerFn,
                 );
 
-                await circuitBreakerProvider.create(KEY).isolate();
+                const circuitBreaker = circuitBreakerProvider.create(KEY);
+                await circuitBreaker.isolate();
 
                 expect(handlerFn).toHaveBeenCalledOnce();
                 expect(handlerFn).toHaveBeenCalledWith(
@@ -1232,7 +1233,7 @@ describe("class: CircuitBreakerProvider", () => {
                             getState: expect.any(
                                 Function,
                             ) as ICircuitBreakerStateMethods["getState"],
-                            key: KEY,
+                            key: circuitBreaker.key,
                         } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
                     } satisfies IsolatedCircuitBreakerEvent),
                 );
@@ -1249,7 +1250,8 @@ describe("class: CircuitBreakerProvider", () => {
                     handlerFn,
                 );
 
-                await circuitBreakerProvider.create(KEY).reset();
+                const circuitBreaker = circuitBreakerProvider.create(KEY);
+                await circuitBreaker.reset();
 
                 expect(handlerFn).toHaveBeenCalledOnce();
                 expect(handlerFn).toHaveBeenCalledWith(
@@ -1258,7 +1260,7 @@ describe("class: CircuitBreakerProvider", () => {
                             getState: expect.any(
                                 Function,
                             ) as ICircuitBreakerStateMethods["getState"],
-                            key: KEY,
+                            key: circuitBreaker.key,
                         } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
                     } satisfies ResetedCircuitBreakerEvent),
                 );

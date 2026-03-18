@@ -147,8 +147,8 @@ export class RateLimiter implements IRateLimiter {
         });
     }
 
-    get key(): string {
-        return this._key.get();
+    get key(): IKey {
+        return this._key;
     }
 
     get limit(): number {
@@ -159,7 +159,7 @@ export class RateLimiter implements IRateLimiter {
         asyncFn: AsyncLazy<TValue>,
     ): Promise<TValue> {
         const state = this.toRateLimiterState(
-            await this.adapter.getState(this.key.toString()),
+            await this.adapter.getState(this._key.toString()),
         );
 
         if (state.type === RATE_LIMITER_STATE.BLOCKED) {
@@ -170,7 +170,7 @@ export class RateLimiter implements IRateLimiter {
                 .detach();
 
             const { type: _type, ...rest } = state;
-            throw new BlockedRateLimiterError(rest, "2_!!__MESSAGE__!!");
+            throw BlockedRateLimiterError.create(rest, this._key);
         }
 
         try {
@@ -206,7 +206,7 @@ export class RateLimiter implements IRateLimiter {
             if (isErrorMatching) {
                 const task = new Task(async () => {
                     await this.adapter.updateState(
-                        this.key.toString(),
+                        this._key.toString(),
                         this.limit,
                     );
                 });
@@ -225,7 +225,7 @@ export class RateLimiter implements IRateLimiter {
         asyncFn: AsyncLazy<TValue>,
     ): Promise<TValue> {
         const state = this.toRateLimiterState(
-            await this.adapter.updateState(this.key.toString(), this.limit),
+            await this.adapter.updateState(this._key.toString(), this.limit),
         );
 
         if (state.type === RATE_LIMITER_STATE.BLOCKED) {
@@ -236,7 +236,7 @@ export class RateLimiter implements IRateLimiter {
                 .detach();
 
             const { type: _type, ...rest } = state;
-            throw new BlockedRateLimiterError(rest, "3_!!__MESSAGE__!!");
+            throw BlockedRateLimiterError.create(rest, this._key);
         }
 
         this.eventDispatcher

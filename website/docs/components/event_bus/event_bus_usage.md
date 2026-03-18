@@ -249,9 +249,9 @@ console.log(event);
 
 The library includes two additional contracts:
 
-- `IEventDispatcher` – Allows only event dispatching.
+- [`IEventDispatcher`](https://daiso-tech.github.io/daiso-core/types/EventBus.IEventDispatcher.html) - Allows only for event dispatching.
 
-- `IEventListenable` – Allows only event listening.
+- [`IEventListenable`](https://daiso-tech.github.io/daiso-core/types/EventBus.IEventListenable.html) - Allows only for event listening.
 
 This seperation makes it easy to visually distinguish the two contracts, making it immediately obvious that they serve different purposes.
 
@@ -340,7 +340,7 @@ await eventBus.dispatch("add", {
 
 ### Namespacing
 
-You can use the `Namespace` class to group related without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace`.
+You can use the `Namespace` class to group related without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
 
 :::info
 For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.

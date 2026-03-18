@@ -76,7 +76,7 @@ const noEventBusAdapter = new NoOpEventBusAdapter();
 ```
 
 :::info
-The `NoOpEventBusAdapter` is useful when you want to mock out or disable your `EventBus` class.
+The `NoOpEventBusAdapter` is useful when you want to mock out or disable your [`EventBus`](https://daiso-tech.github.io/daiso-core/classes/EventBus.EventBus.html) class.
 :::
 
 ## Further information

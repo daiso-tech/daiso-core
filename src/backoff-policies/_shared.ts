@@ -27,8 +27,6 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { type Invokable } from "@/utilities/_module.js";
 
 /**
- * @returns Amount milliseconds to wait
- *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  */
 export type BackoffPolicy = Invokable<
@@ -37,7 +35,6 @@ export type BackoffPolicy = Invokable<
 >;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  */
 export type DynamicBackoffPolicy<TSettings> =

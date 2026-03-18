@@ -9,7 +9,6 @@ import { type NoneFunc } from "@/utilities/types/none-func.type.js";
 import { type Promisable } from "@/utilities/types/promiseable.type.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  */
 export type InvokableFn<
@@ -18,7 +17,6 @@ export type InvokableFn<
 > = (...args: TArgs) => TReturn;
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  */
 export type IInvokableObject<
@@ -29,7 +27,6 @@ export type IInvokableObject<
 };
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  */
 export type Invokable<
@@ -37,7 +34,6 @@ export type Invokable<
     TReturn = unknown,
 > = InvokableFn<TArgs, TReturn> | IInvokableObject<TArgs, TReturn>;
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  */
 export type IAsyncFactoryObject<TInput, TOutput> = IInvokableObject<

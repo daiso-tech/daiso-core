@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach } from "vitest";
 
 import { MemoryCircuitBreakerStorageAdapter } from "@/circuit-breaker/implementations/adapters/memory-circuit-breaker-storage-adapter/memory-circuit-breaker-storage-adapter.js";
-import { circuitBreakerStorageAdapterTestSuite } from "@/circuit-breaker/implementations/test-utilities/circuit-breaker-storage-adapter.test-suite.js";
+import { circuitBreakerStorageAdapterTestSuite } from "@/circuit-breaker/implementations/test-utilities/_module.js";
 
 describe("class: MemoryCircuitBreakerStorageAdapter", () => {
     describe("method: deInit", () => {

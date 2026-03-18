@@ -11,7 +11,6 @@ import {
 } from "@/serde/contracts/_module.js";
 
 /**
- *
  * IMPORT_PATH: `"@daiso-tech/core/serde/test-utilities"`
  * @group TestUtilities
  */
