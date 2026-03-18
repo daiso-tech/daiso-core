@@ -59,13 +59,13 @@ const hasAdded = await fileStorage.create("file.txt").add({ data: "CONTENT" });
 
 You can update a file and true will be returned if the file exists and was updated:
 ```ts
-const hasUpdated = await cache.create("file.txt").update({ data: "TEXT 1" });
+const hasUpdated = await fileStorage.create("file.txt").update({ data: "TEXT 1" });
 ```
 
 You can upsert a file and true will be returned if the file was updated otherwise false is returned:
 ```ts
-const hasUpdated = await cache.create("file.txt").put({ data: "TEXT 1" });
-const hasUpdated = await cache.create("file.txt").put({ data: "TEXT 2" });
+const hasUpdated = await fileStorage.create("file.txt").put({ data: "TEXT 1" });
+const hasUpdated = await fileStorage.create("file.txt").put({ data: "TEXT 2" });
 ```
 
 :::info
@@ -140,7 +140,7 @@ import { createReadStream } from "node:fs"
 
 const fileStream = createReadStream("./file.txt")
 
-const hasUpdated = await cache.create("file.txt").updateStream({ data: fileStream });
+const hasUpdated = await fileStorage.create("file.txt").updateStream({ data: fileStream });
 ```
 
 You can upsert a file stream and true will be returned if the file was updated otherwise false is returned:
@@ -149,8 +149,8 @@ import { createReadStream } from "node:fs"
 
 const fileStream = createReadStream("./file.txt")
 
-const hasUpdated = await cache.create("file.txt").putStream({ data: fileStream });
-const hasUpdated = await cache.create("file.txt").putStream({ data: fileStream });
+const hasUpdated = await fileStorage.create("file.txt").putStream({ data: fileStream });
+const hasUpdated = await fileStorage.create("file.txt").putStream({ data: fileStream });
 ```
 
 :::info
