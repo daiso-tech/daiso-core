@@ -1,5 +1,14 @@
 # @daiso-tech/core
 
+## 0.49.0
+
+### Minor Changes
+
+- 7db431a: Updated `IKey` to extend `IEquals` to support key comparison for `INamespace`.
+- 7db431a: Introduced a new contract `IReadableCache` which allows only reading from the cache.
+- 7db431a: Added new FileStorage component.
+- 7db431a: Updated following contracts `IRateLimiter`, `ICircuitBreaker`, `ILock`, `ISemaphore`, and `ISharedLock`. Their `key` field has been updated from a `string` to the more specific `IKey` contract.
+
 ## 0.48.5
 
 ### Patch Changes
@@ -772,8 +781,8 @@
 - 3ca9190: Renamed `FallbackSettings.fallbackPolicy` to `FallbackSettings.errorPolicy`
 - 3ca9190: - Removed the following types:
 
-                                                      - `AsyncFactoryable`
-                                                      - `Factoryable`
+                                                        - `AsyncFactoryable`
+                                                        - `Factoryable`
 
     - Updated remaining factory types to use the new `InvokableFn` and `InvokableObject` contracts:
         - Synchronous factories:
