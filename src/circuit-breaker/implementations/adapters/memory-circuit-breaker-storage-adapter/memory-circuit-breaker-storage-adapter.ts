@@ -10,6 +10,8 @@ import {
 } from "@/circuit-breaker/contracts/_module.js";
 import { type IDeinitizable, type InvokableFn } from "@/utilities/_module.js";
 
+// eslint-disable-next-line prettier/prettier
+
 /**
  * The `MemoryCircuitBreakerStorageAdapter` is used for easily facking {@link ICircuitBreakerProvider | `ICircuitBreakerProvider`} for testing.
  *
