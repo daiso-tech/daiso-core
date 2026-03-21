@@ -17,6 +17,7 @@ jobs:
 
             - name: Linting
               run: npm run lint
+
     pubcheck:
         name: Checking-package
         runs-on: ubuntu-latest
@@ -34,6 +35,7 @@ jobs:
 
             - name: Checking
               run: npm run publint
+
     check:
         name: Checking
         runs-on: ubuntu-latest
@@ -51,12 +53,18 @@ jobs:
 
             - name: Checking
               run: npm run check
+
     test:
         name: Testing
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Fetch Base Branch
+              run: git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
 
             - name: Install Node js
               uses: actions/setup-node@v4
@@ -67,4 +75,4 @@ jobs:
               run: npm ci
 
             - name: Testing
-              run: npm run test:changed
+              run: npx vitest --run --changed ${{ github.base_ref }}
