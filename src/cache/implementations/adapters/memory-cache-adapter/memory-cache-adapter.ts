@@ -87,7 +87,6 @@ export class MemoryCacheAdapter<TType = unknown>
         const hasKey = prevValue !== undefined;
         if (hasKey) {
             if (typeof prevValue !== "number") {
-                console.log("!!!_________________!!!:");
                 throw new TypeError(
                     `Unable to increment or decrement none number type key "${key}"`,
                 );
