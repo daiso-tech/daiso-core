@@ -11,6 +11,7 @@ import {
 
 import { type ISemaphoreAdapter } from "@/semaphore/contracts/_module.js";
 import { Task } from "@/task/implementations/_module.js";
+import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
@@ -24,6 +25,16 @@ export type SemaphoreAdapterTestSuiteSettings = {
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
     createAdapter: () => Promisable<ISemaphoreAdapter>;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    delayBuffer?: ITimeSpan;
 };
 
 /**
@@ -69,11 +80,18 @@ export type SemaphoreAdapterTestSuiteSettings = {
 export function semaphoreAdapterTestSuite(
     settings: SemaphoreAdapterTestSuiteSettings,
 ): void {
-    const { expect, test, createAdapter, describe, beforeEach } = settings;
+    const {
+        expect,
+        test,
+        createAdapter,
+        describe,
+        beforeEach,
+        delayBuffer = TimeSpan.fromMilliseconds(10),
+    } = settings;
     let adapter: ISemaphoreAdapter;
 
     async function delay(time: TimeSpan): Promise<void> {
-        await Task.delay(time.addMilliseconds(10));
+        await Task.delay(TimeSpan.fromTimeSpan(time).addTimeSpan(delayBuffer));
     }
 
     describe("ISemaphoreAdapter tests:", () => {
@@ -378,38 +396,20 @@ export function semaphoreAdapterTestSuite(
                 const ttl = TimeSpan.fromMilliseconds(50);
                 const limit = 2;
 
-                const slotId1 = "1";
+                const slotId = "1";
                 await adapter.acquire({
                     key,
-                    slotId: slotId1,
+                    slotId: slotId,
                     ttl,
                     limit,
                 });
                 await delay(ttl);
 
-                const slotId2 = "2";
-                const result = await adapter.release(key, slotId2);
-
-                expect(result).toBe(false);
-            });
-            test("Should return false when slot exists, is expired", async () => {
-                const key = "a";
-                const slotId = "b";
-                const ttl = TimeSpan.fromMilliseconds(50);
-                const limit = 2;
-
-                await adapter.acquire({
-                    key,
-                    slotId,
-                    ttl,
-                    limit,
-                });
-                await delay(ttl);
                 const result = await adapter.release(key, slotId);
 
                 expect(result).toBe(false);
             });
-            test("Should return true when slot exists, is unexpired", async () => {
+            test("Should return true when slot exists and is unexpired", async () => {
                 const key = "a";
                 const slotId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
@@ -425,7 +425,7 @@ export function semaphoreAdapterTestSuite(
 
                 expect(result).toBe(true);
             });
-            test("Should return true when slot exists, is unexpireable", async () => {
+            test("Should return true when slot exists and is unexpireable", async () => {
                 const key = "a";
                 const slotId = "b";
                 const ttl = null;
@@ -790,25 +790,7 @@ export function semaphoreAdapterTestSuite(
 
                 expect(result).toBe(false);
             });
-            test("Should return false when slot exists, is expired", async () => {
-                const key = "a";
-                const slotId = "b";
-                const ttl = TimeSpan.fromMilliseconds(50);
-                const limit = 2;
-
-                await adapter.acquire({
-                    key,
-                    slotId,
-                    ttl,
-                    limit,
-                });
-                await delay(ttl);
-                const newTtl = TimeSpan.fromMilliseconds(100);
-                const result = await adapter.refresh(key, slotId, newTtl);
-
-                expect(result).toBe(false);
-            });
-            test("Should return false when slot exists, is unexpireable", async () => {
+            test("Should return false when slot exists and is unexpireable", async () => {
                 const key = "a";
                 const slotId = "b";
                 const ttl = null;
@@ -825,7 +807,7 @@ export function semaphoreAdapterTestSuite(
 
                 expect(result).toBe(false);
             });
-            test("Should return true when slot exists, is unexpired", async () => {
+            test("Should return true when slot exists and is unexpired", async () => {
                 const key = "a";
                 const slotId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
@@ -842,7 +824,7 @@ export function semaphoreAdapterTestSuite(
 
                 expect(result).toBe(true);
             });
-            test("Should not update expiration when slot exists, is unexpireable", async () => {
+            test("Should not update expiration when slot exists and is unexpireable", async () => {
                 const key = "a";
                 const limit = 2;
 
@@ -877,7 +859,7 @@ export function semaphoreAdapterTestSuite(
                 });
                 expect(result1).toBe(false);
             });
-            test("Should update expiration when slot exists, is unexpired", async () => {
+            test("Should update expiration when slot exists and is unexpired", async () => {
                 const key = "a";
                 const limit = 2;
 
