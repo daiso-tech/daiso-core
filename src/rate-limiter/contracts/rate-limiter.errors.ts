@@ -44,7 +44,7 @@ export class BlockedRateLimiterError extends Error {
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Errors
  */
-export const CIRCUIT_BREAKER_ERRORS = {
+export const RATE_LIMITER_ERRORS = {
     Blocked: BlockedRateLimiterError,
 } as const;
 
@@ -53,7 +53,7 @@ export const CIRCUIT_BREAKER_ERRORS = {
  * @group Errors
  */
 export type AllRateLimiterErrors = InferInstance<
-    (typeof CIRCUIT_BREAKER_ERRORS)[keyof typeof CIRCUIT_BREAKER_ERRORS]
+    (typeof RATE_LIMITER_ERRORS)[keyof typeof RATE_LIMITER_ERRORS]
 >;
 
 /**
@@ -63,7 +63,7 @@ export type AllRateLimiterErrors = InferInstance<
 export function isRateLimiterError(
     value: unknown,
 ): value is AllRateLimiterErrors {
-    for (const ErrorClass of Object.values(CIRCUIT_BREAKER_ERRORS)) {
+    for (const ErrorClass of Object.values(RATE_LIMITER_ERRORS)) {
         if (value instanceof ErrorClass) {
             return true;
         }
