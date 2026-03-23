@@ -44,6 +44,16 @@ export type CacheTestSuiteSettings = {
      * @default false
      */
     excludeEventTests?: boolean;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    delayBuffer?: ITimeSpan;
 };
 
 /**
@@ -81,6 +91,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
         describe,
         beforeEach,
         excludeEventTests = false,
+        delayBuffer = TimeSpan.fromMilliseconds(10),
     } = settings;
     let cache: ICache<number>;
     beforeEach(async () => {
@@ -88,7 +99,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
     });
 
     async function delay(ttl: ITimeSpan): Promise<void> {
-        await Task.delay(ttl);
+        await Task.delay(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
     const TTL = TimeSpan.fromMilliseconds(50);
