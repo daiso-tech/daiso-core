@@ -31,6 +31,7 @@ import {
 } from "@/lock/contracts/_module.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
 import { Task } from "@/task/implementations/_module.js";
+import { createIsTimeSpanEqualityTester } from "@/test-utilities/_module.js";
 import {
     TO_MILLISECONDS,
     type ITimeSpan,
@@ -77,6 +78,16 @@ export type LockProviderTestSuiteSettings = {
      * ```
      */
     delayBuffer?: ITimeSpan;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    timeSpanEqualityBuffer?: ITimeSpan;
 };
 
 /**
@@ -128,6 +139,7 @@ export function lockProviderTestSuite(
         excludeSerdeTests = false,
         retry = 0,
         delayBuffer = TimeSpan.fromMilliseconds(10),
+        timeSpanEqualityBuffer = TimeSpan.fromMilliseconds(10),
     } = settings;
 
     let lockProvider: ILockProvider;
@@ -1954,25 +1966,25 @@ export function lockProviderTestSuite(
                         remainingTime: ttl,
                     } satisfies ILockAcquiredState);
                 });
-                test(
-                    "Should return ILockAcquiredState when key is unexpired",
-                    { retry },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const lock = lockProvider.create(key, {
-                            ttl,
-                        });
-                        await lock.acquire();
+                test("Should return ILockAcquiredState when key is unexpired", async () => {
+                    expect.addEqualityTesters([
+                        createIsTimeSpanEqualityTester(timeSpanEqualityBuffer),
+                    ]);
 
-                        const state = await lock.getState();
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const lock = lockProvider.create(key, {
+                        ttl,
+                    });
+                    await lock.acquire();
 
-                        expect(state).toEqual({
-                            type: LOCK_STATE.ACQUIRED,
-                            remainingTime: ttl,
-                        } satisfies ILockAcquiredState);
-                    },
-                );
+                    const state = await lock.getState();
+
+                    expect(state).toEqual({
+                        type: LOCK_STATE.ACQUIRED,
+                        remainingTime: ttl,
+                    } satisfies ILockAcquiredState);
+                });
                 test("Should return ILockUnavailableState when key is acquired by different lock-id", async () => {
                     const key = "a";
                     const ttl = null;
@@ -3836,28 +3848,28 @@ export function lockProviderTestSuite(
                     remainingTime: ttl,
                 } satisfies ILockAcquiredState);
             });
-            test(
-                "Should return ILockAcquiredState when is derserialized and key is unexpired",
-                { retry },
-                async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, {
-                        ttl,
-                    });
-                    await lock.acquire();
+            test("Should return ILockAcquiredState when is derserialized and key is unexpired", async () => {
+                expect.addEqualityTesters([
+                    createIsTimeSpanEqualityTester(timeSpanEqualityBuffer),
+                ]);
 
-                    const deserializedLock = serde.deserialize<ILock>(
-                        serde.serialize(lock),
-                    );
-                    const state = await deserializedLock.getState();
+                const key = "a";
+                const ttl = TimeSpan.fromMilliseconds(50);
+                const lock = lockProvider.create(key, {
+                    ttl,
+                });
+                await lock.acquire();
 
-                    expect(state).toEqual({
-                        type: LOCK_STATE.ACQUIRED,
-                        remainingTime: ttl,
-                    } satisfies ILockAcquiredState);
-                },
-            );
+                const deserializedLock = serde.deserialize<ILock>(
+                    serde.serialize(lock),
+                );
+                const state = await deserializedLock.getState();
+
+                expect(state).toEqual({
+                    type: LOCK_STATE.ACQUIRED,
+                    remainingTime: ttl,
+                } satisfies ILockAcquiredState);
+            });
             test("Should return ILockUnavailableState when is derserialized and key is acquired by different lock-id", async () => {
                 const key = "a";
                 const ttl = null;

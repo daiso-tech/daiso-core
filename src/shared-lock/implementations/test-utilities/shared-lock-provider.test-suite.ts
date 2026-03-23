@@ -44,6 +44,7 @@ import {
     type UnavailableSharedLockEvent,
 } from "@/shared-lock/contracts/_module.js";
 import { Task } from "@/task/implementations/_module.js";
+import { createIsTimeSpanEqualityTester } from "@/test-utilities/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
@@ -87,6 +88,16 @@ export type SharedLockProviderTestSuiteSettings = {
      * ```
      */
     delayBuffer?: ITimeSpan;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    timeSpanEqualityBuffer?: ITimeSpan;
 };
 
 /**
@@ -138,6 +149,7 @@ export function sharedLockProviderTestSuite(
         excludeSerdeTests = false,
         retry = 0,
         delayBuffer = TimeSpan.fromMilliseconds(10),
+        timeSpanEqualityBuffer = TimeSpan.fromMilliseconds(10),
     } = settings;
 
     let sharedLockProvider: ISharedLockProvider;
@@ -6382,27 +6394,27 @@ export function sharedLockProviderTestSuite(
                         remainingTime: ttl,
                     } satisfies ISharedLockWriterAcquiredState);
                 });
-                test(
-                    "Should return ISharedLockWriterAcquiredState when writer is unexpired",
-                    { retry },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireWriter();
+                test("Should return ISharedLockWriterAcquiredState when writer is unexpired", async () => {
+                    expect.addEqualityTesters([
+                        createIsTimeSpanEqualityTester(timeSpanEqualityBuffer),
+                    ]);
 
-                        const state = await sharedLock.getState();
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
 
-                        expect(state).toEqual({
-                            type: SHARED_LOCK_STATE.WRITER_ACQUIRED,
-                            remainingTime: ttl,
-                        } satisfies ISharedLockWriterAcquiredState);
-                    },
-                );
+                    const state = await sharedLock.getState();
+
+                    expect(state).toEqual({
+                        type: SHARED_LOCK_STATE.WRITER_ACQUIRED,
+                        remainingTime: ttl,
+                    } satisfies ISharedLockWriterAcquiredState);
+                });
                 test("Should return ISharedLockWriterUnavailableState when writer is acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
@@ -6577,39 +6589,39 @@ export function sharedLockProviderTestSuite(
                         acquiredSlots: [sharedLock1.id],
                     } satisfies ISharedLockReaderUnacquiredState);
                 });
-                test(
-                    "Should return ISharedLockReaderAcquiredState when reader shared-lock-slot is unexpired",
-                    { retry },
-                    async () => {
-                        const key = "a";
-                        const limit = 3;
+                test("Should return ISharedLockReaderAcquiredState when reader shared-lock-slot is unexpired", async () => {
+                    expect.addEqualityTesters([
+                        createIsTimeSpanEqualityTester(timeSpanEqualityBuffer),
+                    ]);
 
-                        const ttl1 = null;
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl: ttl1,
-                            limit,
-                        });
-                        await sharedLock1.acquireReader();
+                    const key = "a";
+                    const limit = 3;
 
-                        const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl: ttl2,
-                            limit,
-                        });
-                        await sharedLock2.acquireReader();
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl: ttl1,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
 
-                        const state = await sharedLock2.getState();
+                    const ttl2 = TimeSpan.fromMilliseconds(50);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl: ttl2,
+                        limit,
+                    });
+                    await sharedLock2.acquireReader();
 
-                        expect(state).toEqual({
-                            type: SHARED_LOCK_STATE.READER_ACQUIRED,
-                            limit,
-                            freeSlotsCount: limit - 2,
-                            acquiredSlotsCount: 2,
-                            acquiredSlots: [sharedLock1.id, sharedLock2.id],
-                            remainingTime: ttl2,
-                        } satisfies ISharedLockReaderAcquiredState);
-                    },
-                );
+                    const state = await sharedLock2.getState();
+
+                    expect(state).toEqual({
+                        type: SHARED_LOCK_STATE.READER_ACQUIRED,
+                        limit,
+                        freeSlotsCount: limit - 2,
+                        acquiredSlotsCount: 2,
+                        acquiredSlots: [sharedLock1.id, sharedLock2.id],
+                        remainingTime: ttl2,
+                    } satisfies ISharedLockReaderAcquiredState);
+                });
                 test(
                     "Should return ISharedLockReaderLimitReachedState when reader limit is reached",
                     { retry },
@@ -11191,43 +11203,42 @@ export function sharedLockProviderTestSuite(
                     acquiredSlots: [sharedLock1.id],
                 } satisfies ISharedLockReaderUnacquiredState);
             });
-            test(
-                "Should return ISharedLockReaderAcquiredState when acquired as reader, is derserialized and shared-lock-slot is unexpired",
-                { retry },
-                async () => {
-                    const key = "a";
-                    const limit = 3;
+            test("Should return ISharedLockReaderAcquiredState when acquired as reader, is derserialized and shared-lock-slot is unexpired", async () => {
+                expect.addEqualityTesters([
+                    createIsTimeSpanEqualityTester(timeSpanEqualityBuffer),
+                ]);
 
-                    const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl: ttl1,
-                        limit,
-                    });
-                    await sharedLock1.acquireReader();
+                const key = "a";
+                const limit = 3;
 
-                    const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl: ttl2,
-                        limit,
-                    });
-                    const deserializedSemaphore2 =
-                        serde.deserialize<ISharedLock>(
-                            serde.serialize(sharedLock2),
-                        );
-                    await deserializedSemaphore2.acquireReader();
+                const ttl1 = null;
+                const sharedLock1 = sharedLockProvider.create(key, {
+                    ttl: ttl1,
+                    limit,
+                });
+                await sharedLock1.acquireReader();
 
-                    const state = await deserializedSemaphore2.getState();
+                const ttl2 = TimeSpan.fromMilliseconds(50);
+                const sharedLock2 = sharedLockProvider.create(key, {
+                    ttl: ttl2,
+                    limit,
+                });
+                const deserializedSemaphore2 = serde.deserialize<ISharedLock>(
+                    serde.serialize(sharedLock2),
+                );
+                await deserializedSemaphore2.acquireReader();
 
-                    expect(state).toEqual({
-                        type: SHARED_LOCK_STATE.READER_ACQUIRED,
-                        limit,
-                        freeSlotsCount: limit - 2,
-                        acquiredSlotsCount: 2,
-                        acquiredSlots: [sharedLock1.id, sharedLock2.id],
-                        remainingTime: ttl2,
-                    } satisfies ISharedLockReaderAcquiredState);
-                },
-            );
+                const state = await deserializedSemaphore2.getState();
+
+                expect(state).toEqual({
+                    type: SHARED_LOCK_STATE.READER_ACQUIRED,
+                    limit,
+                    freeSlotsCount: limit - 2,
+                    acquiredSlotsCount: 2,
+                    acquiredSlots: [sharedLock1.id, sharedLock2.id],
+                    remainingTime: ttl2,
+                } satisfies ISharedLockReaderAcquiredState);
+            });
             test("Should return ISharedLockReaderLimitReachedState when acquired as reader, is derserialized and limit is reached", async () => {
                 const key = "a";
                 const limit = 1;
