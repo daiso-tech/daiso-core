@@ -13,7 +13,7 @@ export type SemaphoreEventBase = {
 };
 
 /**
- * The event is dispatched when a semaphore slot is aquired.
+ * The event is dispatched when a semaphore slot is acquired.
  *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Events
@@ -30,7 +30,7 @@ export type AcquiredSemaphoreEvent = SemaphoreEventBase;
 export type ReleasedSemaphoreEvent = SemaphoreEventBase;
 
 /**
- * The event is dispatched when all slot of semapahore are released.
+ * The event is dispatched when all slot of semaphore are released.
  *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Events
@@ -40,7 +40,7 @@ export type AllForceReleasedSemaphoreEvent = SemaphoreEventBase & {
 };
 
 /**
- * The error is dispatched when trying to referesh a semaphore slot that is already expired.
+ * The event is dispatched when trying to refresh a semaphore slot that is already expired.
  *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Events
@@ -48,7 +48,7 @@ export type AllForceReleasedSemaphoreEvent = SemaphoreEventBase & {
 export type FailedRefreshSemaphoreEvent = SemaphoreEventBase;
 
 /**
- * The error is dispatched when trying to release a semaphore slot that is already expired.
+ * The event is dispatched when trying to release a semaphore slot that is already expired.
  *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Events
