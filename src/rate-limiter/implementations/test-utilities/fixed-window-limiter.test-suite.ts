@@ -22,6 +22,7 @@ import {
     type FixedWindowLimiterSettingsEnum,
 } from "@/rate-limiter/implementations/policies/_module.js";
 import { Task } from "@/task/implementations/_module.js";
+import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
@@ -35,6 +36,16 @@ export type FixedWindowLimiterTestSuiteSettings = {
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
     createAdapter: () => Promisable<IRateLimiterAdapter>;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    delayBuffer?: ITimeSpan;
 };
 
 /**
@@ -92,7 +103,14 @@ const backoffPolicySettings: Required<ConstantBackoffSettingsEnum> = {
 export function fixedWindowLimiterTestSuite(
     settings: FixedWindowLimiterTestSuiteSettings,
 ): void {
-    const { expect, test, createAdapter, describe, beforeEach } = settings;
+    const {
+        expect,
+        test,
+        createAdapter,
+        describe,
+        beforeEach,
+        delayBuffer = TimeSpan.fromMilliseconds(10),
+    } = settings;
     let adapter: IRateLimiterAdapter;
     describe("fixed-window-limiter IRateLimiterAdapter tests:", () => {
         beforeEach(async () => {
@@ -102,7 +120,9 @@ export function fixedWindowLimiterTestSuite(
         const KEY = "a";
         const LIMIT = 4;
         async function delay(timeSpan: TimeSpan): Promise<void> {
-            await Task.delay(timeSpan);
+            await Task.delay(
+                TimeSpan.fromTimeSpan(timeSpan).addTimeSpan(delayBuffer),
+            );
         }
 
         describe("method: getState", () => {
@@ -144,7 +164,7 @@ export function fixedWindowLimiterTestSuite(
                 await adapter.updateState(KEY, LIMIT);
 
                 const state1 = await adapter.updateState(KEY, LIMIT);
-                await delay(state1.resetTime.addMilliseconds(10));
+                await delay(state1.resetTime);
 
                 const state2 = await adapter.getState(KEY);
                 expect(state2).toBeNull();
@@ -188,7 +208,7 @@ export function fixedWindowLimiterTestSuite(
                 await adapter.updateState(KEY, LIMIT);
 
                 const state1 = await adapter.updateState(KEY, LIMIT);
-                await delay(state1.resetTime.addMilliseconds(10));
+                await delay(state1.resetTime);
 
                 const state2 = await adapter.getState(KEY);
                 expect(state2).toBeNull();
@@ -226,7 +246,7 @@ export function fixedWindowLimiterTestSuite(
                 await adapter.updateState(KEY, LIMIT);
 
                 const state1 = await adapter.updateState(KEY, LIMIT);
-                await delay(state1.resetTime.addMilliseconds(10));
+                await delay(state1.resetTime);
 
                 const state2 = await adapter.updateState(KEY, LIMIT);
                 expect(state2).toEqual({
@@ -272,7 +292,7 @@ export function fixedWindowLimiterTestSuite(
                 await adapter.updateState(KEY, LIMIT);
 
                 const state1 = await adapter.updateState(KEY, LIMIT);
-                await delay(state1.resetTime.addMilliseconds(10));
+                await delay(state1.resetTime);
 
                 const state2 = await adapter.updateState(KEY, LIMIT);
                 expect(state2).toEqual({
