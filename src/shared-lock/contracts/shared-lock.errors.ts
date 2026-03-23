@@ -96,9 +96,9 @@ export class FailedReleaseReaderSemaphoreError extends Error {
  * @group Errors
  */
 export const READER_SEMAPHORE_ERRORS = {
-    ReachedLimit: LimitReachedReaderSemaphoreError,
-    FailedRefresh: FailedRefreshReaderSemaphoreError,
-    FailedRelease: FailedReleaseReaderSemaphoreError,
+    ReachedLimitReader: LimitReachedReaderSemaphoreError,
+    FailedRefreshReader: FailedRefreshReaderSemaphoreError,
+    FailedReleaseReader: FailedReleaseReaderSemaphoreError,
 } as const;
 
 /**
@@ -212,9 +212,9 @@ export class FailedRefreshWriterLockError extends Error {
  * @group Errors
  */
 export const WRITER_LOCK_ERRORS = {
-    FailedAcquire: FailedAcquireWriterLockError,
-    FailedRelease: FailedReleaseWriterLockError,
-    FailedRefresh: FailedRefreshWriterLockError,
+    FailedAcquireWriter: FailedAcquireWriterLockError,
+    FailedReleaseWriter: FailedReleaseWriterLockError,
+    FailedRefreshWriter: FailedRefreshWriterLockError,
 } as const;
 
 /**

@@ -60,6 +60,7 @@ export class KeyExistsCacheError extends Error {
  * @group Errors
  */
 export const CACHE_ERRORS = {
+    KeyExists: KeyExistsCacheError,
     KeyNotFound: KeyNotFoundCacheError,
 } as const;
 
