@@ -3,6 +3,7 @@
  */
 
 import { type IKey } from "@/namespace/contracts/_module.js";
+import { type InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error is thrown when a file key is not found
@@ -90,7 +91,9 @@ export const FILE_STORAGE_ERRORS = {
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
  * @group Errors
  */
-export type AllFileErrors = KeyNotFoundFileError | KeyExistsFileError;
+export type AllFileErrors = InferInstance<
+    (typeof FILE_STORAGE_ERRORS)[keyof typeof FILE_STORAGE_ERRORS]
+>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
@@ -98,9 +101,9 @@ export type AllFileErrors = KeyNotFoundFileError | KeyExistsFileError;
  */
 export function isFileError(value: unknown): value is AllFileErrors {
     for (const ErrorClass of Object.values(FILE_STORAGE_ERRORS)) {
-        if (!(value instanceof ErrorClass)) {
-            return false;
+        if (value instanceof ErrorClass) {
+            return true;
         }
     }
-    return true;
+    return false;
 }

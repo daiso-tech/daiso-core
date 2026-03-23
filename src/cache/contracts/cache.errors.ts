@@ -3,6 +3,7 @@
  */
 
 import { type IKey } from "@/namespace/contracts/_module.js";
+import { type InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error is thrown when a key is not found
@@ -66,7 +67,9 @@ export const CACHE_ERRORS = {
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Errors
  */
-export type AllCacheErrors = KeyNotFoundCacheError;
+export type AllCacheErrors = InferInstance<
+    (typeof CACHE_ERRORS)[keyof typeof CACHE_ERRORS]
+>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
@@ -74,9 +77,9 @@ export type AllCacheErrors = KeyNotFoundCacheError;
  */
 export function isCacheError(value: unknown): value is AllCacheErrors {
     for (const ErrorClass of Object.values(CACHE_ERRORS)) {
-        if (!(value instanceof ErrorClass)) {
-            return false;
+        if (value instanceof ErrorClass) {
+            return true;
         }
     }
-    return true;
+    return false;
 }

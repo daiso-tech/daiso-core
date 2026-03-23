@@ -3,6 +3,7 @@
  */
 
 import { type IKey } from "@/namespace/contracts/_module.js";
+import { type InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error is thrown when circuit breaker is in open state and will not allow any attempts.
@@ -62,7 +63,9 @@ export const CIRCUIT_BREAKER_ERRORS = {
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Errors
  */
-export type AllCircuitBreakerErrors = OpenCircuitBreakerError;
+export type AllCircuitBreakerErrors = InferInstance<
+    (typeof CIRCUIT_BREAKER_ERRORS)[keyof typeof CIRCUIT_BREAKER_ERRORS]
+>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
@@ -72,9 +75,9 @@ export function isCircuitBreakerError(
     value: unknown,
 ): value is AllCircuitBreakerErrors {
     for (const ErrorClass of Object.values(CIRCUIT_BREAKER_ERRORS)) {
-        if (!(value instanceof ErrorClass)) {
-            return false;
+        if (value instanceof ErrorClass) {
+            return true;
         }
     }
-    return true;
+    return false;
 }
