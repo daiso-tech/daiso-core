@@ -58,22 +58,22 @@ export class DatabaseSemaphoreAdapter implements ISemaphoreAdapter {
     }
 
     async release(key: string, slotId: string): Promise<boolean> {
-        const semapahoreSlotData = await this.adapter.removeSlot(key, slotId);
-        if (semapahoreSlotData === null) {
+        const semaphoreSlotData = await this.adapter.removeSlot(key, slotId);
+        if (semaphoreSlotData === null) {
             return false;
         }
         return (
-            semapahoreSlotData.expiration === null ||
-            semapahoreSlotData.expiration > new Date()
+            semaphoreSlotData.expiration === null ||
+            semaphoreSlotData.expiration > new Date()
         );
     }
 
     async forceReleaseAll(key: string): Promise<boolean> {
-        const semapahoreSlotDataArray = await this.adapter.removeAllSlots(key);
-        return semapahoreSlotDataArray.some((semapahoreSlotData) => {
+        const semaphoreSlotDataArray = await this.adapter.removeAllSlots(key);
+        return semaphoreSlotDataArray.some((semaphoreSlotData) => {
             return (
-                semapahoreSlotData.expiration === null ||
-                semapahoreSlotData.expiration > new Date()
+                semaphoreSlotData.expiration === null ||
+                semaphoreSlotData.expiration > new Date()
             );
         });
     }

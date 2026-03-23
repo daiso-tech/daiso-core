@@ -78,7 +78,6 @@ export type ISharedLockWriterUnavailableState = {
  */
 export type ISharedLockWriterAcquiredState = {
     type: (typeof SHARED_LOCK_WRITER_STATE)["WRITER_ACQUIRED"];
-
     remainingTime: TimeSpan | null;
 };
 

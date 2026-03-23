@@ -125,7 +125,7 @@ export type SemaphoreProviderSettingsBase = {
     defaultBlockingTime?: ITimeSpan;
 
     /**
-     * The default refresh time used in the {@link ISemaphore | `ISemaphore`} `referesh` method.
+     * The default refresh time used in the {@link ISemaphore | `ISemaphore`} `refresh` method.
      * ```ts
      * import { TimeSpan } from "@daiso-tech/core/time-span";
      *
