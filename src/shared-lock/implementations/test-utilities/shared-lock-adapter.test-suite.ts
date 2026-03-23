@@ -14,6 +14,7 @@ import {
     type ISharedLockAdapterState,
 } from "@/shared-lock/contracts/_module.js";
 import { Task } from "@/task/implementations/_module.js";
+import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
@@ -27,6 +28,16 @@ export type SharedLockAdapterTestSuiteSettings = {
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
     createAdapter: () => Promisable<ISharedLockAdapter>;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    delayBuffer?: ITimeSpan;
 };
 
 /**
@@ -72,11 +83,18 @@ export type SharedLockAdapterTestSuiteSettings = {
 export function sharedLockAdapterTestSuite(
     settings: SharedLockAdapterTestSuiteSettings,
 ): void {
-    const { expect, test, createAdapter, describe, beforeEach } = settings;
+    const {
+        expect,
+        test,
+        createAdapter,
+        describe,
+        beforeEach,
+        delayBuffer = TimeSpan.fromMilliseconds(10),
+    } = settings;
     let adapter: ISharedLockAdapter;
 
     async function delay(time: TimeSpan): Promise<void> {
-        await Task.delay(time.addMilliseconds(10));
+        await Task.delay(TimeSpan.fromTimeSpan(time).addTimeSpan(delayBuffer));
     }
 
     describe("ISharedLockAdapter tests:", () => {
@@ -86,73 +104,87 @@ export function sharedLockAdapterTestSuite(
         describe("method: acquireWriter", () => {
             test("Should return true when key doesnt exists", async () => {
                 const key = "a";
-                const owner = "b";
+                const sharedLockId = "b";
                 const ttl = null;
 
-                const result = await adapter.acquireWriter(key, owner, ttl);
+                const result = await adapter.acquireWriter(
+                    key,
+                    sharedLockId,
+                    ttl,
+                );
 
                 expect(result).toBe(true);
             });
-            test(
-                "Should return true when key is expired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const owner = "b";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-
-                    await adapter.acquireWriter(key, owner, ttl);
-                    await delay(ttl);
-
-                    const result = await adapter.acquireWriter(
-                        key,
-                        owner,
-                        null,
-                    );
-                    expect(result).toBe(true);
-                },
-            );
-            test("Should return true when key is unexpireable and acquired by same owner", async () => {
+            test("Should return true when key is expired", async () => {
                 const key = "a";
-                const owner = "b";
-                const ttl = null;
-
-                await adapter.acquireWriter(key, owner, ttl);
-                const result = await adapter.acquireWriter(key, owner, ttl);
-
-                expect(result).toBe(true);
-            });
-            test("Should return true when key is unexpired and acquired by same owner", async () => {
-                const key = "a";
-                const owner = "b";
+                const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquireWriter(key, owner, ttl);
-                const result = await adapter.acquireWriter(key, owner, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl);
+                await delay(ttl);
+
+                const result = await adapter.acquireWriter(
+                    key,
+                    sharedLockId,
+                    null,
+                );
+                expect(result).toBe(true);
+            });
+            test("Should return true when key is unexpireable and acquired by same shared-lock-id", async () => {
+                const key = "a";
+                const sharedLockId = "b";
+                const ttl = null;
+
+                await adapter.acquireWriter(key, sharedLockId, ttl);
+                const result = await adapter.acquireWriter(
+                    key,
+                    sharedLockId,
+                    ttl,
+                );
 
                 expect(result).toBe(true);
             });
-            test("Should return false when key is unexpireable and acquired by different owner", async () => {
+            test("Should return true when key is unexpired and acquired by same shared-lock-id", async () => {
                 const key = "a";
-                const owner1 = "b";
+                const sharedLockId = "b";
+                const ttl = TimeSpan.fromMilliseconds(50);
+
+                await adapter.acquireWriter(key, sharedLockId, ttl);
+                const result = await adapter.acquireWriter(
+                    key,
+                    sharedLockId,
+                    ttl,
+                );
+
+                expect(result).toBe(true);
+            });
+            test("Should return false when key is unexpireable and acquired by different shared-lock-id", async () => {
+                const key = "a";
+                const sharedLockId1 = "b";
                 const ttl = null;
 
-                await adapter.acquireWriter(key, owner1, ttl);
-                const owner2 = "c";
-                const result = await adapter.acquireWriter(key, owner2, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
+                const sharedLockId2 = "c";
+                const result = await adapter.acquireWriter(
+                    key,
+                    sharedLockId2,
+                    ttl,
+                );
 
                 expect(result).toBe(false);
             });
-            test("Should return false when key is unexpired and acquired by different owner", async () => {
+            test("Should return false when key is unexpired and acquired by different shared-lock-id", async () => {
                 const key = "a";
-                const owner1 = "b";
+                const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquireWriter(key, owner1, ttl);
-                const owner2 = "c";
-                const result = await adapter.acquireWriter(key, owner2, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
+                const sharedLockId2 = "c";
+                const result = await adapter.acquireWriter(
+                    key,
+                    sharedLockId2,
+                    ttl,
+                );
 
                 expect(result).toBe(false);
             });
@@ -211,134 +243,138 @@ export function sharedLockAdapterTestSuite(
         describe("method: releaseWriter", () => {
             test("Should return false when key doesnt exists", async () => {
                 const key = "a";
-                const owner = "b";
+                const sharedLockId = "b";
 
-                const result = await adapter.releaseWriter(key, owner);
+                const result = await adapter.releaseWriter(key, sharedLockId);
 
                 expect(result).toBe(false);
             });
-            test("Should return false when key is unexpireable and released by different owner", async () => {
+            test("Should return false when key is unexpireable and released by different shared-lock-id", async () => {
                 const key = "a";
-                const owner1 = "b";
+                const sharedLockId1 = "b";
                 const ttl = null;
-                await adapter.acquireWriter(key, owner1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
 
-                const owner2 = "c";
-                const result = await adapter.releaseWriter(key, owner2);
+                const sharedLockId2 = "c";
+                const result = await adapter.releaseWriter(key, sharedLockId2);
 
                 expect(result).toBe(false);
             });
-            test("Should return false when key is unexpired and released by different owner", async () => {
+            test("Should return false when key is unexpired and released by different shared-lock-id", async () => {
                 const key = "a";
-                const owner1 = "b";
+                const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(key, owner1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
 
-                const owner2 = "c";
-                const result = await adapter.releaseWriter(key, owner2);
+                const sharedLockId2 = "c";
+                const result = await adapter.releaseWriter(key, sharedLockId2);
 
                 expect(result).toBe(false);
             });
-            test(
-                "Should return false when key is expired and released by different owner",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const owner1 = "b";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    await adapter.acquireWriter(key, owner1, ttl);
-
-                    const owner2 = "c";
-                    const result = await adapter.releaseWriter(key, owner2);
-                    await delay(ttl);
-
-                    expect(result).toBe(false);
-                },
-            );
-            test(
-                "Should return false when key is expired and released by same owner",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const owner = "b";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    await adapter.acquireWriter(key, owner, ttl);
-                    await delay(ttl);
-
-                    const result = await adapter.releaseWriter(key, owner);
-
-                    expect(result).toBe(false);
-                },
-            );
-            test("Should return true when key is unexpireable and released by same owner", async () => {
+            test("Should return false when key is expired and released by different shared-lock-id", async () => {
                 const key = "a";
-                const owner = "b";
-                const ttl = null;
-                await adapter.acquireWriter(key, owner, ttl);
+                const sharedLockId1 = "b";
+                const ttl = TimeSpan.fromMilliseconds(50);
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
+                await delay(ttl);
 
-                const result = await adapter.releaseWriter(key, owner);
+                const sharedLockId2 = "c";
+                const result = await adapter.releaseWriter(key, sharedLockId2);
+
+                expect(result).toBe(false);
+            });
+            test("Should return false when key is expired and released by same shared-lock-id", async () => {
+                const key = "a";
+                const sharedLockId = "b";
+                const ttl = TimeSpan.fromMilliseconds(50);
+                await adapter.acquireWriter(key, sharedLockId, ttl);
+                await delay(ttl);
+
+                const result = await adapter.releaseWriter(key, sharedLockId);
+
+                expect(result).toBe(false);
+            });
+            test("Should return true when key is unexpireable and released by same shared-lock-id", async () => {
+                const key = "a";
+                const sharedLockId = "b";
+                const ttl = null;
+                await adapter.acquireWriter(key, sharedLockId, ttl);
+
+                const result = await adapter.releaseWriter(key, sharedLockId);
 
                 expect(result).toBe(true);
             });
-            test("Should return true when key is unexpired and released by same owner", async () => {
+            test("Should return true when key is unexpired and released by same shared-lock-id", async () => {
                 const key = "a";
-                const owner = "b";
+                const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(key, owner, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl);
 
-                const result = await adapter.releaseWriter(key, owner);
+                const result = await adapter.releaseWriter(key, sharedLockId);
 
                 expect(result).toBe(true);
             });
-            test("Should not be reacquirable when key is unexpireable and released by different owner", async () => {
+            test("Should not be reacquirable when key is unexpireable and released by different shared-lock-id", async () => {
                 const key = "a";
-                const owner1 = "b";
+                const sharedLockId1 = "b";
                 const ttl = null;
-                await adapter.acquireWriter(key, owner1, ttl);
-                const owner2 = "c";
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
+                const sharedLockId2 = "c";
 
-                await adapter.releaseWriter(key, owner2);
-                const result = await adapter.acquireWriter(key, owner2, ttl);
+                await adapter.releaseWriter(key, sharedLockId2);
+                const result = await adapter.acquireWriter(
+                    key,
+                    sharedLockId2,
+                    ttl,
+                );
 
                 expect(result).toBe(false);
             });
-            test("Should not be reacquirable when key is unexpired and released by different owner", async () => {
+            test("Should not be reacquirable when key is unexpired and released by different shared-lock-id", async () => {
                 const key = "a";
-                const owner1 = "b";
+                const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(key, owner1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
 
-                const owner2 = "c";
-                await adapter.releaseWriter(key, owner2);
-                const result = await adapter.acquireWriter(key, owner2, ttl);
+                const sharedLockId2 = "c";
+                await adapter.releaseWriter(key, sharedLockId2);
+                const result = await adapter.acquireWriter(
+                    key,
+                    sharedLockId2,
+                    ttl,
+                );
 
                 expect(result).toBe(false);
             });
-            test("Should be reacquirable when key is unexpireable and released by same owner", async () => {
+            test("Should be reacquirable when key is unexpireable and released by same shared-lock-id", async () => {
                 const key = "a";
-                const owner1 = "b";
+                const sharedLockId1 = "b";
                 const ttl = null;
-                await adapter.acquireWriter(key, owner1, ttl);
-                await adapter.releaseWriter(key, owner1);
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
+                await adapter.releaseWriter(key, sharedLockId1);
 
-                const owner2 = "c";
-                const result = await adapter.acquireWriter(key, owner2, ttl);
+                const sharedLockId2 = "c";
+                const result = await adapter.acquireWriter(
+                    key,
+                    sharedLockId2,
+                    ttl,
+                );
 
                 expect(result).toBe(true);
             });
-            test("Should be reacquirable when key is unexpired and released by same owner", async () => {
+            test("Should be reacquirable when key is unexpired and released by same shared-lock-id", async () => {
                 const key = "a";
-                const owner1 = "b";
+                const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(key, owner1, ttl);
-                await adapter.releaseWriter(key, owner1);
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
+                await adapter.releaseWriter(key, sharedLockId1);
 
-                const owner2 = "c";
-                const result = await adapter.acquireWriter(key, owner2, ttl);
+                const sharedLockId2 = "c";
+                const result = await adapter.acquireWriter(
+                    key,
+                    sharedLockId2,
+                    ttl,
+                );
 
                 expect(result).toBe(true);
             });
@@ -403,30 +439,24 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(false);
             });
-            test(
-                "Should return false when key is expired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const owner = "b";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-
-                    await adapter.acquireWriter(key, owner, ttl);
-                    await delay(ttl);
-
-                    const result = await adapter.forceReleaseWriter(key);
-
-                    expect(result).toBe(false);
-                },
-            );
-            test("Should return true when key is uenxpired", async () => {
+            test("Should return false when key is expired", async () => {
                 const key = "a";
-                const owner = "b";
+                const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquireWriter(key, owner, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl);
+                await delay(ttl);
+
+                const result = await adapter.forceReleaseWriter(key);
+
+                expect(result).toBe(false);
+            });
+            test("Should return true when key is uenxpired", async () => {
+                const key = "a";
+                const sharedLockId = "b";
+                const ttl = TimeSpan.fromMilliseconds(50);
+
+                await adapter.acquireWriter(key, sharedLockId, ttl);
 
                 const result = await adapter.forceReleaseWriter(key);
 
@@ -434,10 +464,10 @@ export function sharedLockAdapterTestSuite(
             });
             test("Should return true when key is unexpireable", async () => {
                 const key = "a";
-                const owner = "b";
+                const sharedLockId = "b";
                 const ttl = null;
 
-                await adapter.acquireWriter(key, owner, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl);
 
                 const result = await adapter.forceReleaseWriter(key);
 
@@ -445,14 +475,18 @@ export function sharedLockAdapterTestSuite(
             });
             test("Should be reacquirable when key is force released", async () => {
                 const key = "a";
-                const owner1 = "b";
+                const sharedLockId1 = "b";
                 const ttl = null;
-                await adapter.acquireWriter(key, owner1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
 
                 await adapter.forceReleaseWriter(key);
 
-                const owner2 = "c";
-                const result = await adapter.acquireWriter(key, owner2, ttl);
+                const sharedLockId2 = "c";
+                const result = await adapter.acquireWriter(
+                    key,
+                    sharedLockId2,
+                    ttl,
+                );
                 expect(result).toBe(true);
             });
             test("Should return false when key is acquired as reader", async () => {
@@ -511,160 +545,156 @@ export function sharedLockAdapterTestSuite(
         describe("method: refreshWriter", () => {
             test("Should return false when key doesnt exists", async () => {
                 const key = "a";
-                const owner = "b";
+                const sharedLockId = "b";
 
                 const newTtl = TimeSpan.fromMinutes(1);
-                const result = await adapter.refreshWriter(key, owner, newTtl);
+                const result = await adapter.refreshWriter(
+                    key,
+                    sharedLockId,
+                    newTtl,
+                );
 
                 expect(result).toBe(false);
             });
-            test("Should return false when key is unexpireable and refreshed by different owner", async () => {
+            test("Should return false when key is unexpireable and refreshed by different shared-lock-id", async () => {
                 const key = "a";
-                const owner1 = "b";
+                const sharedLockId1 = "b";
                 const ttl = null;
-                await adapter.acquireWriter(key, owner1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
-                const owner2 = "c";
-                const result = await adapter.refreshWriter(key, owner2, newTtl);
+                const sharedLockId2 = "c";
+                const result = await adapter.refreshWriter(
+                    key,
+                    sharedLockId2,
+                    newTtl,
+                );
 
                 expect(result).toBe(false);
             });
-            test("Should return false when key is unexpired and refreshed by different owner", async () => {
+            test("Should return false when key is unexpired and refreshed by different shared-lock-id", async () => {
                 const key = "a";
-                const owner1 = "b";
+                const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(key, owner1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
-                const owner2 = "c";
-                const result = await adapter.refreshWriter(key, owner2, newTtl);
+                const sharedLockId2 = "c";
+                const result = await adapter.refreshWriter(
+                    key,
+                    sharedLockId2,
+                    newTtl,
+                );
 
                 expect(result).toBe(false);
             });
-            test(
-                "Should return false when key is expired and refreshed by different owner",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const owner1 = "b";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    await adapter.acquireWriter(key, owner1, ttl);
-                    await delay(ttl);
-
-                    const newTtl = TimeSpan.fromMinutes(1);
-                    const owner2 = "c";
-                    const result = await adapter.refreshWriter(
-                        key,
-                        owner2,
-                        newTtl,
-                    );
-
-                    expect(result).toBe(false);
-                },
-            );
-            test(
-                "Should return false when key is expired and refreshed by same owner",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const owner = "b";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    await adapter.acquireWriter(key, owner, ttl);
-                    await delay(ttl);
-
-                    const newTtl = TimeSpan.fromMinutes(1);
-                    const result = await adapter.refreshWriter(
-                        key,
-                        owner,
-                        newTtl,
-                    );
-
-                    expect(result).toBe(false);
-                },
-            );
-            test("Should return false when key is unexpireable and refreshed by same owner", async () => {
+            test("Should return false when key is expired and refreshed by different shared-lock-id", async () => {
                 const key = "a";
-                const owner = "b";
+                const sharedLockId1 = "b";
+                const ttl = TimeSpan.fromMilliseconds(50);
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
+                await delay(ttl);
+
+                const newTtl = TimeSpan.fromMinutes(1);
+                const sharedLockId2 = "c";
+                const result = await adapter.refreshWriter(
+                    key,
+                    sharedLockId2,
+                    newTtl,
+                );
+
+                expect(result).toBe(false);
+            });
+            test("Should return false when key is expired and refreshed by same shared-lock-id", async () => {
+                const key = "a";
+                const sharedLockId = "b";
+                const ttl = TimeSpan.fromMilliseconds(50);
+                await adapter.acquireWriter(key, sharedLockId, ttl);
+                await delay(ttl);
+
+                const newTtl = TimeSpan.fromMinutes(1);
+                const result = await adapter.refreshWriter(
+                    key,
+                    sharedLockId,
+                    newTtl,
+                );
+
+                expect(result).toBe(false);
+            });
+            test("Should return false when key is unexpireable and refreshed by same shared-lock-id", async () => {
+                const key = "a";
+                const sharedLockId = "b";
                 const ttl = null;
-                await adapter.acquireWriter(key, owner, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
-                const result = await adapter.refreshWriter(key, owner, newTtl);
+                const result = await adapter.refreshWriter(
+                    key,
+                    sharedLockId,
+                    newTtl,
+                );
 
                 expect(result).toBe(false);
             });
-            test("Should return true when key is unexpired and refreshed by same owner", async () => {
+            test("Should return true when key is unexpired and refreshed by same shared-lock-id", async () => {
                 const key = "a";
-                const owner = "b";
+                const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(key, owner, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
-                const result = await adapter.refreshWriter(key, owner, newTtl);
+                const result = await adapter.refreshWriter(
+                    key,
+                    sharedLockId,
+                    newTtl,
+                );
 
                 expect(result).toBe(true);
             });
-            test(
-                "Should not update expiration when key is unexpireable and refreshed by same owner",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const owner1 = "1";
-                    const ttl = null;
-                    await adapter.acquireWriter(key, owner1, ttl);
+            test("Should not update expiration when key is unexpireable and refreshed by same shared-lock-id", async () => {
+                const key = "a";
+                const sharedLockId1 = "1";
+                const ttl = null;
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
 
-                    const newTtl = TimeSpan.fromMilliseconds(50);
-                    await adapter.refreshWriter(key, owner1, newTtl);
-                    await delay(newTtl);
-                    const owner2 = "2";
-                    const result = await adapter.acquireWriter(
-                        key,
-                        owner2,
-                        ttl,
-                    );
+                const newTtl = TimeSpan.fromMilliseconds(50);
+                await adapter.refreshWriter(key, sharedLockId1, newTtl);
+                await delay(newTtl);
+                const sharedLockId2 = "2";
+                const result = await adapter.acquireWriter(
+                    key,
+                    sharedLockId2,
+                    ttl,
+                );
 
-                    expect(result).toBe(false);
-                },
-            );
-            test(
-                "Should update expiration when key is unexpired and refreshed by same owner",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const owner1 = "b";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    await adapter.acquireWriter(key, owner1, ttl);
+                expect(result).toBe(false);
+            });
+            test("Should update expiration when key is unexpired and refreshed by same shared-lock-id", async () => {
+                const key = "a";
+                const sharedLockId1 = "b";
+                const ttl = TimeSpan.fromMilliseconds(50);
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
 
-                    const newTtl = TimeSpan.fromMilliseconds(100);
-                    await adapter.refreshWriter(key, owner1, newTtl);
-                    await delay(newTtl.divide(2));
+                const newTtl = TimeSpan.fromMilliseconds(100);
+                await adapter.refreshWriter(key, sharedLockId1, newTtl);
+                await delay(newTtl.divide(2));
 
-                    const owner2 = "c";
-                    const result1 = await adapter.acquireWriter(
-                        key,
-                        owner2,
-                        ttl,
-                    );
-                    expect(result1).toBe(false);
+                const sharedLockId2 = "c";
+                const result1 = await adapter.acquireWriter(
+                    key,
+                    sharedLockId2,
+                    ttl,
+                );
+                expect(result1).toBe(false);
 
-                    await delay(newTtl.divide(2));
-                    const result2 = await adapter.acquireWriter(
-                        key,
-                        owner2,
-                        ttl,
-                    );
-                    expect(result2).toBe(true);
-                },
-            );
+                await delay(newTtl.divide(2));
+                const result2 = await adapter.acquireWriter(
+                    key,
+                    sharedLockId2,
+                    ttl,
+                );
+                expect(result2).toBe(true);
+            });
             test("Should return false when key is acquired as reader", async () => {
                 const key = "a";
                 const lockId = "1";
@@ -736,35 +766,29 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(true);
             });
-            test(
-                "Should return true when key exists and slot is expired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const lockId = "b";
-                    const limit = 2;
-                    const ttl = TimeSpan.fromMilliseconds(50);
+            test("Should return true when key exists and shared-lock-slot is expired", async () => {
+                const key = "a";
+                const lockId = "b";
+                const limit = 2;
+                const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await adapter.acquireReader({
-                        key,
-                        lockId,
-                        limit,
-                        ttl,
-                    });
-                    await delay(ttl);
+                await adapter.acquireReader({
+                    key,
+                    lockId,
+                    limit,
+                    ttl,
+                });
+                await delay(ttl);
 
-                    const result = await adapter.acquireReader({
-                        key,
-                        lockId,
-                        limit,
-                        ttl,
-                    });
+                const result = await adapter.acquireReader({
+                    key,
+                    lockId,
+                    limit,
+                    ttl,
+                });
 
-                    expect(result).toBe(true);
-                },
-            );
+                expect(result).toBe(true);
+            });
             test("Should return true when limit is not reached", async () => {
                 const key = "a";
                 const limit = 2;
@@ -816,46 +840,40 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(false);
             });
-            test(
-                "Should return true when one slot is expired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const limit = 2;
+            test("Should return true when one shared-lock-slot is expired", async () => {
+                const key = "a";
+                const limit = 2;
 
-                    const lockId1 = "1";
-                    const ttl1 = null;
-                    await adapter.acquireReader({
-                        key,
-                        lockId: lockId1,
-                        limit,
-                        ttl: ttl1,
-                    });
-                    const lockId2 = "2";
-                    const ttl2 = TimeSpan.fromMilliseconds(50);
-                    await adapter.acquireReader({
-                        key,
-                        lockId: lockId2,
-                        limit,
-                        ttl: ttl2,
-                    });
-                    await delay(ttl2);
+                const lockId1 = "1";
+                const ttl1 = null;
+                await adapter.acquireReader({
+                    key,
+                    lockId: lockId1,
+                    limit,
+                    ttl: ttl1,
+                });
+                const lockId2 = "2";
+                const ttl2 = TimeSpan.fromMilliseconds(50);
+                await adapter.acquireReader({
+                    key,
+                    lockId: lockId2,
+                    limit,
+                    ttl: ttl2,
+                });
+                await delay(ttl2);
 
-                    const lockId3 = "3";
-                    const ttl3 = null;
-                    const result = await adapter.acquireReader({
-                        key,
-                        lockId: lockId3,
-                        limit,
-                        ttl: ttl3,
-                    });
+                const lockId3 = "3";
+                const ttl3 = null;
+                const result = await adapter.acquireReader({
+                    key,
+                    lockId: lockId3,
+                    limit,
+                    ttl: ttl3,
+                });
 
-                    expect(result).toBe(true);
-                },
-            );
-            test("Should return true when slot exists, is unexpireable and acquired multiple times", async () => {
+                expect(result).toBe(true);
+            });
+            test("Should return true when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
                 const key = "a";
                 const lockId = "b";
                 const limit = 2;
@@ -876,7 +894,7 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(true);
             });
-            test("Should return true when slot exists, is unexpired and acquired multiple times", async () => {
+            test("Should return true when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
                 const key = "a";
                 const lockId = "b";
                 const limit = 2;
@@ -897,7 +915,7 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(true);
             });
-            test("Should not acquire a slot when slot exists, is unexpireable and acquired multiple times", async () => {
+            test("Should not acquire a shared-lock-slot when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
                 const key = "a";
                 const limit = 2;
                 const ttl = null;
@@ -926,7 +944,7 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(true);
             });
-            test("Should not acquire a slot when slot exists, is unexpired and acquired multiple times", async () => {
+            test("Should not acquire a shared-lock-slot when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
                 const key = "a";
                 const limit = 2;
                 const ttl = TimeSpan.fromMilliseconds(50);
@@ -955,7 +973,7 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(true);
             });
-            test("Should not update limit when slot count is more than 0", async () => {
+            test("Should not update limit when shared-lock-slot count is more than 0", async () => {
                 const key = "a";
                 const limit = 2;
                 const ttl = null;
@@ -1050,7 +1068,7 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(false);
             });
-            test("Should return false when slot doesnt exists", async () => {
+            test("Should return false when shared-lock-slot doesnt exists", async () => {
                 const key = "a";
                 const ttl = null;
                 const limit = 2;
@@ -1071,55 +1089,25 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(false);
             });
-            test(
-                "Should return false when slot is expired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 2;
+            test("Should return false when shared-lock-slot is expired", async () => {
+                const key = "a";
+                const ttl = TimeSpan.fromMilliseconds(50);
+                const limit = 2;
 
-                    const lockId1 = "1";
-                    await adapter.acquireReader({
-                        key,
-                        lockId: lockId1,
-                        ttl,
-                        limit,
-                    });
-                    await delay(ttl);
+                const lockId = "1";
+                await adapter.acquireReader({
+                    key,
+                    lockId: lockId,
+                    ttl,
+                    limit,
+                });
+                await delay(ttl);
 
-                    const lockId2 = "2";
-                    const result = await adapter.releaseReader(key, lockId2);
+                const result = await adapter.releaseReader(key, lockId);
 
-                    expect(result).toBe(false);
-                },
-            );
-            test(
-                "Should return false when slot exists, is expired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const lockId = "b";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 2;
-
-                    await adapter.acquireReader({
-                        key,
-                        lockId,
-                        ttl,
-                        limit,
-                    });
-                    await delay(ttl);
-                    const result = await adapter.releaseReader(key, lockId);
-
-                    expect(result).toBe(false);
-                },
-            );
-            test("Should return true when slot exists, is unexpired", async () => {
+                expect(result).toBe(false);
+            });
+            test("Should return true when shared-lock-slot exists and is unexpired", async () => {
                 const key = "a";
                 const lockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
@@ -1135,7 +1123,7 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(true);
             });
-            test("Should return true when slot exists, is unexpireable", async () => {
+            test("Should return true when shared-lock-slot exists and is unexpireable", async () => {
                 const key = "a";
                 const lockId = "b";
                 const ttl = null;
@@ -1151,7 +1139,7 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(true);
             });
-            test("Should update limit when slot count is 0", async () => {
+            test("Should update limit when shared-lock-slot count is 0", async () => {
                 const key = "a";
                 const limit = 2;
                 const ttl = null;
@@ -1211,7 +1199,7 @@ export function sharedLockAdapterTestSuite(
                 });
                 expect(result3).toBe(false);
             });
-            test("Should decrement slot count when one slot is released", async () => {
+            test("Should decrement shared-lock-slot count when one shared-lock-slot is released", async () => {
                 const key = "a";
                 const limit = 2;
                 const ttl = null;
@@ -1303,31 +1291,25 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(false);
             });
-            test(
-                "Should return false when slot is expired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 2;
-                    const lockId = "1";
+            test("Should return false when shared-lock-slot is expired", async () => {
+                const key = "a";
+                const ttl = TimeSpan.fromMilliseconds(50);
+                const limit = 2;
+                const lockId = "1";
 
-                    await adapter.acquireReader({
-                        key,
-                        lockId,
-                        limit,
-                        ttl,
-                    });
-                    await delay(ttl);
+                await adapter.acquireReader({
+                    key,
+                    lockId,
+                    limit,
+                    ttl,
+                });
+                await delay(ttl);
 
-                    const result = await adapter.forceReleaseAllReaders(key);
+                const result = await adapter.forceReleaseAllReaders(key);
 
-                    expect(result).toBe(false);
-                },
-            );
-            test("Should return false when no slots are acquired", async () => {
+                expect(result).toBe(false);
+            });
+            test("Should return false when no shared-lock-slots are acquired", async () => {
                 const key = "a";
                 const ttl = null;
                 const lockId1 = "1";
@@ -1353,7 +1335,7 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(false);
             });
-            test("Should return true when at least 1 slot is acquired", async () => {
+            test("Should return true when at least 1 shared-lock-slot is acquired", async () => {
                 const key = "a";
                 const ttl = null;
                 const limit = 2;
@@ -1370,7 +1352,7 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(true);
             });
-            test("Should make all slots reacquirable", async () => {
+            test("Should make all shared-lock-slots reacquirable", async () => {
                 const key = "a";
                 const limit = 2;
                 const lockId1 = "1";
@@ -1411,7 +1393,7 @@ export function sharedLockAdapterTestSuite(
                 });
                 expect(result2).toBe(true);
             });
-            test("Should update limit when slot count is 0", async () => {
+            test("Should update limit when shared-lock-slot count is 0", async () => {
                 const key = "a";
                 const limit = 2;
                 const ttl = null;
@@ -1522,7 +1504,7 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(false);
             });
-            test("Should return false when slot doesnt exists", async () => {
+            test("Should return false when shared-lock-slot doesnt exists", async () => {
                 const key = "a";
                 const ttl = null;
                 const limit = 2;
@@ -1545,63 +1527,25 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(false);
             });
-            test(
-                "Should return false when slot is expired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const lockId = "b";
-                    const limit = 2;
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    await adapter.acquireReader({
-                        key,
-                        lockId,
-                        limit,
-                        ttl,
-                    });
-                    await delay(ttl);
+            test("Should return false when shared-lock-slot is expired", async () => {
+                const key = "a";
+                const lockId = "b";
+                const limit = 2;
+                const ttl = TimeSpan.fromMilliseconds(50);
+                await adapter.acquireReader({
+                    key,
+                    lockId,
+                    limit,
+                    ttl,
+                });
+                await delay(ttl);
 
-                    const newTtl = TimeSpan.fromMilliseconds(100);
-                    const result = await adapter.refreshReader(
-                        key,
-                        lockId,
-                        newTtl,
-                    );
+                const newTtl = TimeSpan.fromMilliseconds(100);
+                const result = await adapter.refreshReader(key, lockId, newTtl);
 
-                    expect(result).toBe(false);
-                },
-            );
-            test(
-                "Should return false when slot exists, is expired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const lockId = "b";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 2;
-
-                    await adapter.acquireReader({
-                        key,
-                        lockId,
-                        ttl,
-                        limit,
-                    });
-                    await delay(ttl);
-                    const newTtl = TimeSpan.fromMilliseconds(100);
-                    const result = await adapter.refreshReader(
-                        key,
-                        lockId,
-                        newTtl,
-                    );
-
-                    expect(result).toBe(false);
-                },
-            );
-            test("Should return false when slot exists, is unexpireable", async () => {
+                expect(result).toBe(false);
+            });
+            test("Should return false when shared-lock-slot exists and is unexpireable", async () => {
                 const key = "a";
                 const lockId = "b";
                 const ttl = null;
@@ -1618,7 +1562,7 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(false);
             });
-            test("Should return true when slot exists, is unexpired", async () => {
+            test("Should return true when shared-lock-slot exists and is unexpired", async () => {
                 const key = "a";
                 const lockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
@@ -1635,97 +1579,85 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(true);
             });
-            test(
-                "Should not update expiration when slot exists, is unexpireable",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const limit = 2;
+            test("Should not update expiration when shared-lock-slot exists and is unexpireable", async () => {
+                const key = "a";
+                const limit = 2;
 
-                    const ttl1 = null;
-                    const lockId1 = "1";
-                    await adapter.acquireReader({
-                        key,
-                        lockId: lockId1,
-                        ttl: ttl1,
-                        limit,
-                    });
+                const ttl1 = null;
+                const lockId1 = "1";
+                await adapter.acquireReader({
+                    key,
+                    lockId: lockId1,
+                    ttl: ttl1,
+                    limit,
+                });
 
-                    const ttl2 = null;
-                    const lockId2 = "2";
-                    await adapter.acquireReader({
-                        key,
-                        lockId: lockId2,
-                        ttl: ttl2,
-                        limit,
-                    });
+                const ttl2 = null;
+                const lockId2 = "2";
+                await adapter.acquireReader({
+                    key,
+                    lockId: lockId2,
+                    ttl: ttl2,
+                    limit,
+                });
 
-                    const newTtl = TimeSpan.fromMilliseconds(100);
-                    await adapter.refreshReader(key, lockId2, newTtl);
-                    await delay(newTtl);
+                const newTtl = TimeSpan.fromMilliseconds(100);
+                await adapter.refreshReader(key, lockId2, newTtl);
+                await delay(newTtl);
 
-                    const lockId3 = "3";
-                    const result1 = await adapter.acquireReader({
-                        key,
-                        lockId: lockId3,
-                        ttl: ttl2,
-                        limit,
-                    });
-                    expect(result1).toBe(false);
-                },
-            );
-            test(
-                "Should update expiration when slot exists, is unexpired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const limit = 2;
+                const lockId3 = "3";
+                const result1 = await adapter.acquireReader({
+                    key,
+                    lockId: lockId3,
+                    ttl: ttl2,
+                    limit,
+                });
+                expect(result1).toBe(false);
+            });
+            test("Should update expiration when shared-lock-slot exists and is unexpired", async () => {
+                const key = "a";
+                const limit = 2;
 
-                    const ttl1 = null;
-                    const lockId1 = "1";
-                    await adapter.acquireReader({
-                        key,
-                        lockId: lockId1,
-                        ttl: ttl1,
-                        limit,
-                    });
+                const ttl1 = null;
+                const lockId1 = "1";
+                await adapter.acquireReader({
+                    key,
+                    lockId: lockId1,
+                    ttl: ttl1,
+                    limit,
+                });
 
-                    const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const lockId2 = "2";
-                    await adapter.acquireReader({
-                        key,
-                        lockId: lockId2,
-                        ttl: ttl2,
-                        limit,
-                    });
+                const ttl2 = TimeSpan.fromMilliseconds(50);
+                const lockId2 = "2";
+                await adapter.acquireReader({
+                    key,
+                    lockId: lockId2,
+                    ttl: ttl2,
+                    limit,
+                });
 
-                    const newTtl = TimeSpan.fromMilliseconds(100);
-                    await adapter.refreshReader(key, lockId2, newTtl);
-                    await delay(newTtl.divide(2));
+                const newTtl = TimeSpan.fromMilliseconds(100);
+                await adapter.refreshReader(key, lockId2, newTtl);
+                await delay(newTtl.divide(2));
 
-                    const lockId3 = "3";
-                    const result1 = await adapter.acquireReader({
-                        key,
-                        lockId: lockId3,
-                        ttl: ttl2,
-                        limit,
-                    });
-                    expect(result1).toBe(false);
+                const lockId3 = "3";
+                const result1 = await adapter.acquireReader({
+                    key,
+                    lockId: lockId3,
+                    ttl: ttl2,
+                    limit,
+                });
+                expect(result1).toBe(false);
 
-                    await delay(newTtl.divide(2));
-                    const result2 = await adapter.acquireReader({
-                        key,
-                        lockId: lockId3,
-                        ttl: ttl2,
-                        limit,
-                    });
-                    expect(result2).toBe(true);
-                },
-            );
+                await delay(newTtl.divide(2));
+                const result2 = await adapter.acquireReader({
+                    key,
+                    lockId: lockId3,
+                    ttl: ttl2,
+                    limit,
+                });
+                expect(result2).toBe(true);
+            });
             test("Should return false when key is acquired as writer", async () => {
                 const key = "a";
                 const lockId = "1";
@@ -1765,30 +1697,24 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(false);
             });
-            test(
-                "Should return false when key is acquired as writer and is expired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const owner = "b";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-
-                    await adapter.acquireWriter(key, owner, ttl);
-                    await delay(ttl);
-
-                    const result = await adapter.forceRelease(key);
-
-                    expect(result).toBe(false);
-                },
-            );
-            test("Should return true when key is acquired as writer and is uenxpired", async () => {
+            test("Should return false when key is acquired as writer and is expired", async () => {
                 const key = "a";
-                const owner = "b";
+                const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquireWriter(key, owner, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl);
+                await delay(ttl);
+
+                const result = await adapter.forceRelease(key);
+
+                expect(result).toBe(false);
+            });
+            test("Should return true when key is acquired as writer and is uenxpired", async () => {
+                const key = "a";
+                const sharedLockId = "b";
+                const ttl = TimeSpan.fromMilliseconds(50);
+
+                await adapter.acquireWriter(key, sharedLockId, ttl);
 
                 const result = await adapter.forceRelease(key);
 
@@ -1796,10 +1722,10 @@ export function sharedLockAdapterTestSuite(
             });
             test("Should return true when key is acquired as writer and is unexpireable", async () => {
                 const key = "a";
-                const owner = "b";
+                const sharedLockId = "b";
                 const ttl = null;
 
-                await adapter.acquireWriter(key, owner, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl);
 
                 const result = await adapter.forceRelease(key);
 
@@ -1807,41 +1733,39 @@ export function sharedLockAdapterTestSuite(
             });
             test("Should be reacquirable when key is acquired as writer and is force released", async () => {
                 const key = "a";
-                const owner1 = "b";
+                const sharedLockId1 = "b";
                 const ttl = null;
-                await adapter.acquireWriter(key, owner1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl);
 
                 await adapter.forceRelease(key);
 
-                const owner2 = "c";
-                const result = await adapter.acquireWriter(key, owner2, ttl);
+                const sharedLockId2 = "c";
+                const result = await adapter.acquireWriter(
+                    key,
+                    sharedLockId2,
+                    ttl,
+                );
                 expect(result).toBe(true);
             });
-            test(
-                "Should return false when key is acquired as reader and slot is expired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 2;
-                    const lockId = "1";
+            test("Should return false when key is acquired as reader and shared-lock-slot is expired", async () => {
+                const key = "a";
+                const ttl = TimeSpan.fromMilliseconds(50);
+                const limit = 2;
+                const lockId = "1";
 
-                    await adapter.acquireReader({
-                        key,
-                        lockId,
-                        limit,
-                        ttl,
-                    });
-                    await delay(ttl);
+                await adapter.acquireReader({
+                    key,
+                    lockId,
+                    limit,
+                    ttl,
+                });
+                await delay(ttl);
 
-                    const result = await adapter.forceRelease(key);
+                const result = await adapter.forceRelease(key);
 
-                    expect(result).toBe(false);
-                },
-            );
-            test("Should return false when key is acquired as reader and no slots are acquired", async () => {
+                expect(result).toBe(false);
+            });
+            test("Should return false when key is acquired as reader and no shared-lock-slots are acquired", async () => {
                 const key = "a";
                 const ttl = null;
                 const lockId1 = "1";
@@ -1867,7 +1791,7 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(false);
             });
-            test("Should return true when key is acquired as reader and at least 1 slot is acquired", async () => {
+            test("Should return true when key is acquired as reader and at least 1 shared-lock-slot is acquired", async () => {
                 const key = "a";
                 const ttl = null;
                 const limit = 2;
@@ -1884,7 +1808,7 @@ export function sharedLockAdapterTestSuite(
 
                 expect(result).toBe(true);
             });
-            test("Should make all slots reacquirable when key is acquired as reader", async () => {
+            test("Should make all shared-lock-slots reacquirable when key is acquired as reader", async () => {
                 const key = "a";
                 const limit = 2;
                 const lockId1 = "1";
@@ -1925,7 +1849,7 @@ export function sharedLockAdapterTestSuite(
                 });
                 expect(result2).toBe(true);
             });
-            test("Should update limit when key is reader mode and slot count is 0", async () => {
+            test("Should update limit when key is reader mode and shared-lock-slot count is 0", async () => {
                 const key = "a";
                 const limit = 2;
                 const ttl = null;
@@ -1994,28 +1918,22 @@ export function sharedLockAdapterTestSuite(
                 expect(sharedLockData).toBeNull();
             });
             describe("Writer state:", () => {
-                test(
-                    "Should return null when writer lock is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const owner = "b";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        await adapter.acquireWriter(key, owner, ttl);
-                        await delay(ttl);
+                test("Should return null when writer lock is expired", async () => {
+                    const key = "a";
+                    const sharedLockId = "b";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    await adapter.acquireWriter(key, sharedLockId, ttl);
+                    await delay(ttl);
 
-                        const sharedLockData = await adapter.getState(key);
+                    const sharedLockData = await adapter.getState(key);
 
-                        expect(sharedLockData).toBeNull();
-                    },
-                );
+                    expect(sharedLockData).toBeNull();
+                });
                 test("Should return null when writer lock is released with forceReleaseWriter method", async () => {
                     const key = "a";
                     const ttl = null;
-                    const owner = "1";
-                    await adapter.acquireWriter(key, owner, ttl);
+                    const sharedLockId = "1";
+                    await adapter.acquireWriter(key, sharedLockId, ttl);
 
                     await adapter.forceReleaseWriter(key);
 
@@ -2026,8 +1944,8 @@ export function sharedLockAdapterTestSuite(
                 test("Should return null when writer lock is released with forceRelease method", async () => {
                     const key = "a";
                     const ttl = null;
-                    const owner = "1";
-                    await adapter.acquireWriter(key, owner, ttl);
+                    const sharedLockId = "1";
+                    await adapter.acquireWriter(key, sharedLockId, ttl);
 
                     await adapter.forceRelease(key);
 
@@ -2038,10 +1956,10 @@ export function sharedLockAdapterTestSuite(
                 test("Should return null when lock is released with releaseWriter method", async () => {
                     const key = "a";
                     const ttl = null;
-                    const owner = "1";
-                    await adapter.acquireWriter(key, owner, ttl);
+                    const sharedLockId = "1";
+                    await adapter.acquireWriter(key, sharedLockId, ttl);
 
-                    await adapter.releaseWriter(key, owner);
+                    await adapter.releaseWriter(key, sharedLockId);
 
                     const sharedLockData = await adapter.getState(key);
 
@@ -2050,29 +1968,29 @@ export function sharedLockAdapterTestSuite(
                 test("Should return unactive reader and active writer when writer lock exists and is uenxpireable", async () => {
                     const key = "a";
                     const ttl = null;
-                    const owner = "1";
-                    await adapter.acquireWriter(key, owner, ttl);
+                    const sharedLockId = "1";
+                    await adapter.acquireWriter(key, sharedLockId, ttl);
 
                     const state = await adapter.getState(key);
 
                     expect(state).toEqual({
                         reader: null,
                         writer: {
-                            owner,
+                            owner: sharedLockId,
                             expiration: ttl,
                         },
                     } satisfies ISharedLockAdapterState);
                 });
                 test("Should return unactive reader and active writer when writer lock exists and is unexpired", async () => {
                     const key = "a";
-                    const owner = "1";
+                    const sharedLockId = "1";
 
                     const ttl = TimeSpan.fromMinutes(5);
                     let expiration: Date;
                     try {
                         vi.useFakeTimers();
                         expiration = ttl.toEndDate();
-                        await adapter.acquireWriter(key, owner, ttl);
+                        await adapter.acquireWriter(key, sharedLockId, ttl);
                     } finally {
                         vi.useRealTimers();
                     }
@@ -2081,7 +1999,10 @@ export function sharedLockAdapterTestSuite(
 
                     expect(state).toEqual({
                         reader: null,
-                        writer: { owner, expiration },
+                        writer: {
+                            owner: sharedLockId,
+                            expiration,
+                        },
                     } satisfies ISharedLockAdapterState);
                 });
                 test("Should return active reader and unactive writer when acquired as reader first", async () => {
@@ -2098,8 +2019,8 @@ export function sharedLockAdapterTestSuite(
                     });
 
                     const keyB = "a";
-                    const owner = "2";
-                    await adapter.acquireWriter(keyB, owner, ttl);
+                    const sharedLockId = "2";
+                    await adapter.acquireWriter(keyB, sharedLockId, ttl);
 
                     const state = await adapter.getState(keyB);
 
@@ -2123,30 +2044,24 @@ export function sharedLockAdapterTestSuite(
                 });
             });
             describe("Reader state:", () => {
-                test(
-                    "Should return null when slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const lockId = "b";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
-                        await adapter.acquireReader({
-                            key,
-                            limit,
-                            lockId,
-                            ttl,
-                        });
-                        await delay(ttl);
+                test("Should return null when shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const lockId = "b";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 2;
+                    await adapter.acquireReader({
+                        key,
+                        limit,
+                        lockId,
+                        ttl,
+                    });
+                    await delay(ttl);
 
-                        const result = await adapter.getState(key);
+                    const result = await adapter.getState(key);
 
-                        expect(result).toBeNull();
-                    },
-                );
-                test("Should return null when all slots are released with forceReleaseAllReaders method", async () => {
+                    expect(result).toBeNull();
+                });
+                test("Should return null when all shared-lock-slots are released with forceReleaseAllReaders method", async () => {
                     const key = "a";
                     const limit = 2;
 
@@ -2174,7 +2089,7 @@ export function sharedLockAdapterTestSuite(
 
                     expect(result).toBeNull();
                 });
-                test("Should return null when all slots are released with forceRelease method", async () => {
+                test("Should return null when all shared-lock-slots are released with forceRelease method", async () => {
                     const key = "a";
                     const limit = 2;
 
@@ -2202,7 +2117,7 @@ export function sharedLockAdapterTestSuite(
 
                     expect(result).toBeNull();
                 });
-                test("Should return null when all slots are released with releaseReader method", async () => {
+                test("Should return null when all shared-lock-slots are released with releaseReader method", async () => {
                     const key = "a";
                     const limit = 2;
 
@@ -2248,7 +2163,7 @@ export function sharedLockAdapterTestSuite(
 
                     expect(state?.reader?.limit).toBe(limit);
                 });
-                test("Should return slot count when key exists", async () => {
+                test("Should return shared-lock-slot count when key exists", async () => {
                     const key = "a";
                     const limit = 3;
 
@@ -2274,7 +2189,7 @@ export function sharedLockAdapterTestSuite(
 
                     expect(state?.reader?.acquiredSlots.size).toBe(2);
                 });
-                test("Should return slot when key exists, slot exists and slot is unexpired", async () => {
+                test("Should return shared-lock-slot when key exists, shared-lock-slot exists and shared-lock-slot is unexpired", async () => {
                     const key = "a";
                     const limit = 3;
 
@@ -2307,7 +2222,7 @@ export function sharedLockAdapterTestSuite(
                         },
                     });
                 });
-                test("Should return slot when key exists, slot exists and slot is unexpireable", async () => {
+                test("Should return shared-lock-slot when key exists, shared-lock-slot exists and shared-lock-slot is unexpireable", async () => {
                     const key = "a";
                     const limit = 3;
 
@@ -2351,8 +2266,8 @@ export function sharedLockAdapterTestSuite(
                     const ttl = null;
 
                     const keyB = "a";
-                    const owner = "2";
-                    await adapter.acquireWriter(keyB, owner, ttl);
+                    const sharedLockId = "2";
+                    await adapter.acquireWriter(keyB, sharedLockId, ttl);
 
                     const keyA = "a";
                     const lockId = "1";
@@ -2368,7 +2283,7 @@ export function sharedLockAdapterTestSuite(
 
                     expect(state).toEqual({
                         writer: {
-                            owner,
+                            owner: sharedLockId,
                             expiration: ttl,
                         },
                         reader: null,
