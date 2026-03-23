@@ -11,6 +11,7 @@ import {
 
 import { type ICacheAdapter } from "@/cache/contracts/_module.js";
 import { Task } from "@/task/implementations/_module.js";
+import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
@@ -24,6 +25,16 @@ export type CacheAdapterTestSuiteSettings = {
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
     createAdapter: () => Promisable<ICacheAdapter>;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    delayBuffer?: ITimeSpan;
 };
 
 /**
@@ -74,18 +85,29 @@ export type CacheAdapterTestSuiteSettings = {
 export function cacheAdapterTestSuite(
     settings: CacheAdapterTestSuiteSettings,
 ): void {
-    const { expect, test, createAdapter, describe, beforeEach } = settings;
+    const {
+        expect,
+        test,
+        createAdapter,
+        describe,
+        beforeEach,
+        delayBuffer = TimeSpan.fromMilliseconds(10),
+    } = settings;
     let adapter: ICacheAdapter<string | number>;
     beforeEach(async () => {
         adapter = (await createAdapter()) as ICacheAdapter<string | number>;
     });
+
+    async function delay(ttl: ITimeSpan): Promise<void> {
+        await Task.delay(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
+    }
 
     const TTL = TimeSpan.fromMilliseconds(50);
     describe("ICacheAdapter tests:", () => {
         describe("method: get", () => {
             test("Should return the value when key exists", async () => {
                 await adapter.add("a", 1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.get("a")).toBe(1);
             });
             test("Should return null when keys doesnt exists", async () => {
@@ -93,14 +115,14 @@ export function cacheAdapterTestSuite(
             });
             test("Should return null when key is experied", async () => {
                 await adapter.add("a", 1, TTL);
-                await Task.delay(TTL.addTimeSpan(TTL.divide(4)));
+                await delay(TTL);
                 expect(await adapter.get("a")).toBeNull();
             });
         });
         describe("method: getAndRemove", () => {
             test("Should return value when key exists", async () => {
                 await adapter.add("a", 1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.getAndRemove("a")).toBe(1);
             });
             test("Should return null when key doesnt exists", async () => {
@@ -108,63 +130,63 @@ export function cacheAdapterTestSuite(
             });
             test("Should return null when key is expired", async () => {
                 await adapter.add("a", 1, TTL);
-                await Task.delay(TTL.addTimeSpan(TTL.divide(4)));
+                await delay(TTL);
                 expect(await adapter.getAndRemove("a")).toBeNull();
             });
             test("Should persist removal when key exists", async () => {
                 await adapter.add("a", 1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 await adapter.getAndRemove("a");
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.get("a")).toBeNull();
             });
         });
         describe("method: add", () => {
             test("Should return true when key doesnt exists", async () => {
                 const result = await adapter.add("a", 1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(result).toBe(true);
             });
             test("Should return true when key is expired", async () => {
                 await adapter.add("a", 1, TTL);
-                await Task.delay(TTL.addTimeSpan(TTL.divide(4)));
+                await delay(TTL);
                 expect(await adapter.add("a", 1, null)).toBe(true);
             });
             test("Should persist values when key doesnt exist", async () => {
                 await adapter.add("a", 1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.get("a")).toBe(1);
             });
             test("Should persist values when key is expired", async () => {
                 await adapter.add("a", -1, TTL);
-                await Task.delay(TTL.addTimeSpan(TTL.divide(4)));
+                await delay(TTL);
                 await adapter.add("a", 1, null);
                 expect(await adapter.get("a")).toBe(1);
             });
             test("Should return false when key exists", async () => {
                 await adapter.add("a", 1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.add("a", 1, null)).toBe(false);
             });
             test("Should not persist value when key exist", async () => {
                 await adapter.add("a", 1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 await adapter.add("a", 2, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.get("a")).toBe(1);
             });
         });
         describe("method: put", () => {
             test("Should return true when key exists", async () => {
                 await adapter.add("a", 1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.put("a", -1, null)).toBe(true);
             });
             test("Should persist value when key exist", async () => {
                 await adapter.add("a", 1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 await adapter.put("a", -1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.get("a")).toBe(-1);
             });
             test("Should return false when key doesnt exists", async () => {
@@ -172,42 +194,42 @@ export function cacheAdapterTestSuite(
             });
             test("Should return false when key is expired", async () => {
                 await adapter.add("a", 1, TTL);
-                await Task.delay(TTL.addTimeSpan(TTL.divide(4)));
+                await delay(TTL);
                 expect(await adapter.put("a", -1, null)).toBe(false);
             });
             test("Should persist values when key doesnt exist", async () => {
                 await adapter.put("a", -1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.get("a")).toBe(-1);
             });
             test("Should persist values when key is expired", async () => {
                 await adapter.add("a", 1, TTL);
-                await Task.delay(TTL.addTimeSpan(TTL.divide(4)));
+                await delay(TTL);
                 await adapter.put("a", -1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.get("a")).toBe(-1);
             });
             test("Should replace the ttl value", async () => {
                 const ttlA = TimeSpan.fromMilliseconds(100);
                 await adapter.add("a", 1, ttlA);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 const ttlB = TimeSpan.fromMilliseconds(50);
                 await adapter.put("a", -1, ttlB);
-                await Task.delay(ttlB);
+                await delay(ttlB);
                 expect(await adapter.get("a")).toBeNull();
             });
         });
         describe("method: update", () => {
             test("Should return true when key exists", async () => {
                 await adapter.add("a", 1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.update("a", -1)).toBe(true);
             });
             test("Should persist value when key exist", async () => {
                 await adapter.add("a", 1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 await adapter.update("a", -1);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.get("a")).toBe(-1);
             });
             test("Should return false when key doesnt exists", async () => {
@@ -215,17 +237,17 @@ export function cacheAdapterTestSuite(
             });
             test("Should return false when key is expired", async () => {
                 await adapter.add("a", 1, TTL);
-                await Task.delay(TTL.addTimeSpan(TTL.divide(4)));
+                await delay(TTL);
                 expect(await adapter.update("a", -1)).toBe(false);
             });
             test("Should not persist value when key doesnt exist", async () => {
                 await adapter.update("a", -1);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.get("a")).toBeNull();
             });
             test("Should not persist value when key is expired", async () => {
                 await adapter.add("a", 1, TTL);
-                await Task.delay(TTL.addTimeSpan(TTL.divide(4)));
+                await delay(TTL);
                 await adapter.update("a", -1);
                 expect(await adapter.get("a")).toBeNull();
             });
@@ -233,14 +255,14 @@ export function cacheAdapterTestSuite(
         describe("method: increment", () => {
             test("Should return true when key exists", async () => {
                 await adapter.add("a", 1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.increment("a", 1)).toBe(true);
             });
             test("Should persist increment when key exists", async () => {
                 await adapter.add("a", 1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 await adapter.increment("a", 1);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.get("a")).toBe(2);
             });
             test("Should return false when key doesnt exists", async () => {
@@ -248,23 +270,23 @@ export function cacheAdapterTestSuite(
             });
             test("Should return false when key is expired", async () => {
                 await adapter.add("a", 1, TTL);
-                await Task.delay(TTL.addTimeSpan(TTL.divide(4)));
+                await delay(TTL);
                 expect(await adapter.increment("a", 1)).toBe(false);
             });
             test("Should not persist increment when key doesnt exists", async () => {
                 await adapter.increment("a", 1);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect(await adapter.get("a")).toBeNull();
             });
             test("Should not persist increment when key is expired", async () => {
                 await adapter.add("a", 1, TTL);
-                await Task.delay(TTL.addTimeSpan(TTL.divide(4)));
+                await delay(TTL);
                 await adapter.increment("a", 1);
                 expect(await adapter.get("a")).toBeNull();
             });
             test("Should throw TypeError when value is not number type", async () => {
                 await adapter.add("a", "str", null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 await expect(adapter.increment("a", 1)).rejects.toBeInstanceOf(
                     TypeError,
                 );
@@ -278,7 +300,7 @@ export function cacheAdapterTestSuite(
             });
             test("Should return true when one key exists", async () => {
                 await adapter.add("a", 1, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
 
                 const result = await adapter.removeMany(["a", "b", "c"]);
 
@@ -288,10 +310,10 @@ export function cacheAdapterTestSuite(
                 await adapter.add("a", 1, null);
                 await adapter.add("b", 2, null);
                 await adapter.add("c", 3, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
 
                 await adapter.removeMany(["a", "b"]);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
 
                 const result = [
                     await adapter.get("a"),
@@ -306,9 +328,9 @@ export function cacheAdapterTestSuite(
                 await adapter.add("cache/a", 1, null);
                 await adapter.add("cache/b", 2, null);
                 await adapter.add("c", 3, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 await adapter.removeAll();
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 expect([
                     await adapter.get("cache/a"),
                     await adapter.get("cache/b"),
@@ -321,9 +343,9 @@ export function cacheAdapterTestSuite(
                 await adapter.add("cache/a", 1, null);
                 await adapter.add("cache/b", 2, null);
                 await adapter.add("c", 3, null);
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 await adapter.removeByKeyPrefix("cache");
-                await Task.delay(TTL.divide(4));
+                await delay(TTL.divide(4));
                 const result = [
                     await adapter.get("cache/a"),
                     await adapter.get("cache/b"),
