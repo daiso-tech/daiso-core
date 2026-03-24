@@ -3757,7 +3757,12 @@ export function semaphoreProviderTestSuite(
                             interval: TimeSpan.fromMilliseconds(5),
                         });
 
-                        expect(handlerFn).toHaveBeenCalled();
+                        expect(
+                            handlerFn.mock.calls.length,
+                        ).toBeGreaterThanOrEqual(1);
+                        expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(
+                            4,
+                        );
                         expect(handlerFn).toHaveBeenCalledWith(
                             expect.objectContaining({
                                 semaphore: expect.objectContaining({
@@ -4044,7 +4049,12 @@ export function semaphoreProviderTestSuite(
                             /* EMPTY */
                         }
 
-                        expect(handlerFn).toHaveBeenCalled();
+                        expect(
+                            handlerFn.mock.calls.length,
+                        ).toBeGreaterThanOrEqual(1);
+                        expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(
+                            4,
+                        );
                         expect(handlerFn).toHaveBeenCalledWith(
                             expect.objectContaining({
                                 semaphore: expect.objectContaining({

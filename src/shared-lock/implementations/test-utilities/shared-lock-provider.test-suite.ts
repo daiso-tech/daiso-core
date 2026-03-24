@@ -7249,7 +7249,10 @@ export function sharedLockProviderTestSuite(
                         interval: TimeSpan.fromMilliseconds(5),
                     });
 
-                    expect(handlerFn).toHaveBeenCalled();
+                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
+                        1,
+                    );
+                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
                     expect(handlerFn).toHaveBeenCalledWith(
                         expect.objectContaining({
                             sharedLock: expect.objectContaining({
@@ -7287,7 +7290,10 @@ export function sharedLockProviderTestSuite(
                         interval: TimeSpan.fromMilliseconds(5),
                     });
 
-                    expect(handlerFn).toHaveBeenCalled();
+                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
+                        1,
+                    );
+                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
                     expect(handlerFn).toHaveBeenCalledWith(
                         expect.objectContaining({
                             sharedLock: expect.objectContaining({
@@ -7478,7 +7484,10 @@ export function sharedLockProviderTestSuite(
                         /* EMPTY */
                     }
 
-                    expect(handlerFn).toHaveBeenCalled();
+                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
+                        1,
+                    );
+                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
                     expect(handlerFn).toHaveBeenCalledWith(
                         expect.objectContaining({
                             sharedLock: expect.objectContaining({
@@ -7520,7 +7529,10 @@ export function sharedLockProviderTestSuite(
                         /* EMPTY */
                     }
 
-                    expect(handlerFn).toHaveBeenCalled();
+                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
+                        1,
+                    );
+                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
                     expect(handlerFn).toHaveBeenCalledWith(
                         expect.objectContaining({
                             sharedLock: expect.objectContaining({
@@ -9368,7 +9380,10 @@ export function sharedLockProviderTestSuite(
                         interval: TimeSpan.fromMilliseconds(5),
                     });
 
-                    expect(handlerFn).toHaveBeenCalled();
+                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
+                        1,
+                    );
+                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
                     expect(handlerFn).toHaveBeenCalledWith(
                         expect.objectContaining({
                             sharedLock: expect.objectContaining({
@@ -9655,7 +9670,10 @@ export function sharedLockProviderTestSuite(
                         /* EMPTY */
                     }
 
-                    expect(handlerFn).toHaveBeenCalled();
+                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
+                        1,
+                    );
+                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
                     expect(handlerFn).toHaveBeenCalledWith(
                         expect.objectContaining({
                             sharedLock: expect.objectContaining({
