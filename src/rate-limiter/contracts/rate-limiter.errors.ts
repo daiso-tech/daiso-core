@@ -4,6 +4,7 @@
 
 import { type IKey } from "@/namespace/contracts/_module.js";
 import { type RateLimiterBlockedState } from "@/rate-limiter/contracts/rate-limiter-state.contract.js";
+import { type InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error is throw when rate limiter blocks the attempts.
@@ -43,7 +44,7 @@ export class BlockedRateLimiterError extends Error {
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Errors
  */
-export const CIRCUIT_BREAKER_ERRORS = {
+export const RATE_LIMITER_ERRORS = {
     Blocked: BlockedRateLimiterError,
 } as const;
 
@@ -51,7 +52,9 @@ export const CIRCUIT_BREAKER_ERRORS = {
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Errors
  */
-export type AllRateLimiterErrors = BlockedRateLimiterError;
+export type AllRateLimiterErrors = InferInstance<
+    (typeof RATE_LIMITER_ERRORS)[keyof typeof RATE_LIMITER_ERRORS]
+>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
@@ -60,10 +63,10 @@ export type AllRateLimiterErrors = BlockedRateLimiterError;
 export function isRateLimiterError(
     value: unknown,
 ): value is AllRateLimiterErrors {
-    for (const ErrorClass of Object.values(CIRCUIT_BREAKER_ERRORS)) {
-        if (!(value instanceof ErrorClass)) {
-            return false;
+    for (const ErrorClass of Object.values(RATE_LIMITER_ERRORS)) {
+        if (value instanceof ErrorClass) {
+            return true;
         }
     }
-    return true;
+    return false;
 }

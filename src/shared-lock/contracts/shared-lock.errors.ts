@@ -3,6 +3,7 @@
  */
 
 import { type IKey } from "@/namespace/contracts/_module.js";
+import { type InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error is thrown when trying to acquire a semaphore slot, but all slots are already taken.
@@ -33,7 +34,7 @@ export class LimitReachedReaderSemaphoreError extends Error {
 }
 
 /**
- * The error is thrown when trying to referesh a semaphore slot that is already expired.
+ * The error is thrown when trying to refresh a semaphore slot that is already expired.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
@@ -95,19 +96,18 @@ export class FailedReleaseReaderSemaphoreError extends Error {
  * @group Errors
  */
 export const READER_SEMAPHORE_ERRORS = {
-    ReachedLimit: LimitReachedReaderSemaphoreError,
-    FailedRefresh: FailedRefreshReaderSemaphoreError,
-    FailedRelease: FailedReleaseReaderSemaphoreError,
+    ReachedLimitReader: LimitReachedReaderSemaphoreError,
+    FailedRefreshReader: FailedRefreshReaderSemaphoreError,
+    FailedReleaseReader: FailedReleaseReaderSemaphoreError,
 } as const;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
  */
-export type AllReaderSemaphoreErrors =
-    | LimitReachedReaderSemaphoreError
-    | FailedRefreshReaderSemaphoreError
-    | FailedReleaseReaderSemaphoreError;
+export type AllReaderSemaphoreErrors = InferInstance<
+    (typeof READER_SEMAPHORE_ERRORS)[keyof typeof READER_SEMAPHORE_ERRORS]
+>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
@@ -117,15 +117,15 @@ export function isReaderSemaphoreError(
     value: unknown,
 ): value is AllReaderSemaphoreErrors {
     for (const ErrorClass of Object.values(READER_SEMAPHORE_ERRORS)) {
-        if (!(value instanceof ErrorClass)) {
-            return false;
+        if (value instanceof ErrorClass) {
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 /**
- * The error is thrown when trying to acquire a lock that is owned by a different owner.
+ * The error is thrown when trying to acquire a shared-lock that is owned by a different owner.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
@@ -150,7 +150,7 @@ export class FailedAcquireWriterLockError extends Error {
 }
 
 /**
- * The error is thrown when trying to release a lock that is owned by a different owner.
+ * The error is thrown when trying to release a shared-lock that is owned by a different owner.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
@@ -179,7 +179,7 @@ export class FailedReleaseWriterLockError extends Error {
 }
 
 /**
- * The error is thrown when trying to referesh a lock that is owned by a different owner.
+ * The error is thrown when trying to refresh a shared-lock that is owned by a different owner.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
@@ -212,19 +212,18 @@ export class FailedRefreshWriterLockError extends Error {
  * @group Errors
  */
 export const WRITER_LOCK_ERRORS = {
-    FailedAcquire: FailedAcquireWriterLockError,
-    FailedRelease: FailedReleaseWriterLockError,
-    FailedRefresh: FailedRefreshWriterLockError,
+    FailedAcquireWriter: FailedAcquireWriterLockError,
+    FailedReleaseWriter: FailedReleaseWriterLockError,
+    FailedRefreshWriter: FailedRefreshWriterLockError,
 } as const;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
  */
-export type AllWriterLockErrors =
-    | FailedAcquireWriterLockError
-    | FailedReleaseWriterLockError
-    | FailedRefreshWriterLockError;
+export type AllWriterLockErrors = InferInstance<
+    (typeof WRITER_LOCK_ERRORS)[keyof typeof WRITER_LOCK_ERRORS]
+>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
@@ -234,11 +233,11 @@ export function isWriterLockError(
     value: unknown,
 ): value is AllWriterLockErrors {
     for (const ErrorClass of Object.values(WRITER_LOCK_ERRORS)) {
-        if (!(value instanceof ErrorClass)) {
-            return false;
+        if (value instanceof ErrorClass) {
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 /**
@@ -254,9 +253,9 @@ export const SHARED_LOCK_ERRORS = {
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Errors
  */
-export type AllSharedLockErrors =
-    | AllWriterLockErrors
-    | AllReaderSemaphoreErrors;
+export type AllSharedLockErrors = InferInstance<
+    (typeof SHARED_LOCK_ERRORS)[keyof typeof SHARED_LOCK_ERRORS]
+>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`

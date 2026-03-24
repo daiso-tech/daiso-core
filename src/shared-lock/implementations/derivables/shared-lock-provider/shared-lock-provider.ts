@@ -122,7 +122,7 @@ export type SharedLockProviderSettingsBase = {
     defaultBlockingTime?: ITimeSpan;
 
     /**
-     * The default refresh time used in the {@link ISharedLock | `ISharedLock`} `referesh` method.
+     * The default refresh time used in the {@link ISharedLock | `ISharedLock`} `refresh` method.
      * ```ts
      * import { TimeSpan } from "@daiso-tech/core/time-span";
      *

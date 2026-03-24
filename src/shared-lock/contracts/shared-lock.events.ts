@@ -13,7 +13,7 @@ export type LockEventBase = {
 };
 
 /**
- * The event is dispatched when a lock is aquired.
+ * The event is dispatched when a shared-lock is acquired.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
@@ -21,7 +21,7 @@ export type LockEventBase = {
 export type AcquiredWriterLockEvent = LockEventBase;
 
 /**
- * The event is dispatched when a lock is released.
+ * The event is dispatched when a shared-lock is released.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
@@ -29,7 +29,7 @@ export type AcquiredWriterLockEvent = LockEventBase;
 export type ReleasedWriterLockEvent = LockEventBase;
 
 /**
- * The event is dispatched when a lock is forcefully released.
+ * The event is dispatched when a shared-lock is forcefully released.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
@@ -39,7 +39,7 @@ export type ForceReleasedWriterLockEvent = LockEventBase & {
 };
 
 /**
- * The event is dispatched when trying to release a lock that is owned by a different owner.
+ * The event is dispatched when trying to release a shared-lock that is owned by a different owner.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
@@ -47,7 +47,7 @@ export type ForceReleasedWriterLockEvent = LockEventBase & {
 export type FailedReleaseWriterLockEvent = LockEventBase;
 
 /**
- * The event is dispatched when trying to refefresh a lock that is owned by a different owner.
+ * The event is dispatched when trying to refresh a shared-lock that is owned by a different owner.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
@@ -56,10 +56,10 @@ export type FailedRefreshWriterLockEvent = LockEventBase;
 
 /**
  * The event is dispatched when
- * 1. Trying to acquire the shared lock as writer when in reader mode.
- * 2. Trying to acquire the shared lock as reader when in writer mode.
- * 3. trying to acquire a shared lock that is owned by a different owner.
- * 4. Trying to acquire the shared lock as reader when limit is reached.
+ * 1. Trying to acquire the shared-lock as writer when in reader mode.
+ * 2. Trying to acquire the shared-lock as reader when in writer mode.
+ * 3. trying to acquire a shared-lock that is owned by a different owner.
+ * 4. Trying to acquire the shared-lock as reader when limit is reached.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
@@ -67,7 +67,7 @@ export type FailedRefreshWriterLockEvent = LockEventBase;
 export type UnavailableSharedLockEvent = LockEventBase;
 
 /**
- * The event is dispatched when a lock is refreshed.
+ * The event is dispatched when a shared-lock is refreshed.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
@@ -102,7 +102,7 @@ export type WriterLockEventMap = {
 };
 
 /**
- * The event is dispatched when a lock slot is aquired.
+ * The event is dispatched when a shared-lock slot is acquired.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
@@ -110,8 +110,8 @@ export type WriterLockEventMap = {
 export type AcquiredReaderSemaphoreEvent = LockEventBase;
 
 /**
- * The event is dispatched when a lock slot is released.
- * Note this event is only dispatched when the shared lock slot is released and not when the shared lock slot expired.
+ * The event is dispatched when a shared-lock slot is released.
+ * Note this event is only dispatched when the shared-lock slot is released and not when the shared-lock slot expired.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
@@ -119,7 +119,7 @@ export type AcquiredReaderSemaphoreEvent = LockEventBase;
 export type ReleasedReaderSemaphoreEvent = LockEventBase;
 
 /**
- * The event is dispatched when all slot of semapahore are released.
+ * The event is dispatched when all slot of semaphore are released.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
@@ -129,7 +129,7 @@ export type AllForceReleasedReaderSemaphoreEvent = LockEventBase & {
 };
 
 /**
- * The error is dispatched when trying to referesh a lock slot that is already expired.
+ * The event is dispatched when trying to refresh a shared-lock slot that is already expired.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
@@ -137,7 +137,7 @@ export type AllForceReleasedReaderSemaphoreEvent = LockEventBase & {
 export type FailedRefreshReaderSemaphoreEvent = LockEventBase;
 
 /**
- * The error is dispatched when trying to release a lock slot that is already expired.
+ * The event is dispatched when trying to release a shared-lock slot that is already expired.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
@@ -145,7 +145,7 @@ export type FailedRefreshReaderSemaphoreEvent = LockEventBase;
 export type FailedReleaseReaderSemaphoreEvent = LockEventBase;
 
 /**
- * The event is dispatched when a lock slot is refreshed.
+ * The event is dispatched when a shared-lock slot is refreshed.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Events
@@ -162,7 +162,6 @@ export const READER_SEMAPHORE_EVENTS = {
     READER_ALL_FORCE_RELEASED: "READER_ALL_FORCE_RELEASED",
     READER_FAILED_RELEASE: "READER_FAILED_RELEASE",
     READER_FAILED_REFRESH: "READER_FAILED_REFRESH",
-    READER_LIMIT_REACHED: "READER_LIMIT_REACHED",
     READER_REFRESHED: "READER_REFRESHED",
     READER_UNEXPECTED_ERROR: "READER_UNEXPECTED_ERROR",
 } as const;

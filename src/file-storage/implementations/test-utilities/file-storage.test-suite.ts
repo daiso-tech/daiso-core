@@ -30,8 +30,11 @@ import {
     type RemovedFileEvent,
     type UpdatedFileEvent,
 } from "@/file-storage/contracts/_module.js";
-import { resolveFileContent } from "@/file-storage/implementations/derivables/file-storage/resolve-file-content.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
+import {
+    isBytesArrayEqualityTester,
+    resolveStream,
+} from "@/test-utilities/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
@@ -56,81 +59,6 @@ export type FileStorageTestSuiteSettings = {
      */
     excludeSerdeTests?: boolean;
 };
-
-type BinaryData = ArrayBuffer | SharedArrayBuffer | ArrayBufferView | Buffer;
-function isBinaryData(val: unknown): val is BinaryData {
-    return (
-        val instanceof ArrayBuffer ||
-        val instanceof SharedArrayBuffer ||
-        ArrayBuffer.isView(val) ||
-        (typeof Buffer !== "undefined" && Buffer.isBuffer(val))
-    );
-}
-function isBytesArrayEqualityTester(
-    a: unknown,
-    b: unknown,
-): boolean | undefined {
-    if (!isBinaryData(a)) {
-        return;
-    }
-
-    if (!isBinaryData(b)) {
-        return;
-    }
-    const uInt8ArrayA = resolveFileContent(a);
-    const uInt8ArrayB = resolveFileContent(b);
-    if (uInt8ArrayA.length !== uInt8ArrayB.length) {
-        return false;
-    }
-    for (let i = 0; i < uInt8ArrayA.length; i++) {
-        if (uInt8ArrayA[i] !== uInt8ArrayB[i]) {
-            return false;
-        }
-    }
-    return true;
-}
-async function resolveStream(
-    stream: AsyncIterable<Uint8Array> | null,
-): Promise<Uint8Array | null> {
-    if (!stream) {
-        return null;
-    }
-
-    const chunks: Array<Uint8Array> = [];
-    let totalLength = 0;
-
-    // 1. Collect all chunks and track the total byte length
-    for await (const chunk of stream) {
-        chunks.push(chunk);
-        totalLength += chunk.byteLength;
-    }
-
-    // Handle empty streams
-    if (chunks.length === 0) {
-        return new Uint8Array(0);
-    }
-
-    // 2. Optimization: If there's only one chunk, just return it
-    if (chunks.length === 1) {
-        const chunk = chunks[0];
-        if (chunk === undefined) {
-            return null;
-        }
-        return chunk;
-    }
-
-    // 3. Allocate the final memory once
-    const result = new Uint8Array(totalLength);
-    let offset = 0;
-
-    // 4. Copy each chunk into the final array
-    for (const chunk of chunks) {
-        result.set(chunk, offset);
-        offset += chunk.byteLength;
-    }
-
-    return result;
-}
 
 /**
  * The `fileStorageTestSuite` function simplifies the process of testing your custom implementation of {@link IFileStorage | `IFileStorage`} with `vitest`.

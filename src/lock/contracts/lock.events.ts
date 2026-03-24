@@ -15,7 +15,7 @@ export type LockEventBase = {
 };
 
 /**
- * The event is dispatched when a lock is aquired.
+ * The event is dispatched when a lock is acquired.
  *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Events
@@ -49,7 +49,7 @@ export type ForceReleasedLockEvent = LockEventBase & {
 export type FailedReleaseLockEvent = LockEventBase;
 
 /**
- * The event is dispatched when trying to refefresh a lock that is owned by a different owner.
+ * The event is dispatched when trying to refresh a lock that is owned by a different owner.
  *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Events

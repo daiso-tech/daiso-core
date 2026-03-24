@@ -371,7 +371,7 @@
     },
     "scripts": {
         "test": "npx vitest run",
-        "test:watch": "npm run test -- watch",
+        "test:changed": "npx vitest --run --changed origin/main",
         "check": "npx tsc --project \"./tsconfig.json\"",
         "lint": "npx eslint \"**/*.{js,jsx,ts,tsx}\"",
         "lint:fix": "npx eslint \"**/*.{js,jsx,ts,tsx}\" --fix",

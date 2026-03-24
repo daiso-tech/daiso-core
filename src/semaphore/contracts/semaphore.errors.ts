@@ -3,6 +3,7 @@
  */
 
 import { type IKey } from "@/namespace/contracts/_module.js";
+import { type InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error is thrown when trying to acquire a semaphore slot, but all slots are already taken.
@@ -30,7 +31,7 @@ export class LimitReachedSemaphoreError extends Error {
 }
 
 /**
- * The error is thrown when trying to referesh a semaphore slot that is already expired.
+ * The error is thrown when trying to refresh a semaphore slot that is already expired.
  *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Errors
@@ -101,10 +102,9 @@ export const SEMAPHORE_ERRORS = {
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Errors
  */
-export type AllSemaphoreErrors =
-    | LimitReachedSemaphoreError
-    | FailedRefreshSemaphoreError
-    | FailedReleaseSemaphoreError;
+export type AllSemaphoreErrors = InferInstance<
+    (typeof SEMAPHORE_ERRORS)[keyof typeof SEMAPHORE_ERRORS]
+>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
@@ -112,9 +112,9 @@ export type AllSemaphoreErrors =
  */
 export function isSemaphoreError(value: unknown): value is AllSemaphoreErrors {
     for (const ErrorClass of Object.values(SEMAPHORE_ERRORS)) {
-        if (!(value instanceof ErrorClass)) {
+        if (value instanceof ErrorClass) {
             return false;
         }
     }
-    return true;
+    return false;
 }

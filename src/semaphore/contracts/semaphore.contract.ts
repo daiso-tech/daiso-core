@@ -14,6 +14,7 @@ import {
 } from "@/semaphore/contracts/semaphore.errors.js";
 import { type ITask } from "@/task/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type AsyncLazy,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -40,7 +41,7 @@ export type ISemaphoreStateMethods = {
     /**
      * The `ttl` of `ISemaphore` instance.
      */
-    readonly ttl: ITimeSpan | null;
+    readonly ttl: TimeSpan | null;
 };
 
 /**

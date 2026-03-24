@@ -2,6 +2,8 @@
  * @module Collection
  */
 
+import { type InferInstance } from "@/utilities/_module.js";
+
 /**
  * The error is thrown when the item is not found.
  *
@@ -83,3 +85,26 @@ export const COLLECTION_ERRORS = {
     MultipleItemsFound: MultipleItemsFoundCollectionError,
     Empty: EmptyCollectionError,
 } as const;
+
+/**
+ * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * @group Errors
+ */
+export type AllCollectionErrors = InferInstance<
+    (typeof COLLECTION_ERRORS)[keyof typeof COLLECTION_ERRORS]
+>;
+
+/**
+ * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * @group Errors
+ */
+export function isCollectionError(
+    value: unknown,
+): value is AllCollectionErrors {
+    for (const ErrorClass of Object.values(COLLECTION_ERRORS)) {
+        if (value instanceof ErrorClass) {
+            return true;
+        }
+    }
+    return false;
+}

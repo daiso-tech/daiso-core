@@ -3,6 +3,7 @@
  */
 
 import { type IKey } from "@/namespace/contracts/_module.js";
+import { type InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error is thrown when trying to acquire a lock that is owned by a different owner.
@@ -59,7 +60,7 @@ export class FailedReleaseLockError extends Error {
 }
 
 /**
- * The error is thrown when trying to referesh a lock that is owned by a different owner.
+ * The error is thrown when trying to refresh a lock that is owned by a different owner.
  *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Errors
@@ -101,10 +102,9 @@ export const LOCK_ERRORS = {
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Errors
  */
-export type AllLockErrors =
-    | FailedAcquireLockError
-    | FailedReleaseLockError
-    | FailedRefreshLockError;
+export type AllLockErrors = InferInstance<
+    (typeof LOCK_ERRORS)[keyof typeof LOCK_ERRORS]
+>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
@@ -112,9 +112,9 @@ export type AllLockErrors =
  */
 export function isLockError(value: unknown): value is AllLockErrors {
     for (const ErrorClass of Object.values(LOCK_ERRORS)) {
-        if (!(value instanceof ErrorClass)) {
-            return false;
+        if (value instanceof ErrorClass) {
+            return true;
         }
     }
-    return true;
+    return false;
 }

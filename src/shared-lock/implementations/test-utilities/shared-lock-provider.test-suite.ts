@@ -44,6 +44,8 @@ import {
     type UnavailableSharedLockEvent,
 } from "@/shared-lock/contracts/_module.js";
 import { Task } from "@/task/implementations/_module.js";
+import { createIsTimeSpanEqualityTester } from "@/test-utilities/_module.js";
+import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
@@ -70,6 +72,32 @@ export type SharedLockProviderTestSuiteSettings = {
      * @default true
      */
     excludeEventTests?: boolean;
+
+    /**
+     * Enable retry for flaky tests.
+     * @default 0
+     */
+    retry?: number;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    delayBuffer?: ITimeSpan;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    timeSpanEqualityBuffer?: ITimeSpan;
 };
 
 /**
@@ -119,12 +147,15 @@ export function sharedLockProviderTestSuite(
         beforeEach,
         excludeEventTests = false,
         excludeSerdeTests = false,
+        retry = 0,
+        delayBuffer = TimeSpan.fromMilliseconds(10),
+        timeSpanEqualityBuffer = TimeSpan.fromMilliseconds(10),
     } = settings;
 
     let sharedLockProvider: ISharedLockProvider;
     let serde: ISerde;
     async function delay(time: TimeSpan): Promise<void> {
-        await Task.delay(time.addMilliseconds(10));
+        await Task.delay(TimeSpan.fromTimeSpan(time).addTimeSpan(delayBuffer));
     }
     const RETURN_VALUE = "RETURN_VALUE";
 
@@ -271,38 +302,32 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                 });
-                test(
-                    "Should call handler function when key is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 4;
-                        const ttl = TimeSpan.fromMilliseconds(50);
+                test("Should call handler function when key is expired", async () => {
+                    const key = "a";
+                    const limit = 4;
+                    const ttl = TimeSpan.fromMilliseconds(50);
 
-                        await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .acquireWriter();
-                        await delay(ttl);
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .acquireWriter();
+                    await delay(ttl);
 
-                        const handlerFn = vi.fn(() => {
-                            return Promise.resolve(RETURN_VALUE);
-                        });
-                        await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .runWriterOrFail(handlerFn);
+                    const handlerFn = vi.fn(() => {
+                        return Promise.resolve(RETURN_VALUE);
+                    });
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .runWriterOrFail(handlerFn);
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                    },
-                );
-                test("Should call handler function when key is unexpireable and acquired by same lockId", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                });
+                test("Should call handler function when key is unexpireable and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = null;
@@ -323,7 +348,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                 });
-                test("Should call handler function when key is unexpired and acquired by same lockId", async () => {
+                test("Should call handler function when key is unexpired and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -344,7 +369,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                 });
-                test("Should not call handler function when key is unexpireable and acquired by different lockId", async () => {
+                test("Should not call handler function when key is unexpireable and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = null;
@@ -371,7 +396,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
-                test("Should not call handler function when key is unexpired and acquired by different lockId", async () => {
+                test("Should not call handler function when key is unexpired and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -414,37 +439,31 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(RETURN_VALUE);
                 });
-                test(
-                    "Should return value when key is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 4;
-                        const ttl = TimeSpan.fromMilliseconds(50);
+                test("Should return value when key is expired", async () => {
+                    const key = "a";
+                    const limit = 4;
+                    const ttl = TimeSpan.fromMilliseconds(50);
 
-                        await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .acquireWriter();
-                        await delay(ttl);
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .acquireWriter();
+                    await delay(ttl);
 
-                        const result = await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .runWriterOrFail(() => {
-                                return Promise.resolve(RETURN_VALUE);
-                            });
+                    const result = await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .runWriterOrFail(() => {
+                            return Promise.resolve(RETURN_VALUE);
+                        });
 
-                        expect(result).toBe(RETURN_VALUE);
-                    },
-                );
-                test("Should not throw error when key is unexpireable and acquired by same lockId", async () => {
+                    expect(result).toBe(RETURN_VALUE);
+                });
+                test("Should not throw error when key is unexpireable and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = null;
@@ -460,7 +479,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(RETURN_VALUE);
                 });
-                test("Should not throw error when key is unexpired and acquired by same lockId", async () => {
+                test("Should not throw error when key is unexpired and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -476,7 +495,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(RETURN_VALUE);
                 });
-                test("Should throw FailedAcquireWriterLockError when key is unexpireable and acquired by different lockId", async () => {
+                test("Should throw FailedAcquireWriterLockError when key is unexpireable and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = null;
@@ -500,7 +519,7 @@ export function sharedLockProviderTestSuite(
                         FailedAcquireWriterLockError,
                     );
                 });
-                test("Should throw FailedAcquireWriterLockError when key is unexpired and acquired by different lockId", async () => {
+                test("Should throw FailedAcquireWriterLockError when key is unexpired and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -699,41 +718,35 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                 });
-                test(
-                    "Should call handler function when key is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should call handler function when key is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .acquireWriter();
-                        await delay(ttl);
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .acquireWriter();
+                    await delay(ttl);
 
-                        const handlerFn = vi.fn(() => {
-                            return Promise.resolve(RETURN_VALUE);
+                    const handlerFn = vi.fn(() => {
+                        return Promise.resolve(RETURN_VALUE);
+                    });
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .runWriterBlockingOrFail(handlerFn, {
+                            time: TimeSpan.fromMilliseconds(5),
+                            interval: TimeSpan.fromMilliseconds(5),
                         });
-                        await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .runWriterBlockingOrFail(handlerFn, {
-                                time: TimeSpan.fromMilliseconds(5),
-                                interval: TimeSpan.fromMilliseconds(5),
-                            });
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                    },
-                );
-                test("Should call handler function when key is unexpireable and acquired by same lockId", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                });
+                test("Should call handler function when key is unexpireable and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -757,7 +770,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                 });
-                test("Should call handler function when key is unexpired and acquired by same lockId", async () => {
+                test("Should call handler function when key is unexpired and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -781,7 +794,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                 });
-                test("Should not call handler function when key is unexpireable and acquired by different lockId", async () => {
+                test("Should not call handler function when key is unexpireable and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -811,7 +824,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
-                test("Should not call handler function when key is unexpired and acquired by different lockId", async () => {
+                test("Should not call handler function when key is unexpired and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -863,216 +876,218 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(RETURN_VALUE);
                 });
+                test("Should return value when key is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
+
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .acquireWriter();
+                    await delay(ttl);
+
+                    const result = await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .runWriterBlockingOrFail(
+                            () => {
+                                return Promise.resolve(RETURN_VALUE);
+                            },
+                            {
+                                time: TimeSpan.fromMilliseconds(5),
+                                interval: TimeSpan.fromMilliseconds(5),
+                            },
+                        );
+
+                    expect(result).toBe(RETURN_VALUE);
+                });
+                test("Should return value when key is unexpireable and acquired by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = null;
+                    const limit = 4;
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
+                    const result = await sharedLock.runWriterBlockingOrFail(
+                        () => {
+                            return Promise.resolve(RETURN_VALUE);
+                        },
+                        {
+                            time: TimeSpan.fromMilliseconds(5),
+                            interval: TimeSpan.fromMilliseconds(5),
+                        },
+                    );
+
+                    expect(result).toBe(RETURN_VALUE);
+                });
+                test("Should return value when key is unexpired and acquired by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
+                    const result = await sharedLock.runWriterBlockingOrFail(
+                        () => {
+                            return Promise.resolve(RETURN_VALUE);
+                        },
+                        {
+                            time: TimeSpan.fromMilliseconds(5),
+                            interval: TimeSpan.fromMilliseconds(5),
+                        },
+                    );
+
+                    expect(result).toBe(RETURN_VALUE);
+                });
+                test("Should throw FailedAcquireWriterLockError when key is unexpireable and acquired by different shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = null;
+                    const limit = 4;
+
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .acquireWriter();
+                    const result = sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .runWriterBlockingOrFail(
+                            () => {
+                                return Promise.resolve(RETURN_VALUE);
+                            },
+                            {
+                                time: TimeSpan.fromMilliseconds(5),
+                                interval: TimeSpan.fromMilliseconds(5),
+                            },
+                        );
+
+                    await expect(result).rejects.toBeInstanceOf(
+                        FailedAcquireWriterLockError,
+                    );
+                });
+                test("Should throw FailedAcquireWriterLockError when key is unexpired and acquired by different shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
+
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .acquireWriter();
+                    const result = sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .runWriterBlockingOrFail(
+                            () => {
+                                return Promise.resolve(RETURN_VALUE);
+                            },
+                            {
+                                time: TimeSpan.fromMilliseconds(5),
+                                interval: TimeSpan.fromMilliseconds(5),
+                            },
+                        );
+
+                    await expect(result).rejects.toBeInstanceOf(
+                        FailedAcquireWriterLockError,
+                    );
+                });
                 test(
-                    "Should return value when key is expired",
-                    {
-                        retry: 10,
-                    },
+                    "Should retry acquire the shared lock when blocked by a writer",
+                    { retry },
                     async () => {
                         const key = "a";
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 4;
+                        const sharedLock1 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
 
-                        await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .acquireWriter();
-                        await delay(ttl);
-
-                        const result = await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .runWriterBlockingOrFail(
+                        await sharedLock1.acquireWriter();
+                        const handlerFn = vi.fn(() => {});
+                        await sharedLockProvider.events.addListener(
+                            SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            handlerFn,
+                        );
+                        const sharedLock2 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
+                        try {
+                            await sharedLock2.runWriterBlockingOrFail(
                                 () => {
                                     return Promise.resolve(RETURN_VALUE);
                                 },
                                 {
-                                    time: TimeSpan.fromMilliseconds(5),
+                                    time: TimeSpan.fromMilliseconds(55),
                                     interval: TimeSpan.fromMilliseconds(5),
                                 },
                             );
+                        } catch {
+                            /* EMPTY */
+                        }
 
-                        expect(result).toBe(RETURN_VALUE);
+                        expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
                     },
                 );
-                test("Should return value when key is unexpireable and acquired by same lockId", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 4;
-
-                    const sharedLock = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireWriter();
-                    const result = await sharedLock.runWriterBlockingOrFail(
-                        () => {
-                            return Promise.resolve(RETURN_VALUE);
-                        },
-                        {
-                            time: TimeSpan.fromMilliseconds(5),
-                            interval: TimeSpan.fromMilliseconds(5),
-                        },
-                    );
-
-                    expect(result).toBe(RETURN_VALUE);
-                });
-                test("Should return value when key is unexpired and acquired by same lockId", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 4;
-
-                    const sharedLock = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireWriter();
-                    const result = await sharedLock.runWriterBlockingOrFail(
-                        () => {
-                            return Promise.resolve(RETURN_VALUE);
-                        },
-                        {
-                            time: TimeSpan.fromMilliseconds(5),
-                            interval: TimeSpan.fromMilliseconds(5),
-                        },
-                    );
-
-                    expect(result).toBe(RETURN_VALUE);
-                });
-                test("Should throw FailedAcquireWriterLockError when key is unexpireable and acquired by different lockId", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 4;
-
-                    await sharedLockProvider
-                        .create(key, {
+                test(
+                    "Should retry acquire the shared lock when blocked by a reader",
+                    { retry },
+                    async () => {
+                        const key = "a";
+                        const ttl = TimeSpan.fromMilliseconds(50);
+                        const limit = 4;
+                        const sharedLock1 = sharedLockProvider.create(key, {
                             ttl,
                             limit,
-                        })
-                        .acquireWriter();
-                    const result = sharedLockProvider
-                        .create(key, {
+                        });
+
+                        await sharedLock1.acquireReader();
+                        const handlerFn = vi.fn(() => {});
+                        await sharedLockProvider.events.addListener(
+                            SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            handlerFn,
+                        );
+                        const sharedLock2 = sharedLockProvider.create(key, {
                             ttl,
                             limit,
-                        })
-                        .runWriterBlockingOrFail(
-                            () => {
-                                return Promise.resolve(RETURN_VALUE);
-                            },
-                            {
-                                time: TimeSpan.fromMilliseconds(5),
-                                interval: TimeSpan.fromMilliseconds(5),
-                            },
-                        );
+                        });
+                        try {
+                            await sharedLock2.runWriterBlockingOrFail(
+                                () => {
+                                    return Promise.resolve(RETURN_VALUE);
+                                },
+                                {
+                                    time: TimeSpan.fromMilliseconds(55),
+                                    interval: TimeSpan.fromMilliseconds(5),
+                                },
+                            );
+                        } catch {
+                            /* EMPTY */
+                        }
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        FailedAcquireWriterLockError,
-                    );
-                });
-                test("Should throw FailedAcquireWriterLockError when key is unexpired and acquired by different lockId", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 4;
-
-                    await sharedLockProvider
-                        .create(key, {
-                            ttl,
-                            limit,
-                        })
-                        .acquireWriter();
-                    const result = sharedLockProvider
-                        .create(key, {
-                            ttl,
-                            limit,
-                        })
-                        .runWriterBlockingOrFail(
-                            () => {
-                                return Promise.resolve(RETURN_VALUE);
-                            },
-                            {
-                                time: TimeSpan.fromMilliseconds(5),
-                                interval: TimeSpan.fromMilliseconds(5),
-                            },
-                        );
-
-                    await expect(result).rejects.toBeInstanceOf(
-                        FailedAcquireWriterLockError,
-                    );
-                });
-                test("Should retry acquire the shared lock when blocked by a writer", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 4;
-                    const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-
-                    await sharedLock1.acquireWriter();
-                    const handlerFn = vi.fn(() => {});
-                    await sharedLockProvider.events.addListener(
-                        SHARED_LOCK_EVENTS.UNAVAILABLE,
-                        handlerFn,
-                    );
-                    const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    try {
-                        await sharedLock2.runWriterBlockingOrFail(
-                            () => {
-                                return Promise.resolve(RETURN_VALUE);
-                            },
-                            {
-                                time: TimeSpan.fromMilliseconds(55),
-                                interval: TimeSpan.fromMilliseconds(5),
-                            },
-                        );
-                    } catch {
-                        /* EMPTY */
-                    }
-
-                    expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
-                });
-                test("Should retry acquire the shared lock when blocked by a reader", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 4;
-                    const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-
-                    await sharedLock1.acquireReader();
-                    const handlerFn = vi.fn(() => {});
-                    await sharedLockProvider.events.addListener(
-                        SHARED_LOCK_EVENTS.UNAVAILABLE,
-                        handlerFn,
-                    );
-                    const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    try {
-                        await sharedLock2.runWriterBlockingOrFail(
-                            () => {
-                                return Promise.resolve(RETURN_VALUE);
-                            },
-                            {
-                                time: TimeSpan.fromMilliseconds(55),
-                                interval: TimeSpan.fromMilliseconds(5),
-                            },
-                        );
-                    } catch {
-                        /* EMPTY */
-                    }
-
-                    expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
-                });
+                        expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
+                    },
+                );
             });
             describe("method: acquireWriter", () => {
                 test("Should return true when key doesnt exists", async () => {
@@ -1089,28 +1104,22 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test(
-                    "Should return true when key is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 4;
-                        const ttl = TimeSpan.fromMilliseconds(50);
+                test("Should return true when key is expired", async () => {
+                    const key = "a";
+                    const limit = 4;
+                    const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            limit,
-                            ttl,
-                        });
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        limit,
+                        ttl,
+                    });
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
 
-                        const result = await sharedLock.acquireWriter();
-                        expect(result).toBe(true);
-                    },
-                );
-                test("Should return true when key is unexpireable and acquired by same owner", async () => {
+                    const result = await sharedLock.acquireWriter();
+                    expect(result).toBe(true);
+                });
+                test("Should return true when key is unexpireable and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = null;
@@ -1124,7 +1133,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test("Should return true when key is unexpired and acquired by same owner", async () => {
+                test("Should return true when key is unexpired and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -1138,7 +1147,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test("Should return false when key is unexpireable and acquired by different owner", async () => {
+                test("Should return false when key is unexpireable and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -1157,7 +1166,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should return false when key is unexpired and acquired by different owner", async () => {
+                test("Should return false when key is unexpired and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -1208,7 +1217,7 @@ export function sharedLockProviderTestSuite(
                     expect(state).toEqual({
                         type: SHARED_LOCK_STATE.READER_ACQUIRED,
                         limit,
-                        remainingTime: null,
+                        remainingTime: ttl,
                         freeSlotsCount: 2,
                         acquiredSlotsCount: 1,
                         acquiredSlots: [sharedLock.id],
@@ -1230,28 +1239,22 @@ export function sharedLockProviderTestSuite(
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test(
-                    "Should not throw error when key is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 4;
-                        const ttl = TimeSpan.fromMilliseconds(50);
+                test("Should not throw error when key is expired", async () => {
+                    const key = "a";
+                    const limit = 4;
+                    const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            limit,
-                            ttl,
-                        });
-                        await sharedLock.acquireWriterOrFail();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        limit,
+                        ttl,
+                    });
+                    await sharedLock.acquireWriterOrFail();
+                    await delay(ttl);
 
-                        const result = sharedLock.acquireWriterOrFail();
-                        await expect(result).resolves.toBeUndefined();
-                    },
-                );
-                test("Should not throw error when key is unexpireable and acquired by same owner", async () => {
+                    const result = sharedLock.acquireWriterOrFail();
+                    await expect(result).resolves.toBeUndefined();
+                });
+                test("Should not throw error when key is unexpireable and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = null;
@@ -1265,7 +1268,7 @@ export function sharedLockProviderTestSuite(
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test("Should not throw error when key is unexpired and acquired by same owner", async () => {
+                test("Should not throw error when key is unexpired and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -1279,7 +1282,7 @@ export function sharedLockProviderTestSuite(
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test("Should throw FailedAcquireWriterLockError when key is unexpireable and acquired by different owner", async () => {
+                test("Should throw FailedAcquireWriterLockError when key is unexpireable and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -1300,7 +1303,7 @@ export function sharedLockProviderTestSuite(
                         FailedAcquireWriterLockError,
                     );
                 });
-                test("Should throw FailedAcquireWriterLockError when key is unexpired and acquired by different owner", async () => {
+                test("Should throw FailedAcquireWriterLockError when key is unexpired and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -1359,7 +1362,7 @@ export function sharedLockProviderTestSuite(
                     expect(state).toEqual({
                         type: SHARED_LOCK_STATE.READER_ACQUIRED,
                         limit,
-                        remainingTime: null,
+                        remainingTime: ttl,
                         freeSlotsCount: 2,
                         acquiredSlotsCount: 1,
                         acquiredSlots: [sharedLock.id],
@@ -1384,31 +1387,25 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test(
-                    "Should return true when key is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 4;
-                        const ttl = TimeSpan.fromMilliseconds(50);
+                test("Should return true when key is expired", async () => {
+                    const key = "a";
+                    const limit = 4;
+                    const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            limit,
-                            ttl,
-                        });
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        limit,
+                        ttl,
+                    });
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
 
-                        const result = await sharedLock.acquireWriterBlocking({
-                            time: TimeSpan.fromMilliseconds(5),
-                            interval: TimeSpan.fromMilliseconds(5),
-                        });
-                        expect(result).toBe(true);
-                    },
-                );
-                test("Should return true when key is unexpireable and acquired by same owner", async () => {
+                    const result = await sharedLock.acquireWriterBlocking({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
+                    expect(result).toBe(true);
+                });
+                test("Should return true when key is unexpireable and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = null;
@@ -1425,7 +1422,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test("Should return true when key is unexpired and acquired by same owner", async () => {
+                test("Should return true when key is unexpired and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -1442,7 +1439,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test("Should return false when key is unexpireable and acquired by different owner", async () => {
+                test("Should return false when key is unexpireable and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -1464,7 +1461,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should return false when key is unexpired and acquired by different owner", async () => {
+                test("Should return false when key is unexpired and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -1524,66 +1521,74 @@ export function sharedLockProviderTestSuite(
                     expect(state).toEqual({
                         type: SHARED_LOCK_STATE.READER_ACQUIRED,
                         limit,
-                        remainingTime: null,
+                        remainingTime: ttl,
                         freeSlotsCount: 2,
                         acquiredSlotsCount: 1,
                         acquiredSlots: [sharedLock.id],
                     } satisfies ISharedLockReaderAcquiredState);
                 });
-                test("Should retry acquire the shared lock when blocked by a writer", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 4;
+                test(
+                    "Should retry acquire the shared lock when blocked by a writer",
+                    { retry },
+                    async () => {
+                        const key = "a";
+                        const ttl = TimeSpan.fromMilliseconds(50);
+                        const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
+                        const sharedLock1 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
 
-                    await sharedLock1.acquireWriter();
-                    const handlerFn = vi.fn(() => {});
-                    await sharedLockProvider.events.addListener(
-                        SHARED_LOCK_EVENTS.UNAVAILABLE,
-                        handlerFn,
-                    );
-                    const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock2.acquireWriterBlocking({
-                        time: TimeSpan.fromMilliseconds(55),
-                        interval: TimeSpan.fromMilliseconds(5),
-                    });
+                        await sharedLock1.acquireWriter();
+                        const handlerFn = vi.fn(() => {});
+                        await sharedLockProvider.events.addListener(
+                            SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            handlerFn,
+                        );
+                        const sharedLock2 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
+                        await sharedLock2.acquireWriterBlocking({
+                            time: TimeSpan.fromMilliseconds(55),
+                            interval: TimeSpan.fromMilliseconds(5),
+                        });
 
-                    expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
-                });
-                test("Should retry acquire the shared lock when blocked by a reader", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 4;
+                        expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
+                    },
+                );
+                test(
+                    "Should retry acquire the shared lock when blocked by a reader",
+                    { retry },
+                    async () => {
+                        const key = "a";
+                        const ttl = TimeSpan.fromMilliseconds(50);
+                        const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
+                        const sharedLock1 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
 
-                    await sharedLock1.acquireReader();
-                    const handlerFn = vi.fn(() => {});
-                    await sharedLockProvider.events.addListener(
-                        SHARED_LOCK_EVENTS.UNAVAILABLE,
-                        handlerFn,
-                    );
-                    const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock2.acquireWriterBlocking({
-                        time: TimeSpan.fromMilliseconds(55),
-                        interval: TimeSpan.fromMilliseconds(5),
-                    });
+                        await sharedLock1.acquireReader();
+                        const handlerFn = vi.fn(() => {});
+                        await sharedLockProvider.events.addListener(
+                            SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            handlerFn,
+                        );
+                        const sharedLock2 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
+                        await sharedLock2.acquireWriterBlocking({
+                            time: TimeSpan.fromMilliseconds(55),
+                            interval: TimeSpan.fromMilliseconds(5),
+                        });
 
-                    expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
-                });
+                        expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
+                    },
+                );
             });
             describe("method: acquireWriterBlockingOrFail", () => {
                 test("Should not throw error when key doesnt exists", async () => {
@@ -1603,31 +1608,25 @@ export function sharedLockProviderTestSuite(
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test(
-                    "Should not throw error when key is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 4;
-                        const ttl = TimeSpan.fromMilliseconds(50);
+                test("Should not throw error when key is expired", async () => {
+                    const key = "a";
+                    const limit = 4;
+                    const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            limit,
-                            ttl,
-                        });
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        limit,
+                        ttl,
+                    });
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
 
-                        const result = sharedLock.acquireWriterBlockingOrFail({
-                            time: TimeSpan.fromMilliseconds(5),
-                            interval: TimeSpan.fromMilliseconds(5),
-                        });
-                        await expect(result).resolves.toBeUndefined();
-                    },
-                );
-                test("Should not throw error when key is unexpireable and acquired by same owner", async () => {
+                    const result = sharedLock.acquireWriterBlockingOrFail({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
+                    await expect(result).resolves.toBeUndefined();
+                });
+                test("Should not throw error when key is unexpireable and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = null;
@@ -1644,7 +1643,7 @@ export function sharedLockProviderTestSuite(
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test("Should not throw error when key is unexpired and acquired by same owner", async () => {
+                test("Should not throw error when key is unexpired and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -1661,7 +1660,7 @@ export function sharedLockProviderTestSuite(
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test("Should throw FailedAcquireWriterLockError when key is unexpireable and acquired by different owner", async () => {
+                test("Should throw FailedAcquireWriterLockError when key is unexpireable and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -1685,7 +1684,7 @@ export function sharedLockProviderTestSuite(
                         FailedAcquireWriterLockError,
                     );
                 });
-                test("Should throw FailedAcquireWriterLockError when key is unexpired and acquired by different owner", async () => {
+                test("Should throw FailedAcquireWriterLockError when key is unexpired and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -1753,74 +1752,82 @@ export function sharedLockProviderTestSuite(
                     expect(state).toEqual({
                         type: SHARED_LOCK_STATE.READER_ACQUIRED,
                         limit,
-                        remainingTime: null,
+                        remainingTime: ttl,
                         freeSlotsCount: 2,
                         acquiredSlotsCount: 1,
                         acquiredSlots: [sharedLock.id],
                     } satisfies ISharedLockReaderAcquiredState);
                 });
-                test("Should retry acquire the shared lock when blocked by a writer", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 4;
+                test(
+                    "Should retry acquire the shared lock when blocked by a writer",
+                    { retry },
+                    async () => {
+                        const key = "a";
+                        const ttl = TimeSpan.fromMilliseconds(50);
+                        const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-
-                    await sharedLock1.acquireWriter();
-                    const handlerFn = vi.fn(() => {});
-                    await sharedLockProvider.events.addListener(
-                        SHARED_LOCK_EVENTS.UNAVAILABLE,
-                        handlerFn,
-                    );
-                    const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    try {
-                        await sharedLock2.acquireWriterBlockingOrFail({
-                            time: TimeSpan.fromMilliseconds(55),
-                            interval: TimeSpan.fromMilliseconds(5),
+                        const sharedLock1 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
                         });
-                    } catch {
-                        /* EMPTY */
-                    }
 
-                    expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
-                });
-                test("Should retry acquire the shared lock when blocked by a reader", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 4;
-
-                    const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-
-                    await sharedLock1.acquireReader();
-                    const handlerFn = vi.fn(() => {});
-                    await sharedLockProvider.events.addListener(
-                        SHARED_LOCK_EVENTS.UNAVAILABLE,
-                        handlerFn,
-                    );
-                    const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    try {
-                        await sharedLock2.acquireWriterBlockingOrFail({
-                            time: TimeSpan.fromMilliseconds(55),
-                            interval: TimeSpan.fromMilliseconds(5),
+                        await sharedLock1.acquireWriter();
+                        const handlerFn = vi.fn(() => {});
+                        await sharedLockProvider.events.addListener(
+                            SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            handlerFn,
+                        );
+                        const sharedLock2 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
                         });
-                    } catch {
-                        /* EMPTY */
-                    }
+                        try {
+                            await sharedLock2.acquireWriterBlockingOrFail({
+                                time: TimeSpan.fromMilliseconds(55),
+                                interval: TimeSpan.fromMilliseconds(5),
+                            });
+                        } catch {
+                            /* EMPTY */
+                        }
 
-                    expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
-                });
+                        expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
+                    },
+                );
+                test(
+                    "Should retry acquire the shared lock when blocked by a reader",
+                    { retry },
+                    async () => {
+                        const key = "a";
+                        const ttl = TimeSpan.fromMilliseconds(50);
+                        const limit = 4;
+
+                        const sharedLock1 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
+
+                        await sharedLock1.acquireReader();
+                        const handlerFn = vi.fn(() => {});
+                        await sharedLockProvider.events.addListener(
+                            SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            handlerFn,
+                        );
+                        const sharedLock2 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
+                        try {
+                            await sharedLock2.acquireWriterBlockingOrFail({
+                                time: TimeSpan.fromMilliseconds(55),
+                                interval: TimeSpan.fromMilliseconds(5),
+                            });
+                        } catch {
+                            /* EMPTY */
+                        }
+
+                        expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
+                    },
+                );
             });
             describe("method: releaseWriter", () => {
                 test("Should return false when key doesnt exists", async () => {
@@ -1836,7 +1843,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should return false when key is unexpireable and released by different owner", async () => {
+                test("Should return false when key is unexpireable and released by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -1855,7 +1862,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should return false when key is unexpired and released by different owner", async () => {
+                test("Should return false when key is unexpired and released by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -1874,55 +1881,43 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test(
-                    "Should return false when key is expired and released by different owner",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should return false when key is expired and released by different shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock1.acquireWriter();
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireWriter();
 
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const result = await sharedLock2.releaseWriter();
-                        await delay(ttl);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = await sharedLock2.releaseWriter();
+                    await delay(ttl);
 
-                        expect(result).toBe(false);
-                    },
-                );
-                test(
-                    "Should return false when key is expired and released by same owner",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                    expect(result).toBe(false);
+                });
+                test("Should return false when key is expired and released by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
 
-                        const result = await sharedLock.releaseWriter();
+                    const result = await sharedLock.releaseWriter();
 
-                        expect(result).toBe(false);
-                    },
-                );
-                test("Should return true when key is unexpireable and released by same owner", async () => {
+                    expect(result).toBe(false);
+                });
+                test("Should return true when key is unexpireable and released by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -1936,7 +1931,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test("Should return true when key is unexpired and released by same owner", async () => {
+                test("Should return true when key is unexpired and released by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -1950,7 +1945,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test("Should not be reacquirable when key is unexpireable and released by different owner", async () => {
+                test("Should not be reacquirable when key is unexpireable and released by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -1970,7 +1965,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should not be reacquirable when key is unexpired and released by different owner", async () => {
+                test("Should not be reacquirable when key is unexpired and released by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -1990,7 +1985,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should be reacquirable when key is unexpireable and released by same owner", async () => {
+                test("Should be reacquirable when key is unexpireable and released by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -2010,7 +2005,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test("Should be reacquirable when key is unexpired and released by same owner", async () => {
+                test("Should be reacquirable when key is unexpired and released by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -2063,7 +2058,7 @@ export function sharedLockProviderTestSuite(
                     expect(state).toEqual({
                         type: SHARED_LOCK_STATE.READER_ACQUIRED,
                         limit,
-                        remainingTime: null,
+                        remainingTime: ttl,
                         freeSlotsCount: 2,
                         acquiredSlotsCount: 1,
                         acquiredSlots: [sharedLock.id],
@@ -2086,7 +2081,7 @@ export function sharedLockProviderTestSuite(
                         FailedReleaseWriterLockError,
                     );
                 });
-                test("Should throw FailedReleaseWriterLockError when key is unexpireable and released by different owner", async () => {
+                test("Should throw FailedReleaseWriterLockError when key is unexpireable and released by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -2107,7 +2102,7 @@ export function sharedLockProviderTestSuite(
                         FailedReleaseWriterLockError,
                     );
                 });
-                test("Should throw FailedReleaseWriterLockError when key is unexpired and released by different owner", async () => {
+                test("Should throw FailedReleaseWriterLockError when key is unexpired and released by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -2128,59 +2123,47 @@ export function sharedLockProviderTestSuite(
                         FailedReleaseWriterLockError,
                     );
                 });
-                test(
-                    "Should throw FailedReleaseWriterLockError when key is expired and released by different owner",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should throw FailedReleaseWriterLockError when key is expired and released by different shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock1.acquireWriter();
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireWriter();
 
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const result = sharedLock2.releaseWriterOrFail();
-                        await delay(ttl);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = sharedLock2.releaseWriterOrFail();
+                    await delay(ttl);
 
-                        await expect(result).rejects.toBeInstanceOf(
-                            FailedReleaseWriterLockError,
-                        );
-                    },
-                );
-                test(
-                    "Should throw FailedReleaseWriterLockError when key is expired and released by same owner",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                    await expect(result).rejects.toBeInstanceOf(
+                        FailedReleaseWriterLockError,
+                    );
+                });
+                test("Should throw FailedReleaseWriterLockError when key is expired and released by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
 
-                        const result = sharedLock.releaseWriterOrFail();
+                    const result = sharedLock.releaseWriterOrFail();
 
-                        await expect(result).rejects.toBeInstanceOf(
-                            FailedReleaseWriterLockError,
-                        );
-                    },
-                );
-                test("Should not throw error when key is unexpireable and released by same owner", async () => {
+                    await expect(result).rejects.toBeInstanceOf(
+                        FailedReleaseWriterLockError,
+                    );
+                });
+                test("Should not throw error when key is unexpireable and released by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -2194,7 +2177,7 @@ export function sharedLockProviderTestSuite(
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test("Should not throw error when key is unexpired and released by same owner", async () => {
+                test("Should not throw error when key is unexpired and released by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -2208,7 +2191,7 @@ export function sharedLockProviderTestSuite(
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test("Should not be reacquirable when key is unexpireable and released by different owner", async () => {
+                test("Should not be reacquirable when key is unexpireable and released by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -2232,7 +2215,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should not be reacquirable when key is unexpired and released by different owner", async () => {
+                test("Should not be reacquirable when key is unexpired and released by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -2256,7 +2239,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should be reacquirable when key is unexpireable and released by same owner", async () => {
+                test("Should be reacquirable when key is unexpireable and released by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -2276,7 +2259,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test("Should be reacquirable when key is unexpired and released by same owner", async () => {
+                test("Should be reacquirable when key is unexpired and released by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -2335,7 +2318,7 @@ export function sharedLockProviderTestSuite(
                     expect(state).toEqual({
                         type: SHARED_LOCK_STATE.READER_ACQUIRED,
                         limit,
-                        remainingTime: null,
+                        remainingTime: ttl,
                         freeSlotsCount: 2,
                         acquiredSlotsCount: 1,
                         acquiredSlots: [sharedLock.id],
@@ -2357,7 +2340,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should return false when key is unexpireable and refreshed by different owner", async () => {
+                test("Should return false when key is unexpireable and refreshed by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -2377,7 +2360,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should return false when key is unexpired and refreshed by different owner", async () => {
+                test("Should return false when key is unexpired and refreshed by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -2397,57 +2380,45 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test(
-                    "Should return false when key is expired and refreshed by different owner",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should return false when key is expired and refreshed by different shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock1.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireWriter();
+                    await delay(ttl);
 
-                        const newTtl = TimeSpan.fromMinutes(1);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const result = await sharedLock2.refreshWriter(newTtl);
+                    const newTtl = TimeSpan.fromMinutes(1);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = await sharedLock2.refreshWriter(newTtl);
 
-                        expect(result).toBe(false);
-                    },
-                );
-                test(
-                    "Should return false when key is expired and refreshed by same owner",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                    expect(result).toBe(false);
+                });
+                test("Should return false when key is expired and refreshed by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
 
-                        const newTtl = TimeSpan.fromMinutes(1);
-                        const result = await sharedLock.refreshWriter(newTtl);
+                    const newTtl = TimeSpan.fromMinutes(1);
+                    const result = await sharedLock.refreshWriter(newTtl);
 
-                        expect(result).toBe(false);
-                    },
-                );
-                test("Should return false when key is unexpireable and refreshed by same owner", async () => {
+                    expect(result).toBe(false);
+                });
+                test("Should return false when key is unexpireable and refreshed by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -2463,7 +2434,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should return true when key is unexpired and refreshed by same owner", async () => {
+                test("Should return true when key is unexpired and refreshed by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -2479,67 +2450,55 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test(
-                    "Should not update expiration when key is unexpireable and refreshed by same owner",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = null;
-                        const limit = 4;
+                test("Should not update expiration when key is unexpireable and refreshed by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = null;
+                    const limit = 4;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock1.acquireWriter();
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireWriter();
 
-                        const newTtl = TimeSpan.fromMilliseconds(50);
-                        await sharedLock1.refreshWriter(newTtl);
-                        await delay(newTtl);
+                    const newTtl = TimeSpan.fromMilliseconds(50);
+                    await sharedLock1.refreshWriter(newTtl);
+                    await delay(newTtl);
 
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const result = await sharedLock2.acquireWriter();
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = await sharedLock2.acquireWriter();
 
-                        expect(result).toBe(false);
-                    },
-                );
-                test(
-                    "Should update expiration when key is unexpired and refreshed by same owner",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                    expect(result).toBe(false);
+                });
+                test("Should update expiration when key is unexpired and refreshed by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock1.acquireWriter();
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireWriter();
 
-                        const newTtl = TimeSpan.fromMilliseconds(100);
-                        await sharedLock1.refreshWriter(newTtl);
-                        await delay(newTtl.divide(2));
+                    const newTtl = TimeSpan.fromMilliseconds(100);
+                    await sharedLock1.refreshWriter(newTtl);
+                    await delay(newTtl.divide(2));
 
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const result1 = await sharedLock2.acquireWriter();
-                        expect(result1).toBe(false);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result1 = await sharedLock2.acquireWriter();
+                    expect(result1).toBe(false);
 
-                        await delay(newTtl.divide(2));
-                        const result2 = await sharedLock2.acquireWriter();
-                        expect(result2).toBe(true);
-                    },
-                );
+                    await delay(newTtl.divide(2));
+                    const result2 = await sharedLock2.acquireWriter();
+                    expect(result2).toBe(true);
+                });
                 test("Should return false when key is acquired as reader", async () => {
                     const key = "a";
                     const limit = 2;
@@ -2575,7 +2534,7 @@ export function sharedLockProviderTestSuite(
                     expect(state).toEqual({
                         type: SHARED_LOCK_STATE.READER_ACQUIRED,
                         limit,
-                        remainingTime: null,
+                        remainingTime: ttl,
                         freeSlotsCount: 2,
                         acquiredSlotsCount: 1,
                         acquiredSlots: [sharedLock.id],
@@ -2599,7 +2558,7 @@ export function sharedLockProviderTestSuite(
                         FailedRefreshWriterLockError,
                     );
                 });
-                test("Should throw FailedRefreshWriterLockError when key is unexpireable and refreshed by different owner", async () => {
+                test("Should throw FailedRefreshWriterLockError when key is unexpireable and refreshed by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -2621,7 +2580,7 @@ export function sharedLockProviderTestSuite(
                         FailedRefreshWriterLockError,
                     );
                 });
-                test("Should throw FailedRefreshWriterLockError when key is unexpired and refreshed by different owner", async () => {
+                test("Should throw FailedRefreshWriterLockError when key is unexpired and refreshed by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -2643,61 +2602,49 @@ export function sharedLockProviderTestSuite(
                         FailedRefreshWriterLockError,
                     );
                 });
-                test(
-                    "Should throw FailedRefreshWriterLockError when key is expired and refreshed by different owner",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should throw FailedRefreshWriterLockError when key is expired and refreshed by different shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock1.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireWriter();
+                    await delay(ttl);
 
-                        const newTtl = TimeSpan.fromMinutes(1);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const result = sharedLock2.refreshWriterOrFail(newTtl);
+                    const newTtl = TimeSpan.fromMinutes(1);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = sharedLock2.refreshWriterOrFail(newTtl);
 
-                        await expect(result).rejects.toBeInstanceOf(
-                            FailedRefreshWriterLockError,
-                        );
-                    },
-                );
-                test(
-                    "Should throw FailedRefreshWriterLockError when key is expired and refreshed by same owner",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                    await expect(result).rejects.toBeInstanceOf(
+                        FailedRefreshWriterLockError,
+                    );
+                });
+                test("Should throw FailedRefreshWriterLockError when key is expired and refreshed by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
 
-                        const newTtl = TimeSpan.fromMinutes(1);
-                        const result = sharedLock.refreshWriterOrFail(newTtl);
+                    const newTtl = TimeSpan.fromMinutes(1);
+                    const result = sharedLock.refreshWriterOrFail(newTtl);
 
-                        await expect(result).rejects.toBeInstanceOf(
-                            FailedRefreshWriterLockError,
-                        );
-                    },
-                );
-                test("Should throw FailedRefreshWriterLockError when key is unexpireable and refreshed by same owner", async () => {
+                    await expect(result).rejects.toBeInstanceOf(
+                        FailedRefreshWriterLockError,
+                    );
+                });
+                test("Should throw FailedRefreshWriterLockError when key is unexpireable and refreshed by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -2715,7 +2662,7 @@ export function sharedLockProviderTestSuite(
                         FailedRefreshWriterLockError,
                     );
                 });
-                test("Should not throw error when key is unexpired and refreshed by same owner", async () => {
+                test("Should not throw error when key is unexpired and refreshed by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -2731,75 +2678,63 @@ export function sharedLockProviderTestSuite(
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test(
-                    "Should not update expiration when key is unexpireable and refreshed by same owner",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = null;
-                        const limit = 4;
+                test("Should not update expiration when key is unexpireable and refreshed by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = null;
+                    const limit = 4;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock1.acquireWriter();
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireWriter();
 
-                        const newTtl = TimeSpan.fromMilliseconds(50);
-                        try {
-                            await sharedLock1.refreshWriterOrFail(newTtl);
-                        } catch {
-                            /* EMPTY */
-                        }
-                        await delay(newTtl);
+                    const newTtl = TimeSpan.fromMilliseconds(50);
+                    try {
+                        await sharedLock1.refreshWriterOrFail(newTtl);
+                    } catch {
+                        /* EMPTY */
+                    }
+                    await delay(newTtl);
 
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const result = await sharedLock2.acquireWriter();
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = await sharedLock2.acquireWriter();
 
-                        expect(result).toBe(false);
-                    },
-                );
-                test(
-                    "Should update expiration when key is unexpired and refreshed by same owner",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                    expect(result).toBe(false);
+                });
+                test("Should update expiration when key is unexpired and refreshed by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock1.acquireWriter();
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireWriter();
 
-                        const newTtl = TimeSpan.fromMilliseconds(100);
-                        try {
-                            await sharedLock1.refreshWriterOrFail(newTtl);
-                        } catch {
-                            /* EMPTY */
-                        }
-                        await delay(newTtl.divide(2));
+                    const newTtl = TimeSpan.fromMilliseconds(100);
+                    try {
+                        await sharedLock1.refreshWriterOrFail(newTtl);
+                    } catch {
+                        /* EMPTY */
+                    }
+                    await delay(newTtl.divide(2));
 
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const result1 = await sharedLock2.acquireWriter();
-                        expect(result1).toBe(false);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result1 = await sharedLock2.acquireWriter();
+                    expect(result1).toBe(false);
 
-                        await delay(newTtl.divide(2));
-                        const result2 = await sharedLock2.acquireWriter();
-                        expect(result2).toBe(true);
-                    },
-                );
+                    await delay(newTtl.divide(2));
+                    const result2 = await sharedLock2.acquireWriter();
+                    expect(result2).toBe(true);
+                });
                 test("Should throw FailedRefreshWriterLockError when key is acquired as reader", async () => {
                     const key = "a";
                     const limit = 2;
@@ -2841,7 +2776,7 @@ export function sharedLockProviderTestSuite(
                     expect(state).toEqual({
                         type: SHARED_LOCK_STATE.READER_ACQUIRED,
                         limit,
-                        remainingTime: null,
+                        remainingTime: ttl,
                         freeSlotsCount: 2,
                         acquiredSlotsCount: 1,
                         acquiredSlots: [sharedLock.id],
@@ -2862,28 +2797,22 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test(
-                    "Should return false when key is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should return false when key is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
 
-                        const result = await sharedLock.forceReleaseWriter();
+                    const result = await sharedLock.forceReleaseWriter();
 
-                        expect(result).toBe(false);
-                    },
-                );
+                    expect(result).toBe(false);
+                });
                 test("Should return true when key is uenxpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -2967,7 +2896,7 @@ export function sharedLockProviderTestSuite(
                     expect(state).toEqual({
                         type: SHARED_LOCK_STATE.READER_ACQUIRED,
                         limit,
-                        remainingTime: null,
+                        remainingTime: ttl,
                         freeSlotsCount: 2,
                         acquiredSlotsCount: 1,
                         acquiredSlots: [sharedLock.id],
@@ -3113,38 +3042,32 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                 });
-                test(
-                    "Should call handler function when slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 1;
+                test("Should call handler function when shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 1;
 
-                        await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .acquireReader();
-                        await delay(ttl);
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .acquireReader();
+                    await delay(ttl);
 
-                        const handlerFn = vi.fn(() => {
-                            return Promise.resolve(RETURN_VALUE);
-                        });
-                        await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .runReaderOrFail(handlerFn);
+                    const handlerFn = vi.fn(() => {
+                        return Promise.resolve(RETURN_VALUE);
+                    });
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .runReaderOrFail(handlerFn);
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                    },
-                );
-                test("Should not call handler function when slot is unexpireable", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                });
+                test("Should not call handler function when shared-lock-slot is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
@@ -3165,7 +3088,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
-                test("Should not call handler function when slot is unexpired", async () => {
+                test("Should not call handler function when shared-lock-slot is unexpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
@@ -3186,7 +3109,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
-                test("Should not call handler function when slot is unexpireable", async () => {
+                test("Should not call handler function when shared-lock-slot is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
@@ -3212,7 +3135,7 @@ export function sharedLockProviderTestSuite(
                     }
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
-                test("Should not call handler function when slot is unexpired", async () => {
+                test("Should not call handler function when shared-lock-slot is unexpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
@@ -3255,37 +3178,31 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(RETURN_VALUE);
                 });
-                test(
-                    "Should return value when slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 1;
+                test("Should return value when shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 1;
 
-                        await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .acquireReader();
-                        await delay(ttl);
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .acquireReader();
+                    await delay(ttl);
 
-                        const result = await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .runReaderOrFail(() => {
-                                return Promise.resolve(RETURN_VALUE);
-                            });
+                    const result = await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .runReaderOrFail(() => {
+                            return Promise.resolve(RETURN_VALUE);
+                        });
 
-                        expect(result).toBe(RETURN_VALUE);
-                    },
-                );
-                test("Should throw LimitReachedReaderSemaphoreError when slot is unexpireable", async () => {
+                    expect(result).toBe(RETURN_VALUE);
+                });
+                test("Should throw LimitReachedReaderSemaphoreError when shared-lock-slot is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
@@ -3303,7 +3220,7 @@ export function sharedLockProviderTestSuite(
                         LimitReachedReaderSemaphoreError,
                     );
                 });
-                test("Should throw LimitReachedReaderSemaphoreError when slot is unexpired", async () => {
+                test("Should throw LimitReachedReaderSemaphoreError when shared-lock-slot is unexpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
@@ -3321,7 +3238,7 @@ export function sharedLockProviderTestSuite(
                         LimitReachedReaderSemaphoreError,
                     );
                 });
-                test("Should throw LimitReachedReaderSemaphoreError when slot is unexpireable", async () => {
+                test("Should throw LimitReachedReaderSemaphoreError when shared-lock-slot is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
@@ -3345,7 +3262,7 @@ export function sharedLockProviderTestSuite(
                         LimitReachedReaderSemaphoreError,
                     );
                 });
-                test("Should throw LimitReachedReaderSemaphoreError when slot is unexpired", async () => {
+                test("Should throw LimitReachedReaderSemaphoreError when shared-lock-slot is unexpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
@@ -3368,6 +3285,498 @@ export function sharedLockProviderTestSuite(
                     await expect(result).rejects.toBeInstanceOf(
                         LimitReachedReaderSemaphoreError,
                     );
+                });
+            });
+            describe("method: acquireReader", () => {
+                test("Should return true when key doesnt exists", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = null;
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = await sharedLock.acquireReader();
+
+                    expect(result).toBe(true);
+                });
+                test("Should return true when key exists and shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
+
+                    const result = await sharedLock.acquireReader();
+
+                    expect(result).toBe(true);
+                });
+                test("Should return true when limit is not reached", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = null;
+
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
+
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = await sharedLock2.acquireReader();
+
+                    expect(result).toBe(true);
+                });
+                test("Should return false when limit is reached", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = null;
+
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
+
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock2.acquireReader();
+
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = await sharedLock3.acquireReader();
+
+                    expect(result).toBe(false);
+                });
+                test("Should return true when one shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
+
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl: ttl1,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
+
+                    const ttl2 = TimeSpan.fromMilliseconds(50);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl: ttl2,
+                        limit,
+                    });
+                    await sharedLock2.acquireReader();
+                    await delay(ttl2);
+
+                    const ttl3 = null;
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        ttl: ttl3,
+                        limit,
+                    });
+                    const result = await sharedLock3.acquireReader();
+
+                    expect(result).toBe(true);
+                });
+                test("Should return true when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = null;
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    const result = await sharedLock.acquireReader();
+
+                    expect(result).toBe(true);
+                });
+                test("Should return true when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    const result = await sharedLock.acquireReader();
+
+                    expect(result).toBe(true);
+                });
+                test("Should not acquire a shared-lock-slot when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = null;
+
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
+                    await sharedLock1.acquireReader();
+
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = await sharedLock2.acquireReader();
+
+                    expect(result).toBe(true);
+                });
+                test("Should not acquire a shared-lock-slot when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
+
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
+                    await sharedLock1.acquireReader();
+
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = await sharedLock2.acquireReader();
+
+                    expect(result).toBe(true);
+                });
+                test("Should not update limit when shared-lock-slot count is more than 0", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = null;
+
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
+
+                    const newLimit = 3;
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit: newLimit,
+                    });
+                    await sharedLock2.acquireReader();
+
+                    const result1 = await sharedLock2.getState();
+                    expect(result1).toEqual(
+                        expect.objectContaining<
+                            Partial<ISharedLockReaderLimitReachedState>
+                        >({
+                            type: SHARED_LOCK_STATE.READER_LIMIT_REACHED,
+                            limit,
+                        }),
+                    );
+
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result2 = await sharedLock3.acquireReader();
+                    expect(result2).toBe(false);
+                });
+                test("Should return false when key is acquired as writer", async () => {
+                    const key = "a";
+                    const ttl = null;
+                    const limit = 3;
+
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireWriter();
+
+                    const result = await sharedLock1.acquireReader();
+
+                    expect(result).toBe(false);
+                });
+                test("Should not update state when key is acquired as writer", async () => {
+                    const key = "a";
+                    const ttl = null;
+                    const limit = 3;
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
+
+                    await sharedLock.acquireReader();
+
+                    const state = await sharedLock.getState();
+
+                    expect(state).toEqual({
+                        type: SHARED_LOCK_STATE.WRITER_ACQUIRED,
+                        remainingTime: ttl,
+                    } satisfies ISharedLockWriterAcquiredState);
+                });
+            });
+            describe("method: acquireReaderOrFail", () => {
+                test("Should not throw errror when key doesnt exists", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = null;
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = sharedLock.acquireReaderOrFail();
+
+                    await expect(result).resolves.toBeUndefined();
+                });
+                test("Should not throw errror when key exists and shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReaderOrFail();
+                    await delay(ttl);
+
+                    const result = sharedLock.acquireReaderOrFail();
+
+                    await expect(result).resolves.toBeUndefined();
+                });
+                test("Should not throw errror when limit is not reached", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = null;
+
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireReaderOrFail();
+
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = sharedLock2.acquireReaderOrFail();
+
+                    await expect(result).resolves.toBeUndefined();
+                });
+                test("Should throw LimitReachedReaderSemaphoreError when limit is reached", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = null;
+
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireReaderOrFail();
+
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock2.acquireReaderOrFail();
+
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = sharedLock3.acquireReaderOrFail();
+
+                    await expect(result).rejects.toBeInstanceOf(
+                        LimitReachedReaderSemaphoreError,
+                    );
+                });
+                test("Should not throw errror when one shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
+
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl: ttl1,
+                        limit,
+                    });
+                    await sharedLock1.acquireReaderOrFail();
+
+                    const ttl2 = TimeSpan.fromMilliseconds(50);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl: ttl2,
+                        limit,
+                    });
+                    await sharedLock2.acquireReaderOrFail();
+                    await delay(ttl2);
+
+                    const ttl3 = null;
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        ttl: ttl3,
+                        limit,
+                    });
+                    const result = sharedLock3.acquireReaderOrFail();
+
+                    await expect(result).resolves.toBeUndefined();
+                });
+                test("Should not throw errror when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = null;
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReaderOrFail();
+                    const result = sharedLock.acquireReaderOrFail();
+
+                    await expect(result).resolves.toBeUndefined();
+                });
+                test("Should not throw errror when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReaderOrFail();
+                    const result = sharedLock.acquireReaderOrFail();
+
+                    await expect(result).resolves.toBeUndefined();
+                });
+                test("Should not acquire a shared-lock-slot when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = null;
+
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireReaderOrFail();
+                    await sharedLock1.acquireReaderOrFail();
+
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = sharedLock2.acquireReaderOrFail();
+
+                    await expect(result).resolves.toBeUndefined();
+                });
+                test("Should not acquire a shared-lock-slot when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
+
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireReaderOrFail();
+                    await sharedLock1.acquireReaderOrFail();
+
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = sharedLock2.acquireReaderOrFail();
+
+                    await expect(result).resolves.toBeUndefined();
+                });
+                test("Should not update limit when shared-lock-slot count is more than 0", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = null;
+
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireReaderOrFail();
+
+                    const newLimit = 3;
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit: newLimit,
+                    });
+                    await sharedLock2.acquireReaderOrFail();
+
+                    const result1 = await sharedLock2.getState();
+                    expect(result1).toEqual(
+                        expect.objectContaining<
+                            Partial<ISharedLockReaderLimitReachedState>
+                        >({
+                            type: SHARED_LOCK_STATE.READER_LIMIT_REACHED,
+                            limit,
+                        }),
+                    );
+
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result2 = sharedLock3.acquireReaderOrFail();
+                    await expect(result2).rejects.toBeInstanceOf(
+                        LimitReachedReaderSemaphoreError,
+                    );
+                });
+                test("Should throw LimitReachedReaderSemaphoreError when key is acquired as writer", async () => {
+                    const key = "a";
+                    const ttl = null;
+                    const limit = 3;
+
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireWriter();
+
+                    const result = sharedLock1.acquireReaderOrFail();
+
+                    await expect(result).rejects.toBeInstanceOf(
+                        LimitReachedReaderSemaphoreError,
+                    );
+                });
+                test("Should not update state when key is acquired as writer", async () => {
+                    const key = "a";
+                    const ttl = null;
+                    const limit = 3;
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
+
+                    try {
+                        await sharedLock.acquireReaderOrFail();
+                    } catch {
+                        /* EMPTY */
+                    }
+
+                    const state = await sharedLock.getState();
+
+                    expect(state).toEqual({
+                        type: SHARED_LOCK_STATE.WRITER_ACQUIRED,
+                        remainingTime: ttl,
+                    } satisfies ISharedLockWriterAcquiredState);
                 });
             });
             describe("method: runReaderBlockingOrFail", () => {
@@ -3535,41 +3944,35 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                 });
-                test(
-                    "Should call handler function when slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 1;
+                test("Should call handler function when shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 1;
 
-                        await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .acquireReader();
-                        await delay(ttl);
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .acquireReader();
+                    await delay(ttl);
 
-                        const handlerFn = vi.fn(() => {
-                            return Promise.resolve(RETURN_VALUE);
+                    const handlerFn = vi.fn(() => {
+                        return Promise.resolve(RETURN_VALUE);
+                    });
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .runReaderBlockingOrFail(handlerFn, {
+                            time: TimeSpan.fromMilliseconds(5),
+                            interval: TimeSpan.fromMilliseconds(5),
                         });
-                        await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .runReaderBlockingOrFail(handlerFn, {
-                                time: TimeSpan.fromMilliseconds(5),
-                                interval: TimeSpan.fromMilliseconds(5),
-                            });
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                    },
-                );
-                test("Should not call handler function when slot is unexpireable", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                });
+                test("Should not call handler function when shared-lock-slot is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
@@ -3593,7 +3996,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
-                test("Should not call handler function when slot is unexpired", async () => {
+                test("Should not call handler function when shared-lock-slot is unexpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
@@ -3617,7 +4020,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
-                test("Should not call handler function when slot is unexpireable", async () => {
+                test("Should not call handler function when shared-lock-slot is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
@@ -3647,7 +4050,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
-                test("Should not call handler function when slot is unexpired", async () => {
+                test("Should not call handler function when shared-lock-slot is unexpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
@@ -3699,273 +4102,278 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(RETURN_VALUE);
                 });
+                test("Should return value when shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 1;
+
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .acquireReader();
+                    await delay(ttl);
+
+                    const result = await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .runReaderBlockingOrFail(
+                            () => {
+                                return Promise.resolve(RETURN_VALUE);
+                            },
+                            {
+                                time: TimeSpan.fromMilliseconds(5),
+                                interval: TimeSpan.fromMilliseconds(5),
+                            },
+                        );
+
+                    expect(result).toBe(RETURN_VALUE);
+                });
+                test("Should throw LimitReachedReaderSemaphoreError when shared-lock-slot is unexpireable", async () => {
+                    const key = "a";
+                    const ttl = null;
+                    const limit = 1;
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    const result = sharedLock.runReaderBlockingOrFail(
+                        () => {
+                            return Promise.resolve(RETURN_VALUE);
+                        },
+                        {
+                            time: TimeSpan.fromMilliseconds(5),
+                            interval: TimeSpan.fromMilliseconds(5),
+                        },
+                    );
+
+                    await expect(result).rejects.toBeInstanceOf(
+                        LimitReachedReaderSemaphoreError,
+                    );
+                });
+                test("Should throw LimitReachedReaderSemaphoreError when shared-lock-slot is unexpired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 1;
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    const result = sharedLock.runReaderBlockingOrFail(
+                        () => {
+                            return Promise.resolve(RETURN_VALUE);
+                        },
+                        {
+                            time: TimeSpan.fromMilliseconds(5),
+                            interval: TimeSpan.fromMilliseconds(5),
+                        },
+                    );
+
+                    await expect(result).rejects.toBeInstanceOf(
+                        LimitReachedReaderSemaphoreError,
+                    );
+                });
+                test("Should throw LimitReachedReaderSemaphoreError when shared-lock-slot is unexpireable", async () => {
+                    const key = "a";
+                    const ttl = null;
+                    const limit = 1;
+
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .acquireReader();
+                    const result = sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .runReaderBlockingOrFail(
+                            () => {
+                                return Promise.resolve(RETURN_VALUE);
+                            },
+                            {
+                                time: TimeSpan.fromMilliseconds(5),
+                                interval: TimeSpan.fromMilliseconds(5),
+                            },
+                        );
+
+                    await expect(result).rejects.toBeInstanceOf(
+                        LimitReachedReaderSemaphoreError,
+                    );
+                });
+                test("Should throw LimitReachedReaderSemaphoreError when shared-lock-slot is unexpired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 1;
+
+                    await sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .acquireReader();
+                    const result = sharedLockProvider
+                        .create(key, {
+                            ttl,
+                            limit,
+                        })
+                        .runReaderBlockingOrFail(
+                            () => {
+                                return Promise.resolve(RETURN_VALUE);
+                            },
+                            {
+                                time: TimeSpan.fromMilliseconds(5),
+                                interval: TimeSpan.fromMilliseconds(5),
+                            },
+                        );
+
+                    await expect(result).rejects.toBeInstanceOf(
+                        LimitReachedReaderSemaphoreError,
+                    );
+                });
                 test(
-                    "Should return value when slot is expired",
-                    {
-                        retry: 10,
-                    },
+                    "Should retry acquire the shared lock when blocked by a writer",
+                    { retry },
                     async () => {
                         const key = "a";
                         const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 1;
+                        const limit = 4;
+                        const sharedLock1 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
 
-                        await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .acquireReader();
-                        await delay(ttl);
-
-                        const result = await sharedLockProvider
-                            .create(key, {
-                                ttl,
-                                limit,
-                            })
-                            .runReaderBlockingOrFail(
+                        await sharedLock1.acquireWriter();
+                        const handlerFn = vi.fn(() => {});
+                        await sharedLockProvider.events.addListener(
+                            SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            handlerFn,
+                        );
+                        const sharedLock2 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
+                        try {
+                            await sharedLock2.runReaderBlockingOrFail(
                                 () => {
                                     return Promise.resolve(RETURN_VALUE);
                                 },
                                 {
-                                    time: TimeSpan.fromMilliseconds(5),
+                                    time: TimeSpan.fromMilliseconds(55),
                                     interval: TimeSpan.fromMilliseconds(5),
                                 },
                             );
+                        } catch {
+                            /* EMPTY */
+                        }
 
-                        expect(result).toBe(RETURN_VALUE);
+                        expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
                     },
                 );
-                test("Should throw LimitReachedReaderSemaphoreError when slot is unexpireable", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 1;
-
-                    const sharedLock = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireReader();
-                    const result = sharedLock.runReaderBlockingOrFail(
-                        () => {
-                            return Promise.resolve(RETURN_VALUE);
-                        },
-                        {
-                            time: TimeSpan.fromMilliseconds(5),
-                            interval: TimeSpan.fromMilliseconds(5),
-                        },
-                    );
-
-                    await expect(result).rejects.toBeInstanceOf(
-                        LimitReachedReaderSemaphoreError,
-                    );
-                });
-                test("Should throw LimitReachedReaderSemaphoreError when slot is unexpired", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 1;
-
-                    const sharedLock = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireReader();
-                    const result = sharedLock.runReaderBlockingOrFail(
-                        () => {
-                            return Promise.resolve(RETURN_VALUE);
-                        },
-                        {
-                            time: TimeSpan.fromMilliseconds(5),
-                            interval: TimeSpan.fromMilliseconds(5),
-                        },
-                    );
-
-                    await expect(result).rejects.toBeInstanceOf(
-                        LimitReachedReaderSemaphoreError,
-                    );
-                });
-                test("Should throw LimitReachedReaderSemaphoreError when slot is unexpireable", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 1;
-
-                    await sharedLockProvider
-                        .create(key, {
+                test(
+                    "Should retry acquire the shared lock when blocked by a reader",
+                    { retry },
+                    async () => {
+                        const key = "a";
+                        const ttl = TimeSpan.fromMilliseconds(50);
+                        const limit = 1;
+                        const sharedLock1 = sharedLockProvider.create(key, {
                             ttl,
                             limit,
-                        })
-                        .acquireReader();
-                    const result = sharedLockProvider
-                        .create(key, {
+                        });
+
+                        await sharedLock1.acquireReader();
+                        const handlerFn = vi.fn(() => {});
+                        await sharedLockProvider.events.addListener(
+                            SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            handlerFn,
+                        );
+                        const sharedLock2 = sharedLockProvider.create(key, {
                             ttl,
                             limit,
-                        })
-                        .runReaderBlockingOrFail(
-                            () => {
-                                return Promise.resolve(RETURN_VALUE);
-                            },
-                            {
-                                time: TimeSpan.fromMilliseconds(5),
-                                interval: TimeSpan.fromMilliseconds(5),
-                            },
-                        );
+                        });
+                        try {
+                            await sharedLock2.runReaderBlockingOrFail(
+                                () => {
+                                    return Promise.resolve(RETURN_VALUE);
+                                },
+                                {
+                                    time: TimeSpan.fromMilliseconds(55),
+                                    interval: TimeSpan.fromMilliseconds(5),
+                                },
+                            );
+                        } catch {
+                            /* EMPTY */
+                        }
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        LimitReachedReaderSemaphoreError,
-                    );
-                });
-                test("Should throw LimitReachedReaderSemaphoreError when slot is unexpired", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 1;
-
-                    await sharedLockProvider
-                        .create(key, {
-                            ttl,
-                            limit,
-                        })
-                        .acquireReader();
-                    const result = sharedLockProvider
-                        .create(key, {
-                            ttl,
-                            limit,
-                        })
-                        .runReaderBlockingOrFail(
-                            () => {
-                                return Promise.resolve(RETURN_VALUE);
-                            },
-                            {
-                                time: TimeSpan.fromMilliseconds(5),
-                                interval: TimeSpan.fromMilliseconds(5),
-                            },
-                        );
-
-                    await expect(result).rejects.toBeInstanceOf(
-                        LimitReachedReaderSemaphoreError,
-                    );
-                });
-                test("Should retry acquire the shared lock when blocked by a writer", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 4;
-                    const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-
-                    await sharedLock1.acquireWriter();
-                    const handlerFn = vi.fn(() => {});
-                    await sharedLockProvider.events.addListener(
-                        SHARED_LOCK_EVENTS.UNAVAILABLE,
-                        handlerFn,
-                    );
-                    const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    try {
-                        await sharedLock2.runReaderBlockingOrFail(
-                            () => {
-                                return Promise.resolve(RETURN_VALUE);
-                            },
-                            {
-                                time: TimeSpan.fromMilliseconds(55),
-                                interval: TimeSpan.fromMilliseconds(5),
-                            },
-                        );
-                    } catch {
-                        /* EMPTY */
-                    }
-
-                    expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
-                });
-                test("Should retry acquire the shared lock when blocked by a reader", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 1;
-                    const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-
-                    await sharedLock1.acquireReader();
-                    const handlerFn = vi.fn(() => {});
-                    await sharedLockProvider.events.addListener(
-                        SHARED_LOCK_EVENTS.UNAVAILABLE,
-                        handlerFn,
-                    );
-                    const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    try {
-                        await sharedLock2.runReaderBlockingOrFail(
-                            () => {
-                                return Promise.resolve(RETURN_VALUE);
-                            },
-                            {
-                                time: TimeSpan.fromMilliseconds(55),
-                                interval: TimeSpan.fromMilliseconds(5),
-                            },
-                        );
-                    } catch {
-                        /* EMPTY */
-                    }
-
-                    expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
-                });
+                        expect(handlerFn.mock.calls.length).toBeGreaterThan(1);
+                    },
+                );
             });
-            describe("method: acquireReader", () => {
+            describe("method: acquireReaderBlocking", () => {
                 test("Should return true when key doesnt exists", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    const result = await sharedLock.acquireReader();
+                    const result = await sharedLockProvider
+                        .create(key, {
+                            limit,
+                            ttl,
+                        })
+                        .acquireReaderBlocking({
+                            time: TimeSpan.fromMilliseconds(5),
+                            interval: TimeSpan.fromMilliseconds(5),
+                        });
 
                     expect(result).toBe(true);
                 });
-                test(
-                    "Should return true when key exists and slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
-                        const ttl = TimeSpan.fromMilliseconds(50);
+                test("Should return true when key exists and shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        limit,
+                        ttl,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const result = await sharedLock.acquireReader();
+                    const result = await sharedLock.acquireReaderBlocking({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
-                        expect(result).toBe(true);
-                    },
-                );
+                    expect(result).toBe(true);
+                });
                 test("Should return true when limit is not reached", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
 
                     const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
                     await sharedLock1.acquireReader();
-
                     const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
-                    const result = await sharedLock2.acquireReader();
+                    const result = await sharedLock2.acquireReaderBlocking({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
                     expect(result).toBe(true);
                 });
@@ -3975,95 +4383,122 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
 
                     const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
                     await sharedLock1.acquireReader();
-
                     const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
                     await sharedLock2.acquireReader();
 
                     const sharedLock3 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
-                    const result = await sharedLock3.acquireReader();
+                    const result = await sharedLock3.acquireReaderBlocking({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
                     expect(result).toBe(false);
                 });
-                test(
-                    "Should return true when one slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
+                test("Should return true when one shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
 
-                        const ttl1 = null;
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl: ttl1,
-                            limit,
-                        });
-                        await sharedLock1.acquireReader();
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl1,
+                    });
+                    await sharedLock1.acquireReader();
+                    const ttl2 = TimeSpan.fromMilliseconds(50);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl2,
+                    });
+                    await sharedLock2.acquireReader();
+                    await delay(ttl2);
 
-                        const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl: ttl2,
-                            limit,
-                        });
-                        await sharedLock2.acquireReader();
-                        await delay(ttl2);
+                    const ttl3 = null;
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        ttl: ttl3,
+                        limit,
+                    });
+                    const result = await sharedLock3.acquireReaderBlocking({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
-                        const ttl3 = null;
-                        const sharedLock3 = sharedLockProvider.create(key, {
-                            ttl: ttl3,
-                            limit,
-                        });
-                        const result = await sharedLock3.acquireReader();
-
-                        expect(result).toBe(true);
-                    },
-                );
-                test("Should return true when slot exists, is unexpireable and acquired multiple times", async () => {
+                    expect(result).toBe(true);
+                });
+                test("Should return true when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
 
                     const sharedLock = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
                     await sharedLock.acquireReader();
-                    const result = await sharedLock.acquireReader();
+                    const result = await sharedLock.acquireReaderBlocking({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
                     expect(result).toBe(true);
                 });
-                test("Should return true when slot exists, is unexpired and acquired multiple times", async () => {
+                test("Should return true when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     const sharedLock = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
                     await sharedLock.acquireReader();
-                    const result = await sharedLock.acquireReader();
+                    const result = await sharedLock.acquireReaderBlocking({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
                     expect(result).toBe(true);
                 });
-                test("Should not acquire a slot when slot exists, is unexpireable and acquired multiple times", async () => {
+                test("Should not acquire a shared-lock-slot when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
 
                     const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
+                    });
+                    await sharedLock1.acquireReader();
+                    await sharedLock1.acquireReader();
+
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl,
+                    });
+                    const result = await sharedLock2.acquireReaderBlocking({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
+
+                    expect(result).toBe(true);
+                });
+                test("Should not acquire a shared-lock-slot when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
+
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl,
                     });
                     await sharedLock1.acquireReader();
                     await sharedLock1.acquireReader();
@@ -4072,153 +4507,163 @@ export function sharedLockProviderTestSuite(
                         ttl,
                         limit,
                     });
-                    const result = await sharedLock2.acquireReader();
+                    const result = await sharedLock2.acquireReaderBlocking({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
                     expect(result).toBe(true);
                 });
-                test("Should not acquire a slot when slot exists, is unexpired and acquired multiple times", async () => {
-                    const key = "a";
-                    const limit = 2;
-                    const ttl = TimeSpan.fromMilliseconds(50);
-
-                    const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock1.acquireReader();
-                    await sharedLock1.acquireReader();
-
-                    const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    const result = await sharedLock2.acquireReader();
-
-                    expect(result).toBe(true);
-                });
-                test("Should not update limit when slot count is more than 0", async () => {
+                test("Should not update limit when shared-lock-slot count is more than 0", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
 
                     const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
                     await sharedLock1.acquireReader();
-
                     const newLimit = 3;
                     const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
                         limit: newLimit,
+                        ttl,
                     });
                     await sharedLock2.acquireReader();
-
-                    const result1 = await sharedLock2.getState();
-                    expect(result1).toEqual(
-                        expect.objectContaining<
-                            Partial<ISharedLockReaderLimitReachedState>
-                        >({
-                            type: SHARED_LOCK_STATE.READER_LIMIT_REACHED,
-                            limit,
-                        }),
-                    );
-
                     const sharedLock3 = sharedLockProvider.create(key, {
+                        limit: newLimit,
                         ttl,
-                        limit,
                     });
-                    const result2 = await sharedLock3.acquireReader();
-                    expect(result2).toBe(false);
-                });
-                test("Should return false when key is acquired as writer", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 3;
-
-                    const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
+                    const result1 = await sharedLock3.acquireReaderBlocking({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await sharedLock1.acquireWriter();
+                    expect(result1).toBe(false);
 
-                    const result = await sharedLock1.acquireReader();
-
-                    expect(result).toBe(false);
-                });
-                test("Should not update state when key is acquired as writer", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 3;
-
-                    const sharedLock = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireWriter();
-
-                    await sharedLock.acquireReader();
-
-                    const state = await sharedLock.getState();
-
-                    expect(state).toEqual({
-                        type: SHARED_LOCK_STATE.WRITER_ACQUIRED,
-                        remainingTime: null,
-                    } satisfies ISharedLockWriterAcquiredState);
-                });
-            });
-            describe("method: acquireReaderOrFail", () => {
-                test("Should not throw errror when key doesnt exists", async () => {
-                    const key = "a";
-                    const limit = 2;
-                    const ttl = null;
-
-                    const sharedLock = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    const result = sharedLock.acquireReaderOrFail();
-
-                    await expect(result).resolves.toBeUndefined();
+                    const state =
+                        (await sharedLock3.getState()) as ISharedLockReaderAcquiredState;
+                    expect(state.limit).toBe(limit);
                 });
                 test(
-                    "Should not throw errror when key exists and slot is expired",
-                    {
-                        retry: 10,
-                    },
+                    "Should retry acquire the sharedLock when blocked by a writer",
+                    { retry },
                     async () => {
                         const key = "a";
-                        const limit = 2;
                         const ttl = TimeSpan.fromMilliseconds(50);
-
-                        const sharedLock = sharedLockProvider.create(key, {
+                        const limit = 1;
+                        const sharedLock1 = sharedLockProvider.create(key, {
                             ttl,
                             limit,
                         });
-                        await sharedLock.acquireReaderOrFail();
-                        await delay(ttl);
 
-                        const result = sharedLock.acquireReaderOrFail();
+                        await sharedLock1.acquireWriter();
+                        let index = 0;
+                        await sharedLockProvider.events.addListener(
+                            SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            (_event) => {
+                                index++;
+                            },
+                        );
+                        const sharedLock2 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
+                        await sharedLock2.acquireReaderBlocking({
+                            time: TimeSpan.fromMilliseconds(55),
+                            interval: TimeSpan.fromMilliseconds(5),
+                        });
 
-                        await expect(result).resolves.toBeUndefined();
+                        expect(index).toBeGreaterThan(1);
                     },
                 );
-                test("Should not throw errror when limit is not reached", async () => {
+                test(
+                    "Should retry acquire the sharedLock when blocked by a reader",
+                    { retry },
+                    async () => {
+                        const key = "a";
+                        const ttl = TimeSpan.fromMilliseconds(50);
+                        const limit = 1;
+                        const sharedLock1 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
+
+                        await sharedLock1.acquireReader();
+                        let index = 0;
+                        await sharedLockProvider.events.addListener(
+                            SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            (_event) => {
+                                index++;
+                            },
+                        );
+                        const sharedLock2 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
+                        await sharedLock2.acquireReaderBlocking({
+                            time: TimeSpan.fromMilliseconds(55),
+                            interval: TimeSpan.fromMilliseconds(5),
+                        });
+
+                        expect(index).toBeGreaterThan(1);
+                    },
+                );
+            });
+            describe("method: acquireReaderBlockingOrFail", () => {
+                test("Should not throw error when key doesnt exists", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = null;
+
+                    const result = sharedLockProvider
+                        .create(key, {
+                            limit,
+                            ttl,
+                        })
+                        .acquireReaderBlockingOrFail({
+                            time: TimeSpan.fromMilliseconds(5),
+                            interval: TimeSpan.fromMilliseconds(5),
+                        });
+
+                    await expect(result).resolves.toBeUndefined();
+                });
+                test("Should not throw error when key exists and shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
+
+                    const sharedLock = sharedLockProvider.create(key, {
+                        limit,
+                        ttl,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
+
+                    const result = sharedLock.acquireReaderBlockingOrFail({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
+
+                    await expect(result).resolves.toBeUndefined();
+                });
+                test("Should not throw error when limit is not reached", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
 
                     const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
-                    await sharedLock1.acquireReaderOrFail();
-
+                    await sharedLock1.acquireReader();
                     const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
-                    const result = sharedLock2.acquireReaderOrFail();
+                    const result = sharedLock2.acquireReaderBlockingOrFail({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
                     await expect(result).resolves.toBeUndefined();
                 });
@@ -4228,207 +4673,243 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
 
                     const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
-                    await sharedLock1.acquireReaderOrFail();
-
+                    await sharedLock1.acquireReader();
                     const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
-                    await sharedLock2.acquireReaderOrFail();
+                    await sharedLock2.acquireReader();
 
                     const sharedLock3 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
-                    const result = sharedLock3.acquireReaderOrFail();
+                    const result = sharedLock3.acquireReaderBlockingOrFail({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
                     await expect(result).rejects.toBeInstanceOf(
                         LimitReachedReaderSemaphoreError,
                     );
                 });
-                test(
-                    "Should not throw errror when one slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
+                test("Should not throw error when one shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
 
-                        const ttl1 = null;
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl: ttl1,
-                            limit,
-                        });
-                        await sharedLock1.acquireReaderOrFail();
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl1,
+                    });
+                    await sharedLock1.acquireReader();
+                    const ttl2 = TimeSpan.fromMilliseconds(50);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl2,
+                    });
+                    await sharedLock2.acquireReader();
+                    await delay(ttl2);
 
-                        const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl: ttl2,
-                            limit,
-                        });
-                        await sharedLock2.acquireReaderOrFail();
-                        await delay(ttl2);
+                    const ttl3 = null;
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        ttl: ttl3,
+                        limit,
+                    });
+                    const result = sharedLock3.acquireReaderBlockingOrFail({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
-                        const ttl3 = null;
-                        const sharedLock3 = sharedLockProvider.create(key, {
-                            ttl: ttl3,
-                            limit,
-                        });
-                        const result = sharedLock3.acquireReaderOrFail();
-
-                        await expect(result).resolves.toBeUndefined();
-                    },
-                );
-                test("Should not throw errror when slot exists, is unexpireable and acquired multiple times", async () => {
+                    await expect(result).resolves.toBeUndefined();
+                });
+                test("Should not throw error when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
 
                     const sharedLock = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
-                    await sharedLock.acquireReaderOrFail();
-                    const result = sharedLock.acquireReaderOrFail();
+                    await sharedLock.acquireReader();
+                    const result = sharedLock.acquireReaderBlockingOrFail({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test("Should not throw errror when slot exists, is unexpired and acquired multiple times", async () => {
+                test("Should not throw error when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     const sharedLock = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
-                    await sharedLock.acquireReaderOrFail();
-                    const result = sharedLock.acquireReaderOrFail();
+                    await sharedLock.acquireReader();
+                    const result = sharedLock.acquireReaderBlockingOrFail({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test("Should not acquire a slot when slot exists, is unexpireable and acquired multiple times", async () => {
+                test("Should not acquire a shared-lock-slot when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
 
                     const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
-                    await sharedLock1.acquireReaderOrFail();
-                    await sharedLock1.acquireReaderOrFail();
+                    await sharedLock1.acquireReader();
+                    await sharedLock1.acquireReader();
 
                     const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
-                    const result = sharedLock2.acquireReaderOrFail();
+                    const result = sharedLock2.acquireReaderBlockingOrFail({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test("Should not acquire a slot when slot exists, is unexpired and acquired multiple times", async () => {
+                test("Should not acquire a shared-lock-slot when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
-                    await sharedLock1.acquireReaderOrFail();
-                    await sharedLock1.acquireReaderOrFail();
+                    await sharedLock1.acquireReader();
+                    await sharedLock1.acquireReader();
 
                     const sharedLock2 = sharedLockProvider.create(key, {
                         ttl,
                         limit,
                     });
-                    const result = sharedLock2.acquireReaderOrFail();
+                    const result = sharedLock2.acquireReaderBlockingOrFail({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test("Should not update limit when slot count is more than 0", async () => {
+                test("Should not update limit when shared-lock-slot count is more than 0", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
 
                     const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
                         limit,
+                        ttl,
                     });
-                    await sharedLock1.acquireReaderOrFail();
-
+                    await sharedLock1.acquireReader();
                     const newLimit = 3;
                     const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl,
                         limit: newLimit,
+                        ttl,
                     });
-                    await sharedLock2.acquireReaderOrFail();
-
-                    const result1 = await sharedLock2.getState();
-                    expect(result1).toEqual(
-                        expect.objectContaining<
-                            Partial<ISharedLockReaderLimitReachedState>
-                        >({
-                            type: SHARED_LOCK_STATE.READER_LIMIT_REACHED,
-                            limit,
-                        }),
-                    );
-
+                    await sharedLock2.acquireReader();
                     const sharedLock3 = sharedLockProvider.create(key, {
+                        limit: newLimit,
                         ttl,
-                        limit,
                     });
-                    const result2 = sharedLock3.acquireReaderOrFail();
-                    await expect(result2).rejects.toBeInstanceOf(
+                    const result1 = sharedLock3.acquireReaderBlockingOrFail({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
+                    await expect(result1).rejects.toBeInstanceOf(
                         LimitReachedReaderSemaphoreError,
                     );
+
+                    const state =
+                        (await sharedLock3.getState()) as ISharedLockReaderLimitReachedState;
+                    expect(state.limit).toBe(limit);
                 });
-                test("Should throw LimitReachedReaderSemaphoreError when key is acquired as writer", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 3;
+                test(
+                    "Should retry acquire the sharedLock when blocked by a writer",
+                    { retry },
+                    async () => {
+                        const key = "a";
+                        const ttl = TimeSpan.fromMilliseconds(50);
+                        const limit = 1;
+                        const sharedLock1 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock1.acquireWriter();
+                        await sharedLock1.acquireWriter();
+                        let index = 0;
+                        await sharedLockProvider.events.addListener(
+                            SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            (_event) => {
+                                index++;
+                            },
+                        );
+                        const sharedLock2 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
+                        try {
+                            await sharedLock2.acquireReaderBlockingOrFail({
+                                time: TimeSpan.fromMilliseconds(55),
+                                interval: TimeSpan.fromMilliseconds(5),
+                            });
+                        } catch {
+                            /* EMPTY */
+                        }
 
-                    const result = sharedLock1.acquireReaderOrFail();
+                        expect(index).toBeGreaterThan(1);
+                    },
+                );
+                test(
+                    "Should retry acquire the sharedLock when blocked by a reader",
+                    { retry },
+                    async () => {
+                        const key = "a";
+                        const ttl = TimeSpan.fromMilliseconds(50);
+                        const limit = 1;
+                        const sharedLock1 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        LimitReachedReaderSemaphoreError,
-                    );
-                });
-                test("Should not update state when key is acquired as writer", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 3;
+                        await sharedLock1.acquireReader();
+                        let index = 0;
+                        await sharedLockProvider.events.addListener(
+                            SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            (_event) => {
+                                index++;
+                            },
+                        );
+                        const sharedLock2 = sharedLockProvider.create(key, {
+                            ttl,
+                            limit,
+                        });
+                        try {
+                            await sharedLock2.acquireReaderBlockingOrFail({
+                                time: TimeSpan.fromMilliseconds(55),
+                                interval: TimeSpan.fromMilliseconds(5),
+                            });
+                        } catch {
+                            /* EMPTY */
+                        }
 
-                    const sharedLock = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireWriter();
-
-                    try {
-                        await sharedLock.acquireReaderOrFail();
-                    } catch {
-                        /* EMPTY */
-                    }
-
-                    const state = await sharedLock.getState();
-
-                    expect(state).toEqual({
-                        type: SHARED_LOCK_STATE.WRITER_ACQUIRED,
-                        remainingTime: null,
-                    } satisfies ISharedLockWriterAcquiredState);
-                });
+                        expect(index).toBeGreaterThan(1);
+                    },
+                );
             });
             describe("method: releaseReader", () => {
                 test("Should return false when key doesnt exists", async () => {
@@ -4454,7 +4935,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should return false when slot doesnt exists", async () => {
+                test("Should return false when shared-lock-slot doesnt exists", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -4475,54 +4956,27 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test(
-                    "Should return false when slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
+                test("Should return false when shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 2;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock1.acquireReader();
-                        await delay(ttl);
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
+                    await delay(ttl);
 
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const result = await sharedLock2.releaseReader();
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = await sharedLock2.releaseReader();
 
-                        expect(result).toBe(false);
-                    },
-                );
-                test(
-                    "Should return false when slot exists, is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
-
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
-                        const result = await sharedLock.releaseReader();
-
-                        expect(result).toBe(false);
-                    },
-                );
-                test("Should return true when slot exists, is unexpired", async () => {
+                    expect(result).toBe(false);
+                });
+                test("Should return true when shared-lock-slot exists and is unexpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
@@ -4536,7 +4990,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test("Should return true when slot exists, is unexpireable", async () => {
+                test("Should return true when shared-lock-slot exists and is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -4550,7 +5004,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test("Should update limit when slot count is 0", async () => {
+                test("Should update limit when shared-lock-slot count is 0", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -4607,7 +5061,7 @@ export function sharedLockProviderTestSuite(
                     const result3 = await sharedLock6.acquireReader();
                     expect(result3).toBe(false);
                 });
-                test("Should decrement slot count when one slot is released", async () => {
+                test("Should decrement shared-lock-slot count when one shared-lock-slot is released", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -4713,7 +5167,7 @@ export function sharedLockProviderTestSuite(
                         FailedReleaseReaderSemaphoreError,
                     );
                 });
-                test("Should throw FailedReleaseReaderSemaphoreError when slot doesnt exists", async () => {
+                test("Should throw FailedReleaseReaderSemaphoreError when shared-lock-slot doesnt exists", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -4736,58 +5190,46 @@ export function sharedLockProviderTestSuite(
                         FailedReleaseReaderSemaphoreError,
                     );
                 });
-                test(
-                    "Should throw FailedReleaseReaderSemaphoreError when slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
+                test("Should throw FailedReleaseReaderSemaphoreError when shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 2;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock1.acquireReader();
-                        await delay(ttl);
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
+                    await delay(ttl);
 
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const result = sharedLock2.releaseReaderOrFail();
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const result = sharedLock2.releaseReaderOrFail();
 
-                        await expect(result).rejects.toBeInstanceOf(
-                            FailedReleaseReaderSemaphoreError,
-                        );
-                    },
-                );
-                test(
-                    "Should throw FailedReleaseReaderSemaphoreError when slot exists, is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
+                    await expect(result).rejects.toBeInstanceOf(
+                        FailedReleaseReaderSemaphoreError,
+                    );
+                });
+                test("Should throw FailedReleaseReaderSemaphoreError when shared-lock-slot exists, is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 2;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
-                        const result = sharedLock.releaseReaderOrFail();
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
+                    const result = sharedLock.releaseReaderOrFail();
 
-                        await expect(result).rejects.toBeInstanceOf(
-                            FailedReleaseReaderSemaphoreError,
-                        );
-                    },
-                );
-                test("Should not throw error when slot exists, is unexpired", async () => {
+                    await expect(result).rejects.toBeInstanceOf(
+                        FailedReleaseReaderSemaphoreError,
+                    );
+                });
+                test("Should not throw error when shared-lock-slot exists and is unexpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
@@ -4801,7 +5243,7 @@ export function sharedLockProviderTestSuite(
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test("Should not throw error when slot exists, is unexpireable", async () => {
+                test("Should not throw error when shared-lock-slot exists and is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -4815,7 +5257,7 @@ export function sharedLockProviderTestSuite(
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test("Should update limit when slot count is 0", async () => {
+                test("Should update limit when shared-lock-slot count is 0", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -4872,7 +5314,7 @@ export function sharedLockProviderTestSuite(
                     const result3 = await sharedLock6.acquireReader();
                     expect(result3).toBe(false);
                 });
-                test("Should decrement slot count when one slot is released", async () => {
+                test("Should decrement shared-lock-slot count when one shared-lock-slot is released", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -4982,7 +5424,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should return false when slot doesnt exists", async () => {
+                test("Should return false when shared-lock-slot doesnt exists", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -5004,53 +5446,24 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test(
-                    "Should return false when slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
-                        const ttl = TimeSpan.fromMilliseconds(50);
+                test("Should return false when shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const newTtl = TimeSpan.fromMilliseconds(100);
-                        const result = await sharedLock.refreshReader(newTtl);
+                    const newTtl = TimeSpan.fromMilliseconds(100);
+                    const result = await sharedLock.refreshReader(newTtl);
 
-                        expect(result).toBe(false);
-                    },
-                );
-                test(
-                    "Should return false when slot exists, is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
-
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
-
-                        const newTtl = TimeSpan.fromMilliseconds(100);
-                        const result = await sharedLock.refreshReader(newTtl);
-
-                        expect(result).toBe(false);
-                    },
-                );
-                test("Should return false when slot exists, is unexpireable", async () => {
+                    expect(result).toBe(false);
+                });
+                test("Should return false when shared-lock-slot exists and is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -5066,7 +5479,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should return true when slot exists, is unexpired", async () => {
+                test("Should return true when shared-lock-slot exists and is unexpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
@@ -5082,81 +5495,69 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test(
-                    "Should not update expiration when slot exists, is unexpireable",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
+                test("Should not update expiration when shared-lock-slot exists and is unexpireable", async () => {
+                    const key = "a";
+                    const limit = 2;
 
-                        const ttl1 = null;
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl: ttl1,
-                            limit,
-                        });
-                        await sharedLock1.acquireReader();
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl: ttl1,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
 
-                        const ttl2 = null;
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl: ttl2,
-                            limit,
-                        });
-                        await sharedLock2.acquireReader();
+                    const ttl2 = null;
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl: ttl2,
+                        limit,
+                    });
+                    await sharedLock2.acquireReader();
 
-                        const newTtl = TimeSpan.fromMilliseconds(100);
-                        await sharedLock2.refreshReader(newTtl);
-                        await delay(newTtl);
+                    const newTtl = TimeSpan.fromMilliseconds(100);
+                    await sharedLock2.refreshReader(newTtl);
+                    await delay(newTtl);
 
-                        const sharedLock3 = sharedLockProvider.create(key, {
-                            ttl: ttl2,
-                            limit,
-                        });
-                        const result1 = await sharedLock3.acquireReader();
-                        expect(result1).toBe(false);
-                    },
-                );
-                test(
-                    "Should update expiration when slot exists, is unexpired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        ttl: ttl2,
+                        limit,
+                    });
+                    const result1 = await sharedLock3.acquireReader();
+                    expect(result1).toBe(false);
+                });
+                test("Should update expiration when shared-lock-slot exists and is unexpired", async () => {
+                    const key = "a";
+                    const limit = 2;
 
-                        const ttl1 = null;
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl: ttl1,
-                            limit,
-                        });
-                        await sharedLock1.acquireReader();
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl: ttl1,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
 
-                        const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl: ttl2,
-                            limit,
-                        });
-                        await sharedLock2.acquireReader();
+                    const ttl2 = TimeSpan.fromMilliseconds(50);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl: ttl2,
+                        limit,
+                    });
+                    await sharedLock2.acquireReader();
 
-                        const newTtl = TimeSpan.fromMilliseconds(100);
-                        await sharedLock2.refreshReader(newTtl);
-                        await delay(newTtl.divide(2));
+                    const newTtl = TimeSpan.fromMilliseconds(100);
+                    await sharedLock2.refreshReader(newTtl);
+                    await delay(newTtl.divide(2));
 
-                        const sharedLock3 = sharedLockProvider.create(key, {
-                            ttl: ttl2,
-                            limit,
-                        });
-                        const result1 = await sharedLock3.acquireReader();
-                        expect(result1).toBe(false);
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        ttl: ttl2,
+                        limit,
+                    });
+                    const result1 = await sharedLock3.acquireReader();
+                    expect(result1).toBe(false);
 
-                        await delay(newTtl.divide(2));
+                    await delay(newTtl.divide(2));
 
-                        const result2 = await sharedLock3.acquireReader();
-                        expect(result2).toBe(true);
-                    },
-                );
+                    const result2 = await sharedLock3.acquireReader();
+                    expect(result2).toBe(true);
+                });
                 test("Should return false when key is acquired as writer", async () => {
                     const key = "a";
                     const ttl = null;
@@ -5222,7 +5623,7 @@ export function sharedLockProviderTestSuite(
                         FailedRefreshReaderSemaphoreError,
                     );
                 });
-                test("Should throw FailedRefreshReaderSemaphoreError when slot doesnt exists", async () => {
+                test("Should throw FailedRefreshReaderSemaphoreError when shared-lock-slot doesnt exists", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -5246,57 +5647,45 @@ export function sharedLockProviderTestSuite(
                         FailedRefreshReaderSemaphoreError,
                     );
                 });
-                test(
-                    "Should throw FailedRefreshReaderSemaphoreError when slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
-                        const ttl = TimeSpan.fromMilliseconds(50);
+                test("Should throw FailedRefreshReaderSemaphoreError when shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const newTtl = TimeSpan.fromMilliseconds(100);
-                        const result = sharedLock.refreshReaderOrFail(newTtl);
+                    const newTtl = TimeSpan.fromMilliseconds(100);
+                    const result = sharedLock.refreshReaderOrFail(newTtl);
 
-                        await expect(result).rejects.toBeInstanceOf(
-                            FailedRefreshReaderSemaphoreError,
-                        );
-                    },
-                );
-                test(
-                    "Should throw FailedRefreshReaderSemaphoreError when slot exists, is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
+                    await expect(result).rejects.toBeInstanceOf(
+                        FailedRefreshReaderSemaphoreError,
+                    );
+                });
+                test("Should throw FailedRefreshReaderSemaphoreError when shared-lock-slot exists, is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 2;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const newTtl = TimeSpan.fromMilliseconds(100);
-                        const result = sharedLock.refreshReaderOrFail(newTtl);
+                    const newTtl = TimeSpan.fromMilliseconds(100);
+                    const result = sharedLock.refreshReaderOrFail(newTtl);
 
-                        await expect(result).rejects.toBeInstanceOf(
-                            FailedRefreshReaderSemaphoreError,
-                        );
-                    },
-                );
-                test("Should throw FailedRefreshReaderSemaphoreError when slot exists, is unexpireable", async () => {
+                    await expect(result).rejects.toBeInstanceOf(
+                        FailedRefreshReaderSemaphoreError,
+                    );
+                });
+                test("Should throw FailedRefreshReaderSemaphoreError when shared-lock-slot exists and is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -5314,7 +5703,7 @@ export function sharedLockProviderTestSuite(
                         FailedRefreshReaderSemaphoreError,
                     );
                 });
-                test("Should not throw error when slot exists, is unexpired", async () => {
+                test("Should not throw error when shared-lock-slot exists and is unexpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
@@ -5330,85 +5719,73 @@ export function sharedLockProviderTestSuite(
 
                     await expect(result).resolves.toBeUndefined();
                 });
-                test(
-                    "Should not update expiration when slot exists, is unexpireable",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
+                test("Should not update expiration when shared-lock-slot exists and is unexpireable", async () => {
+                    const key = "a";
+                    const limit = 2;
 
-                        const ttl1 = null;
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl: ttl1,
-                            limit,
-                        });
-                        await sharedLock1.acquireReader();
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl: ttl1,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
 
-                        const ttl2 = null;
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl: ttl2,
-                            limit,
-                        });
-                        await sharedLock2.acquireReader();
+                    const ttl2 = null;
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl: ttl2,
+                        limit,
+                    });
+                    await sharedLock2.acquireReader();
 
-                        const newTtl = TimeSpan.fromMilliseconds(100);
-                        try {
-                            await sharedLock2.refreshReaderOrFail(newTtl);
-                        } catch {
-                            /* EMPTY */
-                        }
-                        await delay(newTtl);
-
-                        const sharedLock3 = sharedLockProvider.create(key, {
-                            ttl: ttl2,
-                            limit,
-                        });
-                        const result1 = await sharedLock3.acquireReader();
-                        expect(result1).toBe(false);
-                    },
-                );
-                test(
-                    "Should update expiration when slot exists, is unexpired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
-
-                        const ttl1 = null;
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl: ttl1,
-                            limit,
-                        });
-                        await sharedLock1.acquireReader();
-
-                        const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl: ttl2,
-                            limit,
-                        });
-                        await sharedLock2.acquireReader();
-
-                        const newTtl = TimeSpan.fromMilliseconds(100);
+                    const newTtl = TimeSpan.fromMilliseconds(100);
+                    try {
                         await sharedLock2.refreshReaderOrFail(newTtl);
-                        await delay(newTtl.divide(2));
+                    } catch {
+                        /* EMPTY */
+                    }
+                    await delay(newTtl);
 
-                        const sharedLock3 = sharedLockProvider.create(key, {
-                            ttl: ttl2,
-                            limit,
-                        });
-                        const result1 = await sharedLock3.acquireReader();
-                        expect(result1).toBe(false);
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        ttl: ttl2,
+                        limit,
+                    });
+                    const result1 = await sharedLock3.acquireReader();
+                    expect(result1).toBe(false);
+                });
+                test("Should update expiration when shared-lock-slot exists and is unexpired", async () => {
+                    const key = "a";
+                    const limit = 2;
 
-                        await delay(newTtl.divide(2));
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl: ttl1,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
 
-                        const result2 = await sharedLock3.acquireReader();
-                        expect(result2).toBe(true);
-                    },
-                );
+                    const ttl2 = TimeSpan.fromMilliseconds(50);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl: ttl2,
+                        limit,
+                    });
+                    await sharedLock2.acquireReader();
+
+                    const newTtl = TimeSpan.fromMilliseconds(100);
+                    await sharedLock2.refreshReaderOrFail(newTtl);
+                    await delay(newTtl.divide(2));
+
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        ttl: ttl2,
+                        limit,
+                    });
+                    const result1 = await sharedLock3.acquireReader();
+                    expect(result1).toBe(false);
+
+                    await delay(newTtl.divide(2));
+
+                    const result2 = await sharedLock3.acquireReader();
+                    expect(result2).toBe(true);
+                });
                 test("Should throw FailedRefreshReaderSemaphoreError when key is acquired as writer", async () => {
                     const key = "a";
                     const ttl = null;
@@ -5477,30 +5854,23 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test(
-                    "Should return false when slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
+                test("Should return false when shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 2;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const result =
-                            await sharedLock.forceReleaseAllReaders();
+                    const result = await sharedLock.forceReleaseAllReaders();
 
-                        expect(result).toBe(false);
-                    },
-                );
-                test("Should return false when no slots are acquired", async () => {
+                    expect(result).toBe(false);
+                });
+                test("Should return false when no shared-lock-slots are acquired", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -5524,7 +5894,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should return true when at least 1 slot is acquired", async () => {
+                test("Should return true when at least 1 shared-lock-slot is acquired", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -5539,7 +5909,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test("Should make all slots reacquirable", async () => {
+                test("Should make all shared-lock-slots reacquirable", async () => {
                     const key = "a";
                     const limit = 2;
 
@@ -5575,7 +5945,7 @@ export function sharedLockProviderTestSuite(
                     const result2 = await sharedLock4.acquireReader();
                     expect(result2).toBe(true);
                 });
-                test("Should update limit when slot count is 0", async () => {
+                test("Should update limit when shared-lock-slot count is 0", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -5681,28 +6051,22 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test(
-                    "Should return false when key is acquired as writer mode and is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should return false when key is acquired as writer mode and is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
 
-                        const result = await sharedLock.forceRelease();
+                    const result = await sharedLock.forceRelease();
 
-                        expect(result).toBe(false);
-                    },
-                );
+                    expect(result).toBe(false);
+                });
                 test("Should return true when key is acquired as writer mode and is uenxpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -5753,29 +6117,23 @@ export function sharedLockProviderTestSuite(
                     const result = await sharedLock2.acquireWriter();
                     expect(result).toBe(true);
                 });
-                test(
-                    "Should return false when key is acquired as reader and slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
+                test("Should return false when key is acquired as reader and shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 2;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const result = await sharedLock.forceRelease();
+                    const result = await sharedLock.forceRelease();
 
-                        expect(result).toBe(false);
-                    },
-                );
-                test("Should return false when key is acquired as reader and no slots are acquired", async () => {
+                    expect(result).toBe(false);
+                });
+                test("Should return false when key is acquired as reader and no shared-lock-slots are acquired", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -5798,7 +6156,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(false);
                 });
-                test("Should return true when key is acquired as reader and at least 1 slot is acquired", async () => {
+                test("Should return true when key is acquired as reader and at least 1 shared-lock-slot is acquired", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -5813,7 +6171,7 @@ export function sharedLockProviderTestSuite(
 
                     expect(result).toBe(true);
                 });
-                test("Should make all slots reacquirable when key is acquired as reader", async () => {
+                test("Should make all shared-lock-slots reacquirable when key is acquired as reader", async () => {
                     const key = "a";
                     const limit = 2;
 
@@ -5849,7 +6207,7 @@ export function sharedLockProviderTestSuite(
                     const result2 = await sharedLock4.acquireReader();
                     expect(result2).toBe(true);
                 });
-                test("Should update limit when key is reader mode and slot count is 0", async () => {
+                test("Should update limit when key is reader mode and shared-lock-slot count is 0", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -5922,30 +6280,24 @@ export function sharedLockProviderTestSuite(
                         type: SHARED_LOCK_STATE.EXPIRED,
                     } satisfies ISharedLockExpiredState);
                 });
-                test(
-                    "Should return ISharedLockExpiredState when writer is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should return ISharedLockExpiredState when writer is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
 
-                        const result = await sharedLock.getState();
+                    const result = await sharedLock.getState();
 
-                        expect(result).toEqual({
-                            type: SHARED_LOCK_STATE.EXPIRED,
-                        } satisfies ISharedLockExpiredState);
-                    },
-                );
+                    expect(result).toEqual({
+                        type: SHARED_LOCK_STATE.EXPIRED,
+                    } satisfies ISharedLockExpiredState);
+                });
                 test("Should return ISharedLockExpiredState when writer is released with forceReleaseWriter method", async () => {
                     const key = "a";
                     const limit = 4;
@@ -6043,6 +6395,10 @@ export function sharedLockProviderTestSuite(
                     } satisfies ISharedLockWriterAcquiredState);
                 });
                 test("Should return ISharedLockWriterAcquiredState when writer is unexpired", async () => {
+                    expect.addEqualityTesters([
+                        createIsTimeSpanEqualityTester(timeSpanEqualityBuffer),
+                    ]);
+
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -6059,7 +6415,7 @@ export function sharedLockProviderTestSuite(
                         remainingTime: ttl,
                     } satisfies ISharedLockWriterAcquiredState);
                 });
-                test("Should return ISharedLockWriterUnavailableState when writer is acquired by different owner", async () => {
+                test("Should return ISharedLockWriterUnavailableState when writer is acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -6080,31 +6436,25 @@ export function sharedLockProviderTestSuite(
                         owner: sharedLock1.id,
                     } satisfies ISharedLockWriterUnavailableState);
                 });
-                test(
-                    "Should return ISharedLockExpiredState when reader is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
+                test("Should return ISharedLockExpiredState when reader is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 2;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const result = await sharedLock.getState();
+                    const result = await sharedLock.getState();
 
-                        expect(result).toEqual({
-                            type: SHARED_LOCK_STATE.EXPIRED,
-                        } satisfies ISharedLockExpiredState);
-                    },
-                );
-                test("Should return ISharedLockExpiredState when all reader slots are released with forceReleaseAllReaders method", async () => {
+                    expect(result).toEqual({
+                        type: SHARED_LOCK_STATE.EXPIRED,
+                    } satisfies ISharedLockExpiredState);
+                });
+                test("Should return ISharedLockExpiredState when all reader shared-lock-slots are released with forceReleaseAllReaders method", async () => {
                     const key = "a";
                     const limit = 2;
 
@@ -6130,7 +6480,7 @@ export function sharedLockProviderTestSuite(
                         type: SHARED_LOCK_STATE.EXPIRED,
                     } satisfies ISharedLockExpiredState);
                 });
-                test("Should return ISharedLockExpiredState when all reader slots are released with forceRelease method", async () => {
+                test("Should return ISharedLockExpiredState when all reader shared-lock-slots are released with forceRelease method", async () => {
                     const key = "a";
                     const limit = 2;
 
@@ -6156,7 +6506,7 @@ export function sharedLockProviderTestSuite(
                         type: SHARED_LOCK_STATE.EXPIRED,
                     } satisfies ISharedLockExpiredState);
                 });
-                test("Should return ISharedLockExpiredState when all reader slots are released with release method", async () => {
+                test("Should return ISharedLockExpiredState when all reader shared-lock-slots are released with release method", async () => {
                     const key = "a";
                     const limit = 2;
 
@@ -6183,7 +6533,7 @@ export function sharedLockProviderTestSuite(
                         type: SHARED_LOCK_STATE.EXPIRED,
                     } satisfies ISharedLockExpiredState);
                 });
-                test("Should return ISharedLockReaderUnacquiredState when reader slot is unacquired", async () => {
+                test("Should return ISharedLockReaderUnacquiredState when reader shared-lock-slot is unacquired", async () => {
                     const key = "a";
                     const limit = 3;
 
@@ -6210,42 +6560,40 @@ export function sharedLockProviderTestSuite(
                         acquiredSlots: [sharedLock1.id],
                     } satisfies ISharedLockReaderUnacquiredState);
                 });
-                test(
-                    "Should return ISharedLockReaderUnacquiredState when reader slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 3;
+                test("Should return ISharedLockReaderUnacquiredState when reader shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 3;
 
-                        const ttl1 = null;
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl: ttl1,
-                            limit,
-                        });
-                        await sharedLock1.acquireReader();
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl: ttl1,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
 
-                        const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl: ttl2,
-                            limit,
-                        });
-                        await sharedLock2.acquireReader();
-                        await delay(ttl2);
+                    const ttl2 = TimeSpan.fromMilliseconds(50);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl: ttl2,
+                        limit,
+                    });
+                    await sharedLock2.acquireReader();
+                    await delay(ttl2);
 
-                        const state = await sharedLock2.getState();
+                    const state = await sharedLock2.getState();
 
-                        expect(state).toEqual({
-                            type: SHARED_LOCK_STATE.READER_UNACQUIRED,
-                            limit,
-                            freeSlotsCount: limit - 1,
-                            acquiredSlotsCount: 1,
-                            acquiredSlots: [sharedLock1.id],
-                        } satisfies ISharedLockReaderUnacquiredState);
-                    },
-                );
-                test("Should return ISemaphoreAcquiredState when reader slot is unexpired", async () => {
+                    expect(state).toEqual({
+                        type: SHARED_LOCK_STATE.READER_UNACQUIRED,
+                        limit,
+                        freeSlotsCount: limit - 1,
+                        acquiredSlotsCount: 1,
+                        acquiredSlots: [sharedLock1.id],
+                    } satisfies ISharedLockReaderUnacquiredState);
+                });
+                test("Should return ISharedLockReaderAcquiredState when reader shared-lock-slot is unexpired", async () => {
+                    expect.addEqualityTesters([
+                        createIsTimeSpanEqualityTester(timeSpanEqualityBuffer),
+                    ]);
+
                     const key = "a";
                     const limit = 3;
 
@@ -6275,10 +6623,8 @@ export function sharedLockProviderTestSuite(
                     } satisfies ISharedLockReaderAcquiredState);
                 });
                 test(
-                    "Should return ISemaphoreLimitReachedState when reader limit is reached",
-                    {
-                        retry: 10,
-                    },
+                    "Should return ISharedLockReaderLimitReachedState when reader limit is reached",
+                    { retry },
                     async () => {
                         const key = "a";
                         const limit = 1;
@@ -6342,50 +6688,44 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredWriterLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch AcquiredWriterLockEvent when key is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should dispatch AcquiredWriterLockEvent when key is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        await sharedLockProvider
-                            .create(key, { ttl, limit })
-                            .acquireWriter();
-                        await delay(ttl);
+                    await sharedLockProvider
+                        .create(key, { ttl, limit })
+                        .acquireWriter();
+                    await delay(ttl);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const handlerFn = vi.fn(
-                            (_event: AcquiredWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
-                            handlerFn,
-                        );
-                        await sharedLock.acquireWriter();
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const handlerFn = vi.fn(
+                        (_event: AcquiredWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
+                        handlerFn,
+                    );
+                    await sharedLock.acquireWriter();
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock.key,
-                                    id: sharedLock.id,
-                                    ttl: sharedLock.ttl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies AcquiredWriterLockEvent),
-                        );
-                    },
-                );
-                test("Should dispatch AcquiredWriterLockEvent when key is unexpireable and acquired by same lockId", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock.key,
+                                id: sharedLock.id,
+                                ttl: sharedLock.ttl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies AcquiredWriterLockEvent),
+                    );
+                });
+                test("Should dispatch AcquiredWriterLockEvent when key is unexpireable and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -6418,7 +6758,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredWriterLockEvent),
                     );
                 });
-                test("Should dispatch AcquiredWriterLockEvent when key is unexpired and acquired by same lockId", async () => {
+                test("Should dispatch AcquiredWriterLockEvent when key is unexpired and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -6451,7 +6791,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredWriterLockEvent),
                     );
                 });
-                test("Should dispatch UnavailableSharedLockEvent when key is unexpireable and acquired by different lockId", async () => {
+                test("Should dispatch UnavailableSharedLockEvent when key is unexpireable and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -6486,7 +6826,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies UnavailableSharedLockEvent),
                     );
                 });
-                test("Should dispatch UnavailableSharedLockEvent when key is unexpired and acquired by different lockId", async () => {
+                test("Should dispatch UnavailableSharedLockEvent when key is unexpired and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -6555,50 +6895,44 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredWriterLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch AcquiredWriterLockEvent when key is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should dispatch AcquiredWriterLockEvent when key is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        await sharedLockProvider
-                            .create(key, { ttl, limit })
-                            .acquireWriter();
-                        await delay(ttl);
+                    await sharedLockProvider
+                        .create(key, { ttl, limit })
+                        .acquireWriter();
+                    await delay(ttl);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const handlerFn = vi.fn(
-                            (_event: AcquiredWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
-                            handlerFn,
-                        );
-                        await sharedLock.acquireWriterOrFail();
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const handlerFn = vi.fn(
+                        (_event: AcquiredWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
+                        handlerFn,
+                    );
+                    await sharedLock.acquireWriterOrFail();
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock.key,
-                                    id: sharedLock.id,
-                                    ttl: sharedLock.ttl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies AcquiredWriterLockEvent),
-                        );
-                    },
-                );
-                test("Should dispatch AcquiredWriterLockEvent when key is unexpireable and acquired by same lockId", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock.key,
+                                id: sharedLock.id,
+                                ttl: sharedLock.ttl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies AcquiredWriterLockEvent),
+                    );
+                });
+                test("Should dispatch AcquiredWriterLockEvent when key is unexpireable and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -6631,7 +6965,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredWriterLockEvent),
                     );
                 });
-                test("Should dispatch AcquiredWriterLockEvent when key is unexpired and acquired by same lockId", async () => {
+                test("Should dispatch AcquiredWriterLockEvent when key is unexpired and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -6664,7 +6998,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredWriterLockEvent),
                     );
                 });
-                test("Should dispatch UnavailableSharedLockEvent when key is unexpireable and acquired by different lockId", async () => {
+                test("Should dispatch UnavailableSharedLockEvent when key is unexpireable and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -6703,7 +7037,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies UnavailableSharedLockEvent),
                     );
                 });
-                test("Should dispatch UnavailableSharedLockEvent when key is unexpired and acquired by different lockId", async () => {
+                test("Should dispatch UnavailableSharedLockEvent when key is unexpired and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -6779,53 +7113,47 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredWriterLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch AcquiredWriterLockEvent when key is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should dispatch AcquiredWriterLockEvent when key is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        await sharedLockProvider
-                            .create(key, { ttl, limit })
-                            .acquireWriter();
-                        await delay(ttl);
+                    await sharedLockProvider
+                        .create(key, { ttl, limit })
+                        .acquireWriter();
+                    await delay(ttl);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const handlerFn = vi.fn(
-                            (_event: AcquiredWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
-                            handlerFn,
-                        );
-                        await sharedLock.acquireWriterBlocking({
-                            time: TimeSpan.fromMilliseconds(5),
-                            interval: TimeSpan.fromMilliseconds(5),
-                        });
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const handlerFn = vi.fn(
+                        (_event: AcquiredWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
+                        handlerFn,
+                    );
+                    await sharedLock.acquireWriterBlocking({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock.key,
-                                    id: sharedLock.id,
-                                    ttl: sharedLock.ttl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies AcquiredWriterLockEvent),
-                        );
-                    },
-                );
-                test("Should dispatch AcquiredWriterLockEvent when key is unexpireable and acquired by same lockId", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock.key,
+                                id: sharedLock.id,
+                                ttl: sharedLock.ttl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies AcquiredWriterLockEvent),
+                    );
+                });
+                test("Should dispatch AcquiredWriterLockEvent when key is unexpireable and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -6861,7 +7189,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredWriterLockEvent),
                     );
                 });
-                test("Should dispatch AcquiredWriterLockEvent when key is unexpired and acquired by same lockId", async () => {
+                test("Should dispatch AcquiredWriterLockEvent when key is unexpired and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -6897,7 +7225,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredWriterLockEvent),
                     );
                 });
-                test("Should dispatch UnavailableSharedLockEvent when key is unexpireable and acquired by different lockId", async () => {
+                test("Should dispatch UnavailableSharedLockEvent when key is unexpireable and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -6921,7 +7249,10 @@ export function sharedLockProviderTestSuite(
                         interval: TimeSpan.fromMilliseconds(5),
                     });
 
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
+                        1,
+                    );
+                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
                     expect(handlerFn).toHaveBeenCalledWith(
                         expect.objectContaining({
                             sharedLock: expect.objectContaining({
@@ -6935,7 +7266,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies UnavailableSharedLockEvent),
                     );
                 });
-                test("Should dispatch UnavailableSharedLockEvent when key is unexpired and acquired by different lockId", async () => {
+                test("Should dispatch UnavailableSharedLockEvent when key is unexpired and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -6959,7 +7290,10 @@ export function sharedLockProviderTestSuite(
                         interval: TimeSpan.fromMilliseconds(5),
                     });
 
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
+                        1,
+                    );
+                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
                     expect(handlerFn).toHaveBeenCalledWith(
                         expect.objectContaining({
                             sharedLock: expect.objectContaining({
@@ -7010,53 +7344,47 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredWriterLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch AcquiredWriterLockEvent when key is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should dispatch AcquiredWriterLockEvent when key is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        await sharedLockProvider
-                            .create(key, { ttl, limit })
-                            .acquireWriter();
-                        await delay(ttl);
+                    await sharedLockProvider
+                        .create(key, { ttl, limit })
+                        .acquireWriter();
+                    await delay(ttl);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const handlerFn = vi.fn(
-                            (_event: AcquiredWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
-                            handlerFn,
-                        );
-                        await sharedLock.acquireWriterBlockingOrFail({
-                            time: TimeSpan.fromMilliseconds(5),
-                            interval: TimeSpan.fromMilliseconds(5),
-                        });
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const handlerFn = vi.fn(
+                        (_event: AcquiredWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
+                        handlerFn,
+                    );
+                    await sharedLock.acquireWriterBlockingOrFail({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock.key,
-                                    id: sharedLock.id,
-                                    ttl: sharedLock.ttl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies AcquiredWriterLockEvent),
-                        );
-                    },
-                );
-                test("Should dispatch AcquiredWriterLockEvent when key is unexpireable and acquired by same lockId", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock.key,
+                                id: sharedLock.id,
+                                ttl: sharedLock.ttl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies AcquiredWriterLockEvent),
+                    );
+                });
+                test("Should dispatch AcquiredWriterLockEvent when key is unexpireable and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -7092,7 +7420,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredWriterLockEvent),
                     );
                 });
-                test("Should dispatch AcquiredWriterLockEvent when key is unexpired and acquired by same lockId", async () => {
+                test("Should dispatch AcquiredWriterLockEvent when key is unexpired and acquired by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -7128,7 +7456,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredWriterLockEvent),
                     );
                 });
-                test("Should dispatch UnavailableSharedLockEvent when key is unexpireable and acquired by different lockId", async () => {
+                test("Should dispatch UnavailableSharedLockEvent when key is unexpireable and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -7156,7 +7484,10 @@ export function sharedLockProviderTestSuite(
                         /* EMPTY */
                     }
 
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
+                        1,
+                    );
+                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
                     expect(handlerFn).toHaveBeenCalledWith(
                         expect.objectContaining({
                             sharedLock: expect.objectContaining({
@@ -7170,7 +7501,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies UnavailableSharedLockEvent),
                     );
                 });
-                test("Should dispatch UnavailableSharedLockEvent when key is unexpired and acquired by different lockId", async () => {
+                test("Should dispatch UnavailableSharedLockEvent when key is unexpired and acquired by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -7198,7 +7529,10 @@ export function sharedLockProviderTestSuite(
                         /* EMPTY */
                     }
 
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
+                        1,
+                    );
+                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
                     expect(handlerFn).toHaveBeenCalledWith(
                         expect.objectContaining({
                             sharedLock: expect.objectContaining({
@@ -7246,7 +7580,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedReleaseWriterLockEvent),
                     );
                 });
-                test("Should dispatch FailedReleaseWriterLockEvent when key is unexpireable and released by different lockId", async () => {
+                test("Should dispatch FailedReleaseWriterLockEvent when key is unexpireable and released by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -7282,7 +7616,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedReleaseWriterLockEvent),
                     );
                 });
-                test("Should dispatch FailedReleaseWriterLockEvent when key is unexpired and released by different lockId", async () => {
+                test("Should dispatch FailedReleaseWriterLockEvent when key is unexpired and released by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -7318,91 +7652,79 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedReleaseWriterLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch FailedReleaseWriterLockEvent when key is expired and released by different lockId",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should dispatch FailedReleaseWriterLockEvent when key is expired and released by different shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        await sharedLockProvider
-                            .create(key, { ttl, limit })
-                            .acquireWriter();
+                    await sharedLockProvider
+                        .create(key, { ttl, limit })
+                        .acquireWriter();
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const handlerFn = vi.fn(
-                            (_event: FailedReleaseWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
-                            handlerFn,
-                        );
-                        await sharedLock.releaseWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const handlerFn = vi.fn(
+                        (_event: FailedReleaseWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
+                        handlerFn,
+                    );
+                    await sharedLock.releaseWriter();
+                    await delay(ttl);
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock.key,
-                                    id: sharedLock.id,
-                                    ttl: sharedLock.ttl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseWriterLockEvent),
-                        );
-                    },
-                );
-                test(
-                    "Should dispatch FailedReleaseWriterLockEvent when key is expired and released by same lockId",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock.key,
+                                id: sharedLock.id,
+                                ttl: sharedLock.ttl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies FailedReleaseWriterLockEvent),
+                    );
+                });
+                test("Should dispatch FailedReleaseWriterLockEvent when key is expired and released by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const handlerFn = vi.fn(
-                            (_event: FailedReleaseWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
-                            handlerFn,
-                        );
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const handlerFn = vi.fn(
+                        (_event: FailedReleaseWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
+                        handlerFn,
+                    );
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
 
-                        await sharedLock.releaseWriter();
+                    await sharedLock.releaseWriter();
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock.key,
-                                    id: sharedLock.id,
-                                    ttl: sharedLock.ttl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseWriterLockEvent),
-                        );
-                    },
-                );
-                test("Should dispatch ReleasedWriterLockEvent when key is unexpireable and released by same lockId", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock.key,
+                                id: sharedLock.id,
+                                ttl: sharedLock.ttl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies FailedReleaseWriterLockEvent),
+                    );
+                });
+                test("Should dispatch ReleasedWriterLockEvent when key is unexpireable and released by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -7436,7 +7758,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies ReleasedWriterLockEvent),
                     );
                 });
-                test("Should dispatch ReleasedWriterLockEvent when key is unexpired and released by same lockId", async () => {
+                test("Should dispatch ReleasedWriterLockEvent when key is unexpired and released by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -7508,7 +7830,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedReleaseWriterLockEvent),
                     );
                 });
-                test("Should dispatch FailedReleaseWriterLockEvent when key is unexpireable and released by different lockId", async () => {
+                test("Should dispatch FailedReleaseWriterLockEvent when key is unexpireable and released by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -7548,7 +7870,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedReleaseWriterLockEvent),
                     );
                 });
-                test("Should dispatch FailedReleaseWriterLockEvent when key is unexpired and released by different lockId", async () => {
+                test("Should dispatch FailedReleaseWriterLockEvent when key is unexpired and released by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -7588,99 +7910,87 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedReleaseWriterLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch FailedReleaseWriterLockEvent when key is expired and released by different lockId",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should dispatch FailedReleaseWriterLockEvent when key is expired and released by different shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        await sharedLockProvider
-                            .create(key, { ttl, limit })
-                            .acquireWriter();
+                    await sharedLockProvider
+                        .create(key, { ttl, limit })
+                        .acquireWriter();
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const handlerFn = vi.fn(
-                            (_event: FailedReleaseWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
-                            handlerFn,
-                        );
-                        try {
-                            await sharedLock.releaseWriterOrFail();
-                        } catch {
-                            /* EMPTY */
-                        }
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const handlerFn = vi.fn(
+                        (_event: FailedReleaseWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
+                        handlerFn,
+                    );
+                    try {
+                        await sharedLock.releaseWriterOrFail();
+                    } catch {
+                        /* EMPTY */
+                    }
+                    await delay(ttl);
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock.key,
-                                    id: sharedLock.id,
-                                    ttl: sharedLock.ttl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseWriterLockEvent),
-                        );
-                    },
-                );
-                test(
-                    "Should dispatch FailedReleaseWriterLockEvent when key is expired and released by same lockId",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock.key,
+                                id: sharedLock.id,
+                                ttl: sharedLock.ttl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies FailedReleaseWriterLockEvent),
+                    );
+                });
+                test("Should dispatch FailedReleaseWriterLockEvent when key is expired and released by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const handlerFn = vi.fn(
-                            (_event: FailedReleaseWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
-                            handlerFn,
-                        );
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const handlerFn = vi.fn(
+                        (_event: FailedReleaseWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
+                        handlerFn,
+                    );
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
 
-                        try {
-                            await sharedLock.releaseWriterOrFail();
-                        } catch {
-                            /* EMPTY */
-                        }
+                    try {
+                        await sharedLock.releaseWriterOrFail();
+                    } catch {
+                        /* EMPTY */
+                    }
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock.key,
-                                    id: sharedLock.id,
-                                    ttl: sharedLock.ttl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseWriterLockEvent),
-                        );
-                    },
-                );
-                test("Should dispatch ReleasedWriterLockEvent when key is unexpireable and released by same lockId", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock.key,
+                                id: sharedLock.id,
+                                ttl: sharedLock.ttl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies FailedReleaseWriterLockEvent),
+                    );
+                });
+                test("Should dispatch ReleasedWriterLockEvent when key is unexpireable and released by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -7714,7 +8024,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies ReleasedWriterLockEvent),
                     );
                 });
-                test("Should dispatch ReleasedWriterLockEvent when key is unexpired and released by same lockId", async () => {
+                test("Should dispatch ReleasedWriterLockEvent when key is unexpired and released by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -7783,7 +8093,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedRefreshWriterLockEvent),
                     );
                 });
-                test("Should dispatch FailedRefreshWriterLockEvent when key is unexpireable and refreshed by different lockId", async () => {
+                test("Should dispatch FailedRefreshWriterLockEvent when key is unexpireable and refreshed by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -7822,7 +8132,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedRefreshWriterLockEvent),
                     );
                 });
-                test("Should dispatch FailedRefreshWriterLockEvent when key is unexpired and refreshed by different lockId", async () => {
+                test("Should dispatch FailedRefreshWriterLockEvent when key is unexpired and refreshed by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -7861,95 +8171,83 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedRefreshWriterLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch FailedRefreshWriterLockEvent when key is expired and refreshed by different lockId",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should dispatch FailedRefreshWriterLockEvent when key is expired and refreshed by different shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock1.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireWriter();
+                    await delay(ttl);
 
-                        const newTtl = TimeSpan.fromMinutes(1);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const handlerFn = vi.fn(
-                            (_event: FailedRefreshWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
-                            handlerFn,
-                        );
-                        await sharedLock2.refreshWriter(newTtl);
+                    const newTtl = TimeSpan.fromMinutes(1);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const handlerFn = vi.fn(
+                        (_event: FailedRefreshWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                        handlerFn,
+                    );
+                    await sharedLock2.refreshWriter(newTtl);
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock2.key,
-                                    id: sharedLock2.id,
-                                    ttl: sharedLock2.ttl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
-                        );
-                    },
-                );
-                test(
-                    "Should dispatch FailedRefreshWriterLockEvent when key is expired and refreshed by same lockId",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock2.key,
+                                id: sharedLock2.id,
+                                ttl: sharedLock2.ttl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies FailedRefreshWriterLockEvent),
+                    );
+                });
+                test("Should dispatch FailedRefreshWriterLockEvent when key is expired and refreshed by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
 
-                        const newTtl = TimeSpan.fromMinutes(1);
-                        const handlerFn = vi.fn(
-                            (_event: FailedRefreshWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
-                            handlerFn,
-                        );
-                        await sharedLock.refreshWriter(newTtl);
+                    const newTtl = TimeSpan.fromMinutes(1);
+                    const handlerFn = vi.fn(
+                        (_event: FailedRefreshWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                        handlerFn,
+                    );
+                    await sharedLock.refreshWriter(newTtl);
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock.key,
-                                    id: sharedLock.id,
-                                    ttl: sharedLock.ttl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
-                        );
-                    },
-                );
-                test("Should dispatch FailedRefreshWriterLockEvent when key is unexpireable and refreshed by same lockId", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock.key,
+                                id: sharedLock.id,
+                                ttl: sharedLock.ttl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies FailedRefreshWriterLockEvent),
+                    );
+                });
+                test("Should dispatch FailedRefreshWriterLockEvent when key is unexpireable and refreshed by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -7984,47 +8282,41 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedRefreshWriterLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch RefreshedWriterLockEvent when key is unexpired and refreshed by same lockId",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should dispatch RefreshedWriterLockEvent when key is unexpired and refreshed by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireWriter();
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
 
-                        const newTtl = TimeSpan.fromMinutes(1);
-                        const handlerFn = vi.fn(
-                            (_event: RefreshedWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_REFRESHED,
-                            handlerFn,
-                        );
-                        await sharedLock.refreshWriter(newTtl);
+                    const newTtl = TimeSpan.fromMinutes(1);
+                    const handlerFn = vi.fn(
+                        (_event: RefreshedWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_REFRESHED,
+                        handlerFn,
+                    );
+                    await sharedLock.refreshWriter(newTtl);
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock.key,
-                                    id: sharedLock.id,
-                                    ttl: newTtl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies RefreshedWriterLockEvent),
-                        );
-                    },
-                );
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock.key,
+                                id: sharedLock.id,
+                                ttl: newTtl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies RefreshedWriterLockEvent),
+                    );
+                });
             });
             describe("method: refreshWriterOrFail", () => {
                 test("Should dispatch FailedRefreshWriterLockEvent when key doesnt exists", async () => {
@@ -8064,7 +8356,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedRefreshWriterLockEvent),
                     );
                 });
-                test("Should dispatch FailedRefreshWriterLockEvent when key is unexpireable and refreshed by different lockId", async () => {
+                test("Should dispatch FailedRefreshWriterLockEvent when key is unexpireable and refreshed by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -8107,7 +8399,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedRefreshWriterLockEvent),
                     );
                 });
-                test("Should dispatch FailedRefreshWriterLockEvent when key is unexpired and refreshed by different lockId", async () => {
+                test("Should dispatch FailedRefreshWriterLockEvent when key is unexpired and refreshed by different shared-lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
@@ -8150,103 +8442,91 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedRefreshWriterLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch FailedRefreshWriterLockEvent when key is expired and refreshed by different lockId",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should dispatch FailedRefreshWriterLockEvent when key is expired and refreshed by different shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock1.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireWriter();
+                    await delay(ttl);
 
-                        const newTtl = TimeSpan.fromMinutes(1);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const handlerFn = vi.fn(
-                            (_event: FailedRefreshWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
-                            handlerFn,
-                        );
-                        try {
-                            await sharedLock2.refreshWriterOrFail(newTtl);
-                        } catch {
-                            /* EMPTY */
-                        }
+                    const newTtl = TimeSpan.fromMinutes(1);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const handlerFn = vi.fn(
+                        (_event: FailedRefreshWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                        handlerFn,
+                    );
+                    try {
+                        await sharedLock2.refreshWriterOrFail(newTtl);
+                    } catch {
+                        /* EMPTY */
+                    }
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock2.key,
-                                    id: sharedLock2.id,
-                                    ttl: sharedLock2.ttl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
-                        );
-                    },
-                );
-                test(
-                    "Should dispatch FailedRefreshWriterLockEvent when key is expired and refreshed by same lockId",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock2.key,
+                                id: sharedLock2.id,
+                                ttl: sharedLock2.ttl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies FailedRefreshWriterLockEvent),
+                    );
+                });
+                test("Should dispatch FailedRefreshWriterLockEvent when key is expired and refreshed by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
 
-                        const newTtl = TimeSpan.fromMinutes(1);
-                        const handlerFn = vi.fn(
-                            (_event: FailedRefreshWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
-                            handlerFn,
-                        );
-                        try {
-                            await sharedLock.refreshWriterOrFail(newTtl);
-                        } catch {
-                            /* EMPTY */
-                        }
+                    const newTtl = TimeSpan.fromMinutes(1);
+                    const handlerFn = vi.fn(
+                        (_event: FailedRefreshWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                        handlerFn,
+                    );
+                    try {
+                        await sharedLock.refreshWriterOrFail(newTtl);
+                    } catch {
+                        /* EMPTY */
+                    }
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock.key,
-                                    id: sharedLock.id,
-                                    ttl: sharedLock.ttl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
-                        );
-                    },
-                );
-                test("Should dispatch FailedRefreshWriterLockEvent when key is unexpireable and refreshed by same lockId", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock.key,
+                                id: sharedLock.id,
+                                ttl: sharedLock.ttl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies FailedRefreshWriterLockEvent),
+                    );
+                });
+                test("Should dispatch FailedRefreshWriterLockEvent when key is unexpireable and refreshed by same shared-lock-id", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
@@ -8285,47 +8565,41 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedRefreshWriterLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch RefreshedWriterLockEvent when key is unexpired and refreshed by same lockId",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should dispatch RefreshedWriterLockEvent when key is unexpired and refreshed by same shared-lock-id", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireWriter();
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireWriter();
 
-                        const newTtl = TimeSpan.fromMinutes(1);
-                        const handlerFn = vi.fn(
-                            (_event: RefreshedWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_REFRESHED,
-                            handlerFn,
-                        );
-                        await sharedLock.refreshWriterOrFail(newTtl);
+                    const newTtl = TimeSpan.fromMinutes(1);
+                    const handlerFn = vi.fn(
+                        (_event: RefreshedWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_REFRESHED,
+                        handlerFn,
+                    );
+                    await sharedLock.refreshWriterOrFail(newTtl);
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock.key,
-                                    id: sharedLock.id,
-                                    ttl: newTtl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies RefreshedWriterLockEvent),
-                        );
-                    },
-                );
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock.key,
+                                id: sharedLock.id,
+                                ttl: newTtl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies RefreshedWriterLockEvent),
+                    );
+                });
             });
             describe("method: forceReleaseWriter", () => {
                 test("Should dispatch ForceReleasedWriterLockEvent when key doesnt exists", async () => {
@@ -8361,47 +8635,41 @@ export function sharedLockProviderTestSuite(
                         } satisfies ForceReleasedWriterLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch ForceReleasedWriterLockEvent when key is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 4;
+                test("Should dispatch ForceReleasedWriterLockEvent when key is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 4;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const handlerFn = vi.fn(
-                            (_event: ForceReleasedWriterLockEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.WRITER_FORCE_RELEASED,
-                            handlerFn,
-                        );
-                        await sharedLock.acquireWriter();
-                        await delay(ttl);
-                        await sharedLock.forceReleaseWriter();
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const handlerFn = vi.fn(
+                        (_event: ForceReleasedWriterLockEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.WRITER_FORCE_RELEASED,
+                        handlerFn,
+                    );
+                    await sharedLock.acquireWriter();
+                    await delay(ttl);
+                    await sharedLock.forceReleaseWriter();
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                hasReleased: false,
-                                sharedLock: expect.objectContaining({
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                    key: sharedLock.key,
-                                    id: sharedLock.id,
-                                    ttl: sharedLock.ttl,
-                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies ForceReleasedWriterLockEvent),
-                        );
-                    },
-                );
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            hasReleased: false,
+                            sharedLock: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                                key: sharedLock.key,
+                                id: sharedLock.id,
+                                ttl: sharedLock.ttl,
+                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                        } satisfies ForceReleasedWriterLockEvent),
+                    );
+                });
                 test("Should dispatch ForceReleasedWriterLockEvent when key exists and is acquired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -8471,47 +8739,41 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredReaderSemaphoreEvent),
                     );
                 });
-                test(
-                    "Should dispatch AcquiredReaderSemaphoreEvent when key exists and slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
-                        const ttl = TimeSpan.fromMilliseconds(50);
+                test("Should dispatch AcquiredReaderSemaphoreEvent when key exists and shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            limit,
-                            ttl,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        limit,
+                        ttl,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const handlerFn = vi.fn(
-                            (_event: AcquiredReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_ACQUIRED,
-                            handlerFn,
-                        );
-                        await sharedLock.acquireReader();
+                    const handlerFn = vi.fn(
+                        (_event: AcquiredReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                        handlerFn,
+                    );
+                    await sharedLock.acquireReader();
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock.key,
-                                    ttl: sharedLock.ttl,
-                                    lockId: sharedLock.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
-                        );
-                    },
-                );
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock.key,
+                                ttl: sharedLock.ttl,
+                                lockId: sharedLock.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies AcquiredReaderSemaphoreEvent),
+                    );
+                });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when limit is not reached", async () => {
                     const key = "a";
                     const limit = 2;
@@ -8592,59 +8854,53 @@ export function sharedLockProviderTestSuite(
                         } satisfies UnavailableSharedLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch AcquiredReaderSemaphoreEvent when one slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
+                test("Should dispatch AcquiredReaderSemaphoreEvent when one shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
 
-                        const ttl1 = null;
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            limit,
-                            ttl: ttl1,
-                        });
-                        await sharedLock1.acquireReader();
-                        const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            limit,
-                            ttl: ttl2,
-                        });
-                        await sharedLock2.acquireReader();
-                        await delay(ttl2);
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl1,
+                    });
+                    await sharedLock1.acquireReader();
+                    const ttl2 = TimeSpan.fromMilliseconds(50);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl2,
+                    });
+                    await sharedLock2.acquireReader();
+                    await delay(ttl2);
 
-                        const ttl3 = null;
-                        const handlerFn = vi.fn(
-                            (_event: AcquiredReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_ACQUIRED,
-                            handlerFn,
-                        );
-                        const sharedLock3 = sharedLockProvider.create(key, {
-                            limit,
-                            ttl: ttl3,
-                        });
-                        await sharedLock3.acquireReader();
+                    const ttl3 = null;
+                    const handlerFn = vi.fn(
+                        (_event: AcquiredReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                        handlerFn,
+                    );
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl3,
+                    });
+                    await sharedLock3.acquireReader();
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock3.key,
-                                    ttl: sharedLock3.ttl,
-                                    lockId: sharedLock3.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
-                        );
-                    },
-                );
-                test("Should dispatch AcquiredReaderSemaphoreEvent when slot exists, is unexpireable and acquired multiple times", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock3.key,
+                                ttl: sharedLock3.ttl,
+                                lockId: sharedLock3.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies AcquiredReaderSemaphoreEvent),
+                    );
+                });
+                test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -8677,7 +8933,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredReaderSemaphoreEvent),
                     );
                 });
-                test("Should dispatch AcquiredReaderSemaphoreEvent when slot exists, is unexpired and acquired multiple times", async () => {
+                test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -8745,47 +9001,41 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredReaderSemaphoreEvent),
                     );
                 });
-                test(
-                    "Should dispatch AcquiredReaderSemaphoreEvent when key exists and slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
-                        const ttl = TimeSpan.fromMilliseconds(50);
+                test("Should dispatch AcquiredReaderSemaphoreEvent when key exists and shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            limit,
-                            ttl,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        limit,
+                        ttl,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const handlerFn = vi.fn(
-                            (_event: AcquiredReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_ACQUIRED,
-                            handlerFn,
-                        );
-                        await sharedLock.acquireReaderOrFail();
+                    const handlerFn = vi.fn(
+                        (_event: AcquiredReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                        handlerFn,
+                    );
+                    await sharedLock.acquireReaderOrFail();
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock.key,
-                                    ttl: sharedLock.ttl,
-                                    lockId: sharedLock.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
-                        );
-                    },
-                );
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock.key,
+                                ttl: sharedLock.ttl,
+                                lockId: sharedLock.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies AcquiredReaderSemaphoreEvent),
+                    );
+                });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when limit is not reached", async () => {
                     const key = "a";
                     const limit = 2;
@@ -8870,59 +9120,53 @@ export function sharedLockProviderTestSuite(
                         } satisfies UnavailableSharedLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch AcquiredReaderSemaphoreEvent when one slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
+                test("Should dispatch AcquiredReaderSemaphoreEvent when one shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
 
-                        const ttl1 = null;
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            limit,
-                            ttl: ttl1,
-                        });
-                        await sharedLock1.acquireReader();
-                        const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            limit,
-                            ttl: ttl2,
-                        });
-                        await sharedLock2.acquireReader();
-                        await delay(ttl2);
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl1,
+                    });
+                    await sharedLock1.acquireReader();
+                    const ttl2 = TimeSpan.fromMilliseconds(50);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl2,
+                    });
+                    await sharedLock2.acquireReader();
+                    await delay(ttl2);
 
-                        const ttl3 = null;
-                        const handlerFn = vi.fn(
-                            (_event: AcquiredReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_ACQUIRED,
-                            handlerFn,
-                        );
-                        const sharedLock3 = sharedLockProvider.create(key, {
-                            limit,
-                            ttl: ttl3,
-                        });
-                        await sharedLock3.acquireReaderOrFail();
+                    const ttl3 = null;
+                    const handlerFn = vi.fn(
+                        (_event: AcquiredReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                        handlerFn,
+                    );
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl3,
+                    });
+                    await sharedLock3.acquireReaderOrFail();
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock3.key,
-                                    ttl: sharedLock3.ttl,
-                                    lockId: sharedLock3.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
-                        );
-                    },
-                );
-                test("Should dispatch AcquiredReaderSemaphoreEvent when slot exists, is unexpireable and acquired multiple times", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock3.key,
+                                ttl: sharedLock3.ttl,
+                                lockId: sharedLock3.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies AcquiredReaderSemaphoreEvent),
+                    );
+                });
+                test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -8955,7 +9199,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredReaderSemaphoreEvent),
                     );
                 });
-                test("Should dispatch AcquiredReaderSemaphoreEvent when slot exists, is unexpired and acquired multiple times", async () => {
+                test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -9026,50 +9270,44 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredReaderSemaphoreEvent),
                     );
                 });
-                test(
-                    "Should dispatch AcquiredReaderSemaphoreEvent when key exists and slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
-                        const ttl = TimeSpan.fromMilliseconds(50);
+                test("Should dispatch AcquiredReaderSemaphoreEvent when key exists and shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            limit,
-                            ttl,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        limit,
+                        ttl,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const handlerFn = vi.fn(
-                            (_event: AcquiredReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_ACQUIRED,
-                            handlerFn,
-                        );
-                        await sharedLock.acquireReaderBlocking({
-                            time: TimeSpan.fromMilliseconds(5),
-                            interval: TimeSpan.fromMilliseconds(5),
-                        });
+                    const handlerFn = vi.fn(
+                        (_event: AcquiredReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                        handlerFn,
+                    );
+                    await sharedLock.acquireReaderBlocking({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock.key,
-                                    ttl: sharedLock.ttl,
-                                    lockId: sharedLock.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
-                        );
-                    },
-                );
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock.key,
+                                ttl: sharedLock.ttl,
+                                lockId: sharedLock.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies AcquiredReaderSemaphoreEvent),
+                    );
+                });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when limit is not reached", async () => {
                     const key = "a";
                     const limit = 2;
@@ -9142,7 +9380,10 @@ export function sharedLockProviderTestSuite(
                         interval: TimeSpan.fromMilliseconds(5),
                     });
 
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
+                        1,
+                    );
+                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
                     expect(handlerFn).toHaveBeenCalledWith(
                         expect.objectContaining({
                             sharedLock: expect.objectContaining({
@@ -9156,62 +9397,56 @@ export function sharedLockProviderTestSuite(
                         } satisfies UnavailableSharedLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch AcquiredReaderSemaphoreEvent when one slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
+                test("Should dispatch AcquiredReaderSemaphoreEvent when one shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
 
-                        const ttl1 = null;
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            limit,
-                            ttl: ttl1,
-                        });
-                        await sharedLock1.acquireReader();
-                        const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            limit,
-                            ttl: ttl2,
-                        });
-                        await sharedLock2.acquireReader();
-                        await delay(ttl2);
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl1,
+                    });
+                    await sharedLock1.acquireReader();
+                    const ttl2 = TimeSpan.fromMilliseconds(50);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl2,
+                    });
+                    await sharedLock2.acquireReader();
+                    await delay(ttl2);
 
-                        const ttl3 = null;
-                        const handlerFn = vi.fn(
-                            (_event: AcquiredReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_ACQUIRED,
-                            handlerFn,
-                        );
-                        const sharedLock3 = sharedLockProvider.create(key, {
-                            limit,
-                            ttl: ttl3,
-                        });
-                        await sharedLock3.acquireReaderBlocking({
-                            time: TimeSpan.fromMilliseconds(5),
-                            interval: TimeSpan.fromMilliseconds(5),
-                        });
+                    const ttl3 = null;
+                    const handlerFn = vi.fn(
+                        (_event: AcquiredReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                        handlerFn,
+                    );
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl3,
+                    });
+                    await sharedLock3.acquireReaderBlocking({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock3.key,
-                                    ttl: sharedLock3.ttl,
-                                    lockId: sharedLock3.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
-                        );
-                    },
-                );
-                test("Should dispatch AcquiredReaderSemaphoreEvent when slot exists, is unexpireable and acquired multiple times", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock3.key,
+                                ttl: sharedLock3.ttl,
+                                lockId: sharedLock3.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies AcquiredReaderSemaphoreEvent),
+                    );
+                });
+                test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -9247,7 +9482,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredReaderSemaphoreEvent),
                     );
                 });
-                test("Should dispatch AcquiredReaderSemaphoreEvent when slot exists, is unexpired and acquired multiple times", async () => {
+                test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -9321,50 +9556,44 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredReaderSemaphoreEvent),
                     );
                 });
-                test(
-                    "Should dispatch AcquiredReaderSemaphoreEvent when key exists and slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
-                        const ttl = TimeSpan.fromMilliseconds(50);
+                test("Should dispatch AcquiredReaderSemaphoreEvent when key exists and shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            limit,
-                            ttl,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        limit,
+                        ttl,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const handlerFn = vi.fn(
-                            (_event: AcquiredReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_ACQUIRED,
-                            handlerFn,
-                        );
-                        await sharedLock.acquireReaderBlockingOrFail({
-                            time: TimeSpan.fromMilliseconds(5),
-                            interval: TimeSpan.fromMilliseconds(5),
-                        });
+                    const handlerFn = vi.fn(
+                        (_event: AcquiredReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                        handlerFn,
+                    );
+                    await sharedLock.acquireReaderBlockingOrFail({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock.key,
-                                    ttl: sharedLock.ttl,
-                                    lockId: sharedLock.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
-                        );
-                    },
-                );
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock.key,
+                                ttl: sharedLock.ttl,
+                                lockId: sharedLock.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies AcquiredReaderSemaphoreEvent),
+                    );
+                });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when limit is not reached", async () => {
                     const key = "a";
                     const limit = 2;
@@ -9405,7 +9634,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredReaderSemaphoreEvent),
                     );
                 });
-                test("Should dispatch LimitReachedSemaphoreEvent when limit is reached", async () => {
+                test("Should dispatch UnavailableSharedLockEvent when limit is reached", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -9441,7 +9670,10 @@ export function sharedLockProviderTestSuite(
                         /* EMPTY */
                     }
 
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
+                        1,
+                    );
+                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
                     expect(handlerFn).toHaveBeenCalledWith(
                         expect.objectContaining({
                             sharedLock: expect.objectContaining({
@@ -9455,62 +9687,56 @@ export function sharedLockProviderTestSuite(
                         } satisfies UnavailableSharedLockEvent),
                     );
                 });
-                test(
-                    "Should dispatch AcquiredReaderSemaphoreEvent when one slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
+                test("Should dispatch AcquiredReaderSemaphoreEvent when one shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
 
-                        const ttl1 = null;
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            limit,
-                            ttl: ttl1,
-                        });
-                        await sharedLock1.acquireReader();
-                        const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            limit,
-                            ttl: ttl2,
-                        });
-                        await sharedLock2.acquireReader();
-                        await delay(ttl2);
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl1,
+                    });
+                    await sharedLock1.acquireReader();
+                    const ttl2 = TimeSpan.fromMilliseconds(50);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl2,
+                    });
+                    await sharedLock2.acquireReader();
+                    await delay(ttl2);
 
-                        const ttl3 = null;
-                        const handlerFn = vi.fn(
-                            (_event: AcquiredReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_ACQUIRED,
-                            handlerFn,
-                        );
-                        const sharedLock3 = sharedLockProvider.create(key, {
-                            limit,
-                            ttl: ttl3,
-                        });
-                        await sharedLock3.acquireReaderBlockingOrFail({
-                            time: TimeSpan.fromMilliseconds(5),
-                            interval: TimeSpan.fromMilliseconds(5),
-                        });
+                    const ttl3 = null;
+                    const handlerFn = vi.fn(
+                        (_event: AcquiredReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                        handlerFn,
+                    );
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        limit,
+                        ttl: ttl3,
+                    });
+                    await sharedLock3.acquireReaderBlockingOrFail({
+                        time: TimeSpan.fromMilliseconds(5),
+                        interval: TimeSpan.fromMilliseconds(5),
+                    });
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock3.key,
-                                    ttl: sharedLock3.ttl,
-                                    lockId: sharedLock3.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
-                        );
-                    },
-                );
-                test("Should dispatch AcquiredReaderSemaphoreEvent when slot exists, is unexpireable and acquired multiple times", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock3.key,
+                                ttl: sharedLock3.ttl,
+                                lockId: sharedLock3.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies AcquiredReaderSemaphoreEvent),
+                    );
+                });
+                test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -9546,7 +9772,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies AcquiredReaderSemaphoreEvent),
                     );
                 });
-                test("Should dispatch AcquiredReaderSemaphoreEvent when slot exists, is unexpired and acquired multiple times", async () => {
+                test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
@@ -9627,7 +9853,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedReleaseReaderSemaphoreEvent),
                     );
                 });
-                test("Should dispatch FailedReleaseReaderSemaphoreEvent when slot doesnt exists", async () => {
+                test("Should dispatch FailedReleaseReaderSemaphoreEvent when shared-lock-slot doesnt exists", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -9668,93 +9894,81 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedReleaseReaderSemaphoreEvent),
                     );
                 });
-                test(
-                    "Should dispatch FailedReleaseReaderSemaphoreEvent when slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
+                test("Should dispatch FailedReleaseReaderSemaphoreEvent when shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 2;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock1.acquireReader();
-                        await delay(ttl);
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
+                    await delay(ttl);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const handlerFn = vi.fn(
-                            (_event: FailedReleaseReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
-                            handlerFn,
-                        );
-                        await sharedLock.releaseReader();
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const handlerFn = vi.fn(
+                        (_event: FailedReleaseReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
+                        handlerFn,
+                    );
+                    await sharedLock.releaseReader();
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock.key,
-                                    ttl: sharedLock.ttl,
-                                    lockId: sharedLock.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseReaderSemaphoreEvent),
-                        );
-                    },
-                );
-                test(
-                    "Should dispatch FailedReleaseReaderSemaphoreEvent when slot exists, is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock.key,
+                                ttl: sharedLock.ttl,
+                                lockId: sharedLock.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies FailedReleaseReaderSemaphoreEvent),
+                    );
+                });
+                test("Should dispatch FailedReleaseReaderSemaphoreEvent when shared-lock-slot exists, is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 2;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const handlerFn = vi.fn(
-                            (_event: FailedReleaseReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
-                            handlerFn,
-                        );
-                        await sharedLock.releaseReader();
+                    const handlerFn = vi.fn(
+                        (_event: FailedReleaseReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
+                        handlerFn,
+                    );
+                    await sharedLock.releaseReader();
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock.key,
-                                    ttl: sharedLock.ttl,
-                                    lockId: sharedLock.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseReaderSemaphoreEvent),
-                        );
-                    },
-                );
-                test("Should dispatch ReleasedReaderSemaphoreEvent when slot exists, is unexpired", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock.key,
+                                ttl: sharedLock.ttl,
+                                lockId: sharedLock.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies FailedReleaseReaderSemaphoreEvent),
+                    );
+                });
+                test("Should dispatch ReleasedReaderSemaphoreEvent when shared-lock-slot exists and is unexpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
@@ -9788,7 +10002,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies ReleasedReaderSemaphoreEvent),
                     );
                 });
-                test("Should dispatch ReleasedReaderSemaphoreEvent when slot exists, is unexpireable", async () => {
+                test("Should dispatch ReleasedReaderSemaphoreEvent when shared-lock-slot exists and is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -9871,7 +10085,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedReleaseReaderSemaphoreEvent),
                     );
                 });
-                test("Should dispatch FailedReleaseReaderSemaphoreEvent when slot doesnt exists", async () => {
+                test("Should dispatch FailedReleaseReaderSemaphoreEvent when shared-lock-slot doesnt exists", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -9916,101 +10130,89 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedReleaseReaderSemaphoreEvent),
                     );
                 });
-                test(
-                    "Should dispatch FailedReleaseReaderSemaphoreEvent when slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
+                test("Should dispatch FailedReleaseReaderSemaphoreEvent when shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 2;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock1.acquireReader();
-                        await delay(ttl);
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
+                    await delay(ttl);
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        const handlerFn = vi.fn(
-                            (_event: FailedReleaseReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
-                            handlerFn,
-                        );
-                        try {
-                            await sharedLock.releaseReaderOrFail();
-                        } catch {
-                            /* EMPTY */
-                        }
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    const handlerFn = vi.fn(
+                        (_event: FailedReleaseReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
+                        handlerFn,
+                    );
+                    try {
+                        await sharedLock.releaseReaderOrFail();
+                    } catch {
+                        /* EMPTY */
+                    }
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock.key,
-                                    ttl: sharedLock.ttl,
-                                    lockId: sharedLock.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseReaderSemaphoreEvent),
-                        );
-                    },
-                );
-                test(
-                    "Should dispatch FailedReleaseReaderSemaphoreEvent when slot exists, is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock.key,
+                                ttl: sharedLock.ttl,
+                                lockId: sharedLock.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies FailedReleaseReaderSemaphoreEvent),
+                    );
+                });
+                test("Should dispatch FailedReleaseReaderSemaphoreEvent when shared-lock-slot exists, is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 2;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const handlerFn = vi.fn(
-                            (_event: FailedReleaseReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
-                            handlerFn,
-                        );
-                        try {
-                            await sharedLock.releaseReaderOrFail();
-                        } catch {
-                            /* EMPTY */
-                        }
+                    const handlerFn = vi.fn(
+                        (_event: FailedReleaseReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
+                        handlerFn,
+                    );
+                    try {
+                        await sharedLock.releaseReaderOrFail();
+                    } catch {
+                        /* EMPTY */
+                    }
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock.key,
-                                    ttl: sharedLock.ttl,
-                                    lockId: sharedLock.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseReaderSemaphoreEvent),
-                        );
-                    },
-                );
-                test("Should dispatch ReleasedReaderSemaphoreEvent when slot exists, is unexpired", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock.key,
+                                ttl: sharedLock.ttl,
+                                lockId: sharedLock.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies FailedReleaseReaderSemaphoreEvent),
+                    );
+                });
+                test("Should dispatch ReleasedReaderSemaphoreEvent when shared-lock-slot exists and is unexpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
@@ -10044,7 +10246,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies ReleasedReaderSemaphoreEvent),
                     );
                 });
-                test("Should dispatch ReleasedReaderSemaphoreEvent when slot exists, is unexpireable", async () => {
+                test("Should dispatch ReleasedReaderSemaphoreEvent when shared-lock-slot exists and is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -10123,7 +10325,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedRefreshReaderSemaphoreEvent),
                     );
                 });
-                test("Should dispatch FailedRefreshReaderSemaphoreEvent when slot doesnt exists", async () => {
+                test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot doesnt exists", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -10164,90 +10366,78 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedRefreshReaderSemaphoreEvent),
                     );
                 });
-                test(
-                    "Should dispatch FailedRefreshReaderSemaphoreEvent when slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const handlerFn = vi.fn(
-                            (_event: FailedRefreshReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
-                            handlerFn,
-                        );
-                        const newTtl = TimeSpan.fromMilliseconds(100);
-                        await sharedLock.refreshReader(newTtl);
+                    const handlerFn = vi.fn(
+                        (_event: FailedRefreshReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
+                        handlerFn,
+                    );
+                    const newTtl = TimeSpan.fromMilliseconds(100);
+                    await sharedLock.refreshReader(newTtl);
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock.key,
-                                    ttl: sharedLock.ttl,
-                                    lockId: sharedLock.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshReaderSemaphoreEvent),
-                        );
-                    },
-                );
-                test(
-                    "Should dispatch FailedRefreshReaderSemaphoreEvent when slot exists, is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock.key,
+                                ttl: sharedLock.ttl,
+                                lockId: sharedLock.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies FailedRefreshReaderSemaphoreEvent),
+                    );
+                });
+                test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot exists, is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 2;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const handlerFn = vi.fn(
-                            (_event: FailedRefreshReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
-                            handlerFn,
-                        );
-                        const newTtl = TimeSpan.fromMilliseconds(100);
-                        await sharedLock.refreshReader(newTtl);
+                    const handlerFn = vi.fn(
+                        (_event: FailedRefreshReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
+                        handlerFn,
+                    );
+                    const newTtl = TimeSpan.fromMilliseconds(100);
+                    await sharedLock.refreshReader(newTtl);
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock.key,
-                                    ttl: sharedLock.ttl,
-                                    lockId: sharedLock.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshReaderSemaphoreEvent),
-                        );
-                    },
-                );
-                test("Should dispatch FailedRefreshReaderSemaphoreEvent when slot exists, is unexpireable", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock.key,
+                                ttl: sharedLock.ttl,
+                                lockId: sharedLock.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies FailedRefreshReaderSemaphoreEvent),
+                    );
+                });
+                test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot exists and is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -10282,7 +10472,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedRefreshReaderSemaphoreEvent),
                     );
                 });
-                test("Should dispatch RefreshedReaderSemaphoreEvent when slot exists, is unexpired", async () => {
+                test("Should dispatch RefreshedReaderSemaphoreEvent when shared-lock-slot exists and is unexpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
@@ -10366,7 +10556,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedRefreshReaderSemaphoreEvent),
                     );
                 });
-                test("Should dispatch FailedRefreshReaderSemaphoreEvent when slot doesnt exists", async () => {
+                test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot doesnt exists", async () => {
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
@@ -10411,98 +10601,86 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedRefreshReaderSemaphoreEvent),
                     );
                 });
-                test(
-                    "Should dispatch FailedRefreshReaderSemaphoreEvent when slot is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 2;
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot is expired", async () => {
+                    const key = "a";
+                    const limit = 2;
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const handlerFn = vi.fn(
-                            (_event: FailedRefreshReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
-                            handlerFn,
-                        );
-                        const newTtl = TimeSpan.fromMilliseconds(100);
-                        try {
-                            await sharedLock.refreshReaderOrFail(newTtl);
-                        } catch {
-                            /* EMPTY */
-                        }
+                    const handlerFn = vi.fn(
+                        (_event: FailedRefreshReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
+                        handlerFn,
+                    );
+                    const newTtl = TimeSpan.fromMilliseconds(100);
+                    try {
+                        await sharedLock.refreshReaderOrFail(newTtl);
+                    } catch {
+                        /* EMPTY */
+                    }
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock.key,
-                                    ttl: sharedLock.ttl,
-                                    lockId: sharedLock.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshReaderSemaphoreEvent),
-                        );
-                    },
-                );
-                test(
-                    "Should dispatch FailedRefreshReaderSemaphoreEvent when slot exists, is expired",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const ttl = TimeSpan.fromMilliseconds(50);
-                        const limit = 2;
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock.key,
+                                ttl: sharedLock.ttl,
+                                lockId: sharedLock.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies FailedRefreshReaderSemaphoreEvent),
+                    );
+                });
+                test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot exists, is expired", async () => {
+                    const key = "a";
+                    const ttl = TimeSpan.fromMilliseconds(50);
+                    const limit = 2;
 
-                        const sharedLock = sharedLockProvider.create(key, {
-                            ttl,
-                            limit,
-                        });
-                        await sharedLock.acquireReader();
-                        await delay(ttl);
+                    const sharedLock = sharedLockProvider.create(key, {
+                        ttl,
+                        limit,
+                    });
+                    await sharedLock.acquireReader();
+                    await delay(ttl);
 
-                        const handlerFn = vi.fn(
-                            (_event: FailedRefreshReaderSemaphoreEvent) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
-                            handlerFn,
-                        );
-                        const newTtl = TimeSpan.fromMilliseconds(100);
-                        try {
-                            await sharedLock.refreshReaderOrFail(newTtl);
-                        } catch {
-                            /* EMPTY */
-                        }
+                    const handlerFn = vi.fn(
+                        (_event: FailedRefreshReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
+                        handlerFn,
+                    );
+                    const newTtl = TimeSpan.fromMilliseconds(100);
+                    try {
+                        await sharedLock.refreshReaderOrFail(newTtl);
+                    } catch {
+                        /* EMPTY */
+                    }
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock.key,
-                                    ttl: sharedLock.ttl,
-                                    lockId: sharedLock.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshReaderSemaphoreEvent),
-                        );
-                    },
-                );
-                test("Should dispatch FailedRefreshReaderSemaphoreEvent when slot exists, is unexpireable", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock.key,
+                                ttl: sharedLock.ttl,
+                                lockId: sharedLock.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies FailedRefreshReaderSemaphoreEvent),
+                    );
+                });
+                test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot exists and is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
                     const limit = 2;
@@ -10541,7 +10719,7 @@ export function sharedLockProviderTestSuite(
                         } satisfies FailedRefreshReaderSemaphoreEvent),
                     );
                 });
-                test("Should dispatch RefreshedReaderSemaphoreEvent when slot exists, is unexpired", async () => {
+                test("Should dispatch RefreshedReaderSemaphoreEvent when shared-lock-slot exists and is unexpired", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
@@ -10578,67 +10756,59 @@ export function sharedLockProviderTestSuite(
                 });
             });
             describe("method: forceReleaseAllReader", () => {
-                test(
-                    "Should dispatch AllForceReleasedReaderSemaphoreEvent when key doesnt exists",
-                    {
-                        retry: 10,
-                    },
-                    async () => {
-                        const key = "a";
-                        const limit = 3;
+                test("Should dispatch AllForceReleasedReaderSemaphoreEvent when key doesnt exists", async () => {
+                    const key = "a";
+                    const limit = 3;
 
-                        const ttl1 = null;
-                        const sharedLock1 = sharedLockProvider.create(key, {
-                            ttl: ttl1,
-                            limit,
-                        });
-                        await sharedLock1.acquireReader();
+                    const ttl1 = null;
+                    const sharedLock1 = sharedLockProvider.create(key, {
+                        ttl: ttl1,
+                        limit,
+                    });
+                    await sharedLock1.acquireReader();
 
-                        const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const sharedLock2 = sharedLockProvider.create(key, {
-                            ttl: ttl2,
-                            limit,
-                        });
-                        await sharedLock2.acquireReader();
-                        await delay(ttl2);
+                    const ttl2 = TimeSpan.fromMilliseconds(50);
+                    const sharedLock2 = sharedLockProvider.create(key, {
+                        ttl: ttl2,
+                        limit,
+                    });
+                    await sharedLock2.acquireReader();
+                    await delay(ttl2);
 
-                        await sharedLock1.releaseReader();
+                    await sharedLock1.releaseReader();
 
-                        const ttl3 = null;
-                        const sharedLock3 = sharedLockProvider.create(key, {
-                            ttl: ttl3,
-                            limit,
-                        });
+                    const ttl3 = null;
+                    const sharedLock3 = sharedLockProvider.create(key, {
+                        ttl: ttl3,
+                        limit,
+                    });
 
-                        const handlerFn = vi.fn(
-                            (
-                                _event: AllForceReleasedReaderSemaphoreEvent,
-                            ) => {},
-                        );
-                        await sharedLockProvider.events.addListener(
-                            SHARED_LOCK_EVENTS.READER_ALL_FORCE_RELEASED,
-                            handlerFn,
-                        );
+                    const handlerFn = vi.fn(
+                        (_event: AllForceReleasedReaderSemaphoreEvent) => {},
+                    );
+                    await sharedLockProvider.events.addListener(
+                        SHARED_LOCK_EVENTS.READER_ALL_FORCE_RELEASED,
+                        handlerFn,
+                    );
 
-                        await sharedLock3.forceReleaseAllReaders();
+                    await sharedLock3.forceReleaseAllReaders();
 
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                hasReleased: false,
-                                sharedLock: expect.objectContaining({
-                                    key: sharedLock3.key,
-                                    ttl: sharedLock3.ttl,
-                                    lockId: sharedLock3.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISharedLockStateMethods["getState"],
-                                }) as ISharedLockStateMethods,
-                            } satisfies AllForceReleasedReaderSemaphoreEvent),
-                        );
-                    },
-                );
-                test("Should dispatch AllForceReleasedReaderSemaphoreEvent when key exists and has acquired slots", async () => {
+                    expect(handlerFn).toHaveBeenCalledTimes(1);
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            hasReleased: false,
+                            sharedLock: expect.objectContaining({
+                                key: sharedLock3.key,
+                                ttl: sharedLock3.ttl,
+                                lockId: sharedLock3.id,
+                                getState: expect.any(
+                                    Function,
+                                ) as ISharedLockStateMethods["getState"],
+                            }) as ISharedLockStateMethods,
+                        } satisfies AllForceReleasedReaderSemaphoreEvent),
+                    );
+                });
+                test("Should dispatch AllForceReleasedReaderSemaphoreEvent when key exists and has acquired shared-lock-slots", async () => {
                     const key = "a";
                     const limit = 2;
 
@@ -10702,34 +10872,27 @@ export function sharedLockProviderTestSuite(
                     type: SHARED_LOCK_STATE.EXPIRED,
                 } satisfies ISharedLockExpiredState);
             });
-            test(
-                "Should return ISharedLockExpiredState when acquired as writer, is derserialized and key is expired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 4;
+            test("Should return ISharedLockExpiredState when acquired as writer, is derserialized and key is expired", async () => {
+                const key = "a";
+                const ttl = TimeSpan.fromMilliseconds(50);
+                const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireWriter();
-                    await delay(ttl);
+                const sharedLock = sharedLockProvider.create(key, {
+                    ttl,
+                    limit,
+                });
+                await sharedLock.acquireWriter();
+                await delay(ttl);
 
-                    const deserializedSharedLock =
-                        serde.deserialize<ISharedLock>(
-                            serde.serialize(sharedLock),
-                        );
-                    const result = await deserializedSharedLock.getState();
+                const deserializedSharedLock = serde.deserialize<ISharedLock>(
+                    serde.serialize(sharedLock),
+                );
+                const result = await deserializedSharedLock.getState();
 
-                    expect(result).toEqual({
-                        type: SHARED_LOCK_STATE.EXPIRED,
-                    } satisfies ISharedLockExpiredState);
-                },
-            );
+                expect(result).toEqual({
+                    type: SHARED_LOCK_STATE.EXPIRED,
+                } satisfies ISharedLockExpiredState);
+            });
             test("Should return ISharedLockExpiredState when acquired as writer, is derserialized and all key is released with forceReleaseWriter method", async () => {
                 const key = "a";
                 const limit = 4;
@@ -10872,7 +11035,7 @@ export function sharedLockProviderTestSuite(
                         10,
                 );
             });
-            test("Should return ISharedLockWriterUnavailableState when acquired as writer, is derserialized and key is acquired by different owner", async () => {
+            test("Should return ISharedLockWriterUnavailableState when acquired as writer, is derserialized and key is acquired by different shared-lock-id", async () => {
                 const key = "a";
                 const ttl = null;
                 const limit = 4;
@@ -10916,35 +11079,28 @@ export function sharedLockProviderTestSuite(
                     type: SHARED_LOCK_STATE.EXPIRED,
                 } satisfies ISharedLockExpiredState);
             });
-            test(
-                "Should return ISharedLockExpiredState when acquired as reader, is derserialized and key is expired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 2;
+            test("Should return ISharedLockExpiredState when acquired as reader, is derserialized and key is expired", async () => {
+                const key = "a";
+                const ttl = TimeSpan.fromMilliseconds(50);
+                const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    const deserializedSemaphore =
-                        serde.deserialize<ISharedLock>(
-                            serde.serialize(sharedLock),
-                        );
-                    await deserializedSemaphore.acquireReader();
-                    await delay(ttl);
+                const sharedLock = sharedLockProvider.create(key, {
+                    ttl,
+                    limit,
+                });
+                const deserializedSemaphore = serde.deserialize<ISharedLock>(
+                    serde.serialize(sharedLock),
+                );
+                await deserializedSemaphore.acquireReader();
+                await delay(ttl);
 
-                    const result = await sharedLock.getState();
+                const result = await sharedLock.getState();
 
-                    expect(result).toEqual({
-                        type: SHARED_LOCK_STATE.EXPIRED,
-                    } satisfies ISharedLockExpiredState);
-                },
-            );
-            test("Should return ISharedLockExpiredState when acquired as reader, is derserialized and all slots are released with forceReleaseAll method", async () => {
+                expect(result).toEqual({
+                    type: SHARED_LOCK_STATE.EXPIRED,
+                } satisfies ISharedLockExpiredState);
+            });
+            test("Should return ISharedLockExpiredState when acquired as reader, is derserialized and all shared-lock-slots are released with forceReleaseAll method", async () => {
                 const key = "a";
                 const limit = 2;
 
@@ -10973,7 +11129,7 @@ export function sharedLockProviderTestSuite(
                     type: SHARED_LOCK_STATE.EXPIRED,
                 } satisfies ISharedLockExpiredState);
             });
-            test("Should return ISharedLockExpiredState when acquired as reader, is derserialized and all slots are released with release method", async () => {
+            test("Should return ISharedLockExpiredState when acquired as reader, is derserialized and all shared-lock-slots are released with release method", async () => {
                 const key = "a";
                 const limit = 2;
 
@@ -11003,7 +11159,7 @@ export function sharedLockProviderTestSuite(
                     type: SHARED_LOCK_STATE.EXPIRED,
                 } satisfies ISharedLockExpiredState);
             });
-            test("Should return ISharedLockReaderUnacquiredState when acquired as reader, is derserialized and slot is unacquired", async () => {
+            test("Should return ISharedLockReaderUnacquiredState when acquired as reader, is derserialized and shared-lock-slot is unacquired", async () => {
                 const key = "a";
                 const limit = 3;
 
@@ -11033,46 +11189,43 @@ export function sharedLockProviderTestSuite(
                     acquiredSlots: [sharedLock1.id],
                 } satisfies ISharedLockReaderUnacquiredState);
             });
-            test(
-                "Should return ISharedLockReaderUnacquiredState when acquired as reader, is derserialized and slot is expired",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const limit = 3;
+            test("Should return ISharedLockReaderUnacquiredState when acquired as reader, is derserialized and shared-lock-slot is expired", async () => {
+                const key = "a";
+                const limit = 3;
 
-                    const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl: ttl1,
-                        limit,
-                    });
-                    await sharedLock1.acquireReader();
+                const ttl1 = null;
+                const sharedLock1 = sharedLockProvider.create(key, {
+                    ttl: ttl1,
+                    limit,
+                });
+                await sharedLock1.acquireReader();
 
-                    const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl: ttl2,
-                        limit,
-                    });
-                    const deserializedSemaphore2 =
-                        serde.deserialize<ISharedLock>(
-                            serde.serialize(sharedLock2),
-                        );
-                    await deserializedSemaphore2.acquireReader();
-                    await delay(ttl2);
+                const ttl2 = TimeSpan.fromMilliseconds(50);
+                const sharedLock2 = sharedLockProvider.create(key, {
+                    ttl: ttl2,
+                    limit,
+                });
+                const deserializedSemaphore2 = serde.deserialize<ISharedLock>(
+                    serde.serialize(sharedLock2),
+                );
+                await deserializedSemaphore2.acquireReader();
+                await delay(ttl2);
 
-                    const state = await deserializedSemaphore2.getState();
+                const state = await deserializedSemaphore2.getState();
 
-                    expect(state).toEqual({
-                        type: SHARED_LOCK_STATE.READER_UNACQUIRED,
-                        limit,
-                        freeSlotsCount: limit - 1,
-                        acquiredSlotsCount: 1,
-                        acquiredSlots: [sharedLock1.id],
-                    } satisfies ISharedLockReaderUnacquiredState);
-                },
-            );
-            test("Should return ISemaphoreAcquiredState when acquired as reader, is derserialized and slot is unexpired", async () => {
+                expect(state).toEqual({
+                    type: SHARED_LOCK_STATE.READER_UNACQUIRED,
+                    limit,
+                    freeSlotsCount: limit - 1,
+                    acquiredSlotsCount: 1,
+                    acquiredSlots: [sharedLock1.id],
+                } satisfies ISharedLockReaderUnacquiredState);
+            });
+            test("Should return ISharedLockReaderAcquiredState when acquired as reader, is derserialized and shared-lock-slot is unexpired", async () => {
+                expect.addEqualityTesters([
+                    createIsTimeSpanEqualityTester(timeSpanEqualityBuffer),
+                ]);
+
                 const key = "a";
                 const limit = 3;
 
@@ -11104,42 +11257,35 @@ export function sharedLockProviderTestSuite(
                     remainingTime: ttl2,
                 } satisfies ISharedLockReaderAcquiredState);
             });
-            test(
-                "Should return ISemaphoreLimitReachedState when acquired as reader, is derserialized and limit is reached",
-                {
-                    retry: 10,
-                },
-                async () => {
-                    const key = "a";
-                    const limit = 1;
+            test("Should return ISharedLockReaderLimitReachedState when acquired as reader, is derserialized and limit is reached", async () => {
+                const key = "a";
+                const limit = 1;
 
-                    const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
-                        ttl: ttl1,
-                        limit,
-                    });
-                    await sharedLock1.acquireReader();
+                const ttl1 = null;
+                const sharedLock1 = sharedLockProvider.create(key, {
+                    ttl: ttl1,
+                    limit,
+                });
+                await sharedLock1.acquireReader();
 
-                    const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
-                        ttl: ttl2,
-                        limit,
-                    });
-                    const deserializedSemaphore2 =
-                        serde.deserialize<ISharedLock>(
-                            serde.serialize(sharedLock2),
-                        );
-                    await delay(ttl2);
+                const ttl2 = TimeSpan.fromMilliseconds(50);
+                const sharedLock2 = sharedLockProvider.create(key, {
+                    ttl: ttl2,
+                    limit,
+                });
+                const deserializedSemaphore2 = serde.deserialize<ISharedLock>(
+                    serde.serialize(sharedLock2),
+                );
+                await delay(ttl2);
 
-                    const state = await deserializedSemaphore2.getState();
+                const state = await deserializedSemaphore2.getState();
 
-                    expect(state).toEqual({
-                        type: SHARED_LOCK_STATE.READER_LIMIT_REACHED,
-                        limit,
-                        acquiredSlots: [sharedLock1.id],
-                    } satisfies ISharedLockReaderLimitReachedState);
-                },
-            );
+                expect(state).toEqual({
+                    type: SHARED_LOCK_STATE.READER_LIMIT_REACHED,
+                    limit,
+                    acquiredSlots: [sharedLock1.id],
+                } satisfies ISharedLockReaderLimitReachedState);
+            });
         });
     });
 }
