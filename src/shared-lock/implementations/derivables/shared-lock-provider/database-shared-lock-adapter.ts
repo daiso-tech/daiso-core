@@ -45,11 +45,11 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
             return false;
         }
 
-        const semapahoreSlotDataArray = await trx.reader.removeAllSlots(key);
-        return semapahoreSlotDataArray.some((semapahoreSlotData) => {
+        const semaphoreSlotDataArray = await trx.reader.removeAllSlots(key);
+        return semaphoreSlotDataArray.some((semaphoreSlotData) => {
             return (
-                semapahoreSlotData.expiration === null ||
-                semapahoreSlotData.expiration > new Date()
+                semaphoreSlotData.expiration === null ||
+                semaphoreSlotData.expiration > new Date()
             );
         });
     }
@@ -232,13 +232,13 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
                 return false;
             }
 
-            const semapahoreSlotData = await trx.reader.removeSlot(key, lockId);
-            if (semapahoreSlotData === null) {
+            const semaphoreSlotData = await trx.reader.removeSlot(key, lockId);
+            if (semaphoreSlotData === null) {
                 return false;
             }
             return (
-                semapahoreSlotData.expiration === null ||
-                semapahoreSlotData.expiration > new Date()
+                semaphoreSlotData.expiration === null ||
+                semaphoreSlotData.expiration > new Date()
             );
         });
     }

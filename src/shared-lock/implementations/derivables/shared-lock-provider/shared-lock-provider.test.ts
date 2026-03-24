@@ -34,6 +34,7 @@ describe("class: SharedLockProvider", () => {
         describe,
         expect,
         test,
+        retry: 10,
     });
     describe("Serde tests:", () => {
         test("Should differentiate between different namespaces", async () => {

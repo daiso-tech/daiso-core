@@ -139,7 +139,6 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
                     console.error(
                         `An error of type "${String(error)}" occured in listener with name of "${getInvokableName(listener)}" for "${String(eventName)}" event`,
                     );
-                    console.log("ERROR:", error);
                     throw error;
                 }
             }
@@ -216,7 +215,6 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
                         console.error(
                             `An error of type "${String(error)}" occured in listener with name of "${getInvokableName(listener)}" for "${String(eventName)}" event`,
                         );
-                        console.log("ERROR:", error);
                         throw error;
                     }
                 } finally {

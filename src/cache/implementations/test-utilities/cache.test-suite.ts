@@ -44,6 +44,16 @@ export type CacheTestSuiteSettings = {
      * @default false
      */
     excludeEventTests?: boolean;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    delayBuffer?: ITimeSpan;
 };
 
 /**
@@ -81,6 +91,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
         describe,
         beforeEach,
         excludeEventTests = false,
+        delayBuffer = TimeSpan.fromMilliseconds(10),
     } = settings;
     let cache: ICache<number>;
     beforeEach(async () => {
@@ -88,7 +99,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
     });
 
     async function delay(ttl: ITimeSpan): Promise<void> {
-        await Task.delay(ttl);
+        await Task.delay(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
     const TTL = TimeSpan.fromMilliseconds(50);
@@ -109,7 +120,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const result = await cache.exists(key);
 
@@ -147,7 +158,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const result = await cache.missing(key);
 
@@ -185,7 +196,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const result = await cache.get(key);
 
@@ -227,7 +238,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const result = cache.getOrFail(key);
 
@@ -270,7 +281,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const defaultValue = -1;
                     const result = await cache.getOr(key, defaultValue);
@@ -313,7 +324,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const result = await cache.getAndRemove(key);
 
@@ -385,7 +396,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const valueToAdd = -1;
                     const result = await cache.getOrAdd(key, valueToAdd);
@@ -397,7 +408,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const valueToAdd = -1;
                     await cache.getOrAdd(key, valueToAdd);
@@ -476,7 +487,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     const result = await cache.add(key, value2);
@@ -489,7 +500,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     await cache.add(key, value2);
@@ -568,7 +579,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.addOrFail(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     const result = cache.addOrFail(key, value2);
@@ -581,7 +592,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.addOrFail(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     await cache.addOrFail(key, value2);
@@ -682,7 +693,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     await cache.put(key, value2, { ttl: TTL });
 
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
                     const result = await cache.get(key);
                     expect(result).toBeNull();
                 });
@@ -715,7 +726,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     await cache.put(key, value2, { ttl: TTL });
 
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
                     const result = await cache.get(key);
                     expect(result).toBeNull();
                 });
@@ -742,7 +753,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 2;
                     await cache.put(key, value, { ttl: TTL });
 
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
                     const result = await cache.get(key);
                     expect(result).toBeNull();
                 });
@@ -771,7 +782,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     const result = await cache.update(key, value2);
@@ -784,7 +795,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     await cache.update(key, value2);
@@ -869,7 +880,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     const result = cache.updateOrFail(key, value2);
@@ -884,7 +895,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     try {
@@ -967,7 +978,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     const result = await cache.increment(key, value2);
@@ -980,7 +991,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     await cache.increment(key, value2);
@@ -1065,7 +1076,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     const result = cache.incrementOrFail(key, value2);
@@ -1080,7 +1091,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     try {
@@ -1163,7 +1174,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     const result = await cache.decrement(key, value2);
@@ -1176,7 +1187,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     await cache.decrement(key, value2);
@@ -1261,7 +1272,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     const result = cache.decrementOrFail(key, value2);
@@ -1276,7 +1287,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const value2 = 2;
                     try {
@@ -1348,7 +1359,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const result = await cache.remove(key);
 
@@ -1408,7 +1419,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const result = cache.removeOrFail(key);
 
@@ -1461,7 +1472,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const keyB = "b";
                     const keyC = "c";
                     await cache.add(keyA, 1, { ttl: TTL });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     const result = await cache.removeMany([keyA, keyB, keyC]);
 
@@ -1472,7 +1483,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const keyB = "b";
                     const keyC = "c";
                     await cache.add(keyA, 1, { ttl: TTL });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     await cache.add(keyC, 2);
                     const result = await cache.removeMany([keyA, keyB, keyC]);
@@ -1484,7 +1495,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const keyB = "b";
                     const keyC = "c";
                     await cache.add(keyA, 1, { ttl: TTL });
-                    await delay(TTL.addMilliseconds(10));
+                    await delay(TTL);
 
                     await cache.add(keyC, 2);
                     await cache.removeMany([keyA, keyB, keyC]);

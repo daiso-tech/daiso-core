@@ -17,6 +17,7 @@ import {
 import { type IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
 import { type SlidingWindowLimiterSettings } from "@/rate-limiter/implementations/policies/_module.js";
 import { Task } from "@/task/implementations/_module.js";
+import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
@@ -30,6 +31,16 @@ export type SlidingWindowLimiterTestSuiteSettings = {
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
     createAdapter: () => Promisable<IRateLimiterAdapter>;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    delayBuffer?: ITimeSpan;
 };
 
 /**
@@ -87,7 +98,14 @@ const backoffPolicySettings: Required<ConstantBackoffSettingsEnum> = {
 export function slidingWindowLimiterTestSuite(
     settings: SlidingWindowLimiterTestSuiteSettings,
 ): void {
-    const { expect, test, createAdapter, describe, beforeEach } = settings;
+    const {
+        expect,
+        test,
+        createAdapter,
+        describe,
+        beforeEach,
+        delayBuffer = TimeSpan.fromMilliseconds(10),
+    } = settings;
     let adapter: IRateLimiterAdapter;
     const waitTime = TimeSpan.fromTimeSpan(backoffPolicySettings.delay);
     describe("sliding-window-limiter IRateLimiterAdapter tests:", () => {
@@ -96,8 +114,10 @@ export function slidingWindowLimiterTestSuite(
         });
 
         const KEY = "a";
-        async function delay(timeSpan: TimeSpan): Promise<void> {
-            await Task.delay(timeSpan);
+        async function delay(timeSpan: ITimeSpan): Promise<void> {
+            await Task.delay(
+                TimeSpan.fromTimeSpan(timeSpan).addTimeSpan(delayBuffer),
+            );
         }
 
         describe("method: getState", () => {

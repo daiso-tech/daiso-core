@@ -2,6 +2,8 @@
  * @module Codec
  */
 
+import { type InferInstance } from "@/utilities/_module.js";
+
 /**
  * The error occurs when a value is unable to be encoded.
  *
@@ -65,7 +67,9 @@ export const CODEC_ERRORS = {
  * IMPORT_PATH: `"@daiso-tech/core/codec/contracts"`
  * @group Errors
  */
-export type AllCodecErrors = EncodingError | DecodingError;
+export type AllCodecErrors = InferInstance<
+    (typeof CODEC_ERRORS)[keyof typeof CODEC_ERRORS]
+>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/codec/contracts"`
@@ -73,9 +77,9 @@ export type AllCodecErrors = EncodingError | DecodingError;
  */
 export function isCodecError(value: unknown): value is AllCodecErrors {
     for (const ErrorClass of Object.values(CODEC_ERRORS)) {
-        if (!(value instanceof ErrorClass)) {
-            return false;
+        if (value instanceof ErrorClass) {
+            return true;
         }
     }
-    return true;
+    return false;
 }

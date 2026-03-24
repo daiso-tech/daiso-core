@@ -125,7 +125,7 @@ export type LockProviderSettingsBase = {
     defaultBlockingTime?: ITimeSpan;
 
     /**
-     * The default refresh time used in the {@link ILock | `ILock`} `referesh` method.
+     * The default refresh time used in the {@link ILock | `ILock`} `refresh` method.
      * ```ts
      * import { TimeSpan } from "@daiso-tech/core/time-span";
      *

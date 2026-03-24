@@ -14,6 +14,10 @@ import {
     type FileAdapterMetadata,
     type IFileStorageAdapter,
 } from "@/file-storage/contracts/_module.js";
+import {
+    isUint8ByteArrayEqualityTester,
+    resolveStream,
+} from "@/test-utilities/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
@@ -31,63 +35,6 @@ export type FileStorageAdapterTestSuiteSettings = {
      */
     enableGetMetaData?: boolean;
 };
-
-async function resolveStream(
-    stream: AsyncIterable<Uint8Array> | null,
-): Promise<Uint8Array | null> {
-    if (!stream) {
-        return null;
-    }
-
-    const chunks: Array<Uint8Array> = [];
-    let totalLength = 0;
-
-    // 1. Collect all chunks and track the total byte length
-    for await (const chunk of stream) {
-        chunks.push(chunk);
-        totalLength += chunk.byteLength;
-    }
-
-    // Handle empty streams
-    if (chunks.length === 0) {
-        return new Uint8Array(0);
-    }
-
-    // 2. Optimization: If there's only one chunk, just return it
-    if (chunks.length === 1) {
-        const chunk = chunks[0];
-        if (chunk === undefined) {
-            return null;
-        }
-        return chunk;
-    }
-
-    // 3. Allocate the final memory once
-    const result = new Uint8Array(totalLength);
-    let offset = 0;
-
-    // 4. Copy each chunk into the final array
-    for (const chunk of chunks) {
-        result.set(chunk, offset);
-        offset += chunk.byteLength;
-    }
-
-    return result;
-}
-function isUint8ByteArrayEqualityTester(
-    a: unknown,
-    b: unknown,
-): boolean | undefined {
-    if (!(a instanceof Uint8Array)) {
-        return;
-    }
-
-    if (!(b instanceof Uint8Array)) {
-        return;
-    }
-
-    return Buffer.from(a).equals(b);
-}
 
 /**
  * The `fileStorageAdapterTestSuite` function simplifies the process of testing your custom implementation of {@link IFileStorageAdapter | `IFileStorageAdapter`} with `vitest`.

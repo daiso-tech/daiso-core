@@ -14,6 +14,7 @@ import {
 import { type IKey } from "@/namespace/contracts/_module.js";
 import { type ITask } from "@/task/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type AsyncLazy,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -49,7 +50,7 @@ export type ILockStateMethods = {
     /**
      * The `ttl` of `ILock` instance.
      */
-    readonly ttl: ITimeSpan | null;
+    readonly ttl: TimeSpan | null;
 };
 
 /**

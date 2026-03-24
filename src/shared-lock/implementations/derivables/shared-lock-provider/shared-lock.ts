@@ -628,7 +628,7 @@ export class SharedLock implements ISharedLock {
                 state.reader.acquiredSlots.size >= state.reader.limit
             ) {
                 return {
-                    type: SHARED_LOCK_EVENTS.READER_LIMIT_REACHED,
+                    type: SHARED_LOCK_STATE.READER_LIMIT_REACHED,
                     limit: state.reader.limit,
                     acquiredSlots: [...state.reader.acquiredSlots.keys()],
                 } satisfies ISharedLockReaderLimitReachedState;
