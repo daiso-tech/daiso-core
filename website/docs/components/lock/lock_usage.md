@@ -18,14 +18,14 @@ The `@daiso-tech/core/lock` component provides a way for managing locks independ
 
 ## Initial configuration
 
-To begin using the `LockProvider` class, you'll need to create and configure an instance:
+To begin using the `LockFactory` class, you'll need to create and configure an instance:
 
 ```ts
 import { TimeSpan } from "@daiso-tech/core/time-span";
 import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
-import { LockProvider } from "@daiso-tech/core/lock";
+import { LockFactory } from "@daiso-tech/core/lock";
 
-const lockProvider = new LockProvider({
+const lockFactory = new LockFactory({
     // You can provide default TTL value
     // If you set it to null it means locks will not expire and most be released manually by default.
     defaultTtl: TimeSpan.fromSeconds(2),
@@ -36,7 +36,7 @@ const lockProvider = new LockProvider({
 ```
 
 :::info
-Here is a complete list of settings for the [`LockProvider`](https://daiso-tech.github.io/daiso-core/types/Lock.LockProviderSettingsBase.html) class.
+Here is a complete list of settings for the [`LockFactory`](https://daiso-tech.github.io/daiso-core/types/Lock.LockFactorySettingsBase.html) class.
 :::
 
 ## Lock basics
@@ -44,7 +44,7 @@ Here is a complete list of settings for the [`LockProvider`](https://daiso-tech.
 ### Creating a lock
 
 ```ts
-const lock = lockProvider.create("shared-resource");
+const lock = lockFactory.create("shared-resource");
 ```
 
 ### Acquiring and releasing the lock
@@ -86,7 +86,7 @@ Refer to the [`@daiso-tech/core/task`](../task.md) documentation for further inf
 You can provide a custom TTL for the lock.
 
 ```ts
-const lock = lockProvider.create("shared-resource", {
+const lock = lockFactory.create("shared-resource", {
     // Default TTL is 5min if not overrided
     // If you set it to null it means locks will not expire and most be released manually.
     ttl: TimeSpan.fromSeconds(30),
@@ -100,7 +100,7 @@ You can get the lock state by using the `getState` method, it returns [`ILockSta
 ```ts
 import { LOCK_STATE } from "@daiso-tech/core/lock/contracts";
 
-const lock = lockProvider.create("shared-resource");
+const lock = lockFactory.create("shared-resource");
 const state = await lock.getState();
 
 if (state.type === LOCK_STATE.EXPIRED) {
@@ -123,7 +123,7 @@ if (state.type === LOCK_STATE.ACQUIRED) {
 You can acquire the lock at regular intervals until either successful or a specified timeout is reached:
 
 ```ts
-const lock = lockProvider.create("resource");
+const lock = lockFactory.create("resource");
 
 const hasAcquired = await lock.acquireBlocking({
     // Time to wait 1 minute
@@ -152,7 +152,7 @@ The lock can be refreshed by the current owner before it expires. This is partic
 instead of setting an excessively long TTL initially, you can start with a shorter one and use the `refresh` method to set the TTL of the lock:
 
 ```ts
-const lock = lockProvider.create("resource", {
+const lock = lockFactory.create("resource", {
     ttl: TimeSpan.fromMinutes(1),
 });
 
@@ -178,7 +178,7 @@ Note: A lock must have an expiration (a `ttl` value) to be refreshed. You cannot
 
 ```ts
 // Create a lock with no expiration (non-refreshable)
-const lock = lockProvider.create("resource", {
+const lock = lockFactory.create("resource", {
     ttl: null,
 });
 
@@ -196,7 +196,7 @@ console.log(hasRefreshed);
 The `acquireBlockingOrFail` method is the same as `acquireBlocking` method but it throws an error when not enable to acquire the lock:
 
 ```ts
-const lock = lockProvider.create("resource");
+const lock = lockFactory.create("resource");
 
 await lock.acquireBlockingOrFail({
     // You can provide the same configuration as in acquireBlocking method
@@ -206,7 +206,7 @@ await lock.acquireBlockingOrFail({
 The `releaseOrFail` method is the same `release` method but it throws an error when not enable to release the lock:
 
 ```ts
-const lock = lockProvider.create("resource");
+const lock = lockFactory.create("resource");
 
 await lock.releaseOrFail();
 ```
@@ -214,7 +214,7 @@ await lock.releaseOrFail();
 The `forceRelease` method releases the lock regardless of the owner:
 
 ```ts
-const lock = lockProvider.create("resource");
+const lock = lockFactory.create("resource");
 
 await lock.forceRelease();
 ```
@@ -222,7 +222,7 @@ await lock.forceRelease();
 The `refreshOrFail` method is the same `refresh` method but it throws an error when not enable to refresh the lock:
 
 ```ts
-const lock = lockProvider.create("resource");
+const lock = lockFactory.create("resource");
 
 await lock.refreshOrFail();
 ```
@@ -231,7 +231,7 @@ The `runOrFail` method automatically manages lock acquisition and release around
 It calls `acquireOrFail` before invoking the function and calls `release` in a finally block, ensuring the lock is always freed, even if an error occurs during execution.
 
 ```ts
-const lock = lockProvider.create("resource");
+const lock = lockFactory.create("resource");
 
 await lock.runOrFail(async () => {
     await doWork();
@@ -246,7 +246,7 @@ The `runBlockingOrFail` method automatically manages lock acquisition and releas
 It calls `acquireBlockingOrFail` before invoking the function and calls `release` in a finally block, ensuring the lock is always freed, even if an error occurs during execution.
 
 ```ts
-const lock = lockProvider.create("resource");
+const lock = lockFactory.create("resource");
 
 await lock.runBlockingOrFail(
     async () => {
@@ -271,7 +271,7 @@ You can provide [`Task<TValue>`](../task.md), synchronous and asynchronous [`Inv
 The `Lock` class exposes instance variables such as:
 
 ```ts
-const lock = lockProvider.create("resource");
+const lock = lockFactory.create("resource");
 
 // Will return the key of the lock which is "resource"
 console.log(lock.key.toString());
@@ -292,7 +292,7 @@ The `key` field is an object that implements [`IKey`](../namespace.md) contract.
 By default the lock id is autogenerated but it can also manually defined.
 
 ```ts
-const lock = lockProvider.create("lock", {
+const lock = lockFactory.create("lock", {
     lockId: "my-lock-id",
 });
 
@@ -324,22 +324,22 @@ For further information about namespacing refer to [`@daiso-tech/core/namespace`
 ```ts
 import { Namespace } from "@daiso-tech/core/namespace";
 import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
-import { LockProvider } from "@daiso-tech/core/lock";
+import { LockFactory } from "@daiso-tech/core/lock";
 import Redis from "ioredis";
 
 const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
 
-const lockProviderA = new LockProvider({
+const lockFactoryA = new LockFactory({
     namespace: new Namespace("@lock-a"),
     adapter: new RedisLockAdapter(database),
 });
-const lockProviderB = new LockProvider({
+const lockFactoryB = new LockFactory({
     namespace: new Namespace("@lock-b"),
     adapter: new RedisLockAdapter(database),
 });
 
-const lockA = await lockProviderA.create("key", { ttl: null });
-const lockB = await lockProviderB.create("key", { ttl: null });
+const lockA = lockFactoryA.create("key", { ttl: null });
+const lockB = lockFactoryB.create("key", { ttl: null });
 
 const hasAquiredA = await lockA.acquire();
 // Will log true
@@ -370,7 +370,7 @@ Retrying acquiring lock with `acquireOrFail` method:
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
 
-const lock = lockProvider.create("lock");
+const lock = lockFactory.create("lock");
 
 try {
     await lock.acquireOrFail().pipe(
@@ -390,7 +390,7 @@ Retrying acquiring lock with `acquire` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 
-const lock = lockProvider.create("lock");
+const lock = lockFactory.create("lock");
 
 const hasAquired = await lock.acquire().pipe(
     retry({
@@ -415,7 +415,7 @@ Retrying acquiring lock with `runOrFail` method:
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
 
-const lock = lockProvider.create("lock");
+const lock = lockFactory.create("lock");
 
 await lock
     .runOrFail(async () => {
@@ -435,13 +435,13 @@ Locks can be serialized, allowing them to be transmitted over the network to ano
 
 This means you can, for example, acquire the lock on the main server, transfer it to a queue worker server, and release it there.
 
-In order to serialize or deserialize a lock you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `LockProvider`. 
+In order to serialize or deserialize a lock you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `LockFactory`. 
 
 Manually serializing and deserializing the lock:
 
 ```ts
 import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
-import { LockProvider } from "@daiso-tech/core/lock";
+import { LockFactory } from "@daiso-tech/core/lock";
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
 
@@ -449,19 +449,19 @@ const serde = new Serde(new SuperJsonSerdeAdapter());
 
 const redisClient = new Redis("YOUR_REDIS_CONNECTION");
 
-const lockProvider = new LockProvider({
+const lockFactory = new LockFactory({
     // You can laso pass in an array of Serde class instances
     serde,
     adapter: new RedisLockAdapter(redisClient),
 });
 
-const lock = lockProvider.create("resource");
+const lock = lockFactory.create("resource");
 const serializedLock = serde.serialize(lock);
 const deserializedLock = serde.deserialize(lock);
 ```
 
 :::danger
-When serializing or deserializing a lock, you must use the same `Serde` instances that were provided to the `LockProvider`. This is required because the `LockProvider` injects custom serialization logic for `ILock` instance into `Serde` instances.
+When serializing or deserializing a lock, you must use the same `Serde` instances that were provided to the `LockFactory`. This is required because the `LockFactory` injects custom serialization logic for `ILock` instance into `Serde` instances.
 :::
 
 :::info
@@ -473,7 +473,7 @@ As long you pass the same `Serde` instances with all other components you dont n
 ```ts
 import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
 import type { ILock } from "@daiso-tech/core/lock/contracts";
-import { LockProvider } from "@daiso-tech/core/lock";
+import { LockFactory } from "@daiso-tech/core/lock";
 import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
 import { EventBus } from "@daiso-tech/core/event-bus";
 import { Serde } from "@daiso-tech/core/serde";
@@ -494,12 +494,12 @@ const eventBus = new EventBus<EventMap>({
     }),
 });
 
-const lockProvider = new LockProvider({
+const lockFactory = new LockFactory({
     serde,
     adapter: new RedisLockAdapter(redis),
     eventBus,
 });
-const lock = lockProvider.create("resource");
+const lock = lockFactory.create("resource");
 
 // We are sending the lock over the network to other servers.
 await eventBus.dispatch("sending-lock-over-network", {
@@ -520,22 +520,22 @@ Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to lear
 
 ```ts
 import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
-import { LockProvider, LOCK_EVENTS } from "@daiso-tech/core/lock";
+import { LockFactory, LOCK_EVENTS } from "@daiso-tech/core/lock";
 import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 
-const lockProvider = new LockProvider({
+const lockFactory = new LockFactory({
     adapter: new MemoryLockAdapter(),
     eventBus: new EventBus({
         adapter: new MemoryEventBusAdapter(),
     }),
 });
 
-await lockProvider.events.addListener(LOCK_EVENTS.ACQUIRED, () => {
+await lockFactory.events.addListener(LOCK_EVENTS.ACQUIRED, () => {
     console.log("Lock acquired");
 });
 
-await lockProvider.create("a").acquire();
+await lockFactory.create("a").acquire();
 ```
 
 :::warning
@@ -559,7 +559,7 @@ const redisPubSubEventBusAdapter = new RedisPubSubEventBusAdapter({
 });
 
 const memoryLockAdapter = new MemoryLockAdapter();
-const memoryLockProvider = new LockProvider({
+const memoryLockFactory = new LockFactory({
     adapter: memoryLockAdapter,
     eventBus: new EventBus({
         // We assign distinct namespaces to MemoryLockAdapter and RedisLockAdapter to isolate their events.
@@ -572,7 +572,7 @@ const redisLockAdapter = new RedisLockAdapter({
     serde,
     database: new Redis("YOUR_REDIS_CONNECTION_STRING"),
 });
-const redisLockProvider = new LockProvider({
+const redisLockFactory = new LockFactory({
     adapter: redisLockAdapter,
     eventBus: new EventBus({
         // We assign distinct namespaces to MemoryLockAdapter and RedisLockAdapter to isolate their events.
@@ -590,7 +590,7 @@ The library includes 3 additional contracts:
 
 - [`ILock`](https://daiso-tech.github.io/daiso-core/types/Lock.ILock.html) - Allows only for manipulating of the lock.
 
-- [`ILockProviderBase`](https://daiso-tech.github.io/daiso-core/types/Lock.ILockProviderBase.html) - Allows only for creation of locks.
+- [`ILockFactoryBase`](https://daiso-tech.github.io/daiso-core/types/Lock.ILockFactoryBase.html) - Allows only for creation of locks.
 
 - [`ILockListenable`](https://daiso-tech.github.io/daiso-core/types/Lock.ILockListenable.html) - Allows only to listening to lock events.
 
@@ -599,11 +599,11 @@ This seperation makes it easy to visually distinguish the 3 contracts, making it
 ```ts
 import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { LockProvider } from "@daiso-tech/core/lock";
+import { LockFactory } from "@daiso-tech/core/lock";
 import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
 import {
     type ILock,
-    type ILockProvider,
+    type ILockFactoryBase,
     type ILockListenable,
     LOCK_EVENTS,
 } from "@daiso-tech/core/lock/contracts";
@@ -614,18 +614,18 @@ async function lockFunc(lock: ILock): Promise<void> {
     });
 }
 
-async function lockProviderFunc(lockProvider: ILockProvider): Promise<void> {
+async function lockFactoryFunc(lockFactory: ILockFactoryBase): Promise<void> {
     // You cannot access the listener methods
     // You will get typescript error if you try
 
-    const lock = lockProvider.create("resource");
+    const lock = lockFactory.create("resource");
     await lockFunc(lock);
 }
 
 async function lockListenableFunc(
     lockListenable: ILockListenable,
 ): Promise<void> {
-    // You cannot access the lockProvider methods
+    // You cannot access the lockFactory methods
     // You will get typescript error if you try
 
     await lockListenable.addListener(LOCK_EVENTS.ACQUIRED, (event) => {
@@ -636,14 +636,14 @@ async function lockListenableFunc(
     });
 }
 
-const lockProvider = new LockProvider({
+const lockFactory = new LockFactory({
     adapter: new MemoryLockAdapter(),
     eventBus: new EventBus({
         adapter: new MemoryEventBusAdapter(),
     })
 })
-await lockListenableFunc(lockProvider.events);
-await lockProviderFunc(lockProvider);
+await lockListenableFunc(lockFactory.events);
+await lockFactoryFunc(lockFactory);
 ```
 
 ## Further information

@@ -9,8 +9,8 @@ import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_modul
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import {
     type ILock,
-    type LockProviderCreateSettings,
-    type ILockProvider,
+    type LockFactoryCreateSettings,
+    type ILockFactory,
     type ILockAdapter,
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -19,9 +19,9 @@ import {
     type LockEventMap,
     type ILockListenable,
 } from "@/lock/contracts/_module.js";
-import { LockSerdeTransformer } from "@/lock/implementations/derivables/lock-provider/lock-serde-transformer.js";
-import { Lock } from "@/lock/implementations/derivables/lock-provider/lock.js";
-import { resolveLockAdapter } from "@/lock/implementations/derivables/lock-provider/resolve-lock-adapter.js";
+import { LockSerdeTransformer } from "@/lock/implementations/derivables/lock-factory/lock-serde-transformer.js";
+import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
+import { resolveLockAdapter } from "@/lock/implementations/derivables/lock-factory/resolve-lock-adapter.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
@@ -41,7 +41,7 @@ import {
  * IMPORT_PATH: `"@daiso-tech/core/lock"`
  * @group Derivables
  */
-export type LockProviderSettingsBase = {
+export type LockFactorySettingsBase = {
     /**
      * @default
      * ```ts
@@ -139,21 +139,21 @@ export type LockProviderSettingsBase = {
  * IMPORT_PATH: `"@daiso-tech/core/lock"`
  * @group Derivables
  */
-export type LockProviderSettings = LockProviderSettingsBase & {
+export type LockFactorySettings = LockFactorySettingsBase & {
     adapter: LockAdapterVariants;
 };
 
 /**
- * `LockProvider` class can be derived from any {@link ILockAdapter | `ILockAdapter`} or {@link IDatabaseLockAdapter | `IDatabaseLockAdapter`}.
+ * `LockFactory` class can be derived from any {@link ILockAdapter | `ILockAdapter`} or {@link IDatabaseLockAdapter | `IDatabaseLockAdapter`}.
  *
- * Note the {@link ILock | `ILock`} instances created by the `LockProvider` class are serializable and deserializable,
+ * Note the {@link ILock | `ILock`} instances created by the `LockFactory` class are serializable and deserializable,
  * allowing them to be seamlessly transferred across different servers, processes, and databases.
  * This can be done directly using {@link ISerderRegister | `ISerderRegister`} or indirectly through components that rely on {@link ISerderRegister | `ISerderRegister`} internally.
  *
  * IMPORT_PATH: `"@daiso-tech/core/lock"`
  * @group Derivables
  */
-export class LockProvider implements ILockProvider {
+export class LockFactory implements ILockFactory {
     private readonly eventBus: IEventBus<LockEventMap>;
     private readonly originalAdapter: LockAdapterVariants;
     private readonly adapter: ILockAdapter;
@@ -170,7 +170,7 @@ export class LockProvider implements ILockProvider {
      * @example
      * ```ts
      * import { KyselyLockAdapter } from "@daiso-tech/core/lock/kysely-lock-adapter";
-     * import { LockProvider } from "@daiso-tech/core/lock";
+     * import { LockFactory } from "@daiso-tech/core/lock";
      * import { Serde } from "@daiso-tech/core/serde";
      * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
      * import Sqlite from "better-sqlite3";
@@ -187,13 +187,13 @@ export class LockProvider implements ILockProvider {
      * await lockAdapter.init();
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter())
-     * const lockProvider = new LockProvider({
+     * const lockFactory = new LockFactory({
      *   serde,
      *   adapter: lockAdapter,
      * });
      * ```
      */
-    constructor(settings: LockProviderSettings) {
+    constructor(settings: LockFactorySettings) {
         const {
             defaultTtl = TimeSpan.fromMinutes(5),
             defaultBlockingInterval = TimeSpan.fromSeconds(1),
@@ -250,22 +250,22 @@ export class LockProvider implements ILockProvider {
     /**
      * @example
      * ```ts
-     * import { LockProvider } from "@daiso-tech/core/lock";
+     * import { LockFactory } from "@daiso-tech/core/lock";
      * import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
      * import { Namespace } from "@daiso-tech/core/namespace";
      * import { Serde } from "@daiso-tech/core/serde";
      * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
      *
-     * const lockProvider = new LockProvider({
+     * const lockFactory = new LockFactory({
      *   adapter: new MemoryLockAdapter(),
      *   namespace: new Namespace("lock"),
      *   serde: new Serde(new SuperJsonSerdeAdapter())
      * });
      *
-     * const lock = lockProvider.create("a");
+     * const lock = lockFactory.create("a");
      * ```
      */
-    create(key: string, settings: LockProviderCreateSettings = {}): ILock {
+    create(key: string, settings: LockFactoryCreateSettings = {}): ILock {
         const {
             ttl = this.defaultTtl,
             lockId = callInvokable(this.creatLockId),

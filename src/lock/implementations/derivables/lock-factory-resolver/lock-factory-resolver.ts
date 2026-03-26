@@ -3,14 +3,14 @@
  */
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import {
-    type ILockProviderFactory,
-    type ILockProvider,
+    type ILockFactoryResolver,
+    type ILockFactory,
     type LockAdapterVariants,
 } from "@/lock/contracts/_module.js";
 import {
-    LockProvider,
-    type LockProviderSettingsBase,
-} from "@/lock/implementations/derivables/lock-provider/_module.js";
+    LockFactory,
+    type LockFactorySettingsBase,
+} from "@/lock/implementations/derivables/lock-factory/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
@@ -31,26 +31,26 @@ export type LockAdapters<TAdapters extends string> = Partial<
  * IMPORT_PATH: `"@daiso-tech/core/lock"`
  * @group Derivables
  */
-export type LockProviderFactorySettings<TAdapters extends string> =
-    LockProviderSettingsBase & {
+export type LockFactoryResolverSettings<TAdapters extends string> =
+    LockFactorySettingsBase & {
         adapters: LockAdapters<TAdapters>;
 
         defaultAdapter?: NoInfer<TAdapters>;
     };
 
 /**
- * The `LockProviderFactory` class is immutable.
+ * The `LockFactoryResolver` class is immutable.
  *
  * IMPORT_PATH: `"@daiso-tech/core/lock"`
  * @group Derivables
  */
-export class LockProviderFactory<TAdapters extends string>
-    implements ILockProviderFactory<TAdapters>
+export class LockFactoryResolver<TAdapters extends string>
+    implements ILockFactoryResolver<TAdapters>
 {
     /**
      * @example
      * ```ts
-     * import { LockProviderFactory } from "@daiso-tech/core/lock";
+     * import { LockFactoryResolver } from "@daiso-tech/core/lock";
      * import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
      * import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
      * import { Serde } from "@daiso-tech/core/serde";
@@ -58,7 +58,7 @@ export class LockProviderFactory<TAdapters extends string>
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const lockProviderFactory = new LockProviderFactory({
+     * const lockFactoryResolver = new LockFactoryResolver({
      *   serde,
      *   adapters: {
      *     memory: new MemoryLockAdapter(),
@@ -69,11 +69,11 @@ export class LockProviderFactory<TAdapters extends string>
      * ```
      */
     constructor(
-        private readonly settings: LockProviderFactorySettings<TAdapters>,
+        private readonly settings: LockFactoryResolverSettings<TAdapters>,
     ) {}
 
-    setNamespace(namespace: INamespace): LockProviderFactory<TAdapters> {
-        return new LockProviderFactory({
+    setNamespace(namespace: INamespace): LockFactoryResolver<TAdapters> {
+        return new LockFactoryResolver({
             ...this.settings,
             namespace,
         });
@@ -81,22 +81,22 @@ export class LockProviderFactory<TAdapters extends string>
 
     setCreateLockId(
         createId: Invokable<[], string>,
-    ): LockProviderFactory<TAdapters> {
-        return new LockProviderFactory({
+    ): LockFactoryResolver<TAdapters> {
+        return new LockFactoryResolver({
             ...this.settings,
             createLockId: createId,
         });
     }
 
-    setEventBus(eventBus: IEventBus): LockProviderFactory<TAdapters> {
-        return new LockProviderFactory({
+    setEventBus(eventBus: IEventBus): LockFactoryResolver<TAdapters> {
+        return new LockFactoryResolver({
             ...this.settings,
             eventBus,
         });
     }
 
-    setDefaultTtl(ttl: ITimeSpan): LockProviderFactory<TAdapters> {
-        return new LockProviderFactory({
+    setDefaultTtl(ttl: ITimeSpan | null): LockFactoryResolver<TAdapters> {
+        return new LockFactoryResolver({
             ...this.settings,
             defaultTtl: ttl,
         });
@@ -104,22 +104,22 @@ export class LockProviderFactory<TAdapters extends string>
 
     setDefaultBlockingInterval(
         interval: ITimeSpan,
-    ): LockProviderFactory<TAdapters> {
-        return new LockProviderFactory({
+    ): LockFactoryResolver<TAdapters> {
+        return new LockFactoryResolver({
             ...this.settings,
             defaultBlockingInterval: interval,
         });
     }
 
-    setDefaultBlockingTime(time: ITimeSpan): LockProviderFactory<TAdapters> {
-        return new LockProviderFactory({
+    setDefaultBlockingTime(time: ITimeSpan): LockFactoryResolver<TAdapters> {
+        return new LockFactoryResolver({
             ...this.settings,
             defaultBlockingTime: time,
         });
     }
 
-    setDefaultRefreshTime(time: ITimeSpan): LockProviderFactory<TAdapters> {
-        return new LockProviderFactory({
+    setDefaultRefreshTime(time: ITimeSpan): LockFactoryResolver<TAdapters> {
+        return new LockFactoryResolver({
             ...this.settings,
             defaultRefreshTime: time,
         });
@@ -128,7 +128,7 @@ export class LockProviderFactory<TAdapters extends string>
     /**
      * @example
      * ```ts
-     * import { LockProviderFactory } from "@daiso-tech/core/lock";
+     * import { LockFactoryResolver } from "@daiso-tech/core/lock";
      * import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
      * import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
      * import { Serde } from "@daiso-tech/core/serde";
@@ -137,7 +137,7 @@ export class LockProviderFactory<TAdapters extends string>
      * import Redis from "ioredis";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const lockProviderFactory = new LockProviderFactory({
+     * const lockFactoryResolver = new LockFactoryResolver({
      *   serde,
      *   adapters: {
      *     memory: new MemoryLockAdapter(),
@@ -147,13 +147,13 @@ export class LockProviderFactory<TAdapters extends string>
      * });
      *
      * // Will acquire key using the default adapter which is MemoryLockAdapter
-     * await lockProviderFactory
+     * await lockFactoryResolver
      *   .use()
      *   .create("a")
      *   .acquire();
      *
      * // Will acquire key using the redis adapter
-     * await lockProviderFactory
+     * await lockFactoryResolver
      *   .use("redis")
      *   .create("a")
      *   .acquire();
@@ -161,15 +161,15 @@ export class LockProviderFactory<TAdapters extends string>
      */
     use(
         adapterName: TAdapters | undefined = this.settings.defaultAdapter,
-    ): ILockProvider {
+    ): ILockFactory {
         if (adapterName === undefined) {
-            throw new DefaultAdapterNotDefinedError(LockProviderFactory.name);
+            throw new DefaultAdapterNotDefinedError(LockFactoryResolver.name);
         }
         const adapter = this.settings.adapters[adapterName];
         if (adapter === undefined) {
             throw new UnregisteredAdapterError(adapterName);
         }
-        return new LockProvider({
+        return new LockFactory({
             ...this.settings,
             adapter,
             serdeTransformerName: adapterName,

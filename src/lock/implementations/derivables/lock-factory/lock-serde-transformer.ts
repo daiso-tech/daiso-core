@@ -11,7 +11,7 @@ import {
 import {
     Lock,
     type ISerializedLock,
-} from "@/lock/implementations/derivables/lock-provider/lock.js";
+} from "@/lock/implementations/derivables/lock-factory/lock.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";

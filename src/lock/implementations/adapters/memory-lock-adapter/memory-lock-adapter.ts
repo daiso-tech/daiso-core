@@ -4,7 +4,7 @@
 
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ILockProvider,
+    type ILockFactory,
     type ILockAdapter,
     type ILockAdapterState,
 } from "@/lock/contracts/_module.js";
@@ -29,7 +29,7 @@ export type MemoryLockData =
 
 /**
  * Note the `MemoryLockAdapter` is limited to single process usage and cannot be shared across multiple servers or different processes.
- * This adapter is meant for easily facking {@link ILockProvider | `ILockProvider`} for testing.
+ * This adapter is meant for easily faking{@link ILockFactory | `ILockFactory`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/lock/memory-lock-adapter"`
  * @group Adapters

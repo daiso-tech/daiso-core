@@ -9,17 +9,17 @@ import {
     KyselyLockAdapter,
     MemoryLockAdapter,
 } from "@/lock/implementations/adapters/_module.js";
-import { LockProvider } from "@/lock/implementations/derivables/_module.js";
-import { lockProviderTestSuite } from "@/lock/implementations/test-utilities/_module.js";
+import { LockFactory } from "@/lock/implementations/derivables/_module.js";
+import { lockFactoryTestSuite } from "@/lock/implementations/test-utilities/_module.js";
 import { Namespace } from "@/namespace/implementations/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 
-describe("class: LockProvider", () => {
-    lockProviderTestSuite({
-        createLockProvider: () => {
+describe("class: LockFactory", () => {
+    lockFactoryTestSuite({
+        createLockFactory: () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
-            const lockProvider = new LockProvider({
+            const lockFactory = new LockFactory({
                 serde,
                 eventBus: new EventBus({
                     namespace: new Namespace("event-bus"),
@@ -29,7 +29,7 @@ describe("class: LockProvider", () => {
                 namespace: new Namespace("lock"),
             });
             return {
-                lockProvider,
+                lockFactory,
                 serde,
             };
         },
@@ -45,7 +45,7 @@ describe("class: LockProvider", () => {
             const key = "a";
             const ttl = null;
 
-            const lockProvider1 = new LockProvider({
+            const lockFactory1 = new LockFactory({
                 adapter: new MemoryLockAdapter(),
                 namespace: new Namespace("@lock-1"),
                 eventBus: new EventBus({
@@ -54,10 +54,10 @@ describe("class: LockProvider", () => {
                 }),
                 serde,
             });
-            const lock1 = lockProvider1.create(key, { ttl });
+            const lock1 = lockFactory1.create(key, { ttl });
             await lock1.acquire();
 
-            const lockProvider2 = new LockProvider({
+            const lockFactory2 = new LockFactory({
                 adapter: new MemoryLockAdapter(),
                 namespace: new Namespace("@lock-2"),
                 eventBus: new EventBus({
@@ -67,7 +67,7 @@ describe("class: LockProvider", () => {
                 serde,
             });
 
-            const lock2 = lockProvider2.create(key, { ttl });
+            const lock2 = lockFactory2.create(key, { ttl });
             const deserializedLock2 = serde.deserialize<ILock>(
                 serde.serialize(lock2),
             );
@@ -82,7 +82,7 @@ describe("class: LockProvider", () => {
             const ttl = null;
 
             const adapter1 = new MemoryLockAdapter();
-            const lockProvider1 = new LockProvider({
+            const lockFactory1 = new LockFactory({
                 adapter: adapter1,
                 namespace: lockNamespace,
                 eventBus: new EventBus({
@@ -91,7 +91,7 @@ describe("class: LockProvider", () => {
                 }),
                 serde,
             });
-            const lock1 = lockProvider1.create(key, { ttl });
+            const lock1 = lockFactory1.create(key, { ttl });
             await lock1.acquire();
 
             const adapter2 = new KyselyLockAdapter({
@@ -103,7 +103,7 @@ describe("class: LockProvider", () => {
                 shouldRemoveExpiredKeys: false,
             });
             await adapter2.init();
-            const lockProvider2 = new LockProvider({
+            const lockFactory2 = new LockFactory({
                 adapter: adapter2,
                 namespace: lockNamespace,
                 eventBus: new EventBus({
@@ -113,7 +113,7 @@ describe("class: LockProvider", () => {
                 serde,
             });
 
-            const lock2 = lockProvider2.create(key, { ttl });
+            const lock2 = lockFactory2.create(key, { ttl });
             const deserializeLock2 = serde.deserialize<ILock>(
                 serde.serialize(lock2),
             );
@@ -128,7 +128,7 @@ describe("class: LockProvider", () => {
             const key = "a";
             const ttl = null;
 
-            const lockProvider1 = new LockProvider({
+            const lockFactory1 = new LockFactory({
                 adapter: new MemoryLockAdapter(),
                 namespace: lockNamespace,
                 eventBus: new EventBus({
@@ -138,10 +138,10 @@ describe("class: LockProvider", () => {
                 serdeTransformerName: "adapter1",
                 serde,
             });
-            const lock1 = lockProvider1.create(key, { ttl });
+            const lock1 = lockFactory1.create(key, { ttl });
             await lock1.acquire();
 
-            const lockProvider2 = new LockProvider({
+            const lockFactory2 = new LockFactory({
                 adapter: new MemoryLockAdapter(),
                 namespace: lockNamespace,
                 eventBus: new EventBus({
@@ -152,7 +152,7 @@ describe("class: LockProvider", () => {
                 serde,
             });
 
-            const lock2 = lockProvider2.create(key, { ttl });
+            const lock2 = lockFactory2.create(key, { ttl });
             const deserializeLock2 = serde.deserialize<ILock>(
                 serde.serialize(lock2),
             );

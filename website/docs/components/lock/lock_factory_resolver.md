@@ -1,30 +1,30 @@
 ---
 sidebar_position: 2
-sidebar_label: Factory classes
-pagination_label: Lock factory classes
+sidebar_label: Resolver classes
+pagination_label: Lock resolver classes
 tags:
  - Lock
- - Factories
+ - Resolver
 keywords:
  - Lock
- - Factories
+ - Resolver
 ---
 
-# LockProviderFactory
+# LockFactoryResolver
 
-The `LockProviderFactory` class provides a flexible way to configure and switch between different lock adapters at runtime.
+The `LockFactoryResolver` class provides a flexible way to configure and switch between different lock adapters at runtime.
 
 ## Initial configuration
 
-To begin using the `ILockProviderFactory`, You will need to register all required adapters during initialization.
+To begin using the `ILockFactoryResolver`, you will need to register all required adapters during initialization.
 
 ```ts
-import { LockProviderFactory } from "@daiso-tech/core/lock";
+import { LockFactoryResolver } from "@daiso-tech/core/lock";
 import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
 import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
 import Redis from "ioredis";
 
-const lockProvider = new LockProviderFactory({
+const lockFactoryResolver = new LockFactoryResolver({
     adapters: {
         memory: new MemoryLockAdapter(),
         redis: new RedisLockAdapter(new Redis("YOUR_REDIS_CONNECTION")),
@@ -39,7 +39,7 @@ const lockProvider = new LockProviderFactory({
 ### 1. Using the default adapter
 
 ```ts
-await lockProvider
+await lockFactoryResolver
     .use()
     .create("shared-resource")
     .runOrFail(async () => {
@@ -54,7 +54,7 @@ Note that if you dont set a default adapter, an error will be thrown.
 ### 2. Specifying an adapter explicitly
 
 ```ts
-await lockProvider
+await lockFactoryResolver
     .use("redis")
     .create("shared-resource")
     .runOrFail(async () => {
@@ -69,7 +69,9 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 ### 3. Overriding default settings
 
 ```ts
-await lockProvider
+import { Namespace } from "@daiso-tech/core/namespace"
+
+await lockFactoryResolver
     .setNamespace(new Namespace("@my-namespace"))
     .use("redis")
     .create("shared-resource")
@@ -79,7 +81,7 @@ await lockProvider
 ```
 
 :::info
-Note that the `LockProviderFactory` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
+Note that the `LockFactoryResolver` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
 :::
 
 ## Further information

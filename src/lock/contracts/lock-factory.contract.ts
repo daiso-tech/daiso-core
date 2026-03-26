@@ -19,7 +19,7 @@ export type ILockListenable = IEventListenable<LockEventMap>;
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
-export type LockProviderCreateSettings = {
+export type LockFactoryCreateSettings = {
     /**
      * You can also provide a `settings.ttl` value using. If not specified it defaults to null, meaning no TTL is applied.
      */
@@ -35,20 +35,20 @@ export type LockProviderCreateSettings = {
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
-export type ILockProviderBase = {
+export type ILockFactoryBase = {
     /**
      * The `create` method is used to create an instance of {@link ILock | `ILock`}.
      */
-    create(key: string, settings?: LockProviderCreateSettings): ILock;
+    create(key: string, settings?: LockFactoryCreateSettings): ILock;
 };
 
 /**
- * The `ILockProvider` contract defines a way for managing locks independent of the underlying technology.
- * It commes with more convient methods compared to `ILockAdapter`.
+ * The `ILockFactory` contract defines a way for managing locks independent of the underlying technology.
+ * It comes with more convenient methods compared to `ILockAdapter`.
  *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
-export type ILockProvider = ILockProviderBase & {
+export type ILockFactory = ILockFactoryBase & {
     readonly events: ILockListenable;
 };

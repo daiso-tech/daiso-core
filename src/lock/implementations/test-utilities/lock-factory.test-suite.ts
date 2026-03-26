@@ -23,7 +23,7 @@ import {
     type ILockAcquiredState,
     type ILockExpiredState,
     type ILockStateMethods,
-    type ILockProvider,
+    type ILockFactory,
     type ILockUnavailableState,
     type RefreshedLockEvent,
     type ReleasedLockEvent,
@@ -43,13 +43,13 @@ import { type Promisable } from "@/utilities/_module.js";
  * IMPORT_PATH: `"@daiso-tech/core/lock/test-utilities"`
  * @group Utilities
  */
-export type LockProviderTestSuiteSettings = {
+export type LockFactoryTestSuiteSettings = {
     expect: ExpectStatic;
     test: TestAPI;
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
-    createLockProvider: () => Promisable<{
-        lockProvider: ILockProvider;
+    createLockFactory: () => Promisable<{
+        lockFactory: ILockFactory;
         serde: ISerde;
     }>;
 
@@ -91,7 +91,7 @@ export type LockProviderTestSuiteSettings = {
 };
 
 /**
- * The `lockProviderTestSuite` function simplifies the process of testing your custom implementation of {@link ILock | `ILock`} with `vitest`.
+ * The `lockFactoryTestSuite` function simplifies the process of testing your custom implementation of {@link ILock | `ILock`} with `vitest`.
  *
  * IMPORT_PATH: `"@daiso-tech/core/lock/test-utilities"`
  * @group Utilities
@@ -99,23 +99,23 @@ export type LockProviderTestSuiteSettings = {
  * ```ts
  * import { describe, expect, test, beforeEach } from "vitest";
  * import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
- * import { LockProvider } from "@daiso-tech/core/lock";
+ * import { LockFactory } from "@daiso-tech/core/lock";
  * import { EventBus } from "@daiso-tech/core/event-bus";
  * import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
- * import { lockProviderTestSuite } from "@daiso-tech/core/lock/test-utilities";
+ * import { lockFactoryTestSuite } from "@daiso-tech/core/lock/test-utilities";
  * import { Serde } from "@daiso-tech/core/serde";
  * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
  * import type { ILockData } from "@daiso-tech/core/lock/contracts";
  *
- * describe("class: LockProvider", () => {
- *     lockProviderTestSuite({
- *         createLockProvider: () => {
+ * describe("class: LockFactory", () => {
+ *     lockFactoryTestSuite({
+ *         createLockFactory: () => {
  *             const serde = new Serde(new SuperJsonSerdeAdapter());
- *             const lockProvider = new LockProvider({
+ *             const lockFactory = new LockFactory({
  *                 serde,
  *                 adapter: new MemoryLockAdapter(),
  *             });
- *             return { lockProvider, serde };
+ *             return { lockFactory, serde };
  *         },
  *         beforeEach,
  *         describe,
@@ -126,13 +126,13 @@ export type LockProviderTestSuiteSettings = {
  * });
  * ```
  */
-export function lockProviderTestSuite(
-    settings: LockProviderTestSuiteSettings,
+export function lockFactoryTestSuite(
+    settings: LockFactoryTestSuiteSettings,
 ): void {
     const {
         expect,
         test,
-        createLockProvider,
+        createLockFactory,
         describe,
         beforeEach,
         excludeEventTests = false,
@@ -142,7 +142,7 @@ export function lockProviderTestSuite(
         timeSpanEqualityBuffer = TimeSpan.fromMilliseconds(10),
     } = settings;
 
-    let lockProvider: ILockProvider;
+    let lockFactory: ILockFactory;
     let serde: ISerde;
 
     async function delay(time: ITimeSpan): Promise<void> {
@@ -150,11 +150,11 @@ export function lockProviderTestSuite(
     }
 
     const RETURN_VALUE = "RETURN_VALUE";
-    describe("ILockProvider tests:", () => {
+    describe("ILockFactory tests:", () => {
         beforeEach(async () => {
-            const { lockProvider: lockProvider_, serde: serde_ } =
-                await createLockProvider();
-            lockProvider = lockProvider_;
+            const { lockFactory: lockFactory_, serde: serde_ } =
+                await createLockFactory();
+            lockFactory = lockFactory_;
             serde = serde_;
         });
         describe("Api tests:", () => {
@@ -162,7 +162,7 @@ export function lockProviderTestSuite(
                 test("Should call acquireOrFail method", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -177,7 +177,7 @@ export function lockProviderTestSuite(
                 test("Should call acquireOrFail before release method", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -193,7 +193,7 @@ export function lockProviderTestSuite(
                 test("Should call release method", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -208,7 +208,7 @@ export function lockProviderTestSuite(
                 test("Should call release after acquireOrFail method", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -224,7 +224,7 @@ export function lockProviderTestSuite(
                 test("Should call release when an error is thrown", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -243,7 +243,7 @@ export function lockProviderTestSuite(
                 test("Should propagate thrown error", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -262,7 +262,7 @@ export function lockProviderTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await lockProvider
+                    await lockFactory
                         .create(key, {
                             ttl,
                         })
@@ -274,15 +274,13 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     await delay(ttl);
 
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await lockProvider
-                        .create(key, { ttl })
-                        .runOrFail(handlerFn);
+                    await lockFactory.create(key, { ttl }).runOrFail(handlerFn);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                 });
@@ -290,7 +288,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
@@ -307,7 +305,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -326,12 +324,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await lockProvider
+                        await lockFactory
                             .create(key, { ttl })
                             .runOrFail(handlerFn);
                     } catch {
@@ -344,12 +342,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await lockProvider
+                        await lockFactory
                             .create(key, { ttl })
                             .runOrFail(handlerFn);
                     } catch {
@@ -362,7 +360,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const result = await lockProvider
+                    const result = await lockFactory
                         .create(key, {
                             ttl,
                         })
@@ -376,10 +374,10 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     await delay(ttl);
 
-                    const result = await lockProvider
+                    const result = await lockFactory
                         .create(key, { ttl })
                         .runOrFail(() => {
                             return Promise.resolve(RETURN_VALUE);
@@ -391,7 +389,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     const result = await lock.runOrFail(() => {
                         return Promise.resolve(RETURN_VALUE);
@@ -403,7 +401,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -417,8 +415,8 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const result = lockProvider
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const result = lockFactory
                         .create(key, { ttl })
                         .runOrFail(() => {
                             return Promise.resolve(RETURN_VALUE);
@@ -432,8 +430,8 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const result = lockProvider
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const result = lockFactory
                         .create(key, { ttl })
                         .runOrFail(() => {
                             return Promise.resolve(RETURN_VALUE);
@@ -448,7 +446,7 @@ export function lockProviderTestSuite(
                 test("Should call acquireBlockingOrFail method", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -469,7 +467,7 @@ export function lockProviderTestSuite(
                 test("Should call acquireBlockingOrFail before release method", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -491,7 +489,7 @@ export function lockProviderTestSuite(
                 test("Should call release method", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -512,7 +510,7 @@ export function lockProviderTestSuite(
                 test("Should call release after acquireBlockingOrFail method", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -534,7 +532,7 @@ export function lockProviderTestSuite(
                 test("Should call release when an error is thrown", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -559,7 +557,7 @@ export function lockProviderTestSuite(
                 test("Should propagate thrown error", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -584,7 +582,7 @@ export function lockProviderTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await lockProvider
+                    await lockFactory
                         .create(key, {
                             ttl,
                         })
@@ -599,13 +597,13 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     await delay(ttl);
 
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await lockProvider
+                    await lockFactory
                         .create(key, { ttl })
                         .runBlockingOrFail(handlerFn, {
                             time: TimeSpan.fromMilliseconds(5),
@@ -618,7 +616,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
@@ -638,7 +636,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -660,12 +658,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await lockProvider
+                        await lockFactory
                             .create(key, { ttl })
                             .runBlockingOrFail(handlerFn, {
                                 time: TimeSpan.fromMilliseconds(5),
@@ -681,12 +679,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await lockProvider
+                        await lockFactory
                             .create(key, { ttl })
                             .runBlockingOrFail(handlerFn, {
                                 time: TimeSpan.fromMilliseconds(5),
@@ -702,7 +700,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const result = await lockProvider
+                    const result = await lockFactory
                         .create(key, {
                             ttl,
                         })
@@ -722,10 +720,10 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     await delay(ttl);
 
-                    const result = await lockProvider
+                    const result = await lockFactory
                         .create(key, { ttl })
                         .runBlockingOrFail(
                             () => {
@@ -743,7 +741,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     const result = await lock.runBlockingOrFail(
                         () => {
@@ -761,7 +759,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -781,8 +779,8 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const result = lockProvider
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const result = lockFactory
                         .create(key, { ttl })
                         .runBlockingOrFail(
                             () => {
@@ -802,8 +800,8 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const result = lockProvider
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const result = lockFactory
                         .create(key, { ttl })
                         .runBlockingOrFail(
                             () => {
@@ -822,17 +820,17 @@ export function lockProviderTestSuite(
                 test("Should retry acquire the lock", { retry }, async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, {
+                    const lock1 = lockFactory.create(key, {
                         ttl,
                     });
 
                     await lock1.acquire();
                     const handlerFn = vi.fn(() => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
-                    const lock2 = lockProvider.create(key, {
+                    const lock2 = lockFactory.create(key, {
                         ttl,
                     });
                     try {
@@ -857,7 +855,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const result = await lockProvider
+                    const result = await lockFactory
                         .create(key, {
                             ttl,
                         })
@@ -869,10 +867,10 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     await delay(ttl);
 
-                    const result = await lockProvider
+                    const result = await lockFactory
                         .create(key, { ttl })
                         .acquire();
                     expect(result).toBe(true);
@@ -881,7 +879,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     const result = await lock.acquire();
 
@@ -891,7 +889,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -903,8 +901,8 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const result = await lockProvider
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const result = await lockFactory
                         .create(key, { ttl })
                         .acquire();
 
@@ -914,8 +912,8 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const result = await lockProvider
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const result = await lockFactory
                         .create(key, { ttl })
                         .acquire();
 
@@ -927,7 +925,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const result = lockProvider
+                    const result = lockFactory
                         .create(key, {
                             ttl,
                         })
@@ -939,10 +937,10 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquireOrFail();
+                    await lockFactory.create(key, { ttl }).acquireOrFail();
                     await delay(ttl);
 
-                    const result = lockProvider
+                    const result = lockFactory
                         .create(key, { ttl })
                         .acquireOrFail();
 
@@ -952,7 +950,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquireOrFail();
                     const result = lock.acquireOrFail();
 
@@ -962,7 +960,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquireOrFail();
@@ -974,8 +972,8 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    await lockProvider.create(key, { ttl }).acquireOrFail();
-                    const result = lockProvider
+                    await lockFactory.create(key, { ttl }).acquireOrFail();
+                    const result = lockFactory
                         .create(key, { ttl })
                         .acquireOrFail();
 
@@ -987,8 +985,8 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquireOrFail();
-                    const result = lockProvider
+                    await lockFactory.create(key, { ttl }).acquireOrFail();
+                    const result = lockFactory
                         .create(key, { ttl })
                         .acquireOrFail();
 
@@ -1002,7 +1000,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const result = await lockProvider
+                    const result = await lockFactory
                         .create(key, {
                             ttl,
                         })
@@ -1017,10 +1015,10 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     await delay(ttl);
 
-                    const result = await lockProvider
+                    const result = await lockFactory
                         .create(key, { ttl })
                         .acquireBlocking({
                             time: TimeSpan.fromMilliseconds(5),
@@ -1032,7 +1030,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     const result = await lock.acquireBlocking({
                         time: TimeSpan.fromMilliseconds(5),
@@ -1045,7 +1043,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -1060,8 +1058,8 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const result = await lockProvider
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const result = await lockFactory
                         .create(key, { ttl })
                         .acquireBlocking({
                             time: TimeSpan.fromMilliseconds(5),
@@ -1074,8 +1072,8 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const result = await lockProvider
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const result = await lockFactory
                         .create(key, { ttl })
                         .acquireBlocking({
                             time: TimeSpan.fromMilliseconds(5),
@@ -1087,17 +1085,17 @@ export function lockProviderTestSuite(
                 test("Should retry acquire the lock", { retry }, async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, {
+                    const lock1 = lockFactory.create(key, {
                         ttl,
                     });
 
                     await lock1.acquire();
                     const handlerFn = vi.fn(() => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
-                    const lock2 = lockProvider.create(key, {
+                    const lock2 = lockFactory.create(key, {
                         ttl,
                     });
                     await lock2.acquireBlocking({
@@ -1113,7 +1111,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const result = lockProvider
+                    const result = lockFactory
                         .create(key, {
                             ttl,
                         })
@@ -1128,10 +1126,10 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     await delay(ttl);
 
-                    const result = lockProvider
+                    const result = lockFactory
                         .create(key, { ttl })
                         .acquireBlockingOrFail({
                             time: TimeSpan.fromMilliseconds(5),
@@ -1144,7 +1142,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     const result = lock.acquireBlockingOrFail({
                         time: TimeSpan.fromMilliseconds(5),
@@ -1157,7 +1155,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -1172,8 +1170,8 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const result = lockProvider
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const result = lockFactory
                         .create(key, { ttl })
                         .acquireBlockingOrFail({
                             time: TimeSpan.fromMilliseconds(5),
@@ -1188,8 +1186,8 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const result = lockProvider
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const result = lockFactory
                         .create(key, { ttl })
                         .acquireBlockingOrFail({
                             time: TimeSpan.fromMilliseconds(5),
@@ -1203,17 +1201,17 @@ export function lockProviderTestSuite(
                 test("Should retry acquire the lock", { retry }, async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, {
+                    const lock1 = lockFactory.create(key, {
                         ttl,
                     });
 
                     await lock1.acquire();
                     const handlerFn = vi.fn(() => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
-                    const lock2 = lockProvider.create(key, {
+                    const lock2 = lockFactory.create(key, {
                         ttl,
                     });
                     try {
@@ -1233,7 +1231,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const result = await lockProvider
+                    const result = await lockFactory
                         .create(key, {
                             ttl,
                         })
@@ -1244,9 +1242,9 @@ export function lockProviderTestSuite(
                 test("Should return false when key is unexpireable and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
 
-                    const result = await lockProvider
+                    const result = await lockFactory
                         .create(key, { ttl })
                         .release();
 
@@ -1255,9 +1253,9 @@ export function lockProviderTestSuite(
                 test("Should return false when key is unexpired and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
 
-                    const result = await lockProvider
+                    const result = await lockFactory
                         .create(key, { ttl })
                         .release();
 
@@ -1266,9 +1264,9 @@ export function lockProviderTestSuite(
                 test("Should return false when key is expired and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
 
-                    const result = await lockProvider
+                    const result = await lockFactory
                         .create(key, { ttl })
                         .release();
                     await delay(ttl);
@@ -1278,7 +1276,7 @@ export function lockProviderTestSuite(
                 test("Should return false when key is expired and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     await delay(ttl);
 
@@ -1289,7 +1287,7 @@ export function lockProviderTestSuite(
                 test("Should return true when key is unexpireable and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
 
                     const result = await lock.release();
@@ -1299,7 +1297,7 @@ export function lockProviderTestSuite(
                 test("Should return true when key is unexpired and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
 
                     const result = await lock.release();
@@ -1309,10 +1307,10 @@ export function lockProviderTestSuite(
                 test("Should not be reacquirable when key is unexpireable and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     await lock2.release();
                     const result = await lock2.acquire();
 
@@ -1321,10 +1319,10 @@ export function lockProviderTestSuite(
                 test("Should not be reacquirable when key is unexpired and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     await lock2.release();
                     const result = await lock2.acquire();
 
@@ -1333,11 +1331,11 @@ export function lockProviderTestSuite(
                 test("Should be reacquirable when key is unexpireable and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
                     await lock1.release();
 
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const result = await lock2.acquire();
 
                     expect(result).toBe(true);
@@ -1345,11 +1343,11 @@ export function lockProviderTestSuite(
                 test("Should be reacquirable when key is unexpired and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
                     await lock1.release();
 
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const result = await lock2.acquire();
 
                     expect(result).toBe(true);
@@ -1360,7 +1358,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const result = lockProvider
+                    const result = lockFactory
                         .create(key, {
                             ttl,
                         })
@@ -1373,9 +1371,9 @@ export function lockProviderTestSuite(
                 test("Should throw FailedReleaseLockError when key is unexpireable and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
 
-                    const result = lockProvider
+                    const result = lockFactory
                         .create(key, { ttl })
                         .releaseOrFail();
 
@@ -1386,9 +1384,9 @@ export function lockProviderTestSuite(
                 test("Should throw FailedReleaseLockError when key is unexpired and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
 
-                    const result = lockProvider
+                    const result = lockFactory
                         .create(key, { ttl })
                         .releaseOrFail();
 
@@ -1399,9 +1397,9 @@ export function lockProviderTestSuite(
                 test("Should throw FailedReleaseLockError when key is expired and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
 
-                    const result = lockProvider
+                    const result = lockFactory
                         .create(key, { ttl })
                         .releaseOrFail();
                     await delay(ttl);
@@ -1413,7 +1411,7 @@ export function lockProviderTestSuite(
                 test("Should throw FailedReleaseLockError when key is expired and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     await delay(ttl);
 
@@ -1426,7 +1424,7 @@ export function lockProviderTestSuite(
                 test("Should not throw error when key is unexpireable and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
 
                     const result = lock.releaseOrFail();
@@ -1436,7 +1434,7 @@ export function lockProviderTestSuite(
                 test("Should not throw error when key is unexpired and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
 
                     const result = lock.releaseOrFail();
@@ -1446,10 +1444,10 @@ export function lockProviderTestSuite(
                 test("Should not be reacquirable when key is unexpireable and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     try {
                         await lock2.releaseOrFail();
                     } catch {
@@ -1462,10 +1460,10 @@ export function lockProviderTestSuite(
                 test("Should not be reacquirable when key is unexpired and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     try {
                         await lock2.releaseOrFail();
                     } catch {
@@ -1478,11 +1476,11 @@ export function lockProviderTestSuite(
                 test("Should be reacquirable when key is unexpireable and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
                     await lock1.releaseOrFail();
 
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const result = await lock2.acquire();
 
                     expect(result).toBe(true);
@@ -1490,11 +1488,11 @@ export function lockProviderTestSuite(
                 test("Should be reacquirable when key is unexpired and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
                     await lock1.releaseOrFail();
 
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const result = await lock2.acquire();
 
                     expect(result).toBe(true);
@@ -1505,7 +1503,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const result = await lockProvider
+                    const result = await lockFactory
                         .create(key, {
                             ttl,
                         })
@@ -1517,7 +1515,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -1530,7 +1528,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
 
                     const result = await lock.forceRelease();
@@ -1540,7 +1538,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
 
                     const result = await lock.forceRelease();
@@ -1550,7 +1548,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     await lock.forceRelease();
 
@@ -1561,7 +1559,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     await lock.forceRelease();
 
@@ -1575,7 +1573,7 @@ export function lockProviderTestSuite(
                     const ttl = null;
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const result = await lockProvider
+                    const result = await lockFactory
                         .create(key, {
                             ttl,
                         })
@@ -1586,11 +1584,11 @@ export function lockProviderTestSuite(
                 test("Should return false when key is unexpireable and refreshed by different lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const result = await lock2.refresh(newTtl);
 
                     expect(result).toBe(false);
@@ -1598,11 +1596,11 @@ export function lockProviderTestSuite(
                 test("Should return false when key is unexpired and refreshed by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const result = await lock2.refresh(newTtl);
 
                     expect(result).toBe(false);
@@ -1610,12 +1608,12 @@ export function lockProviderTestSuite(
                 test("Should return false when key is expired and refreshed by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
                     await delay(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const result = await lock2.refresh(newTtl);
 
                     expect(result).toBe(false);
@@ -1623,7 +1621,7 @@ export function lockProviderTestSuite(
                 test("Should return false when key is expired and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -1637,7 +1635,7 @@ export function lockProviderTestSuite(
                 test("Should return false when key is unexpireable and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
@@ -1648,7 +1646,7 @@ export function lockProviderTestSuite(
                 test("Should return true when key is unexpired and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
@@ -1659,13 +1657,13 @@ export function lockProviderTestSuite(
                 test("Should not update expiration when key is unexpireable and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
                     const newTtl = TimeSpan.fromMilliseconds(50);
                     await lock1.refresh(newTtl);
                     await delay(newTtl);
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const result = await lock2.acquire();
 
                     expect(result).toBe(false);
@@ -1673,14 +1671,14 @@ export function lockProviderTestSuite(
                 test("Should update expiration when key is unexpired and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await lock1.refresh(newTtl);
                     await delay(newTtl.divide(2));
 
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const result1 = await lock2.acquire();
                     expect(result1).toBe(false);
 
@@ -1695,7 +1693,7 @@ export function lockProviderTestSuite(
                     const ttl = null;
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const result = lockProvider
+                    const result = lockFactory
                         .create(key, {
                             ttl,
                         })
@@ -1708,11 +1706,11 @@ export function lockProviderTestSuite(
                 test("Should throw FailedRefreshLockError when key is unexpireable and refreshed by different lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const result = lock2.refreshOrFail(newTtl);
 
                     await expect(result).rejects.toBeInstanceOf(
@@ -1722,11 +1720,11 @@ export function lockProviderTestSuite(
                 test("Should throw FailedRefreshLockError when key is unexpired and refreshed by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const result = lock2.refreshOrFail(newTtl);
 
                     await expect(result).rejects.toBeInstanceOf(
@@ -1736,12 +1734,12 @@ export function lockProviderTestSuite(
                 test("Should throw FailedRefreshLockError when key is expired and refreshed by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
                     await delay(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const result = lock2.refreshOrFail(newTtl);
 
                     await expect(result).rejects.toBeInstanceOf(
@@ -1751,7 +1749,7 @@ export function lockProviderTestSuite(
                 test("Should throw FailedRefreshLockError when key is expired and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -1767,7 +1765,7 @@ export function lockProviderTestSuite(
                 test("Should throw FailedRefreshLockError when key is unexpireable and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
@@ -1780,7 +1778,7 @@ export function lockProviderTestSuite(
                 test("Should not throw error when key is unexpired and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
@@ -1791,7 +1789,7 @@ export function lockProviderTestSuite(
                 test("Should not update expiration when key is unexpireable and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
                     const newTtl = TimeSpan.fromMilliseconds(50);
@@ -1801,7 +1799,7 @@ export function lockProviderTestSuite(
                         /* EMPTY */
                     }
                     await delay(newTtl);
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const result = await lock2.acquire();
 
                     expect(result).toBe(false);
@@ -1809,14 +1807,14 @@ export function lockProviderTestSuite(
                 test("Should update expiration when key is unexpired and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await lock1.refreshOrFail(newTtl);
                     await delay(newTtl.divide(2));
 
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const result1 = await lock2.acquire();
                     expect(result1).toBe(false);
 
@@ -1830,7 +1828,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const lockId = "1";
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         lockId,
                     });
 
@@ -1840,7 +1838,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -1853,7 +1851,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -1863,7 +1861,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(100);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -1878,7 +1876,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
 
@@ -1892,7 +1890,7 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -1908,13 +1906,13 @@ export function lockProviderTestSuite(
                     const key = "a";
 
                     const ttl1 = null;
-                    const lock1 = lockProvider.create(key, {
+                    const lock1 = lockFactory.create(key, {
                         ttl: ttl1,
                     });
                     await lock1.acquire();
 
                     const ttl2 = null;
-                    const lock2 = lockProvider.create(key, {
+                    const lock2 = lockFactory.create(key, {
                         ttl: ttl2,
                     });
                     await lock2.acquire();
@@ -1931,13 +1929,13 @@ export function lockProviderTestSuite(
                     const key = "a";
 
                     const ttl1 = null;
-                    const lock1 = lockProvider.create(key, {
+                    const lock1 = lockFactory.create(key, {
                         ttl: ttl1,
                     });
                     await lock1.acquire();
 
                     const ttl2 = null;
-                    const lock2 = lockProvider.create(key, {
+                    const lock2 = lockFactory.create(key, {
                         ttl: ttl2,
                     });
                     await lock2.acquire();
@@ -1954,7 +1952,7 @@ export function lockProviderTestSuite(
                 test("Should return ILockAcquiredState when key is unexpireable", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -1973,7 +1971,7 @@ export function lockProviderTestSuite(
 
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -1988,12 +1986,12 @@ export function lockProviderTestSuite(
                 test("Should return ILockUnavailableState when key is acquired by different lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock1 = lockProvider.create(key, {
+                    const lock1 = lockFactory.create(key, {
                         ttl,
                     });
                     await lock1.acquire();
 
-                    const lock2 = lockProvider.create(key, {
+                    const lock2 = lockFactory.create(key, {
                         ttl,
                     });
                     const state = await lock2.getState();
@@ -2011,11 +2009,11 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2039,12 +2037,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     await delay(ttl);
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2068,10 +2066,10 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2095,12 +2093,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2124,14 +2122,14 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const lock = lockProvider.create(key, {
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     const handlerFn = vi.fn(
                         (_event: UnavailableLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -2155,12 +2153,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const lock = lockProvider.create(key, { ttl });
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: UnavailableLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -2186,11 +2184,11 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2214,12 +2212,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     await delay(ttl);
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2243,10 +2241,10 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2270,12 +2268,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2299,14 +2297,14 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const lock = lockProvider.create(key, {
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     const handlerFn = vi.fn(
                         (_event: UnavailableLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -2334,12 +2332,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const lock = lockProvider.create(key, { ttl });
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: UnavailableLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -2369,11 +2367,11 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2400,12 +2398,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     await delay(ttl);
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2432,10 +2430,10 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2462,12 +2460,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2494,14 +2492,14 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const lock = lockProvider.create(key, {
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     const handlerFn = vi.fn(
                         (_event: UnavailableLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -2531,12 +2529,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const lock = lockProvider.create(key, { ttl });
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: UnavailableLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -2568,11 +2566,11 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2599,12 +2597,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
                     await delay(ttl);
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2631,10 +2629,10 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2661,12 +2659,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.ACQUIRED,
                         handlerFn,
                     );
@@ -2693,14 +2691,14 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const lock = lockProvider.create(key, {
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     const handlerFn = vi.fn(
                         (_event: UnavailableLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -2734,12 +2732,12 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await lockProvider.create(key, { ttl }).acquire();
-                    const lock = lockProvider.create(key, { ttl });
+                    await lockFactory.create(key, { ttl }).acquire();
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: UnavailableLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -2775,13 +2773,13 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     const handlerFn = vi.fn(
                         (_event: ForceReleasedLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FORCE_RELEASED,
                         handlerFn,
                     );
@@ -2806,11 +2804,11 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: ForceReleasedLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FORCE_RELEASED,
                         handlerFn,
                     );
@@ -2837,11 +2835,11 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: ForceReleasedLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FORCE_RELEASED,
                         handlerFn,
                     );
@@ -2869,13 +2867,13 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_RELEASE,
                         handlerFn,
                     );
@@ -2898,13 +2896,13 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedReleaseLockEvent when key is unexpireable and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_RELEASE,
                         handlerFn,
                     );
@@ -2927,13 +2925,13 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedReleaseLockEvent when key is unexpired and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_RELEASE,
                         handlerFn,
                     );
@@ -2956,13 +2954,13 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedReleaseLockEvent when key is expired and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_RELEASE,
                         handlerFn,
                     );
@@ -2986,11 +2984,11 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedReleaseLockEvent when key is expired and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_RELEASE,
                         handlerFn,
                     );
@@ -3016,9 +3014,9 @@ export function lockProviderTestSuite(
                 test("Should dispatch ReleasedLockEvent when key is unexpireable and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn((_event: ReleasedLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.RELEASED,
                         handlerFn,
                     );
@@ -3043,9 +3041,9 @@ export function lockProviderTestSuite(
                 test("Should dispatch ReleasedLockEvent when key is unexpired and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn((_event: ReleasedLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.RELEASED,
                         handlerFn,
                     );
@@ -3073,13 +3071,13 @@ export function lockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
 
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_RELEASE,
                         handlerFn,
                     );
@@ -3106,13 +3104,13 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedReleaseLockEvent when key is unexpireable and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_RELEASE,
                         handlerFn,
                     );
@@ -3139,13 +3137,13 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedReleaseLockEvent when key is unexpired and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_RELEASE,
                         handlerFn,
                     );
@@ -3172,13 +3170,13 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedReleaseLockEvent when key is expired and released by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    await lockProvider.create(key, { ttl }).acquire();
+                    await lockFactory.create(key, { ttl }).acquire();
 
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_RELEASE,
                         handlerFn,
                     );
@@ -3206,11 +3204,11 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedReleaseLockEvent when key is expired and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_RELEASE,
                         handlerFn,
                     );
@@ -3240,9 +3238,9 @@ export function lockProviderTestSuite(
                 test("Should dispatch ReleasedLockEvent when key is unexpireable and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn((_event: ReleasedLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.RELEASED,
                         handlerFn,
                     );
@@ -3267,9 +3265,9 @@ export function lockProviderTestSuite(
                 test("Should dispatch ReleasedLockEvent when key is unexpired and released by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn((_event: ReleasedLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.RELEASED,
                         handlerFn,
                     );
@@ -3298,13 +3296,13 @@ export function lockProviderTestSuite(
                     const ttl = null;
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_REFRESH,
                         handlerFn,
                     );
@@ -3327,15 +3325,15 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedRefreshLockEvent when key is unexpireable and refreshed by different lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_REFRESH,
                         handlerFn,
                     );
@@ -3358,15 +3356,15 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedRefreshLockEvent when key is unexpired and refreshed by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_REFRESH,
                         handlerFn,
                     );
@@ -3389,16 +3387,16 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedRefreshLockEvent when key is expired and refreshed by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
                     await delay(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_REFRESH,
                         handlerFn,
                     );
@@ -3421,7 +3419,7 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedRefreshLockEvent when key is expired and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -3431,7 +3429,7 @@ export function lockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_REFRESH,
                         handlerFn,
                     );
@@ -3454,14 +3452,14 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedRefreshLockEvent when key is unexpireable and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_REFRESH,
                         handlerFn,
                     );
@@ -3484,12 +3482,12 @@ export function lockProviderTestSuite(
                 test("Should dispatch RefreshedLockEvent when key is unexpired and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
                     const handlerFn = vi.fn((_event: RefreshedLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.REFRESHED,
                         handlerFn,
                     );
@@ -3516,13 +3514,13 @@ export function lockProviderTestSuite(
                     const ttl = null;
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_REFRESH,
                         handlerFn,
                     );
@@ -3549,15 +3547,15 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedRefreshLockEvent when key is unexpireable and refreshed by different lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_REFRESH,
                         handlerFn,
                     );
@@ -3584,15 +3582,15 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedRefreshLockEvent when key is unexpired and refreshed by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_REFRESH,
                         handlerFn,
                     );
@@ -3619,16 +3617,16 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedRefreshLockEvent when key is expired and refreshed by different lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock1 = lockProvider.create(key, { ttl });
+                    const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
                     await delay(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const lock2 = lockProvider.create(key, { ttl });
+                    const lock2 = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_REFRESH,
                         handlerFn,
                     );
@@ -3655,7 +3653,7 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedRefreshLockEvent when key is expired and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, {
+                    const lock = lockFactory.create(key, {
                         ttl,
                     });
                     await lock.acquire();
@@ -3665,7 +3663,7 @@ export function lockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_REFRESH,
                         handlerFn,
                     );
@@ -3692,14 +3690,14 @@ export function lockProviderTestSuite(
                 test("Should dispatch FailedRefreshLockEvent when key is unexpireable and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = null;
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshLockEvent) => {},
                     );
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.FAILED_REFRESH,
                         handlerFn,
                     );
@@ -3726,12 +3724,12 @@ export function lockProviderTestSuite(
                 test("Should dispatch RefreshedLockEvent when key is unexpired and refreshed by same lock-id", async () => {
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const lock = lockProvider.create(key, { ttl });
+                    const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
 
                     const newTtl = TimeSpan.fromMinutes(1);
                     const handlerFn = vi.fn((_event: RefreshedLockEvent) => {});
-                    await lockProvider.events.addListener(
+                    await lockFactory.events.addListener(
                         LOCK_EVENTS.REFRESHED,
                         handlerFn,
                     );
@@ -3758,7 +3756,7 @@ export function lockProviderTestSuite(
                 const key = "a";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                const lock = lockProvider.create(key, {
+                const lock = lockFactory.create(key, {
                     ttl,
                 });
                 const deserializedLock = serde.deserialize<ILock>(
@@ -3774,7 +3772,7 @@ export function lockProviderTestSuite(
                 const key = "a";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                const lock = lockProvider.create(key, {
+                const lock = lockFactory.create(key, {
                     ttl,
                 });
                 await lock.acquire();
@@ -3793,13 +3791,13 @@ export function lockProviderTestSuite(
                 const key = "a";
 
                 const ttl1 = null;
-                const lock1 = lockProvider.create(key, {
+                const lock1 = lockFactory.create(key, {
                     ttl: ttl1,
                 });
                 await lock1.acquire();
 
                 const ttl2 = null;
-                const lock2 = lockProvider.create(key, {
+                const lock2 = lockFactory.create(key, {
                     ttl: ttl2,
                 });
                 await lock2.acquire();
@@ -3819,13 +3817,13 @@ export function lockProviderTestSuite(
                 const key = "a";
 
                 const ttl1 = null;
-                const lock1 = lockProvider.create(key, {
+                const lock1 = lockFactory.create(key, {
                     ttl: ttl1,
                 });
                 await lock1.acquire();
 
                 const ttl2 = null;
-                const lock2 = lockProvider.create(key, {
+                const lock2 = lockFactory.create(key, {
                     ttl: ttl2,
                 });
                 await lock2.acquire();
@@ -3845,7 +3843,7 @@ export function lockProviderTestSuite(
             test("Should return ILockAcquiredState when is derserialized and key is unexpireable", async () => {
                 const key = "a";
                 const ttl = null;
-                const lock = lockProvider.create(key, {
+                const lock = lockFactory.create(key, {
                     ttl,
                 });
                 await lock.acquire();
@@ -3867,7 +3865,7 @@ export function lockProviderTestSuite(
 
                 const key = "a";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                const lock = lockProvider.create(key, {
+                const lock = lockFactory.create(key, {
                     ttl,
                 });
                 await lock.acquire();
@@ -3885,12 +3883,12 @@ export function lockProviderTestSuite(
             test("Should return ILockUnavailableState when is derserialized and key is acquired by different lock-id", async () => {
                 const key = "a";
                 const ttl = null;
-                const lock1 = lockProvider.create(key, {
+                const lock1 = lockFactory.create(key, {
                     ttl,
                 });
                 await lock1.acquire();
 
-                const lock2 = lockProvider.create(key, {
+                const lock2 = lockFactory.create(key, {
                     ttl,
                 });
                 const deserializedLock2 = serde.deserialize<ILock>(

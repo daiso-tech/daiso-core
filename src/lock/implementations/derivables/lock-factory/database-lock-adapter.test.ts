@@ -3,7 +3,7 @@ import { Kysely, SqliteDialect } from "kysely";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { KyselyLockAdapter } from "@/lock/implementations/adapters/_module.js";
-import { DatabaseLockAdapter } from "@/lock/implementations/derivables/lock-provider/database-lock-adapter.js";
+import { DatabaseLockAdapter } from "@/lock/implementations/derivables/lock-factory/database-lock-adapter.js";
 import { lockAdapterTestSuite } from "@/lock/implementations/test-utilities/_module.js";
 
 describe("class: DatabaseLockAdapter", () => {

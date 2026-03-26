@@ -8,7 +8,7 @@ import {
     type ILockData,
     type ILockExpirationData,
 } from "@/lock/contracts/_module.js";
-import { isDatabaseLockAdapter } from "@/lock/implementations/derivables/lock-provider/is-database-lock-adapter.js";
+import { isDatabaseLockAdapter } from "@/lock/implementations/derivables/lock-factory/is-database-lock-adapter.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import { type InvokableFn } from "@/utilities/_module.js";
 
