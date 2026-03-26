@@ -2,7 +2,7 @@
  * @module Semaphore
  */
 
-import { type ISemaphoreProvider } from "@/semaphore/contracts/semaphore-provider.contract.js";
+import { type ISemaphoreFactory } from "@/semaphore/contracts/semaphore-factory.contract.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     UnregisteredAdapterError,
@@ -11,17 +11,17 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * The `ISemaphoreProviderFactory` contract makes it easy to configure and switch between different {@link ISemaphoreProvider | `ISemaphoreProvider`} dynamically.
+ * The `ISemaphoreFactoryResolver` contract makes it easy to configure and switch between different {@link ISemaphoreFactory | `ISemaphoreFactory`} dynamically.
  *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
-export type ISemaphoreProviderFactory<TAdapters extends string = string> = {
+export type ISemaphoreFactoryResolver<TAdapters extends string = string> = {
     /**
      * The `use` method will throw an error if you provide it unregisted adapter.
      * If no default adapter is defined an error will be thrown by `use` method.
      * @throws {UnregisteredAdapterError} {@link UnregisteredAdapterError}
      * @throws {DefaultAdapterNotDefinedError} {@link DefaultAdapterNotDefinedError}
      */
-    use(adapterName?: TAdapters): ISemaphoreProvider;
+    use(adapterName?: TAdapters): ISemaphoreFactory;
 };

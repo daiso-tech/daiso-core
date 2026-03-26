@@ -10,7 +10,7 @@ import {
 } from "vitest";
 
 import {
-    type ISemaphoreProvider,
+    type ISemaphoreFactory,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type ISemaphore,
     LimitReachedSemaphoreError,
@@ -45,13 +45,13 @@ import { type Promisable } from "@/utilities/_module.js";
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/test-utilities"`
  * @group Utilities
  */
-export type SemaphoreProviderTestSuiteSettings = {
+export type SemaphoreFactoryTestSuiteSettings = {
     expect: ExpectStatic;
     test: TestAPI;
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
-    createSemaphoreProvider: () => Promisable<{
-        semaphoreProvider: ISemaphoreProvider;
+    createSemaphoreFactory: () => Promisable<{
+        semaphoreFactory: ISemaphoreFactory;
         serde: ISerde;
     }>;
 
@@ -93,7 +93,7 @@ export type SemaphoreProviderTestSuiteSettings = {
 };
 
 /**
- * The `semaphoreProviderTestSuite` function simplifies the process of testing your custom implementation of {@link ISemaphore | `ISemaphore`} with `vitest`.
+ * The `semaphoreFactoryTestSuite` function simplifies the process of testing your custom implementation of {@link ISemaphore | `ISemaphore`} with `vitest`.
  *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/test-utilities"`
  * @group Utilities
@@ -101,23 +101,23 @@ export type SemaphoreProviderTestSuiteSettings = {
  * ```ts
  * import { describe, expect, test, beforeEach } from "vitest";
  * import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
- * import { SemaphoreProvider } from "@daiso-tech/core/semaphore";
+ * import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
  * import { EventBus } from "@daiso-tech/core/event-bus";
  * import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
- * import { semaphoreProviderTestSuite } from "@daiso-tech/core/semaphore/test-utilities";
+ * import { semaphoreFactoryTestSuite } from "@daiso-tech/core/semaphore/test-utilities";
  * import { Serde } from "@daiso-tech/core/serde";
  * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
  * import type { ISemaphoreData } from "@daiso-tech/core/semaphore/contracts";
  *
- * describe("class: SemaphoreProvider", () => {
- *     semaphoreProviderTestSuite({
- *         createSemaphoreProvider: () => {
+ * describe("class: SemaphoreFactory", () => {
+ *     semaphoreFactoryTestSuite({
+ *         createSemaphoreFactory: () => {
  *             const serde = new Serde(new SuperJsonSerdeAdapter());
- *             const semaphoreProvider = new SemaphoreProvider({
+ *             const semaphoreFactory = new SemaphoreFactory({
  *                 serde,
  *                 adapter: new MemorySemaphoreAdapter(),
  *             });
- *             return { semaphoreProvider, serde };
+ *             return { semaphoreFactory, serde };
  *         },
  *         beforeEach,
  *         describe,
@@ -128,13 +128,13 @@ export type SemaphoreProviderTestSuiteSettings = {
  * });
  * ```
  */
-export function semaphoreProviderTestSuite(
-    settings: SemaphoreProviderTestSuiteSettings,
+export function semaphoreFactoryTestSuite(
+    settings: SemaphoreFactoryTestSuiteSettings,
 ): void {
     const {
         expect,
         test,
-        createSemaphoreProvider,
+        createSemaphoreFactory,
         describe,
         beforeEach,
         includeEventTests = true,
@@ -143,7 +143,7 @@ export function semaphoreProviderTestSuite(
         delayBuffer = TimeSpan.fromMilliseconds(10),
         timeSpanEqualityBuffer = TimeSpan.fromMilliseconds(10),
     } = settings;
-    let semaphoreProvider: ISemaphoreProvider;
+    let semaphoreFactory: ISemaphoreFactory;
     let serde: ISerde;
 
     async function delay(time: TimeSpan): Promise<void> {
@@ -151,11 +151,11 @@ export function semaphoreProviderTestSuite(
     }
 
     const RETURN_VALUE = "RETURN_VALUE";
-    describe("ISemaphoreProvider tests:", () => {
+    describe("ISemaphoreFactory tests:", () => {
         beforeEach(async () => {
-            const { semaphoreProvider: semaphoreProvider_, serde: serde_ } =
-                await createSemaphoreProvider();
-            semaphoreProvider = semaphoreProvider_;
+            const { semaphoreFactory: semaphoreFactory_, serde: serde_ } =
+                await createSemaphoreFactory();
+            semaphoreFactory = semaphoreFactory_;
             serde = serde_;
         });
         describe("Api tests:", () => {
@@ -164,7 +164,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -184,7 +184,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -205,7 +205,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -222,7 +222,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -243,7 +243,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -264,7 +264,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -285,7 +285,7 @@ export function semaphoreProviderTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -299,7 +299,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -310,7 +310,7 @@ export function semaphoreProviderTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -324,7 +324,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -345,7 +345,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -366,7 +366,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -376,7 +376,7 @@ export function semaphoreProviderTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await semaphoreProvider
+                        await semaphoreFactory
                             .create(key, {
                                 ttl,
                                 limit,
@@ -392,7 +392,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -402,7 +402,7 @@ export function semaphoreProviderTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await semaphoreProvider
+                        await semaphoreFactory
                             .create(key, {
                                 ttl,
                                 limit,
@@ -419,7 +419,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    const result = await semaphoreProvider
+                    const result = await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -435,7 +435,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -443,7 +443,7 @@ export function semaphoreProviderTestSuite(
                         .acquire();
                     await delay(ttl);
 
-                    const result = await semaphoreProvider
+                    const result = await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -459,7 +459,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -477,7 +477,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -495,13 +495,13 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
                         })
                         .acquire();
-                    const result = semaphoreProvider
+                    const result = semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -519,13 +519,13 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
                         })
                         .acquire();
-                    const result = semaphoreProvider
+                    const result = semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -544,7 +544,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -567,7 +567,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -591,7 +591,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -614,7 +614,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -638,7 +638,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -665,7 +665,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -692,7 +692,7 @@ export function semaphoreProviderTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -709,7 +709,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -720,7 +720,7 @@ export function semaphoreProviderTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -737,7 +737,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -761,7 +761,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -785,7 +785,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -795,7 +795,7 @@ export function semaphoreProviderTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await semaphoreProvider
+                        await semaphoreFactory
                             .create(key, {
                                 ttl,
                                 limit,
@@ -815,7 +815,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -825,7 +825,7 @@ export function semaphoreProviderTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await semaphoreProvider
+                        await semaphoreFactory
                             .create(key, {
                                 ttl,
                                 limit,
@@ -845,7 +845,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    const result = await semaphoreProvider
+                    const result = await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -867,7 +867,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -875,7 +875,7 @@ export function semaphoreProviderTestSuite(
                         .acquire();
                     await delay(ttl);
 
-                    const result = await semaphoreProvider
+                    const result = await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -897,7 +897,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -921,7 +921,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -945,13 +945,13 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
                         })
                         .acquire();
-                    const result = semaphoreProvider
+                    const result = semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -975,13 +975,13 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
                         })
                         .acquire();
-                    const result = semaphoreProvider
+                    const result = semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -1007,20 +1007,20 @@ export function semaphoreProviderTestSuite(
                         const key = "a";
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 1;
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await semaphore1.acquire();
                         let index = 0;
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.LIMIT_REACHED,
                             (_event) => {
                                 index++;
                             },
                         );
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -1048,7 +1048,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const result = await semaphoreProvider
+                    const result = await semaphoreFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -1062,7 +1062,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1078,12 +1078,12 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1096,18 +1096,18 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore2.acquire();
 
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1120,13 +1120,13 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl: ttl1,
                     });
                     await semaphore1.acquire();
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl: ttl2,
                     });
@@ -1134,7 +1134,7 @@ export function semaphoreProviderTestSuite(
                     await delay(ttl2);
 
                     const ttl3 = null;
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         ttl: ttl3,
                         limit,
                     });
@@ -1147,7 +1147,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1161,7 +1161,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1175,14 +1175,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
                     await semaphore1.acquire();
 
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1195,14 +1195,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
                     await semaphore1.acquire();
 
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1215,18 +1215,18 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
                     const newLimit = 3;
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit: newLimit,
                         ttl,
                     });
                     await semaphore2.acquire();
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         limit: newLimit,
                         ttl,
                     });
@@ -1244,7 +1244,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const result = semaphoreProvider
+                    const result = semaphoreFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -1258,7 +1258,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1274,12 +1274,12 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1292,18 +1292,18 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore2.acquire();
 
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1318,13 +1318,13 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl: ttl1,
                     });
                     await semaphore1.acquire();
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl: ttl2,
                     });
@@ -1332,7 +1332,7 @@ export function semaphoreProviderTestSuite(
                     await delay(ttl2);
 
                     const ttl3 = null;
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         ttl: ttl3,
                         limit,
                     });
@@ -1345,7 +1345,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1359,7 +1359,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1373,14 +1373,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
                     await semaphore1.acquire();
 
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1393,14 +1393,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
                     await semaphore1.acquire();
 
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1413,18 +1413,18 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
                     const newLimit = 3;
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit: newLimit,
                         ttl,
                     });
                     await semaphore2.acquire();
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         limit: newLimit,
                         ttl,
                     });
@@ -1444,7 +1444,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const result = await semaphoreProvider
+                    const result = await semaphoreFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -1461,7 +1461,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1480,12 +1480,12 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1501,18 +1501,18 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore2.acquire();
 
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1528,13 +1528,13 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl: ttl1,
                     });
                     await semaphore1.acquire();
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl: ttl2,
                     });
@@ -1542,7 +1542,7 @@ export function semaphoreProviderTestSuite(
                     await delay(ttl2);
 
                     const ttl3 = null;
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         ttl: ttl3,
                         limit,
                     });
@@ -1558,7 +1558,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1575,7 +1575,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1592,14 +1592,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
                     await semaphore1.acquire();
 
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1615,14 +1615,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
                     await semaphore1.acquire();
 
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1638,18 +1638,18 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
                     const newLimit = 3;
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit: newLimit,
                         ttl,
                     });
                     await semaphore2.acquire();
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         limit: newLimit,
                         ttl,
                     });
@@ -1670,20 +1670,20 @@ export function semaphoreProviderTestSuite(
                         const key = "a";
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 1;
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await semaphore1.acquire();
                         let index = 0;
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.LIMIT_REACHED,
                             (_event) => {
                                 index++;
                             },
                         );
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -1702,7 +1702,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const result = semaphoreProvider
+                    const result = semaphoreFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -1719,7 +1719,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1738,12 +1738,12 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1759,18 +1759,18 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore2.acquire();
 
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1788,13 +1788,13 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl: ttl1,
                     });
                     await semaphore1.acquire();
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl: ttl2,
                     });
@@ -1802,7 +1802,7 @@ export function semaphoreProviderTestSuite(
                     await delay(ttl2);
 
                     const ttl3 = null;
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         ttl: ttl3,
                         limit,
                     });
@@ -1818,7 +1818,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1835,7 +1835,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1852,14 +1852,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
                     await semaphore1.acquire();
 
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1875,14 +1875,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
                     await semaphore1.acquire();
 
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1898,18 +1898,18 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
                     const newLimit = 3;
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit: newLimit,
                         ttl,
                     });
                     await semaphore2.acquire();
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         limit: newLimit,
                         ttl,
                     });
@@ -1932,20 +1932,20 @@ export function semaphoreProviderTestSuite(
                         const key = "a";
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 1;
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await semaphore1.acquire();
                         let index = 0;
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.LIMIT_REACHED,
                             (_event) => {
                                 index++;
                             },
                         );
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -1967,7 +1967,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -1975,7 +1975,7 @@ export function semaphoreProviderTestSuite(
                         .acquire();
 
                     const noneExistingKey = "c";
-                    const result = await semaphoreProvider
+                    const result = await semaphoreFactory
                         .create(noneExistingKey, {
                             limit,
                             ttl,
@@ -1988,7 +1988,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -1996,7 +1996,7 @@ export function semaphoreProviderTestSuite(
                         .acquire();
 
                     const noneExistingSlotId = "1";
-                    const result = await semaphoreProvider
+                    const result = await semaphoreFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -2011,7 +2011,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2027,7 +2027,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2041,7 +2041,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2055,12 +2055,12 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await semaphore1.acquire();
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2069,18 +2069,18 @@ export function semaphoreProviderTestSuite(
                     await semaphore2.release();
 
                     const newLimit = 3;
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
                     await semaphore3.acquire();
-                    const semaphore4 = semaphoreProvider.create(key, {
+                    const semaphore4 = semaphoreFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
                     await semaphore4.acquire();
 
-                    const semaphore5 = semaphoreProvider.create(key, {
+                    const semaphore5 = semaphoreFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
@@ -2091,7 +2091,7 @@ export function semaphoreProviderTestSuite(
                         (await semaphore5.getState()) as ISemaphoreLimitReachedState;
                     expect(state.limit).toBe(newLimit);
 
-                    const semaphore6 = semaphoreProvider.create(key, {
+                    const semaphore6 = semaphoreFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
@@ -2103,12 +2103,12 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await semaphore1.acquire();
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2116,13 +2116,13 @@ export function semaphoreProviderTestSuite(
                     await semaphore1.release();
                     await semaphore2.release();
 
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const result1 = await semaphore3.acquire();
                     expect(result1).toBe(true);
-                    const semaphore4 = semaphoreProvider.create(key, {
+                    const semaphore4 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2135,7 +2135,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -2143,7 +2143,7 @@ export function semaphoreProviderTestSuite(
                         .acquire();
 
                     const noneExistingKey = "c";
-                    const result = semaphoreProvider
+                    const result = semaphoreFactory
                         .create(noneExistingKey, {
                             limit,
                             ttl,
@@ -2158,7 +2158,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    await semaphoreProvider
+                    await semaphoreFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -2166,7 +2166,7 @@ export function semaphoreProviderTestSuite(
                         .acquire();
 
                     const noneExistingSlotId = "1";
-                    const result = semaphoreProvider
+                    const result = semaphoreFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -2183,14 +2183,14 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await semaphore1.acquire();
                     await delay(ttl);
 
-                    const result = semaphoreProvider
+                    const result = semaphoreFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -2206,7 +2206,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2223,7 +2223,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2237,7 +2237,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2251,12 +2251,12 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await semaphore1.acquire();
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2265,18 +2265,18 @@ export function semaphoreProviderTestSuite(
                     await semaphore2.releaseOrFail();
 
                     const newLimit = 3;
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
                     await semaphore3.acquire();
-                    const semaphore4 = semaphoreProvider.create(key, {
+                    const semaphore4 = semaphoreFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
                     await semaphore4.acquire();
 
-                    const semaphore5 = semaphoreProvider.create(key, {
+                    const semaphore5 = semaphoreFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
@@ -2287,7 +2287,7 @@ export function semaphoreProviderTestSuite(
                         (await semaphore5.getState()) as ISemaphoreLimitReachedState;
                     expect(state.limit).toBe(newLimit);
 
-                    const semaphore6 = semaphoreProvider.create(key, {
+                    const semaphore6 = semaphoreFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
@@ -2299,12 +2299,12 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await semaphore1.acquire();
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2312,13 +2312,13 @@ export function semaphoreProviderTestSuite(
                     await semaphore1.release();
                     await semaphore2.releaseOrFail();
 
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const result1 = await semaphore3.acquire();
                     expect(result1).toBe(true);
-                    const semaphore4 = semaphoreProvider.create(key, {
+                    const semaphore4 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2331,14 +2331,14 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
 
                     const noneExistingKey = "c";
-                    const semaphore2 = semaphoreProvider.create(
+                    const semaphore2 = semaphoreFactory.create(
                         noneExistingKey,
                         {
                             limit,
@@ -2354,7 +2354,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -2370,12 +2370,12 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await semaphore1.acquire();
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -2392,7 +2392,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -2406,13 +2406,13 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl: ttl1,
                     });
                     await semaphore1.acquire();
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl: ttl2,
                     });
@@ -2421,14 +2421,14 @@ export function semaphoreProviderTestSuite(
                     await semaphore2.forceReleaseAll();
 
                     const ttl3 = null;
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         ttl: ttl3,
                         limit,
                     });
                     const result1 = await semaphore3.acquire();
                     expect(result1).toBe(true);
                     const ttl4 = null;
-                    const semaphore4 = semaphoreProvider.create(key, {
+                    const semaphore4 = semaphoreFactory.create(key, {
                         ttl: ttl4,
                         limit,
                     });
@@ -2440,12 +2440,12 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await semaphore1.acquire();
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2453,18 +2453,18 @@ export function semaphoreProviderTestSuite(
                     await semaphore1.forceReleaseAll();
 
                     const newLimit = 3;
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
                     await semaphore3.acquire();
-                    const semaphore4 = semaphoreProvider.create(key, {
+                    const semaphore4 = semaphoreFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
                     await semaphore4.acquire();
 
-                    const semaphore5 = semaphoreProvider.create(key, {
+                    const semaphore5 = semaphoreFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
@@ -2475,7 +2475,7 @@ export function semaphoreProviderTestSuite(
                         (await semaphore5.getState()) as ISemaphoreLimitReachedState;
                     expect(state.limit).toBe(newLimit);
 
-                    const semaphore6 = semaphoreProvider.create(key, {
+                    const semaphore6 = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2488,7 +2488,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -2496,7 +2496,7 @@ export function semaphoreProviderTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const noneExistingKey = "c";
-                    const semaphore2 = semaphoreProvider.create(
+                    const semaphore2 = semaphoreFactory.create(
                         noneExistingKey,
                         {
                             ttl: newTtl,
@@ -2511,7 +2511,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -2519,7 +2519,7 @@ export function semaphoreProviderTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const noneExistingSlotId = "1";
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: newTtl,
                         limit,
                         slotId: noneExistingSlotId,
@@ -2532,7 +2532,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2549,7 +2549,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2564,7 +2564,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2579,14 +2579,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = null;
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -2596,7 +2596,7 @@ export function semaphoreProviderTestSuite(
                     await semaphore2.refresh(newTtl);
                     await delay(newTtl);
 
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -2608,14 +2608,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl: ttl2,
                     });
@@ -2625,7 +2625,7 @@ export function semaphoreProviderTestSuite(
                     await semaphore2.refresh(newTtl);
                     await delay(newTtl.divide(2));
 
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -2642,7 +2642,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -2650,7 +2650,7 @@ export function semaphoreProviderTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const noneExistingKey = "c";
-                    const semaphore2 = semaphoreProvider.create(
+                    const semaphore2 = semaphoreFactory.create(
                         noneExistingKey,
                         {
                             ttl: newTtl,
@@ -2667,7 +2667,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -2675,7 +2675,7 @@ export function semaphoreProviderTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const noneExistingSlotId = "1";
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: newTtl,
                         limit,
                         slotId: noneExistingSlotId,
@@ -2690,7 +2690,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2709,7 +2709,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2727,7 +2727,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2744,7 +2744,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2759,14 +2759,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = null;
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -2780,7 +2780,7 @@ export function semaphoreProviderTestSuite(
                     }
                     await delay(newTtl);
 
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -2792,14 +2792,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         limit,
                         ttl: ttl2,
                     });
@@ -2809,7 +2809,7 @@ export function semaphoreProviderTestSuite(
                     await semaphore2.refreshOrFail(newTtl);
                     await delay(newTtl.divide(2));
 
-                    const semaphore3 = semaphoreProvider.create(key, {
+                    const semaphore3 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -2827,7 +2827,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const slotId = "1";
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         slotId,
                         limit,
                     });
@@ -2838,7 +2838,7 @@ export function semaphoreProviderTestSuite(
                     const key = "a";
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                     });
 
@@ -2852,7 +2852,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2864,7 +2864,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(100);
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2881,7 +2881,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 3;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -2897,7 +2897,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2915,14 +2915,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = null;
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -2941,14 +2941,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl: ttl1,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = null;
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -2968,14 +2968,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 3;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -2995,14 +2995,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 3;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -3028,14 +3028,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 3;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -3057,14 +3057,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 1;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -3091,12 +3091,12 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3121,7 +3121,7 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
                         const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3131,7 +3131,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
@@ -3156,19 +3156,19 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
                         const ttl = null;
 
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
                         await semaphore1.acquire();
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
@@ -3193,12 +3193,12 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
                         const ttl = null;
 
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
                         await semaphore1.acquire();
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3207,11 +3207,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: LimitReachedSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.LIMIT_REACHED,
                             handlerFn,
                         );
-                        const semaphore3 = semaphoreProvider.create(key, {
+                        const semaphore3 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3236,13 +3236,13 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
 
                         const ttl1 = null;
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl: ttl1,
                         });
                         await semaphore1.acquire();
                         const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             limit,
                             ttl: ttl2,
                         });
@@ -3253,11 +3253,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
-                        const semaphore3 = semaphoreProvider.create(key, {
+                        const semaphore3 = semaphoreFactory.create(key, {
                             limit,
                             ttl: ttl3,
                         });
@@ -3285,11 +3285,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3318,11 +3318,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3353,12 +3353,12 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3383,7 +3383,7 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
                         const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3393,7 +3393,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
@@ -3418,19 +3418,19 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
                         const ttl = null;
 
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
                         await semaphore1.acquire();
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
@@ -3455,12 +3455,12 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
                         const ttl = null;
 
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
                         await semaphore1.acquire();
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3469,11 +3469,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: LimitReachedSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.LIMIT_REACHED,
                             handlerFn,
                         );
-                        const semaphore3 = semaphoreProvider.create(key, {
+                        const semaphore3 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3502,13 +3502,13 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
 
                         const ttl1 = null;
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl: ttl1,
                         });
                         await semaphore1.acquire();
                         const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             limit,
                             ttl: ttl2,
                         });
@@ -3519,11 +3519,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
-                        const semaphore3 = semaphoreProvider.create(key, {
+                        const semaphore3 = semaphoreFactory.create(key, {
                             limit,
                             ttl: ttl3,
                         });
@@ -3551,11 +3551,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3584,11 +3584,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3619,12 +3619,12 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3652,7 +3652,7 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
                         const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3662,7 +3662,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
@@ -3690,19 +3690,19 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
                         const ttl = null;
 
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
                         await semaphore1.acquire();
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
@@ -3730,12 +3730,12 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
                         const ttl = null;
 
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
                         await semaphore1.acquire();
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3744,11 +3744,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: LimitReachedSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.LIMIT_REACHED,
                             handlerFn,
                         );
-                        const semaphore3 = semaphoreProvider.create(key, {
+                        const semaphore3 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3781,13 +3781,13 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
 
                         const ttl1 = null;
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl: ttl1,
                         });
                         await semaphore1.acquire();
                         const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             limit,
                             ttl: ttl2,
                         });
@@ -3798,11 +3798,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
-                        const semaphore3 = semaphoreProvider.create(key, {
+                        const semaphore3 = semaphoreFactory.create(key, {
                             limit,
                             ttl: ttl3,
                         });
@@ -3833,11 +3833,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3869,11 +3869,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3907,12 +3907,12 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3940,7 +3940,7 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
                         const ttl = TimeSpan.fromMilliseconds(50);
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -3950,7 +3950,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
@@ -3978,19 +3978,19 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
                         const ttl = null;
 
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
                         await semaphore1.acquire();
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
@@ -4018,12 +4018,12 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
                         const ttl = null;
 
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
                         await semaphore1.acquire();
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -4032,11 +4032,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: LimitReachedSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.LIMIT_REACHED,
                             handlerFn,
                         );
-                        const semaphore3 = semaphoreProvider.create(key, {
+                        const semaphore3 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -4073,13 +4073,13 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
 
                         const ttl1 = null;
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl: ttl1,
                         });
                         await semaphore1.acquire();
                         const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             limit,
                             ttl: ttl2,
                         });
@@ -4090,11 +4090,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
-                        const semaphore3 = semaphoreProvider.create(key, {
+                        const semaphore3 = semaphoreFactory.create(key, {
                             limit,
                             ttl: ttl3,
                         });
@@ -4125,11 +4125,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -4161,11 +4161,11 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ACQUIRED,
                             handlerFn,
                         );
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -4195,7 +4195,7 @@ export function semaphoreProviderTestSuite(
                         const key = "a";
                         const limit = 2;
                         const ttl = null;
-                        await semaphoreProvider
+                        await semaphoreFactory
                             .create(key, {
                                 limit,
                                 ttl,
@@ -4203,7 +4203,7 @@ export function semaphoreProviderTestSuite(
                             .acquire();
 
                         const noneExistingKey = "c";
-                        const semaphore = semaphoreProvider.create(
+                        const semaphore = semaphoreFactory.create(
                             noneExistingKey,
                             {
                                 limit,
@@ -4214,7 +4214,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedReleaseSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_RELEASE,
                             handlerFn,
                         );
@@ -4238,7 +4238,7 @@ export function semaphoreProviderTestSuite(
                         const key = "a";
                         const limit = 2;
                         const ttl = null;
-                        await semaphoreProvider
+                        await semaphoreFactory
                             .create(key, {
                                 limit,
                                 ttl,
@@ -4246,7 +4246,7 @@ export function semaphoreProviderTestSuite(
                             .acquire();
 
                         const noneExistingSlotId = "1";
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                             slotId: noneExistingSlotId,
@@ -4255,7 +4255,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedReleaseSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_RELEASE,
                             handlerFn,
                         );
@@ -4280,21 +4280,21 @@ export function semaphoreProviderTestSuite(
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 2;
 
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
                         await semaphore1.acquire();
                         await delay(ttl);
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
                         const handlerFn = vi.fn(
                             (_event: FailedReleaseSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_RELEASE,
                             handlerFn,
                         );
@@ -4319,7 +4319,7 @@ export function semaphoreProviderTestSuite(
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 2;
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4329,7 +4329,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedReleaseSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_RELEASE,
                             handlerFn,
                         );
@@ -4354,7 +4354,7 @@ export function semaphoreProviderTestSuite(
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 2;
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4363,7 +4363,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: ReleasedSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.RELEASED,
                             handlerFn,
                         );
@@ -4388,7 +4388,7 @@ export function semaphoreProviderTestSuite(
                         const ttl = null;
                         const limit = 2;
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4397,7 +4397,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: ReleasedSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.RELEASED,
                             handlerFn,
                         );
@@ -4423,7 +4423,7 @@ export function semaphoreProviderTestSuite(
                         const key = "a";
                         const limit = 2;
                         const ttl = null;
-                        await semaphoreProvider
+                        await semaphoreFactory
                             .create(key, {
                                 limit,
                                 ttl,
@@ -4431,7 +4431,7 @@ export function semaphoreProviderTestSuite(
                             .acquire();
 
                         const noneExistingKey = "c";
-                        const semaphore = semaphoreProvider.create(
+                        const semaphore = semaphoreFactory.create(
                             noneExistingKey,
                             {
                                 limit,
@@ -4442,7 +4442,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedReleaseSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_RELEASE,
                             handlerFn,
                         );
@@ -4470,7 +4470,7 @@ export function semaphoreProviderTestSuite(
                         const key = "a";
                         const limit = 2;
                         const ttl = null;
-                        await semaphoreProvider
+                        await semaphoreFactory
                             .create(key, {
                                 limit,
                                 ttl,
@@ -4478,7 +4478,7 @@ export function semaphoreProviderTestSuite(
                             .acquire();
 
                         const noneExistingSlotId = "1";
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                             slotId: noneExistingSlotId,
@@ -4487,7 +4487,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedReleaseSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_RELEASE,
                             handlerFn,
                         );
@@ -4516,21 +4516,21 @@ export function semaphoreProviderTestSuite(
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 2;
 
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
                         await semaphore1.acquire();
                         await delay(ttl);
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
                         const handlerFn = vi.fn(
                             (_event: FailedReleaseSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_RELEASE,
                             handlerFn,
                         );
@@ -4559,7 +4559,7 @@ export function semaphoreProviderTestSuite(
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 2;
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4569,7 +4569,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedReleaseSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_RELEASE,
                             handlerFn,
                         );
@@ -4598,7 +4598,7 @@ export function semaphoreProviderTestSuite(
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 2;
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4607,7 +4607,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: ReleasedSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.RELEASED,
                             handlerFn,
                         );
@@ -4632,7 +4632,7 @@ export function semaphoreProviderTestSuite(
                         const ttl = null;
                         const limit = 2;
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4641,7 +4641,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: ReleasedSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.RELEASED,
                             handlerFn,
                         );
@@ -4668,14 +4668,14 @@ export function semaphoreProviderTestSuite(
                         const limit = 3;
 
                         const ttl1 = null;
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             ttl: ttl1,
                             limit,
                         });
                         await semaphore1.acquire();
 
                         const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             ttl: ttl2,
                             limit,
                         });
@@ -4685,7 +4685,7 @@ export function semaphoreProviderTestSuite(
                         await semaphore1.release();
 
                         const ttl3 = null;
-                        const semaphore3 = semaphoreProvider.create(key, {
+                        const semaphore3 = semaphoreFactory.create(key, {
                             ttl: ttl3,
                             limit,
                         });
@@ -4693,7 +4693,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AllForceReleasedSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ALL_FORCE_RELEASED,
                             handlerFn,
                         );
@@ -4720,14 +4720,14 @@ export function semaphoreProviderTestSuite(
                         const limit = 2;
 
                         const ttl1 = null;
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             ttl: ttl1,
                             limit,
                         });
                         await semaphore1.acquire();
 
                         const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             ttl: ttl2,
                             limit,
                         });
@@ -4736,7 +4736,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: AllForceReleasedSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.ALL_FORCE_RELEASED,
                             handlerFn,
                         );
@@ -4764,7 +4764,7 @@ export function semaphoreProviderTestSuite(
                         const key = "a";
                         const limit = 2;
                         const ttl = null;
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -4772,7 +4772,7 @@ export function semaphoreProviderTestSuite(
 
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         const noneExistingKey = "c";
-                        const semaphore2 = semaphoreProvider.create(
+                        const semaphore2 = semaphoreFactory.create(
                             noneExistingKey,
                             {
                                 ttl: newTtl,
@@ -4783,7 +4783,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedRefreshSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_REFRESH,
                             handlerFn,
                         );
@@ -4807,7 +4807,7 @@ export function semaphoreProviderTestSuite(
                         const key = "a";
                         const limit = 2;
                         const ttl = null;
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -4815,7 +4815,7 @@ export function semaphoreProviderTestSuite(
 
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         const noneExistingSlotId = "1";
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             ttl: newTtl,
                             limit,
                             slotId: noneExistingSlotId,
@@ -4824,7 +4824,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedRefreshSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_REFRESH,
                             handlerFn,
                         );
@@ -4848,7 +4848,7 @@ export function semaphoreProviderTestSuite(
                         const key = "a";
                         const limit = 2;
                         const ttl = TimeSpan.fromMilliseconds(50);
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4858,7 +4858,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedRefreshSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_REFRESH,
                             handlerFn,
                         );
@@ -4884,7 +4884,7 @@ export function semaphoreProviderTestSuite(
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 2;
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4894,7 +4894,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedRefreshSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_REFRESH,
                             handlerFn,
                         );
@@ -4920,7 +4920,7 @@ export function semaphoreProviderTestSuite(
                         const ttl = null;
                         const limit = 2;
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4929,7 +4929,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedRefreshSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_REFRESH,
                             handlerFn,
                         );
@@ -4955,7 +4955,7 @@ export function semaphoreProviderTestSuite(
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 2;
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4964,7 +4964,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: RefreshedSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.REFRESHED,
                             handlerFn,
                         );
@@ -4991,7 +4991,7 @@ export function semaphoreProviderTestSuite(
                         const key = "a";
                         const limit = 2;
                         const ttl = null;
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -4999,7 +4999,7 @@ export function semaphoreProviderTestSuite(
 
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         const noneExistingKey = "c";
-                        const semaphore2 = semaphoreProvider.create(
+                        const semaphore2 = semaphoreFactory.create(
                             noneExistingKey,
                             {
                                 ttl: newTtl,
@@ -5010,7 +5010,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedRefreshSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_REFRESH,
                             handlerFn,
                         );
@@ -5038,7 +5038,7 @@ export function semaphoreProviderTestSuite(
                         const key = "a";
                         const limit = 2;
                         const ttl = null;
-                        const semaphore1 = semaphoreProvider.create(key, {
+                        const semaphore1 = semaphoreFactory.create(key, {
                             limit,
                             ttl,
                         });
@@ -5046,7 +5046,7 @@ export function semaphoreProviderTestSuite(
 
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         const noneExistingSlotId = "1";
-                        const semaphore2 = semaphoreProvider.create(key, {
+                        const semaphore2 = semaphoreFactory.create(key, {
                             ttl: newTtl,
                             limit,
                             slotId: noneExistingSlotId,
@@ -5055,7 +5055,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedRefreshSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_REFRESH,
                             handlerFn,
                         );
@@ -5083,7 +5083,7 @@ export function semaphoreProviderTestSuite(
                         const key = "a";
                         const limit = 2;
                         const ttl = TimeSpan.fromMilliseconds(50);
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -5093,7 +5093,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedRefreshSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_REFRESH,
                             handlerFn,
                         );
@@ -5123,7 +5123,7 @@ export function semaphoreProviderTestSuite(
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 2;
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -5133,7 +5133,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedRefreshSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_REFRESH,
                             handlerFn,
                         );
@@ -5163,7 +5163,7 @@ export function semaphoreProviderTestSuite(
                         const ttl = null;
                         const limit = 2;
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -5172,7 +5172,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: FailedRefreshSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.FAILED_REFRESH,
                             handlerFn,
                         );
@@ -5202,7 +5202,7 @@ export function semaphoreProviderTestSuite(
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 2;
 
-                        const semaphore = semaphoreProvider.create(key, {
+                        const semaphore = semaphoreFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -5211,7 +5211,7 @@ export function semaphoreProviderTestSuite(
                         const handlerFn = vi.fn(
                             (_event: RefreshedSemaphoreEvent) => {},
                         );
-                        await semaphoreProvider.events.addListener(
+                        await semaphoreFactory.events.addListener(
                             SEMAPHORE_EVENTS.REFRESHED,
                             handlerFn,
                         );
@@ -5242,7 +5242,7 @@ export function semaphoreProviderTestSuite(
                     const limit = 3;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -5261,7 +5261,7 @@ export function semaphoreProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const semaphore = semaphoreProvider.create(key, {
+                    const semaphore = semaphoreFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5282,14 +5282,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = null;
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -5312,14 +5312,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         limit,
                         ttl: ttl1,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = null;
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -5343,14 +5343,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 3;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -5374,14 +5374,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 3;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -5411,14 +5411,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 3;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -5444,14 +5444,14 @@ export function semaphoreProviderTestSuite(
                     const limit = 1;
 
                     const ttl1 = null;
-                    const semaphore1 = semaphoreProvider.create(key, {
+                    const semaphore1 = semaphoreFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await semaphore1.acquire();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const semaphore2 = semaphoreProvider.create(key, {
+                    const semaphore2 = semaphoreFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });

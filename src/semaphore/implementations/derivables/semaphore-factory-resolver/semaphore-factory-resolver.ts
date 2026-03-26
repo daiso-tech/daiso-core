@@ -4,14 +4,14 @@
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
-    type ISemaphoreProviderFactory,
-    type ISemaphoreProvider,
+    type ISemaphoreFactoryResolver,
+    type ISemaphoreFactory,
     type SemaphoreAdapterVariants,
 } from "@/semaphore/contracts/_module.js";
 import {
-    SemaphoreProvider,
-    type SemaphoreProviderSettingsBase,
-} from "@/semaphore/implementations/derivables/semaphore-provider/_module.js";
+    SemaphoreFactory,
+    type SemaphoreFactorySettingsBase,
+} from "@/semaphore/implementations/derivables/semaphore-factory/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
@@ -30,26 +30,26 @@ export type SemaphoreAdapters<TAdapters extends string> = Partial<
  * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
  * @group Derivables
  */
-export type SemaphoreProviderFactorySettings<TAdapters extends string> =
-    SemaphoreProviderSettingsBase & {
+export type SemaphoreFactoryResolverSettings<TAdapters extends string> =
+    SemaphoreFactorySettingsBase & {
         adapters: SemaphoreAdapters<TAdapters>;
 
         defaultAdapter?: NoInfer<TAdapters>;
     };
 
 /**
- * The `SemaphoreProviderFactory` class is immutable.
+ * The `SemaphoreFactoryResolver` class is immutable.
  *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
  * @group Derivables
  */
-export class SemaphoreProviderFactory<TAdapters extends string>
-    implements ISemaphoreProviderFactory<TAdapters>
+export class SemaphoreFactoryResolver<TAdapters extends string>
+    implements ISemaphoreFactoryResolver<TAdapters>
 {
     /**
      * @example
      * ```ts
-     * import { SemaphoreProviderFactory } from "@daiso-tech/core/semaphore";
+     * import { SemaphoreFactoryResolver } from "@daiso-tech/core/semaphore";
      * import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
      * import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
      * import { Serde } from "@daiso-tech/core/serde";
@@ -57,7 +57,7 @@ export class SemaphoreProviderFactory<TAdapters extends string>
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const semaphoreProviderFactory = new SemaphoreProviderFactory({
+     * const semaphoreFactoryResolver = new SemaphoreFactoryResolver({
      *   serde,
      *   adapters: {
      *     memory: new MemorySemaphoreAdapter(),
@@ -68,25 +68,25 @@ export class SemaphoreProviderFactory<TAdapters extends string>
      * ```
      */
     constructor(
-        private readonly settings: SemaphoreProviderFactorySettings<TAdapters>,
+        private readonly settings: SemaphoreFactoryResolverSettings<TAdapters>,
     ) {}
 
-    setNamespace(namespace: INamespace): SemaphoreProviderFactory<TAdapters> {
-        return new SemaphoreProviderFactory({
+    setNamespace(namespace: INamespace): SemaphoreFactoryResolver<TAdapters> {
+        return new SemaphoreFactoryResolver({
             ...this.settings,
             namespace,
         });
     }
 
-    setEventBus(eventBus: IEventBus): SemaphoreProviderFactory<TAdapters> {
-        return new SemaphoreProviderFactory({
+    setEventBus(eventBus: IEventBus): SemaphoreFactoryResolver<TAdapters> {
+        return new SemaphoreFactoryResolver({
             ...this.settings,
             eventBus,
         });
     }
 
-    setDefaultTtl(ttl: ITimeSpan): SemaphoreProviderFactory<TAdapters> {
-        return new SemaphoreProviderFactory({
+    setDefaultTtl(ttl: ITimeSpan | null): SemaphoreFactoryResolver<TAdapters> {
+        return new SemaphoreFactoryResolver({
             ...this.settings,
             defaultTtl: ttl,
         });
@@ -94,8 +94,8 @@ export class SemaphoreProviderFactory<TAdapters extends string>
 
     setDefaultBlockingInterval(
         interval: ITimeSpan,
-    ): SemaphoreProviderFactory<TAdapters> {
-        return new SemaphoreProviderFactory({
+    ): SemaphoreFactoryResolver<TAdapters> {
+        return new SemaphoreFactoryResolver({
             ...this.settings,
             defaultBlockingInterval: interval,
         });
@@ -103,8 +103,8 @@ export class SemaphoreProviderFactory<TAdapters extends string>
 
     setDefaultBlockingTime(
         time: ITimeSpan,
-    ): SemaphoreProviderFactory<TAdapters> {
-        return new SemaphoreProviderFactory({
+    ): SemaphoreFactoryResolver<TAdapters> {
+        return new SemaphoreFactoryResolver({
             ...this.settings,
             defaultBlockingTime: time,
         });
@@ -112,8 +112,8 @@ export class SemaphoreProviderFactory<TAdapters extends string>
 
     setDefaultRefreshTime(
         time: ITimeSpan,
-    ): SemaphoreProviderFactory<TAdapters> {
-        return new SemaphoreProviderFactory({
+    ): SemaphoreFactoryResolver<TAdapters> {
+        return new SemaphoreFactoryResolver({
             ...this.settings,
             defaultRefreshTime: time,
         });
@@ -121,7 +121,7 @@ export class SemaphoreProviderFactory<TAdapters extends string>
     /**
      * @example
      * ```ts
-     * import { SemaphoreProviderFactory } from "@daiso-tech/core/semaphore";
+     * import { SemaphoreFactoryResolver } from "@daiso-tech/core/semaphore";
      * import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
      * import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
      * import { Serde } from "@daiso-tech/core/serde";
@@ -130,7 +130,7 @@ export class SemaphoreProviderFactory<TAdapters extends string>
      * import Redis from "ioredis";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const semaphoreProviderFactory = new SemaphoreProviderFactory({
+     * const semaphoreFactoryResolver = new SemaphoreFactoryResolver({
      *   serde,
      *   adapters: {
      *     memory: new MemorySemaphoreAdapter(),
@@ -140,13 +140,13 @@ export class SemaphoreProviderFactory<TAdapters extends string>
      * });
      *
      * // Will acquire key using the default adapter which is MemorySemaphoreAdapter
-     * await semaphoreProviderFactory
+     * await semaphoreFactoryResolver
      *   .use()
      *   .create("a")
      *   .acquire();
      *
      * // Will acquire key using the redis adapter
-     * await semaphoreProviderFactory
+     * await semaphoreFactoryResolver
      *   .use("redis")
      *   .create("a")
      *   .acquire();
@@ -154,17 +154,17 @@ export class SemaphoreProviderFactory<TAdapters extends string>
      */
     use(
         adapterName: TAdapters | undefined = this.settings.defaultAdapter,
-    ): ISemaphoreProvider {
+    ): ISemaphoreFactory {
         if (adapterName === undefined) {
             throw new DefaultAdapterNotDefinedError(
-                SemaphoreProviderFactory.name,
+                SemaphoreFactoryResolver.name,
             );
         }
         const adapter = this.settings.adapters[adapterName];
         if (adapter === undefined) {
             throw new UnregisteredAdapterError(adapterName);
         }
-        return new SemaphoreProvider({
+        return new SemaphoreFactory({
             ...this.settings,
             adapter,
             serdeTransformerName: adapterName,

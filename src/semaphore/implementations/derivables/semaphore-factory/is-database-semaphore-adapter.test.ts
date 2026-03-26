@@ -8,7 +8,7 @@ import {
     type ISemaphoreAdapterState,
     type SemaphoreAcquireSettings,
 } from "@/semaphore/contracts/_module.js";
-import { isDatabaseSemaphoreAdapter } from "@/semaphore/implementations/derivables/semaphore-provider/is-database-semaphore-adapter.js";
+import { isDatabaseSemaphoreAdapter } from "@/semaphore/implementations/derivables/semaphore-factory/is-database-semaphore-adapter.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import { type InvokableFn } from "@/utilities/_module.js";
 

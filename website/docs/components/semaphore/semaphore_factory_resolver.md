@@ -1,30 +1,30 @@
 ---
 sidebar_position: 2
-sidebar_label: Factory classes
-pagination_label: Semaphore factory classes
+sidebar_label: Resolver classes
+pagination_label: Semaphore resolver classes
 tags:
  - Semaphore
- - Factories
+ - Resolvers
 keywords:
  - Semaphore
- - Factories
+ - Resolvers
 ---
-# SemaphoreProviderFactory
+# SemaphoreFactoryResolver
 
-The `SemaphoreProviderFactory` class provides a flexible way to configure and switch between different semaphore adapters at runtime.
+The `SemaphoreFactoryResolver` class provides a flexible way to configure and switch between different semaphore adapters at runtime.
 
 ## Initial configuration
 
-To begin using the `ISemaphoreProviderFactory`, You will need to register all required adapters during initialization.
+To begin using the `ISemaphoreFactoryResolver`, you will need to register all required adapters during initialization.
 
 ```ts
-import { SemaphoreProviderFactory } from "@daiso-tech/core/semaphore";
+import { SemaphoreFactoryResolver } from "@daiso-tech/core/semaphore";
 import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
 import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
 import Redis from "ioredis";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
-const semaphoreProvider = new SemaphoreProviderFactory({
+const semaphoreFactoryResolver = new SemaphoreFactoryResolver({
     adapters: {
         memory: new MemorySemaphoreAdapter(),
         redis: new RedisSemaphoreAdapter(new Redis("YOUR_REDIS_CONNECTION")),
@@ -39,7 +39,7 @@ const semaphoreProvider = new SemaphoreProviderFactory({
 ### 1. Using the default adapter
 
 ```ts
-await semaphoreProvider
+await semaphoreFactoryResolver
     .use()
     .create("shared-resource")
     .runOrFail(async () => {
@@ -54,7 +54,7 @@ Note that if you dont set a default adapter, an error will be thrown.
 ### 2. Specifying an adapter explicitly
 
 ```ts
-await semaphoreProvider
+await semaphoreFactoryResolver
     .use("redis")
     .create("shared-resource")
     .runOrFail(async () => {
@@ -69,7 +69,7 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 ### 3. Overriding default settings
 
 ```ts
-await semaphoreProvider
+await semaphoreFactoryResolver
     .setNamespace(new Namespace("@my-namespace"))
     .use("redis")
     .create("shared-resource")
@@ -79,7 +79,7 @@ await semaphoreProvider
 ```
 
 :::info
-Note that the `SemaphoreProviderFactory` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
+Note that the `SemaphoreFactoryResolver` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
 :::
 
 ## Further information

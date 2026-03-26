@@ -7,12 +7,12 @@ import {
     type ISemaphoreAdapterState,
     type SemaphoreAcquireSettings,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ISemaphoreProvider,
+    type ISemaphoreFactory,
 } from "@/semaphore/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- * The `NoOpSemaphoreAdapter` will do nothing and is used for easily mocking {@link ISemaphoreProvider | `ISemaphoreProvider`} for testing.
+ * The `NoOpSemaphoreAdapter` will do nothing and is used for easily mocking {@link ISemaphoreFactory | `ISemaphoreFactory`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/no-op-semaphore-adapter"`
  * @group Adapters

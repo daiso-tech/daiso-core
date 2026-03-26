@@ -16,13 +16,13 @@ import {
     type ISemaphoreAdapter,
     type SemaphoreAdapterVariants,
     type SemaphoreEventMap,
-    type SemaphoreProviderCreateSettings,
-    type ISemaphoreProvider,
+    type SemaphoreFactoryCreateSettings,
+    type ISemaphoreFactory,
     type ISemaphoreListenable,
 } from "@/semaphore/contracts/_module.js";
-import { resolveSemaphoreAdapter } from "@/semaphore/implementations/derivables/semaphore-provider/resolve-semaphore-adapter.js";
-import { SemaphoreSerdeTransformer } from "@/semaphore/implementations/derivables/semaphore-provider/semaphore-serde-transformer.js";
-import { Semaphore } from "@/semaphore/implementations/derivables/semaphore-provider/semaphore.js";
+import { resolveSemaphoreAdapter } from "@/semaphore/implementations/derivables/semaphore-factory/resolve-semaphore-adapter.js";
+import { SemaphoreSerdeTransformer } from "@/semaphore/implementations/derivables/semaphore-factory/semaphore-serde-transformer.js";
+import { Semaphore } from "@/semaphore/implementations/derivables/semaphore-factory/semaphore.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
@@ -41,7 +41,7 @@ import {
  * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
  * @group Derivables
  */
-export type SemaphoreProviderSettingsBase = {
+export type SemaphoreFactorySettingsBase = {
     /**
      * @default
      * ```ts
@@ -139,21 +139,21 @@ export type SemaphoreProviderSettingsBase = {
  * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
  * @group Derivables
  */
-export type SemaphoreProviderSettings = SemaphoreProviderSettingsBase & {
+export type SemaphoreFactorySettings = SemaphoreFactorySettingsBase & {
     adapter: SemaphoreAdapterVariants;
 };
 
 /**
- * `SemaphoreProvider` class can be derived from any {@link ISemaphoreAdapter | `ISemaphoreAdapter`} or {@link IDatabaseSemaphoreAdapter | `IDatabaseSemaphoreAdapter`}.
+ * `SemaphoreFactory` class can be derived from any {@link ISemaphoreAdapter | `ISemaphoreAdapter`} or {@link IDatabaseSemaphoreAdapter | `IDatabaseSemaphoreAdapter`}.
  *
- * Note the {@link ISemaphore | `ISemaphore`} instances created by the `SemaphoreProvider` class are serializable and deserializable,
+ * Note the {@link ISemaphore | `ISemaphore`} instances created by the `SemaphoreFactory` class are serializable and deserializable,
  * allowing them to be seamlessly transferred across different servers, processes, and databases.
  * This can be done directly using {@link ISerderRegister | `ISerderRegister`} or indirectly through components that rely on {@link ISerderRegister | `ISerderRegister`} internally.
  *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
  * @group Derivables
  */
-export class SemaphoreProvider implements ISemaphoreProvider {
+export class SemaphoreFactory implements ISemaphoreFactory {
     private readonly eventBus: IEventBus<SemaphoreEventMap>;
     private readonly adapter: ISemaphoreAdapter;
     private readonly originalAdapter: SemaphoreAdapterVariants;
@@ -170,7 +170,7 @@ export class SemaphoreProvider implements ISemaphoreProvider {
      * @example
      * ```ts
      * import { KyselySemaphoreAdapter } from "@daiso-tech/core/semaphore/kysely-semaphore-adapter";
-     * import { SemaphoreProvider } from "@daiso-tech/core/semaphore";
+     * import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
      * import { Serde } from "@daiso-tech/core/serde";
      * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
      * import Sqlite from "better-sqlite3";
@@ -187,13 +187,13 @@ export class SemaphoreProvider implements ISemaphoreProvider {
      * await semaphoreAdapter.init();
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter())
-     * const lockProvider = new SemaphoreProvider({
+     * const lockProvider = new SemaphoreFactory({
      *   serde,
      *   adapter: semaphoreAdapter,
      * });
      * ```
      */
-    constructor(settings: SemaphoreProviderSettings) {
+    constructor(settings: SemaphoreFactorySettings) {
         const {
             createSlotId = () => v4(),
             defaultTtl = TimeSpan.fromMinutes(5),
@@ -248,7 +248,7 @@ export class SemaphoreProvider implements ISemaphoreProvider {
         return this.eventBus;
     }
 
-    create(key: string, settings: SemaphoreProviderCreateSettings): ISemaphore {
+    create(key: string, settings: SemaphoreFactoryCreateSettings): ISemaphore {
         const {
             ttl = this.defaultTtl,
             limit,

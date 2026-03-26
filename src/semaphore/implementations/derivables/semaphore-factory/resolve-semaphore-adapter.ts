@@ -6,8 +6,8 @@ import {
     type ISemaphoreAdapter,
     type SemaphoreAdapterVariants,
 } from "@/semaphore/contracts/_module.js";
-import { DatabaseSemaphoreAdapter } from "@/semaphore/implementations/derivables/semaphore-provider/database-semaphore-adapter.js";
-import { isDatabaseSemaphoreAdapter } from "@/semaphore/implementations/derivables/semaphore-provider/is-database-semaphore-adapter.js";
+import { DatabaseSemaphoreAdapter } from "@/semaphore/implementations/derivables/semaphore-factory/database-semaphore-adapter.js";
+import { isDatabaseSemaphoreAdapter } from "@/semaphore/implementations/derivables/semaphore-factory/is-database-semaphore-adapter.js";
 
 /**
  * @internal

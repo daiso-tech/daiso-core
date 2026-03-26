@@ -12,7 +12,7 @@ import {
 import {
     Semaphore,
     type ISerializedSemaphore,
-} from "@/semaphore/implementations/derivables/semaphore-provider/semaphore.js";
+} from "@/semaphore/implementations/derivables/semaphore-factory/semaphore.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type OneOrMore, getConstructorName } from "@/utilities/_module.js";

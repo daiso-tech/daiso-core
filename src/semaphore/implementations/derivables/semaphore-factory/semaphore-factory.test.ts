@@ -10,16 +10,16 @@ import {
     MemorySemaphoreAdapter,
     KyselySemaphoreAdapter,
 } from "@/semaphore/implementations/adapters/_module.js";
-import { SemaphoreProvider } from "@/semaphore/implementations/derivables/_module.js";
-import { semaphoreProviderTestSuite } from "@/semaphore/implementations/test-utilities/_module.js";
+import { SemaphoreFactory } from "@/semaphore/implementations/derivables/_module.js";
+import { semaphoreFactoryTestSuite } from "@/semaphore/implementations/test-utilities/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 
-describe("class: SemaphoreProvider", () => {
-    semaphoreProviderTestSuite({
-        createSemaphoreProvider: () => {
+describe("class: SemaphoreFactory", () => {
+    semaphoreFactoryTestSuite({
+        createSemaphoreFactory: () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
-            const semaphoreProvider = new SemaphoreProvider({
+            const semaphoreFactory = new SemaphoreFactory({
                 serde,
                 eventBus: new EventBus({
                     namespace: new Namespace("event-bus"),
@@ -29,7 +29,7 @@ describe("class: SemaphoreProvider", () => {
                 namespace: new Namespace("semaphore"),
             });
             return {
-                semaphoreProvider,
+                semaphoreFactory,
                 serde,
             };
         },
@@ -46,7 +46,7 @@ describe("class: SemaphoreProvider", () => {
             const ttl = null;
             const limit = 1;
 
-            const lockProvider1 = new SemaphoreProvider({
+            const lockProvider1 = new SemaphoreFactory({
                 adapter: new MemorySemaphoreAdapter(),
                 namespace: new Namespace("@lock-1"),
                 eventBus: new EventBus({
@@ -58,7 +58,7 @@ describe("class: SemaphoreProvider", () => {
             const lock1 = lockProvider1.create(key, { ttl, limit });
             await lock1.acquire();
 
-            const lockProvider2 = new SemaphoreProvider({
+            const lockProvider2 = new SemaphoreFactory({
                 adapter: new MemorySemaphoreAdapter(),
                 namespace: new Namespace("@lock-2"),
                 eventBus: new EventBus({
@@ -84,7 +84,7 @@ describe("class: SemaphoreProvider", () => {
             const limit = 1;
 
             const adapter1 = new MemorySemaphoreAdapter();
-            const lockProvider1 = new SemaphoreProvider({
+            const lockProvider1 = new SemaphoreFactory({
                 adapter: adapter1,
                 namespace: lockNamespace,
                 eventBus: new EventBus({
@@ -105,7 +105,7 @@ describe("class: SemaphoreProvider", () => {
                 shouldRemoveExpiredKeys: false,
             });
             await adapter2.init();
-            const lockProvider2 = new SemaphoreProvider({
+            const lockProvider2 = new SemaphoreFactory({
                 adapter: adapter2,
                 namespace: lockNamespace,
                 eventBus: new EventBus({
@@ -131,7 +131,7 @@ describe("class: SemaphoreProvider", () => {
             const ttl = null;
             const limit = 1;
 
-            const lockProvider1 = new SemaphoreProvider({
+            const lockProvider1 = new SemaphoreFactory({
                 adapter: new MemorySemaphoreAdapter(),
                 namespace: lockNamespace,
                 eventBus: new EventBus({
@@ -144,7 +144,7 @@ describe("class: SemaphoreProvider", () => {
             const lock1 = lockProvider1.create(key, { ttl, limit });
             await lock1.acquire();
 
-            const lockProvider2 = new SemaphoreProvider({
+            const lockProvider2 = new SemaphoreFactory({
                 adapter: new MemorySemaphoreAdapter(),
                 namespace: lockNamespace,
                 eventBus: new EventBus({

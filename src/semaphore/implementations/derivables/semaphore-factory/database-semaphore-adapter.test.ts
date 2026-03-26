@@ -3,7 +3,7 @@ import { Kysely, SqliteDialect } from "kysely";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { KyselySemaphoreAdapter } from "@/semaphore/implementations/adapters/_module.js";
-import { DatabaseSemaphoreAdapter } from "@/semaphore/implementations/derivables/semaphore-provider/database-semaphore-adapter.js";
+import { DatabaseSemaphoreAdapter } from "@/semaphore/implementations/derivables/semaphore-factory/database-semaphore-adapter.js";
 import { semaphoreAdapterTestSuite } from "@/semaphore/implementations/test-utilities/_module.js";
 
 describe("class: DatabaseSemaphoreAdapter", () => {

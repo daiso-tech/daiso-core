@@ -19,7 +19,7 @@ export type ISemaphoreListenable = IEventListenable<SemaphoreEventMap>;
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
-export type SemaphoreProviderCreateSettings = {
+export type SemaphoreFactoryCreateSettings = {
     limit: number;
 
     /**
@@ -34,20 +34,20 @@ export type SemaphoreProviderCreateSettings = {
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
-export type ISemaphoreProviderBase = {
+export type ISemaphoreFactoryBase = {
     /**
      * The `create` method is used to create an instance of {@link ISemaphore | `ISemaphore`}.
      */
-    create(key: string, settings: SemaphoreProviderCreateSettings): ISemaphore;
+    create(key: string, settings: SemaphoreFactoryCreateSettings): ISemaphore;
 };
 
 /**
- * The `ISemaphoreProvider` contract defines a way for managing semaphores independent of the underlying technology.
- * It commes with more convient methods compared to `ISemaphoreAdapter`.
+ * The `ISemaphoreFactory` contract defines a way for managing semaphores independent of the underlying technology.
+ * It comes with more convenient methods compared to `ISemaphoreAdapter`.
  *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
-export type ISemaphoreProvider = ISemaphoreProviderBase & {
+export type ISemaphoreFactory = ISemaphoreFactoryBase & {
     readonly events: ISemaphoreListenable;
 };
