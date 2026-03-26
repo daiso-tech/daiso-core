@@ -11,12 +11,12 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * The `ICacheFactory` contract makes it easy to configure and switch between different {@link ICache | `ICache`} dynamically.
+ * The `ICacheResolver` contract makes it easy to configure and switch between different {@link ICache | `ICache`} dynamically.
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Contracts
  */
-export type ICacheFactory<
+export type ICacheResolver<
     TAdapters extends string = string,
     TType = unknown,
 > = {

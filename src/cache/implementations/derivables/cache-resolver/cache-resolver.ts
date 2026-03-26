@@ -7,7 +7,7 @@ import { type StandardSchemaV1 } from "@standard-schema/spec";
 import {
     type CacheAdapterVariants,
     type ICache,
-    type ICacheFactory,
+    type ICacheResolver,
 } from "@/cache/contracts/_module.js";
 import {
     Cache,
@@ -33,7 +33,7 @@ export type CacheAdapters<TAdapters extends string = string> = Partial<
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */
-export type CacheFactorySettings<
+export type CacheResolverSettings<
     TAdapters extends string = string,
     TType = unknown,
 > = CacheSettingsBase<TType> & {
@@ -43,18 +43,18 @@ export type CacheFactorySettings<
 };
 
 /**
- * The `CacheFactory` class is immutable.
+ * The `CacheResolver` class is immutable.
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */
-export class CacheFactory<TAdapters extends string = string, TType = unknown>
-    implements ICacheFactory<TAdapters, TType>
+export class CacheResolver<TAdapters extends string = string, TType = unknown>
+    implements ICacheResolver<TAdapters, TType>
 {
     /**
      * @example
      * ```ts
-     * import { CacheFactory } from "@daiso-tech/core/cache";
+     * import { CacheResolver } from "@daiso-tech/core/cache";
      * import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
      * import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
      * import { Serde } from "@daiso-tech/core/serde";
@@ -63,7 +63,7 @@ export class CacheFactory<TAdapters extends string = string, TType = unknown>
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const cacheFactory = new CacheFactory({
+     * const cacheResolver = new CacheResolver({
      *   adapters: {
      *     memory: new MemoryCacheAdapter(),
      *     redis: new RedisCacheAdapter({
@@ -75,25 +75,25 @@ export class CacheFactory<TAdapters extends string = string, TType = unknown>
      * });
      */
     constructor(
-        private readonly settings: CacheFactorySettings<TAdapters, TType>,
+        private readonly settings: CacheResolverSettings<TAdapters, TType>,
     ) {}
 
-    setNamespace(namespace: INamespace): CacheFactory<TAdapters, TType> {
-        return new CacheFactory({
+    setNamespace(namespace: INamespace): CacheResolver<TAdapters, TType> {
+        return new CacheResolver({
             ...this.settings,
             namespace,
         });
     }
 
-    setDefaultTtl(ttl: ITimeSpan): CacheFactory<TAdapters, TType> {
-        return new CacheFactory({
+    setDefaultTtl(ttl: ITimeSpan | null): CacheResolver<TAdapters, TType> {
+        return new CacheResolver({
             ...this.settings,
             defaultTtl: ttl,
         });
     }
 
-    setEventBus(eventBus: IEventBus): CacheFactory<TAdapters, TType> {
-        return new CacheFactory({
+    setEventBus(eventBus: IEventBus): CacheResolver<TAdapters, TType> {
+        return new CacheResolver({
             ...this.settings,
             eventBus,
         });
@@ -101,21 +101,21 @@ export class CacheFactory<TAdapters extends string = string, TType = unknown>
 
     setSchema<TSchemaOutputType>(
         schema: StandardSchemaV1<TSchemaOutputType>,
-    ): CacheFactory<TAdapters, TSchemaOutputType> {
-        return new CacheFactory({
+    ): CacheResolver<TAdapters, TSchemaOutputType> {
+        return new CacheResolver({
             ...this.settings,
             schema,
         });
     }
 
-    setType<TOutputType>(): CacheFactory<TAdapters, TOutputType> {
-        return new CacheFactory(
-            this.settings as CacheFactorySettings<TAdapters, TOutputType>,
+    setType<TOutputType>(): CacheResolver<TAdapters, TOutputType> {
+        return new CacheResolver(
+            this.settings as CacheResolverSettings<TAdapters, TOutputType>,
         );
     }
 
-    setJitter(jitter: number): CacheFactory<TAdapters, TType> {
-        return new CacheFactory({
+    setJitter(jitter: number): CacheResolver<TAdapters, TType> {
+        return new CacheResolver({
             ...this.settings,
             defaultJitter: jitter,
         });
@@ -124,7 +124,7 @@ export class CacheFactory<TAdapters extends string = string, TType = unknown>
     /**
      * @example
      * ```ts
-     * import { CacheFactory } from "@daiso-tech/core/cache";
+     * import { CacheResolver } from "@daiso-tech/core/cache";
      * import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
      * import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
      * import { Serde } from "@daiso-tech/core/serde";
@@ -134,7 +134,7 @@ export class CacheFactory<TAdapters extends string = string, TType = unknown>
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const cacheFactory = new CacheFactory({
+     * const cacheResolver = new CacheResolver({
      *   adapters: {
      *     memory: new MemoryCacheAdapter(),
      *     redis: new RedisCacheAdapter({
@@ -146,17 +146,17 @@ export class CacheFactory<TAdapters extends string = string, TType = unknown>
      * });
      *
      * // Will add key to cache using the default adapter which is MemoryCacheAdapter
-     * await cacheFactory
+     * await cacheResolver
      *   .use()
      *   .add("a", 1);
      *
      * // Will add key to cache using the redis adapter
-     * await cacheFactory
+     * await cacheResolver
      *   .use("redis")
      *   .add("a", 1);
      *
      * // You can change the default settings of the returned Cache instance.
-     * await cacheFactory
+     * await cacheResolver
      *   .setDefaultTtl(TimeSpan.fromMinutes(2))
      *   .use("sqlite")
      *   .add("a", 1);
@@ -166,7 +166,7 @@ export class CacheFactory<TAdapters extends string = string, TType = unknown>
         adapterName: TAdapters | undefined = this.settings.defaultAdapter,
     ): ICache<TType> {
         if (adapterName === undefined) {
-            throw new DefaultAdapterNotDefinedError(CacheFactory.name);
+            throw new DefaultAdapterNotDefinedError(CacheResolver.name);
         }
         const adapter = this.settings.adapters[adapterName];
         if (adapter === undefined) {

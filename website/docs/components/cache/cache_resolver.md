@@ -1,25 +1,25 @@
 ---
 sidebar_position: 2
-sidebar_label: Factory classes
-pagination_label: Cache factory classes
+sidebar_label: Resolver classes
+pagination_label: Cache resolver classes
 tags:
  - Cache
- - Factories
+ - Resolvers
 keywords:
  - Cache
- - Factories
+ - Resolvers
 ---
 
-# CacheFactory
+# CacheResolver
 
-The `CacheFactory` class provides a flexible way to configure and switch between different cache adapters at runtime.
+The `CacheResolver` class provides a flexible way to configure and switch between different cache adapters at runtime.
 
 ## Initial configuration
 
-To begin using the `CacheFactory`, You will need to register all required adapters during initialization.
+To begin using the `CacheResolver`, you will need to register all required adapters during initialization.
 
 ```ts
-import { CacheFactory } from "@daiso-tech/core/cache";
+import { CacheResolver } from "@daiso-tech/core/cache";
 import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
 import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
 import { Serde } from "@daiso-tech/core/serde";
@@ -28,7 +28,7 @@ import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-a
 import Redis from "ioredis";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
-const cacheFactory = new CacheFactory({
+const cacheResolver = new CacheResolver({
     adapters: {
         memory: new MemoryCacheAdapter(),
         redis: new RedisCacheAdapter({
@@ -46,7 +46,7 @@ const cacheFactory = new CacheFactory({
 ### 1. Using the default adapter
 
 ```ts
-await cacheFactory.use().add("user/jose@gmail.com", {
+await cacheResolver.use().add("user/jose@gmail.com", {
     name: "Jose",
     age: 20,
 });
@@ -59,7 +59,7 @@ Note that if you dont set a default adapter, an error will be thrown.
 ### 2. Specifying an adapter explicitly
 
 ```ts
-await cacheFactory.use("redis").add("user/jose@gmail.com", {
+await cacheResolver.use("redis").add("user/jose@gmail.com", {
     name: "Jose",
     age: 20,
 });
@@ -74,7 +74,7 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 ```ts
 import { z } from "zod";
 
-await eventBusFactory
+await cacheResolver
     .setNamespace(new Namespace("@my-namespace"))
     // You can overide the cache value type by calling setType or setSchema method again
     .setType<string>()
@@ -92,7 +92,7 @@ await eventBusFactory
 ```
 
 :::info
-Note that the `CacheFactory` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
+Note that the `CacheResolver` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
 :::
 
 ## Further information
