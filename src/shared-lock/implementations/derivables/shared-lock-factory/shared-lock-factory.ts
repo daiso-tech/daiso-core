@@ -16,14 +16,14 @@ import {
     type ISharedLock,
     type ISharedLockAdapter,
     type SharedLockEventMap,
-    type SharedLockProviderCreateSettings,
-    type ISharedLockProvider,
+    type SharedLockFactoryCreateSettings,
+    type ISharedLockFactory,
     type SharedLockAdapterVariants,
     type ISharedLockListenable,
 } from "@/shared-lock/contracts/_module.js";
-import { resolveSharedLockAdapter } from "@/shared-lock/implementations/derivables/shared-lock-provider/resolve-shared-lock-adapter.js";
-import { SharedLockSerdeTransformer } from "@/shared-lock/implementations/derivables/shared-lock-provider/shared-lock-serde-transformer.js";
-import { SharedLock } from "@/shared-lock/implementations/derivables/shared-lock-provider/shared-lock.js";
+import { resolveSharedLockAdapter } from "@/shared-lock/implementations/derivables/shared-lock-factory/resolve-shared-lock-adapter.js";
+import { SharedLockSerdeTransformer } from "@/shared-lock/implementations/derivables/shared-lock-factory/shared-lock-serde-transformer.js";
+import { SharedLock } from "@/shared-lock/implementations/derivables/shared-lock-factory/shared-lock.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
@@ -38,7 +38,7 @@ import {
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
  * @group Derivables
  */
-export type SharedLockProviderSettingsBase = {
+export type SharedLockFactorySettingsBase = {
     /**
      * @default
      * ```ts
@@ -136,21 +136,21 @@ export type SharedLockProviderSettingsBase = {
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
  * @group Derivables
  */
-export type SharedLockProviderSettings = SharedLockProviderSettingsBase & {
+export type SharedLockFactorySettings = SharedLockFactorySettingsBase & {
     adapter: SharedLockAdapterVariants;
 };
 
 /**
- * `SharedLockProvider` class can be derived from any {@link ISharedLockAdapter | `ISharedLockAdapter`} or {@link IDatabaseSharedLockAdapter | `IDatabaseSharedLockAdapter`}.
+ * `SharedLockFactory` class can be derived from any {@link ISharedLockAdapter | `ISharedLockAdapter`} or {@link IDatabaseSharedLockAdapter | `IDatabaseSharedLockAdapter`}.
  *
- * Note the {@link ISharedLock | `ISharedLock`} instances created by the `SharedLockProvider` class are serializable and deserializable,
+ * Note the {@link ISharedLock | `ISharedLock`} instances created by the `SharedLockFactory` class are serializable and deserializable,
  * allowing them to be seamlessly transferred across different servers, processes, and databases.
  * This can be done directly using {@link ISerderRegister | `ISerderRegister`} or indirectly through components that rely on {@link ISerderRegister | `ISerderRegister`} internally.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
  * @group Derivables
  */
-export class SharedLockProvider implements ISharedLockProvider {
+export class SharedLockFactory implements ISharedLockFactory {
     private readonly eventBus: IEventBus<SharedLockEventMap>;
     private readonly originalAdapter: SharedLockAdapterVariants;
     private readonly adapter: ISharedLockAdapter;
@@ -167,7 +167,7 @@ export class SharedLockProvider implements ISharedLockProvider {
      * @example
      * ```ts
      * import { KyselySharedLockAdapter } from "@daiso-tech/core/shared-lock/kysely-shared-lock-adapter";
-     * import { SharedLockProvider } from "@daiso-tech/core/shared-lock";
+     * import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
      * import { Serde } from "@daiso-tech/core/serde";
      * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
      * import Sqlite from "better-sqlite3";
@@ -184,13 +184,13 @@ export class SharedLockProvider implements ISharedLockProvider {
      * await sharedLockAdapter.init();
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter())
-     * const lockProvider = new SharedLockProvider({
+     * const lockFactory = new SharedLockFactory({
      *   serde,
      *   adapter: sharedLockAdapter,
      * });
      * ```
      */
-    constructor(settings: SharedLockProviderSettings) {
+    constructor(settings: SharedLockFactorySettings) {
         const {
             defaultTtl = TimeSpan.fromMinutes(5),
             defaultBlockingInterval = TimeSpan.fromSeconds(1),
@@ -247,24 +247,24 @@ export class SharedLockProvider implements ISharedLockProvider {
     /**
      * @example
      * ```ts
-     * import { SharedLockProvider } from "@daiso-tech/core/shared-lock";
+     * import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
      * import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
      * import { Namespace } from "@daiso-tech/core/namespace";
      * import { Serde } from "@daiso-tech/core/serde";
      * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
      *
-     * const lockProvider = new SharedLockProvider({
+     * const lockFactory = new SharedLockFactory({
      *   adapter: new MemorySharedLockAdapter(),
      *   namespace: new Namespace("shared_lock"),
      *   serde: new Serde(new SuperJsonSerdeAdapter())
      * });
      *
-     * const sharedLock = lockProvider.create("a");
+     * const sharedLock = lockFactory.create("a");
      * ```
      */
     create(
         key: string,
-        settings: SharedLockProviderCreateSettings,
+        settings: SharedLockFactoryCreateSettings,
     ): ISharedLock {
         const {
             ttl = this.defaultTtl,

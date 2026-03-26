@@ -19,7 +19,7 @@ export type ISharedLockListenable = IEventListenable<SharedLockEventMap>;
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
-export type SharedLockProviderCreateSettings = {
+export type SharedLockFactoryCreateSettings = {
     limit: number;
 
     /**
@@ -37,23 +37,20 @@ export type SharedLockProviderCreateSettings = {
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
-export type ISharedLockProviderBase = {
+export type ISharedLockFactoryBase = {
     /**
      * The `create` method is used to create an instance of {@link ISharedLock | `ISharedLock`}.
      */
-    create(
-        key: string,
-        settings: SharedLockProviderCreateSettings,
-    ): ISharedLock;
+    create(key: string, settings: SharedLockFactoryCreateSettings): ISharedLock;
 };
 
 /**
- * The `ISharedLockProvider` contract defines a way for managing locks independent of the underlying technology.
- * It commes with more convient methods compared to `ISharedLockAdapter`.
+ * The `ISharedLockFactory` contract defines a way for managing locks independent of the underlying technology.
+ * It comes with more convenient methods compared to `ISharedLockAdapter`.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
-export type ISharedLockProvider = ISharedLockProviderBase & {
+export type ISharedLockFactory = ISharedLockFactoryBase & {
     readonly events: ISharedLockListenable;
 };

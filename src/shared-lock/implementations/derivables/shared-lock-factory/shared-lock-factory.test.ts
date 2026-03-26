@@ -12,14 +12,14 @@ import {
     KyselySharedLockAdapter,
     MemorySharedLockAdapter,
 } from "@/shared-lock/implementations/adapters/_module.js";
-import { SharedLockProvider } from "@/shared-lock/implementations/derivables/_module.js";
-import { sharedLockProviderTestSuite } from "@/shared-lock/implementations/test-utilities/_module.js";
+import { SharedLockFactory } from "@/shared-lock/implementations/derivables/_module.js";
+import { sharedLockFactoryTestSuite } from "@/shared-lock/implementations/test-utilities/_module.js";
 
-describe("class: SharedLockProvider", () => {
-    sharedLockProviderTestSuite({
-        createSharedLockProvider: () => {
+describe("class: SharedLockFactory", () => {
+    sharedLockFactoryTestSuite({
+        createSharedLockFactory: () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
-            const sharedLockProvider = new SharedLockProvider({
+            const sharedLockFactory = new SharedLockFactory({
                 serde,
                 eventBus: new EventBus({
                     namespace: new Namespace("event-bus"),
@@ -28,7 +28,7 @@ describe("class: SharedLockProvider", () => {
                 adapter: new MemorySharedLockAdapter(),
                 namespace: new Namespace("shared-lock"),
             });
-            return { sharedLockProvider, serde };
+            return { sharedLockFactory, serde };
         },
         beforeEach,
         describe,
@@ -43,7 +43,7 @@ describe("class: SharedLockProvider", () => {
             const ttl = null;
             const limit = 4;
 
-            const sharedLockProvider1 = new SharedLockProvider({
+            const sharedLockFactory1 = new SharedLockFactory({
                 adapter: new MemorySharedLockAdapter(),
                 namespace: new Namespace("@lock-1"),
                 eventBus: new EventBus({
@@ -52,10 +52,10 @@ describe("class: SharedLockProvider", () => {
                 }),
                 serde,
             });
-            const lock1 = sharedLockProvider1.create(key, { ttl, limit });
+            const lock1 = sharedLockFactory1.create(key, { ttl, limit });
             await lock1.acquireWriter();
 
-            const sharedLockProvider2 = new SharedLockProvider({
+            const sharedLockFactory2 = new SharedLockFactory({
                 adapter: new MemorySharedLockAdapter(),
                 namespace: new Namespace("@lock-2"),
                 eventBus: new EventBus({
@@ -65,7 +65,7 @@ describe("class: SharedLockProvider", () => {
                 serde,
             });
 
-            const lock2 = sharedLockProvider2.create(key, { ttl, limit });
+            const lock2 = sharedLockFactory2.create(key, { ttl, limit });
             const deserializedLock2 = serde.deserialize<ISharedLock>(
                 serde.serialize(lock2),
             );
@@ -81,7 +81,7 @@ describe("class: SharedLockProvider", () => {
             const limit = 4;
 
             const adapter1 = new MemorySharedLockAdapter();
-            const sharedLockProvider1 = new SharedLockProvider({
+            const sharedLockFactory1 = new SharedLockFactory({
                 adapter: adapter1,
                 namespace: lockNamespace,
                 eventBus: new EventBus({
@@ -90,7 +90,7 @@ describe("class: SharedLockProvider", () => {
                 }),
                 serde,
             });
-            const lock1 = sharedLockProvider1.create(key, { ttl, limit });
+            const lock1 = sharedLockFactory1.create(key, { ttl, limit });
             await lock1.acquireWriter();
 
             const adapter2 = new KyselySharedLockAdapter({
@@ -102,7 +102,7 @@ describe("class: SharedLockProvider", () => {
                 shouldRemoveExpiredKeys: false,
             });
             await adapter2.init();
-            const sharedLockProvider2 = new SharedLockProvider({
+            const sharedLockFactory2 = new SharedLockFactory({
                 adapter: adapter2,
                 namespace: lockNamespace,
                 eventBus: new EventBus({
@@ -112,7 +112,7 @@ describe("class: SharedLockProvider", () => {
                 serde,
             });
 
-            const lock2 = sharedLockProvider2.create(key, { ttl, limit });
+            const lock2 = sharedLockFactory2.create(key, { ttl, limit });
             const deserializeLock2 = serde.deserialize<ISharedLock>(
                 serde.serialize(lock2),
             );
@@ -128,7 +128,7 @@ describe("class: SharedLockProvider", () => {
             const ttl = null;
             const limit = 4;
 
-            const sharedLockProvider1 = new SharedLockProvider({
+            const sharedLockFactory1 = new SharedLockFactory({
                 adapter: new MemorySharedLockAdapter(),
                 namespace: lockNamespace,
                 eventBus: new EventBus({
@@ -138,10 +138,10 @@ describe("class: SharedLockProvider", () => {
                 serdeTransformerName: "adapter1",
                 serde,
             });
-            const lock1 = sharedLockProvider1.create(key, { ttl, limit });
+            const lock1 = sharedLockFactory1.create(key, { ttl, limit });
             await lock1.acquireWriter();
 
-            const sharedLockProvider2 = new SharedLockProvider({
+            const sharedLockFactory2 = new SharedLockFactory({
                 adapter: new MemorySharedLockAdapter(),
                 namespace: lockNamespace,
                 eventBus: new EventBus({
@@ -152,7 +152,7 @@ describe("class: SharedLockProvider", () => {
                 serde,
             });
 
-            const lock2 = sharedLockProvider2.create(key, { ttl, limit });
+            const lock2 = sharedLockFactory2.create(key, { ttl, limit });
             const deserializeLock2 = serde.deserialize<ISharedLock>(
                 serde.serialize(lock2),
             );

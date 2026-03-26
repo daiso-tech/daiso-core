@@ -30,7 +30,7 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type ISharedLock,
     type ISharedLockExpiredState,
-    type ISharedLockProvider,
+    type ISharedLockFactory,
     type ISharedLockReaderAcquiredState,
     type ISharedLockReaderLimitReachedState,
     type ISharedLockReaderUnacquiredState,
@@ -53,13 +53,13 @@ import { type Promisable } from "@/utilities/_module.js";
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/test-utilities"`
  * @group Utilities
  */
-export type SharedLockProviderTestSuiteSettings = {
+export type SharedLockFactoryTestSuiteSettings = {
     expect: ExpectStatic;
     test: TestAPI;
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
-    createSharedLockProvider: () => Promisable<{
-        sharedLockProvider: ISharedLockProvider;
+    createSharedLockFactory: () => Promisable<{
+        sharedLockFactory: ISharedLockFactory;
         serde: ISerde;
     }>;
 
@@ -101,7 +101,7 @@ export type SharedLockProviderTestSuiteSettings = {
 };
 
 /**
- * The `sharedLockProviderTestSuite` function simplifies the process of testing your custom implementation of {@link ISharedLock | `ISharedLock`} with `vitest`.
+ * The `sharedLockFactoryTestSuite` function simplifies the process of testing your custom implementation of {@link ISharedLock | `ISharedLock`} with `vitest`.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/test-utilities"`
  * @group Utilities
@@ -109,23 +109,23 @@ export type SharedLockProviderTestSuiteSettings = {
  * ```ts
  * import { describe, expect, test, beforeEach } from "vitest";
  * import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
- * import { SharedLockProvider } from "@daiso-tech/core/shared-lock";
+ * import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
  * import { EventBus } from "@daiso-tech/core/event-bus";
  * import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
- * import { sharedLockProviderTestSuite } from "@daiso-tech/core/shared-lock/test-utilities";
+ * import { sharedLockFactoryTestSuite } from "@daiso-tech/core/shared-lock/test-utilities";
  * import { Serde } from "@daiso-tech/core/serde";
  * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
  * import type { ISharedLockData } from "@daiso-tech/core/shared-lock/contracts";
  *
- * describe("class: SharedLockProvider", () => {
- *     sharedLockProviderTestSuite({
- *         createSharedLockProvider: () => {
+ * describe("class: SharedLockFactory", () => {
+ *     sharedLockFactoryTestSuite({
+ *         createSharedLockFactory: () => {
  *             const serde = new Serde(new SuperJsonSerdeAdapter());
- *             const sharedLockProvider = new SharedLockProvider({
+ *             const sharedLockFactory = new SharedLockFactory({
  *                 serde,
  *                 adapter: new MemorySharedLockAdapter(),
  *             });
- *             return { sharedLockProvider, serde };
+ *             return { sharedLockFactory, serde };
  *         },
  *         beforeEach,
  *         describe,
@@ -136,13 +136,13 @@ export type SharedLockProviderTestSuiteSettings = {
  * });
  * ```
  */
-export function sharedLockProviderTestSuite(
-    settings: SharedLockProviderTestSuiteSettings,
+export function sharedLockFactoryTestSuite(
+    settings: SharedLockFactoryTestSuiteSettings,
 ): void {
     const {
         expect,
         test,
-        createSharedLockProvider,
+        createSharedLockFactory,
         describe,
         beforeEach,
         excludeEventTests = false,
@@ -152,18 +152,18 @@ export function sharedLockProviderTestSuite(
         timeSpanEqualityBuffer = TimeSpan.fromMilliseconds(10),
     } = settings;
 
-    let sharedLockProvider: ISharedLockProvider;
+    let sharedLockFactory: ISharedLockFactory;
     let serde: ISerde;
     async function delay(time: TimeSpan): Promise<void> {
         await Task.delay(TimeSpan.fromTimeSpan(time).addTimeSpan(delayBuffer));
     }
     const RETURN_VALUE = "RETURN_VALUE";
 
-    describe("ISharedLockProvider tests:", () => {
+    describe("ISharedLockFactory tests:", () => {
         beforeEach(async () => {
-            const { sharedLockProvider: sharedLockProvider_, serde: serde_ } =
-                await createSharedLockProvider();
-            sharedLockProvider = sharedLockProvider_;
+            const { sharedLockFactory: sharedLockFactory_, serde: serde_ } =
+                await createSharedLockFactory();
+            sharedLockFactory = sharedLockFactory_;
             serde = serde_;
         });
         describe("Api tests:", () => {
@@ -172,7 +172,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -192,7 +192,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -213,7 +213,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -230,7 +230,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -251,7 +251,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -272,7 +272,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -293,7 +293,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -307,7 +307,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -318,7 +318,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -332,7 +332,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -353,7 +353,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -374,7 +374,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = null;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -384,7 +384,7 @@ export function sharedLockProviderTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await sharedLockProvider
+                        await sharedLockFactory
                             .create(key, {
                                 ttl,
                                 limit,
@@ -401,7 +401,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -411,7 +411,7 @@ export function sharedLockProviderTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await sharedLockProvider
+                        await sharedLockFactory
                             .create(key, {
                                 ttl,
                                 limit,
@@ -428,7 +428,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = null;
 
-                    const result = await sharedLockProvider
+                    const result = await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -444,7 +444,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -452,7 +452,7 @@ export function sharedLockProviderTestSuite(
                         .acquireWriter();
                     await delay(ttl);
 
-                    const result = await sharedLockProvider
+                    const result = await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -468,7 +468,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -484,7 +484,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -500,13 +500,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = null;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
                         })
                         .acquireWriter();
-                    const result = sharedLockProvider
+                    const result = sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -524,13 +524,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
                         })
                         .acquireWriter();
-                    const result = sharedLockProvider
+                    const result = sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -549,7 +549,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -575,7 +575,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -602,7 +602,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -625,7 +625,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -652,7 +652,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -679,7 +679,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -706,7 +706,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -723,7 +723,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -734,7 +734,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -751,7 +751,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -775,7 +775,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -799,7 +799,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -809,7 +809,7 @@ export function sharedLockProviderTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await sharedLockProvider
+                        await sharedLockFactory
                             .create(key, {
                                 ttl,
                                 limit,
@@ -829,7 +829,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -839,7 +839,7 @@ export function sharedLockProviderTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await sharedLockProvider
+                        await sharedLockFactory
                             .create(key, {
                                 ttl,
                                 limit,
@@ -859,7 +859,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const result = await sharedLockProvider
+                    const result = await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -881,7 +881,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -889,7 +889,7 @@ export function sharedLockProviderTestSuite(
                         .acquireWriter();
                     await delay(ttl);
 
-                    const result = await sharedLockProvider
+                    const result = await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -911,7 +911,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -933,7 +933,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -955,13 +955,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
                         })
                         .acquireWriter();
-                    const result = sharedLockProvider
+                    const result = sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -985,13 +985,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
                         })
                         .acquireWriter();
-                    const result = sharedLockProvider
+                    const result = sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -1017,18 +1017,18 @@ export function sharedLockProviderTestSuite(
                         const key = "a";
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 4;
-                        const sharedLock1 = sharedLockProvider.create(key, {
+                        const sharedLock1 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await sharedLock1.acquireWriter();
                         const handlerFn = vi.fn(() => {});
-                        await sharedLockProvider.events.addListener(
+                        await sharedLockFactory.events.addListener(
                             SHARED_LOCK_EVENTS.UNAVAILABLE,
                             handlerFn,
                         );
-                        const sharedLock2 = sharedLockProvider.create(key, {
+                        const sharedLock2 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -1056,18 +1056,18 @@ export function sharedLockProviderTestSuite(
                         const key = "a";
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 4;
-                        const sharedLock1 = sharedLockProvider.create(key, {
+                        const sharedLock1 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await sharedLock1.acquireReader();
                         const handlerFn = vi.fn(() => {});
-                        await sharedLockProvider.events.addListener(
+                        await sharedLockFactory.events.addListener(
                             SHARED_LOCK_EVENTS.UNAVAILABLE,
                             handlerFn,
                         );
-                        const sharedLock2 = sharedLockProvider.create(key, {
+                        const sharedLock2 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -1095,7 +1095,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const result = await sharedLockProvider
+                    const result = await sharedLockFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -1109,7 +1109,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1124,7 +1124,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1138,7 +1138,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1152,13 +1152,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1171,13 +1171,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1190,7 +1190,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1204,7 +1204,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 3;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1230,7 +1230,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const result = sharedLockProvider
+                    const result = sharedLockFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -1244,7 +1244,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1259,7 +1259,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1273,7 +1273,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1287,13 +1287,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriterOrFail();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1308,13 +1308,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireWriterOrFail();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1329,7 +1329,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1345,7 +1345,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 3;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1375,7 +1375,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const result = await sharedLockProvider
+                    const result = await sharedLockFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -1392,7 +1392,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1410,7 +1410,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1427,7 +1427,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1444,13 +1444,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1466,13 +1466,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1488,7 +1488,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1505,7 +1505,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 3;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1535,18 +1535,18 @@ export function sharedLockProviderTestSuite(
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 4;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
+                        const sharedLock1 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await sharedLock1.acquireWriter();
                         const handlerFn = vi.fn(() => {});
-                        await sharedLockProvider.events.addListener(
+                        await sharedLockFactory.events.addListener(
                             SHARED_LOCK_EVENTS.UNAVAILABLE,
                             handlerFn,
                         );
-                        const sharedLock2 = sharedLockProvider.create(key, {
+                        const sharedLock2 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -1566,18 +1566,18 @@ export function sharedLockProviderTestSuite(
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 4;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
+                        const sharedLock1 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await sharedLock1.acquireReader();
                         const handlerFn = vi.fn(() => {});
-                        await sharedLockProvider.events.addListener(
+                        await sharedLockFactory.events.addListener(
                             SHARED_LOCK_EVENTS.UNAVAILABLE,
                             handlerFn,
                         );
-                        const sharedLock2 = sharedLockProvider.create(key, {
+                        const sharedLock2 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -1596,7 +1596,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const result = sharedLockProvider
+                    const result = sharedLockFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -1613,7 +1613,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1631,7 +1631,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1648,7 +1648,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1665,13 +1665,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1689,13 +1689,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1713,7 +1713,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1732,7 +1732,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 3;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1766,18 +1766,18 @@ export function sharedLockProviderTestSuite(
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 4;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
+                        const sharedLock1 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await sharedLock1.acquireWriter();
                         const handlerFn = vi.fn(() => {});
-                        await sharedLockProvider.events.addListener(
+                        await sharedLockFactory.events.addListener(
                             SHARED_LOCK_EVENTS.UNAVAILABLE,
                             handlerFn,
                         );
-                        const sharedLock2 = sharedLockProvider.create(key, {
+                        const sharedLock2 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -1801,18 +1801,18 @@ export function sharedLockProviderTestSuite(
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 4;
 
-                        const sharedLock1 = sharedLockProvider.create(key, {
+                        const sharedLock1 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await sharedLock1.acquireReader();
                         const handlerFn = vi.fn(() => {});
-                        await sharedLockProvider.events.addListener(
+                        await sharedLockFactory.events.addListener(
                             SHARED_LOCK_EVENTS.UNAVAILABLE,
                             handlerFn,
                         );
-                        const sharedLock2 = sharedLockProvider.create(key, {
+                        const sharedLock2 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -1835,7 +1835,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1848,13 +1848,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1867,13 +1867,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -1886,13 +1886,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1906,7 +1906,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1921,7 +1921,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1935,7 +1935,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1950,13 +1950,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1970,13 +1970,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -1990,14 +1990,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
                     await sharedLock1.releaseWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2010,14 +2010,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
                     await sharedLock1.releaseWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2030,7 +2030,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromSeconds(10);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2045,7 +2045,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 3;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2071,7 +2071,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2086,13 +2086,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2107,13 +2107,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -2128,13 +2128,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2150,7 +2150,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2167,7 +2167,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2181,7 +2181,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2196,13 +2196,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2220,13 +2220,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2244,14 +2244,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
                     await sharedLock1.releaseWriterOrFail();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2264,14 +2264,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
                     await sharedLock1.releaseWriterOrFail();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2284,7 +2284,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromSeconds(10);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2301,7 +2301,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 3;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2331,7 +2331,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(25);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2345,14 +2345,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2365,14 +2365,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2385,7 +2385,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2393,7 +2393,7 @@ export function sharedLockProviderTestSuite(
                     await delay(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2406,7 +2406,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2423,7 +2423,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2439,7 +2439,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2455,7 +2455,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2465,7 +2465,7 @@ export function sharedLockProviderTestSuite(
                     await sharedLock1.refreshWriter(newTtl);
                     await delay(newTtl);
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2478,7 +2478,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2488,7 +2488,7 @@ export function sharedLockProviderTestSuite(
                     await sharedLock1.refreshWriter(newTtl);
                     await delay(newTtl.divide(2));
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2504,7 +2504,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromSeconds(10);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2520,7 +2520,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 3;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2547,7 +2547,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(25);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2563,14 +2563,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2585,14 +2585,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2607,7 +2607,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2615,7 +2615,7 @@ export function sharedLockProviderTestSuite(
                     await delay(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2630,7 +2630,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2649,7 +2649,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2667,7 +2667,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2683,7 +2683,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2697,7 +2697,7 @@ export function sharedLockProviderTestSuite(
                     }
                     await delay(newTtl);
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2710,7 +2710,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2724,7 +2724,7 @@ export function sharedLockProviderTestSuite(
                     }
                     await delay(newTtl.divide(2));
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2740,7 +2740,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromSeconds(10);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2758,7 +2758,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 3;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2789,7 +2789,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2802,7 +2802,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2818,7 +2818,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2833,7 +2833,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2848,7 +2848,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2856,7 +2856,7 @@ export function sharedLockProviderTestSuite(
 
                     await sharedLock1.forceReleaseWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2868,7 +2868,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromSeconds(10);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2883,7 +2883,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 3;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2908,7 +2908,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2928,7 +2928,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2951,7 +2951,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2968,7 +2968,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -2991,7 +2991,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3012,7 +3012,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3033,7 +3033,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -3047,7 +3047,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -3058,7 +3058,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -3072,7 +3072,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3093,7 +3093,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3114,7 +3114,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -3124,7 +3124,7 @@ export function sharedLockProviderTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await sharedLockProvider
+                        await sharedLockFactory
                             .create(key, {
                                 ttl,
                                 limit,
@@ -3140,7 +3140,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -3150,7 +3150,7 @@ export function sharedLockProviderTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await sharedLockProvider
+                        await sharedLockFactory
                             .create(key, {
                                 ttl,
                                 limit,
@@ -3167,7 +3167,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    const result = await sharedLockProvider
+                    const result = await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -3183,7 +3183,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -3191,7 +3191,7 @@ export function sharedLockProviderTestSuite(
                         .acquireReader();
                     await delay(ttl);
 
-                    const result = await sharedLockProvider
+                    const result = await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -3207,7 +3207,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3225,7 +3225,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3243,13 +3243,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
                         })
                         .acquireReader();
-                    const result = sharedLockProvider
+                    const result = sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -3267,13 +3267,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
                         })
                         .acquireReader();
-                    const result = sharedLockProvider
+                    const result = sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -3293,7 +3293,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3306,7 +3306,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3322,13 +3322,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3341,19 +3341,19 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock2.acquireReader();
 
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3366,14 +3366,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -3381,7 +3381,7 @@ export function sharedLockProviderTestSuite(
                     await delay(ttl2);
 
                     const ttl3 = null;
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl: ttl3,
                         limit,
                     });
@@ -3394,7 +3394,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3408,7 +3408,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3422,14 +3422,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3442,14 +3442,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3462,14 +3462,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const newLimit = 3;
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
@@ -3485,7 +3485,7 @@ export function sharedLockProviderTestSuite(
                         }),
                     );
 
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3497,7 +3497,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 3;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3512,7 +3512,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 3;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3534,7 +3534,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3547,7 +3547,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3563,13 +3563,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReaderOrFail();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3582,19 +3582,19 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReaderOrFail();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock2.acquireReaderOrFail();
 
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3609,14 +3609,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReaderOrFail();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -3624,7 +3624,7 @@ export function sharedLockProviderTestSuite(
                     await delay(ttl2);
 
                     const ttl3 = null;
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl: ttl3,
                         limit,
                     });
@@ -3637,7 +3637,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3651,7 +3651,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3665,14 +3665,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReaderOrFail();
                     await sharedLock1.acquireReaderOrFail();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3685,14 +3685,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReaderOrFail();
                     await sharedLock1.acquireReaderOrFail();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3705,14 +3705,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReaderOrFail();
 
                     const newLimit = 3;
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
@@ -3728,7 +3728,7 @@ export function sharedLockProviderTestSuite(
                         }),
                     );
 
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3742,7 +3742,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 3;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3759,7 +3759,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 3;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3784,7 +3784,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3807,7 +3807,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3831,7 +3831,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3854,7 +3854,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3878,7 +3878,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3905,7 +3905,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 1;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -3932,7 +3932,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -3949,7 +3949,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -3960,7 +3960,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -3977,7 +3977,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -4001,7 +4001,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -4025,7 +4025,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -4035,7 +4035,7 @@ export function sharedLockProviderTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await sharedLockProvider
+                        await sharedLockFactory
                             .create(key, {
                                 ttl,
                                 limit,
@@ -4055,7 +4055,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -4065,7 +4065,7 @@ export function sharedLockProviderTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
                     try {
-                        await sharedLockProvider
+                        await sharedLockFactory
                             .create(key, {
                                 ttl,
                                 limit,
@@ -4085,7 +4085,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    const result = await sharedLockProvider
+                    const result = await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -4107,7 +4107,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -4115,7 +4115,7 @@ export function sharedLockProviderTestSuite(
                         .acquireReader();
                     await delay(ttl);
 
-                    const result = await sharedLockProvider
+                    const result = await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -4137,7 +4137,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -4161,7 +4161,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -4185,13 +4185,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 1;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
                         })
                         .acquireReader();
-                    const result = sharedLockProvider
+                    const result = sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -4215,13 +4215,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 1;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
                         })
                         .acquireReader();
-                    const result = sharedLockProvider
+                    const result = sharedLockFactory
                         .create(key, {
                             ttl,
                             limit,
@@ -4247,18 +4247,18 @@ export function sharedLockProviderTestSuite(
                         const key = "a";
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 4;
-                        const sharedLock1 = sharedLockProvider.create(key, {
+                        const sharedLock1 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await sharedLock1.acquireWriter();
                         const handlerFn = vi.fn(() => {});
-                        await sharedLockProvider.events.addListener(
+                        await sharedLockFactory.events.addListener(
                             SHARED_LOCK_EVENTS.UNAVAILABLE,
                             handlerFn,
                         );
-                        const sharedLock2 = sharedLockProvider.create(key, {
+                        const sharedLock2 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4286,18 +4286,18 @@ export function sharedLockProviderTestSuite(
                         const key = "a";
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 1;
-                        const sharedLock1 = sharedLockProvider.create(key, {
+                        const sharedLock1 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await sharedLock1.acquireReader();
                         const handlerFn = vi.fn(() => {});
-                        await sharedLockProvider.events.addListener(
+                        await sharedLockFactory.events.addListener(
                             SHARED_LOCK_EVENTS.UNAVAILABLE,
                             handlerFn,
                         );
-                        const sharedLock2 = sharedLockProvider.create(key, {
+                        const sharedLock2 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4325,7 +4325,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const result = await sharedLockProvider
+                    const result = await sharedLockFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -4342,7 +4342,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -4361,12 +4361,12 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -4382,18 +4382,18 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock2.acquireReader();
 
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -4409,13 +4409,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl1,
                     });
                     await sharedLock1.acquireReader();
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl2,
                     });
@@ -4423,7 +4423,7 @@ export function sharedLockProviderTestSuite(
                     await delay(ttl2);
 
                     const ttl3 = null;
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl: ttl3,
                         limit,
                     });
@@ -4439,7 +4439,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -4456,7 +4456,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -4473,14 +4473,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -4496,14 +4496,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -4519,18 +4519,18 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
                     const newLimit = 3;
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit: newLimit,
                         ttl,
                     });
                     await sharedLock2.acquireReader();
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         limit: newLimit,
                         ttl,
                     });
@@ -4551,20 +4551,20 @@ export function sharedLockProviderTestSuite(
                         const key = "a";
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 1;
-                        const sharedLock1 = sharedLockProvider.create(key, {
+                        const sharedLock1 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await sharedLock1.acquireWriter();
                         let index = 0;
-                        await sharedLockProvider.events.addListener(
+                        await sharedLockFactory.events.addListener(
                             SHARED_LOCK_EVENTS.UNAVAILABLE,
                             (_event) => {
                                 index++;
                             },
                         );
-                        const sharedLock2 = sharedLockProvider.create(key, {
+                        const sharedLock2 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4583,20 +4583,20 @@ export function sharedLockProviderTestSuite(
                         const key = "a";
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 1;
-                        const sharedLock1 = sharedLockProvider.create(key, {
+                        const sharedLock1 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await sharedLock1.acquireReader();
                         let index = 0;
-                        await sharedLockProvider.events.addListener(
+                        await sharedLockFactory.events.addListener(
                             SHARED_LOCK_EVENTS.UNAVAILABLE,
                             (_event) => {
                                 index++;
                             },
                         );
-                        const sharedLock2 = sharedLockProvider.create(key, {
+                        const sharedLock2 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4615,7 +4615,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const result = sharedLockProvider
+                    const result = sharedLockFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -4632,7 +4632,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -4651,12 +4651,12 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -4672,18 +4672,18 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock2.acquireReader();
 
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -4701,13 +4701,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl1,
                     });
                     await sharedLock1.acquireReader();
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl2,
                     });
@@ -4715,7 +4715,7 @@ export function sharedLockProviderTestSuite(
                     await delay(ttl2);
 
                     const ttl3 = null;
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl: ttl3,
                         limit,
                     });
@@ -4731,7 +4731,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -4748,7 +4748,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -4765,14 +4765,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -4788,14 +4788,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -4811,18 +4811,18 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
                     const newLimit = 3;
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit: newLimit,
                         ttl,
                     });
                     await sharedLock2.acquireReader();
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         limit: newLimit,
                         ttl,
                     });
@@ -4845,20 +4845,20 @@ export function sharedLockProviderTestSuite(
                         const key = "a";
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 1;
-                        const sharedLock1 = sharedLockProvider.create(key, {
+                        const sharedLock1 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await sharedLock1.acquireWriter();
                         let index = 0;
-                        await sharedLockProvider.events.addListener(
+                        await sharedLockFactory.events.addListener(
                             SHARED_LOCK_EVENTS.UNAVAILABLE,
                             (_event) => {
                                 index++;
                             },
                         );
-                        const sharedLock2 = sharedLockProvider.create(key, {
+                        const sharedLock2 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4881,20 +4881,20 @@ export function sharedLockProviderTestSuite(
                         const key = "a";
                         const ttl = TimeSpan.fromMilliseconds(50);
                         const limit = 1;
-                        const sharedLock1 = sharedLockProvider.create(key, {
+                        const sharedLock1 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
 
                         await sharedLock1.acquireReader();
                         let index = 0;
-                        await sharedLockProvider.events.addListener(
+                        await sharedLockFactory.events.addListener(
                             SHARED_LOCK_EVENTS.UNAVAILABLE,
                             (_event) => {
                                 index++;
                             },
                         );
-                        const sharedLock2 = sharedLockProvider.create(key, {
+                        const sharedLock2 = sharedLockFactory.create(key, {
                             ttl,
                             limit,
                         });
@@ -4917,14 +4917,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const noneExistingKey = "c";
-                    const sharedLock2 = sharedLockProvider.create(
+                    const sharedLock2 = sharedLockFactory.create(
                         noneExistingKey,
                         {
                             ttl,
@@ -4940,14 +4940,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const noneExistingLockId = "2";
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                         lockId: noneExistingLockId,
@@ -4961,14 +4961,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
                     await delay(ttl);
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -4981,7 +4981,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -4995,7 +4995,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5009,13 +5009,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5025,7 +5025,7 @@ export function sharedLockProviderTestSuite(
                     await sharedLock2.releaseReader();
 
                     const newLimit = 3;
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
@@ -5041,20 +5041,20 @@ export function sharedLockProviderTestSuite(
                         }),
                     );
 
-                    const sharedLock4 = sharedLockProvider.create(key, {
+                    const sharedLock4 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock4.acquireReader();
 
-                    const sharedLock5 = sharedLockProvider.create(key, {
+                    const sharedLock5 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const result2 = await sharedLock5.acquireReader();
                     expect(result2).toBe(true);
 
-                    const sharedLock6 = sharedLockProvider.create(key, {
+                    const sharedLock6 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5066,13 +5066,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5091,14 +5091,14 @@ export function sharedLockProviderTestSuite(
 
                     await sharedLock2.releaseReader();
 
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const result2 = await sharedLock3.acquireReader();
                     expect(result2).toBe(true);
 
-                    const sharedLock4 = sharedLockProvider.create(key, {
+                    const sharedLock4 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5110,7 +5110,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5125,7 +5125,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5147,14 +5147,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const noneExistingKey = "c";
-                    const sharedLock2 = sharedLockProvider.create(
+                    const sharedLock2 = sharedLockFactory.create(
                         noneExistingKey,
                         {
                             ttl,
@@ -5172,14 +5172,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const noneExistingLockId = "2";
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                         lockId: noneExistingLockId,
@@ -5195,14 +5195,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
                     await delay(ttl);
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5217,7 +5217,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5234,7 +5234,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5248,7 +5248,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5262,13 +5262,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5278,7 +5278,7 @@ export function sharedLockProviderTestSuite(
                     await sharedLock2.releaseReaderOrFail();
 
                     const newLimit = 3;
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
@@ -5294,20 +5294,20 @@ export function sharedLockProviderTestSuite(
                         }),
                     );
 
-                    const sharedLock4 = sharedLockProvider.create(key, {
+                    const sharedLock4 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock4.acquireReader();
 
-                    const sharedLock5 = sharedLockProvider.create(key, {
+                    const sharedLock5 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const result2 = await sharedLock5.acquireReader();
                     expect(result2).toBe(true);
 
-                    const sharedLock6 = sharedLockProvider.create(key, {
+                    const sharedLock6 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5319,13 +5319,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5344,14 +5344,14 @@ export function sharedLockProviderTestSuite(
 
                     await sharedLock2.releaseReaderOrFail();
 
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const result2 = await sharedLock3.acquireReader();
                     expect(result2).toBe(true);
 
-                    const sharedLock4 = sharedLockProvider.create(key, {
+                    const sharedLock4 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5363,7 +5363,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5380,7 +5380,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5405,7 +5405,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5413,7 +5413,7 @@ export function sharedLockProviderTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const noneExistingKey = "c";
-                    const sharedLock2 = sharedLockProvider.create(
+                    const sharedLock2 = sharedLockFactory.create(
                         noneExistingKey,
                         {
                             ttl,
@@ -5429,14 +5429,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const noneExistingLockId = "c";
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                         lockId: noneExistingLockId,
@@ -5451,7 +5451,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5468,7 +5468,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5484,7 +5484,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5500,14 +5500,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = null;
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -5517,7 +5517,7 @@ export function sharedLockProviderTestSuite(
                     await sharedLock2.refreshReader(newTtl);
                     await delay(newTtl);
 
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -5529,14 +5529,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -5546,7 +5546,7 @@ export function sharedLockProviderTestSuite(
                     await sharedLock2.refreshReader(newTtl);
                     await delay(newTtl.divide(2));
 
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -5563,7 +5563,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5579,7 +5579,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5602,7 +5602,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5610,7 +5610,7 @@ export function sharedLockProviderTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const noneExistingKey = "c";
-                    const sharedLock2 = sharedLockProvider.create(
+                    const sharedLock2 = sharedLockFactory.create(
                         noneExistingKey,
                         {
                             ttl,
@@ -5628,14 +5628,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const noneExistingLockId = "c";
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                         lockId: noneExistingLockId,
@@ -5652,7 +5652,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5671,7 +5671,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5690,7 +5690,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5708,7 +5708,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5724,14 +5724,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = null;
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -5745,7 +5745,7 @@ export function sharedLockProviderTestSuite(
                     }
                     await delay(newTtl);
 
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -5757,14 +5757,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -5774,7 +5774,7 @@ export function sharedLockProviderTestSuite(
                     await sharedLock2.refreshReaderOrFail(newTtl);
                     await delay(newTtl.divide(2));
 
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -5791,7 +5791,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5809,7 +5809,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5836,14 +5836,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const noneExistingKey = "c";
-                    const sharedLock2 = sharedLockProvider.create(
+                    const sharedLock2 = sharedLockFactory.create(
                         noneExistingKey,
                         {
                             ttl,
@@ -5859,7 +5859,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5875,13 +5875,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5899,7 +5899,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5914,14 +5914,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -5930,7 +5930,7 @@ export function sharedLockProviderTestSuite(
                     await sharedLock2.forceReleaseAllReaders();
 
                     const ttl3 = null;
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl: ttl3,
                         limit,
                     });
@@ -5938,7 +5938,7 @@ export function sharedLockProviderTestSuite(
                     expect(result1).toBe(true);
 
                     const ttl4 = null;
-                    const sharedLock4 = sharedLockProvider.create(key, {
+                    const sharedLock4 = sharedLockFactory.create(key, {
                         ttl: ttl4,
                         limit,
                     });
@@ -5950,13 +5950,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -5965,7 +5965,7 @@ export function sharedLockProviderTestSuite(
                     await sharedLock2.forceReleaseAllReaders();
 
                     const newLimit = 3;
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
@@ -5981,20 +5981,20 @@ export function sharedLockProviderTestSuite(
                         }),
                     );
 
-                    const sharedLock4 = sharedLockProvider.create(key, {
+                    const sharedLock4 = sharedLockFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
                     await sharedLock4.acquireReader();
 
-                    const sharedLock5 = sharedLockProvider.create(key, {
+                    const sharedLock5 = sharedLockFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
                     const result2 = await sharedLock5.acquireReader();
                     expect(result2).toBe(true);
 
-                    const sharedLock6 = sharedLockProvider.create(key, {
+                    const sharedLock6 = sharedLockFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
@@ -6006,7 +6006,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6021,7 +6021,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6043,7 +6043,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6056,7 +6056,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6072,7 +6072,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6087,7 +6087,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6102,7 +6102,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6110,7 +6110,7 @@ export function sharedLockProviderTestSuite(
 
                     await sharedLock1.forceRelease();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6122,7 +6122,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6138,13 +6138,13 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6161,7 +6161,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6176,14 +6176,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -6192,7 +6192,7 @@ export function sharedLockProviderTestSuite(
                     await sharedLock2.forceRelease();
 
                     const ttl3 = null;
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl: ttl3,
                         limit,
                     });
@@ -6200,7 +6200,7 @@ export function sharedLockProviderTestSuite(
                     expect(result1).toBe(true);
 
                     const ttl4 = null;
-                    const sharedLock4 = sharedLockProvider.create(key, {
+                    const sharedLock4 = sharedLockFactory.create(key, {
                         ttl: ttl4,
                         limit,
                     });
@@ -6212,13 +6212,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6226,7 +6226,7 @@ export function sharedLockProviderTestSuite(
                     await sharedLock2.forceRelease();
 
                     const newLimit = 3;
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
@@ -6242,20 +6242,20 @@ export function sharedLockProviderTestSuite(
                         }),
                     );
 
-                    const sharedLock4 = sharedLockProvider.create(key, {
+                    const sharedLock4 = sharedLockFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
                     await sharedLock4.acquireReader();
 
-                    const sharedLock5 = sharedLockProvider.create(key, {
+                    const sharedLock5 = sharedLockFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
                     const result2 = await sharedLock5.acquireReader();
                     expect(result2).toBe(true);
 
-                    const sharedLock6 = sharedLockProvider.create(key, {
+                    const sharedLock6 = sharedLockFactory.create(key, {
                         ttl,
                         limit: newLimit,
                     });
@@ -6269,7 +6269,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6285,7 +6285,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6303,14 +6303,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
                     const ttl2 = null;
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -6329,14 +6329,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
                     const ttl2 = null;
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -6355,14 +6355,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
                     const ttl2 = null;
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -6381,7 +6381,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6402,7 +6402,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6419,13 +6419,13 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const ttl = null;
                     const limit = 4;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6441,7 +6441,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6459,14 +6459,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = null;
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -6485,14 +6485,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = null;
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -6511,14 +6511,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl1,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = null;
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -6538,14 +6538,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 3;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -6565,14 +6565,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 3;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -6598,14 +6598,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 3;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -6630,14 +6630,14 @@ export function sharedLockProviderTestSuite(
                         const limit = 1;
 
                         const ttl1 = null;
-                        const sharedLock1 = sharedLockProvider.create(key, {
+                        const sharedLock1 = sharedLockFactory.create(key, {
                             ttl: ttl1,
                             limit,
                         });
                         await sharedLock1.acquireReader();
 
                         const ttl2 = TimeSpan.fromMilliseconds(50);
-                        const sharedLock2 = sharedLockProvider.create(key, {
+                        const sharedLock2 = sharedLockFactory.create(key, {
                             ttl: ttl2,
                             limit,
                         });
@@ -6661,14 +6661,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -6693,19 +6693,19 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
                     await delay(ttl);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -6730,7 +6730,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6738,7 +6738,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -6763,7 +6763,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6771,7 +6771,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -6796,17 +6796,17 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: UnavailableSharedLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -6831,17 +6831,17 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: UnavailableSharedLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -6868,14 +6868,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -6900,19 +6900,19 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
                     await delay(ttl);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -6937,7 +6937,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6945,7 +6945,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -6970,7 +6970,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -6978,7 +6978,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -7003,17 +7003,17 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: UnavailableSharedLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -7042,17 +7042,17 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: UnavailableSharedLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -7083,14 +7083,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -7118,19 +7118,19 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
                     await delay(ttl);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -7158,7 +7158,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -7166,7 +7166,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -7194,7 +7194,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -7202,7 +7202,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -7230,17 +7230,17 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: UnavailableSharedLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -7271,17 +7271,17 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: UnavailableSharedLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -7314,14 +7314,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -7349,19 +7349,19 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
                     await delay(ttl);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -7389,7 +7389,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -7397,7 +7397,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -7425,7 +7425,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -7433,7 +7433,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                         handlerFn,
                     );
@@ -7461,17 +7461,17 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: UnavailableSharedLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -7506,17 +7506,17 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: UnavailableSharedLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
@@ -7553,14 +7553,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -7585,18 +7585,18 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -7621,18 +7621,18 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -7657,18 +7657,18 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -7694,14 +7694,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -7729,14 +7729,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: ReleasedWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_RELEASED,
                         handlerFn,
                     );
@@ -7763,14 +7763,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: ReleasedWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_RELEASED,
                         handlerFn,
                     );
@@ -7799,14 +7799,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -7835,18 +7835,18 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -7875,18 +7875,18 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -7915,18 +7915,18 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -7956,14 +7956,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -7995,14 +7995,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: ReleasedWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_RELEASED,
                         handlerFn,
                     );
@@ -8029,14 +8029,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: ReleasedWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_RELEASED,
                         handlerFn,
                     );
@@ -8066,14 +8066,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -8098,21 +8098,21 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -8137,21 +8137,21 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -8176,7 +8176,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -8184,14 +8184,14 @@ export function sharedLockProviderTestSuite(
                     await delay(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -8216,7 +8216,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -8227,7 +8227,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -8252,7 +8252,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -8262,7 +8262,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -8287,7 +8287,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -8297,7 +8297,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: RefreshedWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_REFRESHED,
                         handlerFn,
                     );
@@ -8325,14 +8325,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 4;
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -8361,21 +8361,21 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -8404,21 +8404,21 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireWriter();
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -8447,7 +8447,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -8455,14 +8455,14 @@ export function sharedLockProviderTestSuite(
                     await delay(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -8491,7 +8491,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -8502,7 +8502,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -8531,7 +8531,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -8541,7 +8541,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -8570,7 +8570,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -8580,7 +8580,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: RefreshedWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_REFRESHED,
                         handlerFn,
                     );
@@ -8607,14 +8607,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: ForceReleasedWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FORCE_RELEASED,
                         handlerFn,
                     );
@@ -8640,14 +8640,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: ForceReleasedWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FORCE_RELEASED,
                         handlerFn,
                     );
@@ -8675,14 +8675,14 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 4;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: ForceReleasedWriterLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.WRITER_FORCE_RELEASED,
                         handlerFn,
                     );
@@ -8714,12 +8714,12 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -8744,7 +8744,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -8754,7 +8754,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
@@ -8779,19 +8779,19 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
@@ -8816,12 +8816,12 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -8830,11 +8830,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: UnavailableSharedLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -8859,13 +8859,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl1,
                     });
                     await sharedLock1.acquireReader();
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl2,
                     });
@@ -8876,11 +8876,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl3,
                     });
@@ -8908,11 +8908,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -8941,11 +8941,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -8976,12 +8976,12 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9006,7 +9006,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9016,7 +9016,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
@@ -9041,19 +9041,19 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
@@ -9078,12 +9078,12 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9092,11 +9092,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: UnavailableSharedLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9125,13 +9125,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl1,
                     });
                     await sharedLock1.acquireReader();
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl2,
                     });
@@ -9142,11 +9142,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl3,
                     });
@@ -9174,11 +9174,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9207,11 +9207,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9242,12 +9242,12 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9275,7 +9275,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9285,7 +9285,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
@@ -9313,19 +9313,19 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
@@ -9353,12 +9353,12 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9367,11 +9367,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: UnavailableSharedLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9402,13 +9402,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl1,
                     });
                     await sharedLock1.acquireReader();
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl2,
                     });
@@ -9419,11 +9419,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl3,
                     });
@@ -9454,11 +9454,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9490,11 +9490,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9528,12 +9528,12 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9561,7 +9561,7 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9571,7 +9571,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
@@ -9599,19 +9599,19 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
@@ -9639,12 +9639,12 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
                     const ttl = null;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
                     await sharedLock1.acquireReader();
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9653,11 +9653,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: UnavailableSharedLockEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.UNAVAILABLE,
                         handlerFn,
                     );
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9692,13 +9692,13 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl1,
                     });
                     await sharedLock1.acquireReader();
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl2,
                     });
@@ -9709,11 +9709,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         limit,
                         ttl: ttl3,
                     });
@@ -9744,11 +9744,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9780,11 +9780,11 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AcquiredReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ACQUIRED,
                         handlerFn,
                     );
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -9814,7 +9814,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -9822,7 +9822,7 @@ export function sharedLockProviderTestSuite(
                         .acquireReader();
 
                     const noneExistingKey = "c";
-                    const sharedLock = sharedLockProvider.create(
+                    const sharedLock = sharedLockFactory.create(
                         noneExistingKey,
                         {
                             limit,
@@ -9833,7 +9833,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -9857,7 +9857,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -9865,7 +9865,7 @@ export function sharedLockProviderTestSuite(
                         .acquireReader();
 
                     const noneExistingLockId = "1";
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                         lockId: noneExistingLockId,
@@ -9874,7 +9874,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -9899,21 +9899,21 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
                     await delay(ttl);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -9938,7 +9938,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -9948,7 +9948,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -9973,7 +9973,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -9982,7 +9982,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: ReleasedReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_RELEASED,
                         handlerFn,
                     );
@@ -10007,7 +10007,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -10016,7 +10016,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: ReleasedReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_RELEASED,
                         handlerFn,
                     );
@@ -10042,7 +10042,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -10050,7 +10050,7 @@ export function sharedLockProviderTestSuite(
                         .acquireReader();
 
                     const noneExistingKey = "c";
-                    const sharedLock = sharedLockProvider.create(
+                    const sharedLock = sharedLockFactory.create(
                         noneExistingKey,
                         {
                             limit,
@@ -10061,7 +10061,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -10089,7 +10089,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    await sharedLockProvider
+                    await sharedLockFactory
                         .create(key, {
                             limit,
                             ttl,
@@ -10097,7 +10097,7 @@ export function sharedLockProviderTestSuite(
                         .acquireReader();
 
                     const noneExistingLockId = "1";
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                         lockId: noneExistingLockId,
@@ -10106,7 +10106,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -10135,21 +10135,21 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     await sharedLock1.acquireReader();
                     await delay(ttl);
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -10178,7 +10178,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -10188,7 +10188,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedReleaseReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
                         handlerFn,
                     );
@@ -10217,7 +10217,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -10226,7 +10226,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: ReleasedReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_RELEASED,
                         handlerFn,
                     );
@@ -10251,7 +10251,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -10260,7 +10260,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: ReleasedReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_RELEASED,
                         handlerFn,
                     );
@@ -10286,7 +10286,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -10294,7 +10294,7 @@ export function sharedLockProviderTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const noneExistingKey = "c";
-                    const sharedLock2 = sharedLockProvider.create(
+                    const sharedLock2 = sharedLockFactory.create(
                         noneExistingKey,
                         {
                             ttl: newTtl,
@@ -10305,7 +10305,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -10329,7 +10329,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -10337,7 +10337,7 @@ export function sharedLockProviderTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const noneExistingLockId = "1";
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: newTtl,
                         limit,
                         lockId: noneExistingLockId,
@@ -10346,7 +10346,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -10370,7 +10370,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -10380,7 +10380,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -10406,7 +10406,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -10416,7 +10416,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -10442,7 +10442,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -10451,7 +10451,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -10477,7 +10477,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -10486,7 +10486,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: RefreshedReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_REFRESHED,
                         handlerFn,
                     );
@@ -10513,7 +10513,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -10521,7 +10521,7 @@ export function sharedLockProviderTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const noneExistingKey = "c";
-                    const sharedLock2 = sharedLockProvider.create(
+                    const sharedLock2 = sharedLockFactory.create(
                         noneExistingKey,
                         {
                             ttl: newTtl,
@@ -10532,7 +10532,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -10560,7 +10560,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         limit,
                         ttl,
                     });
@@ -10568,7 +10568,7 @@ export function sharedLockProviderTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const noneExistingLockId = "1";
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: newTtl,
                         limit,
                         lockId: noneExistingLockId,
@@ -10577,7 +10577,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -10605,7 +10605,7 @@ export function sharedLockProviderTestSuite(
                     const key = "a";
                     const limit = 2;
                     const ttl = TimeSpan.fromMilliseconds(50);
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -10615,7 +10615,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -10645,7 +10645,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -10655,7 +10655,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -10685,7 +10685,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = null;
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -10694,7 +10694,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: FailedRefreshReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
                         handlerFn,
                     );
@@ -10724,7 +10724,7 @@ export function sharedLockProviderTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const limit = 2;
 
-                    const sharedLock = sharedLockProvider.create(key, {
+                    const sharedLock = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
@@ -10733,7 +10733,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: RefreshedReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_REFRESHED,
                         handlerFn,
                     );
@@ -10761,14 +10761,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 3;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -10778,7 +10778,7 @@ export function sharedLockProviderTestSuite(
                     await sharedLock1.releaseReader();
 
                     const ttl3 = null;
-                    const sharedLock3 = sharedLockProvider.create(key, {
+                    const sharedLock3 = sharedLockFactory.create(key, {
                         ttl: ttl3,
                         limit,
                     });
@@ -10786,7 +10786,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AllForceReleasedReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ALL_FORCE_RELEASED,
                         handlerFn,
                     );
@@ -10813,14 +10813,14 @@ export function sharedLockProviderTestSuite(
                     const limit = 2;
 
                     const ttl1 = null;
-                    const sharedLock1 = sharedLockProvider.create(key, {
+                    const sharedLock1 = sharedLockFactory.create(key, {
                         ttl: ttl1,
                         limit,
                     });
                     await sharedLock1.acquireReader();
 
                     const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockProvider.create(key, {
+                    const sharedLock2 = sharedLockFactory.create(key, {
                         ttl: ttl2,
                         limit,
                     });
@@ -10829,7 +10829,7 @@ export function sharedLockProviderTestSuite(
                     const handlerFn = vi.fn(
                         (_event: AllForceReleasedReaderSemaphoreEvent) => {},
                     );
-                    await sharedLockProvider.events.addListener(
+                    await sharedLockFactory.events.addListener(
                         SHARED_LOCK_EVENTS.READER_ALL_FORCE_RELEASED,
                         handlerFn,
                     );
@@ -10859,7 +10859,7 @@ export function sharedLockProviderTestSuite(
                 const ttl = TimeSpan.fromMilliseconds(50);
                 const limit = 4;
 
-                const sharedLock = sharedLockProvider.create(key, {
+                const sharedLock = sharedLockFactory.create(key, {
                     ttl,
                     limit,
                 });
@@ -10877,7 +10877,7 @@ export function sharedLockProviderTestSuite(
                 const ttl = TimeSpan.fromMilliseconds(50);
                 const limit = 4;
 
-                const sharedLock = sharedLockProvider.create(key, {
+                const sharedLock = sharedLockFactory.create(key, {
                     ttl,
                     limit,
                 });
@@ -10898,14 +10898,14 @@ export function sharedLockProviderTestSuite(
                 const limit = 4;
 
                 const ttl1 = null;
-                const sharedLock1 = sharedLockProvider.create(key, {
+                const sharedLock1 = sharedLockFactory.create(key, {
                     ttl: ttl1,
                     limit,
                 });
                 await sharedLock1.acquireWriter();
 
                 const ttl2 = null;
-                const sharedLock2 = sharedLockProvider.create(key, {
+                const sharedLock2 = sharedLockFactory.create(key, {
                     ttl: ttl2,
                     limit,
                 });
@@ -10927,14 +10927,14 @@ export function sharedLockProviderTestSuite(
                 const limit = 4;
 
                 const ttl1 = null;
-                const sharedLock1 = sharedLockProvider.create(key, {
+                const sharedLock1 = sharedLockFactory.create(key, {
                     ttl: ttl1,
                     limit,
                 });
                 await sharedLock1.acquireWriter();
 
                 const ttl2 = null;
-                const sharedLock2 = sharedLockProvider.create(key, {
+                const sharedLock2 = sharedLockFactory.create(key, {
                     ttl: ttl2,
                     limit,
                 });
@@ -10956,14 +10956,14 @@ export function sharedLockProviderTestSuite(
                 const limit = 4;
 
                 const ttl1 = null;
-                const sharedLock1 = sharedLockProvider.create(key, {
+                const sharedLock1 = sharedLockFactory.create(key, {
                     ttl: ttl1,
                     limit,
                 });
                 await sharedLock1.acquireWriter();
 
                 const ttl2 = null;
-                const sharedLock2 = sharedLockProvider.create(key, {
+                const sharedLock2 = sharedLockFactory.create(key, {
                     ttl: ttl2,
                     limit,
                 });
@@ -10986,7 +10986,7 @@ export function sharedLockProviderTestSuite(
                 const ttl = null;
                 const limit = 4;
 
-                const sharedLock = sharedLockProvider.create(key, {
+                const sharedLock = sharedLockFactory.create(key, {
                     ttl,
                     limit,
                 });
@@ -11007,7 +11007,7 @@ export function sharedLockProviderTestSuite(
                 const ttl = TimeSpan.fromMilliseconds(50);
                 const limit = 4;
 
-                const sharedLock = sharedLockProvider.create(key, {
+                const sharedLock = sharedLockFactory.create(key, {
                     ttl,
                     limit,
                 });
@@ -11040,13 +11040,13 @@ export function sharedLockProviderTestSuite(
                 const ttl = null;
                 const limit = 4;
 
-                const sharedLock1 = sharedLockProvider.create(key, {
+                const sharedLock1 = sharedLockFactory.create(key, {
                     ttl,
                     limit,
                 });
                 await sharedLock1.acquireWriter();
 
-                const sharedLock2 = sharedLockProvider.create(key, {
+                const sharedLock2 = sharedLockFactory.create(key, {
                     ttl,
                     limit,
                 });
@@ -11065,7 +11065,7 @@ export function sharedLockProviderTestSuite(
                 const limit = 3;
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                const sharedLock = sharedLockProvider.create(key, {
+                const sharedLock = sharedLockFactory.create(key, {
                     limit,
                     ttl,
                 });
@@ -11084,7 +11084,7 @@ export function sharedLockProviderTestSuite(
                 const ttl = TimeSpan.fromMilliseconds(50);
                 const limit = 2;
 
-                const sharedLock = sharedLockProvider.create(key, {
+                const sharedLock = sharedLockFactory.create(key, {
                     ttl,
                     limit,
                 });
@@ -11105,14 +11105,14 @@ export function sharedLockProviderTestSuite(
                 const limit = 2;
 
                 const ttl1 = null;
-                const sharedLock1 = sharedLockProvider.create(key, {
+                const sharedLock1 = sharedLockFactory.create(key, {
                     ttl: ttl1,
                     limit,
                 });
                 await sharedLock1.acquireReader();
 
                 const ttl2 = null;
-                const sharedLock2 = sharedLockProvider.create(key, {
+                const sharedLock2 = sharedLockFactory.create(key, {
                     ttl: ttl2,
                     limit,
                 });
@@ -11134,14 +11134,14 @@ export function sharedLockProviderTestSuite(
                 const limit = 2;
 
                 const ttl1 = null;
-                const sharedLock1 = sharedLockProvider.create(key, {
+                const sharedLock1 = sharedLockFactory.create(key, {
                     limit,
                     ttl: ttl1,
                 });
                 await sharedLock1.acquireReader();
 
                 const ttl2 = null;
-                const sharedLock2 = sharedLockProvider.create(key, {
+                const sharedLock2 = sharedLockFactory.create(key, {
                     ttl: ttl2,
                     limit,
                 });
@@ -11164,14 +11164,14 @@ export function sharedLockProviderTestSuite(
                 const limit = 3;
 
                 const ttl1 = null;
-                const sharedLock1 = sharedLockProvider.create(key, {
+                const sharedLock1 = sharedLockFactory.create(key, {
                     ttl: ttl1,
                     limit,
                 });
                 await sharedLock1.acquireReader();
 
                 const ttl2 = TimeSpan.fromMilliseconds(50);
-                const sharedLock2 = sharedLockProvider.create(key, {
+                const sharedLock2 = sharedLockFactory.create(key, {
                     ttl: ttl2,
                     limit,
                 });
@@ -11194,14 +11194,14 @@ export function sharedLockProviderTestSuite(
                 const limit = 3;
 
                 const ttl1 = null;
-                const sharedLock1 = sharedLockProvider.create(key, {
+                const sharedLock1 = sharedLockFactory.create(key, {
                     ttl: ttl1,
                     limit,
                 });
                 await sharedLock1.acquireReader();
 
                 const ttl2 = TimeSpan.fromMilliseconds(50);
-                const sharedLock2 = sharedLockProvider.create(key, {
+                const sharedLock2 = sharedLockFactory.create(key, {
                     ttl: ttl2,
                     limit,
                 });
@@ -11230,14 +11230,14 @@ export function sharedLockProviderTestSuite(
                 const limit = 3;
 
                 const ttl1 = null;
-                const sharedLock1 = sharedLockProvider.create(key, {
+                const sharedLock1 = sharedLockFactory.create(key, {
                     ttl: ttl1,
                     limit,
                 });
                 await sharedLock1.acquireReader();
 
                 const ttl2 = TimeSpan.fromMilliseconds(50);
-                const sharedLock2 = sharedLockProvider.create(key, {
+                const sharedLock2 = sharedLockFactory.create(key, {
                     ttl: ttl2,
                     limit,
                 });
@@ -11262,14 +11262,14 @@ export function sharedLockProviderTestSuite(
                 const limit = 1;
 
                 const ttl1 = null;
-                const sharedLock1 = sharedLockProvider.create(key, {
+                const sharedLock1 = sharedLockFactory.create(key, {
                     ttl: ttl1,
                     limit,
                 });
                 await sharedLock1.acquireReader();
 
                 const ttl2 = TimeSpan.fromMilliseconds(50);
-                const sharedLock2 = sharedLockProvider.create(key, {
+                const sharedLock2 = sharedLockFactory.create(key, {
                     ttl: ttl2,
                     limit,
                 });

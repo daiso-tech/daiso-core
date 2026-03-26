@@ -76,11 +76,11 @@ describe("class: MyDatabaseSharedLockAdapter", () => {
 });
 ```
 
-## Implementing your custom ISharedLockProvider class
+## Implementing your custom ISharedLockFactory class
 
-In some cases, you may need to implement a custom [`SharedLockProvider`](https://daiso-tech.github.io/daiso-core/classes/SharedLock.SharedLockProvider.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ISharedLockProvider`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLockProvider.html) contract.
+In some cases, you may need to implement a custom [`SharedLockFactory`](https://daiso-tech.github.io/daiso-core/classes/SharedLock.SharedLockFactory.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ISharedLockFactory`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLockFactory.html) contract.
 
-## Testing your custom ISharedLockProvider class
+## Testing your custom ISharedLockFactory class
 
 We provide a complete test suite to verify your custom event bus class implementation. Simply use the [`sharedLockProviderTestSuite`](https://daiso-tech.github.io/daiso-core/functions/SharedLock.sharedLockProviderTestSuite.html) function:
 
@@ -91,15 +91,15 @@ We provide a complete test suite to verify your custom event bus class implement
 Usage example:
 
 ```ts
-// filename: MySharedLockProvider.test.ts
+// filename: MySharedLockFactory.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
 import { sharedLockProviderTestSuite } from "@daiso-tech/core/shared-lock/test-utilities";
-import { MySharedLockProvider } from "./MySharedLockProvider.js";
+import { MySharedLockFactory } from "./MySharedLockFactory.js";
 
-describe("class: MySharedLockProvider", () => {
+describe("class: MySharedLockFactory", () => {
     sharedLockProviderTestSuite({
-        createSharedLockProvider: () => new MySharedLockProvider(),
+        createSharedLockFactory: () => new MySharedLockFactory(),
         test,
         beforeEach,
         expect,

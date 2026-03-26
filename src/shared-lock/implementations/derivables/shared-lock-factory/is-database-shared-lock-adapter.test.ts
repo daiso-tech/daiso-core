@@ -7,7 +7,7 @@ import {
     type ISharedLockAdapterState,
     type SharedLockAcquireSettings,
 } from "@/shared-lock/contracts/_module.js";
-import { isDatabaseSharedLockAdapter } from "@/shared-lock/implementations/derivables/shared-lock-provider/is-database-shared-lock-adapter.js";
+import { isDatabaseSharedLockAdapter } from "@/shared-lock/implementations/derivables/shared-lock-factory/is-database-shared-lock-adapter.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import { type InvokableFn } from "@/utilities/_module.js";
 

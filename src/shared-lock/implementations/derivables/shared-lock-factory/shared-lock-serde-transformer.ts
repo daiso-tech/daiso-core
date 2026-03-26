@@ -13,7 +13,7 @@ import {
 import {
     SharedLock,
     type ISerializedSharedLock,
-} from "@/shared-lock/implementations/derivables/shared-lock-provider/shared-lock.js";
+} from "@/shared-lock/implementations/derivables/shared-lock-factory/shared-lock.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { getConstructorName, type OneOrMore } from "@/utilities/_module.js";
 

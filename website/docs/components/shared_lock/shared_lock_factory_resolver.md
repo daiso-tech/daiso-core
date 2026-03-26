@@ -1,30 +1,30 @@
 ---
 sidebar_position: 2
-sidebar_label: Factory classes
-pagination_label: Shared-lock factory classes
+sidebar_label: Resolver classes
+pagination_label: Shared-lock resolver classes
 tags:
  - Shared-lock
- - Factories
+ - Resolvers
 keywords:
  - Shared-lock
- - Factories
+ - Resolvers
 ---
 
-# SharedLockProviderFactory
+# SharedLockFactoryResolver
 
-The `SharedLockProviderFactory` class provides a flexible way to configure and switch between different shared-lock adapters at runtime.
+The `SharedLockFactoryResolver` class provides a flexible way to configure and switch between different shared-lock adapters at runtime.
 
 ## Initial configuration
 
-To begin using the `ISharedLockProviderFactory`, You will need to register all required adapters during initialization.
+To begin using the `ISharedLockFactoryResolver`, you will need to register all required adapters during initialization.
 
 ```ts
-import { SharedLockProviderFactory } from "@daiso-tech/core/shared-lock";
+import { SharedLockFactoryResolver } from "@daiso-tech/core/shared-lock";
 import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
 import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
 import Redis from "ioredis";
 
-const sharedLockProvider = new SharedLockProviderFactory({
+const sharedLockFactoryResolver = new SharedLockFactoryResolver({
     adapters: {
         memory: new MemorySharedLockAdapter(),
         redis: new RedisSharedLockAdapter(new Redis("YOUR_REDIS_CONNECTION")),
@@ -39,7 +39,7 @@ const sharedLockProvider = new SharedLockProviderFactory({
 ### 1. Using the default adapter
 
 ```ts
-await sharedLockProvider
+await sharedLockFactoryResolver
     .use()
     .create("shared-resource")
     .runWriterOrFail(async () => {
@@ -54,7 +54,7 @@ Note that if you dont set a default adapter, an error will be thrown.
 ### 2. Specifying an adapter explicitly
 
 ```ts
-await sharedLockProvider
+await sharedLockFactoryResolver
     .use("redis")
     .create("shared-resource")
     .runWriterOrFail(async () => {
@@ -69,7 +69,7 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 ### 3. Overriding default settings
 
 ```ts
-await sharedLockProvider
+await sharedLockFactoryResolver
     .setNamespace(new Namespace("@my-namespace"))
     .use("redis")
     .create("shared-resource")
@@ -79,7 +79,7 @@ await sharedLockProvider
 ```
 
 :::info
-Note that the `SharedLockProviderFactory` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
+Note that the `SharedLockFactoryResolver` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
 :::
 
 ## Further information

@@ -4,14 +4,14 @@
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
-    type ISharedLockProviderFactory,
-    type ISharedLockProvider,
+    type ISharedLockFactoryResolver,
+    type ISharedLockFactory,
     type SharedLockAdapterVariants,
 } from "@/shared-lock/contracts/_module.js";
 import {
-    SharedLockProvider,
-    type SharedLockProviderSettingsBase,
-} from "@/shared-lock/implementations/derivables/shared-lock-provider/_module.js";
+    SharedLockFactory,
+    type SharedLockFactorySettingsBase,
+} from "@/shared-lock/implementations/derivables/shared-lock-factory/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
@@ -31,26 +31,26 @@ export type SharedLockAdapters<TAdapters extends string> = Partial<
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
  * @group Derivables
  */
-export type SharedLockProviderFactorySettings<TAdapters extends string> =
-    SharedLockProviderSettingsBase & {
+export type SharedLockFactoryResolverSettings<TAdapters extends string> =
+    SharedLockFactorySettingsBase & {
         adapters: SharedLockAdapters<TAdapters>;
 
         defaultAdapter?: NoInfer<TAdapters>;
     };
 
 /**
- * The `SharedLockProviderFactory` class is immutable.
+ * The `SharedLockFactoryResolver` class is immutable.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
  * @group Derivables
  */
-export class SharedLockProviderFactory<TAdapters extends string>
-    implements ISharedLockProviderFactory<TAdapters>
+export class SharedLockFactoryResolver<TAdapters extends string>
+    implements ISharedLockFactoryResolver<TAdapters>
 {
     /**
      * @example
      * ```ts
-     * import { SharedLockProviderFactory } from "@daiso-tech/core/shared-lock";
+     * import { SharedLockFactoryResolver } from "@daiso-tech/core/shared-lock";
      * import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
      * import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
      * import { Serde } from "@daiso-tech/core/serde";
@@ -58,7 +58,7 @@ export class SharedLockProviderFactory<TAdapters extends string>
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const lockProviderFactory = new SharedLockProviderFactory({
+     * const lockProviderFactory = new SharedLockFactoryResolver({
      *   serde,
      *   adapters: {
      *     memory: new MemorySharedLockAdapter(),
@@ -69,11 +69,11 @@ export class SharedLockProviderFactory<TAdapters extends string>
      * ```
      */
     constructor(
-        private readonly settings: SharedLockProviderFactorySettings<TAdapters>,
+        private readonly settings: SharedLockFactoryResolverSettings<TAdapters>,
     ) {}
 
-    setNamespace(namespace: INamespace): SharedLockProviderFactory<TAdapters> {
-        return new SharedLockProviderFactory({
+    setNamespace(namespace: INamespace): SharedLockFactoryResolver<TAdapters> {
+        return new SharedLockFactoryResolver({
             ...this.settings,
             namespace,
         });
@@ -81,22 +81,22 @@ export class SharedLockProviderFactory<TAdapters extends string>
 
     setCreateLockId(
         createId: Invokable<[], string>,
-    ): SharedLockProviderFactory<TAdapters> {
-        return new SharedLockProviderFactory({
+    ): SharedLockFactoryResolver<TAdapters> {
+        return new SharedLockFactoryResolver({
             ...this.settings,
             createLockId: createId,
         });
     }
 
-    setEventBus(eventBus: IEventBus): SharedLockProviderFactory<TAdapters> {
-        return new SharedLockProviderFactory({
+    setEventBus(eventBus: IEventBus): SharedLockFactoryResolver<TAdapters> {
+        return new SharedLockFactoryResolver({
             ...this.settings,
             eventBus,
         });
     }
 
-    setDefaultTtl(ttl: ITimeSpan): SharedLockProviderFactory<TAdapters> {
-        return new SharedLockProviderFactory({
+    setDefaultTtl(ttl: ITimeSpan | null): SharedLockFactoryResolver<TAdapters> {
+        return new SharedLockFactoryResolver({
             ...this.settings,
             defaultTtl: ttl,
         });
@@ -104,8 +104,8 @@ export class SharedLockProviderFactory<TAdapters extends string>
 
     setDefaultBlockingInterval(
         interval: ITimeSpan,
-    ): SharedLockProviderFactory<TAdapters> {
-        return new SharedLockProviderFactory({
+    ): SharedLockFactoryResolver<TAdapters> {
+        return new SharedLockFactoryResolver({
             ...this.settings,
             defaultBlockingInterval: interval,
         });
@@ -113,8 +113,8 @@ export class SharedLockProviderFactory<TAdapters extends string>
 
     setDefaultBlockingTime(
         time: ITimeSpan,
-    ): SharedLockProviderFactory<TAdapters> {
-        return new SharedLockProviderFactory({
+    ): SharedLockFactoryResolver<TAdapters> {
+        return new SharedLockFactoryResolver({
             ...this.settings,
             defaultBlockingTime: time,
         });
@@ -122,8 +122,8 @@ export class SharedLockProviderFactory<TAdapters extends string>
 
     setDefaultRefreshTime(
         time: ITimeSpan,
-    ): SharedLockProviderFactory<TAdapters> {
-        return new SharedLockProviderFactory({
+    ): SharedLockFactoryResolver<TAdapters> {
+        return new SharedLockFactoryResolver({
             ...this.settings,
             defaultRefreshTime: time,
         });
@@ -132,7 +132,7 @@ export class SharedLockProviderFactory<TAdapters extends string>
     /**
      * @example
      * ```ts
-     * import { SharedLockProviderFactory } from "@daiso-tech/core/shared-lock";
+     * import { SharedLockFactoryResolver } from "@daiso-tech/core/shared-lock";
      * import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
      * import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
      * import { Serde } from "@daiso-tech/core/serde";
@@ -141,7 +141,7 @@ export class SharedLockProviderFactory<TAdapters extends string>
      * import Redis from "ioredis";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const lockProviderFactory = new SharedLockProviderFactory({
+     * const lockProviderFactory = new SharedLockFactoryResolver({
      *   serde,
      *   adapters: {
      *     memory: new MemorySharedLockAdapter(),
@@ -165,17 +165,17 @@ export class SharedLockProviderFactory<TAdapters extends string>
      */
     use(
         adapterName: TAdapters | undefined = this.settings.defaultAdapter,
-    ): ISharedLockProvider {
+    ): ISharedLockFactory {
         if (adapterName === undefined) {
             throw new DefaultAdapterNotDefinedError(
-                SharedLockProviderFactory.name,
+                SharedLockFactoryResolver.name,
             );
         }
         const adapter = this.settings.adapters[adapterName];
         if (adapter === undefined) {
             throw new UnregisteredAdapterError(adapterName);
         }
-        return new SharedLockProvider({
+        return new SharedLockFactory({
             ...this.settings,
             adapter,
             serdeTransformerName: adapterName,

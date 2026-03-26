@@ -18,15 +18,14 @@ The `@daiso-tech/core/shared-lock` component provides a way for managing shared-
 
 ## Initial configuration
 
-To begin using the `SharedLockProvider` class, you'll need to create and configure an instance:
+To begin using the `SharedLockFactory` class, you'll need to create and configure an instance:
 
 ```ts
 import { TimeSpan } from "@daiso-tech/core/time-span";
 import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
-import { SharedLockProvider } from "@daiso-tech/core/shared-lock";
+import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
 
-
-const sharedLockProvider = new SharedLockProvider({
+const sharedLockFactory = new SharedLockFactory({
     // You can provide default TTL value
     // If you set it to null it means shared-locks will not expire and most be released manually by default.
     defaultTtl: TimeSpan.fromSeconds(2),
@@ -37,14 +36,14 @@ const sharedLockProvider = new SharedLockProvider({
 ```
 
 :::info
-Here is a complete list of settings for the [`SharedLockProvider`](https://daiso-tech.github.io/daiso-core/types/SharedLock.SharedLockProviderSettingsBase.html) class.
+Here is a complete list of settings for the [`SharedLockFactory`](https://daiso-tech.github.io/daiso-core/types/SharedLock.SharedLockFactorySettingsBase.html) class.
 :::
 
 ## Shared lock basics
 
 ### Creating a shared-lock
 ```ts
-const sharedLock = sharedLockProvider.create("shared-resource", {
+const sharedLock = sharedLockFactory.create("shared-resource", {
     // You need to define a limit
     limit: 2
 });
@@ -162,7 +161,7 @@ You need always to wrap the critical section with `try-finally` so the shared-lo
 You can provide a custom TTL for the shared-lock.
 
 ```ts
-const sharedLock = sharedLockProvider.create("shared-resource", {
+const sharedLock = sharedLockFactory.create("shared-resource", {
     // Default TTL is 5min if not overrided
     // If you set it to null it means shared-lock will not expire and most be released manually.
     ttl: TimeSpan.fromSeconds(30),
@@ -177,7 +176,7 @@ You can get the shared-lock state by using the `getState` method, it returns [`I
 ```ts
 import { SHARED_LOCK_STATE } from "@daiso-tech/core/shared-lock/contracts";
 
-const sharedLock = sharedLockProvider.create("shared-resource", {
+const sharedLock = sharedLockFactory.create("shared-resource", {
     limit: 2,
 });
 const state = await sharedLock.getState();
@@ -216,7 +215,7 @@ You can acquire a shared-lock at regular intervals until either successful or a 
 #### As reader
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2
 });
 
@@ -240,7 +239,7 @@ console.log("END");
 #### As writer
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2
 });
 
@@ -274,7 +273,7 @@ instead of setting an excessively long TTL initially, you can start with a short
 #### As reader
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
     ttl: TimeSpan.fromMinutes(1),
 });
@@ -299,7 +298,7 @@ if (hasAcquired) {
 #### As writer
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
     ttl: TimeSpan.fromMinutes(1),
 });
@@ -326,7 +325,7 @@ Note: A shared-lock must have an expiration (a `ttl` value) to be refreshed. You
 
 ```ts
 // Create a shared-lock with no expiration (non-refreshable)
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
     ttl: null,
 });
@@ -350,7 +349,7 @@ console.log(hasRefreshedReader);
 The `acquireWriterBlockingOrFail` method is the same as `acquireWriterBlocking` method but it throws an error when not enable to acquire the shared-lock as writer:
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2
 });
 
@@ -362,7 +361,7 @@ await sharedLock.acquireWriterBlockingOrFail({
 The `releaseWriterOrFail` method is the same `releaseWriter` method but it throws an error when not enable to release the shared-lock as writer:
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2
 });
 
@@ -372,7 +371,9 @@ await sharedLock.releaseWriterOrFail();
 The `forceReleaseWriter` method releases the shared-lock regardless of the owner if in writer mode:
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource");
+const sharedLock = sharedLockFactory.create("resource", {
+    limit: 2
+});
 
 await sharedLock.forceReleaseWriter();
 ```
@@ -380,7 +381,9 @@ await sharedLock.forceReleaseWriter();
 The `refreshWriterOrFail` method is the same `refreshWriter` method but it throws an error when not enable to refresh the shared-lock as writer:
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource");
+const sharedLock = sharedLockFactory.create("resource", {
+    limit: 2
+});
 
 await sharedLock.refreshWriterOrFail();
 ```
@@ -389,7 +392,7 @@ The `runWriterOrFail` method automatically manages shared-lock acquisition and r
 It calls `acquireWriterOrFail` before invoking the function and calls `releaseWriter` in a finally block, ensuring the shared-lock is always freed, even if an error occurs during execution.
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2
 });
 
@@ -406,7 +409,7 @@ The `runWriterBlockingOrFail` method automatically manages shared-lock acquisiti
 It calls `acquireWriterBlockingOrFail` before invoking the function and calls `releaseWriter` in a finally block, ensuring the shared-lock is always freed, even if an error occurs during execution.
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2
 });
 
@@ -433,7 +436,7 @@ You can provide [`Task`](../task.md), synchronous and asynchronous [`Invokable`]
 The `acquireReaderBlockingOrFail` method is the same as `acquireReaderBlocking` method but it throws an error when not enable to acquire the shared-lock as writer:
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2
 });
 
@@ -445,7 +448,7 @@ await sharedLock.acquireReaderBlockingOrFail({
 The `releaseReaderOrFail` method is the same `releaseReader` method but it throws an error when not enable to release the shared-lock as reader:
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2
 });
 
@@ -455,7 +458,9 @@ await sharedLock.releaseReaderOrFail();
 The `forceReleaseAllReaders` method releases all the slots of the shared-lock if in reader mode:
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource");
+const sharedLock = sharedLockFactory.create("resource", {
+    limit: 2
+});
 
 await sharedLock.forceReleaseAllReaders();
 ```
@@ -463,7 +468,9 @@ await sharedLock.forceReleaseAllReaders();
 The `refreshReaderOrFail` method is the same `refreshReader` method but it throws an error when not enable to refresh the shared-lock as reader:
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource");
+const sharedLock = sharedLockFactory.create("resource", {
+    limit: 2
+});
 
 await sharedLock.refreshReaderOrFail();
 ```
@@ -472,7 +479,7 @@ The `runReaderOrFail` method automatically manages shared-lock acquisition and r
 It calls `acquireReaderOrFail` before invoking the function and calls `releaseReader` in a finally block, ensuring the shared-lock is always freed, even if an error occurs during execution.
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2
 });
 
@@ -489,7 +496,7 @@ The `runReaderBlockingOrFail` method automatically manages shared-lock acquisiti
 It calls `acquireReaderBlockingOrFail` before invoking the function and calls `releaseReader` in a finally block, ensuring the shared-lock is always freed, even if an error occurs during execution.
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2
 });
 
@@ -516,7 +523,9 @@ You can provide [`Task`](../task.md), synchronous and asynchronous [`Invokable`]
 The `forceRelease` method releases the shared-lock regardless it its in reader or writer mode:
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource");
+const sharedLock = sharedLockFactory.create("resource", {
+    limit: 2
+});
 
 await sharedLock.forceRelease();
 ```
@@ -526,7 +535,7 @@ await sharedLock.forceRelease();
 The `Shared-lock` class exposes instance variables such as:
 
 ```ts
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2
 });
 
@@ -549,7 +558,7 @@ The `key` field is an object that implements [`IKey`](../namespace.md) contract.
 By default the shared-lock id is autogenerated but it can also manually defined.
 
 ```ts
-const sharedLock = sharedLockProvider.create("shared-lock", {
+const sharedLock = sharedLockFactory.create("shared-lock", {
     lockId: "my-shared-lock-id",
 });
 
@@ -579,25 +588,25 @@ For further information about namespacing refer to [`@daiso-tech/core/namespace`
 ```ts
 import { Namespace } from "@daiso-tech/core/namespace";
 import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
-import { SharedLockProvider } from "@daiso-tech/core/shared-lock";
+import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
 import Redis from "ioredis";
 
 const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
 
-const sharedLockProviderA = new SharedLockProvider({
+const sharedLockFactoryA = new SharedLockFactory({
     namespace: new Namespace("@sharedLock-a"),
     adapter: new RedisSharedLockAdapter(database),
 });
-const sharedLockProviderB = new SharedLockProvider({
+const sharedLockFactoryB = new SharedLockFactory({
     namespace: new Namespace("@sharedLock-b"),
     adapter: new RedisSharedLockAdapter(database),
 });
 
-const sharedLockA = await sharedLockProviderA.create("key", {
+const sharedLockA = await sharedLockFactoryA.create("key", {
     ttl: null,
     limit: 1
 });
-const sharedLockB = await sharedLockProviderB.create("key", {
+const sharedLockB = await sharedLockFactoryB.create("key", {
     ttl: null,
     limit: 1
 });
@@ -631,7 +640,7 @@ Retrying acquiring shared-lock with `acquireWriterOrFail` method:
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireWriterLockError } from "@daiso-tech/core/shared-lock/contracts";
 
-const sharedLock = sharedLockProvider.create("shared-lock", {
+const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2
 });
 
@@ -653,7 +662,7 @@ Retrying acquiring sharedLock with `acquireWriter` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 
-const sharedLock = sharedLockProvider.create("shared-lock", {
+const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2
 });
 
@@ -680,7 +689,7 @@ Retrying acquiring shared-lock with `runWriterOrFail` method:
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireWriterLockError } from "@daiso-tech/core/shared-lock/contracts";
 
-const sharedLock = sharedLockProvider.create("shared-lock", {
+const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2
 });
 
@@ -704,7 +713,7 @@ Retrying acquiring shared-lock with `acquireReaderOrFail` method:
 import { retry } from "@daiso-tech/core/resilience";
 import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
 
-const sharedLock = sharedLockProvider.create("shared-lock", {
+const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2
 });
 
@@ -726,7 +735,7 @@ Retrying acquiring sharedLock with `acquireReader` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 
-const sharedLock = sharedLockProvider.create("shared-lock", {
+const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2
 });
 
@@ -753,7 +762,7 @@ Retrying acquiring shared-lock with `runReaderOrFail` method:
 import { retry } from "@daiso-tech/core/resilience";
 import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
 
-const sharedLock = sharedLockProvider.create("shared-lock", {
+const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2
 });
 
@@ -773,13 +782,13 @@ await sharedLock
 
 Shared-locks can be serialized, allowing them to be transmitted over the network to another server and later deserialized for reuse.
 This means you can, for example, acquire the shared-lock on the main server, transfer it to a queue worker server, and release it there.
-In order to serialize or deserialize a shared-lock you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `SharedLockProvider`. 
+In order to serialize or deserialize a shared-lock you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `SharedLockFactory`. 
 
 Manually serializing and deserializing the shared-lock:
 
 ```ts
 import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
-import { SharedLockProvider } from "@daiso-tech/core/shared-lock";
+import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
 
@@ -787,13 +796,13 @@ const serde = new Serde(new SuperJsonSerdeAdapter());
 
 const redisClient = new Redis("YOUR_REDIS_CONNECTION");
 
-const sharedLockProvider = new SharedLockProvider({
+const sharedLockFactory = new SharedLockFactory({
     // You can laso pass in an array of Serde class instances
     serde,
     adapter: new RedisSharedLockAdapter(redisClient),
 });
 
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2
 });
 const serializedSharedLock = serde.serialize(sharedLock);
@@ -801,7 +810,7 @@ const deserializedSharedLock = serde.deserialize(sharedLock);
 ```
 
 :::danger
-When serializing or deserializing a shared-lock, you must use the same `Serde` instances that were provided to the `SharedLockProvider`. This is required because the `SharedLockProvider` injects custom serialization logic for `ISharedLock` instance into `Serde` instances.
+When serializing or deserializing a shared-lock, you must use the same `Serde` instances that were provided to the `SharedLockFactory`. This is required because the `SharedLockFactory` injects custom serialization logic for `ISharedLock` instance into `Serde` instances.
 :::
 
 :::info
@@ -813,7 +822,7 @@ As long you pass the same `Serde` instances with all other components you dont n
 ```ts
 import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
 import type { ISharedLock } from "@daiso-tech/core/shared-lock/contracts";
-import { SharedLockProvider } from "@daiso-tech/core/shared-lock";
+import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
 import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
 import { EventBus } from "@daiso-tech/core/event-bus";
 import { Serde } from "@daiso-tech/core/serde";
@@ -834,12 +843,12 @@ const eventBus = new EventBus<EventMap>({
     }),
 });
 
-const sharedLockProvider = new SharedLockProvider({
+const sharedLockFactory = new SharedLockFactory({
     serde,
     adapter: new RedisSharedLockAdapter(redis),
     eventBus,
 });
-const sharedLock = sharedLockProvider.create("resource", {
+const sharedLock = sharedLockFactory.create("resource", {
     limit: 2
 });
 
@@ -862,25 +871,25 @@ Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to lear
 
 ```ts
 import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
-import { SharedLockProvider, SHARED_LOCK_EVENTS } from "@daiso-tech/core/shared-lock";
+import { SharedLockFactory, SHARED_LOCK_EVENTS } from "@daiso-tech/core/shared-lock";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 import { EventBus } from "@daiso-tech/core/event-bus";
 
 
 const redisPubSubEventBusAdapter = new MemoryEventBusAdapter();
 
-const sharedLock = new SharedLockProvider({
+const sharedLock = new SharedLockFactory({
     adapter: new MemorySharedLockAdapter(),
     eventBus: new EventBus({
         adapter: redisPubSubEventBusAdapter,
     }),
 });
 
-await sharedLockProvider.events.addListener(SHARED_LOCK_EVENTS.WRITER_ACQUIRED, () => {
+await sharedLockFactory.events.addListener(SHARED_LOCK_EVENTS.WRITER_ACQUIRED, () => {
     console.log("Lock acquired");
 });
 
-await sharedLockProvider.create("a").acquireWriter();
+await sharedLockFactory.create("a", { limit: 2 }).acquireWriter();
 ```
 
 :::warning
@@ -904,7 +913,7 @@ const redisPubSubEventBusAdapter = new RedisPubSubEventBusAdapter({
 });
 
 const memorySharedLockAdapter = new MemorySharedLockAdapter();
-const memorySharedLockProvider = new SharedLockProvider({
+const memorySharedLockFactory = new SharedLockFactory({
     adapter: memorySharedLockAdapter,
     eventBus: new EventBus({
         // We assign distinct namespaces to MemorySharedLockAdapter and RedisSharedLockAdapter to isolate their events.
@@ -917,7 +926,7 @@ const redisSharedLockAdapter = new RedisSharedLockAdapter({
     serde,
     database: new Redis("YOUR_REDIS_CONNECTION_STRING"),
 });
-const redisSharedLockProvider = new SharedLockProvider({
+const redisSharedLockFactory = new SharedLockFactory({
     adapter: redisSharedLockAdapter,
     eventBus: new EventBus({
         // We assign distinct namespaces to MemorySharedLockAdapter and RedisSharedLockAdapter to isolate their events.
@@ -938,7 +947,7 @@ The library includes 3 additional contracts:
 
 - [`IReaderSemaphore`](https://daiso-tech.github.io/daiso-core/types/SharedLock.IReaderSemaphore.html) - Allows only for manipulating of the shared-lock as reader.
 
-- [`ISharedLockProviderBase`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLockProviderBase.html) - Allows only for creation of shared-locks.
+- [`ISharedLockFactoryBase`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLockFactoryBase.html) - Allows only for creation of shared-locks.
 
 - [`ISharedLockListenable`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLockListenable.html) - Allows only to listening to shared-lock events.
 
@@ -947,11 +956,11 @@ This seperation makes it easy to visually distinguish the 3 contracts, making it
 ```ts
 import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { SharedLockProvider } from "@daiso-tech/core/shared-lock";
+import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
 import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
 import {
     type ISharedLock,
-    type ISharedLockProvider,
+    type ISharedLockFactoryBase,
     type ISharedLockListenable,
     type IWriterLock,
     type IReaderSemaphore,
@@ -984,11 +993,11 @@ async function sharedLockFunc(sharedLock: ISharedLock): Promise<void> {
     await sharedLock.forceRelease();
 }
 
-async function sharedLockProviderFunc(sharedLockProvider: ISharedLockProvider): Promise<void> {
+async function sharedLockFactoryFunc(sharedLockFactory: ISharedLockFactoryBase): Promise<void> {
     // You cannot access the listener methods
     // You will get typescript error if you try
 
-    const sharedLock = sharedLockProvider.create("resource", {
+    const sharedLock = sharedLockFactory.create("resource", {
         limit: 2
     });
     await sharedLockFunc(sharedLock);
@@ -997,7 +1006,7 @@ async function sharedLockProviderFunc(sharedLockProvider: ISharedLockProvider): 
 async function sharedLockListenableFunc(
     sharedLockListenable: ISharedLockListenable,
 ): Promise<void> {
-    // You cannot access the sharedLockProvider methods
+    // You cannot access the sharedLockFactory methods
     // You will get typescript error if you try
 
     await sharedLockListenable.addListener(SHARED_LOCK_EVENTS.WRITER_ACQUIRED, (event) => {
@@ -1015,14 +1024,14 @@ async function sharedLockListenableFunc(
     });
 }
 
-const sharedLockProvider = new SharedLockProvider({
+const sharedLockFactory = new SharedLockFactory({
     adapter: new MemorySharedLockAdapter(),
     eventBus: new EventBus({
         adapter: new MemoryEventBusAdapter(),
     })
 })
-await sharedLockListenableFunc(sharedLockProvider.events);
-await sharedLockProviderFunc(sharedLockProvider);
+await sharedLockListenableFunc(sharedLockFactory.events);
+await sharedLockFactoryFunc(sharedLockFactory);
 ```
 
 ## Further information
