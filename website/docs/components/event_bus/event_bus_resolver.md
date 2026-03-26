@@ -1,29 +1,29 @@
 ---
 sidebar_position: 2
-sidebar_label: Factory classes
-pagination_label: Event-bus factory classes
+sidebar_label: Resolver classes
+pagination_label: Event-bus resolver classes
 tags:
  - Event-bus
- - Factories
+ - Resolvers
 keywords:
  - Event-bus
- - Factories
+ - Resolvers
 ---
 
-# EventBusFactory
+# EventBusResolver
 
-The `EventBusFactory` class provides a flexible way to configure and switch between different event bus adapters at runtime.
+The `EventBusResolver` class provides a flexible way to configure and switch between different event bus adapters at runtime.
 
 ## Initial configuration
 
-To begin using the `EventBusFactory` class, You will need to register all required adapters during initialization.
+To begin using the `EventBusResolver` class, you will need to register all required adapters during initialization.
 
 ```ts
 import {
     type IEventBusAdapter,
     BaseEvent,
 } from "@daiso-tech/core/event-bus/contracts";
-import { EventBusFactory } from "@daiso-tech/core/event-bus";
+import { EventBusResolver } from "@daiso-tech/core/event-bus";
 import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 import { Serde } from "@daiso-tech/core/serde";
@@ -31,7 +31,7 @@ import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-a
 import Redis from "ioredis";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
-const eventBusFactory = new EventBusFactory({
+const eventBusResolver = new EventBusResolver({
     adapters: {
         memory: new MemoryEventBusAdapter(),
         redis: new RedisPubSubEventBusAdapter({
@@ -49,7 +49,7 @@ const eventBusFactory = new EventBusFactory({
 ### 1. Using the default adapter
 
 ```ts
-await eventBusFactory.use().dispatch("add", { a: 1, b: 2 });
+await eventBusResolver.use().dispatch("add", { a: 1, b: 2 });
 ```
 
 :::danger
@@ -59,7 +59,7 @@ Note that if you dont set a default adapter, an error will be thrown.
 ### 2. Specifying an adapter explicitly
 
 ```ts
-await eventBusFactory.use("redis").dispatch("add", { a: 1, b: 2 });
+await eventBusResolver.use("redis").dispatch("add", { a: 1, b: 2 });
 ```
 
 :::danger
@@ -71,7 +71,7 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 ```ts
 import { z } from "zod";
 
-await eventBusFactory
+await eventBusResolver
     .setNamespace(new Namespace("@my-namespace"))
     // You can overide the event type by calling setEventMapType or setEventMapSchema method again
     .setEventMapType<{
@@ -94,7 +94,7 @@ await eventBusFactory
 ```
 
 :::info
-Note that the `EventBusFactory` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
+Note that the `EventBusResolver` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
 :::
 
 ## Further information

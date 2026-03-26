@@ -112,7 +112,7 @@ export type IEventDispatcher<TEventMap extends BaseEventMap = BaseEventMap> = {
 
 /**
  * The `IEventBus` contract defines a way for dispatching and listening to events independent of underlying technology.
- * It commes with more convient methods compared to `IEventBusAdapter`.
+ * It comes with more convenient methods compared to `IEventBusAdapter`.
  *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
  * @group Contracts

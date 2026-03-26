@@ -4,7 +4,7 @@
 
 import {
     type IEventBus,
-    type IEventBusFactory,
+    type IEventBusResolver,
     type BaseEventMap,
     type IEventBusAdapter,
 } from "@/event-bus/contracts/_module.js";
@@ -31,7 +31,7 @@ export type EventBusAdapters<TAdapters extends string = string> = Partial<
  * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
  * @group Derivables
  */
-export type EventBusFactorySettings<
+export type EventBusResolverSettings<
     TAdapters extends string = string,
     TEventMap extends BaseEventMap = BaseEventMap,
 > = EventBusSettingsBase<TEventMap> & {
@@ -41,21 +41,21 @@ export type EventBusFactorySettings<
 };
 
 /**
- * The `EventBusFactory` class is immutable.
+ * The `EventBusResolver` class is immutable.
  *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
  * @group Derivables
  */
-export class EventBusFactory<
+export class EventBusResolver<
     TAdapters extends string = string,
     TEventMap extends BaseEventMap = BaseEventMap,
-> implements IEventBusFactory<TAdapters, TEventMap>
+> implements IEventBusResolver<TAdapters, TEventMap>
 {
     /**
      * @example
      * ```ts
      * import { type IEventBusAdapter, BaseEvent } from "@daiso-tech/core/event-bus/contracts";
-     * import { EventBusFactory } from "@daiso-tech/core/event-bus";
+     * import { EventBusResolver } from "@daiso-tech/core/event-bus";
      * import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
      * import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
      * import { Serde } from "@daiso-tech/core/serde";
@@ -66,7 +66,7 @@ export class EventBusFactory<
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
      * const store: Store = {};
-     * const eventBusFactory = new EventBusFactory({
+     * const eventBusResolver = new EventBusResolver({
      *   adapters: {
      *     memory: new MemoryEventBusAdapter(),
      *     redis: new RedisPubSubEventBusAdapter({
@@ -80,32 +80,34 @@ export class EventBusFactory<
      * ```
      */
     constructor(
-        private readonly settings: EventBusFactorySettings<
+        private readonly settings: EventBusResolverSettings<
             TAdapters,
             TEventMap
         >,
     ) {}
 
-    setNamespace(namespace: INamespace): EventBusFactory<TAdapters, TEventMap> {
-        return new EventBusFactory({
+    setNamespace(
+        namespace: INamespace,
+    ): EventBusResolver<TAdapters, TEventMap> {
+        return new EventBusResolver({
             ...this.settings,
             namespace,
         });
     }
 
-    setEventMapType<TEventMap extends BaseEventMap>(): EventBusFactory<
+    setEventMapType<TEventMap extends BaseEventMap>(): EventBusResolver<
         TAdapters,
         TEventMap
     > {
-        return new EventBusFactory({
+        return new EventBusResolver({
             ...this.settings,
-        } as EventBusFactorySettings<TAdapters, TEventMap>);
+        } as EventBusResolverSettings<TAdapters, TEventMap>);
     }
 
     setEventMapSchema<TEventMap extends BaseEventMap>(
         eventMapSchema: EventMapSchema<TEventMap>,
-    ): EventBusFactory<TAdapters, TEventMap> {
-        return new EventBusFactory({
+    ): EventBusResolver<TAdapters, TEventMap> {
+        return new EventBusResolver({
             ...this.settings,
             eventMapSchema,
         });
@@ -115,7 +117,7 @@ export class EventBusFactory<
      * @example
      * ```ts
      * import { type IEventBusAdapter, BaseEvent } from "@daiso-tech/core/event-bus/contracts";
-     * import { EventBusFactory } from "@daiso-tech/core/event-bus";
+     * import { EventBusResolver } from "@daiso-tech/core/event-bus";
      * import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
      * import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
      * import { Serde } from "@daiso-tech/core/serde";
@@ -123,7 +125,7 @@ export class EventBusFactory<
      * import Redis from "ioredis";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const eventBusFactory = new EventBusFactory({
+     * const eventBusResolver = new EventBusResolver({
      *   adapters: {
      *     memory: new MemoryEventBusAdapter(),
      *     redis: new RedisPubSubEventBusAdapter({
@@ -144,13 +146,15 @@ export class EventBusFactory<
      * };
      *
      * // Will dispatch AddEvent using the default adapter which is MemoryEventBusAdapter
-     * await eventBusFactory
-     *   .use<EventMap>()
+     * await eventBusResolver
+     *   .setEventMapType<EventMap>()
+     *   .use()
      *   .dispatch("add", { a: 1, b: 2 });
      *
      * // Will dispatch AddEvent using the redis adapter
-     * await eventBusFactory
-     *   .use<EventMap>("redis")
+     * await eventBusResolver
+     *   .setEventMapType<EventMap>()
+     *   .use("redis")
      *   .dispatch("add", { a: 1, b: 2 });
      * ```
      */
@@ -158,7 +162,7 @@ export class EventBusFactory<
         adapterName: TAdapters | undefined = this.settings.defaultAdapter,
     ): IEventBus<TEventMap> {
         if (adapterName === undefined) {
-            throw new DefaultAdapterNotDefinedError(EventBusFactory.name);
+            throw new DefaultAdapterNotDefinedError(EventBusResolver.name);
         }
         const adapter = this.settings.adapters[adapterName];
         if (adapter === undefined) {
