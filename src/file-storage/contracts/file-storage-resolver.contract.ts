@@ -11,12 +11,12 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * The `IFileStorageFactory` contract makes it easy to configure and switch between different {@link IFileStorage | `IFileStorage`} dynamically.
+ * The `IFileStorageResolver` contract makes it easy to configure and switch between different {@link IFileStorage | `IFileStorage`} dynamically.
  *
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
  * @group Contracts
  */
-export type IFileStorageFactory<TAdapters extends string = string> = {
+export type IFileStorageResolver<TAdapters extends string = string> = {
     /**
      * The `use` method will throw an error if you provide it unregisted adapter.
      * If no default adapter is defined an error will be thrown.

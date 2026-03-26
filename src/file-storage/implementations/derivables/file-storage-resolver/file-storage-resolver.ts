@@ -6,7 +6,7 @@ import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import {
     type IFileStorage,
     type ISignedFileStorageAdapter,
-    type IFileStorageFactory,
+    type IFileStorageResolver,
     type IFileUrlAdapter,
 } from "@/file-storage/contracts/_module.js";
 import {
@@ -32,7 +32,7 @@ export type FileStorageAdapters<TAdapters extends string = string> = Partial<
  * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
  * @group Derivables
  */
-export type FileStorageFactorySettings<TAdapters extends string = string> =
+export type FileStorageResolverSettings<TAdapters extends string = string> =
     FileStorageSettingsBase & {
         adapters: FileStorageAdapters<TAdapters>;
 
@@ -43,20 +43,20 @@ export type FileStorageFactorySettings<TAdapters extends string = string> =
  * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
  * @group Derivables
  */
-export class FileStorageFactory<TAdapters extends string = string>
-    implements IFileStorageFactory<TAdapters>
+export class FileStorageResolver<TAdapters extends string = string>
+    implements IFileStorageResolver<TAdapters>
 {
     /**
      * @example
      * ```ts
-     * import { FileStorageFactory } from "@daiso-tech/core/file-storage";
+     * import { FileStorageResolver } from "@daiso-tech/core/file-storage";
      * import { FsFileStorageAdapter } from "@daiso-tech/core/file-storage/fs-file-storage-adapter";
      * import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
      * import { Serde } from "@daiso-tech/core/serde";
      * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const fileStorageFactory = new FileStorageFactory({
+     * const fileStorageResolver = new FileStorageResolver({
      *   serde,
      *   adapters: {
      *     memory: new MemoryFileStorageAdapter(),
@@ -67,25 +67,25 @@ export class FileStorageFactory<TAdapters extends string = string>
      * ```
      */
     constructor(
-        private readonly settings: FileStorageFactorySettings<TAdapters>,
+        private readonly settings: FileStorageResolverSettings<TAdapters>,
     ) {}
 
-    setNamespace(namespace: INamespace): FileStorageFactory<TAdapters> {
-        return new FileStorageFactory({
+    setNamespace(namespace: INamespace): FileStorageResolver<TAdapters> {
+        return new FileStorageResolver({
             ...this.settings,
             namespace,
         });
     }
 
-    setEventBus(eventBus: IEventBus): FileStorageFactory<TAdapters> {
-        return new FileStorageFactory({
+    setEventBus(eventBus: IEventBus): FileStorageResolver<TAdapters> {
+        return new FileStorageResolver({
             ...this.settings,
             eventBus,
         });
     }
 
-    setDefaultContentType(contentType: string): FileStorageFactory<TAdapters> {
-        return new FileStorageFactory({
+    setDefaultContentType(contentType: string): FileStorageResolver<TAdapters> {
+        return new FileStorageResolver({
             ...this.settings,
             defaultContentType: contentType,
         });
@@ -93,8 +93,8 @@ export class FileStorageFactory<TAdapters extends string = string>
 
     setDefaultContentDisposition(
         contentDisposition: string | null,
-    ): FileStorageFactory<TAdapters> {
-        return new FileStorageFactory({
+    ): FileStorageResolver<TAdapters> {
+        return new FileStorageResolver({
             ...this.settings,
             defaultContentDisposition: contentDisposition,
         });
@@ -102,8 +102,8 @@ export class FileStorageFactory<TAdapters extends string = string>
 
     setDefaultContentEncoding(
         contentEncoding: string | null,
-    ): FileStorageFactory<TAdapters> {
-        return new FileStorageFactory({
+    ): FileStorageResolver<TAdapters> {
+        return new FileStorageResolver({
             ...this.settings,
             defaultContentEncoding: contentEncoding,
         });
@@ -111,8 +111,8 @@ export class FileStorageFactory<TAdapters extends string = string>
 
     setDefaultCacheControl(
         cacheControl: string | null,
-    ): FileStorageFactory<TAdapters> {
-        return new FileStorageFactory({
+    ): FileStorageResolver<TAdapters> {
+        return new FileStorageResolver({
             ...this.settings,
             defaultCacheControl: cacheControl,
         });
@@ -120,8 +120,8 @@ export class FileStorageFactory<TAdapters extends string = string>
 
     setDefaultContentLanguage(
         contentLanguage: string | null,
-    ): FileStorageFactory<TAdapters> {
-        return new FileStorageFactory({
+    ): FileStorageResolver<TAdapters> {
+        return new FileStorageResolver({
             ...this.settings,
             defaultContentLanguage: contentLanguage,
         });
@@ -129,15 +129,15 @@ export class FileStorageFactory<TAdapters extends string = string>
 
     setUrlAdapter(
         urlAdapter: Partial<IFileUrlAdapter>,
-    ): FileStorageFactory<TAdapters> {
-        return new FileStorageFactory({
+    ): FileStorageResolver<TAdapters> {
+        return new FileStorageResolver({
             ...this.settings,
             urlAdapter,
         });
     }
 
-    setOnlyLowercase(onlyLowercase: boolean): FileStorageFactory<TAdapters> {
-        return new FileStorageFactory({
+    setOnlyLowercase(onlyLowercase: boolean): FileStorageResolver<TAdapters> {
+        return new FileStorageResolver({
             ...this.settings,
             onlyLowercase,
         });
@@ -145,8 +145,8 @@ export class FileStorageFactory<TAdapters extends string = string>
 
     setKeyValidator(
         keyValidator: FileKeyValidator,
-    ): FileStorageFactory<TAdapters> {
-        return new FileStorageFactory({
+    ): FileStorageResolver<TAdapters> {
+        return new FileStorageResolver({
             ...this.settings,
             keyValidator,
         });
@@ -154,7 +154,7 @@ export class FileStorageFactory<TAdapters extends string = string>
 
     use(adapterName?: TAdapters): IFileStorage {
         if (adapterName === undefined) {
-            throw new DefaultAdapterNotDefinedError(FileStorageFactory.name);
+            throw new DefaultAdapterNotDefinedError(FileStorageResolver.name);
         }
         const adapter = this.settings.adapters[adapterName];
         if (adapter === undefined) {
