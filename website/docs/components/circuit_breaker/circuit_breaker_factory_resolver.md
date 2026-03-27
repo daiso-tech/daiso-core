@@ -1,27 +1,27 @@
 ---
 sidebar_position: 2
-sidebar_label: Factory classes
-pagination_label: Circuit-breaker factory classes
+sidebar_label: Resolver classes
+pagination_label: Circuit-breaker resolver classes
 tags:
  - Circuit-breaker
- - Factories
+ - Resolvers
 keywords:
  - Circuit-breaker
- - Factories
+ - Resolvers
 ---
 
-# Circuit-breaker provider factory classes
+# Circuit-breaker provider resolver classes
 
-## CircuitBreakerProviderFactory
+## pro
 
-The `CircuitBreakerProviderFactory` class provides a flexible way to configure and switch between different circuit-breaker adapters at runtime.
+The `CircuitBreakerFactoryResolver` class provides a flexible way to configure and switch between different circuit-breaker adapters at runtime.
 
 ### Initial configuration
 
-To begin using the `CircuitBreakerProviderFactory`, You will need to register all required adapters during initialization.
+To begin using the `CircuitBreakerFactoryResolver`, You will need to register all required adapters during initialization.
 
 ```ts
-import { CircuitBreakerProviderFactory } from "@daiso-tech/core/circuit-breaker";
+import { CircuitBreakerFactoryResolver } from "@daiso-tech/core/circuit-breaker";
 import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storate-adapter";
 import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
 import { RedisCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter";
@@ -30,7 +30,7 @@ import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-a
 import Redis from "ioredis"
   
 const serde = new Serde(new SuperJsonSerdeAdapter());
-const circuitBreakerProviderFactory = new CircuitBreakerProviderFactory({
+const circuitBreakerFactoryResolver = new CircuitBreakerFactoryResolver({
     serde,
     adapters: {
         memory: new DatabaseCircuitBreakerAdapter({
@@ -50,7 +50,7 @@ const circuitBreakerProviderFactory = new CircuitBreakerProviderFactory({
 
 ```ts
 // Will apply circuit-breaker logic the default adapter which is MemoryCircuitBreakerStorageAdapter
-await circuitBreakerProviderFactory
+await circuitBreakerFactoryResolver
   .use()
   .create("a")
   .runOrFail(async () => {
@@ -66,7 +66,7 @@ Note that if you dont set a default adapter, an error will be thrown.
 
 ```ts
 // Will apply circuit-breaker logic using the redis adapter
-await circuitBreakerProviderFactory
+await circuitBreakerFactoryResolver
   .use("redis")
   .create("a")
   .runOrFail(async () => {
@@ -81,7 +81,7 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 #### 3. Overriding default settings
 
 ```ts
-await circuitBreakerProviderFactory
+await circuitBreakerFactoryResolver
   .use("redis")
   .create("a")
   .setNamespace(new Namespace(["@", "test"]))
@@ -91,19 +91,19 @@ await circuitBreakerProviderFactory
 ```
 
 :::info
-Note that the `CircuitBreakerProviderFactory` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
+Note that the `CircuitBreakerFactoryResolver` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
 :::
 
-## DatabaseCircuitBreakerProviderFactory
+## DatabaseCircuitBreakerFactoryResolver
 
-The `DatabaseCircuitBreakerProviderFactory` class provides a flexible way to configure and switch between different circuit-breaker-storage adapters at runtime.
+The `DatabaseCircuitBreakerFactoryResolver` class provides a flexible way to configure and switch between different circuit-breaker-storage adapters at runtime.
 
 ### Initial configuration
 
-To begin using the `DatabaseCircuitBreakerProviderFactory`, You will need to register all required adapters during initialization.
+To begin using the `DatabaseCircuitBreakerFactoryResolver`, You will need to register all required adapters during initialization.
 
 ```ts
-import { DatabaseCircuitBreakerProviderFactory } from "@daiso-tech/core/circuit-breaker";
+import { DatabaseCircuitBreakerFactoryResolver } from "@daiso-tech/core/circuit-breaker";
 import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storate-adapter";
 import { KyselyCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storate-adapter";
 import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
@@ -113,7 +113,7 @@ import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
-const circuitBreakerProviderFactory = new DatabaseCircuitBreakerProviderFactory({
+const circuitBreakerFactoryResolver = new DatabaseCircuitBreakerFactoryResolver({
   serde,
   adapters: {
     memory: new MemoryCircuitBreakerStorageAdapter(),
@@ -130,7 +130,7 @@ const circuitBreakerProviderFactory = new DatabaseCircuitBreakerProviderFactory(
 });
 
 // Will apply circuit-breaker logic the default adapter which is MemoryCircuitBreakerStorageAdapter
-await circuitBreakerProviderFactory
+await circuitBreakerFactoryResolver
   .use()
   .create("a")
   .runOrFail(async () => {
@@ -138,7 +138,7 @@ await circuitBreakerProviderFactory
   });
 
 // Will apply circuit-breaker logic using the KyselyCircuitBreakerStorageAdapter
-await circuitBreakerProviderFactory
+await circuitBreakerFactoryResolver
   .use("sqlite")
   .create("a")
   .runOrFail(async () => {
@@ -152,7 +152,7 @@ await circuitBreakerProviderFactory
 
 ```ts
 // Will apply circuit-breaker logic the default adapter which is MemoryCircuitBreakerStorageAdapter
-await circuitBreakerProviderFactory
+await circuitBreakerFactoryResolver
   .use()
   .create("a")
   .runOrFail(async () => {
@@ -168,7 +168,7 @@ Note that if you dont set a default adapter, an error will be thrown.
 
 ```ts
 // Will apply circuit-breaker logic using the sqlite adapter
-await circuitBreakerProviderFactory
+await circuitBreakerFactoryResolver
   .use("sqlite")
   .create("a")
   .runOrFail(async () => {
@@ -186,7 +186,7 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 import { CountBreaker } from "@daiso-tech/core/circuit-breaker/policies"
 import { constantBackoff } from "@daiso-tech/core/backoff-policies"
 
-await circuitBreakerProviderFactory
+await circuitBreakerFactoryResolver
   .use("redis")
   .create("a")
   .setBackoffPolicy(constantBackoff())
@@ -197,7 +197,7 @@ await circuitBreakerProviderFactory
 ```
 
 :::info
-Note that the `DatabaseCircuitBreakerProviderFactory` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
+Note that the `DatabaseCircuitBreakerFactoryResolver` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
 :::
 
 ## Further information

@@ -5,15 +5,15 @@
 import {
     CIRCUIT_BREAKER_TRIGGER,
     type CircuitBreakerEventMap,
-    type CircuitBreakerProviderCreateSettings,
+    type CircuitBreakerFactoryCreateSettings,
     type ICircuitBreaker,
-    type ICircuitBreakerProvider,
+    type ICircuitBreakerFactory,
     type ICircuitBreakerAdapter,
     type CircuitBreakerTrigger,
     type ICircuitBreakerListenable,
 } from "@/circuit-breaker/contracts/_module.js";
-import { CircuitBreakerSerdeTransformer } from "@/circuit-breaker/implementations/derivables/circuit-breaker-provider/circuit-breaker-serde-transformer.js";
-import { CircuitBreaker } from "@/circuit-breaker/implementations/derivables/circuit-breaker-provider/circuit-breaker.js";
+import { CircuitBreakerSerdeTransformer } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker-serde-transformer.js";
+import { CircuitBreaker } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
@@ -35,7 +35,7 @@ import {
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
-export type CircuitBreakerProviderSettingsBase = {
+export type CircuitBreakerFactorySettingsBase = {
     /**
      * @default
      * ```ts
@@ -120,22 +120,22 @@ export type CircuitBreakerProviderSettingsBase = {
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
-export type CircuitBreakerProviderSettings =
-    CircuitBreakerProviderSettingsBase & {
+export type CircuitBreakerFactorySettings =
+    CircuitBreakerFactorySettingsBase & {
         adapter: ICircuitBreakerAdapter;
     };
 
 /**
- * `CircuitBreakerProvider` class can be derived from any {@link ICircuitBreakerAdapter | `ICircuitBreakerAdapter`}.
+ * `CircuitBreakerFactory` class can be derived from any {@link ICircuitBreakerAdapter | `ICircuitBreakerAdapter`}.
  *
- * Note the {@link ICircuitBreaker | `ICircuitBreaker`} instances created by the `CircuitBreakerProvider` class are serializable and deserializable,
+ * Note the {@link ICircuitBreaker | `ICircuitBreaker`} instances created by the `CircuitBreakerFactory` class are serializable and deserializable,
  * allowing them to be seamlessly transferred across different servers, processes, and databases.
  * This can be done directly using {@link ISerderRegister | `ISerderRegister`} or indirectly through components that rely on {@link ISerderRegister | `ISerderRegister`} internally.
  *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
-export class CircuitBreakerProvider implements ICircuitBreakerProvider {
+export class CircuitBreakerFactory implements ICircuitBreakerFactory {
     private readonly namespace: INamespace;
     private readonly eventBus: IEventBus<CircuitBreakerEventMap>;
     private readonly adapter: ICircuitBreakerAdapter;
@@ -172,12 +172,12 @@ export class CircuitBreakerProvider implements ICircuitBreakerProvider {
      *   adapter: circuitBreakerStorageAdapter
      * });
      *
-     * const circuitBreakerProvider = new CircuitBreakerProvider({
+     * const circuitBreakerFactory = new CircuitBreakerFactory({
      *   adapter: circuitBreakerAdapter
      * })
      * ```
      */
-    constructor(settings: CircuitBreakerProviderSettings) {
+    constructor(settings: CircuitBreakerFactorySettings) {
         const {
             enableAsyncTracking = true,
             namespace = new NoOpNamespace(),
@@ -226,7 +226,7 @@ export class CircuitBreakerProvider implements ICircuitBreakerProvider {
 
     create(
         key: string,
-        settings: CircuitBreakerProviderCreateSettings = {},
+        settings: CircuitBreakerFactoryCreateSettings = {},
     ): ICircuitBreaker {
         const {
             errorPolicy = this.defaultErrorPolicy,

@@ -6,12 +6,12 @@ import {
     type ICircuitBreakerStorageAdapter,
     type ICircuitBreakerStorageAdapterTransaction,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ICircuitBreakerProvider,
+    type ICircuitBreakerFactory,
 } from "@/circuit-breaker/contracts/_module.js";
 import { type IDeinitizable, type InvokableFn } from "@/utilities/_module.js";
 
 /**
- * The `MemoryCircuitBreakerStorageAdapter` is used for easily facking {@link ICircuitBreakerProvider | `ICircuitBreakerProvider`} for testing.
+ * The `MemoryCircuitBreakerStorageAdapter` is used for easily facking {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter"`
  * @group Adapters

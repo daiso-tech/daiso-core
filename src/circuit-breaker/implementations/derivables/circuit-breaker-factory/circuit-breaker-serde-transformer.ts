@@ -10,7 +10,7 @@ import {
 import {
     CircuitBreaker,
     type ISerializedCircuitBreaker,
-} from "@/circuit-breaker/implementations/derivables/circuit-breaker-provider/circuit-breaker.js";
+} from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";

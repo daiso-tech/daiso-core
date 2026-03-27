@@ -2,7 +2,7 @@
  * @module CircuitBreaker
  */
 
-import { type ICircuitBreakerProvider } from "@/circuit-breaker/contracts/circuit-breaker-provider.contract.js";
+import { type ICircuitBreakerFactory } from "@/circuit-breaker/contracts/circuit-breaker-factory.contract.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     UnregisteredAdapterError,
@@ -11,12 +11,12 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * The `ICircuitBreakerProviderFactory` contract makes it easy to configure and switch between different {@link ICircuitBreakerProvider | `ICircuitBreakerProvider`} dynamically.
+ * The `ICircuitBreakerFactoryResolver` contract makes it easy to configure and switch between different {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} dynamically.
  *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Contracts
  */
-export type ICircuitBreakerProviderFactory<TAdapters extends string = string> =
+export type ICircuitBreakerFactoryResolver<TAdapters extends string = string> =
     {
         /**
          * The `use` method will throw an error if you provide it unregisted adapter.
@@ -24,5 +24,5 @@ export type ICircuitBreakerProviderFactory<TAdapters extends string = string> =
          * @throws {UnregisteredAdapterError} {@link UnregisteredAdapterError}
          * @throws {DefaultAdapterNotDefinedError} {@link DefaultAdapterNotDefinedError}
          */
-        use(adapterName?: TAdapters): ICircuitBreakerProvider;
+        use(adapterName?: TAdapters): ICircuitBreakerFactory;
     };

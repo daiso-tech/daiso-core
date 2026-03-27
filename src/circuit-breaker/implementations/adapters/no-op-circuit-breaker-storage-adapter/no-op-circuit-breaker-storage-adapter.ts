@@ -4,14 +4,14 @@
 
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ICircuitBreakerProvider,
+    type ICircuitBreakerFactory,
     type ICircuitBreakerStorageAdapter,
     type ICircuitBreakerStorageAdapterTransaction,
 } from "@/circuit-breaker/contracts/_module.js";
 import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
- * The `NoOpCircuitBreakerStorageAdapter` will do nothing and is used for easily mocking {@link ICircuitBreakerProvider | `ICircuitBreakerProvider`} for testing.
+ * The `NoOpCircuitBreakerStorageAdapter` will do nothing and is used for easily mocking {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/database-circuit-breaker-storage-adapter"`
  * @group Adapters

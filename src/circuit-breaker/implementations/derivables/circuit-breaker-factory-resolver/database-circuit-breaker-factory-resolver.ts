@@ -4,17 +4,17 @@
 
 import { type BackoffPolicy } from "@/backoff-policies/_module.js";
 import {
-    type ICircuitBreakerProviderFactory,
+    type ICircuitBreakerFactoryResolver,
     type CircuitBreakerTrigger,
-    type ICircuitBreakerProvider,
+    type ICircuitBreakerFactory,
     type ICircuitBreakerStorageAdapter,
     type ICircuitBreakerPolicy,
 } from "@/circuit-breaker/contracts/_module.js";
 import { DatabaseCircuitBreakerAdapter } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/_module.js";
 import {
-    CircuitBreakerProvider,
-    type CircuitBreakerProviderSettingsBase,
-} from "@/circuit-breaker/implementations/derivables/circuit-breaker-provider/_module.js";
+    CircuitBreakerFactory,
+    type CircuitBreakerFactorySettingsBase,
+} from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/_module.js";
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -38,9 +38,9 @@ export type DatabaseCircuitBreakerAdapters<TAdapters extends string> = Partial<
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
-export type DatabaseCircuitBreakerProviderFactorySettings<
+export type DatabaseCircuitBreakerFactoryResolverSettings<
     TAdapters extends string,
-> = CircuitBreakerProviderSettingsBase & {
+> = CircuitBreakerFactorySettingsBase & {
     adapters: DatabaseCircuitBreakerAdapters<TAdapters>;
 
     defaultAdapter?: NoInfer<TAdapters>;
@@ -67,18 +67,18 @@ export type DatabaseCircuitBreakerProviderFactorySettings<
 };
 
 /**
- * The `DatabaseCircuitBreakerProviderFactory` class is immutable.
+ * The `DatabaseCircuitBreakerFactoryResolver` class is immutable.
  *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
-export class DatabaseCircuitBreakerProviderFactory<TAdapters extends string>
-    implements ICircuitBreakerProviderFactory<TAdapters>
+export class DatabaseCircuitBreakerFactoryResolver<TAdapters extends string>
+    implements ICircuitBreakerFactoryResolver<TAdapters>
 {
     /**
      * @example
      * ```ts
-     * import { DatabaseCircuitBreakerProviderFactory } from "@daiso-tech/core/circuit-breaker";
+     * import { DatabaseCircuitBreakerFactoryResolver } from "@daiso-tech/core/circuit-breaker";
      * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storate-adapter";
      * import { KyselyCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storate-adapter";
      * import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
@@ -88,7 +88,7 @@ export class DatabaseCircuitBreakerProviderFactory<TAdapters extends string>
      * import { Kysely, SqliteDialect } from "kysely";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const circuitBreakerProviderFactory = new DatabaseCircuitBreakerProviderFactory({
+     * const circuitBreakerFactoryResolver = new DatabaseCircuitBreakerFactoryResolver({
      *   serde,
      *   adapters: {
      *     memory: new MemoryCircuitBreakerStorageAdapter(),
@@ -106,13 +106,13 @@ export class DatabaseCircuitBreakerProviderFactory<TAdapters extends string>
      * ```
      */
     constructor(
-        private readonly settings: DatabaseCircuitBreakerProviderFactorySettings<TAdapters>,
+        private readonly settings: DatabaseCircuitBreakerFactoryResolverSettings<TAdapters>,
     ) {}
 
     setNamespace(
         namespace: INamespace,
-    ): DatabaseCircuitBreakerProviderFactory<TAdapters> {
-        return new DatabaseCircuitBreakerProviderFactory({
+    ): DatabaseCircuitBreakerFactoryResolver<TAdapters> {
+        return new DatabaseCircuitBreakerFactoryResolver({
             ...this.settings,
             namespace,
         });
@@ -120,8 +120,8 @@ export class DatabaseCircuitBreakerProviderFactory<TAdapters extends string>
 
     setEventBus(
         eventBus: IEventBus,
-    ): DatabaseCircuitBreakerProviderFactory<TAdapters> {
-        return new DatabaseCircuitBreakerProviderFactory({
+    ): DatabaseCircuitBreakerFactoryResolver<TAdapters> {
+        return new DatabaseCircuitBreakerFactoryResolver({
             ...this.settings,
             eventBus,
         });
@@ -129,8 +129,8 @@ export class DatabaseCircuitBreakerProviderFactory<TAdapters extends string>
 
     setSlowCallTime(
         slowCallTime?: ITimeSpan,
-    ): DatabaseCircuitBreakerProviderFactory<TAdapters> {
-        return new DatabaseCircuitBreakerProviderFactory({
+    ): DatabaseCircuitBreakerFactoryResolver<TAdapters> {
+        return new DatabaseCircuitBreakerFactoryResolver({
             ...this.settings,
             defaultSlowCallTime: slowCallTime,
         });
@@ -138,8 +138,8 @@ export class DatabaseCircuitBreakerProviderFactory<TAdapters extends string>
 
     setTrigger(
         trigger?: CircuitBreakerTrigger,
-    ): DatabaseCircuitBreakerProviderFactory<TAdapters> {
-        return new DatabaseCircuitBreakerProviderFactory({
+    ): DatabaseCircuitBreakerFactoryResolver<TAdapters> {
+        return new DatabaseCircuitBreakerFactoryResolver({
             ...this.settings,
             defaultTrigger: trigger,
         });
@@ -147,8 +147,8 @@ export class DatabaseCircuitBreakerProviderFactory<TAdapters extends string>
 
     setDefaultErrorPolicy(
         defaultErrorPolicy: ErrorPolicy,
-    ): DatabaseCircuitBreakerProviderFactory<TAdapters> {
-        return new DatabaseCircuitBreakerProviderFactory({
+    ): DatabaseCircuitBreakerFactoryResolver<TAdapters> {
+        return new DatabaseCircuitBreakerFactoryResolver({
             ...this.settings,
             defaultErrorPolicy,
         });
@@ -156,8 +156,8 @@ export class DatabaseCircuitBreakerProviderFactory<TAdapters extends string>
 
     setDefaultBackoffPolicy(
         backoffPolicy?: BackoffPolicy,
-    ): DatabaseCircuitBreakerProviderFactory<TAdapters> {
-        return new DatabaseCircuitBreakerProviderFactory({
+    ): DatabaseCircuitBreakerFactoryResolver<TAdapters> {
+        return new DatabaseCircuitBreakerFactoryResolver({
             ...this.settings,
             backoffPolicy,
         });
@@ -165,8 +165,8 @@ export class DatabaseCircuitBreakerProviderFactory<TAdapters extends string>
 
     setDefaultCircuitBreakerPolicy(
         circuitBreakerPolicy?: ICircuitBreakerPolicy,
-    ): DatabaseCircuitBreakerProviderFactory<TAdapters> {
-        return new DatabaseCircuitBreakerProviderFactory({
+    ): DatabaseCircuitBreakerFactoryResolver<TAdapters> {
+        return new DatabaseCircuitBreakerFactoryResolver({
             ...this.settings,
             circuitBreakerPolicy,
         });
@@ -175,7 +175,7 @@ export class DatabaseCircuitBreakerProviderFactory<TAdapters extends string>
     /**
      * @example
      * ```ts
-     * import { DatabaseCircuitBreakerProviderFactory } from "@daiso-tech/core/circuit-breaker";
+     * import { DatabaseCircuitBreakerFactoryResolver } from "@daiso-tech/core/circuit-breaker";
      * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storate-adapter";
      * import { KyselyCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storate-adapter";
      * import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
@@ -185,7 +185,7 @@ export class DatabaseCircuitBreakerProviderFactory<TAdapters extends string>
      * import { Kysely, SqliteDialect } from "kysely";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const circuitBreakerProviderFactory = new DatabaseCircuitBreakerProviderFactory({
+     * const circuitBreakerFactoryResolver = new DatabaseCircuitBreakerFactoryResolver({
      *   serde,
      *   adapters: {
      *     memory: new MemoryCircuitBreakerStorageAdapter(),
@@ -202,7 +202,7 @@ export class DatabaseCircuitBreakerProviderFactory<TAdapters extends string>
      * });
      *
      * // Will apply circuit breaker logic the default adapter which is MemoryCircuitBreakerStorageAdapter
-     * await circuitBreakerProviderFactory
+     * await circuitBreakerFactoryResolver
      *   .use()
      *   .create("a")
      *   .runOrFail(async () => {
@@ -210,7 +210,7 @@ export class DatabaseCircuitBreakerProviderFactory<TAdapters extends string>
      *   });
      *
      * // Will apply circuit breaker logic using the KyselyCircuitBreakerStorageAdapter
-     * await circuitBreakerProviderFactory
+     * await circuitBreakerFactoryResolver
      *   .use("sqlite")
      *   .create("a")
      *   .runOrFail(async () => {
@@ -220,17 +220,17 @@ export class DatabaseCircuitBreakerProviderFactory<TAdapters extends string>
      */
     use(
         adapterName: TAdapters | undefined = this.settings.defaultAdapter,
-    ): ICircuitBreakerProvider {
+    ): ICircuitBreakerFactory {
         if (adapterName === undefined) {
             throw new DefaultAdapterNotDefinedError(
-                DatabaseCircuitBreakerProviderFactory.name,
+                DatabaseCircuitBreakerFactoryResolver.name,
             );
         }
         const adapter = this.settings.adapters[adapterName];
         if (adapter === undefined) {
             throw new UnregisteredAdapterError(adapterName);
         }
-        return new CircuitBreakerProvider({
+        return new CircuitBreakerFactory({
             ...this.settings,
             adapter: new DatabaseCircuitBreakerAdapter({
                 adapter,

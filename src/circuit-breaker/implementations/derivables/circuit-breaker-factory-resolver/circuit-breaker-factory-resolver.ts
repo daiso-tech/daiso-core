@@ -3,15 +3,15 @@
  */
 
 import {
-    type ICircuitBreakerProviderFactory,
+    type ICircuitBreakerFactoryResolver,
     type CircuitBreakerTrigger,
-    type ICircuitBreakerProvider,
+    type ICircuitBreakerFactory,
     type ICircuitBreakerAdapter,
 } from "@/circuit-breaker/contracts/_module.js";
 import {
-    CircuitBreakerProvider,
-    type CircuitBreakerProviderSettingsBase,
-} from "@/circuit-breaker/implementations/derivables/circuit-breaker-provider/_module.js";
+    CircuitBreakerFactory,
+    type CircuitBreakerFactorySettingsBase,
+} from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/_module.js";
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -35,26 +35,26 @@ export type CircuitBreakerAdapters<TAdapters extends string> = Partial<
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
-export type CircuitBreakerProviderFactorySettings<TAdapters extends string> =
-    CircuitBreakerProviderSettingsBase & {
+export type CircuitBreakerFactoryResolverSettings<TAdapters extends string> =
+    CircuitBreakerFactorySettingsBase & {
         adapters: CircuitBreakerAdapters<TAdapters>;
 
         defaultAdapter?: NoInfer<TAdapters>;
     };
 
 /**
- * The `CircuitBreakerProviderFactory` class is immutable.
+ * The `CircuitBreakerFactoryResolver` class is immutable.
  *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
-export class CircuitBreakerProviderFactory<TAdapters extends string>
-    implements ICircuitBreakerProviderFactory<TAdapters>
+export class CircuitBreakerFactoryResolver<TAdapters extends string>
+    implements ICircuitBreakerFactoryResolver<TAdapters>
 {
     /**
      * @example
      * ```ts
-     * import { CircuitBreakerProviderFactory } from "@daiso-tech/core/circuit-breaker";
+     * import { CircuitBreakerFactoryResolver } from "@daiso-tech/core/circuit-breaker";
      * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storate-adapter";
      * import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
      * import { RedisCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter";
@@ -63,7 +63,7 @@ export class CircuitBreakerProviderFactory<TAdapters extends string>
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const circuitBreakerProviderFactory = new CircuitBreakerProviderFactory({
+     * const circuitBreakerFactoryResolver = new CircuitBreakerFactoryResolver({
      *   serde,
      *   adapters: {
      *     memory: new DatabaseCircuitBreakerAdapter({
@@ -78,20 +78,20 @@ export class CircuitBreakerProviderFactory<TAdapters extends string>
      * ```
      */
     constructor(
-        private readonly settings: CircuitBreakerProviderFactorySettings<TAdapters>,
+        private readonly settings: CircuitBreakerFactoryResolverSettings<TAdapters>,
     ) {}
 
     setNamespace(
         namespace: INamespace,
-    ): CircuitBreakerProviderFactory<TAdapters> {
-        return new CircuitBreakerProviderFactory({
+    ): CircuitBreakerFactoryResolver<TAdapters> {
+        return new CircuitBreakerFactoryResolver({
             ...this.settings,
             namespace,
         });
     }
 
-    setEventBus(eventBus: IEventBus): CircuitBreakerProviderFactory<TAdapters> {
-        return new CircuitBreakerProviderFactory({
+    setEventBus(eventBus: IEventBus): CircuitBreakerFactoryResolver<TAdapters> {
+        return new CircuitBreakerFactoryResolver({
             ...this.settings,
             eventBus,
         });
@@ -99,8 +99,8 @@ export class CircuitBreakerProviderFactory<TAdapters extends string>
 
     setDefaultSlowCallTime(
         slowCallTime?: ITimeSpan,
-    ): CircuitBreakerProviderFactory<TAdapters> {
-        return new CircuitBreakerProviderFactory({
+    ): CircuitBreakerFactoryResolver<TAdapters> {
+        return new CircuitBreakerFactoryResolver({
             ...this.settings,
             defaultSlowCallTime: slowCallTime,
         });
@@ -108,8 +108,8 @@ export class CircuitBreakerProviderFactory<TAdapters extends string>
 
     setDefaultTrigger(
         trigger?: CircuitBreakerTrigger,
-    ): CircuitBreakerProviderFactory<TAdapters> {
-        return new CircuitBreakerProviderFactory({
+    ): CircuitBreakerFactoryResolver<TAdapters> {
+        return new CircuitBreakerFactoryResolver({
             ...this.settings,
             defaultTrigger: trigger,
         });
@@ -117,8 +117,8 @@ export class CircuitBreakerProviderFactory<TAdapters extends string>
 
     setDefaultErrorPolicy(
         defaultErrorPolicy: ErrorPolicy,
-    ): CircuitBreakerProviderFactory<TAdapters> {
-        return new CircuitBreakerProviderFactory({
+    ): CircuitBreakerFactoryResolver<TAdapters> {
+        return new CircuitBreakerFactoryResolver({
             ...this.settings,
             defaultErrorPolicy,
         });
@@ -127,7 +127,7 @@ export class CircuitBreakerProviderFactory<TAdapters extends string>
     /**
      * @example
      * ```ts
-     * import { CircuitBreakerProviderFactory } from "@daiso-tech/core/circuit-breaker";
+     * import { CircuitBreakerFactoryResolver } from "@daiso-tech/core/circuit-breaker";
      * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storate-adapter";
      * import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
      * import { RedisCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter";
@@ -136,7 +136,7 @@ export class CircuitBreakerProviderFactory<TAdapters extends string>
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const circuitBreakerProviderFactory = new CircuitBreakerProviderFactory({
+     * const circuitBreakerFactoryResolver = new CircuitBreakerFactoryResolver({
      *   serde,
      *   adapters: {
      *     memory: new DatabaseCircuitBreakerAdapter({
@@ -150,7 +150,7 @@ export class CircuitBreakerProviderFactory<TAdapters extends string>
      * });
      *
      * // Will apply circuit breaker logic the default adapter which is MemoryCircuitBreakerStorageAdapter
-     * await circuitBreakerProviderFactory
+     * await circuitBreakerFactoryResolver
      *   .use()
      *   .create("a")
      *   .runOrFail(async () => {
@@ -158,7 +158,7 @@ export class CircuitBreakerProviderFactory<TAdapters extends string>
      *   });
      *
      * // Will apply circuit breaker logic using the RedisCircuitBreakerAdapter
-     * await circuitBreakerProviderFactory
+     * await circuitBreakerFactoryResolver
      *   .use("redis")
      *   .create("a")
      *   .runOrFail(async () => {
@@ -168,17 +168,17 @@ export class CircuitBreakerProviderFactory<TAdapters extends string>
      */
     use(
         adapterName: TAdapters | undefined = this.settings.defaultAdapter,
-    ): ICircuitBreakerProvider {
+    ): ICircuitBreakerFactory {
         if (adapterName === undefined) {
             throw new DefaultAdapterNotDefinedError(
-                CircuitBreakerProviderFactory.name,
+                CircuitBreakerFactoryResolver.name,
             );
         }
         const adapter = this.settings.adapters[adapterName];
         if (adapter === undefined) {
             throw new UnregisteredAdapterError(adapterName);
         }
-        return new CircuitBreakerProvider({
+        return new CircuitBreakerFactory({
             ...this.settings,
             adapter,
             serdeTransformerName: adapterName,

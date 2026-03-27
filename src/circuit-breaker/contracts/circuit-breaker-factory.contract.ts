@@ -29,7 +29,7 @@ export type CircuitBreakerTrigger =
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Contracts
  */
-export type CircuitBreakerProviderCreateSettings = ErrorPolicySettings & {
+export type CircuitBreakerFactoryCreateSettings = ErrorPolicySettings & {
     /**
      * You can decide to track only errors, only slow calls or both as failures.
      */
@@ -45,13 +45,13 @@ export type CircuitBreakerProviderCreateSettings = ErrorPolicySettings & {
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Contracts
  */
-export type ICircuitBreakerProviderBase = {
+export type ICircuitBreakerFactoryBase = {
     /**
      * The `create` method is used to create an instance of {@link ICircuitBreaker | `ICircuitBreaker`}.
      */
     create(
         key: string,
-        settings?: CircuitBreakerProviderCreateSettings,
+        settings?: CircuitBreakerFactoryCreateSettings,
     ): ICircuitBreaker;
 };
 
@@ -68,6 +68,6 @@ export type ICircuitBreakerListenable =
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Contracts
  */
-export type ICircuitBreakerProvider = ICircuitBreakerProviderBase & {
+export type ICircuitBreakerFactory = ICircuitBreakerFactoryBase & {
     readonly events: ICircuitBreakerListenable;
 };

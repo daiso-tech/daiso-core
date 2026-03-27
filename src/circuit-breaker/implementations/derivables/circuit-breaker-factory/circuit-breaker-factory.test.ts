@@ -13,8 +13,8 @@ import {
 } from "@/circuit-breaker/contracts/circuit-breaker-adapter.contract.js";
 import {
     CIRCUIT_BREAKER_TRIGGER,
-    type ICircuitBreakerProvider,
-} from "@/circuit-breaker/contracts/circuit-breaker-provider.contract.js";
+    type ICircuitBreakerFactory,
+} from "@/circuit-breaker/contracts/circuit-breaker-factory.contract.js";
 import {
     CIRCUIT_BREAKER_STATE,
     type CircuitBreakerState,
@@ -27,7 +27,7 @@ import {
     type TrackedSuccessCircuitBreakerEvent,
     type UntrackedFailureCircuitBreakerEvent,
 } from "@/circuit-breaker/contracts/circuit-breaker.events.js";
-import { CircuitBreakerProvider } from "@/circuit-breaker/implementations/derivables/circuit-breaker-provider/circuit-breaker-provider.js";
+import { CircuitBreakerFactory } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker-factory.js";
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
@@ -35,7 +35,7 @@ import { Serde } from "@/serde/implementations/derivables/serde.js";
 import { Task } from "@/task/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
-describe("class: CircuitBreakerProvider", () => {
+describe("class: CircuitBreakerFactory", () => {
     const adapter: ICircuitBreakerAdapter = {
         getState: function (_key: string): Promise<CircuitBreakerState> {
             throw new Error("Function not implemented.");
@@ -60,11 +60,11 @@ describe("class: CircuitBreakerProvider", () => {
     };
     const KEY = "A";
 
-    let circuitBreakerProvider: ICircuitBreakerProvider;
+    let circuitBreakerFactory: ICircuitBreakerFactory;
     const slowCallTime = TimeSpan.fromMilliseconds(50);
     beforeEach(() => {
         vi.resetAllMocks();
-        circuitBreakerProvider = new CircuitBreakerProvider({
+        circuitBreakerFactory = new CircuitBreakerFactory({
             adapter,
             eventBus: new EventBus({
                 adapter: new MemoryEventBusAdapter(),
@@ -89,7 +89,7 @@ describe("class: CircuitBreakerProvider", () => {
                         .spyOn(adapter, "trackFailure")
                         .mockImplementation(() => Promise.resolve());
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                     });
                     try {
@@ -104,7 +104,7 @@ describe("class: CircuitBreakerProvider", () => {
 
                     expect(trackFailureSpy).toHaveBeenCalledOnce();
                 });
-                test("Should call ICircuitBreakerAdapter.trackFailure when the function exceedes the CircuitBreakerProviderSettings.slowCallTime", async () => {
+                test("Should call ICircuitBreakerAdapter.trackFailure when the function exceedes the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve({
                             from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -115,7 +115,7 @@ describe("class: CircuitBreakerProvider", () => {
                         .spyOn(adapter, "trackFailure")
                         .mockImplementation(() => Promise.resolve());
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                     });
                     await circuitBreaker.runOrFail(async () => {
@@ -124,7 +124,7 @@ describe("class: CircuitBreakerProvider", () => {
 
                     expect(trackFailureSpy).toHaveBeenCalledOnce();
                 });
-                test("Should call ICircuitBreakerAdapter.trackSuccess when the function does not throw an error and does not exceed the CircuitBreakerProviderSettings.slowCallTime", async () => {
+                test("Should call ICircuitBreakerAdapter.trackSuccess when the function does not throw an error and does not exceed the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve({
                             from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -135,7 +135,7 @@ describe("class: CircuitBreakerProvider", () => {
                         .spyOn(adapter, "trackSuccess")
                         .mockImplementation(() => Promise.resolve());
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                     });
                     await circuitBreaker.runOrFail(async () => {});
@@ -156,7 +156,7 @@ describe("class: CircuitBreakerProvider", () => {
 
                     class ErrorA extends Error {}
                     class ErrorB extends Error {}
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                         errorPolicy: ErrorA,
                     });
@@ -181,7 +181,7 @@ describe("class: CircuitBreakerProvider", () => {
                         Promise.resolve(),
                     );
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                     });
                     const promise = circuitBreaker.runOrFail(() => {
@@ -202,7 +202,7 @@ describe("class: CircuitBreakerProvider", () => {
                         Promise.resolve(),
                     );
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                     });
                     const promise = circuitBreaker.runOrFail(() => {
@@ -225,7 +225,7 @@ describe("class: CircuitBreakerProvider", () => {
                         .spyOn(adapter, "trackFailure")
                         .mockImplementation(() => Promise.resolve());
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
                     try {
@@ -240,7 +240,7 @@ describe("class: CircuitBreakerProvider", () => {
 
                     expect(trackFailureSpy).toHaveBeenCalledOnce();
                 });
-                test("Should not call ICircuitBreakerAdapter.trackFailure when the function exceedes the CircuitBreakerProviderSettings.slowCallTime", async () => {
+                test("Should not call ICircuitBreakerAdapter.trackFailure when the function exceedes the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve({
                             from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -254,7 +254,7 @@ describe("class: CircuitBreakerProvider", () => {
                         .spyOn(adapter, "trackFailure")
                         .mockImplementation(() => Promise.resolve());
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
                     await circuitBreaker.runOrFail(async () => {
@@ -263,7 +263,7 @@ describe("class: CircuitBreakerProvider", () => {
 
                     expect(trackFailureSpy).not.toHaveBeenCalled();
                 });
-                test("Should call ICircuitBreakerAdapter.trackSuccess when the function exceedes the CircuitBreakerProviderSettings.slowCallTime", async () => {
+                test("Should call ICircuitBreakerAdapter.trackSuccess when the function exceedes the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve({
                             from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -277,7 +277,7 @@ describe("class: CircuitBreakerProvider", () => {
                         .spyOn(adapter, "trackSuccess")
                         .mockImplementation(() => Promise.resolve());
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
                     await circuitBreaker.runOrFail(async () => {
@@ -297,7 +297,7 @@ describe("class: CircuitBreakerProvider", () => {
                         .spyOn(adapter, "trackSuccess")
                         .mockImplementation(() => Promise.resolve());
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
                     await circuitBreaker.runOrFail(async () => {});
@@ -318,7 +318,7 @@ describe("class: CircuitBreakerProvider", () => {
 
                     class ErrorA extends Error {}
                     class ErrorB extends Error {}
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                         errorPolicy: ErrorA,
                     });
@@ -343,7 +343,7 @@ describe("class: CircuitBreakerProvider", () => {
                         Promise.resolve(),
                     );
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
                     const promise = circuitBreaker.runOrFail(() => {
@@ -364,7 +364,7 @@ describe("class: CircuitBreakerProvider", () => {
                         Promise.resolve(),
                     );
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
                     const promise = circuitBreaker.runOrFail(() => {
@@ -387,7 +387,7 @@ describe("class: CircuitBreakerProvider", () => {
                         .spyOn(adapter, "trackFailure")
                         .mockImplementation(() => Promise.resolve());
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                     });
                     try {
@@ -402,7 +402,7 @@ describe("class: CircuitBreakerProvider", () => {
 
                     expect(trackFailureSpy).not.toHaveBeenCalled();
                 });
-                test("Should call ICircuitBreakerAdapter.trackFailure when the function exceedes the CircuitBreakerProviderSettings.slowCallTime", async () => {
+                test("Should call ICircuitBreakerAdapter.trackFailure when the function exceedes the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve({
                             from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -413,7 +413,7 @@ describe("class: CircuitBreakerProvider", () => {
                         .spyOn(adapter, "trackFailure")
                         .mockImplementation(() => Promise.resolve());
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                     });
                     await circuitBreaker.runOrFail(async () => {
@@ -422,7 +422,7 @@ describe("class: CircuitBreakerProvider", () => {
 
                     expect(trackFailureSpy).toHaveBeenCalledOnce();
                 });
-                test("Should call ICircuitBreakerAdapter.trackSuccess when does not exceed the CircuitBreakerProviderSettings.slowCallTime", async () => {
+                test("Should call ICircuitBreakerAdapter.trackSuccess when does not exceed the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve({
                             from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -433,7 +433,7 @@ describe("class: CircuitBreakerProvider", () => {
                         .spyOn(adapter, "trackSuccess")
                         .mockImplementation(() => Promise.resolve());
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                     });
                     await circuitBreaker.runOrFail(async () => {});
@@ -454,7 +454,7 @@ describe("class: CircuitBreakerProvider", () => {
 
                     class ErrorA extends Error {}
                     class ErrorB extends Error {}
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                         errorPolicy: ErrorA,
                     });
@@ -479,7 +479,7 @@ describe("class: CircuitBreakerProvider", () => {
                         Promise.resolve(),
                     );
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                     });
                     const promise = circuitBreaker.runOrFail(() => {
@@ -500,7 +500,7 @@ describe("class: CircuitBreakerProvider", () => {
                         Promise.resolve(),
                     );
 
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                     });
                     const promise = circuitBreaker.runOrFail(() => {
@@ -518,7 +518,7 @@ describe("class: CircuitBreakerProvider", () => {
                     .spyOn(adapter, "isolate")
                     .mockImplementation(() => Promise.resolve());
 
-                const circuitBreaker = circuitBreakerProvider.create(KEY);
+                const circuitBreaker = circuitBreakerFactory.create(KEY);
 
                 await circuitBreaker.isolate();
 
@@ -531,7 +531,7 @@ describe("class: CircuitBreakerProvider", () => {
                     .spyOn(adapter, "reset")
                     .mockImplementation(() => Promise.resolve());
 
-                const circuitBreaker = circuitBreakerProvider.create(KEY);
+                const circuitBreaker = circuitBreakerFactory.create(KEY);
 
                 await circuitBreaker.reset();
 
@@ -556,11 +556,11 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedFailureCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.TRACKED_FAILURE,
                         handlerFn,
                     );
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                     });
                     try {
@@ -586,7 +586,7 @@ describe("class: CircuitBreakerProvider", () => {
                         } satisfies TrackedFailureCircuitBreakerEvent),
                     );
                 });
-                test("Should dispatch TrackedSlowCallCircuitBreakerEvent when the function exceedes the CircuitBreakerProviderSettings.slowCallTime", async () => {
+                test("Should dispatch TrackedSlowCallCircuitBreakerEvent when the function exceedes the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve({
                             from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -600,11 +600,11 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedSlowCallCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.TRACKED_SLOW_CALL,
                         handlerFn,
                     );
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                     });
                     try {
@@ -627,7 +627,7 @@ describe("class: CircuitBreakerProvider", () => {
                         } satisfies TrackedSlowCallCircuitBreakerEvent),
                     );
                 });
-                test("Should dispatch TrackedSuccessCircuitBreakerEvent when the function does not throw an error and does not exceed the CircuitBreakerProviderSettings.slowCallTime", async () => {
+                test("Should dispatch TrackedSuccessCircuitBreakerEvent when the function does not throw an error and does not exceed the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve({
                             from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -641,11 +641,11 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedSuccessCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS,
                         handlerFn,
                     );
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                     });
                     try {
@@ -680,13 +680,13 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedFailureCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.TRACKED_FAILURE,
                         handlerFn,
                     );
                     class ErrorA extends Error {}
                     class ErrorB extends Error {}
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                         errorPolicy: ErrorA,
                     });
@@ -714,13 +714,13 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: UntrackedFailureCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.UNTRACKED_FAILURE,
                         handlerFn,
                     );
                     class ErrorA extends Error {}
                     class ErrorB extends Error {}
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                         errorPolicy: ErrorA,
                     });
@@ -750,11 +750,11 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedFailureCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.TRACKED_FAILURE,
                         handlerFn,
                     );
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
                     try {
@@ -780,7 +780,7 @@ describe("class: CircuitBreakerProvider", () => {
                         } satisfies TrackedFailureCircuitBreakerEvent),
                     );
                 });
-                test("Should not dispatch TrackedSlowCallCircuitBreakerEvent when the function exceedes the CircuitBreakerProviderSettings.slowCallTime", async () => {
+                test("Should not dispatch TrackedSlowCallCircuitBreakerEvent when the function exceedes the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve({
                             from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -794,11 +794,11 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedSlowCallCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.TRACKED_SLOW_CALL,
                         handlerFn,
                     );
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
                     try {
@@ -825,11 +825,11 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedSuccessCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS,
                         handlerFn,
                     );
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
                     try {
@@ -850,7 +850,7 @@ describe("class: CircuitBreakerProvider", () => {
                         } satisfies TrackedSlowCallCircuitBreakerEvent),
                     );
                 });
-                test("Should dispatch TrackedSuccessCircuitBreakerEvent when the function does exceed the CircuitBreakerProviderSettings.slowCallTime", async () => {
+                test("Should dispatch TrackedSuccessCircuitBreakerEvent when the function does exceed the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve({
                             from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -864,11 +864,11 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedSuccessCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS,
                         handlerFn,
                     );
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
                     try {
@@ -905,13 +905,13 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedFailureCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.TRACKED_FAILURE,
                         handlerFn,
                     );
                     class ErrorA extends Error {}
                     class ErrorB extends Error {}
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                         errorPolicy: ErrorA,
                     });
@@ -939,13 +939,13 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: UntrackedFailureCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.UNTRACKED_FAILURE,
                         handlerFn,
                     );
                     class ErrorA extends Error {}
                     class ErrorB extends Error {}
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                         errorPolicy: ErrorA,
                     });
@@ -975,11 +975,11 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedFailureCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.TRACKED_FAILURE,
                         handlerFn,
                     );
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                     });
                     try {
@@ -994,7 +994,7 @@ describe("class: CircuitBreakerProvider", () => {
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
-                test("Should dispatch TrackedSlowCallCircuitBreakerEvent when the function exceedes the CircuitBreakerProviderSettings.slowCallTime", async () => {
+                test("Should dispatch TrackedSlowCallCircuitBreakerEvent when the function exceedes the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve({
                             from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -1008,11 +1008,11 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedSlowCallCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.TRACKED_SLOW_CALL,
                         handlerFn,
                     );
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                     });
                     await circuitBreaker.runOrFail(async () => {
@@ -1031,7 +1031,7 @@ describe("class: CircuitBreakerProvider", () => {
                         } satisfies TrackedSlowCallCircuitBreakerEvent),
                     );
                 });
-                test("Should dispatch TrackedSuccessCircuitBreakerEvent when does not exceed the CircuitBreakerProviderSettings.slowCallTime", async () => {
+                test("Should dispatch TrackedSuccessCircuitBreakerEvent when does not exceed the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve({
                             from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -1045,11 +1045,11 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedSuccessCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS,
                         handlerFn,
                     );
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                     });
                     await circuitBreaker.runOrFail(async () => {});
@@ -1082,11 +1082,11 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedFailureCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.TRACKED_FAILURE,
                         handlerFn,
                     );
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                         errorPolicy: ErrorA,
                     });
@@ -1116,11 +1116,11 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedSuccessCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS,
                         handlerFn,
                     );
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                         errorPolicy: ErrorA,
                     });
@@ -1150,11 +1150,11 @@ describe("class: CircuitBreakerProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: UntrackedFailureCircuitBreakerEvent) => {},
                     );
-                    await circuitBreakerProvider.events.addListener(
+                    await circuitBreakerFactory.events.addListener(
                         CIRCUIT_BREAKER_EVENTS.UNTRACKED_FAILURE,
                         handlerFn,
                     );
-                    const circuitBreaker = circuitBreakerProvider.create(KEY, {
+                    const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                         errorPolicy: ErrorA,
                     });
@@ -1186,11 +1186,11 @@ describe("class: CircuitBreakerProvider", () => {
                 const handlerFn = vi.fn(
                     (_event: StateTransitionCircuitBreakerEvent) => {},
                 );
-                await circuitBreakerProvider.events.addListener(
+                await circuitBreakerFactory.events.addListener(
                     CIRCUIT_BREAKER_EVENTS.STATE_TRANSITIONED,
                     handlerFn,
                 );
-                const circuitBreaker = circuitBreakerProvider.create(KEY);
+                const circuitBreaker = circuitBreakerFactory.create(KEY);
                 try {
                     await circuitBreaker.runOrFail(() => {});
                 } catch {
@@ -1218,12 +1218,12 @@ describe("class: CircuitBreakerProvider", () => {
                     Promise.resolve(),
                 );
                 const handlerFn = vi.fn(() => {});
-                await circuitBreakerProvider.events.addListener(
+                await circuitBreakerFactory.events.addListener(
                     CIRCUIT_BREAKER_EVENTS.ISOLATED,
                     handlerFn,
                 );
 
-                const circuitBreaker = circuitBreakerProvider.create(KEY);
+                const circuitBreaker = circuitBreakerFactory.create(KEY);
                 await circuitBreaker.isolate();
 
                 expect(handlerFn).toHaveBeenCalledOnce();
@@ -1245,12 +1245,12 @@ describe("class: CircuitBreakerProvider", () => {
                     Promise.resolve(),
                 );
                 const handlerFn = vi.fn(() => {});
-                await circuitBreakerProvider.events.addListener(
+                await circuitBreakerFactory.events.addListener(
                     CIRCUIT_BREAKER_EVENTS.RESETED,
                     handlerFn,
                 );
 
-                const circuitBreaker = circuitBreakerProvider.create(KEY);
+                const circuitBreaker = circuitBreakerFactory.create(KEY);
                 await circuitBreaker.reset();
 
                 expect(handlerFn).toHaveBeenCalledOnce();
