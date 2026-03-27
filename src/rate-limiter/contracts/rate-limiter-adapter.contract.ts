@@ -3,7 +3,7 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type IRateLimiterProvider } from "@/rate-limiter/contracts/rate-limiter-provider.contract.js";
+import { type IRateLimiterFactory } from "@/rate-limiter/contracts/rate-limiter-factory.contract.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
@@ -18,7 +18,7 @@ export type IRateLimiterAdapterState = {
 
 /**
  * The `IRateLimiterAdapter` contract defines a way for managing rate limiters independent of the underlying technology and algorithm.
- * This contract is not meant to be used directly, instead you should use {@link IRateLimiterProvider | `IRateLimiterProvider`} contract.
+ * This contract is not meant to be used directly, instead you should use {@link IRateLimiterFactory | `IRateLimiterFactory`} contract.
  *
  *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`

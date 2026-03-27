@@ -3,7 +3,7 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type ISharedLockProvider } from "@/shared-lock/contracts/shared-lock-provider.contract.js";
+import { type ISharedLockFactory } from "@/shared-lock/contracts/shared-lock-factory.contract.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
@@ -46,7 +46,7 @@ export type SharedLockAcquireSettings = {
 
 /**
  * The `ISharedLockAdapter` contract defines a way for managing locks independent of the underlying technology.
- * This contract is not meant to be used directly, instead you should use {@link ISharedLockProvider | `ISharedLockProvider`} contract.
+ * This contract is not meant to be used directly, instead you should use {@link ISharedLockFactory | `ISharedLockFactory`} contract.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts

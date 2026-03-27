@@ -3,7 +3,7 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type ICircuitBreakerProvider } from "@/circuit-breaker/contracts/circuit-breaker-provider.contract.js";
+import { type ICircuitBreakerFactory } from "@/circuit-breaker/contracts/circuit-breaker-factory.contract.js";
 import { type CircuitBreakerState } from "@/circuit-breaker/contracts/circuit-breaker-state.contract.js";
 
 /**
@@ -17,7 +17,7 @@ export type CircuitBreakerStateTransition = {
 
 /**
  * The `ICircuitBreakerAdapter` contract defines a way for managing circuit breakers independent of the underlying technology and algorithm.
- * This contract is not meant to be used directly, instead you should use {@link ICircuitBreakerProvider | `ICircuitBreakerProvider`} contract.
+ * This contract is not meant to be used directly, instead you should use {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} contract.
  *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Contracts

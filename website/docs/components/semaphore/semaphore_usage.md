@@ -18,15 +18,15 @@ The `@daiso-tech/core/semaphore` component provides a way for managing semaphore
 
 ## Initial configuration
 
-To begin using the `SemaphoreProvider` class, you'll need to create and configure an instance:
+To begin using the `SemaphoreFactory` class, you'll need to create and configure an instance:
 
 ```ts
 import { TimeSpan } from "@daiso-tech/core/time-span";
 import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
-import { SemaphoreProvider } from "@daiso-tech/core/semaphore";
+import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
 
 
-const semaphoreProvider = new SemaphoreProvider({
+const semaphoreFactory = new SemaphoreFactory({
     // You can provide default TTL value
     // If you set it to null it means semaphores will not expire and most be released manually by default.
     defaultTtl: TimeSpan.fromSeconds(2),
@@ -37,14 +37,14 @@ const semaphoreProvider = new SemaphoreProvider({
 ```
 
 :::info
-Here is a complete list of settings for the [`SemaphoreProvider`](https://daiso-tech.github.io/daiso-core/types/Semaphore.SemaphoreProviderSettingsBase.html) class.
+Here is a complete list of settings for the [`SemaphoreFactory`](https://daiso-tech.github.io/daiso-core/types/Semaphore.SemaphoreFactorySettingsBase.html) class.
 :::
 
 ## Semaphore basics
 
 ### Creating a semaphore
 ```ts
-const semaphore = semaphoreProvider.create("shared-resource", {
+const semaphore = semaphoreFactory.create("shared-resource", {
     // You need to define a limit
     limit: 2
 });
@@ -133,7 +133,7 @@ Refer to the [`@daiso-tech/core/task`](../task.md) documentation for further inf
 You can provide a custom TTL for the semaphore.
 
 ```ts
-const semaphore = semaphoreProvider.create("shared-resource", {
+const semaphore = semaphoreFactory.create("shared-resource", {
     // Default TTL is 5min if not overrided
     // If you set it to null it means semaphore will not expire and most be released manually.
     ttl: TimeSpan.fromSeconds(30),
@@ -148,7 +148,7 @@ You can get the semaphore state by using the `getState` method, it returns [`ISe
 ```ts
 import { SEMAPHORE_STATE } from "@daiso-tech/core/semaphore/contracts";
 
-const semaphore = semaphoreProvider.create("shared-resource", {
+const semaphore = semaphoreFactory.create("shared-resource", {
     limit: 2,
 });
 const state = await semaphore.getState();
@@ -177,7 +177,7 @@ if (state.type === SEMAPHORE_STATE.UNACQUIRED) {
 You can acquire a semaphore at regular intervals until either successful or a specified timeout is reached:
 
 ```ts
-const semaphore = semaphoreProvider.create("resource", {
+const semaphore = semaphoreFactory.create("resource", {
     limit: 2
 });
 
@@ -209,7 +209,7 @@ The semaphore can be refreshed by the current owner before it expires. This is p
 instead of setting an excessively long TTL initially, you can start with a shorter one and use the `refresh` method to set the TTL of the semaphore:
 
 ```ts
-const semaphore = semaphoreProvider.create("resource", {
+const semaphore = semaphoreFactory.create("resource", {
     limit: 2,
     ttl: TimeSpan.fromMinutes(1),
 });
@@ -235,7 +235,7 @@ Note: A semaphore must have an expiration (a `ttl` value) to be refreshed. You c
 
 ```ts
 // Create a semaphore with no expiration (non-refreshable)
-const semaphore = semaphoreProvider.create("resource", {
+const semaphore = semaphoreFactory.create("resource", {
     limit: 2,
     ttl: null,
 });
@@ -253,7 +253,7 @@ console.log(hasRefreshed);
 The `acquireBlockingOrFail` method is the same as `acquireBlocking` method but it throws an error when not enable to acquire the semaphore:
 
 ```ts
-const semaphore = semaphoreProvider.create("resource", {
+const semaphore = semaphoreFactory.create("resource", {
     limit: 2
 });
 
@@ -265,7 +265,7 @@ await semaphore.acquireBlockingOrFail({
 The `releaseOrFail` method is the same `release` method but it throws an error when not enable to release the semaphore:
 
 ```ts
-const semaphore = semaphoreProvider.create("resource", {
+const semaphore = semaphoreFactory.create("resource", {
     limit: 2
 });
 
@@ -275,7 +275,7 @@ await semaphore.releaseOrFail();
 You can force release all the semaphore slots:
 
 ```ts
-const semaphore = semaphoreProvider.create("resource", {
+const semaphore = semaphoreFactory.create("resource", {
     limit: 2
 });
 
@@ -285,7 +285,7 @@ await semaphore.forceReleaseAll();
 The `refreshOrFail` method is the same `refresh` method but it throws an error when not enable to refresh the semaphore:
 
 ```ts
-const semaphore = semaphoreProvider.create("resource");
+const semaphore = semaphoreFactory.create("resource");
 
 await semaphore.refreshOrFail();
 ```
@@ -294,7 +294,7 @@ The `runOrFail` method automatically manages semaphore acquisition and release a
 It calls `acquireOrFail` before invoking the function and calls `release` in a finally block, ensuring the semaphore is always freed, even if an error occurs during execution.
 
 ```ts
-const semaphore = semaphoreProvider.create("resource", {
+const semaphore = semaphoreFactory.create("resource", {
     limit: 2
 });
 
@@ -311,7 +311,7 @@ The `runBlockingOrFail` method automatically manages semaphore acquisition and r
 It calls `acquireBlockingOrFail` before invoking the function and calls `release` in a finally block, ensuring the semaphore is always freed, even if an error occurs during execution.
 
 ```ts
-const semaphore = semaphoreProvider.create("resource", {
+const semaphore = semaphoreFactory.create("resource", {
     limit: 2
 });
 
@@ -338,7 +338,7 @@ You can provide [`Task<TValue>`](../task.md), synchronous and asynchronous [`Inv
 The `Semaphore` class exposes instance variables such as:
 
 ```ts
-const semaphore = semaphoreProvider.create("resource", {
+const semaphore = semaphoreFactory.create("resource", {
     limit: 2
 });
 
@@ -361,7 +361,7 @@ The `key` field is an object that implements [`IKey`](../namespace.md) contract.
 By default the slot id is autogenerated but it can also manually defined.
 
 ```ts
-const semaphore = semaphoreProvider.create("semaphore", {
+const semaphore = semaphoreFactory.create("semaphore", {
     slotId: "my-slot-id",
 });
 
@@ -391,28 +391,28 @@ For further information about namespacing refer to [`@daiso-tech/core/namespace`
 ```ts
 import { Namespace } from "@daiso-tech/core/namespace";
 import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
-import { SemaphoreProvider } from "@daiso-tech/core/semaphore";
+import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
 import Redis from "ioredis";
 
 const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
 const serde = new Serde(new SuperJsonSerdeAdapter());
 
-const semaphoreProviderA = new SemaphoreProvider({
+const semaphoreFactoryA = new SemaphoreFactory({
     namespace: new Namespace("@semaphore-a"),
     adapter: new RedisSemaphoreAdapter(database),
     serde,
 });
-const semaphoreProviderB = new SemaphoreProvider({
+const semaphoreFactoryB = new SemaphoreFactory({
     namespace: new Namespace("@semaphore-b"),
     adapter: new RedisSemaphoreAdapter(database),
     serde,
 });
 
-const semaphoreA = await semaphoreProviderA.create("key", {
+const semaphoreA = semaphoreFactoryA.create("key", {
     ttl: null,
     limit: 1
 });
-const semaphoreB = await semaphoreProviderB.create("key", {
+const semaphoreB = semaphoreFactoryB.create("key", {
     ttl: null,
     limit: 1
 });
@@ -446,7 +446,7 @@ Retrying acquiring semaphore with `acquireOrFail` method:
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
 
-const semaphore = semaphoreProvider.create("semaphore", {
+const semaphore = semaphoreFactory.create("semaphore", {
     limit: 2
 });
 
@@ -468,7 +468,7 @@ Retrying acquiring semaphore with `acquire` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 
-const semaphore = semaphoreProvider.create("semaphore", {
+const semaphore = semaphoreFactory.create("semaphore", {
     limit: 2
 });
 
@@ -495,7 +495,7 @@ Retrying acquiring semaphore with `runOrFail` method:
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
 
-const semaphore = semaphoreProvider.create("semaphore", {
+const semaphore = semaphoreFactory.create("semaphore", {
     limit: 2
 });
 
@@ -515,13 +515,13 @@ await semaphore
 
 Semaphores can be serialized, allowing them to be transmitted over the network to another server and later deserialized for reuse.
 This means you can, for example, acquire the semaphore on the main server, transfer it to a queue worker server, and release it there.
-In order to serialize or deserialize a semaphore you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `SemaphoreProvider`. 
+In order to serialize or deserialize a semaphore you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `SemaphoreFactory`. 
 
 Manually serializing and deserializing the semaphore:
 
 ```ts
 import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
-import { SemaphoreProvider } from "@daiso-tech/core/semaphore";
+import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
 
@@ -529,13 +529,13 @@ const serde = new Serde(new SuperJsonSerdeAdapter());
 
 const redisClient = new Redis("YOUR_REDIS_CONNECTION");
 
-const semaphoreProvider = new SemaphoreProvider({
+const semaphoreFactory = new SemaphoreFactory({
     // You can laso pass in an array of Serde class instances
     serde,
     adapter: new RedisSemaphoreAdapter(redisClient),
 });
 
-const semaphore = semaphoreProvider.create("resource", {
+const semaphore = semaphoreFactory.create("resource", {
     limit: 2
 });
 const serializedSemaphore = serde.serialize(semaphore);
@@ -543,7 +543,7 @@ const deserializedSemaphore = serde.deserialize(semaphore);
 ```
 
 :::danger
-When serializing or deserializing a semaphore, you must use the same `Serde` instances that were provided to the `SemaphoreProvider`. This is required because the `SemaphoreProvider` injects custom serialization logic for `ISemaphore` instance into `Serde` instances.
+When serializing or deserializing a semaphore, you must use the same `Serde` instances that were provided to the `SemaphoreFactory`. This is required because the `SemaphoreFactory` injects custom serialization logic for `ISemaphore` instance into `Serde` instances.
 :::
 
 :::info
@@ -555,7 +555,7 @@ As long you pass the same `Serde` instances with all other components you dont n
 ```ts
 import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
 import type { ISemaphore } from "@daiso-tech/core/semaphore/contracts";
-import { SemaphoreProvider } from "@daiso-tech/core/semaphore";
+import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
 import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
 import { EventBus } from "@daiso-tech/core/event-bus";
 import { Serde } from "@daiso-tech/core/serde";
@@ -576,12 +576,12 @@ const eventBus = new EventBus<EventMap>({
     }),
 });
 
-const semaphoreProvider = new SemaphoreProvider({
+const semaphoreFactory = new SemaphoreFactory({
     serde,
     adapter: new RedisSemaphoreAdapter(redis),
     eventBus,
 });
-const semaphore = semaphoreProvider.create("resource", {
+const semaphore = semaphoreFactory.create("resource", {
     limit: 2
 });
 
@@ -604,22 +604,22 @@ Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to lear
 
 ```ts
 import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
-import { SemaphoreProvider, SEMAPHORE_EVENTS } from "@daiso-tech/core/semaphore";
+import { SemaphoreFactory, SEMAPHORE_EVENTS } from "@daiso-tech/core/semaphore";
 import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 
-const semaphoreProvider = new SemaphoreProvider({
+const semaphoreFactory = new SemaphoreFactory({
     adapter: new MemorySemaphoreAdapter(),
     eventBus: new EventBus({
         adapter: new MemoryEventBusAdapter(),
     }),
 });
 
-await semaphoreProvider.events.addListener(SEMAPHORE_EVENTS.ACQUIRED, () => {
+await semaphoreFactory.events.addListener(SEMAPHORE_EVENTS.ACQUIRED, () => {
     console.log("Lock acquired");
 });
 
-await semaphoreProvider.create("a").acquire();
+await semaphoreFactory.create("a").acquire();
 ```
 
 :::warning
@@ -643,7 +643,7 @@ const redisPubSubEventBusAdapter = new RedisPubSubEventBusAdapter({
 });
 
 const memorySemaphoreAdapter = new MemorySemaphoreAdapter();
-const memorySemaphoreProvider = new SemaphoreProvider({
+const memorySemaphoreFactory = new SemaphoreFactory({
     adapter: memorySemaphoreAdapter,
     eventBus: new EventBus({
         // We assign distinct namespaces to MemorySemaphoreAdapter and RedisSemaphoreAdapter to isolate their events.
@@ -656,7 +656,7 @@ const redisSemaphoreAdapter = new RedisSemaphoreAdapter({
     serde,
     database: new Redis("YOUR_REDIS_CONNECTION_STRING"),
 });
-const redisSemaphoreProvider = new SemaphoreProvider({
+const redisSemaphoreFactory = new SemaphoreFactory({
     adapter: redisSemaphoreAdapter,
     eventBus: new EventBus({
         // We assign distinct namespaces to MemorySemaphoreAdapter and RedisSemaphoreAdapter to isolate their events.
@@ -674,7 +674,7 @@ The library includes 3 additional contracts:
 
 - [`ISemaphore`](https://daiso-tech.github.io/daiso-core/types/Semaphore.ISemaphore.html) - Allows only for manipulating of the semaphore.
 
-- [`ISemaphoreProviderBase`](https://daiso-tech.github.io/daiso-core/types/Semaphore.ISemaphoreProviderBase.html) - Allows only for creation of semaphores.
+- [`ISemaphoreFactoryBase`](https://daiso-tech.github.io/daiso-core/types/Semaphore.ISemaphoreFactoryBase.html) - Allows only for creation of semaphores.
 
 - [`ISemaphoreListenable`](https://daiso-tech.github.io/daiso-core/types/Semaphore.ISemaphoreListenable.html) - Allows only to listening to semaphore events.
 
@@ -683,11 +683,11 @@ This seperation makes it easy to visually distinguish the 3 contracts, making it
 ```ts
 import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { SemaphoreProvider } from "@daiso-tech/core/semaphore";
+import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
 import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
 import {
     type ISemaphore,
-    type ISemaphoreProvider,
+    type ISemaphoreFactoryBase,
     type ISemaphoreListenable,
     SEMAPHORE_EVENTS,
 } from "@daiso-tech/core/semaphore/contracts";
@@ -698,11 +698,11 @@ async function semaphoreFunc(semaphore: ISemaphore): Promise<void> {
     });
 }
 
-async function semaphoreProviderFunc(semaphoreProvider: ISemaphoreProvider): Promise<void> {
+async function semaphoreFactoryFunc(semaphoreFactory: ISemaphoreFactoryBase): Promise<void> {
     // You cannot access the listener methods
     // You will get typescript error if you try
 
-    const semaphore = semaphoreProvider.create("resource", {
+    const semaphore = semaphoreFactory.create("resource", {
         limit: 2
     });
     await semaphoreFunc(semaphore);
@@ -711,7 +711,7 @@ async function semaphoreProviderFunc(semaphoreProvider: ISemaphoreProvider): Pro
 async function semaphoreListenableFunc(
     semaphoreListenable: ISemaphoreListenable,
 ): Promise<void> {
-    // You cannot access the semaphoreProvider methods
+    // You cannot access the semaphoreFactory methods
     // You will get typescript error if you try
 
     await semaphoreListenable.addListener(SEMAPHORE_EVENTS.ACQUIRED, (event) => {
@@ -722,14 +722,14 @@ async function semaphoreListenableFunc(
     });
 }
 
-const semaphoreProvider = new SemaphoreProvider({
+const semaphoreFactory = new SemaphoreFactory({
     adapter: new MemorySemaphoreAdapter(),
     eventBus: new EventBus({
         adapter: new MemoryEventBusAdapter(),
     })
 })
-await semaphoreListenableFunc(semaphoreProvider.events);
-await semaphoreProviderFunc(semaphoreProvider);
+await semaphoreListenableFunc(semaphoreFactory.events);
+await semaphoreFactoryFunc(semaphoreFactory);
 ```
 
 ## Further information

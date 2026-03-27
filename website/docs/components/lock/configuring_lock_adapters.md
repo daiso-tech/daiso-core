@@ -326,7 +326,7 @@ const noOpLockAdapter = new NoOpLockAdapter();
 ```
 
 :::info
-The `NoOpLockAdapter` is useful when you want to mock out or disable your [`LockProvider`](https://daiso-tech.github.io/daiso-core/classes/Lock.LockProvider.html) instance.
+The `NoOpLockAdapter` is useful when you want to mock out or disable your [`LockFactory`](https://daiso-tech.github.io/daiso-core/classes/Lock.LockFactory.html) instance.
 :::
 
 ## Further information

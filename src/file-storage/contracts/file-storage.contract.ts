@@ -16,7 +16,7 @@ export type IFileListenable = IEventListenable<FileEventMap>;
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
  * @group Contracts
  */
-export type IFileProvider = {
+export type IFileFactory = {
     create(key: string): IFile;
 };
 
@@ -24,7 +24,7 @@ export type IFileProvider = {
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
  * @group Contracts
  */
-export type IFileStorageBase = IFileProvider & {
+export type IFileStorageBase = IFileFactory & {
     clear(): ITask<void>;
 
     removeMany(files: Iterable<IFile>): ITask<boolean>;

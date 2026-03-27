@@ -1,4 +1,9 @@
 on: pull_request
+
+concurrency: 
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
 jobs:
     lint:
         name: Linting
@@ -75,4 +80,4 @@ jobs:
               run: npm ci
 
             - name: Testing
-              run: npx vitest --run --changed ${{ github.base_ref }}
+              run: npx vitest --run --changed ${{ github.base_ref }} --passWithNoTests

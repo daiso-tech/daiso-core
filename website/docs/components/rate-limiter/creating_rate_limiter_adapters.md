@@ -21,7 +21,7 @@ In order to create an adapter you need to implement the [`IRateLimiterAdapter`](
 
 ## Implementing your custom IRateLimiterStorageAdapter
 
-We provide an additional contract [`IRateLimiterStorageAdapter`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiterStorageAdapter.html) for building custom rate-limiter storage adapters tailored to [`DatabaseRateLimiterAdapter`](./configuring_rate_limiter_adapters.md#databaseratelimiteradapter) and [`DatabaseRateLimiterProviderFactory`](./rate_limiter_provider_factory.md#databaseratelimiterproviderfactory).
+We provide an additional contract [`IRateLimiterStorageAdapter`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiterStorageAdapter.html) for building custom rate-limiter storage adapters tailored to [`DatabaseRateLimiterAdapter`](./configuring_rate_limiter_adapters.md#databaseratelimiteradapter) and [`DatabaseRateLimiterProviderFactory`](./rate_limiter_factory_resolver.md#databaseratelimiterfactoryresolver).
 
 ## Testing your custom IRateLimiterStorageAdapter
 

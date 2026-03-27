@@ -3,7 +3,7 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type ISemaphoreProvider } from "@/semaphore/contracts/semaphore-provider.contract.js";
+import { type ISemaphoreFactory } from "@/semaphore/contracts/semaphore-factory.contract.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
@@ -28,7 +28,7 @@ export type ISemaphoreAdapterState = {
 
 /**
  * The `ISemaphoreAdapter` contract defines a way for managing semaphores independent of the underlying technology.
- * This contract is not meant to be used directly, instead you should use {@link ISemaphoreProvider | `ISemaphoreProvider`} contract.
+ * This contract is not meant to be used directly, instead you should use {@link ISemaphoreFactory | `ISemaphoreFactory`} contract.
  *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts

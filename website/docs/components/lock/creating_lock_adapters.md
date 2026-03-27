@@ -76,30 +76,30 @@ describe("class: MyDatabaseLockAdapter", () => {
 });
 ```
 
-## Implementing your custom ILockProvider class
+## Implementing your custom ILockFactory class
 
-In some cases, you may need to implement a custom [`LockProvider`](https://daiso-tech.github.io/daiso-core/classes/Lock.LockProvider.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ILockProvider`](https://daiso-tech.github.io/daiso-core/types/Lock.ILockProvider.html) contract.
+In some cases, you may need to implement a custom [`LockFactory`](https://daiso-tech.github.io/daiso-core/classes/Lock.LockFactory.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ILockFactory`](https://daiso-tech.github.io/daiso-core/types/Lock.ILockFactory.html) contract.
 
-## Testing your custom ILockProvider class
+## Testing your custom ILockFactory class
 
-We provide a complete test suite to verify your custom event bus class implementation. Simply use the [`lockProviderTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Lock.lockProviderTestSuite.html) function:
+We provide a complete test suite to verify your custom lock factory class implementation. Simply use the [`lockFactoryTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Lock.lockFactoryTestSuite.html) function:
 
 - Preconfigured Vitest test cases
-- Standardized event bus behavior validation
+- Standardized lock factory behavior validation
 - Common edge case coverage
 
 Usage example:
 
 ```ts
-// filename: MyLockProvider.test.ts
+// filename: MyLockFactory.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { lockProviderTestSuite } from "@daiso-tech/core/lock/test-utilities";
-import { MyLockProvider } from "./MyLockProvider.js";
+import { lockFactoryTestSuite } from "@daiso-tech/core/lock/test-utilities";
+import { MyLockFactory } from "./MyLockFactory.js";
 
-describe("class: MyLockProvider", () => {
-    lockProviderTestSuite({
-        createLockProvider: () => new MyLockProvider(),
+describe("class: MyLockFactory", () => {
+    lockFactoryTestSuite({
+        createLockFactory: () => new MyLockFactory(),
         test,
         beforeEach,
         expect,

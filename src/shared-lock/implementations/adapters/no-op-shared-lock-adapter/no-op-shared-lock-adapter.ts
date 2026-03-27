@@ -7,12 +7,12 @@ import {
     type ISharedLockAdapterState,
     type SharedLockAcquireSettings,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ISharedLockProvider,
+    type ISharedLockFactory,
 } from "@/shared-lock/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- * The `NoOpSharedLockAdapter` will do nothing and is used for easily mocking {@link ISharedLockProvider | `ISharedLockProvider`} for testing.
+ * The `NoOpSharedLockAdapter` will do nothing and is used for easily mocking {@link ISharedLockFactory | `ISharedLockFactory`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/no-op-shared-lock-adapter"`
  * @group Adapters

@@ -4,7 +4,7 @@
 
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ISemaphoreProvider,
+    type ISemaphoreFactory,
     type ISemaphoreAdapter,
     type ISemaphoreAdapterState,
     type SemaphoreAcquireSettings,
@@ -29,7 +29,7 @@ export type MemorySemaphoreAdapterData = {
 
 /**
  * Note the `MemorySemaphoreAdapter` is limited to single process usage and cannot be shared across multiple servers or different processes.
- * This adapter is meant for easily facking {@link ISemaphoreProvider | `ISemaphoreProvider`} for testing.
+ * This adapter is meant for easily faking{@link ISemaphoreFactory | `ISemaphoreFactory`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/memory-semaphore-adapter"`
  * @group Adapters
