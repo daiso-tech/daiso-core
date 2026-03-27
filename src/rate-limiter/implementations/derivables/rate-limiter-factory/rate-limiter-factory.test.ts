@@ -8,7 +8,7 @@ import {
     RATE_LIMITER_STATE,
     type AllowedRateLimiterEvent,
     type BlockedRateLimiterEvent,
-    type IRateLimiterProvider,
+    type IRateLimiterFactory,
     type IRateLimiterStateMethods,
     type RateLimiterExpiredState,
     type ResetedRateLimiterEvent,
@@ -19,10 +19,10 @@ import {
     type RateLimiterAllowedState,
     type RateLimiterBlockedState,
 } from "@/rate-limiter/contracts/_module.js";
-import { RateLimiterProvider } from "@/rate-limiter/implementations/derivables/rate-limiter-provider/rate-limiter-provider.js";
+import { RateLimiterFactory } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter-factory.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
-describe("class: RateLimiterProvider", () => {
+describe("class: RateLimiterFactory", () => {
     const adapter: IRateLimiterAdapter = {
         getState: function (
             _key: string,
@@ -41,10 +41,10 @@ describe("class: RateLimiterProvider", () => {
     };
     const KEY = "a";
 
-    let rateLimiterProvider: IRateLimiterProvider;
+    let rateLimiterFactory: IRateLimiterFactory;
     beforeEach(() => {
         vi.resetAllMocks();
-        rateLimiterProvider = new RateLimiterProvider({
+        rateLimiterFactory = new RateLimiterFactory({
             adapter,
             eventBus: new EventBus({
                 adapter: new MemoryEventBusAdapter(),
@@ -71,7 +71,7 @@ describe("class: RateLimiterProvider", () => {
                     );
 
                     try {
-                        await rateLimiterProvider
+                        await rateLimiterFactory
                             .create(KEY, {
                                 limit: 5,
                                 onlyError: true,
@@ -98,7 +98,7 @@ describe("class: RateLimiterProvider", () => {
                         Promise.resolve(state),
                     );
 
-                    await rateLimiterProvider
+                    await rateLimiterFactory
                         .create(KEY, {
                             limit: 5,
                             onlyError: true,
@@ -121,7 +121,7 @@ describe("class: RateLimiterProvider", () => {
                         .mockImplementation(() => Promise.resolve(state));
 
                     try {
-                        await rateLimiterProvider
+                        await rateLimiterFactory
                             .create(KEY, {
                                 limit: 5,
                                 onlyError: true,
@@ -148,7 +148,7 @@ describe("class: RateLimiterProvider", () => {
                         .spyOn(adapter, "getState")
                         .mockImplementation(() => Promise.resolve(state));
 
-                    await rateLimiterProvider
+                    await rateLimiterFactory
                         .create(KEY, {
                             limit: 5,
                             onlyError: true,
@@ -170,7 +170,7 @@ describe("class: RateLimiterProvider", () => {
                         Promise.resolve(state),
                     );
 
-                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                    const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit: 5,
                         onlyError: true,
                     });
@@ -197,7 +197,7 @@ describe("class: RateLimiterProvider", () => {
                     );
 
                     try {
-                        await rateLimiterProvider
+                        await rateLimiterFactory
                             .create(KEY, {
                                 limit: 5,
                                 onlyError: false,
@@ -224,7 +224,7 @@ describe("class: RateLimiterProvider", () => {
                         Promise.resolve(state),
                     );
 
-                    await rateLimiterProvider
+                    await rateLimiterFactory
                         .create(KEY, {
                             limit: 5,
                             onlyError: false,
@@ -247,7 +247,7 @@ describe("class: RateLimiterProvider", () => {
                         .mockImplementation(() => Promise.resolve(state));
 
                     try {
-                        await rateLimiterProvider
+                        await rateLimiterFactory
                             .create(KEY, {
                                 limit: 5,
                                 onlyError: false,
@@ -274,7 +274,7 @@ describe("class: RateLimiterProvider", () => {
                         .spyOn(adapter, "getState")
                         .mockImplementation(() => Promise.resolve(state));
 
-                    await rateLimiterProvider
+                    await rateLimiterFactory
                         .create(KEY, {
                             limit: 5,
                             onlyError: false,
@@ -293,7 +293,7 @@ describe("class: RateLimiterProvider", () => {
                         Promise.resolve(state),
                     );
 
-                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                    const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit: 5,
                         onlyError: false,
                     });
@@ -312,7 +312,7 @@ describe("class: RateLimiterProvider", () => {
                     .spyOn(adapter, "reset")
                     .mockImplementation(() => Promise.resolve());
 
-                const rateLimiter = rateLimiterProvider.create(KEY, {
+                const rateLimiter = rateLimiterFactory.create(KEY, {
                     limit: 10,
                 });
 
@@ -327,7 +327,7 @@ describe("class: RateLimiterProvider", () => {
                     .spyOn(adapter, "getState")
                     .mockImplementation(() => Promise.resolve(null));
 
-                const rateLimiter = rateLimiterProvider.create(KEY, {
+                const rateLimiter = rateLimiterFactory.create(KEY, {
                     limit: 10,
                 });
 
@@ -340,7 +340,7 @@ describe("class: RateLimiterProvider", () => {
                     Promise.resolve(null),
                 );
 
-                const rateLimiter = rateLimiterProvider.create(KEY, {
+                const rateLimiter = rateLimiterFactory.create(KEY, {
                     limit: 10,
                 });
 
@@ -362,7 +362,7 @@ describe("class: RateLimiterProvider", () => {
                     } satisfies IRateLimiterAdapterState),
                 );
 
-                const rateLimiter = rateLimiterProvider.create(KEY, {
+                const rateLimiter = rateLimiterFactory.create(KEY, {
                     limit,
                 });
 
@@ -388,7 +388,7 @@ describe("class: RateLimiterProvider", () => {
                     } satisfies IRateLimiterAdapterState),
                 );
 
-                const rateLimiter = rateLimiterProvider.create(KEY, {
+                const rateLimiter = rateLimiterFactory.create(KEY, {
                     limit,
                 });
 
@@ -423,14 +423,14 @@ describe("class: RateLimiterProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedFailureRateLimiterEvent) => {},
                     );
-                    await rateLimiterProvider.events.addListener(
+                    await rateLimiterFactory.events.addListener(
                         RATE_LIMITER_EVENTS.TRACKED_FAILURE,
                         handlerFn,
                     );
 
                     const limit = 5;
                     class ErrorA extends Error {}
-                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                    const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: true,
                     });
@@ -472,7 +472,7 @@ describe("class: RateLimiterProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: TrackedFailureRateLimiterEvent) => {},
                     );
-                    await rateLimiterProvider.events.addListener(
+                    await rateLimiterFactory.events.addListener(
                         RATE_LIMITER_EVENTS.TRACKED_FAILURE,
                         handlerFn,
                     );
@@ -480,7 +480,7 @@ describe("class: RateLimiterProvider", () => {
                     class ErrorA extends Error {}
                     class ErrorB extends Error {}
                     try {
-                        await rateLimiterProvider
+                        await rateLimiterFactory
                             .create(KEY, {
                                 limit: 5,
                                 onlyError: true,
@@ -511,7 +511,7 @@ describe("class: RateLimiterProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: UntrackedFailureRateLimiterEvent) => {},
                     );
-                    await rateLimiterProvider.events.addListener(
+                    await rateLimiterFactory.events.addListener(
                         RATE_LIMITER_EVENTS.UNTRACKED_FAILURE,
                         handlerFn,
                     );
@@ -519,7 +519,7 @@ describe("class: RateLimiterProvider", () => {
                     class ErrorA extends Error {}
                     class ErrorB extends Error {}
                     const limit = 5;
-                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                    const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: true,
                         errorPolicy: ErrorA,
@@ -563,13 +563,13 @@ describe("class: RateLimiterProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: AllowedRateLimiterEvent) => {},
                     );
-                    await rateLimiterProvider.events.addListener(
+                    await rateLimiterFactory.events.addListener(
                         RATE_LIMITER_EVENTS.ALLOWED,
                         handlerFn,
                     );
 
                     class ErrorA extends Error {}
-                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                    const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: true,
                     });
@@ -611,13 +611,13 @@ describe("class: RateLimiterProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: BlockedRateLimiterEvent) => {},
                     );
-                    await rateLimiterProvider.events.addListener(
+                    await rateLimiterFactory.events.addListener(
                         RATE_LIMITER_EVENTS.BLOCKED,
                         handlerFn,
                     );
 
                     class ErrorA extends Error {}
-                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                    const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: true,
                     });
@@ -659,12 +659,12 @@ describe("class: RateLimiterProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: AllowedRateLimiterEvent) => {},
                     );
-                    await rateLimiterProvider.events.addListener(
+                    await rateLimiterFactory.events.addListener(
                         RATE_LIMITER_EVENTS.ALLOWED,
                         handlerFn,
                     );
 
-                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                    const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: true,
                     });
@@ -702,13 +702,13 @@ describe("class: RateLimiterProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: AllowedRateLimiterEvent) => {},
                     );
-                    await rateLimiterProvider.events.addListener(
+                    await rateLimiterFactory.events.addListener(
                         RATE_LIMITER_EVENTS.ALLOWED,
                         handlerFn,
                     );
 
                     class ErrorA extends Error {}
-                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                    const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: false,
                     });
@@ -750,13 +750,13 @@ describe("class: RateLimiterProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: BlockedRateLimiterEvent) => {},
                     );
-                    await rateLimiterProvider.events.addListener(
+                    await rateLimiterFactory.events.addListener(
                         RATE_LIMITER_EVENTS.BLOCKED,
                         handlerFn,
                     );
 
                     class ErrorA extends Error {}
-                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                    const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: false,
                     });
@@ -798,12 +798,12 @@ describe("class: RateLimiterProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: AllowedRateLimiterEvent) => {},
                     );
-                    await rateLimiterProvider.events.addListener(
+                    await rateLimiterFactory.events.addListener(
                         RATE_LIMITER_EVENTS.ALLOWED,
                         handlerFn,
                     );
 
-                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                    const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: false,
                     });
@@ -839,12 +839,12 @@ describe("class: RateLimiterProvider", () => {
                     const handlerFn = vi.fn(
                         (_event: BlockedRateLimiterEvent) => {},
                     );
-                    await rateLimiterProvider.events.addListener(
+                    await rateLimiterFactory.events.addListener(
                         RATE_LIMITER_EVENTS.BLOCKED,
                         handlerFn,
                     );
 
-                    const rateLimiter = rateLimiterProvider.create(KEY, {
+                    const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: false,
                     });
@@ -875,12 +875,12 @@ describe("class: RateLimiterProvider", () => {
                     Promise.resolve(),
                 );
                 const handlerFn = vi.fn(() => {});
-                await rateLimiterProvider.events.addListener(
+                await rateLimiterFactory.events.addListener(
                     RATE_LIMITER_EVENTS.RESETED,
                     handlerFn,
                 );
 
-                const rateLimiter = rateLimiterProvider.create(KEY, {
+                const rateLimiter = rateLimiterFactory.create(KEY, {
                     limit: 10,
                 });
                 await rateLimiter.reset();

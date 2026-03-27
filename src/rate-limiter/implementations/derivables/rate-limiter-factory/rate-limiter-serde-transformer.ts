@@ -11,7 +11,7 @@ import {
 import {
     RateLimiter,
     type ISerializedRateLimiter,
-} from "@/rate-limiter/implementations/derivables/rate-limiter-provider/rate-limiter.js";
+} from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import {
     getConstructorName,

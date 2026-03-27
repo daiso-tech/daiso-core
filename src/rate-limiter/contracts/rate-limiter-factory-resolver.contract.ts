@@ -2,7 +2,7 @@
  * @module RateLimiter
  */
 
-import { type IRateLimiterProvider } from "@/rate-limiter/contracts/rate-limiter-provider.contract.js";
+import { type IRateLimiterFactory } from "@/rate-limiter/contracts/rate-limiter-factory.contract.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     UnregisteredAdapterError,
@@ -11,17 +11,17 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * The `IRateLimiterProviderFactory` contract makes it easy to configure and switch between different {@link IRateLimiterProvider | `IRateLimiterProvider`} dynamically.
+ * The `IRateLimiterFactoryResolver` contract makes it easy to configure and switch between different {@link IRateLimiterFactory | `IRateLimiterFactory`} dynamically.
  *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Contracts
  */
-export type IRateLimiterProviderFactory<TAdapters extends string = string> = {
+export type IRateLimiterFactoryResolver<TAdapters extends string = string> = {
     /**
      * The `use` method will throw an error if you provide it unregisted adapter.
      * If no default adapter is defined an error will be thrown by `use` method.
      * @throws {UnregisteredAdapterError} {@link UnregisteredAdapterError}
      * @throws {DefaultAdapterNotDefinedError} {@link DefaultAdapterNotDefinedError}
      */
-    use(adapterName?: TAdapters): IRateLimiterProvider;
+    use(adapterName?: TAdapters): IRateLimiterFactory;
 };

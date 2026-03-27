@@ -11,7 +11,7 @@ import { type ErrorPolicySettings } from "@/utilities/_module.js";
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Contracts
  */
-export type RateLimiterProviderCreateSettings = ErrorPolicySettings & {
+export type RateLimiterFactoryCreateSettings = ErrorPolicySettings & {
     /**
      * If true will only apply rate limiting when function errors and not when function is called.
      * @default false
@@ -25,10 +25,10 @@ export type RateLimiterProviderCreateSettings = ErrorPolicySettings & {
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Contracts
  */
-export type IRateLimiterProviderBase = {
+export type IRateLimiterFactoryBase = {
     create(
         key: string,
-        settings: RateLimiterProviderCreateSettings,
+        settings: RateLimiterFactoryCreateSettings,
     ): IRateLimiter;
 };
 
@@ -44,6 +44,6 @@ export type IRateLimiterListenable = IEventListenable<RateLimiterEventMap>;
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Contracts
  */
-export type IRateLimiterProvider = IRateLimiterProviderBase & {
+export type IRateLimiterFactory = IRateLimiterFactoryBase & {
     readonly events: IRateLimiterListenable;
 };

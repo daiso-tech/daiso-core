@@ -1,27 +1,27 @@
 ---
 sidebar_position: 2
-sidebar_label: Factory classes
-pagination_label: Rate-limiter factory classes
+sidebar_label: Resolver classes
+pagination_label: Rate-limiter resolver classes
 tags:
  - Rate-limiter
- - Factories
+ - Resolvers
 keywords:
  - Rate-limiter
- - Factories
+ - Resolvers
 ---
 
-# Rate-limiter provider factory classes
+# Rate-limiter resolver factory classes
 
-## RateLimiterProviderFactory
+## RateLimiterFactoryResolver
 
-The `RateLimiterProviderFactory` class provides a flexible way to configure and switch between different rate-limiter adapters at runtime.
+The `RateLimiterFactoryResolver` class provides a flexible way to configure and switch between different rate-limiter adapters at runtime.
 
 ### Initial configuration
 
-To begin using the `RateLimiterProviderFactory`, You will need to register all required adapters during initialization.
+To begin using the `RateLimiterFactoryResolver`, You will need to register all required adapters during initialization.
 
 ```ts
-import { RateLimiterProviderFactory } from "@daiso-tech/core/rate-limiter";
+import { RateLimiterFactoryResolver } from "@daiso-tech/core/rate-limiter";
 import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storate-adapter";
 import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
 import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
@@ -30,7 +30,7 @@ import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-a
 import Redis from "ioredis"
   
 const serde = new Serde(new SuperJsonSerdeAdapter());
-const rateLimiterProviderFactory = new RateLimiterProviderFactory({
+const rateLimiterFactoryResolver = new RateLimiterFactoryResolver({
     serde,
     adapters: {
         memory: new DatabaseRateLimiterAdapter({
@@ -50,7 +50,7 @@ const rateLimiterProviderFactory = new RateLimiterProviderFactory({
 
 ```ts
 // Will apply rate-limiter logic the default adapter which is MemoryRateLimiterStorageAdapter
-await rateLimiterProviderFactory
+await rateLimiterFactoryResolver
   .use()
   .create("a")
   .runOrFail(async () => {
@@ -66,7 +66,7 @@ Note that if you dont set a default adapter, an error will be thrown.
 
 ```ts
 // Will apply rate-limiter logic using the redis adapter
-await rateLimiterProviderFactory
+await rateLimiterFactoryResolver
   .use("redis")
   .create("a")
   .runOrFail(async () => {
@@ -81,7 +81,7 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 #### 3. Overriding default settings
 
 ```ts
-await rateLimiterProviderFactory
+await rateLimiterFactoryResolver
   .use("redis")
   .create("a")
   .setNamespace(new Namespace(["@", "test"]))
@@ -91,19 +91,19 @@ await rateLimiterProviderFactory
 ```
 
 :::info
-Note that the `RateLimiterProviderFactory` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
+Note that the `RateLimiterFactoryResolver` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
 :::
 
-## DatabaseRateLimiterProviderFactory
+## DatabaseRateLimiterFactoryResolver
 
-The `DatabaseRateLimiterProviderFactory` class provides a flexible way to configure and switch between different rate-limiter-storage adapters at runtime.
+The `DatabaseRateLimiterFactoryResolver` class provides a flexible way to configure and switch between different rate-limiter-storage adapters at runtime.
 
 ### Initial configuration
 
-To begin using the `DatabaseRateLimiterProviderFactory`, You will need to register all required adapters during initialization.
+To begin using the `DatabaseRateLimiterFactoryResolver`, You will need to register all required adapters during initialization.
 
 ```ts
-import { DatabaseRateLimiterProviderFactory } from "@daiso-tech/core/rate-limiter";
+import { DatabaseRateLimiterFactoryResolver } from "@daiso-tech/core/rate-limiter";
 import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storate-adapter";
 import { KyselyRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/kysely-rate-limiter-storate-adapter";
 import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
@@ -113,7 +113,7 @@ import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
-const rateLimiterProviderFactory = new DatabaseRateLimiterProviderFactory({
+const rateLimiterFactoryResolver = new DatabaseRateLimiterFactoryResolver({
   serde,
   adapters: {
     memory: new MemoryRateLimiterStorageAdapter(),
@@ -130,7 +130,7 @@ const rateLimiterProviderFactory = new DatabaseRateLimiterProviderFactory({
 });
 
 // Will apply rate-limiter logic the default adapter which is MemoryRateLimiterStorageAdapter
-await rateLimiterProviderFactory
+await rateLimiterFactoryResolver
   .use()
   .create("a")
   .runOrFail(async () => {
@@ -138,7 +138,7 @@ await rateLimiterProviderFactory
   });
 
 // Will apply rate-limiter logic using the KyselyRateLimiterStorageAdapter
-await rateLimiterProviderFactory
+await rateLimiterFactoryResolver
   .use("sqlite")
   .create("a")
   .runOrFail(async () => {
@@ -152,7 +152,7 @@ await rateLimiterProviderFactory
 
 ```ts
 // Will apply rate-limiter logic the default adapter which is MemoryRateLimiterStorageAdapter
-await rateLimiterProviderFactory
+await rateLimiterFactoryResolver
   .use()
   .create("a")
   .runOrFail(async () => {
@@ -168,7 +168,7 @@ Note that if you dont set a default adapter, an error will be thrown.
 
 ```ts
 // Will apply rate-limiter logic using the sqlite adapter
-await rateLimiterProviderFactory
+await rateLimiterFactoryResolver
   .use("sqlite")
   .create("a")
   .runOrFail(async () => {
@@ -186,7 +186,7 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 import { SlidingWindowLimiter } from "@daiso-tech/core/rate-limiter/policies"
 import { constantBackoff } from "@daiso-tech/core/backoff-policies"
 
-await rateLimiterProviderFactory
+await rateLimiterFactoryResolver
   .use("redis")
   .create("a")
   .setBackoffPolicy(constantBackoff())
@@ -197,7 +197,7 @@ await rateLimiterProviderFactory
 ```
 
 :::info
-Note that the `DatabaseRateLimiterProviderFactory` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
+Note that the `DatabaseRateLimiterFactoryResolver` is immutable, meaning any configuration override returns a new instance rather than modifying the existing one.
 :::
 
 ## Further information

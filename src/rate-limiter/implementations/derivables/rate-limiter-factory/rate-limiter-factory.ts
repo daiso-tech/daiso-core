@@ -11,12 +11,12 @@ import {
     type IRateLimiter,
     type IRateLimiterAdapter,
     type IRateLimiterListenable,
-    type IRateLimiterProvider,
+    type IRateLimiterFactory,
     type RateLimiterEventMap,
-    type RateLimiterProviderCreateSettings,
+    type RateLimiterFactoryCreateSettings,
 } from "@/rate-limiter/contracts/_module.js";
-import { RateLimiterSerdeTransformer } from "@/rate-limiter/implementations/derivables/rate-limiter-provider/rate-limiter-serde-transformer.js";
-import { RateLimiter } from "@/rate-limiter/implementations/derivables/rate-limiter-provider/rate-limiter.js";
+import { RateLimiterSerdeTransformer } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter-serde-transformer.js";
+import { RateLimiter } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
@@ -31,7 +31,7 @@ import {
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
  * @group Derivables
  */
-export type RateLimiterProviderSettingsBase = {
+export type RateLimiterFactorySettingsBase = {
     /**
      * @default
      * ```ts
@@ -99,17 +99,17 @@ export type RateLimiterProviderSettingsBase = {
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
  * @group Derivables
  */
-export type RateLimiterProviderSettings = RateLimiterProviderSettingsBase & {
+export type RateLimiterFactorySettings = RateLimiterFactorySettingsBase & {
     adapter: IRateLimiterAdapter;
 };
 
 /**
- * The `RateLimiterProvider` class can be derived from any {@link IRateLimiterAdapter | `IRateLimiterAdapter`}.
+ * The `RateLimiterFactory` class can be derived from any {@link IRateLimiterAdapter | `IRateLimiterAdapter`}.
  *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
  * @group Derivables
  */
-export class RateLimiterProvider implements IRateLimiterProvider {
+export class RateLimiterFactory implements IRateLimiterFactory {
     private readonly namespace: INamespace;
     private readonly eventBus: IEventBus<RateLimiterEventMap>;
     private readonly adapter: IRateLimiterAdapter;
@@ -145,12 +145,12 @@ export class RateLimiterProvider implements IRateLimiterProvider {
      *   adapter: rateLimiterStorageAdapter
      * });
      *
-     * const rateLimiterProvider = new RateLimiterProvider({
+     * const rateLimiterFactory = new RateLimiterFactory({
      *   adapter: rateLimiterAdapter
      * })
      * ```
      */
-    constructor(settings: RateLimiterProviderSettings) {
+    constructor(settings: RateLimiterFactorySettings) {
         const {
             enableAsyncTracking = true,
             namespace = new NoOpNamespace(),
@@ -196,7 +196,7 @@ export class RateLimiterProvider implements IRateLimiterProvider {
 
     create(
         key: string,
-        settings: RateLimiterProviderCreateSettings,
+        settings: RateLimiterFactoryCreateSettings,
     ): IRateLimiter {
         const {
             errorPolicy = this.defaultErrorPolicy,

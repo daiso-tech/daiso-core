@@ -5,14 +5,14 @@
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
-    type IRateLimiterProviderFactory,
-    type IRateLimiterProvider,
+    type IRateLimiterFactoryResolver,
+    type IRateLimiterFactory,
     type IRateLimiterAdapter,
 } from "@/rate-limiter/contracts/_module.js";
 import {
-    RateLimiterProvider,
-    type RateLimiterProviderSettingsBase,
-} from "@/rate-limiter/implementations/derivables/rate-limiter-provider/_module.js";
+    RateLimiterFactory,
+    type RateLimiterFactorySettingsBase,
+} from "@/rate-limiter/implementations/derivables/rate-limiter-factory/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     UnregisteredAdapterError,
@@ -33,26 +33,26 @@ export type RateLimiterAdapters<TAdapters extends string> = Partial<
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
  * @group Derivables
  */
-export type RateLimiterProviderFactorySettings<TAdapters extends string> =
-    RateLimiterProviderSettingsBase & {
+export type RateLimiterFactoryResolverSettings<TAdapters extends string> =
+    RateLimiterFactorySettingsBase & {
         adapters: RateLimiterAdapters<TAdapters>;
 
         defaultAdapter?: NoInfer<TAdapters>;
     };
 
 /**
- * The `RateLimiterProviderFactory` class is immutable.
+ * The `RateLimiterFactoryResolver` class is immutable.
  *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
  * @group Derivables
  */
-export class RateLimiterProviderFactory<TAdapters extends string>
-    implements IRateLimiterProviderFactory<TAdapters>
+export class RateLimiterFactoryResolver<TAdapters extends string>
+    implements IRateLimiterFactoryResolver<TAdapters>
 {
     /**
      * @example
      * ```ts
-     * import { RateLimiterProviderFactory } from "@daiso-tech/core/rate-limiter";
+     * import { RateLimiterFactoryResolver } from "@daiso-tech/core/rate-limiter";
      * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storate-adapter";
      * import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
      * import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
@@ -61,7 +61,7 @@ export class RateLimiterProviderFactory<TAdapters extends string>
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const rateLimiterProviderFactory = new RateLimiterProviderFactory({
+     * const rateLimiterFactoryResolver = new RateLimiterFactoryResolver({
      *   serde,
      *   adapters: {
      *     memory: new DatabaseRateLimiterAdapter({
@@ -76,25 +76,25 @@ export class RateLimiterProviderFactory<TAdapters extends string>
      * ```
      */
     constructor(
-        private readonly settings: RateLimiterProviderFactorySettings<TAdapters>,
+        private readonly settings: RateLimiterFactoryResolverSettings<TAdapters>,
     ) {}
 
-    setNamespace(namespace: INamespace): RateLimiterProviderFactory<TAdapters> {
-        return new RateLimiterProviderFactory({
+    setNamespace(namespace: INamespace): RateLimiterFactoryResolver<TAdapters> {
+        return new RateLimiterFactoryResolver({
             ...this.settings,
             namespace,
         });
     }
 
-    setEventBus(eventBus: IEventBus): RateLimiterProviderFactory<TAdapters> {
-        return new RateLimiterProviderFactory({
+    setEventBus(eventBus: IEventBus): RateLimiterFactoryResolver<TAdapters> {
+        return new RateLimiterFactoryResolver({
             ...this.settings,
             eventBus,
         });
     }
 
-    setOnlyError(onlyError?: boolean): RateLimiterProviderFactory<TAdapters> {
-        return new RateLimiterProviderFactory({
+    setOnlyError(onlyError?: boolean): RateLimiterFactoryResolver<TAdapters> {
+        return new RateLimiterFactoryResolver({
             ...this.settings,
             onlyError,
         });
@@ -102,8 +102,8 @@ export class RateLimiterProviderFactory<TAdapters extends string>
 
     setDefaultErrorPolicy(
         errorPolicy: ErrorPolicy,
-    ): RateLimiterProviderFactory<TAdapters> {
-        return new RateLimiterProviderFactory({
+    ): RateLimiterFactoryResolver<TAdapters> {
+        return new RateLimiterFactoryResolver({
             ...this.settings,
             defaultErrorPolicy: errorPolicy,
         });
@@ -112,7 +112,7 @@ export class RateLimiterProviderFactory<TAdapters extends string>
     /**
      * @example
      * ```ts
-     * import { RateLimiterProviderFactory } from "@daiso-tech/core/rate-limiter";
+     * import { RateLimiterFactoryResolver } from "@daiso-tech/core/rate-limiter";
      * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storate-adapter";
      * import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
      * import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
@@ -121,7 +121,7 @@ export class RateLimiterProviderFactory<TAdapters extends string>
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
-     * const rateLimiterProviderFactory = new RateLimiterProviderFactory({
+     * const rateLimiterFactoryResolver = new RateLimiterFactoryResolver({
      *   serde,
      *   adapters: {
      *     memory: new DatabaseRateLimiterAdapter({
@@ -135,7 +135,7 @@ export class RateLimiterProviderFactory<TAdapters extends string>
      * });
      *
      * // Will apply rate limiter logic the default adapter which is MemoryRateLimiterStorageAdapter
-     * await rateLimiterProviderFactory
+     * await rateLimiterFactoryResolver
      *   .use()
      *   .create("a")
      *   .runOrFail(async () => {
@@ -143,7 +143,7 @@ export class RateLimiterProviderFactory<TAdapters extends string>
      *   });
      *
      * // Will apply rate limiter logic the default adapter which is RedisRateLimiterAdapter
-     * await rateLimiterProviderFactory
+     * await rateLimiterFactoryResolver
      *   .use("redis")
      *   .create("a")
      *   .runOrFail(async () => {
@@ -153,17 +153,17 @@ export class RateLimiterProviderFactory<TAdapters extends string>
      */
     use(
         adapterName: TAdapters | undefined = this.settings.defaultAdapter,
-    ): IRateLimiterProvider {
+    ): IRateLimiterFactory {
         if (adapterName === undefined) {
             throw new DefaultAdapterNotDefinedError(
-                RateLimiterProviderFactory.name,
+                RateLimiterFactoryResolver.name,
             );
         }
         const adapter = this.settings.adapters[adapterName];
         if (adapter === undefined) {
             throw new UnregisteredAdapterError(adapterName);
         }
-        return new RateLimiterProvider({
+        return new RateLimiterFactory({
             ...this.settings,
             adapter,
         });
