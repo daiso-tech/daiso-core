@@ -2,7 +2,14 @@
  * @module Resilience
  */
 
-import { type AsyncMiddlewareFn, type HookContext } from "@/hooks/_module.js";
+import {
+    type AsyncMiddlewareFn,
+    type HookContext,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type AsyncHooks,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type AbortSignalBinder,
+} from "@/hooks/_module.js";
 import { type TimeoutSettings } from "@/resilience/middlewares/timeout/timeout.type.js";
 import { TimeoutResilienceError } from "@/resilience/resilience.errors.js";
 import { timeoutAndFail } from "@/resilience/utilities/timeout-and-fail/_module.js";

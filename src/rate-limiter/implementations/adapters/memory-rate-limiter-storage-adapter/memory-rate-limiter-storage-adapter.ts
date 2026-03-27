@@ -4,7 +4,7 @@
 
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IRateLimiterProvider,
+    type IRateLimiterFactory,
     type IRateLimiterData,
     type IRateLimiterStorageAdapter,
     type IRateLimiterStorageAdapterTransaction,
@@ -22,7 +22,7 @@ export type MemoryRateLimiterData<TType = unknown> = {
 };
 
 /**
- * The `MemoryRateLimiterStorageAdapter` is used for easily facking {@link IRateLimiterProvider | `IRateLimiterProvider`} for testing.
+ * The `MemoryRateLimiterStorageAdapter` is used for easily facking {@link IRateLimiterFactory | `IRateLimiterFactory`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter"`
  * @group Adapters

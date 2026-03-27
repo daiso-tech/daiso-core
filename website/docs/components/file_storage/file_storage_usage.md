@@ -653,7 +653,7 @@ The library includes 3 additional contracts:
 
 - [`IFile`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IFile.html) - Allows only for manipulating of the file.
 
-- [`IFileProvider`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IFileStorageBase.html) - Allows only for creation of file.
+- [`IFileFactory`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IFileFactory.html) - Allows only for creation of file.
 
 - [`IFileStorageBase`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IFileStorageBase.html) - Allows for creation and removal of files.
 

@@ -10,7 +10,7 @@
 
 This framework is specifically optimized for building **modular monoliths** or **majestic monoliths** rather than distributed server architectures.
 
-[**Explore the Docs**](https://daiso-core.vercel.app/docs/Installation) | [**NPM Package**](https://www.npmjs.com/package/@daiso-tech/core)
+[**Explore the Docs**](https://daiso-tech.dev/docs/Installation) | [**NPM Package**](https://www.npmjs.com/package/@daiso-tech/core)
 
 ---
 

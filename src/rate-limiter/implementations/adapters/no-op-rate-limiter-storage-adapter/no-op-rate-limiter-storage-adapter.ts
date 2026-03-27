@@ -4,7 +4,7 @@
 
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IRateLimiterProvider,
+    type IRateLimiterFactory,
     type IRateLimiterData,
     type IRateLimiterStorageAdapter,
     type IRateLimiterStorageAdapterTransaction,
@@ -28,7 +28,7 @@ class NoOpRateLimiterStorageAdapterTransaction<TType>
 }
 
 /**
- * The `NoOpRateLimiterStorageAdapterTransaction` will do nothing and is used for easily mocking {@link IRateLimiterProvider | `IRateLimiterProvider`} for testing.
+ * The `NoOpRateLimiterStorageAdapterTransaction` will do nothing and is used for easily mocking {@link IRateLimiterFactory | `IRateLimiterFactory`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/no-op-rate-limiter-storage-adapter"`
  * @group Adapters

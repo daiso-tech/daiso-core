@@ -65,28 +65,28 @@ export type IDatabaseWriterLockTransaction = {
     upsert(key: string, lockId: string, expiration: Date | null): Promise<void>;
 
     /**
-     * Removes a lock from the database regardless of its owner.
+     * Removes a lock from the database regardless of its lock id.
      *
      * @param key The unique identifier for the lock to remove.
      */
     remove(key: string): Promise<IWriterLockExpirationData | null>;
 
     /**
-     * Removes a lock from the database only if it is currently held by the specified owner.
+     * Removes a lock from the database only if it is currently held by the specified lock id.
      *
      * @param key The unique identifier for the lock.
-     * @param owner The identifier of the expected owner.
+     * @param lockId The identifier of the expected lock.
      * @returns Returns {@link IWriterLockData |`IWriterLockData | null`}. The {@link IWriterLockData |`IWriterLockData`} data if successfully removed, otherwise `null` if the lock wasn't found or the owner didn't match.
      */
     removeIfOwner(key: string, lockId: string): Promise<IWriterLockData | null>;
 
     /**
-     * Updates the expiration date of a lock if it is currently held by the specified owner.
+     * Updates the expiration date of a lock if it is currently held by the specified lock id.
      *
      * @param key The unique identifier for the lock.
-     * @param owner The identifier of the expected owner.
+     * @param lockId The identifier of the expected lock.
      * @param expiration The new date and time when the lock should expire.
-     * @returns Returns a number greater than or equal to `1` if the lock's expiration was updated, or `0` if the lock wasn't found or the owner didn't match.
+     * @returns Returns a number greater than or equal to `1` if the lock's expiration was updated, or `0` if the lock wasn't found or the lock id didn't match.
      */
     updateExpiration(
         key: string,

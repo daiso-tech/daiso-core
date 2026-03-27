@@ -326,7 +326,7 @@ const noOpSemaphoreAdapter = new NoOpSemaphoreAdapter();
 ```
 
 :::info
-The `NoOpSemaphoreAdapter` is useful when you want to mock out or disable your [`SemaphoreProvider`](https://daiso-tech.github.io/daiso-core/classes/Semaphore.SemaphoreProvider.html) instance.
+The `NoOpSemaphoreAdapter` is useful when you want to mock out or disable your [`SemaphoreFactory`](https://daiso-tech.github.io/daiso-core/classes/Semaphore.SemaphoreFactory.html) instance.
 :::
 
 

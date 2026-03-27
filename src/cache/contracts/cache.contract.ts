@@ -112,7 +112,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
     /**
      * The `add` method adds a `key` with given `value` when key doesn't exists.
      *
-     * @param ttl - If null is passed, the item will not expire.
+     * @param settings.ttl - If null is passed, the item will not expire.
      *
      * @returns Returns true when key doesn't exists otherwise false will be returned.
      */
@@ -137,7 +137,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
     /**
      * The `put` methods upsert the given key and replaces the ttl when updated.
      *
-     * @param ttl - If null is passed, the item will not expire.
+     * @param settings.ttl - If null is passed, the item will not expire.
      *
      * @returns Returns true if the `key` where replaced otherwise false is returned.
      */

@@ -6,12 +6,12 @@ import {
     type ILockAdapter,
     type ILockAdapterState,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ILockProvider,
+    type ILockFactory,
 } from "@/lock/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- * The `NoOpLockAdapter` will do nothing and is used for easily mocking {@link ILockProvider | `ILockProvider`} for testing.
+ * The `NoOpLockAdapter` will do nothing and is used for easily mocking {@link ILockFactory | `ILockFactory`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/lock/no-op-lock-adapter"`
  * @group Adapters

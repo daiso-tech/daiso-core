@@ -10,7 +10,7 @@ import {
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- * The `MemoryCacheAdapter` is used for easily facking {@link ICache | `ICache`} for testing.
+ * The `MemoryCacheAdapter` is used for easily faking{@link ICache | `ICache`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache/memory-cache-adapter"`
  * @group Adapters

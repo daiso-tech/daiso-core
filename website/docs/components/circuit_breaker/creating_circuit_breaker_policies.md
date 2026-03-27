@@ -8,7 +8,7 @@ pagination_label: Creating circuit-breaker policies
 
 ## Implementing your custom ICircuitBreakerPolicy
 
-In order to create custom circuit-breaker you need to implement the [`ICircuitBreakerPolicy`](https://daiso-tech.github.io/daiso-core/types/CircuitBreaker.ICircuitBreakerPolicy.html) contract. Custom circuit-breaker policies can be used with [`DatabaseCircuitBreakerAdapter`](./configuring_circuit_breaker_adapters.md#databasecircuitbreakeradapter) and [`DatabaseCircuitBreakerProviderFactory`](./circuit_breaker_provider_factory.md#databasecircuitbreakerproviderfactory).
+In order to create custom circuit-breaker you need to implement the [`ICircuitBreakerPolicy`](https://daiso-tech.github.io/daiso-core/types/CircuitBreaker.ICircuitBreakerPolicy.html) contract. Custom circuit-breaker policies can be used with [`DatabaseCircuitBreakerAdapter`](./configuring_circuit_breaker_adapters.md#databasecircuitbreakeradapter) and [`DatabaseCircuitBreakerProviderFactory`](./circuit_breaker_factory_resolver.md#databasecircuitbreakerfactoryresolver).
 
 To understand how to implement a custom [`ICircuitBreakerPolicy`](https://daiso-tech.github.io/daiso-core/types/CircuitBreaker.ICircuitBreakerPolicy.html), refer to the [`ConsecutiveBreaker`](https://github.com/yousif-khalil-abdulkarim/daiso-core/blob/main/src/circuit-breaker/implementations/policies/consecutive-breaker/consecutive-breaker.ts) implementation.
 

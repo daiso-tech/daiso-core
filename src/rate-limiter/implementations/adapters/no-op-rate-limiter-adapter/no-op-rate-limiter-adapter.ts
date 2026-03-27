@@ -4,14 +4,14 @@
 
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IRateLimiterProvider,
+    type IRateLimiterFactory,
     type IRateLimiterAdapter,
     type IRateLimiterAdapterState,
 } from "@/rate-limiter/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/time-span.js";
 
 /**
- * The `NoOpRateLimiterAdapter` will do nothing and is used for easily mocking {@link IRateLimiterProvider | `IRateLimiterProvider`} for testing.
+ * The `NoOpRateLimiterAdapter` will do nothing and is used for easily mocking {@link IRateLimiterFactory | `IRateLimiterFactory`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/no-op-rate-limiter-adapter"`
  * @group Adapters

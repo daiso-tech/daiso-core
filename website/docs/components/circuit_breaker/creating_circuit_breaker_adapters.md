@@ -21,7 +21,7 @@ In order to create an adapter you need to implement the [`ICircuitBreakerAdapter
 
 ## Implementing your custom ICircuitBreakerStorageAdapter
 
-We provide an additional contract [`ICircuitBreakerStorageAdapter`](https://daiso-tech.github.io/daiso-core/types/CircuitBreaker.ICircuitBreakerStorageAdapter.html) for building custom circuit-breaker storage adapters tailored to [`DatabaseCircuitBreakerAdapter`](./configuring_circuit_breaker_adapters.md#databasecircuitbreakeradapter) and [`DatabaseCircuitBreakerProviderFactory`](./circuit_breaker_provider_factory.md#databasecircuitbreakerproviderfactory).
+We provide an additional contract [`ICircuitBreakerStorageAdapter`](https://daiso-tech.github.io/daiso-core/types/CircuitBreaker.ICircuitBreakerStorageAdapter.html) for building custom circuit-breaker storage adapters tailored to [`DatabaseCircuitBreakerAdapter`](./configuring_circuit_breaker_adapters.md#databasecircuitbreakeradapter) and [`DatabaseCircuitBreakerProviderFactory`](./circuit_breaker_factory_resolver.md#databasecircuitbreakerfactoryresolver).
 
 ## Testing your custom ICircuitBreakerStorageAdapter
 

@@ -13,7 +13,7 @@ import {
 } from "@/event-bus/contracts/_module.js";
 
 /**
- * The `MemoryEventBusAdapter` is used for easily facking {@link IEventBus | `IEventBus`} for testing.
+ * The `MemoryEventBusAdapter` is used for easily faking{@link IEventBus | `IEventBus`} for testing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/memory-event-bus"`
  * @group Adapters

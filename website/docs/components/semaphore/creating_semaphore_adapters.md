@@ -76,13 +76,13 @@ describe("class: MyDatabaseSemaphoreAdapter", () => {
 });
 ```
 
-## Implementing your custom ISemaphoreProvider class
+## Implementing your custom ISemaphoreFactory class
 
-In some cases, you may need to implement a custom [`SemaphoreProvider`](https://daiso-tech.github.io/daiso-core/classes/Semaphore.SemaphoreProvider.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ISemaphoreProvider`](https://daiso-tech.github.io/daiso-core/types/Semaphore.ISemaphoreProvider.html) contract.
+In some cases, you may need to implement a custom [`SemaphoreFactory`](https://daiso-tech.github.io/daiso-core/classes/Semaphore.SemaphoreFactory.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ISemaphoreFactory`](https://daiso-tech.github.io/daiso-core/types/Semaphore.ISemaphoreFactory.html) contract.
 
-## Testing your custom ISemaphoreProvider class
+## Testing your custom ISemaphoreFactory class
 
-We provide a complete test suite to verify your custom event bus class implementation. Simply use the [`semaphoreProviderTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Semaphore.semaphoreProviderTestSuite.html) function:
+We provide a complete test suite to verify your custom event bus class implementation. Simply use the [`semaphoreFactoryTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Semaphore.semaphoreFactoryTestSuite.html) function:
 
 - Preconfigured Vitest test cases
 - Standardized event bus behavior validation
@@ -91,15 +91,15 @@ We provide a complete test suite to verify your custom event bus class implement
 Usage example:
 
 ```ts
-// filename: MySemaphoreProvider.test.ts
+// filename: MySemaphoreFactory.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { semaphoreProviderTestSuite } from "@daiso-tech/core/semaphore/test-utilities";
-import { MySemaphoreProvider } from "./MySemaphoreProvider.js";
+import { semaphoreFactoryTestSuite } from "@daiso-tech/core/semaphore/test-utilities";
+import { MySemaphoreFactory } from "./MySemaphoreFactory.js";
 
-describe("class: MySemaphoreProvider", () => {
-    semaphoreProviderTestSuite({
-        createSemaphoreProvider: () => new MySemaphoreProvider(),
+describe("class: MySemaphoreFactory", () => {
+    semaphoreFactoryTestSuite({
+        createSemaphoreFactory: () => new MySemaphoreFactory(),
         test,
         beforeEach,
         expect,
