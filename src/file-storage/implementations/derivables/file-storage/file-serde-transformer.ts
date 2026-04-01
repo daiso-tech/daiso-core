@@ -16,6 +16,7 @@ import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import {
     getConstructorName,
+    type Invokable,
     type InvokableFn,
     type OneOrMore,
 } from "@/utilities/_module.js";
@@ -24,6 +25,7 @@ import {
  * @internal
  */
 export type FileSerdeTransformerSettings = {
+    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
     defaultContentType: string;
     defaultContentDisposition: string | null;
     defaultContentEncoding: string | null;
@@ -44,6 +46,10 @@ export type FileSerdeTransformerSettings = {
 export class FileSerdeTransformer
     implements ISerdeTransformer<File, ISerializedFile>
 {
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
     private readonly onlyLowercase: boolean;
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
     private readonly originalAdapter: FileStorageAdapterVariants;
@@ -71,8 +77,10 @@ export class FileSerdeTransformer
             defaultContentEncoding,
             defaultContentLanguage,
             originalAdapter,
+            waitUntil,
         } = settings;
 
+        this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
         this.originalAdapter = originalAdapter;
@@ -127,6 +135,7 @@ export class FileSerdeTransformer
         const keyObj = this.namespace.create(key);
 
         return new File({
+            waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,
             originalAdapter: this.originalAdapter,

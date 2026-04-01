@@ -18,17 +18,17 @@ import {
 import { FileSerdeTransformer } from "@/file-storage/implementations/derivables/file-storage/file-serde-transformer.js";
 import { File } from "@/file-storage/implementations/derivables/file-storage/file.js";
 import { resolveFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/resolve-file-storage-adapter.js";
-import { type AsyncMiddlewareFn } from "@/hooks/_module.js";
+import { AsyncHooks, type AsyncMiddlewareFn } from "@/hooks/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
-import { type ITask } from "@/task/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import {
+    callInvokable,
     CORE,
     resolveOneOrMore,
+    type Invokable,
     type InvokableFn,
     type OneOrMore,
 } from "@/utilities/_module.js";
@@ -158,6 +158,14 @@ export type FileStorageSettingsBase = {
      * @default ""
      */
     serdeTransformerName?: string;
+
+    /**
+     * @default
+     * ```ts
+     * (promise) => promise.then(() => {})
+     * ```
+     */
+    waitUntil?: Invokable<[promise: PromiseLike<unknown>], void>;
 };
 
 /**
@@ -192,6 +200,10 @@ export class FileStorage implements IFileStorage {
     private readonly defaultContentLanguage: string | null;
     private readonly onlyLowercase: boolean;
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     /**
      * @example
@@ -226,8 +238,10 @@ export class FileStorage implements IFileStorage {
             defaultContentEncoding = null,
             defaultContentLanguage = null,
             urlAdapter = {},
+            waitUntil = (promise) => promise.then(() => {}),
         } = settings;
 
+        this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
         this.originalAdapter = adapter;
@@ -246,6 +260,7 @@ export class FileStorage implements IFileStorage {
 
     private registerToSerde(): void {
         const transformer = new FileSerdeTransformer({
+            waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,
             originalAdapter: this.originalAdapter,
@@ -266,6 +281,7 @@ export class FileStorage implements IFileStorage {
 
     create(key: string): IFile {
         return new File({
+            waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,
             originalAdapter: this.originalAdapter,
@@ -294,26 +310,30 @@ export class FileStorage implements IFileStorage {
                     throw error;
                 }
 
-                this.eventBus
-                    .dispatch(FILE_EVENTS.UNEXPECTED_ERROR, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(FILE_EVENTS.UNEXPECTED_ERROR, {
                         error,
-                    })
-                    .detach();
+                    }),
+                );
 
                 throw error;
             }
         };
     };
 
-    clear(): ITask<void> {
-        return new Task(async () => {
+    clear(): Promise<void> {
+        return new AsyncHooks(async () => {
             await this.adapter.removeByPrefix(this.namespace.toString());
-            this.eventBus.dispatch(FILE_EVENTS.CLEARED, {}).detach();
-        }).pipe([this.handleUnexpectedErrorEvent()]);
+            callInvokable(
+                this.waitUntil,
+                this.eventBus.dispatch(FILE_EVENTS.CLEARED, {}),
+            );
+        }, [this.handleUnexpectedErrorEvent()]).invoke();
     }
 
-    removeMany(files: Iterable<IFile>): ITask<boolean> {
-        return new Task(async () => {
+    removeMany(files: Iterable<IFile>): Promise<boolean> {
+        return new AsyncHooks(async () => {
             const namespacedKeys = [...files].map((file) => {
                 return file.key.toString();
             });
@@ -323,20 +343,22 @@ export class FileStorage implements IFileStorage {
 
             if (hasRemovedAtLeastOne) {
                 for (const file of files) {
-                    this.eventBus
-                        .dispatch(FILE_EVENTS.REMOVED, { file })
-                        .detach();
+                    callInvokable(
+                        this.waitUntil,
+                        this.eventBus.dispatch(FILE_EVENTS.REMOVED, { file }),
+                    );
                 }
             } else {
                 for (const file of files) {
-                    this.eventBus
-                        .dispatch(FILE_EVENTS.NOT_FOUND, { file })
-                        .detach();
+                    callInvokable(
+                        this.waitUntil,
+                        this.eventBus.dispatch(FILE_EVENTS.NOT_FOUND, { file }),
+                    );
                 }
             }
 
             return hasRemovedAtLeastOne;
-        }).pipe([this.handleUnexpectedErrorEvent()]);
+        }, [this.handleUnexpectedErrorEvent()]).invoke();
     }
 
     get events(): IFileListenable {

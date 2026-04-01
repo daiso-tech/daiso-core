@@ -4,7 +4,6 @@
 import { type IEventListenable } from "@/event-bus/contracts/_module.js";
 import { type IFile } from "@/file-storage/contracts/file.contract.js";
 import { type FileEventMap } from "@/file-storage/contracts/file.events.js";
-import { type ITask } from "@/task/contracts/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
@@ -25,9 +24,9 @@ export type IFileFactory = {
  * @group Contracts
  */
 export type IFileStorageBase = IFileFactory & {
-    clear(): ITask<void>;
+    clear(): Promise<void>;
 
-    removeMany(files: Iterable<IFile>): ITask<boolean>;
+    removeMany(files: Iterable<IFile>): Promise<boolean>;
 };
 
 /**

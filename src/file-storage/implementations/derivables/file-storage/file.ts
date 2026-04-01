@@ -30,12 +30,14 @@ import {
 } from "@/file-storage/contracts/_module.js";
 import { resolveFileContent } from "@/file-storage/implementations/derivables/file-storage/resolve-file-content.js";
 import { ResolveFileStream } from "@/file-storage/implementations/derivables/file-storage/resolve-file-stream.js";
-import { type AsyncMiddlewareFn } from "@/hooks/_module.js";
+import { AsyncHooks, type AsyncMiddlewareFn } from "@/hooks/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
-import { type ITask } from "@/task/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type InvokableFn } from "@/utilities/_module.js";
+import {
+    callInvokable,
+    type Invokable,
+    type InvokableFn,
+} from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -54,6 +56,7 @@ export type FileSettings = {
     defaultContentEncoding: string | null;
     defaultCacheControl: string | null;
     defaultContentLanguage: string | null;
+    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
 };
 
 /**
@@ -78,6 +81,10 @@ export class File implements IFile {
         };
     }
 
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
     private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
     private readonly _key: IKey;
@@ -107,8 +114,10 @@ export class File implements IFile {
             defaultCacheControl,
             defaultContentLanguage,
             originalAdapter,
+            waitUntil,
         } = settings;
 
+        this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
         this.originalAdapter = originalAdapter;
@@ -165,12 +174,16 @@ export class File implements IFile {
                     throw error;
                 }
 
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.UNEXPECTED_ERROR, {
-                        error,
-                        file: this,
-                    })
-                    .detach();
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(
+                        FILE_EVENTS.UNEXPECTED_ERROR,
+                        {
+                            error,
+                            file: this,
+                        },
+                    ),
+                );
 
                 throw error;
             }
@@ -184,17 +197,19 @@ export class File implements IFile {
         return async (args, next) => {
             const value = await next(...args);
             if (value === null) {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.NOT_FOUND, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             } else {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.FOUND, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.FOUND, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             }
             return value;
         };
@@ -206,149 +221,133 @@ export class File implements IFile {
         return async (args, next) => {
             const exists = await next(...args);
             if (exists) {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.FOUND, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.FOUND, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             } else {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.NOT_FOUND, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             }
             return exists;
         };
     }
 
-    getText(): ITask<string | null> {
-        return new Task(async () => {
-            const bytes = await this.getBytes();
-            if (bytes === null) {
-                return null;
-            }
-            return new TextDecoder().decode(bytes);
-        });
+    async getText(): Promise<string | null> {
+        const bytes = await this.getBytes();
+        if (bytes === null) {
+            return null;
+        }
+        return new TextDecoder().decode(bytes);
     }
 
-    getTextOrFail(): ITask<string> {
-        return new Task(async () => {
-            const text = await this.getText();
-            if (text === null) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-            return text;
-        });
+    async getTextOrFail(): Promise<string> {
+        const text = await this.getText();
+        if (text === null) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
+        return text;
     }
 
-    getBytes(): ITask<Uint8Array | null> {
-        return new Task(async () => {
+    async getBytes(): Promise<Uint8Array | null> {
+        return new AsyncHooks(async () => {
             return await this.adapter.getBytes(this._key.toString());
-        }).pipe([
+        }, [
             this.handleUnexpectedErrorEvent(),
             this.handleNullableFoundEvent(),
-        ]);
+        ]).invoke();
     }
 
-    getBytesOrFail(): ITask<Uint8Array> {
-        return new Task(async () => {
-            const bytes = await this.getBytes();
-            if (bytes === null) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-            return bytes;
-        });
+    async getBytesOrFail(): Promise<Uint8Array> {
+        const bytes = await this.getBytes();
+        if (bytes === null) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
+        return bytes;
     }
 
-    getBuffer(): ITask<Buffer | null> {
-        return new Task<Buffer | null>(async () => {
-            const bytes = await this.getBytes();
-            if (bytes === null) {
-                return null;
-            }
-            return Buffer.from(bytes);
-        });
+    async getBuffer(): Promise<Buffer | null> {
+        const bytes = await this.getBytes();
+        if (bytes === null) {
+            return null;
+        }
+        return Buffer.from(bytes);
     }
 
-    getBufferOrFail(): ITask<Buffer> {
-        return new Task(async () => {
-            const buffer = await this.getBuffer();
-            if (buffer === null) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-            return buffer;
-        });
+    async getBufferOrFail(): Promise<Buffer> {
+        const buffer = await this.getBuffer();
+        if (buffer === null) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
+        return buffer;
     }
 
-    getArrayBuffer(): ITask<ArrayBuffer | null> {
-        return new Task<ArrayBuffer | null>(async () => {
-            const bytes = await this.getBuffer();
-            if (bytes === null) {
-                return null;
-            }
-            return new Uint8Array(Buffer.from(bytes)).buffer;
-        });
+    async getArrayBuffer(): Promise<ArrayBuffer | null> {
+        const bytes = await this.getBuffer();
+        if (bytes === null) {
+            return null;
+        }
+        return new Uint8Array(Buffer.from(bytes)).buffer;
     }
 
-    getArrayBufferOrFail(): ITask<ArrayBuffer> {
-        return new Task(async () => {
-            const arrayBuffer = await this.getArrayBuffer();
-            if (arrayBuffer === null) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-            return arrayBuffer;
-        });
+    async getArrayBufferOrFail(): Promise<ArrayBuffer> {
+        const arrayBuffer = await this.getArrayBuffer();
+        if (arrayBuffer === null) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
+        return arrayBuffer;
     }
 
-    getReadable(): ITask<Readable | null> {
-        return new Task(async () => {
+    async getReadable(): Promise<Readable | null> {
+        return new AsyncHooks(async () => {
             const stream = await this.adapter.getStream(this._key.toString());
             if (stream === null) {
                 return null;
             }
             return Readable.from(stream);
-        }).pipe([
+        }, [
             this.handleUnexpectedErrorEvent(),
             this.handleNullableFoundEvent(),
-        ]);
+        ]).invoke();
     }
 
-    getReadableOrFail(): ITask<Readable> {
-        return new Task(async () => {
-            const stream = await this.getReadable();
-            if (stream === null) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-            return stream;
-        });
+    async getReadableOrFail(): Promise<Readable> {
+        const stream = await this.getReadable();
+        if (stream === null) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
+        return stream;
     }
 
-    getReadableStream(): ITask<ReadableStream<Uint8Array> | null> {
-        return new Task(async () => {
+    async getReadableStream(): Promise<ReadableStream<Uint8Array> | null> {
+        return new AsyncHooks(async () => {
             const stream = await this.adapter.getStream(this._key.toString());
             if (stream === null) {
                 return null;
             }
             return ReadableStream.from(stream);
-        }).pipe([
+        }, [
             this.handleUnexpectedErrorEvent(),
             this.handleNullableFoundEvent(),
-        ]);
+        ]).invoke();
     }
 
-    getReadableStreamOrFail(): ITask<ReadableStream<Uint8Array>> {
-        return new Task(async () => {
-            const stream = await this.getReadableStream();
-            if (stream === null) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-            return stream;
-        });
+    async getReadableStreamOrFail(): Promise<ReadableStream<Uint8Array>> {
+        const stream = await this.getReadableStream();
+        if (stream === null) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
+        return stream;
     }
 
-    getMetadata(): ITask<FileMetadata | null> {
-        return new Task<FileMetadata | null>(async () => {
+    async getMetadata(): Promise<FileMetadata | null> {
+        return new AsyncHooks(async () => {
             const metadata = await this.adapter.getMetaData(
                 this._key.toString(),
             );
@@ -361,35 +360,31 @@ export class File implements IFile {
                 updatedAt: metadata.updatedAt,
                 fileSize: FileSize.fromBytes(metadata.fileSizeInBytes),
             };
-        }).pipe([
+        }, [
             this.handleUnexpectedErrorEvent(),
             this.handleNullableFoundEvent(),
-        ]);
+        ]).invoke();
     }
 
-    getMetadataOrFail(): ITask<FileMetadata> {
-        return new Task(async () => {
-            const metadata = await this.getMetadata();
-            if (metadata === null) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-            return metadata;
-        });
+    async getMetadataOrFail(): Promise<FileMetadata> {
+        const metadata = await this.getMetadata();
+        if (metadata === null) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
+        return metadata;
     }
 
-    exists(): ITask<boolean> {
-        return new Task(async () => {
+    async exists(): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.exists(this._key.toString());
-        }).pipe([
+        }, [
             this.handleUnexpectedErrorEvent(),
             this.handleBooleanFoundEvent(),
-        ]);
+        ]).invoke();
     }
 
-    missing(): ITask<boolean> {
-        return new Task(async () => {
-            return !(await this.exists());
-        });
+    async missing(): Promise<boolean> {
+        return !(await this.exists());
     }
 
     private handleAddEvent<
@@ -398,24 +393,26 @@ export class File implements IFile {
         return async (args, next) => {
             const hasAdded = await next(...args);
             if (hasAdded) {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.ADDED, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.ADDED, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             } else {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.KEY_EXISTS, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.KEY_EXISTS, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             }
             return hasAdded;
         };
     }
 
-    add(content: WritableFileContent): ITask<boolean> {
-        return new Task(async () => {
+    async add(content: WritableFileContent): Promise<boolean> {
+        return new AsyncHooks(async () => {
             const { data, contentType = this.getContentType(this._key.get()) } =
                 content;
             const resolvedData = resolveFileContent(data);
@@ -428,16 +425,14 @@ export class File implements IFile {
                 contentLanguage: this.defaultContentLanguage,
                 fileSizeInBytes: resolvedData.length,
             });
-        }).pipe([this.handleUnexpectedErrorEvent(), this.handleAddEvent()]);
+        }, [this.handleUnexpectedErrorEvent(), this.handleAddEvent()]).invoke();
     }
 
-    addOrFail(content: WritableFileContent): ITask<void> {
-        return new Task(async () => {
-            const hasAdded = await this.add(content);
-            if (!hasAdded) {
-                throw KeyExistsFileError.create(this._key);
-            }
-        });
+    async addOrFail(content: WritableFileContent): Promise<void> {
+        const hasAdded = await this.add(content);
+        if (!hasAdded) {
+            throw KeyExistsFileError.create(this._key);
+        }
     }
 
     private getContentType(key: string): string {
@@ -448,8 +443,8 @@ export class File implements IFile {
         return resolvedContentType;
     }
 
-    addStream(stream: WritableFileStream): ITask<boolean> {
-        return new Task(async () => {
+    async addStream(stream: WritableFileStream): Promise<boolean> {
+        return new AsyncHooks(async () => {
             const {
                 data,
                 fileSize = null,
@@ -464,16 +459,14 @@ export class File implements IFile {
                 cacheControl: this.defaultCacheControl,
                 contentLanguage: this.defaultContentLanguage,
             });
-        }).pipe([this.handleUnexpectedErrorEvent(), this.handleAddEvent()]);
+        }, [this.handleUnexpectedErrorEvent(), this.handleAddEvent()]).invoke();
     }
 
-    addStreamOrFail(stream: WritableFileStream): ITask<void> {
-        return new Task(async () => {
-            const hasAdded = await this.addStream(stream);
-            if (!hasAdded) {
-                throw KeyExistsFileError.create(this._key);
-            }
-        });
+    async addStreamOrFail(stream: WritableFileStream): Promise<void> {
+        const hasAdded = await this.addStream(stream);
+        if (!hasAdded) {
+            throw KeyExistsFileError.create(this._key);
+        }
     }
 
     private handleUpdateEvent<
@@ -482,24 +475,26 @@ export class File implements IFile {
         return async (args, next) => {
             const hasUpdated = await next(...args);
             if (hasUpdated) {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.UPDATED, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.UPDATED, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             } else {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.NOT_FOUND, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             }
             return hasUpdated;
         };
     }
 
-    update(content: WritableFileContent): ITask<boolean> {
-        return new Task(async () => {
+    async update(content: WritableFileContent): Promise<boolean> {
+        return new AsyncHooks(async () => {
             const { data, contentType = this.getContentType(this._key.get()) } =
                 content;
             const resolvedData = resolveFileContent(data);
@@ -512,20 +507,21 @@ export class File implements IFile {
                 contentLanguage: this.defaultContentLanguage,
                 fileSizeInBytes: resolvedData.length,
             });
-        }).pipe([this.handleUnexpectedErrorEvent(), this.handleUpdateEvent()]);
+        }, [
+            this.handleUnexpectedErrorEvent(),
+            this.handleUpdateEvent(),
+        ]).invoke();
     }
 
-    updateOrFail(content: WritableFileContent): ITask<void> {
-        return new Task(async () => {
-            const hasUpdated = await this.update(content);
-            if (!hasUpdated) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-        });
+    async updateOrFail(content: WritableFileContent): Promise<void> {
+        const hasUpdated = await this.update(content);
+        if (!hasUpdated) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
     }
 
-    updateStream(stream: WritableFileStream): ITask<boolean> {
-        return new Task(async () => {
+    async updateStream(stream: WritableFileStream): Promise<boolean> {
+        return new AsyncHooks(async () => {
             const {
                 data,
                 fileSize = null,
@@ -540,16 +536,17 @@ export class File implements IFile {
                 cacheControl: this.defaultCacheControl,
                 contentLanguage: this.defaultContentLanguage,
             });
-        }).pipe([this.handleUnexpectedErrorEvent(), this.handleUpdateEvent()]);
+        }, [
+            this.handleUnexpectedErrorEvent(),
+            this.handleUpdateEvent(),
+        ]).invoke();
     }
 
-    updateStreamOrFail(stream: WritableFileStream): ITask<void> {
-        return new Task(async () => {
-            const hasUpdated = await this.updateStream(stream);
-            if (!hasUpdated) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-        });
+    async updateStreamOrFail(stream: WritableFileStream): Promise<void> {
+        const hasUpdated = await this.updateStream(stream);
+        if (!hasUpdated) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
     }
 
     private handlePutEvent<
@@ -558,24 +555,26 @@ export class File implements IFile {
         return async (args, next) => {
             const hasUpdated = await next(...args);
             if (hasUpdated) {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.UPDATED, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.UPDATED, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             } else {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.ADDED, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.ADDED, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             }
             return hasUpdated;
         };
     }
 
-    put(content: WritableFileContent): ITask<boolean> {
-        return new Task(async () => {
+    async put(content: WritableFileContent): Promise<boolean> {
+        return new AsyncHooks(async () => {
             const { data, contentType = this.getContentType(this._key.get()) } =
                 content;
             const resolvedData = resolveFileContent(data);
@@ -588,11 +587,11 @@ export class File implements IFile {
                 contentLanguage: this.defaultContentLanguage,
                 fileSizeInBytes: resolvedData.length,
             });
-        }).pipe([this.handleUnexpectedErrorEvent(), this.handlePutEvent()]);
+        }, [this.handleUnexpectedErrorEvent(), this.handlePutEvent()]).invoke();
     }
 
-    putStream(stream: WritableFileStream): ITask<boolean> {
-        return new Task(async () => {
+    async putStream(stream: WritableFileStream): Promise<boolean> {
+        return new AsyncHooks(async () => {
             const {
                 data,
                 fileSize = null,
@@ -607,7 +606,7 @@ export class File implements IFile {
                 cacheControl: this.defaultCacheControl,
                 contentLanguage: this.defaultContentLanguage,
             });
-        }).pipe([this.handleUnexpectedErrorEvent(), this.handlePutEvent()]);
+        }, [this.handleUnexpectedErrorEvent(), this.handlePutEvent()]).invoke();
     }
 
     private handleRemoveEvent<
@@ -616,127 +615,131 @@ export class File implements IFile {
         return async (args, next) => {
             const hasRemoved = await next(...args);
             if (hasRemoved) {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.REMOVED, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.REMOVED, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             } else {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.NOT_FOUND, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             }
             return hasRemoved;
         };
     }
 
-    remove(): ITask<boolean> {
-        return new Task(async () => {
+    async remove(): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.removeMany([this.key.toString()]);
-        }).pipe(this.handleRemoveEvent());
+        }, this.handleRemoveEvent()).invoke();
     }
 
-    removeOrFail(): ITask<void> {
-        return new Task(async () => {
+    async removeOrFail(): Promise<void> {
+        return new AsyncHooks(async () => {
             const hasFound = await this.remove();
             if (!hasFound) {
                 throw KeyNotFoundFileError.create(this.key);
             }
-        }).pipe([this.handleUnexpectedErrorEvent()]);
+        }, [this.handleUnexpectedErrorEvent()]).invoke();
     }
 
-    private _copy(destination: string): ITask<FileWriteEnum> {
-        return new Task(async () => {
+    private async _copy(destination: string): Promise<FileWriteEnum> {
+        return new AsyncHooks(async () => {
             const destinationKey = this.namespace.create(destination);
             const result = await this.adapter.copy(
                 this._key.toString(),
                 destinationKey.toString(),
             );
             if (result === FILE_WRITE_ENUM.KEY_EXISTS) {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.DESTINATION_EXISTS, {
-                        source: this,
-                        destination: destinationKey,
-                    })
-                    .detach();
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(
+                        FILE_EVENTS.DESTINATION_EXISTS,
+                        {
+                            source: this,
+                            destination: destinationKey,
+                        },
+                    ),
+                );
             }
             if (result === FILE_WRITE_ENUM.NOT_FOUND) {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.NOT_FOUND, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             }
             if (result === FILE_WRITE_ENUM.SUCCESS) {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.COPIED, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.COPIED, {
                         source: this,
                         destination: destinationKey,
                         replaced: false,
-                    })
-                    .detach();
+                    }),
+                );
             }
             return result;
-        }).pipe([this.handleUnexpectedErrorEvent()]);
+        }, [this.handleUnexpectedErrorEvent()]).invoke();
     }
 
-    copy(destination: string): ITask<boolean> {
-        return new Task(async () => {
-            const result = await this._copy(destination);
-            return result === FILE_WRITE_ENUM.SUCCESS;
-        });
+    async copy(destination: string): Promise<boolean> {
+        const result = await this._copy(destination);
+        return result === FILE_WRITE_ENUM.SUCCESS;
     }
 
-    copyOrFail(destination: string): ITask<void> {
-        return new Task(async () => {
-            const result = await this._copy(destination);
-            if (result === FILE_WRITE_ENUM.KEY_EXISTS) {
-                throw KeyExistsFileError.create(this._key);
-            }
-            if (result === FILE_WRITE_ENUM.NOT_FOUND) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-        });
+    async copyOrFail(destination: string): Promise<void> {
+        const result = await this._copy(destination);
+        if (result === FILE_WRITE_ENUM.KEY_EXISTS) {
+            throw KeyExistsFileError.create(this._key);
+        }
+        if (result === FILE_WRITE_ENUM.NOT_FOUND) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
     }
 
-    copyAndReplace(destination: string): ITask<boolean> {
-        return new Task(async () => {
+    async copyAndReplace(destination: string): Promise<boolean> {
+        return new AsyncHooks(async () => {
             const destinationKey = this.namespace.create(destination);
             const hasCopied = await this.adapter.copyAndReplace(
                 this._key.toString(),
                 destinationKey.toString(),
             );
             if (hasCopied) {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.COPIED, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.COPIED, {
                         source: this,
                         destination: destinationKey,
                         replaced: true,
-                    })
-                    .detach();
+                    }),
+                );
             } else {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.NOT_FOUND, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             }
             return hasCopied;
-        }).pipe([this.handleUnexpectedErrorEvent()]);
+        }, [this.handleUnexpectedErrorEvent()]).invoke();
     }
 
-    copyAndReplaceOrFail(destination: string): ITask<void> {
-        return new Task(async () => {
-            const hasCopied = await this.copyAndReplace(destination);
-            if (!hasCopied) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-        });
+    async copyAndReplaceOrFail(destination: string): Promise<void> {
+        const hasCopied = await this.copyAndReplace(destination);
+        if (!hasCopied) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
     }
-    private _move(destination: string): ITask<FileWriteEnum> {
-        return new Task(async () => {
+    private async _move(destination: string): Promise<FileWriteEnum> {
+        return new AsyncHooks(async () => {
             const destinationKey = this.namespace.create(destination);
             const result = await this.adapter.move(
                 this._key.toString(),
@@ -744,121 +747,120 @@ export class File implements IFile {
             );
 
             if (result === FILE_WRITE_ENUM.KEY_EXISTS) {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.DESTINATION_EXISTS, {
-                        source: this,
-                        destination: destinationKey,
-                    })
-                    .detach();
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(
+                        FILE_EVENTS.DESTINATION_EXISTS,
+                        {
+                            source: this,
+                            destination: destinationKey,
+                        },
+                    ),
+                );
             }
             if (result === FILE_WRITE_ENUM.NOT_FOUND) {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.NOT_FOUND, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             }
             if (result === FILE_WRITE_ENUM.SUCCESS) {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.MOVED, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.MOVED, {
                         source: this,
                         destination: destinationKey,
                         replaced: false,
-                    })
-                    .detach();
+                    }),
+                );
             }
             return result;
-        }).pipe([this.handleUnexpectedErrorEvent()]);
+        }, [this.handleUnexpectedErrorEvent()]).invoke();
     }
 
-    move(destination: string): ITask<boolean> {
-        return new Task(async () => {
-            const result = await this._move(destination);
-            return result === FILE_WRITE_ENUM.SUCCESS;
-        });
+    async move(destination: string): Promise<boolean> {
+        const result = await this._move(destination);
+        return result === FILE_WRITE_ENUM.SUCCESS;
     }
 
-    moveOrFail(destination: string): ITask<void> {
-        return new Task(async () => {
-            const result = await this._move(destination);
-            if (result === FILE_WRITE_ENUM.KEY_EXISTS) {
-                throw KeyExistsFileError.create(this._key);
-            }
-            if (result === FILE_WRITE_ENUM.NOT_FOUND) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-        });
+    async moveOrFail(destination: string): Promise<void> {
+        const result = await this._move(destination);
+        if (result === FILE_WRITE_ENUM.KEY_EXISTS) {
+            throw KeyExistsFileError.create(this._key);
+        }
+        if (result === FILE_WRITE_ENUM.NOT_FOUND) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
     }
 
-    moveAndReplace(destination: string): ITask<boolean> {
-        return new Task(async () => {
+    async moveAndReplace(destination: string): Promise<boolean> {
+        return new AsyncHooks(async () => {
             const destinationKey = this.namespace.create(destination);
             const hasMoved = await this.adapter.moveAndReplace(
                 this._key.toString(),
                 destinationKey.toString(),
             );
             if (hasMoved) {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.MOVED, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.MOVED, {
                         source: this,
                         destination: destinationKey,
                         replaced: true,
-                    })
-                    .detach();
+                    }),
+                );
             } else {
-                this.eventDispatcher
-                    .dispatch(FILE_EVENTS.NOT_FOUND, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
                         file: this,
-                    })
-                    .detach();
+                    }),
+                );
             }
             return hasMoved;
-        }).pipe([this.handleUnexpectedErrorEvent()]);
+        }, [this.handleUnexpectedErrorEvent()]).invoke();
     }
 
-    moveAndReplaceOrFail(destination: string): ITask<void> {
-        return new Task(async () => {
-            const hasCopied = await this.moveAndReplace(destination);
-            if (!hasCopied) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-        });
+    async moveAndReplaceOrFail(destination: string): Promise<void> {
+        const hasCopied = await this.moveAndReplace(destination);
+        if (!hasCopied) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
     }
 
-    getPublicUrl(): ITask<string | null> {
-        return new Task(async () => {
+    async getPublicUrl(): Promise<string | null> {
+        return new AsyncHooks(async () => {
             return await this.adapter.getPublicUrl(this.key.toString());
-        }).pipe([
+        }, [
             this.handleUnexpectedErrorEvent(),
             this.handleNullableFoundEvent(),
-        ]);
+        ]).invoke();
     }
 
-    getPublicUrlOrFail(): ITask<string> {
-        return new Task(async () => {
-            const url = await this.getPublicUrl();
-            if (url === null) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-            return url;
+    async getPublicUrlOrFail(): Promise<string> {
+        const url = await this.getPublicUrl();
+        if (url === null) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
+        return url;
+    }
+
+    async getSignedUploadUrl(
+        options: FileUploadUrlOptions = {},
+    ): Promise<string> {
+        const { ttl = TimeSpan.fromMinutes(10), contentType = null } = options;
+        return await this.adapter.getSignedUploadUrl(this._key.toString(), {
+            expirationInSeconds: TimeSpan.fromTimeSpan(ttl).toSeconds(),
+            contentType,
         });
     }
 
-    getSignedUploadUrl(options: FileUploadUrlOptions = {}): ITask<string> {
-        return new Task(async () => {
-            const { ttl = TimeSpan.fromMinutes(10), contentType = null } =
-                options;
-            return await this.adapter.getSignedUploadUrl(this._key.toString(), {
-                expirationInSeconds: TimeSpan.fromTimeSpan(ttl).toSeconds(),
-                contentType,
-            });
-        });
-    }
-
-    getSignedDownloadUrl(
+    async getSignedDownloadUrl(
         options: FileDownloadUrlOptions = {},
-    ): ITask<string | null> {
-        return new Task(async () => {
+    ): Promise<string | null> {
+        return new AsyncHooks(async () => {
             const {
                 ttl: expiration = TimeSpan.fromMinutes(10),
                 contentType = null,
@@ -873,21 +875,19 @@ export class File implements IFile {
                     contentDisposition,
                 },
             );
-        }).pipe([
+        }, [
             this.handleUnexpectedErrorEvent(),
             this.handleNullableFoundEvent(),
-        ]);
+        ]).invoke();
     }
 
-    getSignedDownloadUrlOrFail(
+    async getSignedDownloadUrlOrFail(
         options?: FileDownloadUrlOptions,
-    ): ITask<string> {
-        return new Task(async () => {
-            const url = await this.getSignedDownloadUrl(options);
-            if (url === null) {
-                throw KeyNotFoundFileError.create(this._key);
-            }
-            return url;
-        });
+    ): Promise<string> {
+        const url = await this.getSignedDownloadUrl(options);
+        if (url === null) {
+            throw KeyNotFoundFileError.create(this._key);
+        }
+        return url;
     }
 }
