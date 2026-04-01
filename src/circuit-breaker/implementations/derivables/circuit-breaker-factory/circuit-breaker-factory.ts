@@ -28,6 +28,7 @@ import {
     CORE,
     resolveOneOrMore,
     type ErrorPolicy,
+    type Invokable,
     type OneOrMore,
 } from "@/utilities/_module.js";
 
@@ -114,6 +115,14 @@ export type CircuitBreakerFactorySettingsBase = {
      * @default ""
      */
     serdeTransformerName?: string;
+
+    /**
+     * @default
+     * ```ts
+     * (promise) => promise.then(() => {})
+     * ```
+     */
+    waitUntil?: Invokable<[promise: PromiseLike<unknown>], void>;
 };
 
 /**
@@ -145,6 +154,10 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
     private readonly enableAsyncTracking: boolean;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     /**
      * @example
@@ -190,8 +203,10 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
             defaultErrorPolicy = () => true,
             serde = new Serde(new NoOpSerdeAdapter()),
             serdeTransformerName = "",
+            waitUntil = (promise) => promise.then(() => {}),
         } = settings;
 
+        this.waitUntil = waitUntil;
         this.enableAsyncTracking = enableAsyncTracking;
         this.namespace = namespace;
         this.eventBus = eventBus;
@@ -206,6 +221,7 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
 
     private registerToSerde(): void {
         const transformer = new CircuitBreakerSerdeTransformer({
+            waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             adapter: this.adapter,
             slowCallTime: this.defaultSlowCallTime,
@@ -235,6 +251,7 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
         } = settings;
 
         return new CircuitBreaker({
+            waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             eventDispatcher: this.eventBus,
             adapter: this.adapter,

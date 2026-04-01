@@ -18,6 +18,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     getConstructorName,
     type ErrorPolicy,
+    type Invokable,
     type OneOrMore,
 } from "@/utilities/_module.js";
 
@@ -33,6 +34,7 @@ export type CircuitBreakerSerdeTransformerSettings = {
     eventBus: IEventBus<CircuitBreakerEventMap>;
     serdeTransformerName: string;
     enableAsyncTracking: boolean;
+    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
 };
 
 /**
@@ -49,6 +51,10 @@ export class CircuitBreakerSerdeTransformer
     private readonly eventBus: IEventBus<CircuitBreakerEventMap>;
     private readonly serdeTransformerName: string;
     private readonly enableAsyncTracking: boolean;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     constructor(settings: CircuitBreakerSerdeTransformerSettings) {
         const {
@@ -60,8 +66,10 @@ export class CircuitBreakerSerdeTransformer
             eventBus,
             serdeTransformerName,
             enableAsyncTracking,
+            waitUntil,
         } = settings;
 
+        this.waitUntil = waitUntil;
         this.enableAsyncTracking = enableAsyncTracking;
         this.adapter = adapter;
         this.namespace = namespace;
@@ -113,6 +121,7 @@ export class CircuitBreakerSerdeTransformer
         const keyObj = this.namespace.create(key);
 
         return new CircuitBreaker({
+            waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             eventDispatcher: this.eventBus,
             adapter: this.adapter,

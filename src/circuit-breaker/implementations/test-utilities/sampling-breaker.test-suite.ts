@@ -19,7 +19,6 @@ import {
     BREAKER_POLICIES,
     type SamplingBreakerSettingsEnum,
 } from "@/circuit-breaker/implementations/policies/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
@@ -122,9 +121,11 @@ export function samplingBreakerTestSuite(
 
         const KEY = "a";
         async function delay(timeSpan: ITimeSpan): Promise<void> {
-            await Task.delay(
-                TimeSpan.fromTimeSpan(timeSpan).addTimeSpan(delayBuffer),
-            );
+            await new Promise<void>((resolve) => {
+                setTimeout(() => {
+                    resolve();
+                }, TimeSpan.fromTimeSpan(timeSpan).addTimeSpan(delayBuffer).toMilliseconds());
+            });
         }
 
         describe("method: getState", () => {
