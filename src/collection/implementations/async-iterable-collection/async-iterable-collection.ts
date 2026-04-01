@@ -57,8 +57,6 @@ import {
     AsyncRepeatIterable,
     AsyncValidateIterable,
 } from "@/collection/implementations/async-iterable-collection/_shared/_module.js";
-import { type ITask } from "@/task/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import {
     isInvokable,
     resolveAsyncIterableValue,
@@ -334,74 +332,70 @@ export class AsyncIterableCollection<TInput = unknown>
 
     reduce(
         reduce: AsyncReduce<TInput, IAsyncCollection<TInput>, TInput>,
-    ): ITask<TInput>;
+    ): Promise<TInput>;
     reduce(
         reduce: AsyncReduce<TInput, IAsyncCollection<TInput>, TInput>,
         // eslint-disable-next-line @typescript-eslint/unified-signatures
         initialValue: TInput,
-    ): ITask<TInput>;
+    ): Promise<TInput>;
     reduce<TOutput>(
         reduce: AsyncReduce<TInput, IAsyncCollection<TInput>, TOutput>,
         initialValue: TOutput,
-    ): ITask<TOutput>;
-    reduce<TOutput = TInput>(
+    ): Promise<TOutput>;
+    async reduce<TOutput = TInput>(
         reduce: AsyncReduce<TInput, IAsyncCollection<TInput>, TOutput>,
         initialValue?: TOutput,
-    ): ITask<TOutput> {
-        return new Task(async () => {
-            if (initialValue === undefined && (await this.isEmpty())) {
-                throw new TypeError(
-                    "AsyncReduce of empty array must be inputed a initial value",
+    ): Promise<TOutput> {
+        if (initialValue === undefined && (await this.isEmpty())) {
+            throw new TypeError(
+                "AsyncReduce of empty array must be inputed a initial value",
+            );
+        }
+        if (initialValue !== undefined) {
+            let output = initialValue as TOutput;
+
+            for await (const [index, item] of this.entries()) {
+                output = await resolveInvokable(reduce)(
+                    output,
+                    item,
+                    index,
+                    this,
                 );
             }
-            if (initialValue !== undefined) {
-                let output = initialValue as TOutput;
-
-                for await (const [index, item] of this.entries()) {
-                    output = await resolveInvokable(reduce)(
-                        output,
-                        item,
-                        index,
-                        this,
-                    );
-                }
-                return output;
-            }
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-            let output: TOutput = (await this.firstOrFail()) as any,
-                index = 0,
-                isFirstIteration = true;
-            for await (const item of this) {
-                if (!isFirstIteration) {
-                    output = await resolveInvokable(reduce)(
-                        output,
-                        item,
-                        index,
-                        this,
-                    );
-                }
-                isFirstIteration = false;
-                index++;
-            }
             return output;
-        });
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+        let output: TOutput = (await this.firstOrFail()) as any,
+            index = 0,
+            isFirstIteration = true;
+        for await (const item of this) {
+            if (!isFirstIteration) {
+                output = await resolveInvokable(reduce)(
+                    output,
+                    item,
+                    index,
+                    this,
+                );
+            }
+            isFirstIteration = false;
+            index++;
+        }
+        return output;
     }
 
-    join(separator = ","): ITask<Extract<TInput, string>> {
-        return new Task(async () => {
-            let str: string | null = null;
-            for await (const item of this) {
-                if (typeof item !== "string") {
-                    throw new TypeError("Item type is invalid must be string");
-                }
-                if (str === null) {
-                    str = item;
-                } else {
-                    str = str + separator + item;
-                }
+    async join(separator = ","): Promise<Extract<TInput, string>> {
+        let str: string | null = null;
+        for await (const item of this) {
+            if (typeof item !== "string") {
+                throw new TypeError("Item type is invalid must be string");
             }
-            return str as Extract<TInput, string>;
-        });
+            if (str === null) {
+                str = item;
+            } else {
+                str = str + separator + item;
+            }
+        }
+        return str as Extract<TInput, string>;
     }
 
     collapse(): IAsyncCollection<AsyncCollapse<TInput>> {
@@ -445,11 +439,11 @@ export class AsyncIterableCollection<TInput = unknown>
         return this.change((_, indexToMatch) => indexToMatch === index, fn);
     }
 
-    get(index: number): ITask<TInput | null> {
+    get(index: number): Promise<TInput | null> {
         return this.first((_item, indexToMatch) => indexToMatch === index);
     }
 
-    getOrFail(index: number): ITask<TInput> {
+    getOrFail(index: number): Promise<TInput> {
         return this.firstOrFail(
             (_item, indexToMatch) => indexToMatch === index,
         );
@@ -462,173 +456,151 @@ export class AsyncIterableCollection<TInput = unknown>
         return this.skip((page - 1) * pageSize).take(pageSize);
     }
 
-    sum(): ITask<Extract<TInput, number>> {
-        return new Task(async () => {
-            if (await this.isEmpty()) {
-                throw EmptyCollectionError.create();
+    async sum(): Promise<Extract<TInput, number>> {
+        if (await this.isEmpty()) {
+            throw EmptyCollectionError.create();
+        }
+        let sum = 0;
+        for await (const item of this) {
+            if (typeof item !== "number") {
+                throw new TypeError("Item type is invalid must be number");
             }
-            let sum = 0;
-            for await (const item of this) {
+            sum += item;
+        }
+        return sum as Extract<TInput, number>;
+    }
+
+    async average(): Promise<Extract<TInput, number>> {
+        if (await this.isEmpty()) {
+            throw EmptyCollectionError.create();
+        }
+        let size = 0,
+            sum = 0;
+        for await (const item of this) {
+            if (typeof item !== "number") {
+                throw new TypeError("Item type is invalid must be number");
+            }
+            size++;
+            sum += item;
+        }
+        return (sum / size) as Extract<TInput, number>;
+    }
+
+    async median(): Promise<Extract<TInput, number>> {
+        if (await this.isEmpty()) {
+            throw EmptyCollectionError.create();
+        }
+        const size = await this.size();
+        if (size === 0) {
+            return 0 as Extract<TInput, number>;
+        }
+        const isEven = size % 2 === 0,
+            items = await this.map((item) => {
                 if (typeof item !== "number") {
                     throw new TypeError("Item type is invalid must be number");
                 }
-                sum += item;
-            }
-            return sum as Extract<TInput, number>;
-        });
-    }
-
-    average(): ITask<Extract<TInput, number>> {
-        return new Task(async () => {
-            if (await this.isEmpty()) {
-                throw EmptyCollectionError.create();
-            }
-            let size = 0,
-                sum = 0;
-            for await (const item of this) {
-                if (typeof item !== "number") {
-                    throw new TypeError("Item type is invalid must be number");
-                }
-                size++;
-                sum += item;
-            }
-            return (sum / size) as Extract<TInput, number>;
-        });
-    }
-
-    median(): ITask<Extract<TInput, number>> {
-        return new Task(async () => {
-            if (await this.isEmpty()) {
-                throw EmptyCollectionError.create();
-            }
-            const size = await this.size();
-            if (size === 0) {
-                return 0 as Extract<TInput, number>;
-            }
-            const isEven = size % 2 === 0,
-                items = await this.map((item) => {
-                    if (typeof item !== "number") {
-                        throw new TypeError(
-                            "Item type is invalid must be number",
-                        );
+                return item;
+            })
+                .filter((_item, index) => {
+                    if (isEven) {
+                        return index === size / 2 || index === size / 2 - 1;
                     }
-                    return item;
+                    return index === Math.floor(size / 2);
                 })
-                    .filter((_item, index) => {
-                        if (isEven) {
-                            return index === size / 2 || index === size / 2 - 1;
-                        }
-                        return index === Math.floor(size / 2);
-                    })
 
-                    .toArray();
-            if (isEven) {
-                const [a, b] = items;
-                if (a === undefined) {
-                    throw new UnexpectedError("Is in invalid state");
-                }
-                if (b === undefined) {
-                    throw new UnexpectedError("Is in invalid state");
-                }
-                return ((a + b) / 2) as Extract<TInput, number>;
-            }
-            const [median] = items;
-            if (median === undefined) {
+                .toArray();
+        if (isEven) {
+            const [a, b] = items;
+            if (a === undefined) {
                 throw new UnexpectedError("Is in invalid state");
             }
-            return median as Extract<TInput, number>;
-        });
+            if (b === undefined) {
+                throw new UnexpectedError("Is in invalid state");
+            }
+            return ((a + b) / 2) as Extract<TInput, number>;
+        }
+        const [median] = items;
+        if (median === undefined) {
+            throw new UnexpectedError("Is in invalid state");
+        }
+        return median as Extract<TInput, number>;
     }
 
-    min(): ITask<Extract<TInput, number>> {
-        return new Task(async () => {
-            if (await this.isEmpty()) {
-                throw EmptyCollectionError.create();
+    async min(): Promise<Extract<TInput, number>> {
+        if (await this.isEmpty()) {
+            throw EmptyCollectionError.create();
+        }
+        let min = 0;
+        for await (const item of this) {
+            if (typeof item !== "number") {
+                throw new TypeError("Item type is invalid must be number");
             }
-            let min = 0;
-            for await (const item of this) {
-                if (typeof item !== "number") {
-                    throw new TypeError("Item type is invalid must be number");
-                }
-                if (min === 0) {
-                    min = item;
-                } else if (min > item) {
-                    min = item;
-                }
+            if (min === 0) {
+                min = item;
+            } else if (min > item) {
+                min = item;
             }
-            return min as Extract<TInput, number>;
-        });
+        }
+        return min as Extract<TInput, number>;
     }
 
-    max(): ITask<Extract<TInput, number>> {
-        return new Task(async () => {
-            if (await this.isEmpty()) {
-                throw EmptyCollectionError.create();
+    async max(): Promise<Extract<TInput, number>> {
+        if (await this.isEmpty()) {
+            throw EmptyCollectionError.create();
+        }
+        let max = 0;
+        for await (const item of this) {
+            if (typeof item !== "number") {
+                throw new TypeError("Item type is invalid must be number");
             }
-            let max = 0;
-            for await (const item of this) {
-                if (typeof item !== "number") {
-                    throw new TypeError("Item type is invalid must be number");
-                }
-                if (max === 0) {
-                    max = item;
-                } else if (max < item) {
-                    max = item;
-                }
+            if (max === 0) {
+                max = item;
+            } else if (max < item) {
+                max = item;
             }
-            return max as Extract<TInput, number>;
-        });
+        }
+        return max as Extract<TInput, number>;
     }
 
-    percentage(
+    async percentage(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<number> {
-        return new Task(async () => {
-            if (await this.isEmpty()) {
-                throw EmptyCollectionError.create();
+    ): Promise<number> {
+        if (await this.isEmpty()) {
+            throw EmptyCollectionError.create();
+        }
+        let part = 0,
+            total = 0;
+        for await (const item of this) {
+            if (await resolveInvokable(predicateFn)(item, total, this)) {
+                part++;
             }
-            let part = 0,
-                total = 0;
-            for await (const item of this) {
-                if (await resolveInvokable(predicateFn)(item, total, this)) {
-                    part++;
-                }
-                total++;
-            }
-            return (part / total) * 100;
-        });
+            total++;
+        }
+        return (part / total) * 100;
     }
 
-    some<TOutput extends TInput>(
+    async some<TOutput extends TInput>(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<boolean> {
-        return new Task(async () => {
-            for await (const [index, item] of this.entries()) {
-                if (await resolveInvokable(predicateFn)(item, index, this)) {
-                    return true;
-                }
+    ): Promise<boolean> {
+        for await (const [index, item] of this.entries()) {
+            if (await resolveInvokable(predicateFn)(item, index, this)) {
+                return true;
             }
-            return false;
-        });
+        }
+        return false;
     }
 
-    every<TOutput extends TInput>(
+    async every<TOutput extends TInput>(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<boolean> {
-        return new Task(async () => {
-            let isTrue = true;
-            for await (const [index, item] of this.entries()) {
-                isTrue &&= await resolveInvokable(predicateFn)(
-                    item,
-                    index,
-                    this,
-                );
-                if (!isTrue) {
-                    break;
-                }
+    ): Promise<boolean> {
+        let isTrue = true;
+        for await (const [index, item] of this.entries()) {
+            isTrue &&= await resolveInvokable(predicateFn)(item, index, this);
+            if (!isTrue) {
+                break;
             }
-            return isTrue;
-        });
+        }
+        return isTrue;
     }
 
     take(limit: number): IAsyncCollection<TInput> {
@@ -721,10 +693,8 @@ export class AsyncIterableCollection<TInput = unknown>
 
     pipe<TOutput = TInput>(
         callback: AsyncTransform<IAsyncCollection<TInput>, TOutput>,
-    ): ITask<TOutput> {
-        return new Task(async () => {
-            return resolveInvokable(callback)(this);
-        });
+    ): Promise<TOutput> {
+        return Promise.resolve(resolveInvokable(callback)(this));
     }
 
     tap(
@@ -965,313 +935,273 @@ export class AsyncIterableCollection<TInput = unknown>
 
     first<TOutput extends TInput>(
         predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<TOutput | null> {
+    ): Promise<TOutput | null> {
         return this.firstOr(null, predicateFn);
     }
 
-    firstOr<TOutput extends TInput, TExtended = TInput>(
+    async firstOr<TOutput extends TInput, TExtended = TInput>(
         defaultValue: AsyncLazyable<TExtended>,
         predicateFn: AsyncPredicate<
             TInput,
             IAsyncCollection<TInput>,
             TOutput
         > = () => true,
-    ): ITask<TOutput | TExtended> {
-        return new Task(async () => {
-            for await (const [index, item] of this.entries()) {
-                if (await resolveInvokable(predicateFn)(item, index, this)) {
-                    return item as TOutput;
-                }
+    ): Promise<TOutput | TExtended> {
+        for await (const [index, item] of this.entries()) {
+            if (await resolveInvokable(predicateFn)(item, index, this)) {
+                return item as TOutput;
             }
-            return await resolveAsyncLazyable(defaultValue);
-        });
+        }
+        return await resolveAsyncLazyable(defaultValue);
     }
 
-    firstOrFail<TOutput extends TInput>(
+    async firstOrFail<TOutput extends TInput>(
         predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<TOutput> {
-        return new Task<TOutput>(async () => {
-            const item = await this.first(predicateFn);
-            if (item === null) {
-                throw ItemNotFoundCollectionError.create();
-            }
-            return item;
-        });
+    ): Promise<TOutput> {
+        const item = await this.first(predicateFn);
+        if (item === null) {
+            throw ItemNotFoundCollectionError.create();
+        }
+        return item;
     }
 
     last<TOutput extends TInput>(
         predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<TOutput | null> {
+    ): Promise<TOutput | null> {
         return this.lastOr(null, predicateFn);
     }
 
-    lastOr<TOutput extends TInput, TExtended = TInput>(
+    async lastOr<TOutput extends TInput, TExtended = TInput>(
         defaultValue: AsyncLazyable<TExtended>,
         predicateFn: AsyncPredicate<
             TInput,
             IAsyncCollection<TInput>,
             TOutput
         > = () => true,
-    ): ITask<TOutput | TExtended> {
-        return new Task<TOutput | TExtended>(async () => {
-            let matchedItem: TOutput | null = null;
-            for await (const [index, item] of this.entries()) {
-                if (await resolveInvokable(predicateFn)(item, index, this)) {
-                    matchedItem = item as TOutput;
-                }
+    ): Promise<TOutput | TExtended> {
+        let matchedItem: TOutput | null = null;
+        for await (const [index, item] of this.entries()) {
+            if (await resolveInvokable(predicateFn)(item, index, this)) {
+                matchedItem = item as TOutput;
             }
-            if (matchedItem !== null) {
-                return matchedItem;
-            }
-            return await resolveAsyncLazyable(defaultValue);
-        });
+        }
+        if (matchedItem !== null) {
+            return matchedItem;
+        }
+        return await resolveAsyncLazyable(defaultValue);
     }
 
-    lastOrFail<TOutput extends TInput>(
+    async lastOrFail<TOutput extends TInput>(
         predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<TOutput> {
-        return new Task<TOutput>(async () => {
-            const item = await this.last(predicateFn);
-            if (item === null) {
-                throw ItemNotFoundCollectionError.create();
-            }
-            return item;
-        });
+    ): Promise<TOutput> {
+        const item = await this.last(predicateFn);
+        if (item === null) {
+            throw ItemNotFoundCollectionError.create();
+        }
+        return item;
     }
 
     before(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<TInput | null> {
+    ): Promise<TInput | null> {
         return this.beforeOr(null, predicateFn);
     }
 
-    beforeOr<TExtended = TInput>(
+    async beforeOr<TExtended = TInput>(
         defaultValue: AsyncLazyable<TExtended>,
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<TInput | TExtended> {
-        return new Task<TInput | TExtended>(async () => {
-            let beforeItem: TInput | null = null,
-                index = 0;
-            for await (const item of this) {
-                if (
-                    (await resolveInvokable(predicateFn)(item, index, this)) &&
-                    beforeItem !== null
-                ) {
-                    return beforeItem;
-                }
-                index++;
-                beforeItem = item;
+    ): Promise<TInput | TExtended> {
+        let beforeItem: TInput | null = null,
+            index = 0;
+        for await (const item of this) {
+            if (
+                (await resolveInvokable(predicateFn)(item, index, this)) &&
+                beforeItem !== null
+            ) {
+                return beforeItem;
             }
-            return await resolveAsyncLazyable(defaultValue);
-        });
+            index++;
+            beforeItem = item;
+        }
+        return await resolveAsyncLazyable(defaultValue);
     }
 
-    beforeOrFail(
+    async beforeOrFail(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<TInput> {
-        return new Task<TInput>(async () => {
-            const item = await this.before(predicateFn);
-            if (item === null) {
-                throw ItemNotFoundCollectionError.create();
-            }
-            return item;
-        });
+    ): Promise<TInput> {
+        const item = await this.before(predicateFn);
+        if (item === null) {
+            throw ItemNotFoundCollectionError.create();
+        }
+        return item;
     }
 
     after(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<TInput | null> {
+    ): Promise<TInput | null> {
         return this.afterOr(null, predicateFn);
     }
 
-    afterOr<TExtended = TInput>(
+    async afterOr<TExtended = TInput>(
         defaultValue: AsyncLazyable<TExtended>,
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<TInput | TExtended> {
-        return new Task(async () => {
-            let hasMatched = false,
-                index = 0;
-            for await (const item of this) {
-                if (hasMatched) {
-                    return item;
-                }
-                hasMatched = await resolveInvokable(predicateFn)(
-                    item,
-                    index,
-                    this,
-                );
-                index++;
+    ): Promise<TInput | TExtended> {
+        let hasMatched = false,
+            index = 0;
+        for await (const item of this) {
+            if (hasMatched) {
+                return item;
             }
-            return await resolveAsyncLazyable(defaultValue);
-        });
+            hasMatched = await resolveInvokable(predicateFn)(item, index, this);
+            index++;
+        }
+        return await resolveAsyncLazyable(defaultValue);
     }
 
-    afterOrFail(
+    async afterOrFail(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<TInput> {
-        return new Task<TInput>(async () => {
-            const item = await this.after(predicateFn);
-            if (item === null) {
-                throw ItemNotFoundCollectionError.create();
-            }
-            return item;
-        });
+    ): Promise<TInput> {
+        const item = await this.after(predicateFn);
+        if (item === null) {
+            throw ItemNotFoundCollectionError.create();
+        }
+        return item;
     }
 
-    sole<TOutput extends TInput>(
+    async sole<TOutput extends TInput>(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<TOutput> {
-        return new Task<TOutput>(async () => {
-            let matchedItem: TOutput | null = null;
-            for await (const [index, item] of this.entries()) {
-                if (await resolveInvokable(predicateFn)(item, index, this)) {
-                    if (matchedItem !== null) {
-                        throw MultipleItemsFoundCollectionError.create();
-                    }
-                    matchedItem = item as TOutput;
+    ): Promise<TOutput> {
+        let matchedItem: TOutput | null = null;
+        for await (const [index, item] of this.entries()) {
+            if (await resolveInvokable(predicateFn)(item, index, this)) {
+                if (matchedItem !== null) {
+                    throw MultipleItemsFoundCollectionError.create();
                 }
+                matchedItem = item as TOutput;
             }
-            if (matchedItem === null) {
-                throw ItemNotFoundCollectionError.create();
-            }
-            return matchedItem;
-        });
+        }
+        if (matchedItem === null) {
+            throw ItemNotFoundCollectionError.create();
+        }
+        return matchedItem;
     }
 
     nth(step: number): IAsyncCollection<TInput> {
         return this.filter((_item, index) => index % step === 0);
     }
 
-    count(
+    async count(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<number> {
-        return new Task(async () => {
-            let size = 0;
-            for await (const item of this) {
-                if (await resolveInvokable(predicateFn)(item, size, this)) {
-                    size++;
-                }
+    ): Promise<number> {
+        let size = 0;
+        for await (const item of this) {
+            if (await resolveInvokable(predicateFn)(item, size, this)) {
+                size++;
             }
-            return size;
-        });
+        }
+        return size;
     }
 
-    size(): ITask<number> {
+    size(): Promise<number> {
         return this.count(() => true);
     }
 
-    isEmpty(): ITask<boolean> {
-        return new Task(async () => {
-            for await (const _ of this) {
-                return false;
-            }
-            return true;
-        });
+    async isEmpty(): Promise<boolean> {
+        for await (const _ of this) {
+            return false;
+        }
+        return true;
     }
 
-    isNotEmpty(): ITask<boolean> {
-        return new Task(async () => {
-            return !(await this.isEmpty());
-        });
+    async isNotEmpty(): Promise<boolean> {
+        return !(await this.isEmpty());
     }
 
-    searchFirst(
+    async searchFirst(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<number> {
-        return new Task(async () => {
-            for await (const [index, item] of this.entries()) {
-                if (await resolveInvokable(predicateFn)(item, index, this)) {
-                    return index;
-                }
+    ): Promise<number> {
+        for await (const [index, item] of this.entries()) {
+            if (await resolveInvokable(predicateFn)(item, index, this)) {
+                return index;
             }
-            return -1;
-        });
+        }
+        return -1;
     }
 
-    searchLast(
+    async searchLast(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<number> {
-        return new Task(async () => {
-            let matchedIndex = -1;
-            for await (const [index, item] of this.entries()) {
-                if (await resolveInvokable(predicateFn)(item, index, this)) {
-                    matchedIndex = index;
-                }
+    ): Promise<number> {
+        let matchedIndex = -1;
+        for await (const [index, item] of this.entries()) {
+            if (await resolveInvokable(predicateFn)(item, index, this)) {
+                matchedIndex = index;
             }
-            return matchedIndex;
-        });
+        }
+        return matchedIndex;
     }
 
-    forEach(
+    async forEach(
         callback: AsyncForEach<TInput, IAsyncCollection<TInput>>,
-    ): ITask<void> {
-        return new Task(async () => {
-            for await (const [index, item] of this.entries()) {
-                await resolveInvokable(callback)(item, index, this);
-            }
-        });
+    ): Promise<void> {
+        for await (const [index, item] of this.entries()) {
+            await resolveInvokable(callback)(item, index, this);
+        }
     }
 
-    toArray(): ITask<Array<TInput>> {
-        return new Task(async () => {
-            const items: Array<TInput> = [];
-            for await (const item of this) {
-                items.push(item);
-            }
-            return items;
-        });
+    async toArray(): Promise<Array<TInput>> {
+        const items: Array<TInput> = [];
+        for await (const item of this) {
+            items.push(item);
+        }
+        return items;
     }
 
-    toRecord(): ITask<EnsureRecord<TInput>> {
-        return new Task(async () => {
-            const record: Record<string | number | symbol, unknown> = {};
-            for await (const item of this) {
-                if (!Array.isArray(item)) {
-                    throw new TypeError(
-                        "Item type is invalid must be a tuple of size 2 where first tuple item is a string or number or symbol",
-                    );
-                }
-                if (item.length !== 2) {
-                    throw new TypeError(
-                        "Item type is invalid must be a tuple of size 2 where first tuple item is a string or number or symbol",
-                    );
-                }
-                const [key, value] = item;
-                if (
-                    !(
-                        typeof key === "string" ||
-                        typeof key === "number" ||
-                        typeof key === "symbol"
-                    )
-                ) {
-                    throw new TypeError(
-                        "Item type is invalid must be a tuple of size 2 where first tuple item is a string or number or symbol",
-                    );
-                }
-                record[key] = value;
+    async toRecord(): Promise<EnsureRecord<TInput>> {
+        const record: Record<string | number | symbol, unknown> = {};
+        for await (const item of this) {
+            if (!Array.isArray(item)) {
+                throw new TypeError(
+                    "Item type is invalid must be a tuple of size 2 where first tuple item is a string or number or symbol",
+                );
             }
-            return record as EnsureRecord<TInput>;
-        });
+            if (item.length !== 2) {
+                throw new TypeError(
+                    "Item type is invalid must be a tuple of size 2 where first tuple item is a string or number or symbol",
+                );
+            }
+            const [key, value] = item;
+            if (
+                !(
+                    typeof key === "string" ||
+                    typeof key === "number" ||
+                    typeof key === "symbol"
+                )
+            ) {
+                throw new TypeError(
+                    "Item type is invalid must be a tuple of size 2 where first tuple item is a string or number or symbol",
+                );
+            }
+            record[key] = value;
+        }
+        return record as EnsureRecord<TInput>;
     }
 
-    toMap(): ITask<EnsureMap<TInput>> {
-        return new Task(async () => {
-            const map = new Map();
-            for await (const item of this) {
-                if (!Array.isArray(item)) {
-                    throw new TypeError(
-                        "Item type is invalid must be a tuple of size 2",
-                    );
-                }
-                if (item.length !== 2) {
-                    throw new TypeError(
-                        "Item type is invalid must be a tuple of size 2",
-                    );
-                }
-                const [key, value] = item;
-                map.set(key, value);
+    async toMap(): Promise<EnsureMap<TInput>> {
+        const map = new Map();
+        for await (const item of this) {
+            if (!Array.isArray(item)) {
+                throw new TypeError(
+                    "Item type is invalid must be a tuple of size 2",
+                );
             }
-            return map as EnsureMap<TInput>;
-        });
+            if (item.length !== 2) {
+                throw new TypeError(
+                    "Item type is invalid must be a tuple of size 2",
+                );
+            }
+            const [key, value] = item;
+            map.set(key, value);
+        }
+        return map as EnsureMap<TInput>;
     }
 }
