@@ -23,15 +23,15 @@ import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_modul
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
-import { type ITask } from "@/task/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
+    callInvokable,
     resolveAsyncLazyable,
     validate,
     withJitter,
     type AsyncLazyable,
+    type Invokable,
     type NoneFunc,
 } from "@/utilities/_module.js";
 
@@ -86,6 +86,14 @@ export type CacheSettingsBase<TType = unknown> = {
      * @default 0.2
      */
     defaultJitter?: number | null;
+
+    /**
+     * @default
+     * ```ts
+     * (promise) => promise.then(() => {})
+     * ```
+     */
+    waitUntil?: Invokable<[promise: PromiseLike<unknown>], void>;
 };
 
 /**
@@ -108,6 +116,10 @@ export class Cache<TType = unknown> implements ICache<TType> {
     private readonly schema: StandardSchemaV1<TType> | undefined;
     private readonly shouldValidateOutput: boolean;
     private readonly defaultJitter: number | null;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     /**
      *
@@ -149,8 +161,10 @@ export class Cache<TType = unknown> implements ICache<TType> {
             }),
             defaultTtl = null,
             defaultJitter = 0.2,
+            waitUntil = (promise) => promise.then(() => {}),
         } = settings;
 
+        this.waitUntil = waitUntil;
         this.shouldValidateOutput = shouldValidateOutput;
         this.schema = schema;
         this.namespace = namespace;
@@ -165,163 +179,154 @@ export class Cache<TType = unknown> implements ICache<TType> {
         return this.eventBus;
     }
 
-    exists(key: string): ITask<boolean> {
-        return new Task(async () => {
-            const value = await this.get(key);
-            return value !== null;
-        });
+    async exists(key: string): Promise<boolean> {
+        const value = await this.get(key);
+        return value !== null;
     }
 
-    missing(key: string): ITask<boolean> {
-        return new Task(async () => {
-            const hasKey = await this.exists(key);
-            return !hasKey;
-        });
+    async missing(key: string): Promise<boolean> {
+        const hasKey = await this.exists(key);
+        return !hasKey;
     }
 
-    get(key: string): ITask<TType | null> {
-        return new Task(async () => {
-            const keyObj = this.namespace.create(key);
-            try {
-                const value = await this.adapter.get(keyObj.toString());
-                if (this.shouldValidateOutput && value !== null) {
-                    await validate(this.schema, value);
-                }
-
-                if (value === null) {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.NOT_FOUND, {
-                            key: keyObj,
-                        })
-                        .detach();
-                } else {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.FOUND, {
-                            key: keyObj,
-                            value,
-                        })
-                        .detach();
-                }
-
-                return value;
-            } catch (error: unknown) {
-                this.eventBus
-                    .dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                        keys: [keyObj.get()],
-                        method: this.get.name,
-                        error,
-                    })
-                    .detach();
-                throw error;
-            }
-        });
-    }
-
-    getOrFail(key: string): ITask<TType> {
-        return new Task<TType>(async () => {
-            const value = await this.get(key);
-            if (value === null) {
-                throw KeyNotFoundCacheError.create(this.namespace.create(key));
-            }
-            return value;
-        });
-    }
-
-    getAndRemove(key: string): ITask<TType | null> {
-        return new Task(async () => {
-            const keyObj = this.namespace.create(key);
-            try {
-                const value = await this.adapter.getAndRemove(
-                    keyObj.toString(),
-                );
-                if (this.shouldValidateOutput && value !== null) {
-                    await validate(this.schema, value);
-                }
-
-                if (value === null) {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.NOT_FOUND, {
-                            key: keyObj,
-                        })
-                        .detach();
-                } else {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.REMOVED, {
-                            key: keyObj,
-                        })
-                        .detach();
-                }
-                return value;
-            } catch (error: unknown) {
-                this.eventBus
-                    .dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                        keys: [keyObj.get()],
-                        method: this.get.name,
-                        error,
-                    })
-                    .detach();
-                throw error;
-            }
-        });
-    }
-
-    getOr(
-        key: string,
-        defaultValue: AsyncLazyable<NoneFunc<TType>>,
-    ): ITask<TType> {
-        return new Task<TType>(async () => {
-            const value = await this.get(key);
-            if (value === null) {
-                const simplifiedValueToAdd =
-                    await resolveAsyncLazyable(defaultValue);
-                return simplifiedValueToAdd;
-            }
-            return value;
-        });
-    }
-
-    getOrAdd(
-        key: string,
-        valueToAdd: AsyncLazyable<NoneFunc<TType>>,
-        settings?: CacheWriteSettings,
-    ): ITask<TType> {
-        return new Task<TType>(async () => {
-            const ttl = this.resolveCacheWriteSettings(settings);
-            const keyObj = this.namespace.create(key);
+    async get(key: string): Promise<TType | null> {
+        const keyObj = this.namespace.create(key);
+        try {
             const value = await this.adapter.get(keyObj.toString());
             if (this.shouldValidateOutput && value !== null) {
                 await validate(this.schema, value);
             }
+
             if (value === null) {
-                const resolvedValueToAdd =
-                    await resolveAsyncLazyable(valueToAdd);
-                await validate(this.schema, resolvedValueToAdd);
-                const hasAdded = await this.adapter.add(
-                    keyObj.toString(),
-                    resolvedValueToAdd,
-                    ttl,
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.NOT_FOUND, {
+                        key: keyObj,
+                    }),
                 );
-                if (hasAdded) {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.ADDED, {
-                            key: keyObj,
-                            value: resolvedValueToAdd,
-                            ttl,
-                        })
-                        .detach();
-                }
-                return resolvedValueToAdd;
             } else {
-                this.eventBus
-                    .dispatch(CACHE_EVENTS.FOUND, {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.FOUND, {
                         key: keyObj,
                         value,
-                    })
-                    .detach();
+                    }),
+                );
             }
 
             return value;
-        });
+        } catch (error: unknown) {
+            callInvokable(
+                this.waitUntil,
+                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
+                    keys: [keyObj.get()],
+                    method: this.get.name,
+                    error,
+                }),
+            );
+            throw error;
+        }
+    }
+
+    async getOrFail(key: string): Promise<TType> {
+        const value = await this.get(key);
+        if (value === null) {
+            throw KeyNotFoundCacheError.create(this.namespace.create(key));
+        }
+        return value;
+    }
+
+    async getAndRemove(key: string): Promise<TType | null> {
+        const keyObj = this.namespace.create(key);
+        try {
+            const value = await this.adapter.getAndRemove(keyObj.toString());
+            if (this.shouldValidateOutput && value !== null) {
+                await validate(this.schema, value);
+            }
+
+            if (value === null) {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.NOT_FOUND, {
+                        key: keyObj,
+                    }),
+                );
+            } else {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.REMOVED, {
+                        key: keyObj,
+                    }),
+                );
+            }
+            return value;
+        } catch (error: unknown) {
+            callInvokable(
+                this.waitUntil,
+                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
+                    keys: [keyObj.get()],
+                    method: this.get.name,
+                    error,
+                }),
+            );
+            throw error;
+        }
+    }
+
+    async getOr(
+        key: string,
+        defaultValue: AsyncLazyable<NoneFunc<TType>>,
+    ): Promise<TType> {
+        const value = await this.get(key);
+        if (value === null) {
+            const simplifiedValueToAdd =
+                await resolveAsyncLazyable(defaultValue);
+            return simplifiedValueToAdd;
+        }
+        return value;
+    }
+
+    async getOrAdd(
+        key: string,
+        valueToAdd: AsyncLazyable<NoneFunc<TType>>,
+        settings?: CacheWriteSettings,
+    ): Promise<TType> {
+        const ttl = this.resolveCacheWriteSettings(settings);
+        const keyObj = this.namespace.create(key);
+        const value = await this.adapter.get(keyObj.toString());
+        if (this.shouldValidateOutput && value !== null) {
+            await validate(this.schema, value);
+        }
+        if (value === null) {
+            const resolvedValueToAdd = await resolveAsyncLazyable(valueToAdd);
+            await validate(this.schema, resolvedValueToAdd);
+            const hasAdded = await this.adapter.add(
+                keyObj.toString(),
+                resolvedValueToAdd,
+                ttl,
+            );
+            if (hasAdded) {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.ADDED, {
+                        key: keyObj,
+                        value: resolvedValueToAdd,
+                        ttl,
+                    }),
+                );
+            }
+            return resolvedValueToAdd;
+        } else {
+            callInvokable(
+                this.waitUntil,
+                this.eventBus.dispatch(CACHE_EVENTS.FOUND, {
+                    key: keyObj,
+                    value,
+                }),
+            );
+        }
+
+        return value;
     }
 
     private resolveCacheWriteSettings(
@@ -350,361 +355,361 @@ export class Cache<TType = unknown> implements ICache<TType> {
         );
     }
 
-    add(
+    async add(
         key: string,
         value: TType,
         settings?: CacheWriteSettings,
-    ): ITask<boolean> {
-        return new Task(async () => {
-            const ttl = this.resolveCacheWriteSettings(settings);
-            const keyObj = this.namespace.create(key);
-            try {
-                await validate(this.schema, value);
-                const hasAdded = await this.adapter.add(
-                    keyObj.toString(),
-                    value,
-                    ttl,
-                );
-                if (hasAdded) {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.ADDED, {
-                            key: keyObj,
-                            value,
-                            ttl,
-                        })
-                        .detach();
-                } else {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.KEY_EXISTS, {
-                            key: keyObj,
-                        })
-                        .detach();
-                }
-                return hasAdded;
-            } catch (error: unknown) {
-                this.eventBus
-                    .dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                        keys: [keyObj.get()],
+    ): Promise<boolean> {
+        const ttl = this.resolveCacheWriteSettings(settings);
+        const keyObj = this.namespace.create(key);
+        try {
+            await validate(this.schema, value);
+            const hasAdded = await this.adapter.add(
+                keyObj.toString(),
+                value,
+                ttl,
+            );
+            if (hasAdded) {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.ADDED, {
+                        key: keyObj,
                         value,
-                        method: this.add.name,
-                        error,
-                    })
-                    .detach();
-                throw error;
+                        ttl,
+                    }),
+                );
+            } else {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.KEY_EXISTS, {
+                        key: keyObj,
+                    }),
+                );
             }
-        });
+            return hasAdded;
+        } catch (error: unknown) {
+            callInvokable(
+                this.waitUntil,
+                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
+                    keys: [keyObj.get()],
+                    value,
+                    method: this.add.name,
+                    error,
+                }),
+            );
+            throw error;
+        }
     }
 
-    addOrFail(
+    async addOrFail(
         key: string,
         value: TType,
         settings?: CacheWriteSettings,
-    ): ITask<void> {
-        return new Task(async () => {
-            const isNotFound = await this.add(key, value, settings);
-            if (!isNotFound) {
-                throw KeyExistsCacheError.create(this.namespace.create(key));
-            }
-        });
+    ): Promise<void> {
+        const isNotFound = await this.add(key, value, settings);
+        if (!isNotFound) {
+            throw KeyExistsCacheError.create(this.namespace.create(key));
+        }
     }
 
-    put(
+    async put(
         key: string,
         value: TType,
         settings?: CacheWriteSettings,
-    ): ITask<boolean> {
-        return new Task(async () => {
-            const ttl = this.resolveCacheWriteSettings(settings);
-            const keyObj = this.namespace.create(key);
-            try {
-                await validate(this.schema, value);
-                const hasUpdated = await this.adapter.put(
-                    keyObj.toString(),
-                    value,
-                    ttl,
-                );
-                if (hasUpdated) {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.UPDATED, {
-                            key: keyObj,
-                            value,
-                        })
-                        .detach();
-                } else {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.ADDED, {
-                            key: keyObj,
-                            value,
-                            ttl,
-                        })
-                        .detach();
-                }
-                return hasUpdated;
-            } catch (error: unknown) {
-                this.eventBus
-                    .dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                        keys: [keyObj.get()],
+    ): Promise<boolean> {
+        const ttl = this.resolveCacheWriteSettings(settings);
+        const keyObj = this.namespace.create(key);
+        try {
+            await validate(this.schema, value);
+            const hasUpdated = await this.adapter.put(
+                keyObj.toString(),
+                value,
+                ttl,
+            );
+            if (hasUpdated) {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.UPDATED, {
+                        key: keyObj,
                         value,
-                        method: this.put.name,
-                        error,
-                    })
-                    .detach();
-                throw error;
-            }
-        });
-    }
-
-    update(key: string, value: TType): ITask<boolean> {
-        return new Task(async () => {
-            const keyObj = this.namespace.create(key);
-            try {
-                await validate(this.schema, value);
-                const hasUpdated = await this.adapter.update(
-                    keyObj.toString(),
-                    value,
+                    }),
                 );
-                if (hasUpdated) {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.UPDATED, {
-                            key: keyObj,
-                            value,
-                        })
-                        .detach();
-                } else {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.NOT_FOUND, {
-                            key: keyObj,
-                        })
-                        .detach();
-                }
-                return hasUpdated;
-            } catch (error: unknown) {
-                this.eventBus
-                    .dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                        keys: [keyObj.get()],
+            } else {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.ADDED, {
+                        key: keyObj,
                         value,
-                        method: this.update.name,
-                        error,
-                    })
-                    .detach();
-                throw error;
+                        ttl,
+                    }),
+                );
             }
-        });
+            return hasUpdated;
+        } catch (error: unknown) {
+            callInvokable(
+                this.waitUntil,
+                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
+                    keys: [keyObj.get()],
+                    value,
+                    method: this.put.name,
+                    error,
+                }),
+            );
+            throw error;
+        }
     }
 
-    updateOrFail(key: string, value: TType): ITask<void> {
-        return new Task(async () => {
-            const isFound = await this.update(key, value);
-            if (!isFound) {
-                throw KeyNotFoundCacheError.create(this.namespace.create(key));
+    async update(key: string, value: TType): Promise<boolean> {
+        const keyObj = this.namespace.create(key);
+        try {
+            await validate(this.schema, value);
+            const hasUpdated = await this.adapter.update(
+                keyObj.toString(),
+                value,
+            );
+            if (hasUpdated) {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.UPDATED, {
+                        key: keyObj,
+                        value,
+                    }),
+                );
+            } else {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.NOT_FOUND, {
+                        key: keyObj,
+                    }),
+                );
             }
-        });
+            return hasUpdated;
+        } catch (error: unknown) {
+            callInvokable(
+                this.waitUntil,
+                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
+                    keys: [keyObj.get()],
+                    value,
+                    method: this.update.name,
+                    error,
+                }),
+            );
+            throw error;
+        }
     }
 
-    increment(
+    async updateOrFail(key: string, value: TType): Promise<void> {
+        const isFound = await this.update(key, value);
+        if (!isFound) {
+            throw KeyNotFoundCacheError.create(this.namespace.create(key));
+        }
+    }
+
+    async increment(
         key: string,
         value = 1 as Extract<TType, number>,
-    ): ITask<boolean> {
-        return new Task(async () => {
-            const keyObj = this.namespace.create(key);
-            try {
-                const hasUpdated = await this.adapter.increment(
-                    keyObj.toString(),
-                    value,
-                );
-                if (hasUpdated && value > 0) {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.INCREMENTED, {
-                            key: keyObj,
-                            value,
-                        })
-                        .detach();
-                }
-                if (hasUpdated && value < 0) {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.DECREMENTED, {
-                            key: keyObj,
-                            value: -value,
-                        })
-                        .detach();
-                }
-                if (!hasUpdated) {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.NOT_FOUND, {
-                            key: keyObj,
-                        })
-                        .detach();
-                }
-                return hasUpdated;
-            } catch (error: unknown) {
-                this.eventBus
-                    .dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                        keys: [keyObj.get()],
+    ): Promise<boolean> {
+        const keyObj = this.namespace.create(key);
+        try {
+            const hasUpdated = await this.adapter.increment(
+                keyObj.toString(),
+                value,
+            );
+            if (hasUpdated && value > 0) {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.INCREMENTED, {
+                        key: keyObj,
                         value,
-                        method: this.increment.name,
-                        error,
-                    })
-                    .detach();
-                throw new TypeError(
-                    `Unable to increment or decrement none number type key "${keyObj.get()}"`,
-                    { cause: error },
+                    }),
                 );
             }
-        });
-    }
-
-    incrementOrFail(key: string, value?: Extract<TType, number>): ITask<void> {
-        return new Task(async () => {
-            const isFound = await this.increment(key, value);
-            if (!isFound) {
-                throw KeyNotFoundCacheError.create(this.namespace.create(key));
+            if (hasUpdated && value < 0) {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.DECREMENTED, {
+                        key: keyObj,
+                        value: -value,
+                    }),
+                );
             }
-        });
+            if (!hasUpdated) {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.NOT_FOUND, {
+                        key: keyObj,
+                    }),
+                );
+            }
+            return hasUpdated;
+        } catch (error: unknown) {
+            callInvokable(
+                this.waitUntil,
+                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
+                    keys: [keyObj.get()],
+                    value,
+                    method: this.increment.name,
+                    error,
+                }),
+            );
+            throw new TypeError(
+                `Unable to increment or decrement none number type key "${keyObj.get()}"`,
+                { cause: error },
+            );
+        }
     }
 
-    decrement(
+    async incrementOrFail(
+        key: string,
+        value?: Extract<TType, number>,
+    ): Promise<void> {
+        const isFound = await this.increment(key, value);
+        if (!isFound) {
+            throw KeyNotFoundCacheError.create(this.namespace.create(key));
+        }
+    }
+
+    async decrement(
         key: string,
         value = 1 as Extract<TType, number>,
-    ): ITask<boolean> {
-        return new Task(async () => {
-            return await this.increment(key, -value as Extract<TType, number>);
-        });
+    ): Promise<boolean> {
+        return await this.increment(key, -value as Extract<TType, number>);
     }
 
-    decrementOrFail(key: string, value?: Extract<TType, number>): ITask<void> {
-        return new Task(async () => {
-            const isFound = await this.decrement(key, value);
-            if (!isFound) {
-                throw KeyNotFoundCacheError.create(this.namespace.create(key));
-            }
-        });
+    async decrementOrFail(
+        key: string,
+        value?: Extract<TType, number>,
+    ): Promise<void> {
+        const isFound = await this.decrement(key, value);
+        if (!isFound) {
+            throw KeyNotFoundCacheError.create(this.namespace.create(key));
+        }
     }
 
-    remove(key: string): ITask<boolean> {
-        return new Task(async () => {
-            const keyObj = this.namespace.create(key);
-            try {
-                const hasRemoved = await this.adapter.removeMany([
-                    keyObj.toString(),
-                ]);
-                if (hasRemoved) {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.REMOVED, {
-                            key: keyObj,
-                        })
-                        .detach();
-                } else {
-                    this.eventBus
-                        .dispatch(CACHE_EVENTS.NOT_FOUND, {
-                            key: keyObj,
-                        })
-                        .detach();
-                }
-                return hasRemoved;
-            } catch (error: unknown) {
-                this.eventBus
-                    .dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                        keys: [keyObj.get()],
-                        method: this.remove.name,
-                        error,
-                    })
-                    .detach();
-                throw error;
-            }
-        });
-    }
-
-    removeOrFail(key: string): ITask<void> {
-        return new Task(async () => {
-            const isFound = await this.remove(key);
-            if (!isFound) {
-                throw KeyNotFoundCacheError.create(this.namespace.create(key));
-            }
-        });
-    }
-
-    removeMany(keys: Iterable<string>): ITask<boolean> {
-        return new Task(async () => {
-            if (typeof keys === "string") {
-                throw new TypeError(
-                    `You cannot pass a string as keys to "removeMany" method.`,
+    async remove(key: string): Promise<boolean> {
+        const keyObj = this.namespace.create(key);
+        try {
+            const hasRemoved = await this.adapter.removeMany([
+                keyObj.toString(),
+            ]);
+            if (hasRemoved) {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.REMOVED, {
+                        key: keyObj,
+                    }),
+                );
+            } else {
+                callInvokable(
+                    this.waitUntil,
+                    this.eventBus.dispatch(CACHE_EVENTS.NOT_FOUND, {
+                        key: keyObj,
+                    }),
                 );
             }
-            const keysArr = [...keys];
-            if (keysArr.length === 0) {
-                return true;
-            }
-            const keyObjArr = keysArr.map((key) => this.namespace.create(key));
-            try {
-                const hasRemovedAtLeastOne = await this.adapter.removeMany(
-                    keyObjArr.map((keyObj) => keyObj.toString()),
+            return hasRemoved;
+        } catch (error: unknown) {
+            callInvokable(
+                this.waitUntil,
+                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
+                    keys: [keyObj.get()],
+                    method: this.remove.name,
+                    error,
+                }),
+            );
+            throw error;
+        }
+    }
+
+    async removeOrFail(key: string): Promise<void> {
+        const isFound = await this.remove(key);
+        if (!isFound) {
+            throw KeyNotFoundCacheError.create(this.namespace.create(key));
+        }
+    }
+
+    async removeMany(keys: Iterable<string>): Promise<boolean> {
+        if (typeof keys === "string") {
+            throw new TypeError(
+                `You cannot pass a string as keys to "removeMany" method.`,
+            );
+        }
+        const keysArr = [...keys];
+        if (keysArr.length === 0) {
+            return true;
+        }
+        const keyObjArr = keysArr.map((key) => this.namespace.create(key));
+        try {
+            const hasRemovedAtLeastOne = await this.adapter.removeMany(
+                keyObjArr.map((keyObj) => keyObj.toString()),
+            );
+            if (hasRemovedAtLeastOne) {
+                const events = keyObjArr.map(
+                    (
+                        keyObj,
+                    ): [typeof CACHE_EVENTS.REMOVED, RemovedCacheEvent] =>
+                        [
+                            CACHE_EVENTS.REMOVED,
+                            {
+                                key: keyObj,
+                            },
+                        ] as const,
                 );
-                if (hasRemovedAtLeastOne) {
-                    const events = keyObjArr.map(
-                        (
-                            keyObj,
-                        ): [typeof CACHE_EVENTS.REMOVED, RemovedCacheEvent] =>
-                            [
-                                CACHE_EVENTS.REMOVED,
-                                {
-                                    key: keyObj,
-                                },
-                            ] as const,
+                for (const [eventName, event] of events) {
+                    callInvokable(
+                        this.waitUntil,
+                        this.eventBus.dispatch(eventName, event),
                     );
-                    for (const [eventName, event] of events) {
-                        this.eventBus.dispatch(eventName, event).detach();
-                    }
-                } else {
-                    const events = keyObjArr.map(
-                        (
-                            keyObj,
-                        ): [
-                            typeof CACHE_EVENTS.NOT_FOUND,
-                            NotFoundCacheEvent,
-                        ] =>
-                            [
-                                CACHE_EVENTS.NOT_FOUND,
-                                {
-                                    key: keyObj,
-                                },
-                            ] as const,
-                    );
-                    for (const [eventName, event] of events) {
-                        this.eventBus.dispatch(eventName, event).detach();
-                    }
                 }
-                return hasRemovedAtLeastOne;
-            } catch (error: unknown) {
-                this.eventBus
-                    .dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                        keys: keyObjArr.map((keyObj) => keyObj.get()),
-                        method: this.remove.name,
-                        error,
-                    })
-                    .detach();
-                throw error;
+            } else {
+                const events = keyObjArr.map(
+                    (
+                        keyObj,
+                    ): [typeof CACHE_EVENTS.NOT_FOUND, NotFoundCacheEvent] =>
+                        [
+                            CACHE_EVENTS.NOT_FOUND,
+                            {
+                                key: keyObj,
+                            },
+                        ] as const,
+                );
+                for (const [eventName, event] of events) {
+                    callInvokable(
+                        this.waitUntil,
+                        this.eventBus.dispatch(eventName, event),
+                    );
+                }
             }
-        });
+            return hasRemovedAtLeastOne;
+        } catch (error: unknown) {
+            callInvokable(
+                this.waitUntil,
+                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
+                    keys: keyObjArr.map((keyObj) => keyObj.get()),
+                    method: this.remove.name,
+                    error,
+                }),
+            );
+            throw error;
+        }
     }
 
-    clear(): ITask<void> {
-        return new Task(async () => {
-            try {
-                const promise = this.eventBus.dispatch(
-                    CACHE_EVENTS.CLEARED,
-                    {},
-                );
-                await this.adapter.removeByKeyPrefix(this.namespace.toString());
-                promise.detach();
-            } catch (error: unknown) {
-                this.eventBus
-                    .dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                        method: this.clear.name,
-                        error,
-                    })
-                    .detach();
-                throw error;
-            }
-        });
+    async clear(): Promise<void> {
+        try {
+            await this.adapter.removeByKeyPrefix(this.namespace.toString());
+            callInvokable(
+                this.waitUntil,
+                this.eventBus.dispatch(CACHE_EVENTS.CLEARED, {}),
+            );
+        } catch (error: unknown) {
+            callInvokable(
+                this.waitUntil,
+                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
+                    method: this.clear.name,
+                    error,
+                }),
+            );
+            throw error;
+        }
     }
 }
