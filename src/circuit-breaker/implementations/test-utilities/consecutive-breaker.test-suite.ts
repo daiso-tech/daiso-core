@@ -24,7 +24,7 @@ import {
 } from "@/circuit-breaker/implementations/policies/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type Promisable } from "@/utilities/_module.js";
+import { delay as delay_, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/test-utilities"`
@@ -121,11 +121,9 @@ export function consecutiveBreakerTestSuite(
 
         const KEY = "a";
         async function delay(timeSpan: ITimeSpan): Promise<void> {
-            await new Promise<void>((resolve) => {
-                setTimeout(() => {
-                    resolve();
-                }, TimeSpan.fromTimeSpan(timeSpan).addTimeSpan(delayBuffer).toMilliseconds());
-            });
+            await delay_(
+                TimeSpan.fromTimeSpan(timeSpan).addTimeSpan(delayBuffer),
+            );
         }
 
         describe("method: getState", () => {

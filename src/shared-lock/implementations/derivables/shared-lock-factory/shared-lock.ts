@@ -32,6 +32,7 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callInvokable,
+    delay,
     resolveLazyable,
     UnexpectedError,
     type AsyncLazy,
@@ -275,14 +276,6 @@ export class SharedLock implements ISharedLock {
             interval = this.defaultBlockingInterval,
         } = settings;
 
-        async function delay(ttl: ITimeSpan): Promise<void> {
-            await new Promise<void>((resolve) => {
-                setTimeout(() => {
-                    resolve();
-                }, TimeSpan.fromTimeSpan(ttl).toMilliseconds());
-            });
-        }
-
         const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
         const endDate = timeAsTimeSpan.toEndDate();
         while (endDate.getTime() > new Date().getTime()) {
@@ -468,14 +461,6 @@ export class SharedLock implements ISharedLock {
             time = this.defaultBlockingTime,
             interval = this.defaultBlockingInterval,
         } = settings;
-
-        async function delay(ttl: ITimeSpan): Promise<void> {
-            await new Promise<void>((resolve) => {
-                setTimeout(() => {
-                    resolve();
-                }, TimeSpan.fromTimeSpan(ttl).toMilliseconds());
-            });
-        }
 
         const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
         const endDate = timeAsTimeSpan.toEndDate();

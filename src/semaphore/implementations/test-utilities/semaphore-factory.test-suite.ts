@@ -38,7 +38,7 @@ import {
     type ITimeSpan,
 } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type Promisable } from "@/utilities/_module.js";
+import { delay as delay_, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/test-utilities"`
@@ -157,11 +157,7 @@ export function semaphoreFactoryTestSuite(
     let serde: ISerde;
 
     async function delay(ttl: ITimeSpan): Promise<void> {
-        await new Promise<void>((resolve) => {
-            setTimeout(() => {
-                resolve();
-            }, TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer).toMilliseconds());
-        });
+        await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
     const RETURN_VALUE = "RETURN_VALUE";

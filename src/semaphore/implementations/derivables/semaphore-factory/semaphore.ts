@@ -23,6 +23,7 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callInvokable,
+    delay,
     resolveLazyable,
     type AsyncLazy,
     type Invokable,
@@ -264,14 +265,6 @@ export class Semaphore implements ISemaphore {
             time = this.defaultBlockingTime,
             interval = this.defaultBlockingInterval,
         } = settings;
-
-        async function delay(ttl: ITimeSpan): Promise<void> {
-            await new Promise<void>((resolve) => {
-                setTimeout(() => {
-                    resolve();
-                }, TimeSpan.fromTimeSpan(ttl).toMilliseconds());
-            });
-        }
 
         const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
         const intervalAsTimeSpan = TimeSpan.fromTimeSpan(interval);

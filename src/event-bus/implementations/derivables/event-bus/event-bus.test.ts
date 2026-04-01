@@ -10,15 +10,11 @@ import { eventBusTestSuite } from "@/event-bus/implementations/test-utilities/_m
 import { Namespace } from "@/namespace/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { ValidationError } from "@/utilities/_module.js";
+import { delay as delay_, ValidationError } from "@/utilities/_module.js";
 
 describe("class: EventBus", () => {
     async function delay(ttl: ITimeSpan): Promise<void> {
-        await new Promise<void>((resolve) => {
-            setTimeout(() => {
-                resolve();
-            }, TimeSpan.fromTimeSpan(ttl).toMilliseconds());
-        });
+        await delay_(TimeSpan.fromTimeSpan(ttl));
     }
 
     let eventEmitter: EventEmitter;

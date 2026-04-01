@@ -6,7 +6,6 @@ import { exponentialBackoff } from "@/backoff-policies/_module.js";
 import { type AsyncMiddlewareFn, type HookContext } from "@/hooks/_module.js";
 import { type RetrySettings } from "@/resilience/middlewares/retry/retry.types.js";
 import { RetryResilienceError } from "@/resilience/resilience.errors.js";
-import { Task } from "@/task/implementations/_module.js";
 import {
     callInvokable,
     optionNone,
@@ -16,6 +15,7 @@ import {
     callErrorPolicyOnThrow,
     callErrorPolicyOnValue,
     type Option,
+    delay,
 } from "@/utilities/_module.js";
 
 /**
@@ -94,7 +94,7 @@ export function retry<
                     args,
                     context,
                 });
-                await Task.delay(waitTime, signal);
+                await delay(waitTime, signal);
 
                 // Handle retrying if an error is thrown
             } catch (error: unknown) {
@@ -117,7 +117,7 @@ export function retry<
                     args,
                     context,
                 });
-                await Task.delay(waitTime, signal);
+                await delay(waitTime, signal);
             }
         }
 

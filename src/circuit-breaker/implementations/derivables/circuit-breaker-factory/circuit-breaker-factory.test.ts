@@ -34,6 +34,7 @@ import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.
 import { Serde } from "@/serde/implementations/derivables/serde.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+import { delay as delay_ } from "@/utilities/_module.js";
 
 describe("class: CircuitBreakerFactory", () => {
     const adapter: ICircuitBreakerAdapter = {
@@ -76,11 +77,7 @@ describe("class: CircuitBreakerFactory", () => {
         });
     });
     async function delay(timeSpan: ITimeSpan): Promise<void> {
-        await new Promise<void>((resolve) => {
-            setTimeout(() => {
-                resolve();
-            }, TimeSpan.fromTimeSpan(timeSpan).toMilliseconds());
-        });
+        await delay_(TimeSpan.fromTimeSpan(timeSpan));
     }
 
     describe("API tests:", () => {

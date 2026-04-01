@@ -15,9 +15,10 @@ import { callInvokable } from "@/utilities/_module.js";
  *
  * @example
  * ```ts
- * import { observe, ITask } from "@daiso-tech/core/resilience";
+ * import { observe } from "@daiso-tech/core/resilience";
  * import { AsyncHooks } from "@daiso-tech/core/hooks";
  * import { TimeSpan } from "@daiso-tech/core/time-span";
+ * import { delay } from "@daiso-tech/core/utilities";
  *
  * await new AsyncHooks(
  *   // Lets pretend this function can throw and takes time to execute.
@@ -26,7 +27,7 @@ import { callInvokable } from "@/utilities/_module.js";
  *      if (shouldThrow1 > 50) {
  *        throw new Error("Unexpected error occured");
  *      }
- *      await Task.delay(TimeSpan.fromMilliseconds(Math.random() * 1000));
+ *      await delay(TimeSpan.fromMilliseconds(Math.random() * 1000));
  *      const shouldThrow2 = Math.round(Math.random() * 100);
  *      if (shouldThrow2 > 50) {
  *        throw new Error("Unexpected error occured");

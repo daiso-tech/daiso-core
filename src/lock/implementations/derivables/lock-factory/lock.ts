@@ -27,6 +27,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type AsyncLazy,
     callInvokable,
+    delay,
     type Invokable,
     resolveLazyable,
 } from "@/utilities/_module.js";
@@ -257,14 +258,6 @@ export class Lock implements ILock {
             time = this.defaultBlockingTime,
             interval = this.defaultBlockingInterval,
         } = settings;
-
-        async function delay(ttl: ITimeSpan): Promise<void> {
-            await new Promise<void>((resolve) => {
-                setTimeout(() => {
-                    resolve();
-                }, TimeSpan.fromTimeSpan(ttl).toMilliseconds());
-            });
-        }
 
         const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
         const intervalAsTimeSpan = TimeSpan.fromTimeSpan(interval);

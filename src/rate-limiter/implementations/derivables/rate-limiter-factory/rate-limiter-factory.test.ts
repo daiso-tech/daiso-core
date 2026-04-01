@@ -22,6 +22,7 @@ import {
 import { RateLimiterFactory } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter-factory.js";
 import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+import { delay as delay_ } from "@/utilities/_module.js";
 
 describe("class: RateLimiterFactory", () => {
     const adapter: IRateLimiterAdapter = {
@@ -57,11 +58,7 @@ describe("class: RateLimiterFactory", () => {
     });
 
     async function delay(ttl: ITimeSpan): Promise<void> {
-        await new Promise<void>((resolve) => {
-            setTimeout(() => {
-                resolve();
-            }, TimeSpan.fromTimeSpan(ttl).toMilliseconds());
-        });
+        await delay_(TimeSpan.fromTimeSpan(ttl));
     }
 
     describe("API tests:", () => {
