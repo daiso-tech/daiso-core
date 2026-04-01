@@ -133,6 +133,14 @@ export type LockFactorySettingsBase = {
      * ```
      */
     defaultRefreshTime?: ITimeSpan;
+
+    /**
+     * @default
+     * ```ts
+     * (promise) => promise.then(() => {})
+     * ```
+     */
+    waitUntil?: Invokable<[promise: PromiseLike<unknown>], void>;
 };
 
 /**
@@ -165,6 +173,10 @@ export class LockFactory implements ILockFactory {
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     /**
      * @example
@@ -207,8 +219,10 @@ export class LockFactory implements ILockFactory {
                 adapter: new NoOpEventBusAdapter(),
             }),
             serdeTransformerName = "",
+            waitUntil = (promise) => promise.then(() => {}),
         } = settings;
 
+        this.waitUntil = waitUntil;
         this.serde = serde;
         this.defaultBlockingInterval = TimeSpan.fromTimeSpan(
             defaultBlockingInterval,
@@ -229,6 +243,7 @@ export class LockFactory implements ILockFactory {
 
     private registerToSerde(): void {
         const transformer = new LockSerdeTransformer({
+            waitUntil: this.waitUntil,
             originalAdapter: this.originalAdapter,
             adapter: this.adapter,
             defaultBlockingInterval: this.defaultBlockingInterval,
@@ -274,6 +289,7 @@ export class LockFactory implements ILockFactory {
         const keyObj = this.namespace.create(key);
 
         return new Lock({
+            waitUntil: this.waitUntil,
             namespace: this.namespace,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
