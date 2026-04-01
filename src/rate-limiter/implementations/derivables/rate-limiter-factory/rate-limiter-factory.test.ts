@@ -20,6 +20,7 @@ import {
     type RateLimiterBlockedState,
 } from "@/rate-limiter/contracts/_module.js";
 import { RateLimiterFactory } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter-factory.js";
+import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("class: RateLimiterFactory", () => {
@@ -40,6 +41,7 @@ describe("class: RateLimiterFactory", () => {
         },
     };
     const KEY = "a";
+    const eventDispatchWaitTime = TimeSpan.fromMilliseconds(10);
 
     let rateLimiterFactory: IRateLimiterFactory;
     beforeEach(() => {
@@ -53,6 +55,14 @@ describe("class: RateLimiterFactory", () => {
             enableAsyncTracking: false,
         });
     });
+
+    async function delay(ttl: ITimeSpan): Promise<void> {
+        await new Promise<void>((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, TimeSpan.fromTimeSpan(ttl).toMilliseconds());
+        });
+    }
 
     describe("API tests:", () => {
         describe("method: runOrFail", () => {
@@ -441,6 +451,7 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -492,6 +503,7 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
@@ -531,6 +543,7 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -580,6 +593,7 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -628,6 +642,7 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -669,6 +684,7 @@ describe("class: RateLimiterFactory", () => {
                         onlyError: true,
                     });
                     await rateLimiter.runOrFail(() => {});
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -719,6 +735,7 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -767,6 +784,7 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -808,6 +826,7 @@ describe("class: RateLimiterFactory", () => {
                         onlyError: false,
                     });
                     await rateLimiter.runOrFail(() => {});
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -853,6 +872,7 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -884,6 +904,7 @@ describe("class: RateLimiterFactory", () => {
                     limit: 10,
                 });
                 await rateLimiter.reset();
+                await delay(eventDispatchWaitTime);
 
                 expect(handlerFn).toHaveBeenCalledOnce();
                 expect(handlerFn).toHaveBeenCalledWith(

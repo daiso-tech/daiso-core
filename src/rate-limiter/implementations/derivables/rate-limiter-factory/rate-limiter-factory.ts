@@ -24,6 +24,7 @@ import {
     CORE,
     resolveOneOrMore,
     type ErrorPolicy,
+    type Invokable,
     type OneOrMore,
 } from "@/utilities/_module.js";
 
@@ -93,6 +94,14 @@ export type RateLimiterFactorySettingsBase = {
      * @default ""
      */
     serdeTransformerName?: string;
+
+    /**
+     * @default
+     * ```ts
+     * (promise) => promise.then(() => {})
+     * ```
+     */
+    waitUntil?: Invokable<[promise: PromiseLike<unknown>], void>;
 };
 
 /**
@@ -118,6 +127,10 @@ export class RateLimiterFactory implements IRateLimiterFactory {
     private readonly enableAsyncTracking: boolean;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     /**
      * @example
@@ -162,8 +175,10 @@ export class RateLimiterFactory implements IRateLimiterFactory {
             defaultErrorPolicy = () => true,
             serde = new Serde(new NoOpSerdeAdapter()),
             serdeTransformerName = "",
+            waitUntil = (promise) => promise.then(() => {}),
         } = settings;
 
+        this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.enableAsyncTracking = enableAsyncTracking;
         this.namespace = namespace;
@@ -177,6 +192,7 @@ export class RateLimiterFactory implements IRateLimiterFactory {
 
     private registerToSerde(): void {
         const transformer = new RateLimiterSerdeTransformer({
+            waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             namespace: this.namespace,
             eventBus: this.eventBus,
@@ -205,6 +221,7 @@ export class RateLimiterFactory implements IRateLimiterFactory {
         } = settings;
         return new RateLimiter({
             limit,
+            waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             eventDispatcher: this.eventBus,
             adapter: this.adapter,

@@ -21,7 +21,6 @@ import {
     LIMITER_POLICIES,
     type FixedWindowLimiterSettingsEnum,
 } from "@/rate-limiter/implementations/policies/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
@@ -120,9 +119,11 @@ export function fixedWindowLimiterTestSuite(
         const KEY = "a";
         const LIMIT = 4;
         async function delay(timeSpan: TimeSpan): Promise<void> {
-            await Task.delay(
-                TimeSpan.fromTimeSpan(timeSpan).addTimeSpan(delayBuffer),
-            );
+            await new Promise<void>((resolve) => {
+                setTimeout(() => {
+                    resolve();
+                }, TimeSpan.fromTimeSpan(timeSpan).addTimeSpan(delayBuffer).toMilliseconds());
+            });
         }
 
         describe("method: getState", () => {
