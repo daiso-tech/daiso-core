@@ -15,7 +15,11 @@ import {
     type ISerializedSharedLock,
 } from "@/shared-lock/implementations/derivables/shared-lock-factory/shared-lock.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { getConstructorName, type OneOrMore } from "@/utilities/_module.js";
+import {
+    getConstructorName,
+    type Invokable,
+    type OneOrMore,
+} from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -29,6 +33,7 @@ export type SharedLockSerdeTransformerSettings = {
     defaultRefreshTime: TimeSpan;
     eventBus: IEventBus<SharedLockEventMap>;
     serdeTransformerName: string;
+    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
 };
 
 /**
@@ -45,6 +50,10 @@ export class SharedLockSerdeTransformer
     private readonly defaultRefreshTime: TimeSpan;
     private readonly eventBus: IEventBus<SharedLockEventMap>;
     private readonly serdeTransformerName: string;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     constructor(settings: SharedLockSerdeTransformerSettings) {
         const {
@@ -56,7 +65,10 @@ export class SharedLockSerdeTransformer
             defaultRefreshTime,
             eventBus,
             serdeTransformerName,
+            waitUntil,
         } = settings;
+
+        this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this.originalAdapter = originalAdapter;
@@ -107,6 +119,7 @@ export class SharedLockSerdeTransformer
         const { key, lockId, limit, ttlInMs } = serializedValue;
         const keyObj = this.namespace.create(key);
         return new SharedLock({
+            waitUntil: this.waitUntil,
             lockId,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,

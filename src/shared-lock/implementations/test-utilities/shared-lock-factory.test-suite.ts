@@ -43,7 +43,6 @@ import {
     type ReleasedWriterLockEvent,
     type UnavailableSharedLockEvent,
 } from "@/shared-lock/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import { createIsTimeSpanEqualityTester } from "@/test-utilities/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -98,6 +97,16 @@ export type SharedLockFactoryTestSuiteSettings = {
      * ```
      */
     timeSpanEqualityBuffer?: ITimeSpan;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span"
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    eventDispatchWaitTime?: ITimeSpan;
 };
 
 /**
@@ -150,12 +159,17 @@ export function sharedLockFactoryTestSuite(
         retry = 0,
         delayBuffer = TimeSpan.fromMilliseconds(10),
         timeSpanEqualityBuffer = TimeSpan.fromMilliseconds(10),
+        eventDispatchWaitTime = TimeSpan.fromMilliseconds(10),
     } = settings;
 
     let sharedLockFactory: ISharedLockFactory;
     let serde: ISerde;
-    async function delay(time: TimeSpan): Promise<void> {
-        await Task.delay(TimeSpan.fromTimeSpan(time).addTimeSpan(delayBuffer));
+    async function delay(ttl: ITimeSpan): Promise<void> {
+        await new Promise<void>((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer).toMilliseconds());
+        });
     }
     const RETURN_VALUE = "RETURN_VALUE";
 
@@ -1891,13 +1905,13 @@ export function sharedLockFactoryTestSuite(
                         limit,
                     });
                     await sharedLock1.acquireWriter();
+                    await delay(ttl);
 
                     const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const result = await sharedLock2.releaseWriter();
-                    await delay(ttl);
 
                     expect(result).toBe(false);
                 });
@@ -2133,13 +2147,13 @@ export function sharedLockFactoryTestSuite(
                         limit,
                     });
                     await sharedLock1.acquireWriter();
+                    await delay(ttl);
 
                     const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
                         limit,
                     });
                     const result = sharedLock2.releaseWriterOrFail();
-                    await delay(ttl);
 
                     await expect(result).rejects.toBeInstanceOf(
                         FailedReleaseWriterLockError,
@@ -6673,6 +6687,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriter();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -6743,6 +6758,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriter();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -6776,6 +6792,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriter();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -6811,6 +6828,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriter();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -6846,6 +6864,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriter();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -6880,6 +6899,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriterOrFail();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -6917,6 +6937,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriterOrFail();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -6950,6 +6971,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriterOrFail();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -6983,6 +7005,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriterOrFail();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7022,6 +7045,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7061,6 +7085,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7098,6 +7123,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7138,6 +7164,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7174,6 +7201,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7210,6 +7238,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7248,6 +7277,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
                         1,
@@ -7289,6 +7319,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
                         1,
@@ -7329,6 +7360,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7369,6 +7401,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7405,6 +7438,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7441,6 +7475,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7483,6 +7518,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
                         1,
@@ -7528,6 +7564,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
                         1,
@@ -7565,6 +7602,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseWriter();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7601,6 +7639,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseWriter();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7637,6 +7676,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseWriter();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7709,6 +7749,7 @@ export function sharedLockFactoryTestSuite(
                     await delay(ttl);
 
                     await sharedLock.releaseWriter();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7743,6 +7784,7 @@ export function sharedLockFactoryTestSuite(
                     await sharedLock.acquireWriter();
 
                     await sharedLock.releaseWriter();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7777,6 +7819,7 @@ export function sharedLockFactoryTestSuite(
                     await sharedLock.acquireWriter();
 
                     await sharedLock.releaseWriter();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7815,6 +7858,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7855,6 +7899,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7895,6 +7940,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7975,6 +8021,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8009,6 +8056,7 @@ export function sharedLockFactoryTestSuite(
                     await sharedLock.acquireWriter();
 
                     await sharedLock.releaseWriterOrFail();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8043,6 +8091,7 @@ export function sharedLockFactoryTestSuite(
                     await sharedLock.acquireWriter();
 
                     await sharedLock.releaseWriterOrFail();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8078,6 +8127,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.refreshWriter(newTtl);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8117,6 +8167,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock2.refreshWriter(newTtl);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8156,6 +8207,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock2.refreshWriter(newTtl);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8196,6 +8248,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock2.refreshWriter(newTtl);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8232,6 +8285,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.refreshWriter(newTtl);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8267,6 +8321,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.refreshWriter(newTtl);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8302,6 +8357,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.refreshWriter(newTtl);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8341,6 +8397,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8384,6 +8441,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8427,6 +8485,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8471,6 +8530,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8511,6 +8571,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8550,6 +8611,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8585,6 +8647,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.refreshWriterOrFail(newTtl);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8619,6 +8682,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.forceReleaseWriter();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8654,6 +8718,7 @@ export function sharedLockFactoryTestSuite(
                     await sharedLock.acquireWriter();
                     await delay(ttl);
                     await sharedLock.forceReleaseWriter();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8688,6 +8753,7 @@ export function sharedLockFactoryTestSuite(
                     );
                     await sharedLock.acquireWriter();
                     await sharedLock.forceReleaseWriter();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8724,6 +8790,7 @@ export function sharedLockFactoryTestSuite(
                         ttl,
                     });
                     await sharedLock.acquireReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8759,6 +8826,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8796,6 +8864,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock2.acquireReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8839,6 +8908,7 @@ export function sharedLockFactoryTestSuite(
                         ttl,
                     });
                     await sharedLock3.acquireReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8885,6 +8955,7 @@ export function sharedLockFactoryTestSuite(
                         ttl: ttl3,
                     });
                     await sharedLock3.acquireReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8918,6 +8989,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     await sharedLock.acquireReader();
                     await sharedLock.acquireReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(2);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8951,6 +9023,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     await sharedLock.acquireReader();
                     await sharedLock.acquireReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(2);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -8986,6 +9059,7 @@ export function sharedLockFactoryTestSuite(
                         ttl,
                     });
                     await sharedLock.acquireReaderOrFail();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9021,6 +9095,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireReaderOrFail();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9058,6 +9133,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock2.acquireReaderOrFail();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9105,6 +9181,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9151,6 +9228,7 @@ export function sharedLockFactoryTestSuite(
                         ttl: ttl3,
                     });
                     await sharedLock3.acquireReaderOrFail();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9184,6 +9262,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     await sharedLock.acquireReader();
                     await sharedLock.acquireReaderOrFail();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(2);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9217,6 +9296,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     await sharedLock.acquireReader();
                     await sharedLock.acquireReaderOrFail();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(2);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9255,6 +9335,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9293,6 +9374,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9333,6 +9415,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9379,6 +9462,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
                         1,
@@ -9431,6 +9515,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9467,6 +9552,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(2);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9503,6 +9589,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(2);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9541,6 +9628,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9579,6 +9667,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9619,6 +9708,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9669,6 +9759,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
                         1,
@@ -9721,6 +9812,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9757,6 +9849,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(2);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9793,6 +9886,7 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(2);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9838,6 +9932,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9879,6 +9974,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9918,6 +10014,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9953,6 +10050,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -9987,6 +10085,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10021,6 +10120,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10070,6 +10170,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10115,6 +10216,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10158,6 +10260,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10197,6 +10300,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10231,6 +10335,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReaderOrFail();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10265,6 +10370,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReaderOrFail();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10310,6 +10416,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock2.refreshReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10351,6 +10458,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock2.refreshReader();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10386,6 +10494,7 @@ export function sharedLockFactoryTestSuite(
                     );
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await sharedLock.refreshReader(newTtl);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10422,6 +10531,7 @@ export function sharedLockFactoryTestSuite(
                     );
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await sharedLock.refreshReader(newTtl);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10457,6 +10567,7 @@ export function sharedLockFactoryTestSuite(
                     );
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await sharedLock.refreshReader(newTtl);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10492,6 +10603,7 @@ export function sharedLockFactoryTestSuite(
                     );
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await sharedLock.refreshReader(newTtl);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10541,6 +10653,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10586,6 +10699,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10625,6 +10739,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10665,6 +10780,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10704,6 +10820,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10739,6 +10856,7 @@ export function sharedLockFactoryTestSuite(
                     );
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await sharedLock.refreshReaderOrFail(newTtl);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10792,6 +10910,7 @@ export function sharedLockFactoryTestSuite(
                     );
 
                     await sharedLock3.forceReleaseAllReaders();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -10835,6 +10954,7 @@ export function sharedLockFactoryTestSuite(
                     );
 
                     await sharedLock1.forceReleaseAllReaders();
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
