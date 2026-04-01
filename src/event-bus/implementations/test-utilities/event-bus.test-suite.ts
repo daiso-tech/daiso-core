@@ -11,7 +11,7 @@ import {
 } from "vitest";
 
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
+import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
@@ -42,6 +42,14 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
         b: number;
     };
 
+    async function delay(ttl: ITimeSpan): Promise<void> {
+        await new Promise<void>((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, TimeSpan.fromTimeSpan(ttl).toMilliseconds());
+        });
+    }
+
     let eventBus: IEventBus<{
         add: AddEvent;
     }>;
@@ -49,10 +57,6 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
         beforeEach(async () => {
             eventBus = await createEventBus();
         });
-
-        async function delay(time: TimeSpan): Promise<void> {
-            await Task.delay(time);
-        }
 
         describe("method: addListener, removeListener, dispatch", () => {
             test("Should not call listener when listener is added and event is not triggered", async () => {
@@ -259,14 +263,14 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
             test("Should not call onfulfilled handler when event is not triggered", () => {
                 const listener = vi.fn((_event: AddEvent) => {});
 
-                eventBus.asTask("add").then(listener);
+                void eventBus.asPromise("add").then(listener);
 
                 expect(listener).toHaveBeenCalledTimes(0);
             });
             test("Should call onfulfilled with AddEvent when event is triggered", async () => {
                 const listener = vi.fn((_event: AddEvent) => {});
 
-                eventBus.asTask("add").then(listener);
+                void eventBus.asPromise("add").then(listener);
                 const event: AddEvent = {
                     a: 1,
                     b: 2,

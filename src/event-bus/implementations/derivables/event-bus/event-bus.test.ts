@@ -8,11 +8,19 @@ import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/memo
 import { EventBus } from "@/event-bus/implementations/derivables/event-bus/event-bus.js";
 import { eventBusTestSuite } from "@/event-bus/implementations/test-utilities/_module.js";
 import { Namespace } from "@/namespace/implementations/_module.js";
-import { Task } from "@/task/implementations/_module.js";
+import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { ValidationError } from "@/utilities/_module.js";
 
 describe("class: EventBus", () => {
+    async function delay(ttl: ITimeSpan): Promise<void> {
+        await new Promise<void>((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, TimeSpan.fromTimeSpan(ttl).toMilliseconds());
+        });
+    }
+
     let eventEmitter: EventEmitter;
     beforeEach(() => {
         eventEmitter = new EventEmitter();
@@ -72,10 +80,10 @@ describe("class: EventBus", () => {
                     namespace.create("add").toString(),
                     invalidInput,
                 );
-                await Task.delay(TimeSpan.fromMilliseconds(10));
+                await delay(TimeSpan.fromMilliseconds(10));
 
                 expect(error).toBeInstanceOf(ValidationError);
-                eventBus.removeListener("add", listener);
+                await eventBus.removeListener("add", listener);
             });
             test("method: listenOnce", async () => {
                 let error: unknown = null;
@@ -96,10 +104,10 @@ describe("class: EventBus", () => {
                     namespace.create("add").toString(),
                     invalidInput,
                 );
-                await Task.delay(TimeSpan.fromMilliseconds(10));
+                await delay(TimeSpan.fromMilliseconds(10));
 
                 expect(error).toBeInstanceOf(ValidationError);
-                eventBus.removeListener("add", listener);
+                await eventBus.removeListener("add", listener);
             });
             test("method: asPromise", async () => {
                 let error: unknown = null;
@@ -113,12 +121,12 @@ describe("class: EventBus", () => {
                     },
                 });
 
-                eventBus.asTask("add").detach();
+                void eventBus.asPromise("add");
                 await adapter.dispatch(
                     namespace.create("add").toString(),
                     invalidInput,
                 );
-                await Task.delay(TimeSpan.fromMilliseconds(10));
+                await delay(TimeSpan.fromMilliseconds(10));
 
                 expect(error).toBeInstanceOf(ValidationError);
             });
@@ -144,7 +152,7 @@ describe("class: EventBus", () => {
                     namespace.create("add").toString(),
                     invalidInput,
                 );
-                await Task.delay(TimeSpan.fromMilliseconds(10));
+                await delay(TimeSpan.fromMilliseconds(10));
 
                 expect(error).toBeInstanceOf(ValidationError);
                 await unsubscribe();
@@ -168,7 +176,7 @@ describe("class: EventBus", () => {
                     namespace.create("add").toString(),
                     invalidInput,
                 );
-                await Task.delay(TimeSpan.fromMilliseconds(10));
+                await delay(TimeSpan.fromMilliseconds(10));
 
                 expect(error).toBeInstanceOf(ValidationError);
                 await unsubscribe();

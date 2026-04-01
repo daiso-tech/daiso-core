@@ -15,7 +15,7 @@ import {
     type BaseEvent,
     type IEventBusAdapter,
 } from "@/event-bus/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
+import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
@@ -44,8 +44,12 @@ export function eventBusAdapterTestSuite(
 
     let adapter: IEventBusAdapter;
 
-    async function delay(time: TimeSpan): Promise<void> {
-        await Task.delay(time);
+    async function delay(ttl: ITimeSpan): Promise<void> {
+        await new Promise<void>((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, TimeSpan.fromTimeSpan(ttl).toMilliseconds());
+        });
     }
 
     const TTL = TimeSpan.fromMilliseconds(50);
