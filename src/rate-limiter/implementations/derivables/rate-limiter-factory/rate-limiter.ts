@@ -276,12 +276,12 @@ export class RateLimiter implements IRateLimiter {
     }
 
     async reset(): Promise<void> {
+        await this.adapter.reset(this._key.toString());
         callInvokable(
             this.waitUntil,
             this.eventDispatcher.dispatch(RATE_LIMITER_EVENTS.RESETED, {
                 rateLimiter: this,
             }),
         );
-        await this.adapter.reset(this._key.toString());
     }
 }
