@@ -143,8 +143,8 @@ export class Semaphore implements ISemaphore {
     async runOrFail<TValue = void>(
         asyncFn: AsyncLazy<TValue>,
     ): Promise<TValue> {
+        await this.acquireOrFail();
         try {
-            await this.acquireOrFail();
             return await resolveLazyable(asyncFn);
         } finally {
             await this.release();
@@ -155,9 +155,8 @@ export class Semaphore implements ISemaphore {
         asyncFn: AsyncLazy<TValue>,
         settings?: SemaphoreAquireBlockingSettings,
     ): Promise<TValue> {
+        await this.acquireBlockingOrFail(settings);
         try {
-            await this.acquireBlockingOrFail(settings);
-
             return await resolveLazyable(asyncFn);
         } finally {
             await this.release();
