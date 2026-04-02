@@ -14,16 +14,25 @@ export async function delay(
     signal = new AbortController().signal,
 ): Promise<void> {
     await new Promise<void>((resolve, reject) => {
-        signal.addEventListener(
-            "abort",
-            () => {
-                // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
-                reject(signal.reason);
-            },
-            {
-                once: true,
-            },
-        );
+        if (signal.aborted) {
+            // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+            reject(signal.reason);
+            return;
+        }
+
+        const timeoutId = setTimeout(() => {
+            signal.removeEventListener("abort", onAbort);
+            resolve();
+        }, TimeSpan.fromTimeSpan(time).toMilliseconds());
+
+        function onAbort(): void {
+            clearTimeout(timeoutId);
+            // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+            reject(signal.reason);
+        }
+        signal.addEventListener("abort", onAbort, {
+            once: true,
+        });
         setTimeout(() => {
             resolve();
         }, TimeSpan.fromTimeSpan(time).toMilliseconds());
