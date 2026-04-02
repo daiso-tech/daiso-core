@@ -18,6 +18,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type Invokable,
     type OneOrMore,
+    type WaitUntil,
     getConstructorName,
 } from "@/utilities/_module.js";
 
@@ -33,7 +34,7 @@ export type SemaphoreSerdeTransformerSettings = {
     defaultRefreshTime: TimeSpan;
     eventBus: IEventBus<SemaphoreEventMap>;
     serdeTransformerName: string;
-    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil: WaitUntil;
 };
 
 /**

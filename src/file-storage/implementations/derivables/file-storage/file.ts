@@ -37,6 +37,7 @@ import {
     callInvokable,
     type Invokable,
     type InvokableFn,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -56,7 +57,7 @@ export type FileSettings = {
     defaultContentEncoding: string | null;
     defaultCacheControl: string | null;
     defaultContentLanguage: string | null;
-    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil: WaitUntil;
 };
 
 /**

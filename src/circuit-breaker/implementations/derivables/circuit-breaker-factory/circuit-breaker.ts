@@ -25,6 +25,7 @@ import {
     type ErrorPolicy,
     type Invokable,
     type InvokableFn,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -40,7 +41,7 @@ export type CircuitBreakerSettings = {
     trigger: CircuitBreakerTrigger;
     serdeTransformerName: string;
     namespace: INamespace;
-    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil: WaitUntil;
 };
 
 /**

@@ -26,10 +26,12 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     CORE,
+    defaultWaitUntil,
     resolveOneOrMore,
     type ErrorPolicy,
     type Invokable,
     type OneOrMore,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -122,7 +124,7 @@ export type CircuitBreakerFactorySettingsBase = {
      * (promise) => promise.then(() => {})
      * ```
      */
-    waitUntil?: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil?: WaitUntil;
 };
 
 /**
@@ -203,7 +205,7 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
             defaultErrorPolicy = () => true,
             serde = new Serde(new NoOpSerdeAdapter()),
             serdeTransformerName = "",
-            waitUntil = (promise) => promise.then(() => {}),
+            waitUntil = defaultWaitUntil,
         } = settings;
 
         this.waitUntil = waitUntil;

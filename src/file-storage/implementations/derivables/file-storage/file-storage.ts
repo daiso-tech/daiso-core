@@ -27,10 +27,12 @@ import { Serde } from "@/serde/implementations/derivables/_module.js";
 import {
     callInvokable,
     CORE,
+    defaultWaitUntil,
     resolveOneOrMore,
     type Invokable,
     type InvokableFn,
     type OneOrMore,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -165,7 +167,7 @@ export type FileStorageSettingsBase = {
      * (promise) => promise.then(() => {})
      * ```
      */
-    waitUntil?: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil?: WaitUntil;
 };
 
 /**
@@ -238,7 +240,7 @@ export class FileStorage implements IFileStorage {
             defaultContentEncoding = null,
             defaultContentLanguage = null,
             urlAdapter = {},
-            waitUntil = (promise) => promise.then(() => {}),
+            waitUntil = defaultWaitUntil,
         } = settings;
 
         this.waitUntil = waitUntil;

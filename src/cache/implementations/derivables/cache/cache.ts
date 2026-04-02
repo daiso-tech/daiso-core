@@ -27,12 +27,14 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callInvokable,
+    defaultWaitUntil,
     resolveAsyncLazyable,
     validate,
     withJitter,
     type AsyncLazyable,
     type Invokable,
     type NoneFunc,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -93,7 +95,7 @@ export type CacheSettingsBase<TType = unknown> = {
      * (promise) => promise.then(() => {})
      * ```
      */
-    waitUntil?: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil?: WaitUntil;
 };
 
 /**
@@ -161,7 +163,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
             }),
             defaultTtl = null,
             defaultJitter = 0.2,
-            waitUntil = (promise) => promise.then(() => {}),
+            waitUntil = defaultWaitUntil,
         } = settings;
 
         this.waitUntil = waitUntil;

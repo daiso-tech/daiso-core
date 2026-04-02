@@ -35,6 +35,8 @@ import {
     resolveOneOrMore,
     type Invokable,
     callInvokable,
+    type WaitUntil,
+    defaultWaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -140,7 +142,7 @@ export type LockFactorySettingsBase = {
      * (promise) => promise.then(() => {})
      * ```
      */
-    waitUntil?: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil?: WaitUntil;
 };
 
 /**
@@ -219,7 +221,7 @@ export class LockFactory implements ILockFactory {
                 adapter: new NoOpEventBusAdapter(),
             }),
             serdeTransformerName = "",
-            waitUntil = (promise) => promise.then(() => {}),
+            waitUntil = defaultWaitUntil,
         } = settings;
 
         this.waitUntil = waitUntil;

@@ -19,6 +19,7 @@ import {
     getConstructorName,
     type Invokable,
     type OneOrMore,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -33,7 +34,7 @@ export type SharedLockSerdeTransformerSettings = {
     defaultRefreshTime: TimeSpan;
     eventBus: IEventBus<SharedLockEventMap>;
     serdeTransformerName: string;
-    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil: WaitUntil;
 };
 
 /**

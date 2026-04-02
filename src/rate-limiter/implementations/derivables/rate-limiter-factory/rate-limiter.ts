@@ -23,6 +23,7 @@ import {
     type AsyncLazy,
     type ErrorPolicy,
     type Invokable,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -38,7 +39,7 @@ export type RateLimiterSettings = {
     onlyError: boolean;
     namespace: INamespace;
     serdeTransformerName: string;
-    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil: WaitUntil;
 };
 
 /**

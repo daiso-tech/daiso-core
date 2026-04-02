@@ -32,6 +32,8 @@ import {
     type Invokable,
     callInvokable,
     type OneOrMore,
+    type WaitUntil,
+    defaultWaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -137,7 +139,7 @@ export type SharedLockFactorySettingsBase = {
      * (promise) => promise.then(() => {})
      * ```
      */
-    waitUntil?: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil?: WaitUntil;
 };
 
 /**
@@ -216,7 +218,7 @@ export class SharedLockFactory implements ISharedLockFactory {
                 adapter: new NoOpEventBusAdapter(),
             }),
             serdeTransformerName = "",
-            waitUntil = (promise) => promise.then(() => {}),
+            waitUntil = defaultWaitUntil,
         } = settings;
 
         this.waitUntil = waitUntil;

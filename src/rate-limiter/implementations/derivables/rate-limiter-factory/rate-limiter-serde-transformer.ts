@@ -18,6 +18,7 @@ import {
     type ErrorPolicy,
     type Invokable,
     type OneOrMore,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -31,7 +32,7 @@ export type RateLimiterSerdeTransformerSettings = {
     eventBus: IEventBus<RateLimiterEventMap>;
     serdeTransformerName: string;
     enableAsyncTracking: boolean;
-    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil: WaitUntil;
 };
 
 /**

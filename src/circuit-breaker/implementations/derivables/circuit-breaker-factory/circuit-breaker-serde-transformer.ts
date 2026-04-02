@@ -20,6 +20,7 @@ import {
     type ErrorPolicy,
     type Invokable,
     type OneOrMore,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -34,7 +35,7 @@ export type CircuitBreakerSerdeTransformerSettings = {
     eventBus: IEventBus<CircuitBreakerEventMap>;
     serdeTransformerName: string;
     enableAsyncTracking: boolean;
-    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil: WaitUntil;
 };
 
 /**

@@ -19,13 +19,14 @@ import {
     type Invokable,
     type InvokableFn,
     type OneOrMore,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
 export type FileSerdeTransformerSettings = {
-    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil: WaitUntil;
     defaultContentType: string;
     defaultContentDisposition: string | null;
     defaultContentEncoding: string | null;

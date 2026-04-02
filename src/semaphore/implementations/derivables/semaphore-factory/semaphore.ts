@@ -27,6 +27,7 @@ import {
     resolveLazyable,
     type AsyncLazy,
     type Invokable,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -56,7 +57,7 @@ export type SemaphoreSettings = {
     defaultBlockingTime: TimeSpan;
     defaultRefreshTime: TimeSpan;
     namespace: INamespace;
-    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil: WaitUntil;
 };
 
 /**

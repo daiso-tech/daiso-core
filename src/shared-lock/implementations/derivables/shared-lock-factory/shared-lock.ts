@@ -37,6 +37,7 @@ import {
     UnexpectedError,
     type AsyncLazy,
     type Invokable,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -66,7 +67,7 @@ export type SharedLockSettings = {
     defaultBlockingInterval: TimeSpan;
     defaultBlockingTime: TimeSpan;
     defaultRefreshTime: TimeSpan;
-    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil: WaitUntil;
 };
 
 /**

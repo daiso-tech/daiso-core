@@ -22,10 +22,12 @@ import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import {
     CORE,
+    defaultWaitUntil,
     resolveOneOrMore,
     type ErrorPolicy,
     type Invokable,
     type OneOrMore,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -101,7 +103,7 @@ export type RateLimiterFactorySettingsBase = {
      * (promise) => promise.then(() => {})
      * ```
      */
-    waitUntil?: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil?: WaitUntil;
 };
 
 /**
@@ -175,7 +177,7 @@ export class RateLimiterFactory implements IRateLimiterFactory {
             defaultErrorPolicy = () => true,
             serde = new Serde(new NoOpSerdeAdapter()),
             serdeTransformerName = "",
-            waitUntil = (promise) => promise.then(() => {}),
+            waitUntil = defaultWaitUntil,
         } = settings;
 
         this.waitUntil = waitUntil;

@@ -30,6 +30,7 @@ import {
     delay,
     type Invokable,
     resolveLazyable,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -57,7 +58,7 @@ export type LockSettings = {
     defaultBlockingInterval: TimeSpan;
     defaultBlockingTime: TimeSpan;
     defaultRefreshTime: TimeSpan;
-    waitUntil: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil: WaitUntil;
 };
 
 /**

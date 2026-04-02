@@ -31,10 +31,12 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callInvokable,
     CORE,
+    defaultWaitUntil,
     isPositiveNbr,
     resolveOneOrMore,
     type Invokable,
     type OneOrMore,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -140,7 +142,7 @@ export type SemaphoreFactorySettingsBase = {
      * (promise) => promise.then(() => {})
      * ```
      */
-    waitUntil?: Invokable<[promise: PromiseLike<unknown>], void>;
+    waitUntil?: WaitUntil;
 };
 
 /**
@@ -219,7 +221,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
                 adapter: new NoOpEventBusAdapter(),
             }),
             serdeTransformerName = "",
-            waitUntil = (promise) => promise.then(() => {}),
+            waitUntil = defaultWaitUntil,
         } = settings;
 
         this.waitUntil = waitUntil;
