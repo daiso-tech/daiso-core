@@ -267,7 +267,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
                 this.waitUntil,
                 this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
                     keys: [keyObj.get()],
-                    method: this.get.name,
+                    method: this.getAndRemove.name,
                     error,
                 }),
             );
