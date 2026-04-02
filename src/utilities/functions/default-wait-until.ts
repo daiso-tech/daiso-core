@@ -12,7 +12,7 @@ export const defaultWaitUntil: WaitUntil = (promise) => {
     promise.then(
         () => {},
         (error: unknown) => {
-            console.log("Unhandled promise rejection:", error);
+            console.error("Unhandled promise rejection:", error);
         },
     );
 };
