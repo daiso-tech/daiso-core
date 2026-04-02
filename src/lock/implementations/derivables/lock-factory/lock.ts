@@ -137,8 +137,8 @@ export class Lock implements ILock {
     async runOrFail<TValue = void>(
         asyncFn: AsyncLazy<TValue>,
     ): Promise<TValue> {
+        await this.acquireOrFail();
         try {
-            await this.acquireOrFail();
             return await resolveLazyable(asyncFn);
         } finally {
             await this.release();
@@ -149,9 +149,8 @@ export class Lock implements ILock {
         asyncFn: AsyncLazy<TValue>,
         settings?: LockAquireBlockingSettings,
     ): Promise<TValue> {
+        await this.acquireBlockingOrFail(settings);
         try {
-            await this.acquireBlockingOrFail(settings);
-
             return await resolveLazyable(asyncFn);
         } finally {
             await this.release();
@@ -263,7 +262,7 @@ export class Lock implements ILock {
         const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
         const intervalAsTimeSpan = TimeSpan.fromTimeSpan(interval);
         const endDate = timeAsTimeSpan.toEndDate();
-        while (endDate > new Date()) {
+        while (endDate.getTime() > new Date().getTime()) {
             const hasAquired = await this.acquire();
             if (hasAquired) {
                 return true;
