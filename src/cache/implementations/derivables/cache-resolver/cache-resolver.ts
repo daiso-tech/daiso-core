@@ -19,6 +19,7 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -118,6 +119,13 @@ export class CacheResolver<TAdapters extends string = string, TType = unknown>
         return new CacheResolver({
             ...this.settings,
             defaultJitter: jitter,
+        });
+    }
+
+    setWaitUntil(waitUntil: WaitUntil): CacheResolver<TAdapters, TType> {
+        return new CacheResolver({
+            ...this.settings,
+            waitUntil,
         });
     }
 

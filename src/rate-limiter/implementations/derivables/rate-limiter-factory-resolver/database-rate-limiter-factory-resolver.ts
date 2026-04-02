@@ -22,6 +22,7 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     DefaultAdapterNotDefinedError,
     type ErrorPolicy,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -158,6 +159,15 @@ export class DatabaseRateLimiterFactoryResolver<TAdapters extends string>
         return new DatabaseRateLimiterFactoryResolver({
             ...this.settings,
             rateLimiterPolicy,
+        });
+    }
+
+    setWaitUntil(
+        waitUntil: WaitUntil,
+    ): DatabaseRateLimiterFactoryResolver<TAdapters> {
+        return new DatabaseRateLimiterFactoryResolver({
+            ...this.settings,
+            waitUntil,
         });
     }
 
