@@ -343,10 +343,11 @@ export class AsyncIterableCollection<TInput = unknown>
         initialValue: TOutput,
     ): Promise<TOutput>;
     async reduce<TOutput = TInput>(
-        reduce: AsyncReduce<TInput, IAsyncCollection<TInput>, TOutput>,
+        reduceFn: AsyncReduce<TInput, IAsyncCollection<TInput>, TOutput>,
         initialValue?: TOutput,
     ): Promise<TOutput> {
-        if (initialValue === undefined && (await this.isEmpty())) {
+        const hasInitialValue = arguments.length >= 2;
+        if (!hasInitialValue && (await this.isEmpty())) {
             throw new TypeError(
                 "AsyncReduce of empty array must be inputed a initial value",
             );
@@ -355,7 +356,7 @@ export class AsyncIterableCollection<TInput = unknown>
             let output = initialValue as TOutput;
 
             for await (const [index, item] of this.entries()) {
-                output = await resolveInvokable(reduce)(
+                output = await resolveInvokable(reduceFn)(
                     output,
                     item,
                     index,
@@ -365,12 +366,12 @@ export class AsyncIterableCollection<TInput = unknown>
             return output;
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-        let output: TOutput = (await this.firstOrFail()) as any,
-            index = 0,
-            isFirstIteration = true;
+        let output: TOutput = (await this.firstOrFail()) as any;
+        let index = 0;
+        let isFirstIteration = true;
         for await (const item of this) {
             if (!isFirstIteration) {
-                output = await resolveInvokable(reduce)(
+                output = await resolveInvokable(reduceFn)(
                     output,
                     item,
                     index,

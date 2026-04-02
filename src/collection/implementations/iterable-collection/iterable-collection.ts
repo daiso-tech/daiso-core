@@ -333,25 +333,23 @@ export class IterableCollection<TInput = unknown>
         reduceFn: Reduce<TInput, ICollection<TInput>, TOutput>,
         initialValue?: TOutput,
     ): TOutput {
-        if (initialValue === undefined && this.isEmpty()) {
+        const hasInitialValue = arguments.length >= 2;
+        if (!hasInitialValue && this.isEmpty()) {
             throw new TypeError(
-                "Reduce of empty array must be inputed a initial value",
+                "AsyncReduce of empty array must be inputed a initial value",
             );
         }
         if (initialValue !== undefined) {
-            let output = initialValue as TOutput,
-                index = 0;
-            for (const item of this) {
+            let output = initialValue as TOutput;
+
+            for (const [index, item] of this.entries()) {
                 output = resolveInvokable(reduceFn)(output, item, index, this);
-                index++;
             }
             return output;
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-explicit-any
-        let output: TOutput = this.firstOrFail() as any,
-            index = 0,
-            isFirstIteration = true;
+        } // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unnecessary-type-assertion
+        let output: TOutput = this.firstOrFail() as any;
+        let index = 0;
+        let isFirstIteration = true;
         for (const item of this) {
             if (!isFirstIteration) {
                 output = resolveInvokable(reduceFn)(output, item, index, this);
