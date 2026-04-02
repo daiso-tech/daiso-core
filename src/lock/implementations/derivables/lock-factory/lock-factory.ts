@@ -139,7 +139,7 @@ export type LockFactorySettingsBase = {
     /**
      * @default
      * ```ts
-     * (promise) => promise.then(() => {})
+     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
      * ```
      */
     waitUntil?: WaitUntil;

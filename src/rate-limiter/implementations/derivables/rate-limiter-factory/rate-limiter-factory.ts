@@ -100,7 +100,7 @@ export type RateLimiterFactorySettingsBase = {
     /**
      * @default
      * ```ts
-     * (promise) => promise.then(() => {})
+     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
      * ```
      */
     waitUntil?: WaitUntil;
