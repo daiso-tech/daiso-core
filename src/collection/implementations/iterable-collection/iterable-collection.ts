@@ -363,15 +363,17 @@ export class IterableCollection<TInput = unknown>
     }
 
     join(separator = ","): Extract<TInput, string> {
-        let str: string | null = null;
+        let str = "";
+        let isFirstItem = true;
         for (const item of this) {
             if (typeof item !== "string") {
                 throw new TypeError("Item type is invalid must be string");
             }
-            if (str === null) {
-                str = item as string;
+            if (isFirstItem) {
+                str = item;
+                isFirstItem = false;
             } else {
-                str = str + separator + (item as string);
+                str = str + separator + item;
             }
         }
         return str as Extract<TInput, string>;
@@ -507,12 +509,12 @@ export class IterableCollection<TInput = unknown>
         if (this.isEmpty()) {
             throw EmptyCollectionError.create();
         }
-        let min = 0;
+        let min: number | undefined;
         for (const item of this) {
             if (typeof item !== "number") {
                 throw new TypeError("Item type is invalid must be number");
             }
-            if (min === 0) {
+            if (min === undefined) {
                 min = item;
             } else if (min > item) {
                 min = item;
@@ -525,12 +527,12 @@ export class IterableCollection<TInput = unknown>
         if (this.isEmpty()) {
             throw EmptyCollectionError.create();
         }
-        let max = 0;
+        let max: number | undefined;
         for (const item of this) {
             if (typeof item !== "number") {
                 throw new TypeError("Item type is invalid must be number");
             }
-            if (max === 0) {
+            if (max === undefined) {
                 max = item;
             } else if (max < item) {
                 max = item;
@@ -1048,10 +1050,13 @@ export class IterableCollection<TInput = unknown>
         predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
     ): number {
         let size = 0;
+        let index = 0;
+
         for (const item of this) {
-            if (resolveInvokable(predicateFn)(item, size, this)) {
+            if (resolveInvokable(predicateFn)(item, index, this)) {
                 size++;
             }
+            index++;
         }
         return size;
     }

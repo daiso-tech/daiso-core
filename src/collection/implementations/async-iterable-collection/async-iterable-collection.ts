@@ -384,13 +384,15 @@ export class AsyncIterableCollection<TInput = unknown>
     }
 
     async join(separator = ","): Promise<Extract<TInput, string>> {
-        let str: string | null = null;
+        let str = "";
+        let isFirstItem = true;
         for await (const item of this) {
             if (typeof item !== "string") {
                 throw new TypeError("Item type is invalid must be string");
             }
-            if (str === null) {
+            if (isFirstItem) {
                 str = item;
+                isFirstItem = false;
             } else {
                 str = str + separator + item;
             }
@@ -530,12 +532,12 @@ export class AsyncIterableCollection<TInput = unknown>
         if (await this.isEmpty()) {
             throw EmptyCollectionError.create();
         }
-        let min = 0;
+        let min: number | undefined;
         for await (const item of this) {
             if (typeof item !== "number") {
                 throw new TypeError("Item type is invalid must be number");
             }
-            if (min === 0) {
+            if (min === undefined) {
                 min = item;
             } else if (min > item) {
                 min = item;
@@ -548,12 +550,12 @@ export class AsyncIterableCollection<TInput = unknown>
         if (await this.isEmpty()) {
             throw EmptyCollectionError.create();
         }
-        let max = 0;
+        let max: number | undefined;
         for await (const item of this) {
             if (typeof item !== "number") {
                 throw new TypeError("Item type is invalid must be number");
             }
-            if (max === 0) {
+            if (max === undefined) {
                 max = item;
             } else if (max < item) {
                 max = item;
@@ -691,10 +693,10 @@ export class AsyncIterableCollection<TInput = unknown>
         );
     }
 
-    pipe<TOutput = TInput>(
+    async pipe<TOutput = TInput>(
         callback: AsyncTransform<IAsyncCollection<TInput>, TOutput>,
     ): Promise<TOutput> {
-        return Promise.resolve(resolveInvokable(callback)(this));
+        return resolveInvokable(callback)(this);
     }
 
     tap(
@@ -1094,10 +1096,13 @@ export class AsyncIterableCollection<TInput = unknown>
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
     ): Promise<number> {
         let size = 0;
+        let index = 0;
+
         for await (const item of this) {
-            if (await resolveInvokable(predicateFn)(item, size, this)) {
+            if (await resolveInvokable(predicateFn)(item, index, this)) {
                 size++;
             }
+            index++;
         }
         return size;
     }
