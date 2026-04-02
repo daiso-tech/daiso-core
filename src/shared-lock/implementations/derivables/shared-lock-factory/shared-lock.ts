@@ -153,8 +153,8 @@ export class SharedLock implements ISharedLock {
     async runReaderOrFail<TValue = void>(
         asyncFn: AsyncLazy<TValue>,
     ): Promise<TValue> {
+        await this.acquireReaderOrFail();
         try {
-            await this.acquireReaderOrFail();
             return await resolveLazyable(asyncFn);
         } finally {
             await this.releaseReader();
@@ -165,9 +165,8 @@ export class SharedLock implements ISharedLock {
         asyncFn: AsyncLazy<TValue>,
         settings?: SharedLockAquireBlockingSettings,
     ): Promise<TValue> {
+        await this.acquireReaderBlockingOrFail(settings);
         try {
-            await this.acquireReaderBlockingOrFail(settings);
-
             return await resolveLazyable(asyncFn);
         } finally {
             await this.releaseReader();
@@ -465,7 +464,7 @@ export class SharedLock implements ISharedLock {
 
         const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
         const endDate = timeAsTimeSpan.toEndDate();
-        while (endDate > new Date()) {
+        while (endDate.getTime() > new Date().getTime()) {
             const hasAquired = await this.acquireWriter();
             if (hasAquired) {
                 return true;
