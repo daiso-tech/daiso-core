@@ -637,16 +637,17 @@ export class File implements IFile {
     async remove(): Promise<boolean> {
         return new AsyncHooks(async () => {
             return await this.adapter.removeMany([this.key.toString()]);
-        }, this.handleRemoveEvent()).invoke();
+        }, [
+            this.handleUnexpectedErrorEvent(),
+            this.handleRemoveEvent(),
+        ]).invoke();
     }
 
     async removeOrFail(): Promise<void> {
-        return new AsyncHooks(async () => {
-            const hasFound = await this.remove();
-            if (!hasFound) {
-                throw KeyNotFoundFileError.create(this.key);
-            }
-        }, [this.handleUnexpectedErrorEvent()]).invoke();
+        const hasFound = await this.remove();
+        if (!hasFound) {
+            throw KeyNotFoundFileError.create(this.key);
+        }
     }
 
     private async _copy(destination: string): Promise<FileWriteEnum> {
