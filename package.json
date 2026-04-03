@@ -172,6 +172,22 @@
             "types": "./dist/event-bus/implementations/test-utilities/_module-exports.d.ts",
             "import": "./dist/event-bus/implementations/test-utilities/_module-exports.js"
         },
+        "./execution-context": {
+            "types": "./dist/execution-context/implementations/derivables/_module-exports.d.ts",
+            "import": "./dist/execution-context/implementations/derivables/_module-exports.js"
+        },
+        "./execution-context/contracts": {
+            "types": "./dist/execution-context/contracts/_module-exports.d.ts",
+            "import": "./dist/execution-context/contracts/_module-exports.js"
+        },
+        "./execution-context/als-execution-context-adapter": {
+            "types": "./dist/execution-context/implementations/adapters/als-execution-context-adapter/_module-exports.d.ts",
+            "import": "./dist/execution-context/implementations/adapters/als-execution-context-adapter/_module-exports.js"
+        },
+        "./execution-context/no-op-execution-context-adapter": {
+            "types": "./dist/execution-context/implementations/adapters/no-op-execution-context-adapter/_module-exports.d.ts",
+            "import": "./dist/execution-context/implementations/adapters/no-op-execution-context-adapter/_module-exports.js"
+        },
         "./hooks": {
             "types": "./dist/hooks/_module-exports.d.ts",
             "import": "./dist/hooks/_module-exports.js"
