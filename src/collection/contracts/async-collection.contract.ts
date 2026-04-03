@@ -1716,19 +1716,6 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      *   // -1
      * }
      * ```
-     * You can pass a {@link Promise | `Promise`} as default value.
-     * @example
-     * ```ts
-     * import type { IAsyncCollection, ICache } from "@daiso-tech/core/collection/contracts";
-     *
-     * // Asume the inputed collection is empty.
-     * async function main(collection: IAsyncCollection<number>, cache: ICache<number>): Promise<void> {
-     *   await collection
-     *     .append([1, 2, 3, 4])
-     *     .firstOr(cache.get("a"), item => item > 10);
-     *   // -1
-     * }
-     * ```
      */
     firstOr<TOutput extends TInput, TExtended = TInput>(
         defaultValue: AsyncLazyable<TExtended>,
@@ -1877,19 +1864,6 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      *   // -1
      * }
      * ```
-     * You can pass a {@link Promise | `Promise`} as default value.
-     * @example
-     * ```ts
-     * import type { IAsyncCollection, ICache } from "@daiso-tech/core/collection/contracts";
-     *
-     * // Asume the inputed collection is empty.
-     * async function main(collection: IAsyncCollection<number>, cache: ICache<number>): Promise<void> {
-     *   await collection
-     *     .append([1, 2, 3, 4])
-     *     .lastOr(cache.get("a"), item => item > 10);
-     *   // -1
-     * }
-     * ```
      */
     lastOr<TOutput extends TInput, TExtended = TInput>(
         defaultValue: AsyncLazyable<TExtended>,
@@ -2014,19 +1988,6 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      *   // -1
      * }
      * ```
-     * You can pass a {@link Promise | `Promise`} as default value.
-     * @example
-     * ```ts
-     * import type { IAsyncCollection, ICache } from "@daiso-tech/core/collection/contracts";
-     *
-     * // Asume the inputed collection is empty.
-     * async function main(collection: IAsyncCollection<number>, cache: ICache<number>): Promise<void> {
-     *   await collection
-     *     .append([1, 2, 3, 4])
-     *     .beforeOr(cache.get("a"), item => item > 10);
-     *   // -1
-     * }
-     * ```
      */
     beforeOr<TExtended = TInput>(
         defaultValue: AsyncLazyable<TExtended>,
@@ -2136,19 +2097,6 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      *   await collection
      *     .append([1, 2, 3, 4])
      *     .afterOr(async () => -1, item => item === 4);
-     *   // -1
-     * }
-     * ```
-     * You can pass a {@link Promise | `Promise`} as default value.
-     * @example
-     * ```ts
-     * import type { IAsyncCollection, ICache } from "@daiso-tech/core/collection/contracts";
-     *
-     * // Asume the inputed collection is empty.
-     * async function main(collection: IAsyncCollection<number>, cache: ICache<number>): Promise<void> {
-     *   await collection
-     *     .append([1, 2, 3, 4])
-     *     .afterOr(cache.get("a"), item => item > 10);
      *   // -1
      * }
      * ```
