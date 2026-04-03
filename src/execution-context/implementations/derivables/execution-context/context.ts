@@ -136,9 +136,6 @@ export class Context implements ICopyableContext {
             return this;
         }
         const newValue = value + nbr;
-        if (max !== null && newValue > max) {
-            return this;
-        }
         this.update(token, max === null ? newValue : Math.min(newValue, max));
         return this;
     }
@@ -157,9 +154,6 @@ export class Context implements ICopyableContext {
             return this;
         }
         const newValue = value - nbr;
-        if (min !== null && newValue < min) {
-            return this;
-        }
         this.update(token, min === null ? newValue : Math.max(newValue, min));
         return this;
     }
@@ -197,9 +191,6 @@ export class Context implements ICopyableContext {
             return this;
         }
         const newValue = value + nbr;
-        if (max !== null && newValue > max) {
-            return this;
-        }
         this.update(token, max === null ? newValue : Math.min(newValue, max));
         return this;
     }
@@ -214,9 +205,6 @@ export class Context implements ICopyableContext {
             return this;
         }
         const newValue = value - nbr;
-        if (min !== null && newValue < min) {
-            return this;
-        }
         this.update(token, min === null ? newValue : Math.max(newValue, min));
         return this;
     }

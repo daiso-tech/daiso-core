@@ -1495,27 +1495,58 @@ describe("class: ExecutionContext", () => {
             expect(first).toBe(10);
             expect(second).toBeNull(); // Isolated scope
         });
+        test("Should create isolated scopes between consecutive async runs", async () => {
+            const context = new ExecutionContext();
+            const token = contextToken<number>("value");
+
+            const first = await context.run(() => {
+                context.put(token, 10);
+                return Promise.resolve(context.get(token));
+            });
+
+            const second = await context.run(() => {
+                return Promise.resolve(context.get(token));
+            });
+
+            expect(first).toBe(10);
+            expect(second).toBeNull(); // Isolated scope
+        });
 
         test("Should inherit outer context values at run start", () => {
             const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
-            context.run(() => {
+            const result = context.run(() => {
                 context.put(token, "outer");
 
                 const innerValue = context.run(() => {
                     return context.get(token); // Should see outer value
                 });
-
-                expect(innerValue).toBe("outer");
+                return innerValue;
             });
+            expect(result).toBe("outer");
+        });
+
+        test("Should inherit outer context values at async run start", async () => {
+            const context = new ExecutionContext();
+            const token = contextToken<string>("name");
+
+            const result = await context.run(async () => {
+                context.put(token, "outer");
+
+                const innerValue = await context.run(async () => {
+                    return Promise.resolve(context.get(token)); // Should see outer value
+                });
+                return innerValue;
+            });
+            expect(result).toBe("outer");
         });
 
         test("Should not leak inner context modifications to outer scope", () => {
             const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
-            context.run(() => {
+            const result = context.run(() => {
                 context.put(token, 0);
 
                 context.run(() => {
@@ -1523,8 +1554,27 @@ describe("class: ExecutionContext", () => {
                 });
 
                 // Outer scope should not see the modification
-                expect(context.get(token)).toBe(0);
+                return context.get(token);
             });
+            expect(result).toBe(0);
+        });
+
+        test("Should not leak inner context modifications to outer scope async", async () => {
+            const context = new ExecutionContext();
+            const token = contextToken<number>("counter");
+
+            const result = await context.run(async () => {
+                context.put(token, 0);
+
+                await context.run(async () => {
+                    context.update(token, 100); // Modify in inner scope
+                    return Promise.resolve();
+                });
+
+                // Outer scope should not see the modification
+                return context.get(token);
+            });
+            expect(result).toBe(0);
         });
 
         test("Should maintain independent snapshots in nested runs", () => {
@@ -1541,6 +1591,30 @@ describe("class: ExecutionContext", () => {
 
                 const inner2 = context.run(() => {
                     return context.get(token);
+                });
+
+                const outer = context.get(token);
+
+                return { inner1, inner2, outer };
+            });
+
+            expect(results).toEqual({ inner1: 10, inner2: 1, outer: 1 });
+        });
+
+        test("Should maintain independent snapshots in nested async runs", async () => {
+            const context = new ExecutionContext();
+            const token = contextToken<number>("value");
+
+            const results = await context.run(async () => {
+                context.put(token, 1);
+
+                const inner1 = await context.run(async () => {
+                    context.update(token, 10);
+                    return Promise.resolve(context.get(token));
+                });
+
+                const inner2 = await context.run(async () => {
+                    return Promise.resolve(context.get(token));
                 });
 
                 const outer = context.get(token);
@@ -1593,725 +1667,792 @@ describe("class: ExecutionContext", () => {
     });
 
     describe("nested context scopes: run depth levels", () => {
-        test("Should maintain isolation with three levels of nesting", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("value");
+        describe("method: run", () => {
+            test("Maintains isolation with three levels of nesting", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("value");
 
-            const result = context.run(() => {
-                context.put(token, 1);
+                const result = context.run(() => {
+                    context.put(token, 1);
 
-                const level2 = context.run(() => {
-                    context.put(token, 2);
+                    const level2 = context.run(() => {
+                        context.put(token, 2);
 
-                    const level3 = context.run(() => {
-                        context.put(token, 3);
-                        return context.get(token);
-                    });
-
-                    return {
-                        level3Value: level3,
-                        level2Value: context.get(token),
-                    };
-                });
-
-                return {
-                    level1Value: context.get(token),
-                    level2Result: level2,
-                };
-            });
-
-            expect(result).toEqual({
-                level1Value: 1,
-                level2Result: {
-                    level2Value: 2,
-                    level3Value: 3,
-                },
-            });
-        });
-
-        test("Should maintain isolation with four levels of nesting", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<Array<number>>("levels");
-
-            const result = context.run(() => {
-                context.put(token, [1]);
-
-                const l2 = context.run(() => {
-                    context.update(token, [1, 2]);
-
-                    const l3 = context.run(() => {
-                        context.update(token, [1, 2, 3]);
-
-                        const l4 = context.run(() => {
-                            context.update(token, [1, 2, 3, 4]);
+                        const level3 = context.run(() => {
+                            context.put(token, 3);
                             return context.get(token);
                         });
 
                         return {
-                            l4: l4,
-                            l3: context.get(token),
+                            level3Value: level3,
+                            level2Value: context.get(token),
                         };
                     });
 
                     return {
-                        l3Result: l3,
-                        l2: context.get(token),
+                        level1Value: context.get(token),
+                        level2Result: level2,
                     };
                 });
 
-                return {
-                    l2Result: l2,
-                    l1: context.get(token),
-                };
-            });
-
-            expect(result).toEqual({
-                l1: [1],
-                l2Result: {
-                    l2: [1, 2],
-                    l3Result: {
-                        l3: [1, 2, 3],
-                        l4: [1, 2, 3, 4],
+                expect(result).toEqual({
+                    level1Value: 1,
+                    level2Result: {
+                        level2Value: 2,
+                        level3Value: 3,
                     },
-                },
-            });
-        });
-
-        test("Should handle multiple sibling nested runs at same level", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("counter");
-
-            const result = context.run(() => {
-                context.put(token, 0);
-
-                const branch1 = context.run(() => {
-                    context.putIncrement(token);
-                    context.putIncrement(token);
-                    return context.get(token);
                 });
-
-                const branch2 = context.run(() => {
-                    context.putDecrement(token);
-                    return context.get(token);
-                });
-
-                const branch3 = context.run(() => {
-                    context.putIncrement(token, { nbr: 10 });
-                    return context.get(token);
-                });
-
-                return {
-                    branch1,
-                    branch2,
-                    branch3,
-                    final: context.get(token),
-                };
             });
 
-            expect(result).toEqual({
-                branch1: 2,
-                branch2: -1,
-                branch3: 10,
-                final: 0, // Outer context unaffected
-            });
-        });
+            test("Maintains isolation with four levels of nesting", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<Array<number>>("levels");
 
-        test("Should preserve inner run changes via explicit returns", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("value");
+                const result = context.run(() => {
+                    context.put(token, [1]);
 
-            const result = context.run(() => {
-                context.put(token, 10);
+                    const l2 = context.run(() => {
+                        context.update(token, [1, 2]);
 
-                const innerValue = context.run(() => {
-                    context.update(token, 20);
-                    return context.get(token); // Return the inner value
+                        const l3 = context.run(() => {
+                            context.update(token, [1, 2, 3]);
+
+                            const l4 = context.run(() => {
+                                context.update(token, [1, 2, 3, 4]);
+                                return context.get(token);
+                            });
+
+                            return {
+                                l4: l4,
+                                l3: context.get(token),
+                            };
+                        });
+
+                        return {
+                            l3Result: l3,
+                            l2: context.get(token),
+                        };
+                    });
+
+                    return {
+                        l2Result: l2,
+                        l1: context.get(token),
+                    };
                 });
 
-                return {
-                    innerReturned: innerValue,
-                    outerCurrent: context.get(token), // Outer unchanged
-                };
+                expect(result).toEqual({
+                    l1: [1],
+                    l2Result: {
+                        l2: [1, 2],
+                        l3Result: {
+                            l3: [1, 2, 3],
+                            l4: [1, 2, 3, 4],
+                        },
+                    },
+                });
             });
 
-            expect(result).toEqual({
-                innerReturned: 20,
-                outerCurrent: 10,
+            test("Handles multiple sibling nested runs at same level", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("counter");
+
+                const result = context.run(() => {
+                    context.put(token, 0);
+
+                    const branch1 = context.run(() => {
+                        context.putIncrement(token);
+                        context.putIncrement(token);
+                        return context.get(token);
+                    });
+
+                    const branch2 = context.run(() => {
+                        context.putDecrement(token);
+                        return context.get(token);
+                    });
+
+                    const branch3 = context.run(() => {
+                        context.putIncrement(token, { nbr: 10 });
+                        return context.get(token);
+                    });
+
+                    return {
+                        branch1,
+                        branch2,
+                        branch3,
+                        final: context.get(token),
+                    };
+                });
+
+                expect(result).toEqual({
+                    branch1: 2,
+                    branch2: -1,
+                    branch3: 10,
+                    final: 0, // Outer context unaffected
+                });
+            });
+
+            test("Preserves inner run changes via explicit returns", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("value");
+
+                const result = context.run(() => {
+                    context.put(token, 10);
+
+                    const innerValue = context.run(() => {
+                        context.update(token, 20);
+                        return context.get(token); // Return the inner value
+                    });
+
+                    return {
+                        innerReturned: innerValue,
+                        outerCurrent: context.get(token), // Outer unchanged
+                    };
+                });
+
+                expect(result).toEqual({
+                    innerReturned: 20,
+                    outerCurrent: 10,
+                });
             });
         });
     });
 
     describe("nested context scopes: bind within run", () => {
-        test("Should bind within nested run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("value");
+        describe("method: bind", () => {
+            test("Binds within nested run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("value");
 
-            let boundFn = null as InvokableFn<[], number | null> | null;
-
-            context.run(() => {
-                context.put(token, 100);
-
-                boundFn = context.run(() => {
-                    context.put(token, 200);
-                    return context.bind(() => context.get(token));
-                });
-            });
-
-            // Bound function should see 200 from its captured context
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const result = boundFn?.();
-            expect(result).toBe(200);
-        });
-
-        test("Should create independent bound functions in nested contexts", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("counter");
-
-            const results: Array<() => number | null> = [];
-
-            context.run(() => {
-                context.put(token, 1);
-
-                const fn1 = context.run(() => {
-                    context.put(token, 10);
-                    return context.bind(() => context.get(token));
-                });
-
-                results.push(fn1);
+                let boundFn = null as InvokableFn<[], number | null> | null;
 
                 context.run(() => {
-                    context.put(token, 20);
-                    results.push(context.bind(() => context.get(token)));
-                });
-            });
+                    context.put(token, 100);
 
-            expect(results[0]?.()).toBe(10);
-            expect(results[1]?.()).toBe(20);
-        });
-
-        test("Should bind capture proper snapshot in deeply nested contexts", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("value");
-
-            let capturedBound = null as InvokableFn<[], number | null> | null;
-
-            context.run(() => {
-                context.put(token, 1);
-
-                capturedBound = context.run(() => {
-                    context.put(token, 2);
-
-                    return context.run(() => {
-                        context.put(token, 3);
+                    boundFn = context.run(() => {
+                        context.put(token, 200);
                         return context.bind(() => context.get(token));
                     });
                 });
+
+                // Bound function should see 200 from its captured context
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                const result = boundFn?.();
+                expect(result).toBe(200);
             });
 
-            // Bound function should see 3 from its nested context
-            expect(capturedBound?.()).toBe(3);
-        });
+            test("Creates independent bound functions in nested contexts", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("counter");
 
-        test("Should isolate bound function from subsequent outer mutations", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("value");
+                const results: Array<() => number | null> = [];
 
-            const boundFn = context.run(() => {
-                context.put(token, 100);
+                context.run(() => {
+                    context.put(token, 1);
 
-                return context.run(() => {
-                    context.put(token, 200);
-                    context.update(token, 250);
-                    return context.bind(() => context.get(token));
+                    const fn1 = context.run(() => {
+                        context.put(token, 10);
+                        return context.bind(() => context.get(token));
+                    });
+
+                    results.push(fn1);
+
+                    context.run(() => {
+                        context.put(token, 20);
+                        results.push(context.bind(() => context.get(token)));
+                    });
                 });
+
+                expect(results[0]?.()).toBe(10);
+                expect(results[1]?.()).toBe(20);
             });
 
-            // Bound function sees 250 (from when bind captured the context)
-            expect(boundFn()).toBe(250);
+            test("Captures proper snapshot in deeply nested contexts", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("value");
 
-            // Further runs don't affect the bound function
-            context.run(() => {
-                context.put(token, 999);
+                let capturedBound = null as InvokableFn<
+                    [],
+                    number | null
+                > | null;
+
+                context.run(() => {
+                    context.put(token, 1);
+
+                    capturedBound = context.run(() => {
+                        context.put(token, 2);
+
+                        return context.run(() => {
+                            context.put(token, 3);
+                            return context.bind(() => context.get(token));
+                        });
+                    });
+                });
+
+                // Bound function should see 3 from its nested context
+                expect(capturedBound?.()).toBe(3);
             });
 
-            expect(boundFn()).toBe(250); // Unchanged
+            test("Isolates bound function from subsequent outer mutations", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("value");
+
+                const boundFn = context.run(() => {
+                    context.put(token, 100);
+
+                    return context.run(() => {
+                        context.put(token, 200);
+                        context.update(token, 250);
+                        return context.bind(() => context.get(token));
+                    });
+                });
+
+                // Bound function sees 250 (from when bind captured the context)
+                expect(boundFn()).toBe(250);
+
+                // Further runs don't affect the bound function
+                context.run(() => {
+                    context.put(token, 999);
+                });
+
+                expect(boundFn()).toBe(250); // Unchanged
+            });
         });
     });
 
     describe("nested context scopes: complex interactions", () => {
-        test("Should handle modifications across multiple nested levels", () => {
-            const context = new ExecutionContext();
-            const token1 = contextToken<number>("token1");
-            const token2 = contextToken<number>("token2");
-            const token3 = contextToken<number>("token3");
+        describe("method: update", () => {
+            test("Handles modifications across multiple nested levels", () => {
+                const context = new ExecutionContext();
+                const token1 = contextToken<number>("token1");
+                const token2 = contextToken<number>("token2");
+                const token3 = contextToken<number>("token3");
 
-            const result = context.run(() => {
-                context.put(token1, 10);
-                context.put(token2, 0);
-                context.put(token3, 0);
-
-                context.run(() => {
-                    context.update(token2, 20);
-                    context.putIncrement(token3);
+                const result = context.run(() => {
+                    context.put(token1, 10);
+                    context.put(token2, 0);
+                    context.put(token3, 0);
 
                     context.run(() => {
-                        context.update(token1, 100); // Doesn't affect outer
-                        context.update(token2, 200); // Doesn't affect outer
-                        context.update(token3, 300); // Doesn't affect outer
+                        context.update(token2, 20);
+                        context.putIncrement(token3);
+
+                        context.run(() => {
+                            context.update(token1, 100); // Doesn't affect outer
+                            context.update(token2, 200); // Doesn't affect outer
+                            context.update(token3, 300); // Doesn't affect outer
+                        });
                     });
-                });
-
-                return {
-                    t1: context.get(token1),
-                    t2: context.get(token2),
-                    t3: context.get(token3),
-                };
-            });
-
-            expect(result).toEqual({ t1: 10, t2: 0, t3: 0 });
-        });
-
-        test("Should handle when() conditions in nested contexts", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("counter");
-
-            const result = context.run(() => {
-                context.put(token, 0);
-
-                context.run(() => {
-                    context.when(true, (ctx) =>
-                        ctx.putIncrement(token).putIncrement(token),
-                    );
-
-                    context.run(() => {
-                        context.when(
-                            () => context.get(token) === 0,
-                            (ctx) => ctx.put(token, 999),
-                        );
-                    });
-                });
-
-                return context.get(token);
-            });
-
-            expect(result).toBe(0);
-        });
-
-        test("Should handle array mutations in nested contexts", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<Array<string>>("items");
-
-            const result = context.run(() => {
-                context.put(token, ["a"]);
-
-                context.run(() => {
-                    context.updatePush(token, "b");
-
-                    context.run(() => {
-                        context.updatePush(token, "c", "d");
-                    });
-                });
-
-                return context.get(token);
-            });
-
-            expect(result).toEqual(["a"]);
-        });
-
-        test("Should support method chaining across nested boundaries", () => {
-            const context = new ExecutionContext();
-            const t1 = contextToken<number>("t1");
-            const t2 = contextToken<number>("t2");
-
-            const result = context.run(() => {
-                context.put(t1, 1).put(t2, 2);
-
-                const nested = context.run(() => {
-                    context.update(t1, 10).update(t2, 20);
 
                     return {
-                        t1: context.get(t1),
-                        t2: context.get(t2),
+                        t1: context.get(token1),
+                        t2: context.get(token2),
+                        t3: context.get(token3),
                     };
                 });
 
-                return {
-                    nested,
-                    outer: {
-                        t1: context.get(t1),
-                        t2: context.get(t2),
-                    },
-                };
-            });
-
-            expect(result).toEqual({
-                nested: { t1: 10, t2: 20 },
-                outer: { t1: 1, t2: 2 },
+                expect(result).toEqual({ t1: 10, t2: 0, t3: 0 });
             });
         });
 
-        test("Should handle getOrFail() in nested contexts with inherited values", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<string>("key");
-            const missing = contextToken<string>("missing");
+        describe("method: when", () => {
+            test("Handles when() conditions in nested contexts", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("counter");
 
-            const result = context.run(() => {
-                context.put(token, "outer");
+                const result = context.run(() => {
+                    context.put(token, 0);
 
-                const nested = context.run(() => {
-                    // Nested context inherits parent values
-                    const inherited = context.getOrFail(token);
-                    // But missing keys still throw
-                    try {
-                        context.getOrFail(missing);
-                        return "should not reach"; // Should throw before this
-                    } catch (e) {
-                        return {
-                            inherited,
-                            threwForMissing:
-                                e instanceof NotFoundExecutionContextError,
-                        };
-                    }
+                    context.run(() => {
+                        context.when(true, (ctx) =>
+                            ctx.putIncrement(token).putIncrement(token),
+                        );
+
+                        context.run(() => {
+                            context.when(
+                                () => context.get(token) === 0,
+                                (ctx) => ctx.put(token, 999),
+                            );
+                        });
+                    });
+
+                    return context.get(token);
                 });
 
-                return nested;
+                expect(result).toBe(0);
             });
+        });
 
-            expect(result).toEqual({
-                inherited: "outer",
-                threwForMissing: true,
+        describe("method: updatePush", () => {
+            test("Handles array mutations in nested contexts", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<Array<string>>("items");
+
+                const result = context.run(() => {
+                    context.put(token, ["a"]);
+
+                    context.run(() => {
+                        context.updatePush(token, "b");
+
+                        context.run(() => {
+                            context.updatePush(token, "c", "d");
+                        });
+                    });
+
+                    return context.get(token);
+                });
+
+                expect(result).toEqual(["a"]);
+            });
+        });
+
+        describe("method: getOrFail", () => {
+            test("Handles getOrFail() in nested contexts with inherited values", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<string>("key");
+                const missing = contextToken<string>("missing");
+
+                const result = context.run(() => {
+                    context.put(token, "outer");
+
+                    const nested = context.run(() => {
+                        // Nested context inherits parent values
+                        const inherited = context.getOrFail(token);
+                        // But missing keys still throw
+                        try {
+                            context.getOrFail(missing);
+                            return "should not reach"; // Should throw before this
+                        } catch (e) {
+                            return {
+                                inherited,
+                                threwForMissing:
+                                    e instanceof NotFoundExecutionContextError,
+                            };
+                        }
+                    });
+
+                    return nested;
+                });
+
+                expect(result).toEqual({
+                    inherited: "outer",
+                    threwForMissing: true,
+                });
+            });
+        });
+
+        describe("integration: method chaining", () => {
+            test("Supports method chaining across nested boundaries", () => {
+                const context = new ExecutionContext();
+                const t1 = contextToken<number>("t1");
+                const t2 = contextToken<number>("t2");
+
+                const result = context.run(() => {
+                    context.put(t1, 1).put(t2, 2);
+
+                    const nested = context.run(() => {
+                        context.update(t1, 10).update(t2, 20);
+
+                        return {
+                            t1: context.get(t1),
+                            t2: context.get(t2),
+                        };
+                    });
+
+                    return {
+                        nested,
+                        outer: {
+                            t1: context.get(t1),
+                            t2: context.get(t2),
+                        },
+                    };
+                });
+
+                expect(result).toEqual({
+                    nested: { t1: 10, t2: 20 },
+                    outer: { t1: 1, t2: 2 },
+                });
             });
         });
     });
 
     describe("nested context scopes: inheritance and visibility", () => {
-        test("Should allow reading parent context in nested run", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("shared");
+        describe("method: get", () => {
+            test("Allows reading parent context in nested run", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("shared");
 
-            const result = context.run(() => {
-                context.put(token, 100);
+                const result = context.run(() => {
+                    context.put(token, 100);
 
-                const nestedValue = context.run(() => {
-                    // Inner can see outer at start
-                    const inherited = context.get(token);
-                    context.put(token, 200);
-                    return { inherited, modified: context.get(token) };
+                    const nestedValue = context.run(() => {
+                        // Inner can see outer at start
+                        const inherited = context.get(token);
+                        context.put(token, 200);
+                        return { inherited, modified: context.get(token) };
+                    });
+
+                    return {
+                        nested: nestedValue,
+                        outer: context.get(token),
+                    };
                 });
 
-                return {
-                    nested: nestedValue,
-                    outer: context.get(token),
-                };
-            });
-
-            expect(result).toEqual({
-                nested: { inherited: 100, modified: 200 },
-                outer: 100,
+                expect(result).toEqual({
+                    nested: { inherited: 100, modified: 200 },
+                    outer: 100,
+                });
             });
         });
 
-        test("Should not share mutations between sibling nested runs", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("counter");
+        describe("method: putIncrement", () => {
+            test("Does not share mutations between sibling nested runs", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("counter");
 
-            const result = context.run(() => {
-                context.put(token, 0);
+                const result = context.run(() => {
+                    context.put(token, 0);
 
-                const sibling1 = context.run(() => {
-                    context.putIncrement(token, { nbr: 5 });
-                    return context.get(token);
+                    const sibling1 = context.run(() => {
+                        context.putIncrement(token, { nbr: 5 });
+                        return context.get(token);
+                    });
+
+                    const sibling2 = context.run(() => {
+                        return context.get(token); // Should still be 0
+                    });
+
+                    return { sibling1, sibling2, outer: context.get(token) };
                 });
 
-                const sibling2 = context.run(() => {
-                    return context.get(token); // Should still be 0
+                expect(result).toEqual({
+                    sibling1: 5,
+                    sibling2: 0,
+                    outer: 0,
                 });
-
-                return { sibling1, sibling2, outer: context.get(token) };
-            });
-
-            expect(result).toEqual({
-                sibling1: 5,
-                sibling2: 0,
-                outer: 0,
             });
         });
 
-        test("Should handle contains() predicate in nested contexts with inheritance", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<Array<number>>("items");
+        describe("method: contains", () => {
+            test("Handles contains() predicate in nested contexts with inheritance", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<Array<number>>("items");
 
-            const result = context.run(() => {
-                context.put(token, [1, 2, 3]);
+                const result = context.run(() => {
+                    context.put(token, [1, 2, 3]);
 
-                const nested = context.run(() => {
-                    // Nested run inherits parent's array
-                    const hasGreaterThan1 = context.contains(
-                        token,
-                        (x) => x > 1,
-                    );
-                    // But modifications don't leak back
-                    context.updatePush(token, 4, 5);
-                    return { hasGreaterThan1, modified: context.get(token) };
+                    const nested = context.run(() => {
+                        // Nested run inherits parent's array
+                        const hasGreaterThan1 = context.contains(
+                            token,
+                            (x) => x > 1,
+                        );
+                        // But modifications don't leak back
+                        context.updatePush(token, 4, 5);
+                        return {
+                            hasGreaterThan1,
+                            modified: context.get(token),
+                        };
+                    });
+
+                    // Original array should be unchanged
+                    const original = context.get(token);
+
+                    return { nested, original };
                 });
 
-                // Original array should be unchanged
-                const original = context.get(token);
-
-                return { nested, original };
-            });
-
-            expect(result).toEqual({
-                nested: { hasGreaterThan1: true, modified: [1, 2, 3, 4, 5] },
-                original: [1, 2, 3],
+                expect(result).toEqual({
+                    nested: {
+                        hasGreaterThan1: true,
+                        modified: [1, 2, 3, 4, 5],
+                    },
+                    original: [1, 2, 3],
+                });
             });
         });
     });
 
     describe("no-op behavior: outside run context", () => {
-        test("get() returns null when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<string>("key");
+        describe("method: get", () => {
+            test("Returns null when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<string>("key");
 
-            const result = context.get(token);
-            expect(result).toBeNull();
+                const result = context.get(token);
+                expect(result).toBeNull();
+            });
         });
 
-        test("exists() returns false when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<string>("key");
+        describe("method: exists", () => {
+            test("Returns false when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<string>("key");
 
-            const result = context.exists(token);
-            expect(result).toBe(false);
+                const result = context.exists(token);
+                expect(result).toBe(false);
+            });
         });
 
-        test("missing() returns true when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<string>("key");
+        describe("method: missing", () => {
+            test("Returns true when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<string>("key");
 
-            const result = context.missing(token);
-            expect(result).toBe(true);
+                const result = context.missing(token);
+                expect(result).toBe(true);
+            });
         });
 
-        test("contains() returns false when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<Array<number>>("items");
+        describe("method: contains", () => {
+            test("Returns false when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<Array<number>>("items");
 
-            const result = context.contains(token, 42);
-            expect(result).toBe(false);
+                const result = context.contains(token, 42);
+                expect(result).toBe(false);
+            });
         });
 
-        test("getOr() returns default value when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<string>("key");
+        describe("method: getOr", () => {
+            test("Returns default value when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<string>("key");
 
-            const result = context.getOr(token, "default");
-            expect(result).toBe("default");
-        });
-
-        test("getOr() calls lazy function when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<string>("key");
-
-            const result = context.getOr(token, () => "lazy");
-            expect(result).toBe("lazy");
-        });
-
-        test("getOrFail() throws when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<string>("key");
-
-            expect(() => {
-                context.getOrFail(token);
-            }).toThrow(NotFoundExecutionContextError);
-        });
-
-        test("put() is no-op when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<string>("key");
-
-            context.put(token, "value");
-
-            // Verify value was not stored
-            expect(context.get(token)).toBeNull();
-            expect(context.exists(token)).toBe(false);
-        });
-
-        test("add() is no-op when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<string>("key");
-
-            context.add(token, "value");
-
-            // Verify value was not stored
-            expect(context.get(token)).toBeNull();
-            expect(context.exists(token)).toBe(false);
-        });
-
-        test("update() is no-op when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<string>("key");
-
-            context.update(token, "value");
-
-            // Verify value was not stored
-            expect(context.get(token)).toBeNull();
-            expect(context.exists(token)).toBe(false);
-        });
-
-        test("remove() is no-op when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<string>("key");
-
-            expect(() => {
-                context.remove(token);
-            }).not.toThrow();
-
-            /**No effect since nothing to remove */
-            expect(context.exists(token)).toBe(false);
-        });
-
-        test("putIncrement() is no-op when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("counter");
-
-            context.putIncrement(token);
-
-            // Verify value was not stored
-            expect(context.get(token)).toBeNull();
-            expect(context.exists(token)).toBe(false);
-        });
-
-        test("putDecrement() is no-op when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("counter");
-
-            context.putDecrement(token);
-
-            // Verify value was not stored
-            expect(context.get(token)).toBeNull();
-            expect(context.exists(token)).toBe(false);
-        });
-
-        test("updateIncrement() is no-op when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("counter");
-
-            context.updateIncrement(token);
-
-            // Verify value was not stored
-            expect(context.get(token)).toBeNull();
-            expect(context.exists(token)).toBe(false);
-        });
-
-        test("updateDecrement() is no-op when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("counter");
-
-            context.updateDecrement(token);
-
-            // Verify value was not stored
-            expect(context.get(token)).toBeNull();
-            expect(context.exists(token)).toBe(false);
-        });
-
-        test("putPush() is no-op when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<Array<number>>("items");
-
-            context.putPush(token, 1, 2, 3);
-
-            // Verify values were not stored
-            expect(context.get(token)).toBeNull();
-            expect(context.exists(token)).toBe(false);
-        });
-
-        test("updatePush() is no-op when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<Array<number>>("items");
-
-            context.updatePush(token, 1, 2, 3);
-
-            // Verify values were not stored
-            expect(context.get(token)).toBeNull();
-            expect(context.exists(token)).toBe(false);
-        });
-
-        test("when() with true condition is no-op when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("counter");
-
-            let invoked = false;
-            context.when(true, () => {
-                invoked = true;
-                return context;
+                const result = context.getOr(token, "default");
+                expect(result).toBe("default");
             });
 
-            // Invokable was not called because not in run context
-            expect(invoked).toBe(false);
-            expect(context.get(token)).toBeNull();
+            test("Calls lazy function when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<string>("key");
+
+                const result = context.getOr(token, () => "lazy");
+                expect(result).toBe("lazy");
+            });
         });
 
-        test("when() with false condition is no-op when not in run context", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("counter");
+        describe("method: getOrFail", () => {
+            test("Throws when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<string>("key");
 
-            let invoked = false;
-            context.when(false, () => {
-                invoked = true;
-                return context;
+                expect(() => {
+                    context.getOrFail(token);
+                }).toThrow(NotFoundExecutionContextError);
+            });
+        });
+
+        describe("method: put", () => {
+            test("Is no-op when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<string>("key");
+
+                context.put(token, "value");
+
+                // Verify value was not stored
+                expect(context.get(token)).toBeNull();
+                expect(context.exists(token)).toBe(false);
+            });
+        });
+
+        describe("method: add", () => {
+            test("Is no-op when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<string>("key");
+
+                context.add(token, "value");
+
+                // Verify value was not stored
+                expect(context.get(token)).toBeNull();
+                expect(context.exists(token)).toBe(false);
+            });
+        });
+
+        describe("method: update", () => {
+            test("Is no-op when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<string>("key");
+
+                context.update(token, "value");
+
+                // Verify value was not stored
+                expect(context.get(token)).toBeNull();
+                expect(context.exists(token)).toBe(false);
+            });
+        });
+
+        describe("method: remove", () => {
+            test("Is no-op when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<string>("key");
+
+                expect(() => {
+                    context.remove(token);
+                }).not.toThrow();
+
+                /**No effect since nothing to remove */
+                expect(context.exists(token)).toBe(false);
+            });
+        });
+
+        describe("method: putIncrement", () => {
+            test("Is no-op when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("counter");
+
+                context.putIncrement(token);
+
+                // Verify value was not stored
+                expect(context.get(token)).toBeNull();
+                expect(context.exists(token)).toBe(false);
+            });
+        });
+
+        describe("method: putDecrement", () => {
+            test("Is no-op when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("counter");
+
+                context.putDecrement(token);
+
+                // Verify value was not stored
+                expect(context.get(token)).toBeNull();
+                expect(context.exists(token)).toBe(false);
+            });
+        });
+
+        describe("method: updateIncrement", () => {
+            test("Is no-op when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("counter");
+
+                context.updateIncrement(token);
+
+                // Verify value was not stored
+                expect(context.get(token)).toBeNull();
+                expect(context.exists(token)).toBe(false);
+            });
+        });
+
+        describe("method: updateDecrement", () => {
+            test("Is no-op when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("counter");
+
+                context.updateDecrement(token);
+
+                // Verify value was not stored
+                expect(context.get(token)).toBeNull();
+                expect(context.exists(token)).toBe(false);
+            });
+        });
+
+        describe("method: putPush", () => {
+            test("Is no-op when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<Array<number>>("items");
+
+                context.putPush(token, 1, 2, 3);
+
+                // Verify values were not stored
+                expect(context.get(token)).toBeNull();
+                expect(context.exists(token)).toBe(false);
+            });
+        });
+
+        describe("method: updatePush", () => {
+            test("Is no-op when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<Array<number>>("items");
+
+                context.updatePush(token, 1, 2, 3);
+
+                // Verify values were not stored
+                expect(context.get(token)).toBeNull();
+                expect(context.exists(token)).toBe(false);
+            });
+        });
+
+        describe("method: when", () => {
+            test("With true condition is no-op when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("counter");
+
+                let invoked = false;
+                context.when(true, () => {
+                    invoked = true;
+                    return context;
+                });
+
+                // Invokable was not called because not in run context
+                expect(invoked).toBe(false);
+                expect(context.get(token)).toBeNull();
             });
 
-            // Invokable was not called (expected)
-            expect(invoked).toBe(false);
-            expect(context.get(token)).toBeNull();
+            test("With false condition is no-op when not in run context", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("counter");
+
+                let invoked = false;
+                context.when(false, () => {
+                    invoked = true;
+                    return context;
+                });
+
+                // Invokable was not called (expected)
+                expect(invoked).toBe(false);
+                expect(context.get(token)).toBeNull();
+            });
         });
 
-        test("Method chaining outside run context returns no-op context", () => {
-            const context = new ExecutionContext();
-            const token1 = contextToken<string>("key1");
-            const token2 = contextToken<number>("key2");
+        describe("method: bind", () => {
+            test("Outside run context captures empty context snapshot that mutations work in", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("value");
 
-            context
-                .put(token1, "value1")
-                .put(token2, 42)
-                .update(token1, "value2")
-                .updateIncrement(token2);
+                const boundFn = context.bind(() => {
+                    // Inside bound function, context is a captured empty Context
+                    // Mutations work normally within this captured context
+                    context.put(token, 100);
+                    return context.get(token);
+                });
 
-            // Verify nothing was stored
-            expect(context.get(token1)).toBeNull();
-            expect(context.get(token2)).toBeNull();
-            expect(context.exists(token1)).toBe(false);
-            expect(context.exists(token2)).toBe(false);
+                // Bound function executes with the captured empty context
+                // Mutations work in the isolated snapshot
+                const result = boundFn();
+                expect(result).toBe(100); // Mutations work in captured context
+            });
         });
 
-        test("Multiple mutations outside run context all no-op", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("counter");
+        describe("integration: method chaining", () => {
+            test("Method chaining outside run context returns no-op context", () => {
+                const context = new ExecutionContext();
+                const token1 = contextToken<string>("key1");
+                const token2 = contextToken<number>("key2");
 
-            context.putIncrement(token);
-            context.putIncrement(token);
-            context.putIncrement(token);
+                context
+                    .put(token1, "value1")
+                    .put(token2, 42)
+                    .update(token1, "value2")
+                    .updateIncrement(token2);
 
-            // Verify nothing was stored
-            expect(context.get(token)).toBeNull();
-        });
-
-        test("bind() outside run context captures empty context snapshot that mutations work in", () => {
-            const context = new ExecutionContext();
-            const token = contextToken<number>("value");
-
-            const boundFn = context.bind(() => {
-                // Inside bound function, context is a captured empty Context
-                // Mutations work normally within this captured context
-                context.put(token, 100);
-                return context.get(token);
+                // Verify nothing was stored
+                expect(context.get(token1)).toBeNull();
+                expect(context.get(token2)).toBeNull();
+                expect(context.exists(token1)).toBe(false);
+                expect(context.exists(token2)).toBe(false);
             });
 
-            // Bound function executes with the captured empty context
-            // Mutations work in the isolated snapshot
-            const result = boundFn();
-            expect(result).toBe(100); // Mutations work in captured context
+            test("Multiple mutations outside run context all no-op", () => {
+                const context = new ExecutionContext();
+                const token = contextToken<number>("counter");
+
+                context.putIncrement(token);
+                context.putIncrement(token);
+                context.putIncrement(token);
+
+                // Verify nothing was stored
+                expect(context.get(token)).toBeNull();
+            });
         });
     });
 });
