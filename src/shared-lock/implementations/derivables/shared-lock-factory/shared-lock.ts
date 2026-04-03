@@ -381,7 +381,9 @@ export class SharedLock implements ISharedLock {
             }),
             async (args, next) => {
                 const hasRefreshed = await next(...args);
-                this._ttl = TimeSpan.fromTimeSpan(ttl);
+                if (hasRefreshed) {
+                    this._ttl = TimeSpan.fromTimeSpan(ttl);
+                }
                 return hasRefreshed;
             },
         ]).invoke();
