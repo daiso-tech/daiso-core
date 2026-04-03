@@ -5,7 +5,7 @@
 import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contract"`
+ * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
  *
  * Adapter interface for managing execution context storage and lifecycle.
  *

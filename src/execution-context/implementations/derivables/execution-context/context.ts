@@ -15,9 +15,13 @@ import { NotFoundExecutionContextError } from "@/execution-context/contracts/exe
 import {
     callInvokable,
     isInvokable,
+    OPTION,
+    optionNone,
+    optionSome,
     resolveLazyable,
     type Invokable,
     type Lazyable,
+    type Option,
 } from "@/utilities/_module.js";
 
 /**
@@ -27,7 +31,16 @@ export class Context implements ICopyableContext {
     constructor(private readonly map: Map<string, unknown>) {}
 
     copy(): ICopyableContext {
-        return new Context(new Map(this.map));
+        return new Context(
+            new Map(
+                [...this.map].map<[string, unknown]>(([key, value]) => {
+                    if (Array.isArray(value)) {
+                        return [key, [...(value as Array<unknown>)]];
+                    }
+                    return [key, value];
+                }),
+            ),
+        );
     }
 
     contains<TValue>(
@@ -63,15 +76,30 @@ export class Context implements ICopyableContext {
         return !this.exists(token);
     }
 
+    private get_<TValue>(token: ContextToken<TValue>): Option<TValue> {
+        if (!this.map.has(token.id)) {
+            return optionNone();
+        }
+        return optionSome(this.map.get(token.id) as TValue);
+    }
+
     get<TValue>(token: ContextToken<TValue>): TValue | null {
-        return (this.map.get(token.id) ?? null) as TValue | null;
+        const item = this.get_(token);
+        if (item.type === OPTION.NONE) {
+            return null;
+        }
+        return item.value;
     }
 
     getOr<TValue>(
         token: ContextToken<TValue>,
         defaultValue: Lazyable<TValue>,
     ): TValue {
-        return this.get(token) ?? resolveLazyable(defaultValue);
+        const item = this.get_(token);
+        if (item.type === OPTION.NONE) {
+            return resolveLazyable(defaultValue);
+        }
+        return item.value;
     }
 
     getOrFail<TValue>(token: ContextToken<TValue>): TValue {

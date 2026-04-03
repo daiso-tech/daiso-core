@@ -44,11 +44,15 @@ export type ContextToken<TValue> = {
  *
  * @template TValue - The type of value this token will represent
  * @param id - Unique identifier string for the token (recommend using a descriptive name or UUID)
+ * @param namespace - Namespace to reduce id collistion
  * @returns A new ContextToken with the specified ID and type
  *
  * @example
- * const userToken = contextToken<User>("user");
- * const requestIdToken = contextToken<string>("requestId");
+ * import { contextToken } from "@daiso-tech/core/execution-context/contracts";
+ * import { Namespace } from "@daiso-tech/core/namespace/contracts";
+ *
+ * const userToken = contextToken<User>(new Namespace("user"), "user");
+ * const requestIdToken = contextToken<string>(new Namespace("request"), "requestId");
  */
 export function contextToken<TValue>(id: string): ContextToken<TValue> {
     return {
