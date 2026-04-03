@@ -12,7 +12,6 @@ import {
     type KeyNotFoundFileError,
 } from "@/file-storage/contracts/file.errors.js";
 import { type IKey } from "@/namespace/contracts/_module.js";
-import { type ITask } from "@/task/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
@@ -84,74 +83,74 @@ export type FileMetadata = {
 export type IReadableFile = {
     readonly key: IKey;
 
-    getText(): ITask<string | null>;
+    getText(): Promise<string | null>;
 
     /**
      * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
      */
-    getTextOrFail(): ITask<string>;
+    getTextOrFail(): Promise<string>;
 
-    getBytes(): ITask<Uint8Array | null>;
-
-    /**
-     * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
-     */
-    getBytesOrFail(): ITask<Uint8Array>;
-
-    getBuffer(): ITask<Buffer | null>;
+    getBytes(): Promise<Uint8Array | null>;
 
     /**
      * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
      */
-    getBufferOrFail(): ITask<Buffer>;
+    getBytesOrFail(): Promise<Uint8Array>;
 
-    getArrayBuffer(): ITask<ArrayBuffer | null>;
-
-    /**
-     * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
-     */
-    getArrayBufferOrFail(): ITask<ArrayBuffer>;
-
-    getReadable(): ITask<Readable | null>;
+    getBuffer(): Promise<Buffer | null>;
 
     /**
      * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
      */
-    getReadableOrFail(): ITask<Readable>;
+    getBufferOrFail(): Promise<Buffer>;
 
-    getReadableStream(): ITask<ReadableStream<Uint8Array> | null>;
-
-    /**
-     * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
-     */
-    getReadableStreamOrFail(): ITask<ReadableStream<Uint8Array>>;
-
-    getMetadata(): ITask<FileMetadata | null>;
+    getArrayBuffer(): Promise<ArrayBuffer | null>;
 
     /**
      * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
      */
-    getMetadataOrFail(): ITask<FileMetadata>;
+    getArrayBufferOrFail(): Promise<ArrayBuffer>;
 
-    exists(): ITask<boolean>;
-
-    missing(): ITask<boolean>;
-
-    getPublicUrl(): ITask<string | null>;
+    getReadable(): Promise<Readable | null>;
 
     /**
      * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
      */
-    getPublicUrlOrFail(): ITask<string>;
+    getReadableOrFail(): Promise<Readable>;
+
+    getReadableStream(): Promise<ReadableStream<Uint8Array> | null>;
+
+    /**
+     * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
+     */
+    getReadableStreamOrFail(): Promise<ReadableStream<Uint8Array>>;
+
+    getMetadata(): Promise<FileMetadata | null>;
+
+    /**
+     * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
+     */
+    getMetadataOrFail(): Promise<FileMetadata>;
+
+    exists(): Promise<boolean>;
+
+    missing(): Promise<boolean>;
+
+    getPublicUrl(): Promise<string | null>;
+
+    /**
+     * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
+     */
+    getPublicUrlOrFail(): Promise<string>;
 
     getSignedDownloadUrl(
         options?: FileDownloadUrlOptions,
-    ): ITask<string | null>;
+    ): Promise<string | null>;
 
     /**
      * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
      */
-    getSignedDownloadUrlOrFail(options?: FileUploadUrlOptions): ITask<string>;
+    getSignedDownloadUrlOrFail(options?: FileUploadUrlOptions): Promise<string>;
 };
 
 /**
@@ -218,74 +217,74 @@ export type WritableFileStream = WritableFileCommonSettings & {
  * @group Contracts
  */
 export type IFile = IReadableFile & {
-    add(content: WritableFileContent): ITask<boolean>;
+    add(content: WritableFileContent): Promise<boolean>;
 
     /**
      * @throws {KeyExistsFileError} {@link KeyExistsFileError}
      */
-    addOrFail(content: WritableFileContent): ITask<void>;
+    addOrFail(content: WritableFileContent): Promise<void>;
 
-    addStream(stream: WritableFileStream): ITask<boolean>;
+    addStream(stream: WritableFileStream): Promise<boolean>;
 
     /**
      * @throws {KeyExistsFileError} {@link KeyExistsFileError}
      */
-    addStreamOrFail(stream: WritableFileStream): ITask<void>;
+    addStreamOrFail(stream: WritableFileStream): Promise<void>;
 
-    update(content: WritableFileContent): ITask<boolean>;
-
-    /**
-     * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
-     */
-    updateOrFail(content: WritableFileContent): ITask<void>;
-
-    updateStream(stream: WritableFileStream): ITask<boolean>;
+    update(content: WritableFileContent): Promise<boolean>;
 
     /**
      * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
      */
-    updateStreamOrFail(stream: WritableFileStream): ITask<void>;
+    updateOrFail(content: WritableFileContent): Promise<void>;
 
-    put(content: WritableFileContent): ITask<boolean>;
-
-    putStream(stream: WritableFileStream): ITask<boolean>;
-
-    remove(): ITask<boolean>;
+    updateStream(stream: WritableFileStream): Promise<boolean>;
 
     /**
      * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
      */
-    removeOrFail(): ITask<void>;
+    updateStreamOrFail(stream: WritableFileStream): Promise<void>;
 
-    copy(destination: string): ITask<boolean>;
+    put(content: WritableFileContent): Promise<boolean>;
 
-    /**
-     * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
-     * @throws {KeyExistsFileError} {@link KeyExistsFileError}
-     */
-    copyOrFail(destination: string): ITask<void>;
+    putStream(stream: WritableFileStream): Promise<boolean>;
 
-    copyAndReplace(destination: string): ITask<boolean>;
+    remove(): Promise<boolean>;
 
     /**
      * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
      */
-    copyAndReplaceOrFail(destination: string): ITask<void>;
+    removeOrFail(): Promise<void>;
 
-    move(destination: string): ITask<boolean>;
+    copy(destination: string): Promise<boolean>;
 
     /**
      * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
      * @throws {KeyExistsFileError} {@link KeyExistsFileError}
      */
-    moveOrFail(destination: string): ITask<void>;
+    copyOrFail(destination: string): Promise<void>;
 
-    moveAndReplace(destination: string): ITask<boolean>;
+    copyAndReplace(destination: string): Promise<boolean>;
 
     /**
      * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
      */
-    moveAndReplaceOrFail(destination: string): ITask<void>;
+    copyAndReplaceOrFail(destination: string): Promise<void>;
 
-    getSignedUploadUrl(options?: FileUploadUrlOptions): ITask<string>;
+    move(destination: string): Promise<boolean>;
+
+    /**
+     * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
+     * @throws {KeyExistsFileError} {@link KeyExistsFileError}
+     */
+    moveOrFail(destination: string): Promise<void>;
+
+    moveAndReplace(destination: string): Promise<boolean>;
+
+    /**
+     * @throws {KeyNotFoundFileError} {@link KeyNotFoundFileError}
+     */
+    moveAndReplaceOrFail(destination: string): Promise<void>;
+
+    getSignedUploadUrl(options?: FileUploadUrlOptions): Promise<string>;
 };

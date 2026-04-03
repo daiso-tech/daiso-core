@@ -32,8 +32,9 @@ import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_mod
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/serde.js";
-import { Task } from "@/task/implementations/_module.js";
+import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+import { delay as delay_ } from "@/utilities/_module.js";
 
 describe("class: CircuitBreakerFactory", () => {
     const adapter: ICircuitBreakerAdapter = {
@@ -59,6 +60,7 @@ describe("class: CircuitBreakerFactory", () => {
         },
     };
     const KEY = "A";
+    const eventDispatchWaitTime = TimeSpan.fromMilliseconds(10);
 
     let circuitBreakerFactory: ICircuitBreakerFactory;
     const slowCallTime = TimeSpan.fromMilliseconds(50);
@@ -74,6 +76,9 @@ describe("class: CircuitBreakerFactory", () => {
             enableAsyncTracking: false,
         });
     });
+    async function delay(timeSpan: ITimeSpan): Promise<void> {
+        await delay_(TimeSpan.fromTimeSpan(timeSpan));
+    }
 
     describe("API tests:", () => {
         describe("method: runOrFail", () => {
@@ -119,7 +124,7 @@ describe("class: CircuitBreakerFactory", () => {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                     });
                     await circuitBreaker.runOrFail(async () => {
-                        await Task.delay(slowCallTime.addMilliseconds(10));
+                        await delay(slowCallTime.addMilliseconds(10));
                     });
 
                     expect(trackFailureSpy).toHaveBeenCalledOnce();
@@ -258,7 +263,7 @@ describe("class: CircuitBreakerFactory", () => {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
                     await circuitBreaker.runOrFail(async () => {
-                        await Task.delay(slowCallTime.addMilliseconds(10));
+                        await delay(slowCallTime.addMilliseconds(10));
                     });
 
                     expect(trackFailureSpy).not.toHaveBeenCalled();
@@ -281,7 +286,7 @@ describe("class: CircuitBreakerFactory", () => {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
                     await circuitBreaker.runOrFail(async () => {
-                        await Task.delay(slowCallTime.addMilliseconds(10));
+                        await delay(slowCallTime.addMilliseconds(10));
                     });
 
                     expect(trackSuccessSpy).toHaveBeenCalled();
@@ -417,7 +422,7 @@ describe("class: CircuitBreakerFactory", () => {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                     });
                     await circuitBreaker.runOrFail(async () => {
-                        await Task.delay(slowCallTime.addMilliseconds(10));
+                        await delay(slowCallTime.addMilliseconds(10));
                     });
 
                     expect(trackFailureSpy).toHaveBeenCalledOnce();
@@ -572,6 +577,7 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -609,11 +615,12 @@ describe("class: CircuitBreakerFactory", () => {
                     });
                     try {
                         await circuitBreaker.runOrFail(async () => {
-                            await Task.delay(slowCallTime.addMilliseconds(25));
+                            await delay(slowCallTime.addMilliseconds(25));
                         });
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -653,6 +660,7 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -697,6 +705,7 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
@@ -731,6 +740,7 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalled();
                 });
@@ -766,6 +776,7 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -803,11 +814,12 @@ describe("class: CircuitBreakerFactory", () => {
                     });
                     try {
                         await circuitBreaker.runOrFail(async () => {
-                            await Task.delay(slowCallTime.addMilliseconds(25));
+                            await delay(slowCallTime.addMilliseconds(25));
                         });
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).not.toHaveBeenCalledOnce();
                 });
@@ -837,6 +849,7 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -873,11 +886,12 @@ describe("class: CircuitBreakerFactory", () => {
                     });
                     try {
                         await circuitBreaker.runOrFail(async () => {
-                            await Task.delay(slowCallTime.addMilliseconds(25));
+                            await delay(slowCallTime.addMilliseconds(25));
                         });
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -922,6 +936,7 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
@@ -956,6 +971,7 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalled();
                 });
@@ -991,6 +1007,7 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
@@ -1016,8 +1033,9 @@ describe("class: CircuitBreakerFactory", () => {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                     });
                     await circuitBreaker.runOrFail(async () => {
-                        await Task.delay(slowCallTime.addMilliseconds(10));
+                        await delay(slowCallTime.addMilliseconds(10));
                     });
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -1053,6 +1071,7 @@ describe("class: CircuitBreakerFactory", () => {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                     });
                     await circuitBreaker.runOrFail(async () => {});
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -1097,6 +1116,7 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
@@ -1131,6 +1151,7 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
@@ -1165,6 +1186,7 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
@@ -1196,6 +1218,7 @@ describe("class: CircuitBreakerFactory", () => {
                 } catch {
                     /* EMPTY */
                 }
+                await delay(eventDispatchWaitTime);
 
                 expect(handlerFn).toHaveBeenCalledOnce();
                 expect(handlerFn).toHaveBeenCalledWith(
@@ -1225,6 +1248,7 @@ describe("class: CircuitBreakerFactory", () => {
 
                 const circuitBreaker = circuitBreakerFactory.create(KEY);
                 await circuitBreaker.isolate();
+                await delay(eventDispatchWaitTime);
 
                 expect(handlerFn).toHaveBeenCalledOnce();
                 expect(handlerFn).toHaveBeenCalledWith(
@@ -1252,6 +1276,7 @@ describe("class: CircuitBreakerFactory", () => {
 
                 const circuitBreaker = circuitBreakerFactory.create(KEY);
                 await circuitBreaker.reset();
+                await delay(eventDispatchWaitTime);
 
                 expect(handlerFn).toHaveBeenCalledOnce();
                 expect(handlerFn).toHaveBeenCalledWith(

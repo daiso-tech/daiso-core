@@ -32,14 +32,13 @@ import {
     type ISemaphoreAcquiredState,
 } from "@/semaphore/contracts/_module.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import { createIsTimeSpanEqualityTester } from "@/test-utilities/_module.js";
 import {
     TO_MILLISECONDS,
     type ITimeSpan,
 } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type Promisable } from "@/utilities/_module.js";
+import { delay as delay_, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/test-utilities"`
@@ -90,6 +89,16 @@ export type SemaphoreFactoryTestSuiteSettings = {
      * ```
      */
     timeSpanEqualityBuffer?: ITimeSpan;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span"
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    eventDispatchWaitTime?: ITimeSpan;
 };
 
 /**
@@ -142,12 +151,17 @@ export function semaphoreFactoryTestSuite(
         retry = 0,
         delayBuffer = TimeSpan.fromMilliseconds(10),
         timeSpanEqualityBuffer = TimeSpan.fromMilliseconds(10),
+        eventDispatchWaitTime = TimeSpan.fromMilliseconds(10),
     } = settings;
     let semaphoreFactory: ISemaphoreFactory;
     let serde: ISerde;
 
-    async function delay(time: TimeSpan): Promise<void> {
-        await Task.delay(TimeSpan.fromTimeSpan(time).addTimeSpan(delayBuffer));
+    async function delayWithBuffer(ttl: ITimeSpan): Promise<void> {
+        await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
+    }
+
+    async function delayExact(ttl: ITimeSpan): Promise<void> {
+        await delay_(TimeSpan.fromTimeSpan(ttl));
     }
 
     const RETURN_VALUE = "RETURN_VALUE";
@@ -305,7 +319,7 @@ export function semaphoreFactoryTestSuite(
                             limit,
                         })
                         .acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
@@ -441,7 +455,7 @@ export function semaphoreFactoryTestSuite(
                             limit,
                         })
                         .acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await semaphoreFactory
                         .create(key, {
@@ -715,7 +729,7 @@ export function semaphoreFactoryTestSuite(
                             limit,
                         })
                         .acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
@@ -873,7 +887,7 @@ export function semaphoreFactoryTestSuite(
                             limit,
                         })
                         .acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await semaphoreFactory
                         .create(key, {
@@ -1067,7 +1081,7 @@ export function semaphoreFactoryTestSuite(
                         ttl,
                     });
                     await semaphore.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await semaphore.acquire();
 
@@ -1131,7 +1145,7 @@ export function semaphoreFactoryTestSuite(
                         ttl: ttl2,
                     });
                     await semaphore2.acquire();
-                    await delay(ttl2);
+                    await delayWithBuffer(ttl2);
 
                     const ttl3 = null;
                     const semaphore3 = semaphoreFactory.create(key, {
@@ -1263,7 +1277,7 @@ export function semaphoreFactoryTestSuite(
                         ttl,
                     });
                     await semaphore.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = semaphore.acquireOrFail();
 
@@ -1329,7 +1343,7 @@ export function semaphoreFactoryTestSuite(
                         ttl: ttl2,
                     });
                     await semaphore2.acquire();
-                    await delay(ttl2);
+                    await delayWithBuffer(ttl2);
 
                     const ttl3 = null;
                     const semaphore3 = semaphoreFactory.create(key, {
@@ -1466,7 +1480,7 @@ export function semaphoreFactoryTestSuite(
                         ttl,
                     });
                     await semaphore.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await semaphore.acquireBlocking({
                         time: TimeSpan.fromMilliseconds(5),
@@ -1539,7 +1553,7 @@ export function semaphoreFactoryTestSuite(
                         ttl: ttl2,
                     });
                     await semaphore2.acquire();
-                    await delay(ttl2);
+                    await delayWithBuffer(ttl2);
 
                     const ttl3 = null;
                     const semaphore3 = semaphoreFactory.create(key, {
@@ -1724,7 +1738,7 @@ export function semaphoreFactoryTestSuite(
                         ttl,
                     });
                     await semaphore.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = semaphore.acquireBlockingOrFail({
                         time: TimeSpan.fromMilliseconds(5),
@@ -1799,7 +1813,7 @@ export function semaphoreFactoryTestSuite(
                         ttl: ttl2,
                     });
                     await semaphore2.acquire();
-                    await delay(ttl2);
+                    await delayWithBuffer(ttl2);
 
                     const ttl3 = null;
                     const semaphore3 = semaphoreFactory.create(key, {
@@ -2016,7 +2030,7 @@ export function semaphoreFactoryTestSuite(
                         limit,
                     });
                     await semaphore.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await semaphore.release();
 
@@ -2188,7 +2202,7 @@ export function semaphoreFactoryTestSuite(
                         limit,
                     });
                     await semaphore1.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = semaphoreFactory
                         .create(key, {
@@ -2211,7 +2225,7 @@ export function semaphoreFactoryTestSuite(
                         limit,
                     });
                     await semaphore.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
                     const result = semaphore.releaseOrFail();
 
                     await expect(result).rejects.toBeInstanceOf(
@@ -2359,7 +2373,7 @@ export function semaphoreFactoryTestSuite(
                         ttl,
                     });
                     await semaphore.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await semaphore.forceReleaseAll();
 
@@ -2537,7 +2551,7 @@ export function semaphoreFactoryTestSuite(
                         limit,
                     });
                     await semaphore.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const result = await semaphore.refresh(newTtl);
@@ -2594,7 +2608,7 @@ export function semaphoreFactoryTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await semaphore2.refresh(newTtl);
-                    await delay(newTtl);
+                    await delayWithBuffer(newTtl);
 
                     const semaphore3 = semaphoreFactory.create(key, {
                         ttl: ttl2,
@@ -2623,7 +2637,7 @@ export function semaphoreFactoryTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await semaphore2.refresh(newTtl);
-                    await delay(newTtl.divide(2));
+                    await delayWithBuffer(newTtl.divide(2));
 
                     const semaphore3 = semaphoreFactory.create(key, {
                         ttl: ttl2,
@@ -2632,7 +2646,7 @@ export function semaphoreFactoryTestSuite(
                     const result1 = await semaphore3.acquire();
                     expect(result1).toBe(false);
 
-                    await delay(newTtl.divide(2));
+                    await delayWithBuffer(newTtl.divide(2));
                     const result2 = await semaphore3.acquire();
                     expect(result2).toBe(true);
                 });
@@ -2695,7 +2709,7 @@ export function semaphoreFactoryTestSuite(
                         limit,
                     });
                     await semaphore.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const result = semaphore.refreshOrFail(newTtl);
@@ -2714,7 +2728,7 @@ export function semaphoreFactoryTestSuite(
                         limit,
                     });
                     await semaphore.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const result = semaphore.refreshOrFail(newTtl);
 
@@ -2778,7 +2792,7 @@ export function semaphoreFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(newTtl);
+                    await delayWithBuffer(newTtl);
 
                     const semaphore3 = semaphoreFactory.create(key, {
                         ttl: ttl2,
@@ -2807,7 +2821,7 @@ export function semaphoreFactoryTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await semaphore2.refreshOrFail(newTtl);
-                    await delay(newTtl.divide(2));
+                    await delayWithBuffer(newTtl.divide(2));
 
                     const semaphore3 = semaphoreFactory.create(key, {
                         ttl: ttl2,
@@ -2816,7 +2830,7 @@ export function semaphoreFactoryTestSuite(
                     const result1 = await semaphore3.acquire();
                     expect(result1).toBe(false);
 
-                    await delay(newTtl.divide(2));
+                    await delayWithBuffer(newTtl.divide(2));
                     const result2 = await semaphore3.acquire();
                     expect(result2).toBe(true);
                 });
@@ -2902,7 +2916,7 @@ export function semaphoreFactoryTestSuite(
                         limit,
                     });
                     await semaphore.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await semaphore.getState();
 
@@ -3007,7 +3021,7 @@ export function semaphoreFactoryTestSuite(
                         limit,
                     });
                     await semaphore2.acquire();
-                    await delay(ttl2);
+                    await delayWithBuffer(ttl2);
 
                     const state = await semaphore2.getState();
 
@@ -3068,7 +3082,7 @@ export function semaphoreFactoryTestSuite(
                         ttl: ttl2,
                         limit,
                     });
-                    await delay(ttl2);
+                    await delayWithBuffer(ttl2);
 
                     const state = await semaphore2.getState();
 
@@ -3101,6 +3115,7 @@ export function semaphoreFactoryTestSuite(
                             ttl,
                         });
                         await semaphore.acquire();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3126,7 +3141,7 @@ export function semaphoreFactoryTestSuite(
                             ttl,
                         });
                         await semaphore.acquire();
-                        await delay(ttl);
+                        await delayWithBuffer(ttl);
 
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
@@ -3136,6 +3151,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.acquire();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3173,6 +3189,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore2.acquire();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3216,6 +3233,7 @@ export function semaphoreFactoryTestSuite(
                             ttl,
                         });
                         await semaphore3.acquire();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3247,7 +3265,7 @@ export function semaphoreFactoryTestSuite(
                             ttl: ttl2,
                         });
                         await semaphore2.acquire();
-                        await delay(ttl2);
+                        await delayWithBuffer(ttl2);
 
                         const ttl3 = null;
                         const handlerFn = vi.fn(
@@ -3262,6 +3280,7 @@ export function semaphoreFactoryTestSuite(
                             ttl: ttl3,
                         });
                         await semaphore3.acquire();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3295,6 +3314,7 @@ export function semaphoreFactoryTestSuite(
                         });
                         await semaphore.acquire();
                         await semaphore.acquire();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(2);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3328,6 +3348,7 @@ export function semaphoreFactoryTestSuite(
                         });
                         await semaphore.acquire();
                         await semaphore.acquire();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(2);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3363,6 +3384,7 @@ export function semaphoreFactoryTestSuite(
                             ttl,
                         });
                         await semaphore.acquireOrFail();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3388,7 +3410,7 @@ export function semaphoreFactoryTestSuite(
                             ttl,
                         });
                         await semaphore.acquire();
-                        await delay(ttl);
+                        await delayWithBuffer(ttl);
 
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
@@ -3398,6 +3420,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.acquireOrFail();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3435,6 +3458,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore2.acquireOrFail();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3482,6 +3506,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3513,7 +3538,7 @@ export function semaphoreFactoryTestSuite(
                             ttl: ttl2,
                         });
                         await semaphore2.acquire();
-                        await delay(ttl2);
+                        await delayWithBuffer(ttl2);
 
                         const ttl3 = null;
                         const handlerFn = vi.fn(
@@ -3528,6 +3553,7 @@ export function semaphoreFactoryTestSuite(
                             ttl: ttl3,
                         });
                         await semaphore3.acquireOrFail();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3561,6 +3587,7 @@ export function semaphoreFactoryTestSuite(
                         });
                         await semaphore.acquire();
                         await semaphore.acquireOrFail();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(2);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3594,6 +3621,7 @@ export function semaphoreFactoryTestSuite(
                         });
                         await semaphore.acquire();
                         await semaphore.acquireOrFail();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(2);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3657,7 +3685,7 @@ export function semaphoreFactoryTestSuite(
                             ttl,
                         });
                         await semaphore.acquire();
-                        await delay(ttl);
+                        await delayWithBuffer(ttl);
 
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
@@ -3792,7 +3820,7 @@ export function semaphoreFactoryTestSuite(
                             ttl: ttl2,
                         });
                         await semaphore2.acquire();
-                        await delay(ttl2);
+                        await delayWithBuffer(ttl2);
 
                         const ttl3 = null;
                         const handlerFn = vi.fn(
@@ -3920,6 +3948,7 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3945,7 +3974,7 @@ export function semaphoreFactoryTestSuite(
                             ttl,
                         });
                         await semaphore.acquire();
-                        await delay(ttl);
+                        await delayWithBuffer(ttl);
 
                         const handlerFn = vi.fn(
                             (_event: AcquiredSemaphoreEvent) => {},
@@ -3958,6 +3987,7 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3998,6 +4028,7 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4048,6 +4079,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(
                             handlerFn.mock.calls.length,
@@ -4084,7 +4116,7 @@ export function semaphoreFactoryTestSuite(
                             ttl: ttl2,
                         });
                         await semaphore2.acquire();
-                        await delay(ttl2);
+                        await delayWithBuffer(ttl2);
 
                         const ttl3 = null;
                         const handlerFn = vi.fn(
@@ -4102,6 +4134,7 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4138,6 +4171,7 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(2);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4174,6 +4208,7 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(2);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4219,6 +4254,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4260,6 +4296,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4285,7 +4322,7 @@ export function semaphoreFactoryTestSuite(
                             limit,
                         });
                         await semaphore1.acquire();
-                        await delay(ttl);
+                        await delayWithBuffer(ttl);
 
                         const semaphore = semaphoreFactory.create(key, {
                             ttl,
@@ -4299,6 +4336,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4324,7 +4362,7 @@ export function semaphoreFactoryTestSuite(
                             limit,
                         });
                         await semaphore.acquire();
-                        await delay(ttl);
+                        await delayWithBuffer(ttl);
 
                         const handlerFn = vi.fn(
                             (_event: FailedReleaseSemaphoreEvent) => {},
@@ -4334,6 +4372,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4368,6 +4407,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4402,6 +4442,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4451,6 +4492,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4496,6 +4538,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4521,7 +4564,7 @@ export function semaphoreFactoryTestSuite(
                             limit,
                         });
                         await semaphore1.acquire();
-                        await delay(ttl);
+                        await delayWithBuffer(ttl);
 
                         const semaphore = semaphoreFactory.create(key, {
                             ttl,
@@ -4539,6 +4582,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4564,7 +4608,7 @@ export function semaphoreFactoryTestSuite(
                             limit,
                         });
                         await semaphore.acquire();
-                        await delay(ttl);
+                        await delayWithBuffer(ttl);
 
                         const handlerFn = vi.fn(
                             (_event: FailedReleaseSemaphoreEvent) => {},
@@ -4578,6 +4622,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4612,6 +4657,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.releaseOrFail();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4646,6 +4692,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.releaseOrFail();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4680,7 +4727,7 @@ export function semaphoreFactoryTestSuite(
                             limit,
                         });
                         await semaphore2.acquire();
-                        await delay(ttl2);
+                        await delayWithBuffer(ttl2);
 
                         await semaphore1.release();
 
@@ -4699,6 +4746,7 @@ export function semaphoreFactoryTestSuite(
                         );
 
                         await semaphore3.forceReleaseAll();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4742,6 +4790,7 @@ export function semaphoreFactoryTestSuite(
                         );
 
                         await semaphore1.forceReleaseAll();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4788,6 +4837,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore2.refresh();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4829,6 +4879,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore2.refresh();
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4853,7 +4904,7 @@ export function semaphoreFactoryTestSuite(
                             limit,
                         });
                         await semaphore.acquire();
-                        await delay(ttl);
+                        await delayWithBuffer(ttl);
 
                         const handlerFn = vi.fn(
                             (_event: FailedRefreshSemaphoreEvent) => {},
@@ -4864,6 +4915,7 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refresh(newTtl);
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4889,7 +4941,7 @@ export function semaphoreFactoryTestSuite(
                             limit,
                         });
                         await semaphore.acquire();
-                        await delay(ttl);
+                        await delayWithBuffer(ttl);
 
                         const handlerFn = vi.fn(
                             (_event: FailedRefreshSemaphoreEvent) => {},
@@ -4900,6 +4952,7 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refresh(newTtl);
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4935,6 +4988,7 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refresh(newTtl);
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4970,6 +5024,7 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refresh(newTtl);
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -5019,6 +5074,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -5064,6 +5120,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -5088,7 +5145,7 @@ export function semaphoreFactoryTestSuite(
                             limit,
                         });
                         await semaphore.acquire();
-                        await delay(ttl);
+                        await delayWithBuffer(ttl);
 
                         const handlerFn = vi.fn(
                             (_event: FailedRefreshSemaphoreEvent) => {},
@@ -5103,6 +5160,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -5128,7 +5186,7 @@ export function semaphoreFactoryTestSuite(
                             limit,
                         });
                         await semaphore.acquire();
-                        await delay(ttl);
+                        await delayWithBuffer(ttl);
 
                         const handlerFn = vi.fn(
                             (_event: FailedRefreshSemaphoreEvent) => {},
@@ -5143,6 +5201,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -5182,6 +5241,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -5217,6 +5277,7 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refreshOrFail(newTtl);
+                        await delayExact(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -5269,7 +5330,7 @@ export function semaphoreFactoryTestSuite(
                         serde.serialize(semaphore),
                     );
                     await deserializedSemaphore.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await semaphore.getState();
 
@@ -5390,7 +5451,7 @@ export function semaphoreFactoryTestSuite(
                             serde.serialize(semaphore2),
                         );
                     await deserializedSemaphore2.acquire();
-                    await delay(ttl2);
+                    await delayWithBuffer(ttl2);
 
                     const state = await deserializedSemaphore2.getState();
 
@@ -5459,7 +5520,7 @@ export function semaphoreFactoryTestSuite(
                         serde.deserialize<ISemaphore>(
                             serde.serialize(semaphore2),
                         );
-                    await delay(ttl2);
+                    await delayWithBuffer(ttl2);
 
                     const state = await deserializedSemaphore2.getState();
 

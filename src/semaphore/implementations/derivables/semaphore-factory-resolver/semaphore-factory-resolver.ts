@@ -16,6 +16,7 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -118,6 +119,14 @@ export class SemaphoreFactoryResolver<TAdapters extends string>
             defaultRefreshTime: time,
         });
     }
+
+    setWaitUntil(waitUntil: WaitUntil): SemaphoreFactoryResolver<TAdapters> {
+        return new SemaphoreFactoryResolver({
+            ...this.settings,
+            waitUntil,
+        });
+    }
+
     /**
      * @example
      * ```ts

@@ -10,10 +10,9 @@ import {
 } from "vitest";
 
 import { type ISemaphoreAdapter } from "@/semaphore/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type Promisable } from "@/utilities/_module.js";
+import { delay as delay_, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/test-utilities"`
@@ -90,8 +89,8 @@ export function semaphoreAdapterTestSuite(
     } = settings;
     let adapter: ISemaphoreAdapter;
 
-    async function delay(time: TimeSpan): Promise<void> {
-        await Task.delay(TimeSpan.fromTimeSpan(time).addTimeSpan(delayBuffer));
+    async function delay(ttl: ITimeSpan): Promise<void> {
+        await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
     describe("ISemaphoreAdapter tests:", () => {

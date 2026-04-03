@@ -31,10 +31,12 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callInvokable,
     CORE,
+    defaultWaitUntil,
     isPositiveNbr,
     resolveOneOrMore,
     type Invokable,
     type OneOrMore,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -133,6 +135,14 @@ export type SemaphoreFactorySettingsBase = {
      * ```
      */
     defaultRefreshTime?: ITimeSpan;
+
+    /**
+     * @default
+     * ```ts
+     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
+     * ```
+     */
+    waitUntil?: WaitUntil;
 };
 
 /**
@@ -165,6 +175,10 @@ export class SemaphoreFactory implements ISemaphoreFactory {
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
     private readonly createSlotId: Invokable<[], string>;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     /**
      * @example
@@ -207,8 +221,10 @@ export class SemaphoreFactory implements ISemaphoreFactory {
                 adapter: new NoOpEventBusAdapter(),
             }),
             serdeTransformerName = "",
+            waitUntil = defaultWaitUntil,
         } = settings;
 
+        this.waitUntil = waitUntil;
         this.createSlotId = createSlotId;
         this.serde = serde;
         this.defaultBlockingInterval = TimeSpan.fromTimeSpan(
@@ -230,6 +246,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
 
     private registerToSerde(): void {
         const transformer = new SemaphoreSerdeTransformer({
+            waitUntil: this.waitUntil,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
             defaultBlockingInterval: this.defaultBlockingInterval,
@@ -257,6 +274,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
         isPositiveNbr(limit);
 
         return new Semaphore({
+            waitUntil: this.waitUntil,
             slotId,
             limit,
             adapter: this.adapter,

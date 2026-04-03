@@ -3,7 +3,7 @@
  */
 
 import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
-import { type AsyncMiddlewareFn } from "@/hooks/_module.js";
+import { AsyncHooks, type AsyncMiddlewareFn } from "@/hooks/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import {
     FailedAcquireWriterLockError,
@@ -28,14 +28,16 @@ import {
     type SharedLockAquireBlockingSettings,
     type SharedLockEventMap,
 } from "@/shared-lock/contracts/_module.js";
-import { type ITask } from "@/task/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
+    callInvokable,
+    delay,
     resolveLazyable,
     UnexpectedError,
     type AsyncLazy,
+    type Invokable,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -65,6 +67,7 @@ export type SharedLockSettings = {
     defaultBlockingInterval: TimeSpan;
     defaultBlockingTime: TimeSpan;
     defaultRefreshTime: TimeSpan;
+    waitUntil: WaitUntil;
 };
 
 /**
@@ -98,6 +101,10 @@ export class SharedLock implements ISharedLock {
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly limit: number;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     constructor(settings: SharedLockSettings) {
         const {
@@ -113,7 +120,10 @@ export class SharedLock implements ISharedLock {
             defaultBlockingTime,
             defaultRefreshTime,
             limit,
+            waitUntil,
         } = settings;
+
+        this.waitUntil = waitUntil;
         this.limit = limit;
         this.namespace = namespace;
         this.originalAdapter = originalAdapter;
@@ -140,30 +150,27 @@ export class SharedLock implements ISharedLock {
         return this.originalAdapter;
     }
 
-    runReaderOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): ITask<TValue> {
-        return new Task(async () => {
-            try {
-                await this.acquireReaderOrFail();
-                return await resolveLazyable(asyncFn);
-            } finally {
-                await this.releaseReader();
-            }
-        });
+    async runReaderOrFail<TValue = void>(
+        asyncFn: AsyncLazy<TValue>,
+    ): Promise<TValue> {
+        await this.acquireReaderOrFail();
+        try {
+            return await resolveLazyable(asyncFn);
+        } finally {
+            await this.releaseReader();
+        }
     }
 
-    runReaderBlockingOrFail<TValue = void>(
+    async runReaderBlockingOrFail<TValue = void>(
         asyncFn: AsyncLazy<TValue>,
         settings?: SharedLockAquireBlockingSettings,
-    ): ITask<TValue> {
-        return new Task(async () => {
-            try {
-                await this.acquireReaderBlockingOrFail(settings);
-
-                return await resolveLazyable(asyncFn);
-            } finally {
-                await this.releaseReader();
-            }
-        });
+    ): Promise<TValue> {
+        await this.acquireReaderBlockingOrFail(settings);
+        try {
+            return await resolveLazyable(asyncFn);
+        } finally {
+            await this.releaseReader();
+        }
     }
 
     private handleUnexpectedError = <
@@ -178,12 +185,16 @@ export class SharedLock implements ISharedLock {
                     throw error;
                 }
 
-                this.eventDispatcher
-                    .dispatch(SHARED_LOCK_EVENTS.UNEXPECTED_ERROR, {
-                        error,
-                        sharedLock: this,
-                    })
-                    .detach();
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(
+                        SHARED_LOCK_EVENTS.UNEXPECTED_ERROR,
+                        {
+                            error,
+                            sharedLock: this,
+                        },
+                    ),
+                );
 
                 throw error;
             }
@@ -202,28 +213,36 @@ export class SharedLock implements ISharedLock {
         return async (args, next) => {
             const result = await next(...args);
             if (result && settings.on === "true") {
-                this.eventDispatcher
-                    .dispatch(settings.eventName, settings.eventData)
-                    .detach();
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(
+                        settings.eventName,
+                        settings.eventData,
+                    ),
+                );
             }
             if (!result && settings.on === "false") {
-                this.eventDispatcher
-                    .dispatch(settings.eventName, settings.eventData)
-                    .detach();
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(
+                        settings.eventName,
+                        settings.eventData,
+                    ),
+                );
             }
             return result;
         };
     };
 
-    acquireReader(): ITask<boolean> {
-        return new Task(async () => {
+    acquireReader(): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.acquireReader({
                 key: this._key.toString(),
                 lockId: this.lockId,
                 limit: this.limit,
                 ttl: this._ttl,
             });
-        }).pipe([
+        }, [
             this.handleUnexpectedError(),
             this.handleDispatch({
                 on: "true",
@@ -239,57 +258,52 @@ export class SharedLock implements ISharedLock {
                     sharedLock: this,
                 },
             }),
-        ]);
+        ]).invoke();
     }
 
-    acquireReaderOrFail(): ITask<void> {
-        return new Task(async () => {
-            const hasAquired = await this.acquireReader();
-            if (!hasAquired) {
-                throw LimitReachedReaderSemaphoreError.create(this._key);
-            }
-        });
+    async acquireReaderOrFail(): Promise<void> {
+        const hasAquired = await this.acquireReader();
+        if (!hasAquired) {
+            throw LimitReachedReaderSemaphoreError.create(this._key);
+        }
     }
 
-    acquireReaderBlocking(
+    async acquireReaderBlocking(
         settings: SharedLockAquireBlockingSettings = {},
-    ): ITask<boolean> {
-        return new Task(async () => {
-            const {
-                time = this.defaultBlockingTime,
-                interval = this.defaultBlockingInterval,
-            } = settings;
-            const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
-            const endDate = timeAsTimeSpan.toEndDate();
-            while (endDate.getTime() > new Date().getTime()) {
-                const hasAquired = await this.acquireReader();
-                if (hasAquired) {
-                    return true;
-                }
-                await Task.delay(interval);
+    ): Promise<boolean> {
+        const {
+            time = this.defaultBlockingTime,
+            interval = this.defaultBlockingInterval,
+        } = settings;
+
+        const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
+        const endDate = timeAsTimeSpan.toEndDate();
+        while (endDate.getTime() > new Date().getTime()) {
+            const hasAquired = await this.acquireReader();
+            if (hasAquired) {
+                return true;
             }
-            return false;
-        });
+            await delay(interval);
+        }
+        return false;
     }
 
-    acquireReaderBlockingOrFail(
+    async acquireReaderBlockingOrFail(
         settings?: SharedLockAquireBlockingSettings,
-    ): ITask<void> {
-        return new Task(async () => {
-            const hasAquired = await this.acquireReaderBlocking(settings);
-            if (!hasAquired) {
-                throw LimitReachedReaderSemaphoreError.create(this._key);
-            }
-        });
+    ): Promise<void> {
+        const hasAquired = await this.acquireReaderBlocking(settings);
+        if (!hasAquired) {
+            throw LimitReachedReaderSemaphoreError.create(this._key);
+        }
     }
 
-    releaseReader(): ITask<boolean> {
-        return new Task(async () => {
+    releaseReader(): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.releaseReader(
                 this._key.toString(),
                 this.lockId,
             );
-        }).pipe([
+        }, [
             this.handleUnexpectedError(),
             this.handleDispatch({
                 on: "true",
@@ -305,49 +319,51 @@ export class SharedLock implements ISharedLock {
                     sharedLock: this,
                 },
             }),
-        ]);
+        ]).invoke();
     }
 
-    releaseReaderOrFail(): ITask<void> {
-        return new Task(async () => {
-            const hasReleased = await this.releaseReader();
-            if (!hasReleased) {
-                throw FailedReleaseReaderSemaphoreError.create(
-                    this._key,
-                    this.lockId,
-                );
-            }
-        });
+    async releaseReaderOrFail(): Promise<void> {
+        const hasReleased = await this.releaseReader();
+        if (!hasReleased) {
+            throw FailedReleaseReaderSemaphoreError.create(
+                this._key,
+                this.lockId,
+            );
+        }
     }
 
-    forceReleaseAllReaders(): ITask<boolean> {
-        return new Task(async () => {
+    forceReleaseAllReaders(): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.forceReleaseAllReaders(
                 this._key.toString(),
             );
-        }).pipe([
+        }, [
             this.handleUnexpectedError(),
             async (args, next) => {
                 const hasReleased = await next(...args);
-                this.eventDispatcher
-                    .dispatch(SHARED_LOCK_EVENTS.READER_ALL_FORCE_RELEASED, {
-                        sharedLock: this,
-                        hasReleased,
-                    })
-                    .detach();
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(
+                        SHARED_LOCK_EVENTS.READER_ALL_FORCE_RELEASED,
+                        {
+                            sharedLock: this,
+                            hasReleased,
+                        },
+                    ),
+                );
                 return hasReleased;
             },
-        ]);
+        ]).invoke();
     }
 
-    refreshReader(ttl: ITimeSpan = this.defaultRefreshTime): ITask<boolean> {
-        return new Task(async () => {
+    refreshReader(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.refreshReader(
                 this._key.toString(),
                 this.lockId,
                 TimeSpan.fromTimeSpan(ttl),
             );
-        }).pipe([
+        }, [
             this.handleUnexpectedError(),
             this.handleDispatch({
                 on: "true",
@@ -365,58 +381,55 @@ export class SharedLock implements ISharedLock {
             }),
             async (args, next) => {
                 const hasRefreshed = await next(...args);
-                this._ttl = TimeSpan.fromTimeSpan(ttl);
+                if (hasRefreshed) {
+                    this._ttl = TimeSpan.fromTimeSpan(ttl);
+                }
                 return hasRefreshed;
             },
-        ]);
+        ]).invoke();
     }
 
-    refreshReaderOrFail(ttl?: ITimeSpan): ITask<void> {
-        return new Task(async () => {
-            const hasRefreshed = await this.refreshReader(ttl);
-            if (!hasRefreshed) {
-                throw FailedRefreshReaderSemaphoreError.create(
-                    this._key,
-                    this.lockId,
-                );
-            }
-        });
+    async refreshReaderOrFail(ttl?: ITimeSpan): Promise<void> {
+        const hasRefreshed = await this.refreshReader(ttl);
+        if (!hasRefreshed) {
+            throw FailedRefreshReaderSemaphoreError.create(
+                this._key,
+                this.lockId,
+            );
+        }
     }
 
-    runWriterOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): ITask<TValue> {
-        return new Task(async () => {
-            try {
-                await this.acquireWriterOrFail();
-                return await resolveLazyable(asyncFn);
-            } finally {
-                await this.releaseWriter();
-            }
-        });
+    async runWriterOrFail<TValue = void>(
+        asyncFn: AsyncLazy<TValue>,
+    ): Promise<TValue> {
+        await this.acquireWriterOrFail();
+        try {
+            return await resolveLazyable(asyncFn);
+        } finally {
+            await this.releaseWriter();
+        }
     }
 
-    runWriterBlockingOrFail<TValue = void>(
+    async runWriterBlockingOrFail<TValue = void>(
         asyncFn: AsyncLazy<TValue>,
         settings?: SharedLockAquireBlockingSettings,
-    ): ITask<TValue> {
-        return new Task(async () => {
-            try {
-                await this.acquireWriterBlockingOrFail(settings);
-
-                return await resolveLazyable(asyncFn);
-            } finally {
-                await this.releaseWriter();
-            }
-        });
+    ): Promise<TValue> {
+        await this.acquireWriterBlockingOrFail(settings);
+        try {
+            return await resolveLazyable(asyncFn);
+        } finally {
+            await this.releaseWriter();
+        }
     }
 
-    acquireWriter(): ITask<boolean> {
-        return new Task(async () => {
+    acquireWriter(): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.acquireWriter(
                 this._key.toString(),
                 this.lockId,
                 this._ttl,
             );
-        }).pipe([
+        }, [
             this.handleUnexpectedError(),
             this.handleDispatch({
                 on: "true",
@@ -432,57 +445,52 @@ export class SharedLock implements ISharedLock {
                     sharedLock: this,
                 },
             }),
-        ]);
+        ]).invoke();
     }
 
-    acquireWriterOrFail(): ITask<void> {
-        return new Task(async () => {
-            const hasAquired = await this.acquireWriter();
-            if (!hasAquired) {
-                throw FailedAcquireWriterLockError.create(this._key);
-            }
-        });
+    async acquireWriterOrFail(): Promise<void> {
+        const hasAquired = await this.acquireWriter();
+        if (!hasAquired) {
+            throw FailedAcquireWriterLockError.create(this._key);
+        }
     }
 
-    acquireWriterBlocking(
+    async acquireWriterBlocking(
         settings: SharedLockAquireBlockingSettings = {},
-    ): ITask<boolean> {
-        return new Task(async () => {
-            const {
-                time = this.defaultBlockingTime,
-                interval = this.defaultBlockingInterval,
-            } = settings;
-            const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
-            const endDate = timeAsTimeSpan.toEndDate();
-            while (endDate > new Date()) {
-                const hasAquired = await this.acquireWriter();
-                if (hasAquired) {
-                    return true;
-                }
-                await Task.delay(interval);
+    ): Promise<boolean> {
+        const {
+            time = this.defaultBlockingTime,
+            interval = this.defaultBlockingInterval,
+        } = settings;
+
+        const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
+        const endDate = timeAsTimeSpan.toEndDate();
+        while (endDate.getTime() > new Date().getTime()) {
+            const hasAquired = await this.acquireWriter();
+            if (hasAquired) {
+                return true;
             }
-            return false;
-        });
+            await delay(interval);
+        }
+        return false;
     }
 
-    acquireWriterBlockingOrFail(
+    async acquireWriterBlockingOrFail(
         settings?: SharedLockAquireBlockingSettings,
-    ): ITask<void> {
-        return new Task(async () => {
-            const hasAquired = await this.acquireWriterBlocking(settings);
-            if (!hasAquired) {
-                throw FailedAcquireWriterLockError.create(this._key);
-            }
-        });
+    ): Promise<void> {
+        const hasAquired = await this.acquireWriterBlocking(settings);
+        if (!hasAquired) {
+            throw FailedAcquireWriterLockError.create(this._key);
+        }
     }
 
-    releaseWriter(): ITask<boolean> {
-        return new Task(async () => {
+    releaseWriter(): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.releaseWriter(
                 this._key.toString(),
                 this.lockId,
             );
-        }).pipe([
+        }, [
             this.handleUnexpectedError(),
             this.handleDispatch({
                 on: "true",
@@ -498,47 +506,46 @@ export class SharedLock implements ISharedLock {
                     sharedLock: this,
                 },
             }),
-        ]);
+        ]).invoke();
     }
 
-    releaseWriterOrFail(): ITask<void> {
-        return new Task(async () => {
-            const hasRelased = await this.releaseWriter();
-            if (!hasRelased) {
-                throw FailedReleaseWriterLockError.create(
-                    this._key,
-                    this.lockId,
-                );
-            }
-        });
+    async releaseWriterOrFail(): Promise<void> {
+        const hasRelased = await this.releaseWriter();
+        if (!hasRelased) {
+            throw FailedReleaseWriterLockError.create(this._key, this.lockId);
+        }
     }
 
-    forceReleaseWriter(): ITask<boolean> {
-        return new Task(async () => {
+    forceReleaseWriter(): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.forceReleaseWriter(this._key.toString());
-        }).pipe([
+        }, [
             this.handleUnexpectedError(),
             async (args, next) => {
                 const hasReleased = await next(...args);
-                this.eventDispatcher
-                    .dispatch(SHARED_LOCK_EVENTS.WRITER_FORCE_RELEASED, {
-                        sharedLock: this,
-                        hasReleased,
-                    })
-                    .detach();
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(
+                        SHARED_LOCK_EVENTS.WRITER_FORCE_RELEASED,
+                        {
+                            sharedLock: this,
+                            hasReleased,
+                        },
+                    ),
+                );
                 return hasReleased;
             },
-        ]);
+        ]).invoke();
     }
 
-    refreshWriter(ttl: ITimeSpan = this.defaultRefreshTime): ITask<boolean> {
-        return new Task(async () => {
+    refreshWriter(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.refreshWriter(
                 this._key.toString(),
                 this.lockId,
                 TimeSpan.fromTimeSpan(ttl),
             );
-        }).pipe([
+        }, [
             this.handleUnexpectedError(),
             this.handleDispatch({
                 on: "true",
@@ -561,19 +568,14 @@ export class SharedLock implements ISharedLock {
                 }
                 return hasRefreshed;
             },
-        ]);
+        ]).invoke();
     }
 
-    refreshWriterOrFail(ttl?: ITimeSpan): ITask<void> {
-        return new Task(async () => {
-            const hasRefreshed = await this.refreshWriter(ttl);
-            if (!hasRefreshed) {
-                throw FailedRefreshWriterLockError.create(
-                    this._key,
-                    this.lockId,
-                );
-            }
-        });
+    async refreshWriterOrFail(ttl?: ITimeSpan): Promise<void> {
+        const hasRefreshed = await this.refreshWriter(ttl);
+        if (!hasRefreshed) {
+            throw FailedRefreshWriterLockError.create(this._key, this.lockId);
+        }
     }
 
     get key(): IKey {
@@ -588,14 +590,14 @@ export class SharedLock implements ISharedLock {
         return this._ttl;
     }
 
-    forceRelease(): ITask<boolean> {
-        return new Task(async () => {
+    forceRelease(): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.forceRelease(this._key.toString());
-        }).pipe([this.handleUnexpectedError()]);
+        }, [this.handleUnexpectedError()]).invoke();
     }
 
-    getState(): ITask<ISharedLockState> {
-        return new Task<ISharedLockState>(async () => {
+    getState(): Promise<ISharedLockState> {
+        return new AsyncHooks<[], ISharedLockState>(async () => {
             const state = await this.adapter.getState(this._key.toString());
             if (state === null) {
                 return {
@@ -667,6 +669,6 @@ export class SharedLock implements ISharedLock {
             throw new UnexpectedError(
                 "Invalid ISharedLockAdapterState, expected either the reader field must be defined or the writer field must be defined, but not both.",
             );
-        }).pipe(this.handleUnexpectedError());
+        }, [this.handleUnexpectedError()]).invoke();
     }
 }

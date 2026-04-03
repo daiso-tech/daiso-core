@@ -344,14 +344,6 @@
             "types": "./dist/shared-lock/implementations/test-utilities/_module-exports.d.ts",
             "import": "./dist/shared-lock/implementations/test-utilities/_module-exports.js"
         },
-        "./task": {
-            "types": "./dist/task/implementations/_module-exports.d.ts",
-            "import": "./dist/task/implementations/_module-exports.js"
-        },
-        "./task/contracts": {
-            "types": "./dist/task/contracts/_module-exports.d.ts",
-            "import": "./dist/task/contracts/_module-exports.js"
-        },
         "./time-span": {
             "types": "./dist/time-span/implementations/_module-exports.d.ts",
             "import": "./dist/time-span/implementations/_module-exports.js"

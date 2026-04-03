@@ -21,6 +21,7 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     DefaultAdapterNotDefinedError,
     type ErrorPolicy,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -121,6 +122,15 @@ export class CircuitBreakerFactoryResolver<TAdapters extends string>
         return new CircuitBreakerFactoryResolver({
             ...this.settings,
             defaultErrorPolicy,
+        });
+    }
+
+    setWaitUntil(
+        waitUntil: WaitUntil,
+    ): CircuitBreakerFactoryResolver<TAdapters> {
+        return new CircuitBreakerFactoryResolver({
+            ...this.settings,
+            waitUntil,
         });
     }
 

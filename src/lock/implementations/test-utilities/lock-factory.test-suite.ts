@@ -30,14 +30,13 @@ import {
     type UnavailableLockEvent,
 } from "@/lock/contracts/_module.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import { createIsTimeSpanEqualityTester } from "@/test-utilities/_module.js";
 import {
     TO_MILLISECONDS,
     type ITimeSpan,
 } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type Promisable } from "@/utilities/_module.js";
+import { delay as delay_, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/lock/test-utilities"`
@@ -88,6 +87,16 @@ export type LockFactoryTestSuiteSettings = {
      * ```
      */
     timeSpanEqualityBuffer?: ITimeSpan;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span"
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    eventDispatchWaitTime?: ITimeSpan;
 };
 
 /**
@@ -140,13 +149,18 @@ export function lockFactoryTestSuite(
         retry = 0,
         delayBuffer = TimeSpan.fromMilliseconds(10),
         timeSpanEqualityBuffer = TimeSpan.fromMilliseconds(10),
+        eventDispatchWaitTime = TimeSpan.fromMilliseconds(10),
     } = settings;
 
     let lockFactory: ILockFactory;
     let serde: ISerde;
 
-    async function delay(time: ITimeSpan): Promise<void> {
-        await Task.delay(TimeSpan.fromTimeSpan(time).addTimeSpan(delayBuffer));
+    async function delayWithBuffer(ttl: ITimeSpan): Promise<void> {
+        await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
+    }
+
+    async function delayExact(ttl: ITimeSpan): Promise<void> {
+        await delay_(TimeSpan.fromTimeSpan(ttl));
     }
 
     const RETURN_VALUE = "RETURN_VALUE";
@@ -275,7 +289,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     await lockFactory.create(key, { ttl }).acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
@@ -375,7 +389,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     await lockFactory.create(key, { ttl }).acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await lockFactory
                         .create(key, { ttl })
@@ -598,7 +612,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     await lockFactory.create(key, { ttl }).acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
@@ -721,7 +735,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     await lockFactory.create(key, { ttl }).acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await lockFactory
                         .create(key, { ttl })
@@ -868,7 +882,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     await lockFactory.create(key, { ttl }).acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await lockFactory
                         .create(key, { ttl })
@@ -938,7 +952,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     await lockFactory.create(key, { ttl }).acquireOrFail();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = lockFactory
                         .create(key, { ttl })
@@ -1016,7 +1030,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     await lockFactory.create(key, { ttl }).acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await lockFactory
                         .create(key, { ttl })
@@ -1127,7 +1141,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     await lockFactory.create(key, { ttl }).acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = lockFactory
                         .create(key, { ttl })
@@ -1265,11 +1279,11 @@ export function lockFactoryTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     await lockFactory.create(key, { ttl }).acquire();
+                    await delayWithBuffer(ttl);
 
                     const result = await lockFactory
                         .create(key, { ttl })
                         .release();
-                    await delay(ttl);
 
                     expect(result).toBe(false);
                 });
@@ -1278,7 +1292,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await lock.release();
 
@@ -1398,11 +1412,11 @@ export function lockFactoryTestSuite(
                     const key = "a";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     await lockFactory.create(key, { ttl }).acquire();
+                    await delayWithBuffer(ttl);
 
                     const result = lockFactory
                         .create(key, { ttl })
                         .releaseOrFail();
-                    await delay(ttl);
 
                     await expect(result).rejects.toBeInstanceOf(
                         FailedReleaseLockError,
@@ -1413,7 +1427,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const lock = lockFactory.create(key, { ttl });
                     await lock.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = lock.releaseOrFail();
 
@@ -1519,7 +1533,7 @@ export function lockFactoryTestSuite(
                         ttl,
                     });
                     await lock.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await lock.forceRelease();
                     expect(result).toBe(false);
@@ -1610,7 +1624,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
                     const lock2 = lockFactory.create(key, { ttl });
@@ -1625,7 +1639,7 @@ export function lockFactoryTestSuite(
                         ttl,
                     });
                     await lock.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
                     const result = await lock.refresh(newTtl);
@@ -1662,7 +1676,7 @@ export function lockFactoryTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(50);
                     await lock1.refresh(newTtl);
-                    await delay(newTtl);
+                    await delayWithBuffer(newTtl);
                     const lock2 = lockFactory.create(key, { ttl });
                     const result = await lock2.acquire();
 
@@ -1676,13 +1690,13 @@ export function lockFactoryTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await lock1.refresh(newTtl);
-                    await delay(newTtl.divide(2));
+                    await delayWithBuffer(newTtl.divide(2));
 
                     const lock2 = lockFactory.create(key, { ttl });
                     const result1 = await lock2.acquire();
                     expect(result1).toBe(false);
 
-                    await delay(newTtl.divide(2));
+                    await delayWithBuffer(newTtl.divide(2));
                     const result2 = await lock2.acquire();
                     expect(result2).toBe(true);
                 });
@@ -1736,7 +1750,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
                     const lock2 = lockFactory.create(key, { ttl });
@@ -1753,7 +1767,7 @@ export function lockFactoryTestSuite(
                         ttl,
                     });
                     await lock.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
                     const result = lock.refreshOrFail(newTtl);
@@ -1798,7 +1812,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(newTtl);
+                    await delayWithBuffer(newTtl);
                     const lock2 = lockFactory.create(key, { ttl });
                     const result = await lock2.acquire();
 
@@ -1812,13 +1826,13 @@ export function lockFactoryTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await lock1.refreshOrFail(newTtl);
-                    await delay(newTtl.divide(2));
+                    await delayWithBuffer(newTtl.divide(2));
 
                     const lock2 = lockFactory.create(key, { ttl });
                     const result1 = await lock2.acquire();
                     expect(result1).toBe(false);
 
-                    await delay(newTtl.divide(2));
+                    await delayWithBuffer(newTtl.divide(2));
                     const result2 = await lock2.acquire();
                     expect(result2).toBe(true);
                 });
@@ -1894,7 +1908,7 @@ export function lockFactoryTestSuite(
                         ttl,
                     });
                     await lock.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await lock.getState();
 
@@ -2018,6 +2032,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2038,7 +2053,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     await lockFactory.create(key, { ttl }).acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
@@ -2047,6 +2062,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2074,6 +2090,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2103,6 +2120,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2134,6 +2152,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2163,6 +2182,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2193,6 +2213,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquireOrFail();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2213,7 +2234,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     await lockFactory.create(key, { ttl }).acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
@@ -2222,6 +2243,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquireOrFail();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2249,6 +2271,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquireOrFail();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2278,6 +2301,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquireOrFail();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2313,6 +2337,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2346,6 +2371,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2379,6 +2405,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2399,7 +2426,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     await lockFactory.create(key, { ttl }).acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
@@ -2411,6 +2438,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2441,6 +2469,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2473,6 +2502,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2507,6 +2537,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
                         1,
@@ -2542,6 +2573,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
                         1,
@@ -2578,6 +2610,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2598,7 +2631,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
 
                     await lockFactory.create(key, { ttl }).acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const lock = lockFactory.create(key, { ttl });
                     const handlerFn = vi.fn((_event: AcquiredLockEvent) => {});
@@ -2610,6 +2643,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2640,6 +2674,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2672,6 +2707,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2710,6 +2746,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
                         1,
@@ -2749,6 +2786,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
                         1,
@@ -2784,6 +2822,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.forceRelease();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2813,8 +2852,10 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
+
                     await lock.forceRelease();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2845,6 +2886,7 @@ export function lockFactoryTestSuite(
                     );
                     await lock.acquire();
                     await lock.forceRelease();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2878,6 +2920,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.release();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2907,6 +2950,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.release();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2936,6 +2980,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.release();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2965,7 +3010,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.release();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2993,7 +3038,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     await lock.release();
 
@@ -3023,6 +3068,7 @@ export function lockFactoryTestSuite(
                     await lock.acquire();
 
                     await lock.release();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3050,6 +3096,7 @@ export function lockFactoryTestSuite(
                     await lock.acquire();
 
                     await lock.release();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3086,6 +3133,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3119,6 +3167,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3152,6 +3201,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3185,7 +3235,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3213,13 +3263,14 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     try {
                         await lock.release();
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3247,6 +3298,7 @@ export function lockFactoryTestSuite(
                     await lock.acquire();
 
                     await lock.releaseOrFail();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3274,6 +3326,7 @@ export function lockFactoryTestSuite(
                     await lock.acquire();
 
                     await lock.releaseOrFail();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3307,6 +3360,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refresh(newTtl);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3338,6 +3392,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock2.refresh(newTtl);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3369,6 +3424,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock2.refresh(newTtl);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3389,7 +3445,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
                     const lock2 = lockFactory.create(key, { ttl });
@@ -3401,6 +3457,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock2.refresh(newTtl);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3423,7 +3480,7 @@ export function lockFactoryTestSuite(
                         ttl,
                     });
                     await lock.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
                     const handlerFn = vi.fn(
@@ -3434,6 +3491,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refresh(newTtl);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3464,6 +3522,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refresh(newTtl);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3492,6 +3551,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refresh(newTtl);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3529,6 +3589,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3564,6 +3625,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3599,6 +3661,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3619,7 +3682,7 @@ export function lockFactoryTestSuite(
                     const ttl = TimeSpan.fromMilliseconds(50);
                     const lock1 = lockFactory.create(key, { ttl });
                     await lock1.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
                     const lock2 = lockFactory.create(key, { ttl });
@@ -3635,6 +3698,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3657,7 +3721,7 @@ export function lockFactoryTestSuite(
                         ttl,
                     });
                     await lock.acquire();
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const newTtl = TimeSpan.fromMinutes(1);
                     const handlerFn = vi.fn(
@@ -3672,6 +3736,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3706,6 +3771,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3734,6 +3800,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refreshOrFail(newTtl);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3776,7 +3843,7 @@ export function lockFactoryTestSuite(
                     ttl,
                 });
                 await lock.acquire();
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const deserializedLock = serde.deserialize<ILock>(
                     serde.serialize(lock),

@@ -16,8 +16,6 @@ import {
 import { ListenerStore } from "@/event-bus/implementations/derivables/event-bus/listener-store.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
-import { type ITask } from "@/task/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import {
     getInvokableName,
     validate,
@@ -145,149 +143,130 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         };
     }
 
-    addListener<TEventName extends keyof TEventMap>(
+    async addListener<TEventName extends keyof TEventMap>(
         eventName: TEventName,
         listener: EventListener<TEventMap[TEventName]>,
-    ): ITask<void> {
-        return new Task(async () => {
-            const key = this.namespace.create(String(eventName));
-            const resolvedListener = this.store.getOrAdd(
+    ): Promise<void> {
+        const key = this.namespace.create(String(eventName));
+        const resolvedListener = this.store.getOrAdd(
+            key.toString(),
+            listener,
+            this.createWrappedListener(eventName, listener),
+        );
+        try {
+            await this.adapter.addListener(
                 key.toString(),
-                listener,
-                this.createWrappedListener(eventName, listener),
+                resolvedListener as EventListenerFn<BaseEvent>,
             );
-            try {
-                await this.adapter.addListener(
-                    key.toString(),
-                    resolvedListener as EventListenerFn<BaseEvent>,
-                );
-            } catch (error: unknown) {
-                this.store.getAndRemove(key.toString(), listener);
-                throw error;
-            }
-        });
+        } catch (error: unknown) {
+            this.store.getAndRemove(key.toString(), listener);
+            throw error;
+        }
     }
 
-    removeListener<TEventName extends keyof TEventMap>(
+    async removeListener<TEventName extends keyof TEventMap>(
         eventName: TEventName,
         listener: EventListener<TEventMap[TEventName]>,
-    ): ITask<void> {
-        return new Task(async () => {
-            const key = this.namespace.create(String(eventName));
-            const resolvedListener = this.store.getAndRemove(
+    ): Promise<void> {
+        const key = this.namespace.create(String(eventName));
+        const resolvedListener = this.store.getAndRemove(
+            key.toString(),
+            listener,
+        );
+        if (resolvedListener === null) {
+            return;
+        }
+        try {
+            await this.adapter.removeListener(
                 key.toString(),
-                listener,
+                resolvedListener as EventListenerFn<BaseEvent>,
             );
-            if (resolvedListener === null) {
-                return;
-            }
-            try {
-                await this.adapter.removeListener(
-                    key.toString(),
-                    resolvedListener as EventListenerFn<BaseEvent>,
-                );
-            } catch (error: unknown) {
-                this.store.getOrAdd(key.toString(), listener, resolvedListener);
-                throw error;
-            }
-        });
+        } catch (error: unknown) {
+            this.store.getOrAdd(key.toString(), listener, resolvedListener);
+            throw error;
+        }
     }
 
-    listenOnce<TEventName extends keyof TEventMap>(
+    async listenOnce<TEventName extends keyof TEventMap>(
         eventName: TEventName,
         listener: EventListener<TEventMap[TEventName]>,
-    ): ITask<void> {
-        return new Task(async () => {
-            const wrappedListener = async (event_: TEventMap[TEventName]) => {
-                try {
-                    if (this.shouldValidateOutput) {
-                        await validate(
-                            this.eventMapSchema?.[eventName],
-                            event_,
-                        );
-                    }
-                    const resolvedListener = resolveInvokable(listener);
-                    await resolvedListener(event_);
-                } catch (error: unknown) {
-                    if (this.__onUncaughtRejection !== undefined) {
-                        this.__onUncaughtRejection(error);
-                    } else {
-                        console.error(
-                            `An error of type "${String(error)}" occured in listener with name of "${getInvokableName(listener)}" for "${String(eventName)}" event`,
-                        );
-                        throw error;
-                    }
-                } finally {
-                    await this.removeListener(eventName, listener);
+    ): Promise<void> {
+        const wrappedListener = async (event_: TEventMap[TEventName]) => {
+            try {
+                if (this.shouldValidateOutput) {
+                    await validate(this.eventMapSchema?.[eventName], event_);
                 }
-            };
-
-            const key = this.namespace.create(String(eventName));
-            const resolvedListener = this.store.getOrAdd(
-                key.toString(),
-                listener,
-                wrappedListener,
-            );
-            try {
-                await this.adapter.addListener(
-                    key.toString(),
-                    resolvedListener as EventListenerFn<BaseEvent>,
-                );
+                const resolvedListener = resolveInvokable(listener);
+                await resolvedListener(event_);
             } catch (error: unknown) {
-                this.store.getAndRemove(key.toString(), listener);
-                throw error;
+                if (this.__onUncaughtRejection !== undefined) {
+                    this.__onUncaughtRejection(error);
+                } else {
+                    console.error(
+                        `An error of type "${String(error)}" occured in listener with name of "${getInvokableName(listener)}" for "${String(eventName)}" event`,
+                    );
+                    throw error;
+                }
+            } finally {
+                await this.removeListener(eventName, listener);
             }
-        });
+        };
+
+        const key = this.namespace.create(String(eventName));
+        const resolvedListener = this.store.getOrAdd(
+            key.toString(),
+            listener,
+            wrappedListener,
+        );
+        try {
+            await this.adapter.addListener(
+                key.toString(),
+                resolvedListener as EventListenerFn<BaseEvent>,
+            );
+        } catch (error: unknown) {
+            this.store.getAndRemove(key.toString(), listener);
+            throw error;
+        }
     }
 
-    asTask<TEventName extends keyof TEventMap>(
+    async asPromise<TEventName extends keyof TEventMap>(
         eventName: TEventName,
-    ): ITask<TEventMap[TEventName]> {
-        return Task.fromCallback((resolve, reject) => {
+    ): Promise<TEventMap[TEventName]> {
+        return new Promise((resolve, reject) => {
             this.listenOnce(eventName, resolve).then(() => {}, reject);
         });
     }
 
-    subscribeOnce<TEventName extends keyof TEventMap>(
+    async subscribeOnce<TEventName extends keyof TEventMap>(
         eventName: TEventName,
         listener: EventListener<TEventMap[TEventName]>,
-    ): ITask<Unsubscribe> {
-        return new Task<Unsubscribe>(async () => {
-            await this.listenOnce(eventName, listener);
-            const unsubscribe = () => {
-                return new Task(async () => {
-                    await this.removeListener(eventName, listener);
-                });
-            };
-            return unsubscribe;
-        });
+    ): Promise<Unsubscribe> {
+        await this.listenOnce(eventName, listener);
+        const unsubscribe = async () => {
+            await this.removeListener(eventName, listener);
+        };
+        return unsubscribe;
     }
 
-    subscribe<TEventName extends keyof TEventMap>(
+    async subscribe<TEventName extends keyof TEventMap>(
         eventName: TEventName,
         listener: EventListener<TEventMap[TEventName]>,
-    ): ITask<Unsubscribe> {
-        return new Task<Unsubscribe>(async () => {
-            await this.addListener(eventName, listener);
-            const unsubscribe = () => {
-                return new Task(async () => {
-                    await this.removeListener(eventName, listener);
-                });
-            };
-            return unsubscribe;
-        });
+    ): Promise<Unsubscribe> {
+        await this.addListener(eventName, listener);
+        const unsubscribe = async () => {
+            await this.removeListener(eventName, listener);
+        };
+        return unsubscribe;
     }
 
-    dispatch<TEventName extends keyof TEventMap>(
+    async dispatch<TEventName extends keyof TEventMap>(
         eventName: TEventName,
         event: TEventMap[TEventName],
-    ): ITask<void> {
-        return new Task(async () => {
-            await validate(this.eventMapSchema?.[eventName], event);
-            await this.adapter.dispatch(
-                this.namespace.create(String(eventName)).toString(),
-                event,
-            );
-        });
+    ): Promise<void> {
+        await validate(this.eventMapSchema?.[eventName], event);
+        await this.adapter.dispatch(
+            this.namespace.create(String(eventName)).toString(),
+            event,
+        );
     }
 }

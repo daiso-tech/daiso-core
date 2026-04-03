@@ -2,7 +2,6 @@
  * @module Utilities
  */
 
-import { type ITask } from "@/task/contracts/_module.js";
 import {
     type Invokable,
     isInvokable,
@@ -23,12 +22,7 @@ export type Lazyable<TValue> = TValue | Lazy<TValue>;
 /**
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  */
-export type AsyncLazy_<TValue> = Invokable<[], Promisable<TValue>>;
-
-/**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
- */
-export type AsyncLazy<TValue> = AsyncLazy_<TValue> | ITask<TValue>;
+export type AsyncLazy<TValue> = Invokable<[], Promisable<TValue>>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
@@ -56,27 +50,13 @@ export function isPromiseLike<TValue>(
         typeof (value as any)?.then === "function"
     );
 }
-
-/**
- * @internal
- */
-export function isITask<TValue>(
-    lazyable: AsyncLazyable<TValue>,
-): lazyable is ITask<TValue> {
-    return (
-        isPromiseLike(lazyable) &&
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        typeof (lazyable as any)?.defer === "function"
-    );
-}
-
 /**
  * @internal
  */
 export function isAsyncLazy<TValue>(
     lazyable: AsyncLazyable<TValue>,
 ): lazyable is AsyncLazy<TValue> {
-    return isInvokable(lazyable) || isITask(lazyable);
+    return isInvokable(lazyable);
 }
 
 /**
@@ -96,9 +76,6 @@ export async function resolveAsyncLazyable<TValue>(
     lazyable: AsyncLazyable<TValue>,
 ): Promise<TValue> {
     if (isAsyncLazy(lazyable)) {
-        if (isITask(lazyable)) {
-            return await lazyable;
-        }
         return await resolveInvokable(lazyable)();
     }
     return lazyable;

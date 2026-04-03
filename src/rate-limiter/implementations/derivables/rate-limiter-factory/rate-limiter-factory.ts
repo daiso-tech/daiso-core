@@ -22,9 +22,12 @@ import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import {
     CORE,
+    defaultWaitUntil,
     resolveOneOrMore,
     type ErrorPolicy,
+    type Invokable,
     type OneOrMore,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -93,6 +96,14 @@ export type RateLimiterFactorySettingsBase = {
      * @default ""
      */
     serdeTransformerName?: string;
+
+    /**
+     * @default
+     * ```ts
+     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
+     * ```
+     */
+    waitUntil?: WaitUntil;
 };
 
 /**
@@ -118,6 +129,10 @@ export class RateLimiterFactory implements IRateLimiterFactory {
     private readonly enableAsyncTracking: boolean;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     /**
      * @example
@@ -162,8 +177,10 @@ export class RateLimiterFactory implements IRateLimiterFactory {
             defaultErrorPolicy = () => true,
             serde = new Serde(new NoOpSerdeAdapter()),
             serdeTransformerName = "",
+            waitUntil = defaultWaitUntil,
         } = settings;
 
+        this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.enableAsyncTracking = enableAsyncTracking;
         this.namespace = namespace;
@@ -177,6 +194,7 @@ export class RateLimiterFactory implements IRateLimiterFactory {
 
     private registerToSerde(): void {
         const transformer = new RateLimiterSerdeTransformer({
+            waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             namespace: this.namespace,
             eventBus: this.eventBus,
@@ -205,6 +223,7 @@ export class RateLimiterFactory implements IRateLimiterFactory {
         } = settings;
         return new RateLimiter({
             limit,
+            waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             eventDispatcher: this.eventBus,
             adapter: this.adapter,

@@ -8,7 +8,6 @@ import {
     type OpenCircuitBreakerError,
 } from "@/circuit-breaker/contracts/_module.js";
 import { type IKey } from "@/namespace/contracts/_module.js";
-import { type ITask } from "@/task/contracts/_module.js";
 import { type AsyncLazy } from "@/utilities/_module.js";
 
 /**
@@ -16,7 +15,7 @@ import { type AsyncLazy } from "@/utilities/_module.js";
  * @group Contracts
  */
 export type ICircuitBreakerStateMethods = {
-    getState(): ITask<CircuitBreakerState>;
+    getState(): Promise<CircuitBreakerState>;
 
     /**
      * The `key` of the `ICircuitBreaker` instance.
@@ -35,15 +34,15 @@ export type ICircuitBreaker = ICircuitBreakerStateMethods & {
      *
      * @throws {OpenCircuitBreakerError} {@link OpenCircuitBreakerError}
      */
-    runOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): ITask<TValue>;
+    runOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
 
     /**
      * The `isolate` method will transition the circuit breaker to isolated state, meaning the circuit breaker will reject all attempts untill it is manually reset.
      */
-    isolate(): ITask<void>;
+    isolate(): Promise<void>;
 
     /**
      * The `reset` method resets circuit breaker to its initial state regardless of the current state.
      */
-    reset(): ITask<void>;
+    reset(): Promise<void>;
 };
