@@ -35,6 +35,8 @@ import {
     resolveOneOrMore,
     type Invokable,
     callInvokable,
+    type WaitUntil,
+    defaultWaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -133,6 +135,14 @@ export type LockFactorySettingsBase = {
      * ```
      */
     defaultRefreshTime?: ITimeSpan;
+
+    /**
+     * @default
+     * ```ts
+     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
+     * ```
+     */
+    waitUntil?: WaitUntil;
 };
 
 /**
@@ -165,6 +175,10 @@ export class LockFactory implements ILockFactory {
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     /**
      * @example
@@ -207,8 +221,10 @@ export class LockFactory implements ILockFactory {
                 adapter: new NoOpEventBusAdapter(),
             }),
             serdeTransformerName = "",
+            waitUntil = defaultWaitUntil,
         } = settings;
 
+        this.waitUntil = waitUntil;
         this.serde = serde;
         this.defaultBlockingInterval = TimeSpan.fromTimeSpan(
             defaultBlockingInterval,
@@ -229,6 +245,7 @@ export class LockFactory implements ILockFactory {
 
     private registerToSerde(): void {
         const transformer = new LockSerdeTransformer({
+            waitUntil: this.waitUntil,
             originalAdapter: this.originalAdapter,
             adapter: this.adapter,
             defaultBlockingInterval: this.defaultBlockingInterval,
@@ -274,6 +291,7 @@ export class LockFactory implements ILockFactory {
         const keyObj = this.namespace.create(key);
 
         return new Lock({
+            waitUntil: this.waitUntil,
             namespace: this.namespace,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,

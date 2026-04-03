@@ -1,4 +1,6 @@
 export * from "@/utilities/functions/array-like-to-iterable.js";
+export * from "@/utilities/functions/default-wait-until.js";
+export * from "@/utilities/functions/delay.js";
 export * from "@/utilities/functions/error-policy.js";
 export * from "@/utilities/functions/get-constructor-name.js";
 export * from "@/utilities/functions/invokable.js";

@@ -32,6 +32,8 @@ import {
     type Invokable,
     callInvokable,
     type OneOrMore,
+    type WaitUntil,
+    defaultWaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -130,6 +132,14 @@ export type SharedLockFactorySettingsBase = {
      * ```
      */
     defaultRefreshTime?: ITimeSpan;
+
+    /**
+     * @default
+     * ```ts
+     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
+     * ```
+     */
+    waitUntil?: WaitUntil;
 };
 
 /**
@@ -162,6 +172,10 @@ export class SharedLockFactory implements ISharedLockFactory {
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     /**
      * @example
@@ -204,8 +218,10 @@ export class SharedLockFactory implements ISharedLockFactory {
                 adapter: new NoOpEventBusAdapter(),
             }),
             serdeTransformerName = "",
+            waitUntil = defaultWaitUntil,
         } = settings;
 
+        this.waitUntil = waitUntil;
         this.serde = serde;
         this.defaultBlockingInterval = TimeSpan.fromTimeSpan(
             defaultBlockingInterval,
@@ -226,6 +242,7 @@ export class SharedLockFactory implements ISharedLockFactory {
 
     private registerToSerde(): void {
         const transformer = new SharedLockSerdeTransformer({
+            waitUntil: this.waitUntil,
             originalAdapter: this.originalAdapter,
             adapter: this.adapter,
             defaultBlockingInterval: this.defaultBlockingInterval,
@@ -275,6 +292,7 @@ export class SharedLockFactory implements ISharedLockFactory {
         const keyObj = this.namespace.create(key);
 
         return new SharedLock({
+            waitUntil: this.waitUntil,
             limit,
             namespace: this.namespace,
             adapter: this.adapter,

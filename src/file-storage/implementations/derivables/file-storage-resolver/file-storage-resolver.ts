@@ -18,6 +18,7 @@ import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -149,6 +150,13 @@ export class FileStorageResolver<TAdapters extends string = string>
         return new FileStorageResolver({
             ...this.settings,
             keyValidator,
+        });
+    }
+
+    setWaitUntil(waitUntil: WaitUntil): FileStorageResolver<TAdapters> {
+        return new FileStorageResolver({
+            ...this.settings,
+            waitUntil,
         });
     }
 

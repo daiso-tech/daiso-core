@@ -6,7 +6,6 @@ import {
     EmptyCollectionError,
 } from "@/collection/contracts/_module.js";
 import { AsyncIterableCollection } from "@/collection/implementations/async-iterable-collection/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 
 describe("class: AsyncIterableCollection", () => {
     describe("method: filter", () => {
@@ -2290,11 +2289,6 @@ describe("class: AsyncIterableCollection", () => {
                     );
                 expect(item).toBe("a");
             });
-            test("ITask", async () => {
-                const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]),
-                    item = await collection.firstOr("a", (item) => item === 6);
-                expect(item).toBe("a");
-            });
         });
         test("Should input correct indexes to predicate function", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]),
@@ -2341,37 +2335,6 @@ describe("class: AsyncIterableCollection", () => {
             expect(item).toEqual(persons[0]);
         });
         test("Should work with async predicate function", async () => {
-            type Person = {
-                name: string;
-                age: number;
-            };
-            const persons: Array<Person> = [
-                    {
-                        name: "Joe",
-                        age: 20,
-                    },
-                    {
-                        name: "Jhon",
-                        age: 23,
-                    },
-                    {
-                        name: "Joe",
-                        age: 30,
-                    },
-                    {
-                        name: "Jhon",
-                        age: 50,
-                    },
-                ],
-                collection = new AsyncIterableCollection(persons),
-                item = await collection.firstOr(
-                    null,
-
-                    async (person) => Promise.resolve(person.name === "Joe"),
-                );
-            expect(item).toEqual(persons[0]);
-        });
-        test("Should work with ITask function", async () => {
             type Person = {
                 name: string;
                 age: number;
@@ -2632,14 +2595,6 @@ describe("class: AsyncIterableCollection", () => {
                     );
                 expect(item).toBe("a");
             });
-            test("ITask", async () => {
-                const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]),
-                    item = await collection.lastOr(
-                        new Task(async () => Promise.resolve("a")),
-                        (item) => item === 6,
-                    );
-                expect(item).toBe("a");
-            });
         });
         test("Should input correct indexes to predicate function", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]),
@@ -2855,14 +2810,6 @@ describe("class: AsyncIterableCollection", () => {
                     );
                 expect(item).toBe(-1);
             });
-            test("ITask", async () => {
-                const collection = new AsyncIterableCollection(["a", "b", "c"]),
-                    item = await collection.beforeOr(
-                        new Task(async () => Promise.resolve(-1)),
-                        (item) => item === "a",
-                    );
-                expect(item).toBe(-1);
-            });
         });
         describe(`Should return default value when searching for string "d" of ["a", "b", "c"]`, () => {
             test("Value", async () => {
@@ -2885,14 +2832,6 @@ describe("class: AsyncIterableCollection", () => {
                 const collection = new AsyncIterableCollection(["a", "b", "c"]),
                     item = await collection.beforeOr(
                         async () => Promise.resolve(-1),
-                        (item) => item === "d",
-                    );
-                expect(item).toBe(-1);
-            });
-            test("ITask", async () => {
-                const collection = new AsyncIterableCollection(["a", "b", "c"]),
-                    item = await collection.beforeOr(
-                        new Task(async () => Promise.resolve(-1)),
                         (item) => item === "d",
                     );
                 expect(item).toBe(-1);
@@ -3049,14 +2988,6 @@ describe("class: AsyncIterableCollection", () => {
                     );
                 expect(item).toBe(-1);
             });
-            test("ITask", async () => {
-                const collection = new AsyncIterableCollection(["a", "b", "c"]),
-                    item = await collection.afterOr(
-                        new Task(async () => Promise.resolve(-1)),
-                        (item) => item === "c",
-                    );
-                expect(item).toBe(-1);
-            });
         });
         describe(`Should return default value when searching for string "d" of ["a", "b", "c"]`, () => {
             test("Value", async () => {
@@ -3076,14 +3007,6 @@ describe("class: AsyncIterableCollection", () => {
                 const collection = new AsyncIterableCollection(["a", "b", "c"]),
                     item = await collection.afterOr(
                         async () => Promise.resolve(-1),
-                        (item) => item === "d",
-                    );
-                expect(item).toBe(-1);
-            });
-            test("ITask", async () => {
-                const collection = new AsyncIterableCollection(["a", "b", "c"]),
-                    item = await collection.afterOr(
-                        new Task(async () => Promise.resolve(-1)),
                         (item) => item === "d",
                     );
                 expect(item).toBe(-1);

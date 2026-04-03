@@ -25,10 +25,9 @@ import {
     KeyExistsCacheError,
 } from "@/cache/contracts/_module.js";
 import { type IKey } from "@/namespace/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type Promisable } from "@/utilities/_module.js";
+import { delay as delay_, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/cache/test-utilities"`
@@ -54,6 +53,16 @@ export type CacheTestSuiteSettings = {
      * ```
      */
     delayBuffer?: ITimeSpan;
+
+    /**
+     * @default
+     * ```ts
+     * import { TimeSpan } from "@daiso-tech/core/time-span"
+     *
+     * TimeSpan.fromMilliseconds(10)
+     * ```
+     */
+    eventDispatchWaitTime?: ITimeSpan;
 };
 
 /**
@@ -92,14 +101,19 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
         beforeEach,
         excludeEventTests = false,
         delayBuffer = TimeSpan.fromMilliseconds(10),
+        eventDispatchWaitTime = TimeSpan.fromMilliseconds(10),
     } = settings;
     let cache: ICache<number>;
     beforeEach(async () => {
         cache = (await createCache()) as ICache<number>;
     });
 
-    async function delay(ttl: ITimeSpan): Promise<void> {
-        await Task.delay(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
+    async function delayWithBuffer(ttl: ITimeSpan): Promise<void> {
+        await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
+    }
+
+    async function delayExact(ttl: ITimeSpan): Promise<void> {
+        await delay_(TimeSpan.fromTimeSpan(ttl));
     }
 
     const TTL = TimeSpan.fromMilliseconds(50);
@@ -120,7 +134,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const result = await cache.exists(key);
 
@@ -158,7 +172,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const result = await cache.missing(key);
 
@@ -196,7 +210,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const result = await cache.get(key);
 
@@ -238,7 +252,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const result = cache.getOrFail(key);
 
@@ -281,7 +295,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const defaultValue = -1;
                     const result = await cache.getOr(key, defaultValue);
@@ -324,7 +338,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const result = await cache.getAndRemove(key);
 
@@ -396,7 +410,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const valueToAdd = -1;
                     const result = await cache.getOrAdd(key, valueToAdd);
@@ -408,7 +422,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const valueToAdd = -1;
                     await cache.getOrAdd(key, valueToAdd);
@@ -487,7 +501,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     const result = await cache.add(key, value2);
@@ -500,7 +514,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     await cache.add(key, value2);
@@ -579,7 +593,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.addOrFail(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     const result = cache.addOrFail(key, value2);
@@ -592,7 +606,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.addOrFail(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     await cache.addOrFail(key, value2);
@@ -693,7 +707,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     await cache.put(key, value2, { ttl: TTL });
 
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
                     const result = await cache.get(key);
                     expect(result).toBeNull();
                 });
@@ -726,7 +740,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     await cache.put(key, value2, { ttl: TTL });
 
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
                     const result = await cache.get(key);
                     expect(result).toBeNull();
                 });
@@ -753,7 +767,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 2;
                     await cache.put(key, value, { ttl: TTL });
 
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
                     const result = await cache.get(key);
                     expect(result).toBeNull();
                 });
@@ -782,7 +796,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     const result = await cache.update(key, value2);
@@ -795,7 +809,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     await cache.update(key, value2);
@@ -880,7 +894,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     const result = cache.updateOrFail(key, value2);
@@ -895,7 +909,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     try {
@@ -978,7 +992,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     const result = await cache.increment(key, value2);
@@ -991,7 +1005,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     await cache.increment(key, value2);
@@ -1076,7 +1090,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     const result = cache.incrementOrFail(key, value2);
@@ -1091,7 +1105,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     try {
@@ -1174,7 +1188,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     const result = await cache.decrement(key, value2);
@@ -1187,7 +1201,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     await cache.decrement(key, value2);
@@ -1272,7 +1286,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     const result = cache.decrementOrFail(key, value2);
@@ -1287,7 +1301,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     try {
@@ -1359,7 +1373,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const result = await cache.remove(key);
 
@@ -1419,7 +1433,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, 1, {
                         ttl: TTL,
                     });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const result = cache.removeOrFail(key);
 
@@ -1472,7 +1486,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const keyB = "b";
                     const keyC = "c";
                     await cache.add(keyA, 1, { ttl: TTL });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     const result = await cache.removeMany([keyA, keyB, keyC]);
 
@@ -1483,7 +1497,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const keyB = "b";
                     const keyC = "c";
                     await cache.add(keyA, 1, { ttl: TTL });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     await cache.add(keyC, 2);
                     const result = await cache.removeMany([keyA, keyB, keyC]);
@@ -1495,7 +1509,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const keyB = "b";
                     const keyC = "c";
                     await cache.add(keyA, 1, { ttl: TTL });
-                    await delay(TTL);
+                    await delayWithBuffer(TTL);
 
                     await cache.add(keyC, 2);
                     await cache.removeMany([keyA, keyB, keyC]);
@@ -1520,6 +1534,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const key = "a";
                     await cache.exists(key);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1544,6 +1559,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.exists(key);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1569,6 +1585,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const key = "a";
                     await cache.missing(key);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1593,6 +1610,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.missing(key);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1618,6 +1636,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const key = "a";
                     await cache.get(key);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1642,6 +1661,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.get(key);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1667,6 +1687,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const key = "a";
                     await cache.getOr(key, -1);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1691,6 +1712,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.getOr(key, -1);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1720,6 +1742,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1744,6 +1767,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.getOrFail(key);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1770,6 +1794,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     const value = 1;
                     await cache.add(key, value, { ttl: TTL });
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1800,6 +1825,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     const value = 1;
                     await cache.update(key, value);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1825,6 +1851,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1);
                     const value2 = 2;
                     await cache.update(key, value2);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1855,6 +1882,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1880,6 +1908,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1);
                     const value2 = 2;
                     await cache.updateOrFail(key, value2);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1906,6 +1935,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     const value = 1;
                     await cache.put(key, value, { ttl: TTL });
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1935,6 +1965,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.put(key, value, { ttl: TTL });
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1960,6 +1991,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const key = "a";
                     await cache.remove(key);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -1984,6 +2016,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.remove(key);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2012,6 +2045,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2036,6 +2070,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.removeOrFail(key);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2064,6 +2099,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key1, value);
 
                     await cache.removeMany([key1, key2]);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(2);
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2090,6 +2126,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key1 = "a";
                     const key2 = "b";
                     await cache.removeMany([key1, key2]);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(2);
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2117,6 +2154,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const key = "a";
                     await cache.getAndRemove(key);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2141,6 +2179,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.getAndRemove(key);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
@@ -2155,6 +2194,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.getAndRemove(key);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2180,6 +2220,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     const value = 1;
                     await cache.getOrAdd(key, value);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
@@ -2194,6 +2235,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.getOrAdd(key, value);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2218,6 +2260,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     const value = 1;
                     await cache.getOrAdd(key, value, { ttl: TTL });
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2248,6 +2291,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     const value = 1;
                     await cache.increment(key, value);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2275,6 +2319,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1);
                     const value2 = 2;
                     await cache.increment(key, value2);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2305,6 +2350,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2332,6 +2378,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1);
                     const value2 = 2;
                     await cache.incrementOrFail(key, value2);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2358,6 +2405,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     const value = 1;
                     await cache.decrement(key, value);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2385,6 +2433,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1);
                     const value2 = 2;
                     await cache.decrement(key, value2);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2415,6 +2464,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     } catch {
                         /* EMPTY */
                     }
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2442,6 +2492,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1);
                     const value2 = 2;
                     await cache.decrementOrFail(key, value2);
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith({
@@ -2469,6 +2520,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add("b", 2);
                     await cache.add("c", 3);
                     await cache.clear();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handler).toHaveBeenCalledOnce();
                     expect(handler).toHaveBeenCalledWith({});

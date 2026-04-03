@@ -4,8 +4,8 @@ import { AsyncHooks } from "@/hooks/_module.js";
 import { timeout } from "@/resilience/middlewares/timeout/timeout.middleware.js";
 import { type OnTimeoutData } from "@/resilience/middlewares/timeout/timeout.type.js";
 import { TimeoutResilienceError } from "@/resilience/resilience.errors.js";
-import { Task } from "@/task/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+import { delay } from "@/utilities/_module.js";
 
 function createDelayedFn<TParameters extends Array<unknown>, TReturn>(
     time: TimeSpan,
@@ -23,7 +23,7 @@ function createDelayedFn<TParameters extends Array<unknown>, TReturn>(
                 throw abortSignal.reason;
             }
             const end = performance.now();
-            await Task.delay(TimeSpan.fromMilliseconds(1));
+            await delay(TimeSpan.fromMilliseconds(1));
 
             const time_ = end - start;
 

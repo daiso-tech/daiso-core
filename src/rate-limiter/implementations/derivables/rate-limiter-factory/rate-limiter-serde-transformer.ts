@@ -16,7 +16,9 @@ import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import {
     getConstructorName,
     type ErrorPolicy,
+    type Invokable,
     type OneOrMore,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -30,6 +32,7 @@ export type RateLimiterSerdeTransformerSettings = {
     eventBus: IEventBus<RateLimiterEventMap>;
     serdeTransformerName: string;
     enableAsyncTracking: boolean;
+    waitUntil: WaitUntil;
 };
 
 /**
@@ -45,6 +48,10 @@ export class RateLimiterSerdeTransformer
     private readonly serdeTransformerName: string;
     private readonly enableAsyncTracking: boolean;
     private readonly onlyError: boolean;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     constructor(settings: RateLimiterSerdeTransformerSettings) {
         const {
@@ -55,8 +62,10 @@ export class RateLimiterSerdeTransformer
             enableAsyncTracking,
             errorPolicy,
             onlyError,
+            waitUntil,
         } = settings;
 
+        this.waitUntil = waitUntil;
         this.onlyError = onlyError;
         this.enableAsyncTracking = enableAsyncTracking;
         this.serdeTransformerName = serdeTransformerName;
@@ -108,6 +117,7 @@ export class RateLimiterSerdeTransformer
         const keyObj = this.namespace.create(key);
 
         return new RateLimiter({
+            waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             eventDispatcher: this.eventBus,
             adapter: this.adapter,

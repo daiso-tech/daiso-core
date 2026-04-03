@@ -10,10 +10,9 @@ import {
 } from "vitest";
 
 import { type ICacheAdapter } from "@/cache/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type Promisable } from "@/utilities/_module.js";
+import { delay as delay_, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/cache/test-utilities"`
@@ -99,7 +98,7 @@ export function cacheAdapterTestSuite(
     });
 
     async function delay(ttl: ITimeSpan): Promise<void> {
-        await Task.delay(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
+        await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
     const TTL = TimeSpan.fromMilliseconds(50);

@@ -3,7 +3,7 @@
  */
 
 import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
-import { type AsyncMiddlewareFn } from "@/hooks/_module.js";
+import { AsyncHooks, type AsyncMiddlewareFn } from "@/hooks/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type ISemaphoreAdapter,
@@ -19,11 +19,16 @@ import {
     isSemaphoreError,
     type ISemaphoreState,
 } from "@/semaphore/contracts/_module.js";
-import { type ITask } from "@/task/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { resolveLazyable, type AsyncLazy } from "@/utilities/_module.js";
+import {
+    callInvokable,
+    delay,
+    resolveLazyable,
+    type AsyncLazy,
+    type Invokable,
+    type WaitUntil,
+} from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -52,6 +57,7 @@ export type SemaphoreSettings = {
     defaultBlockingTime: TimeSpan;
     defaultRefreshTime: TimeSpan;
     namespace: INamespace;
+    waitUntil: WaitUntil;
 };
 
 /**
@@ -85,6 +91,10 @@ export class Semaphore implements ISemaphore {
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly namespace: INamespace;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     constructor(settings: SemaphoreSettings) {
         const {
@@ -100,7 +110,10 @@ export class Semaphore implements ISemaphore {
             defaultBlockingTime,
             defaultRefreshTime,
             namespace,
+            waitUntil,
         } = settings;
+
+        this.waitUntil = waitUntil;
         this.namespace = namespace;
         this.slotId = slotId;
         this.limit = limit;
@@ -127,30 +140,27 @@ export class Semaphore implements ISemaphore {
         return this.originalAdapter;
     }
 
-    runOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): ITask<TValue> {
-        return new Task(async () => {
-            try {
-                await this.acquireOrFail();
-                return await resolveLazyable(asyncFn);
-            } finally {
-                await this.release();
-            }
-        });
+    async runOrFail<TValue = void>(
+        asyncFn: AsyncLazy<TValue>,
+    ): Promise<TValue> {
+        await this.acquireOrFail();
+        try {
+            return await resolveLazyable(asyncFn);
+        } finally {
+            await this.release();
+        }
     }
 
-    runBlockingOrFail<TValue = void>(
+    async runBlockingOrFail<TValue = void>(
         asyncFn: AsyncLazy<TValue>,
         settings?: SemaphoreAquireBlockingSettings,
-    ): ITask<TValue> {
-        return new Task(async () => {
-            try {
-                await this.acquireBlockingOrFail(settings);
-
-                return await resolveLazyable(asyncFn);
-            } finally {
-                await this.release();
-            }
-        });
+    ): Promise<TValue> {
+        await this.acquireBlockingOrFail(settings);
+        try {
+            return await resolveLazyable(asyncFn);
+        } finally {
+            await this.release();
+        }
     }
 
     private handleUnexpectedError = <
@@ -165,12 +175,16 @@ export class Semaphore implements ISemaphore {
                     throw error;
                 }
 
-                this.eventDispatcher
-                    .dispatch(SEMAPHORE_EVENTS.UNEXPECTED_ERROR, {
-                        error,
-                        semaphore: this,
-                    })
-                    .detach();
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(
+                        SEMAPHORE_EVENTS.UNEXPECTED_ERROR,
+                        {
+                            error,
+                            semaphore: this,
+                        },
+                    ),
+                );
 
                 throw error;
             }
@@ -189,28 +203,36 @@ export class Semaphore implements ISemaphore {
         return async (args, next) => {
             const result = await next(...args);
             if (result && settings.on === "true") {
-                this.eventDispatcher
-                    .dispatch(settings.eventName, settings.eventData)
-                    .detach();
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(
+                        settings.eventName,
+                        settings.eventData,
+                    ),
+                );
             }
             if (!result && settings.on === "false") {
-                this.eventDispatcher
-                    .dispatch(settings.eventName, settings.eventData)
-                    .detach();
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(
+                        settings.eventName,
+                        settings.eventData,
+                    ),
+                );
             }
             return result;
         };
     };
 
-    acquire(): ITask<boolean> {
-        return new Task(async () => {
+    acquire(): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.acquire({
                 key: this._key.toString(),
                 slotId: this.slotId,
                 limit: this.limit,
                 ttl: this._ttl,
             });
-        }).pipe([
+        }, [
             this.handleUnexpectedError(),
             this.handleDispatch({
                 on: "true",
@@ -226,58 +248,53 @@ export class Semaphore implements ISemaphore {
                     semaphore: this,
                 },
             }),
-        ]);
+        ]).invoke();
     }
 
-    acquireOrFail(): ITask<void> {
-        return new Task(async () => {
-            const hasAquired = await this.acquire();
-            if (!hasAquired) {
-                throw LimitReachedSemaphoreError.create(this._key);
-            }
-        });
+    async acquireOrFail(): Promise<void> {
+        const hasAquired = await this.acquire();
+        if (!hasAquired) {
+            throw LimitReachedSemaphoreError.create(this._key);
+        }
     }
 
-    acquireBlocking(
+    async acquireBlocking(
         settings: SemaphoreAquireBlockingSettings = {},
-    ): ITask<boolean> {
-        return new Task(async () => {
-            const {
-                time = this.defaultBlockingTime,
-                interval = this.defaultBlockingInterval,
-            } = settings;
-            const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
-            const intervalAsTimeSpan = TimeSpan.fromTimeSpan(interval);
-            const endDate = timeAsTimeSpan.toEndDate();
-            while (endDate.getTime() > new Date().getTime()) {
-                const hasAquired = await this.acquire();
-                if (hasAquired) {
-                    return true;
-                }
-                await Task.delay(intervalAsTimeSpan);
+    ): Promise<boolean> {
+        const {
+            time = this.defaultBlockingTime,
+            interval = this.defaultBlockingInterval,
+        } = settings;
+
+        const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
+        const intervalAsTimeSpan = TimeSpan.fromTimeSpan(interval);
+        const endDate = timeAsTimeSpan.toEndDate();
+        while (endDate.getTime() > new Date().getTime()) {
+            const hasAquired = await this.acquire();
+            if (hasAquired) {
+                return true;
             }
-            return false;
-        });
+            await delay(intervalAsTimeSpan);
+        }
+        return false;
     }
 
-    acquireBlockingOrFail(
+    async acquireBlockingOrFail(
         settings?: SemaphoreAquireBlockingSettings,
-    ): ITask<void> {
-        return new Task(async () => {
-            const hasAquired = await this.acquireBlocking(settings);
-            if (!hasAquired) {
-                throw LimitReachedSemaphoreError.create(this._key);
-            }
-        });
+    ): Promise<void> {
+        const hasAquired = await this.acquireBlocking(settings);
+        if (!hasAquired) {
+            throw LimitReachedSemaphoreError.create(this._key);
+        }
     }
 
-    release(): ITask<boolean> {
-        return new Task(async () => {
+    release(): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.release(
                 this._key.toString(),
                 this.slotId,
             );
-        }).pipe([
+        }, [
             this.handleUnexpectedError(),
             this.handleDispatch({
                 on: "true",
@@ -293,47 +310,46 @@ export class Semaphore implements ISemaphore {
                     semaphore: this,
                 },
             }),
-        ]);
+        ]).invoke();
     }
 
-    releaseOrFail(): ITask<void> {
-        return new Task(async () => {
-            const hasReleased = await this.release();
-            if (!hasReleased) {
-                throw FailedReleaseSemaphoreError.create(
-                    this._key,
-                    this.slotId,
-                );
-            }
-        });
+    async releaseOrFail(): Promise<void> {
+        const hasReleased = await this.release();
+        if (!hasReleased) {
+            throw FailedReleaseSemaphoreError.create(this._key, this.slotId);
+        }
     }
 
-    forceReleaseAll(): ITask<boolean> {
-        return new Task(async () => {
+    forceReleaseAll(): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.forceReleaseAll(this._key.toString());
-        }).pipe([
+        }, [
             this.handleUnexpectedError(),
             async (args, next) => {
                 const hasReleased = await next(...args);
-                this.eventDispatcher
-                    .dispatch(SEMAPHORE_EVENTS.ALL_FORCE_RELEASED, {
-                        semaphore: this,
-                        hasReleased,
-                    })
-                    .detach();
+                callInvokable(
+                    this.waitUntil,
+                    this.eventDispatcher.dispatch(
+                        SEMAPHORE_EVENTS.ALL_FORCE_RELEASED,
+                        {
+                            semaphore: this,
+                            hasReleased,
+                        },
+                    ),
+                );
                 return hasReleased;
             },
-        ]);
+        ]).invoke();
     }
 
-    refresh(ttl: ITimeSpan = this.defaultRefreshTime): ITask<boolean> {
-        return new Task(async () => {
+    refresh(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
+        return new AsyncHooks(async () => {
             return await this.adapter.refresh(
                 this._key.toString(),
                 this.slotId,
                 TimeSpan.fromTimeSpan(ttl),
             );
-        }).pipe([
+        }, [
             this.handleUnexpectedError(),
             this.handleDispatch({
                 on: "true",
@@ -356,19 +372,14 @@ export class Semaphore implements ISemaphore {
                 }
                 return hasRefreshed;
             },
-        ]);
+        ]).invoke();
     }
 
-    refreshOrFail(ttl?: ITimeSpan): ITask<void> {
-        return new Task(async () => {
-            const hasRefreshed = await this.refresh(ttl);
-            if (!hasRefreshed) {
-                throw FailedRefreshSemaphoreError.create(
-                    this._key,
-                    this.slotId,
-                );
-            }
-        });
+    async refreshOrFail(ttl?: ITimeSpan): Promise<void> {
+        const hasRefreshed = await this.refresh(ttl);
+        if (!hasRefreshed) {
+            throw FailedRefreshSemaphoreError.create(this._key, this.slotId);
+        }
     }
 
     get id(): string {
@@ -383,8 +394,8 @@ export class Semaphore implements ISemaphore {
         return this._key;
     }
 
-    getState(): ITask<ISemaphoreState> {
-        return new Task(async () => {
+    getState(): Promise<ISemaphoreState> {
+        return new AsyncHooks(async () => {
             const state = await this.adapter.getState(this._key.toString());
             if (state === null) {
                 return {
@@ -425,6 +436,6 @@ export class Semaphore implements ISemaphore {
                               end: slot,
                           }),
             };
-        }).pipe(this.handleUnexpectedError());
+        }, [this.handleUnexpectedError()]).invoke();
     }
 }

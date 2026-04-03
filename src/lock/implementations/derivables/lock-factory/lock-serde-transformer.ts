@@ -15,7 +15,12 @@ import {
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { getConstructorName, type OneOrMore } from "@/utilities/_module.js";
+import {
+    getConstructorName,
+    type Invokable,
+    type OneOrMore,
+    type WaitUntil,
+} from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -29,6 +34,7 @@ export type LockSerdeTransformerSettings = {
     defaultRefreshTime: TimeSpan;
     eventBus: IEventBus<LockEventMap>;
     serdeTransformerName: string;
+    waitUntil: WaitUntil;
 };
 
 /**
@@ -45,6 +51,10 @@ export class LockSerdeTransformer
     private readonly defaultRefreshTime: TimeSpan;
     private readonly eventBus: IEventBus<LockEventMap>;
     private readonly serdeTransformerName: string;
+    private readonly waitUntil: Invokable<
+        [promise: PromiseLike<unknown>],
+        void
+    >;
 
     constructor(settings: LockSerdeTransformerSettings) {
         const {
@@ -56,7 +66,9 @@ export class LockSerdeTransformer
             defaultRefreshTime,
             eventBus,
             serdeTransformerName,
+            waitUntil,
         } = settings;
+        this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this.originalAdapter = originalAdapter;
@@ -107,6 +119,7 @@ export class LockSerdeTransformer
         const keyObj = this.namespace.create(key);
 
         return new Lock({
+            waitUntil: this.waitUntil,
             namespace: this.namespace,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,

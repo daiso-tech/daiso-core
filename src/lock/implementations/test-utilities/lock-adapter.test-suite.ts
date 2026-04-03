@@ -13,10 +13,9 @@ import {
     type ILockAdapter,
     type ILockAdapterState,
 } from "@/lock/contracts/_module.js";
-import { Task } from "@/task/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type Promisable } from "@/utilities/_module.js";
+import { delay as delay_, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/lock/test-utilities"`
@@ -93,8 +92,8 @@ export function lockAdapterTestSuite(
     } = settings;
     let adapter: ILockAdapter;
 
-    async function delay(time: ITimeSpan): Promise<void> {
-        await Task.delay(TimeSpan.fromTimeSpan(time).addTimeSpan(delayBuffer));
+    async function delay(ttl: ITimeSpan): Promise<void> {
+        await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
     describe("ILockAdapter tests:", () => {

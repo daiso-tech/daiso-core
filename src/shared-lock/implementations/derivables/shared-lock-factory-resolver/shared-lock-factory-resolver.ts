@@ -17,6 +17,7 @@ import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
     type Invokable,
+    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -126,6 +127,13 @@ export class SharedLockFactoryResolver<TAdapters extends string>
         return new SharedLockFactoryResolver({
             ...this.settings,
             defaultRefreshTime: time,
+        });
+    }
+
+    setWaitUntil(waitUntil: WaitUntil): SharedLockFactoryResolver<TAdapters> {
+        return new SharedLockFactoryResolver({
+            ...this.settings,
+            waitUntil,
         });
     }
 

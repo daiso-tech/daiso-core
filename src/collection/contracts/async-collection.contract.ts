@@ -25,10 +25,7 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type EmptyCollectionError,
 } from "@/collection/contracts/collection.errors.js";
-import { type ITask } from "@/task/contracts/_module.js";
 import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    UnexpectedError,
     type AsyncLazyable,
     type AsyncIterableValue,
 } from "@/utilities/_module.js";
@@ -177,16 +174,16 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     reduce(
         reduceFn: AsyncReduce<TInput, IAsyncCollection<TInput>, TInput>,
-    ): ITask<TInput>;
+    ): Promise<TInput>;
     reduce(
         reduceFn: AsyncReduce<TInput, IAsyncCollection<TInput>, TInput>,
         // eslint-disable-next-line @typescript-eslint/unified-signatures
         initialValue: TInput,
-    ): ITask<TInput>;
+    ): Promise<TInput>;
     reduce<TOutput>(
         reduceFn: AsyncReduce<TInput, IAsyncCollection<TInput>, TOutput>,
         initialValue: TOutput,
-    ): ITask<TOutput>;
+    ): Promise<TOutput>;
 
     /**
      * The `join` method joins the collection's items with ` separator `. An error will be thrown when if a none string item is encounterd.
@@ -218,7 +215,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      * }
      * ```
      */
-    join(separator?: string): ITask<Extract<TInput, string>>;
+    join(separator?: string): Promise<Extract<TInput, string>>;
 
     /**
      * The `collapse` method collapses a collection of iterables into a single, flat collection.
@@ -336,7 +333,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      * }
      * ```
      */
-    get(index: number): ITask<TInput | null>;
+    get(index: number): Promise<TInput | null>;
 
     /**
      * The `getOrFail` method returns the item by index. If the item is not found an error will be thrown.
@@ -357,7 +354,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      * }
      * ```
      */
-    getOrFail(index: number): ITask<TInput>;
+    getOrFail(index: number): Promise<TInput>;
 
     /**
      * The `page` method returns a new collection containing the items that would be present on ` page ` with custom ` pageSize `.
@@ -394,7 +391,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      * }
      * ```
      */
-    sum(): ITask<Extract<TInput, number>>;
+    sum(): Promise<Extract<TInput, number>>;
 
     /**
      * The `average` method returns the average of all items in the collection. If the collection includes other than number items an error will be thrown.
@@ -413,7 +410,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      * }
      * ```
      */
-    average(): ITask<Extract<TInput, number>>;
+    average(): Promise<Extract<TInput, number>>;
 
     /**
      * The `median` method returns the median of all items in the collection. If the collection includes other than number items an error will be thrown.
@@ -432,7 +429,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      * }
      * ```
      */
-    median(): ITask<Extract<TInput, number>>;
+    median(): Promise<Extract<TInput, number>>;
 
     /**
      * The `min` method returns the min of all items in the collection. If the collection includes other than number items an error will be thrown.
@@ -451,7 +448,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      * }
      * ```
      */
-    min(): ITask<Extract<TInput, number>>;
+    min(): Promise<Extract<TInput, number>>;
 
     /**
      * The `max` method returns the max of all items in the collection. If the collection includes other than number items an error will be thrown.
@@ -470,7 +467,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      * }
      * ```
      */
-    max(): ITask<Extract<TInput, number>>;
+    max(): Promise<Extract<TInput, number>>;
 
     /**
      * The `percentage` method may be used to quickly determine the percentage of items in the collection that pass `predicateFn`.
@@ -490,7 +487,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     percentage(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<number>;
+    ): Promise<number>;
 
     /**
      * The `some` method determines whether at least one item in the collection matches `predicateFn`.
@@ -509,7 +506,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     some<TOutput extends TInput>(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<boolean>;
+    ): Promise<boolean>;
 
     /**
      * The `every` method determines whether all items in the collection matches `predicateFn`.
@@ -528,7 +525,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     every<TOutput extends TInput>(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<boolean>;
+    ): Promise<boolean>;
 
     /**
      * The `take` method takes the first `limit` items.
@@ -809,7 +806,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     pipe<TOutput = TInput>(
         callback: AsyncTransform<IAsyncCollection<TInput>, TOutput>,
-    ): ITask<TOutput>;
+    ): Promise<TOutput>;
 
     /**
      * The `tap` method passes a copy of the original collection to `callback`, allowing you to do something with the items while not affecting the original collection.
@@ -1664,7 +1661,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     first<TOutput extends TInput>(
         predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<TOutput | null>;
+    ): Promise<TOutput | null>;
 
     /**
      * The `firstOr` method returns the first item in the collection that passes ` predicateFn `
@@ -1719,24 +1716,11 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      *   // -1
      * }
      * ```
-     * You can pass a {@link ITask | `ITask`} as default value.
-     * @example
-     * ```ts
-     * import type { IAsyncCollection, ICache } from "@daiso-tech/core/collection/contracts";
-     *
-     * // Asume the inputed collection is empty.
-     * async function main(collection: IAsyncCollection<number>, cache: ICache<number>): Promise<void> {
-     *   await collection
-     *     .append([1, 2, 3, 4])
-     *     .firstOr(cache.get("a"), item => item > 10);
-     *   // -1
-     * }
-     * ```
      */
     firstOr<TOutput extends TInput, TExtended = TInput>(
         defaultValue: AsyncLazyable<TExtended>,
         predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<TOutput | TExtended>;
+    ): Promise<TOutput | TExtended>;
 
     /**
      * The `firstOrFail` method returns the first item in the collection that passes ` predicateFn `.
@@ -1781,7 +1765,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     firstOrFail<TOutput extends TInput>(
         predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<TOutput>;
+    ): Promise<TOutput>;
 
     /**
      * The `last` method returns the last item in the collection that passes ` predicateFn `.
@@ -1825,7 +1809,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     last<TOutput extends TInput>(
         predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<TOutput | null>;
+    ): Promise<TOutput | null>;
 
     /**
      * The `lastOr` method returns the last item in the collection that passes ` predicateFn `.
@@ -1880,24 +1864,11 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      *   // -1
      * }
      * ```
-     * You can pass a {@link ITask | `ITask`} as default value.
-     * @example
-     * ```ts
-     * import type { IAsyncCollection, ICache } from "@daiso-tech/core/collection/contracts";
-     *
-     * // Asume the inputed collection is empty.
-     * async function main(collection: IAsyncCollection<number>, cache: ICache<number>): Promise<void> {
-     *   await collection
-     *     .append([1, 2, 3, 4])
-     *     .lastOr(cache.get("a"), item => item > 10);
-     *   // -1
-     * }
-     * ```
      */
     lastOr<TOutput extends TInput, TExtended = TInput>(
         defaultValue: AsyncLazyable<TExtended>,
         predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<TOutput | TExtended>;
+    ): Promise<TOutput | TExtended>;
 
     /**
      * The `lastOrFail` method returns the last item in the collection that passes ` predicateFn `.
@@ -1942,7 +1913,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     lastOrFail<TOutput extends TInput>(
         predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<TOutput>;
+    ): Promise<TOutput>;
 
     /**
      * The `before` method returns the item that comes before the first item that matches `predicateFn`.
@@ -1974,7 +1945,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     before(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<TInput | null>;
+    ): Promise<TInput | null>;
 
     /**
      * The `beforeOr` method returns the item that comes before the first item that matches `predicateFn`.
@@ -2017,24 +1988,11 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      *   // -1
      * }
      * ```
-     * You can pass a {@link ITask | `ITask`} as default value.
-     * @example
-     * ```ts
-     * import type { IAsyncCollection, ICache } from "@daiso-tech/core/collection/contracts";
-     *
-     * // Asume the inputed collection is empty.
-     * async function main(collection: IAsyncCollection<number>, cache: ICache<number>): Promise<void> {
-     *   await collection
-     *     .append([1, 2, 3, 4])
-     *     .beforeOr(cache.get("a"), item => item > 10);
-     *   // -1
-     * }
-     * ```
      */
     beforeOr<TExtended = TInput>(
         defaultValue: AsyncLazyable<TExtended>,
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<TInput | TExtended>;
+    ): Promise<TInput | TExtended>;
 
     /**
      * The `beforeOrFail` method returns the item that comes before the first item that matches `predicateFn`.
@@ -2067,7 +2025,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     beforeOrFail(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<TInput>;
+    ): Promise<TInput>;
 
     /**
      * The `after` method returns the item that comes after the first item that matches `predicateFn`.
@@ -2099,7 +2057,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     after(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<TInput | null>;
+    ): Promise<TInput | null>;
 
     /**
      * The `afterOr` method returns the item that comes after the first item that matches `predicateFn`.
@@ -2142,24 +2100,11 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      *   // -1
      * }
      * ```
-     * You can pass a {@link ITask | `ITask`} as default value.
-     * @example
-     * ```ts
-     * import type { IAsyncCollection, ICache } from "@daiso-tech/core/collection/contracts";
-     *
-     * // Asume the inputed collection is empty.
-     * async function main(collection: IAsyncCollection<number>, cache: ICache<number>): Promise<void> {
-     *   await collection
-     *     .append([1, 2, 3, 4])
-     *     .afterOr(cache.get("a"), item => item > 10);
-     *   // -1
-     * }
-     * ```
      */
     afterOr<TExtended = TInput>(
         defaultValue: AsyncLazyable<TExtended>,
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<TInput | TExtended>;
+    ): Promise<TInput | TExtended>;
 
     /**
      * The `afterOrFail` method returns the item that comes after the first item that matches `predicateFn`.
@@ -2192,7 +2137,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     afterOrFail(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<TInput>;
+    ): Promise<TInput>;
 
     /**
      * The `sole` method returns the first item in the collection that passes `predicateFn`, but only if `predicateFn` matches exactly one item.
@@ -2238,7 +2183,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     sole<TOutput extends TInput>(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
-    ): ITask<TOutput>;
+    ): Promise<TOutput>;
 
     /**
      * The `nth` method creates a new collection consisting of every n-th item.
@@ -2274,22 +2219,22 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     count(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<number>;
+    ): Promise<number>;
 
     /**
      * The `size` returns the size of the collection.
      */
-    size(): ITask<number>;
+    size(): Promise<number>;
 
     /**
      * The `isEmpty` returns true if the collection is empty.
      */
-    isEmpty(): ITask<boolean>;
+    isEmpty(): Promise<boolean>;
 
     /**
      * The `isNotEmpty` returns true if the collection is not empty.
      */
-    isNotEmpty(): ITask<boolean>;
+    isNotEmpty(): Promise<boolean>;
 
     /**
      * The `searchFirst` return the index of the first item that matches `predicateFn`.
@@ -2308,7 +2253,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     searchFirst(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<number>;
+    ): Promise<number>;
 
     /**
      * The `searchLast` return the index of the last item that matches `predicateFn`.
@@ -2327,31 +2272,31 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
      */
     searchLast(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): ITask<number>;
+    ): Promise<number>;
 
     /**
      * The `forEach` method iterates through all items in the collection.
      */
     forEach(
         callback: AsyncForEach<TInput, IAsyncCollection<TInput>>,
-    ): ITask<void>;
+    ): Promise<void>;
 
     /**
      * The `toArray` method converts the collection to a new {@link Array | `Array`}.
      */
-    toArray(): ITask<Array<TInput>>;
+    toArray(): Promise<Array<TInput>>;
 
     /**
      * The `toRecord` method converts the collection to a new {@link Record | `Record`}.
      * An error will be thrown if item is not a tuple of size 2 where the first element is a string or a number.
      * @throws {TypeError} {@link TypeError}
      */
-    toRecord(): ITask<EnsureRecord<TInput>>;
+    toRecord(): Promise<EnsureRecord<TInput>>;
 
     /**
      * The `toMap` method converts the collection to a new {@link Map | `Map`}.
      * An error will be thrown if item is not a tuple of size 2.
      * @throws {TypeError} {@link TypeError}
      */
-    toMap(): ITask<EnsureMap<TInput>>;
+    toMap(): Promise<EnsureMap<TInput>>;
 };
