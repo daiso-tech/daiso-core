@@ -2501,7 +2501,7 @@ export function sharedLockFactoryTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await sharedLock1.refreshWriter(newTtl);
-                    await delayWithBuffer(newTtl.divide(2));
+                    await delayExact(newTtl.divide(2));
 
                     const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
@@ -2510,7 +2510,7 @@ export function sharedLockFactoryTestSuite(
                     const result1 = await sharedLock2.acquireWriter();
                     expect(result1).toBe(false);
 
-                    await delayWithBuffer(newTtl.divide(2));
+                    await delayExact(newTtl.divide(2));
                     const result2 = await sharedLock2.acquireWriter();
                     expect(result2).toBe(true);
                 });
@@ -2737,7 +2737,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayWithBuffer(newTtl.divide(2));
+                    await delayExact(newTtl.divide(2));
 
                     const sharedLock2 = sharedLockFactory.create(key, {
                         ttl,
@@ -2746,7 +2746,7 @@ export function sharedLockFactoryTestSuite(
                     const result1 = await sharedLock2.acquireWriter();
                     expect(result1).toBe(false);
 
-                    await delayWithBuffer(newTtl.divide(2));
+                    await delayExact(newTtl.divide(2));
                     const result2 = await sharedLock2.acquireWriter();
                     expect(result2).toBe(true);
                 });
@@ -5559,7 +5559,7 @@ export function sharedLockFactoryTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await sharedLock2.refreshReader(newTtl);
-                    await delayWithBuffer(newTtl.divide(2));
+                    await delayExact(newTtl.divide(2));
 
                     const sharedLock3 = sharedLockFactory.create(key, {
                         ttl: ttl2,
@@ -5568,7 +5568,7 @@ export function sharedLockFactoryTestSuite(
                     const result1 = await sharedLock3.acquireReader();
                     expect(result1).toBe(false);
 
-                    await delayWithBuffer(newTtl.divide(2));
+                    await delayExact(newTtl.divide(2));
 
                     const result2 = await sharedLock3.acquireReader();
                     expect(result2).toBe(true);
@@ -5787,7 +5787,7 @@ export function sharedLockFactoryTestSuite(
 
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await sharedLock2.refreshReaderOrFail(newTtl);
-                    await delayWithBuffer(newTtl.divide(2));
+                    await delayExact(newTtl.divide(2));
 
                     const sharedLock3 = sharedLockFactory.create(key, {
                         ttl: ttl2,
@@ -5796,7 +5796,7 @@ export function sharedLockFactoryTestSuite(
                     const result1 = await sharedLock3.acquireReader();
                     expect(result1).toBe(false);
 
-                    await delayWithBuffer(newTtl.divide(2));
+                    await delayExact(newTtl.divide(2));
 
                     const result2 = await sharedLock3.acquireReader();
                     expect(result2).toBe(true);
@@ -6726,6 +6726,7 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriter();
+                    await delayExact(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7701,6 +7702,7 @@ export function sharedLockFactoryTestSuite(
                     await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
+                    await delayWithBuffer(ttl);
 
                     const sharedLock = sharedLockFactory.create(key, {
                         ttl,
@@ -7714,7 +7716,6 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseWriter();
-                    await delayWithBuffer(ttl);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -7965,6 +7966,7 @@ export function sharedLockFactoryTestSuite(
                     await sharedLockFactory
                         .create(key, { ttl, limit })
                         .acquireWriter();
+                    await delayWithBuffer(ttl);
 
                     const sharedLock = sharedLockFactory.create(key, {
                         ttl,
@@ -7982,7 +7984,6 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayWithBuffer(ttl);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
