@@ -67,6 +67,10 @@ import {
     resolveLazyable,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     UnexpectedError,
+    type Option,
+    optionSome,
+    optionNone,
+    OPTION,
 } from "@/utilities/_module.js";
 
 /**
@@ -336,7 +340,7 @@ export class IterableCollection<TInput = unknown>
         const hasInitialValue = arguments.length >= 2;
         if (!hasInitialValue && this.isEmpty()) {
             throw new TypeError(
-                "AsyncReduce of empty array must be inputed a initial value",
+                "Reduce of empty iterable must be inputed a initial value",
             );
         }
         if (initialValue !== undefined) {
@@ -881,10 +885,31 @@ export class IterableCollection<TInput = unknown>
         return new IterableCollection(new ShuffleIterable(this, mathRandom));
     }
 
+    private first_<TOutput extends TInput>(
+        predicateFn: PredicateInvokable<
+            TInput,
+            ICollection<TInput>,
+            TOutput
+        > = () => true,
+    ): Option<TOutput> {
+        let index = 0;
+        for (const item of this) {
+            if (resolveInvokable(predicateFn)(item, index, this)) {
+                return optionSome(item as TOutput);
+            }
+            index++;
+        }
+        return optionNone();
+    }
+
     first<TOutput extends TInput>(
         predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput | null {
-        return this.firstOr(null, predicateFn);
+        const result = this.first_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
+        }
+        return null;
     }
 
     firstOr<TOutput extends TInput, TExtended = TInput>(
@@ -895,12 +920,9 @@ export class IterableCollection<TInput = unknown>
             TOutput
         > = () => true,
     ): TOutput | TExtended {
-        let index = 0;
-        for (const item of this) {
-            if (resolveInvokable(predicateFn)(item, index, this)) {
-                return item as TOutput;
-            }
-            index++;
+        const result = this.first_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
         }
         return resolveLazyable(defaultValue);
     }
@@ -908,17 +930,42 @@ export class IterableCollection<TInput = unknown>
     firstOrFail<TOutput extends TInput>(
         predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput {
-        const item = this.first(predicateFn);
-        if (item === null) {
+        const result = this.first_(predicateFn);
+        if (result.type === OPTION.NONE) {
             throw ItemNotFoundCollectionError.create();
         }
-        return item;
+        return result.value;
+    }
+
+    private last_<TOutput extends TInput>(
+        predicateFn: PredicateInvokable<
+            TInput,
+            ICollection<TInput>,
+            TOutput
+        > = () => true,
+    ): Option<TOutput> {
+        let index = 0;
+        let matchedItem: TOutput | null = null;
+        for (const item of this) {
+            if (resolveInvokable(predicateFn)(item, index, this)) {
+                matchedItem = item as TOutput;
+            }
+            index++;
+        }
+        if (matchedItem !== null) {
+            return optionSome(matchedItem);
+        }
+        return optionNone();
     }
 
     last<TOutput extends TInput>(
         predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput | null {
-        return this.lastOr(null, predicateFn);
+        const result = this.last_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
+        }
+        return null;
     }
 
     lastOr<TOutput extends TInput, TExtended = TInput>(
@@ -929,16 +976,9 @@ export class IterableCollection<TInput = unknown>
             TOutput
         > = () => true,
     ): TOutput | TExtended {
-        let index = 0;
-        let matchedItem: TOutput | null = null;
-        for (const item of this) {
-            if (resolveInvokable(predicateFn)(item, index, this)) {
-                matchedItem = item as TOutput;
-            }
-            index++;
-        }
-        if (matchedItem !== null) {
-            return matchedItem;
+        const result = this.last_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
         }
         return resolveLazyable(defaultValue);
     }
@@ -946,23 +986,20 @@ export class IterableCollection<TInput = unknown>
     lastOrFail<TOutput extends TInput>(
         predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput {
-        const item = this.last(predicateFn);
-        if (item === null) {
+        const result = this.last_(predicateFn);
+        if (result.type === OPTION.NONE) {
             throw ItemNotFoundCollectionError.create();
         }
-        return item;
+        return result.value;
     }
 
-    before(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
-    ): TInput | null {
-        return this.beforeOr(null, predicateFn);
-    }
-
-    beforeOr<TExtended = TInput>(
-        defaultValue: Lazyable<TExtended>,
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
-    ): TInput | TExtended {
+    private before_<TOutput extends TInput>(
+        predicateFn: PredicateInvokable<
+            TInput,
+            ICollection<TInput>,
+            TOutput
+        > = () => true,
+    ): Option<TOutput> {
         let beforeItem: TInput | null = null,
             index = 0;
         for (const item of this) {
@@ -970,74 +1007,121 @@ export class IterableCollection<TInput = unknown>
                 resolveInvokable(predicateFn)(item, index, this) &&
                 beforeItem !== null
             ) {
-                return beforeItem;
+                return optionSome(beforeItem as TOutput);
             }
             index++;
             beforeItem = item;
         }
+        return optionNone();
+    }
+
+    before<TOutput extends TInput>(
+        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+    ): TOutput | null {
+        const result = this.before_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
+        }
+        return null;
+    }
+
+    beforeOr<TOutput extends TInput, TExtended = TInput>(
+        defaultValue: Lazyable<TExtended>,
+        predicateFn: PredicateInvokable<
+            TInput,
+            ICollection<TInput>,
+            TOutput
+        > = () => true,
+    ): TOutput | TExtended {
+        const result = this.before_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
+        }
         return resolveLazyable(defaultValue);
     }
 
-    beforeOrFail(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
-    ): TInput {
-        const item = this.before(predicateFn);
-        if (item === null) {
+    beforeOrFail<TOutput extends TInput>(
+        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+    ): TOutput {
+        const result = this.before_(predicateFn);
+        if (result.type === OPTION.NONE) {
             throw ItemNotFoundCollectionError.create();
         }
-        return item;
+        return result.value;
     }
 
-    after(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
-    ): TInput | null {
-        return this.afterOr(null, predicateFn);
-    }
-
-    afterOr<TExtended = TInput>(
-        defaultValue: Lazyable<TExtended>,
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
-    ): TInput | TExtended {
+    private after_<TOutput extends TInput>(
+        predicateFn: PredicateInvokable<
+            TInput,
+            ICollection<TInput>,
+            TOutput
+        > = () => true,
+    ): Option<TOutput> {
         let hasMatched = false,
             index = 0;
         for (const item of this) {
             if (hasMatched) {
-                return item;
+                return optionSome(item as TOutput);
             }
             hasMatched = resolveInvokable(predicateFn)(item, index, this);
             index++;
         }
+        return optionNone();
+    }
+
+    after<TOutput extends TInput>(
+        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+    ): TOutput | null {
+        const result = this.after_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
+        }
+        return null;
+    }
+
+    afterOr<TOutput extends TInput, TExtended = TInput>(
+        defaultValue: Lazyable<TExtended>,
+        predicateFn: PredicateInvokable<
+            TInput,
+            ICollection<TInput>,
+            TOutput
+        > = () => true,
+    ): TOutput | TExtended {
+        const result = this.after_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
+        }
         return resolveLazyable(defaultValue);
     }
 
-    afterOrFail(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
-    ): TInput {
-        const item = this.after(predicateFn);
-        if (item === null) {
+    afterOrFail<TOutput extends TInput>(
+        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+    ): TOutput {
+        const result = this.after_(predicateFn);
+        if (result.type === OPTION.NONE) {
             throw ItemNotFoundCollectionError.create();
         }
-        return item;
+        return result.value;
     }
 
     sole<TOutput extends TInput>(
         predicateFn: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput {
         let index = 0,
-            matchedItem: TOutput | null = null;
+            matchedItem: Option<TOutput> = optionNone();
         for (const item of this) {
             if (resolveInvokable(predicateFn)(item, index, this)) {
-                if (matchedItem !== null) {
+                if (matchedItem.type === OPTION.SOME) {
                     throw MultipleItemsFoundCollectionError.create();
                 }
-                matchedItem = item as TOutput;
+                matchedItem = optionSome(item as TOutput);
             }
             index++;
         }
-        if (matchedItem === null) {
+        if (matchedItem.type === OPTION.NONE) {
             throw ItemNotFoundCollectionError.create();
         }
-        return matchedItem;
+        return matchedItem.value;
     }
 
     nth(step: number): ICollection<TInput> {

@@ -66,6 +66,10 @@ import {
     resolveAsyncLazyable,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     UnexpectedError,
+    type Option,
+    OPTION,
+    optionSome,
+    optionNone,
 } from "@/utilities/_module.js";
 
 /**
@@ -340,7 +344,7 @@ export class AsyncIterableCollection<TInput = unknown>
     ): Promise<TInput>;
     reduce<TOutput>(
         reduce: AsyncReduce<TInput, IAsyncCollection<TInput>, TOutput>,
-        initialValue: TOutput,
+        initialValue: Promise<TOutput>,
     ): Promise<TOutput>;
     async reduce<TOutput = TInput>(
         reduceFn: AsyncReduce<TInput, IAsyncCollection<TInput>, TOutput>,
@@ -349,7 +353,7 @@ export class AsyncIterableCollection<TInput = unknown>
         const hasInitialValue = arguments.length >= 2;
         if (!hasInitialValue && (await this.isEmpty())) {
             throw new TypeError(
-                "AsyncReduce of empty array must be inputed a initial value",
+                "Reduce of empty iterable must be inputed a initial value",
             );
         }
         if (initialValue !== undefined) {
@@ -366,7 +370,7 @@ export class AsyncIterableCollection<TInput = unknown>
             return output;
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-        let output: TOutput = (await this.firstOrFail()) as any;
+        let output = (await this.firstOrFail()) as TOutput;
         let index = 0;
         let isFirstIteration = true;
         for await (const item of this) {
@@ -381,7 +385,8 @@ export class AsyncIterableCollection<TInput = unknown>
             isFirstIteration = false;
             index++;
         }
-        return output;
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        return output as TOutput;
     }
 
     async join(separator = ","): Promise<Extract<TInput, string>> {
@@ -936,10 +941,31 @@ export class AsyncIterableCollection<TInput = unknown>
         );
     }
 
-    first<TOutput extends TInput>(
+    private async first_<TOutput extends TInput>(
+        predicateFn: AsyncPredicate<
+            TInput,
+            IAsyncCollection<TInput>,
+            TOutput
+        > = () => true,
+    ): Promise<Option<TOutput>> {
+        let index = 0;
+        for await (const item of this) {
+            if (await resolveInvokable(predicateFn)(item, index, this)) {
+                return optionSome(item as TOutput);
+            }
+            index++;
+        }
+        return optionNone();
+    }
+
+    async first<TOutput extends TInput>(
         predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
     ): Promise<TOutput | null> {
-        return this.firstOr(null, predicateFn);
+        const result = await this.first_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
+        }
+        return null;
     }
 
     async firstOr<TOutput extends TInput, TExtended = TInput>(
@@ -950,28 +976,52 @@ export class AsyncIterableCollection<TInput = unknown>
             TOutput
         > = () => true,
     ): Promise<TOutput | TExtended> {
-        for await (const [index, item] of this.entries()) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
-                return item as TOutput;
-            }
+        const result = await this.first_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
         }
-        return await resolveAsyncLazyable(defaultValue);
+        return resolveAsyncLazyable(defaultValue);
     }
 
     async firstOrFail<TOutput extends TInput>(
         predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
     ): Promise<TOutput> {
-        const item = await this.first(predicateFn);
-        if (item === null) {
+        const result = await this.first_(predicateFn);
+        if (result.type === OPTION.NONE) {
             throw ItemNotFoundCollectionError.create();
         }
-        return item;
+        return result.value;
     }
 
-    last<TOutput extends TInput>(
+    private async last_<TOutput extends TInput>(
+        predicateFn: AsyncPredicate<
+            TInput,
+            IAsyncCollection<TInput>,
+            TOutput
+        > = () => true,
+    ): Promise<Option<TOutput>> {
+        let index = 0;
+        let matchedItem: TOutput | null = null;
+        for await (const item of this) {
+            if (await resolveInvokable(predicateFn)(item, index, this)) {
+                matchedItem = item as TOutput;
+            }
+            index++;
+        }
+        if (matchedItem !== null) {
+            return optionSome(matchedItem);
+        }
+        return optionNone();
+    }
+
+    async last<TOutput extends TInput>(
         predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
     ): Promise<TOutput | null> {
-        return this.lastOr(null, predicateFn);
+        const result = await this.last_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
+        }
+        return null;
     }
 
     async lastOr<TOutput extends TInput, TExtended = TInput>(
@@ -982,38 +1032,30 @@ export class AsyncIterableCollection<TInput = unknown>
             TOutput
         > = () => true,
     ): Promise<TOutput | TExtended> {
-        let matchedItem: TOutput | null = null;
-        for await (const [index, item] of this.entries()) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
-                matchedItem = item as TOutput;
-            }
+        const result = await this.last_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
         }
-        if (matchedItem !== null) {
-            return matchedItem;
-        }
-        return await resolveAsyncLazyable(defaultValue);
+        return resolveAsyncLazyable(defaultValue);
     }
 
     async lastOrFail<TOutput extends TInput>(
         predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
     ): Promise<TOutput> {
-        const item = await this.last(predicateFn);
-        if (item === null) {
+        const result = await this.last_(predicateFn);
+        if (result.type === OPTION.NONE) {
             throw ItemNotFoundCollectionError.create();
         }
-        return item;
+        return result.value;
     }
 
-    before(
-        predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): Promise<TInput | null> {
-        return this.beforeOr(null, predicateFn);
-    }
-
-    async beforeOr<TExtended = TInput>(
-        defaultValue: AsyncLazyable<TExtended>,
-        predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): Promise<TInput | TExtended> {
+    private async before_<TOutput extends TInput>(
+        predicateFn: AsyncPredicate<
+            TInput,
+            IAsyncCollection<TInput>,
+            TOutput
+        > = () => true,
+    ): Promise<Option<TOutput>> {
         let beforeItem: TInput | null = null,
             index = 0;
         for await (const item of this) {
@@ -1021,72 +1063,121 @@ export class AsyncIterableCollection<TInput = unknown>
                 (await resolveInvokable(predicateFn)(item, index, this)) &&
                 beforeItem !== null
             ) {
-                return beforeItem;
+                return optionSome(beforeItem as TOutput);
             }
             index++;
             beforeItem = item;
         }
-        return await resolveAsyncLazyable(defaultValue);
+        return optionNone();
     }
 
-    async beforeOrFail(
-        predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): Promise<TInput> {
-        const item = await this.before(predicateFn);
-        if (item === null) {
+    async before<TOutput extends TInput>(
+        predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
+    ): Promise<TOutput | null> {
+        const result = await this.before_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
+        }
+        return null;
+    }
+
+    async beforeOr<TOutput extends TInput, TExtended = TInput>(
+        defaultValue: AsyncLazyable<TExtended>,
+        predicateFn: AsyncPredicate<
+            TInput,
+            IAsyncCollection<TInput>,
+            TOutput
+        > = () => true,
+    ): Promise<TOutput | TExtended> {
+        const result = await this.before_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
+        }
+        return resolveAsyncLazyable(defaultValue);
+    }
+
+    async beforeOrFail<TOutput extends TInput>(
+        predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
+    ): Promise<TOutput> {
+        const result = await this.before_(predicateFn);
+        if (result.type === OPTION.NONE) {
             throw ItemNotFoundCollectionError.create();
         }
-        return item;
+        return result.value;
     }
 
-    after(
-        predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): Promise<TInput | null> {
-        return this.afterOr(null, predicateFn);
-    }
-
-    async afterOr<TExtended = TInput>(
-        defaultValue: AsyncLazyable<TExtended>,
-        predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): Promise<TInput | TExtended> {
+    private async after_<TOutput extends TInput>(
+        predicateFn: AsyncPredicate<
+            TInput,
+            IAsyncCollection<TInput>,
+            TOutput
+        > = () => true,
+    ): Promise<Option<TOutput>> {
         let hasMatched = false,
             index = 0;
         for await (const item of this) {
             if (hasMatched) {
-                return item;
+                return optionSome(item as TOutput);
             }
             hasMatched = await resolveInvokable(predicateFn)(item, index, this);
             index++;
         }
-        return await resolveAsyncLazyable(defaultValue);
+        return optionNone();
     }
 
-    async afterOrFail(
-        predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
-    ): Promise<TInput> {
-        const item = await this.after(predicateFn);
-        if (item === null) {
+    async after<TOutput extends TInput>(
+        predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
+    ): Promise<TOutput | null> {
+        const result = await this.after_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
+        }
+        return null;
+    }
+
+    async afterOr<TOutput extends TInput, TExtended = TInput>(
+        defaultValue: AsyncLazyable<TExtended>,
+        predicateFn: AsyncPredicate<
+            TInput,
+            IAsyncCollection<TInput>,
+            TOutput
+        > = () => true,
+    ): Promise<TOutput | TExtended> {
+        const result = await this.after_(predicateFn);
+        if (result.type === OPTION.SOME) {
+            return result.value;
+        }
+        return resolveAsyncLazyable(defaultValue);
+    }
+
+    async afterOrFail<TOutput extends TInput>(
+        predicateFn?: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
+    ): Promise<TOutput> {
+        const result = await this.after_(predicateFn);
+        if (result.type === OPTION.NONE) {
             throw ItemNotFoundCollectionError.create();
         }
-        return item;
+        return result.value;
     }
 
     async sole<TOutput extends TInput>(
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
     ): Promise<TOutput> {
-        let matchedItem: TOutput | null = null;
-        for await (const [index, item] of this.entries()) {
+        let index = 0,
+            matchedItem: Option<TOutput> = optionNone();
+        for await (const item of this) {
             if (await resolveInvokable(predicateFn)(item, index, this)) {
-                if (matchedItem !== null) {
+                if (matchedItem.type === OPTION.SOME) {
                     throw MultipleItemsFoundCollectionError.create();
                 }
-                matchedItem = item as TOutput;
+                matchedItem = optionSome(item as TOutput);
             }
+            index++;
         }
-        if (matchedItem === null) {
+        if (matchedItem.type === OPTION.NONE) {
             throw ItemNotFoundCollectionError.create();
         }
-        return matchedItem;
+        return matchedItem.value;
     }
 
     nth(step: number): IAsyncCollection<TInput> {
