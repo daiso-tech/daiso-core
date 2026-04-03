@@ -274,7 +274,7 @@ export class CircuitBreaker implements ICircuitBreaker {
             throw OpenCircuitBreakerError.create(this._key);
         }
         const isIsolatedState =
-            transition.to === CIRCUIT_BREAKER_EVENTS.ISOLATED;
+            transition.to === CIRCUIT_BREAKER_STATE.ISOLATED;
         if (isIsolatedState) {
             throw IsolatedCircuitBreakerError.create(this._key);
         }
