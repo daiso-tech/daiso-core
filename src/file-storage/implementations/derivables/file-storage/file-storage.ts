@@ -336,7 +336,8 @@ export class FileStorage implements IFileStorage {
 
     removeMany(files: Iterable<IFile>): Promise<boolean> {
         return new AsyncHooks(async () => {
-            const namespacedKeys = [...files].map((file) => {
+            const filesArr = [...files];
+            const namespacedKeys = filesArr.map((file) => {
                 return file.key.toString();
             });
 
@@ -344,14 +345,14 @@ export class FileStorage implements IFileStorage {
                 await this.adapter.removeMany(namespacedKeys);
 
             if (hasRemovedAtLeastOne) {
-                for (const file of files) {
+                for (const file of filesArr) {
                     callInvokable(
                         this.waitUntil,
                         this.eventBus.dispatch(FILE_EVENTS.REMOVED, { file }),
                     );
                 }
             } else {
-                for (const file of files) {
+                for (const file of filesArr) {
                     callInvokable(
                         this.waitUntil,
                         this.eventBus.dispatch(FILE_EVENTS.NOT_FOUND, { file }),
