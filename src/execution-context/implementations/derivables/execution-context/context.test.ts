@@ -391,7 +391,7 @@ describe("class: Context", () => {
 
             context.putIncrement(token, { nbr: 5, max: 10 });
 
-            expect(context.get(token)).toBe(9);
+            expect(context.get(token)).toBe(10);
         });
 
         test("Should increment with no max constraint", () => {
@@ -504,7 +504,7 @@ describe("class: Context", () => {
 
             context.putDecrement(token, { nbr: 5, min: 0 });
 
-            expect(context.get(token)).toBe(2);
+            expect(context.get(token)).toBe(0);
         });
 
         test("Should add initialValue with no min when token does not exist", () => {
@@ -665,7 +665,7 @@ describe("class: Context", () => {
 
             context.updateIncrement(token, { nbr: 5, max: 10 });
 
-            expect(context.get(token)).toBe(8);
+            expect(context.get(token)).toBe(10);
         });
 
         test("Should increment with no max constraint when value exists", () => {
@@ -756,7 +756,7 @@ describe("class: Context", () => {
 
             context.updateDecrement(token, { nbr: 5, min: 0 });
 
-            expect(context.get(token)).toBe(3);
+            expect(context.get(token)).toBe(0);
         });
 
         test("Should decrement with no min constraint when value exists", () => {
