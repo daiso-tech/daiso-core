@@ -5,6 +5,7 @@
 import { type Readable } from "node:stream";
 
 import { type IFileSize } from "@/file-size/contracts/_module.js";
+import { type FileSize } from "@/file-size/implementations/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type KeyExistsFileError,
@@ -72,7 +73,7 @@ export type FileUploadUrlOptions = {
 export type FileMetadata = {
     etag: string;
     contentType: string;
-    fileSize: IFileSize;
+    fileSize: FileSize;
     updatedAt: Date;
 };
 
