@@ -42,6 +42,19 @@ describe("class: Context", () => {
             expect(context.get(token)).toEqual([1, 2, 3]);
             expect(copied.get(token)).toEqual([1, 2, 3, 4]);
         });
+
+        test("Should isolate copied context from direct array mutations", () => {
+            const token = contextToken<Array<number>>("numbers");
+            context.put(token, [1, 2, 3]);
+
+            const copied = context.copy();
+            // Direct mutation of the array in the copy
+            copied.get(token)?.push(4);
+
+            // Original should be unaffected due to deep cloning
+            expect(context.get(token)).toEqual([1, 2, 3]);
+            expect(copied.get(token)).toEqual([1, 2, 3, 4]);
+        });
     });
 
     describe("method: contains", () => {
