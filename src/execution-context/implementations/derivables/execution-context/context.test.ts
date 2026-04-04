@@ -167,7 +167,7 @@ describe("class: Context", () => {
             expect(context.get(token)).toBe(false);
         });
 
-        test("Should return null explicitly set values", () => {
+        test("Should return null for explicitly set null values", () => {
             const token = contextToken<string | null>("nullable");
             context.put(token, null as string | null);
 
@@ -236,7 +236,9 @@ describe("class: Context", () => {
         test("Should throw with the correct token id in the error", () => {
             const token = contextToken<string>("myKey");
 
-            expect(() => context.getOrFail(token)).toThrow();
+            expect(() => context.getOrFail(token)).toThrow(
+                NotFoundExecutionContextError,
+            );
         });
     });
 

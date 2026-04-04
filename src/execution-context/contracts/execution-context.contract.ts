@@ -414,13 +414,13 @@ export type IExecutionContextBase = {
      * callbacks, event handlers, or async operations.
      *
      * @template TArgs - The argument types of the function
-     * @template Treturn - The return type of the function
+     * @template TReturn - The return type of the function
      * @param fn - The function to bind to this context
      * @returns A new function that accepts the same arguments and runs within this context
      */
-    bind<TArgs extends Array<unknown>, Treturn>(
-        fn: Invokable<[...args: TArgs], Treturn>,
-    ): InvokableFn<[...args: TArgs], Treturn>;
+    bind<TArgs extends Array<unknown>, TReturn>(
+        fn: Invokable<[...args: TArgs], TReturn>,
+    ): InvokableFn<[...args: TArgs], TReturn>;
 };
 
 /**
