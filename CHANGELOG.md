@@ -1,5 +1,28 @@
 # @daiso-tech/core
 
+## 0.51.0
+
+### Minor Changes
+
+- 07f2b2a: Add ExecutionContext support for managing execution state and context propagation. Includes:
+
+    - `IExecutionContext` contract defining the execution context interface
+    - `ExecutionContext` class for managing execution state
+    - `AlsExecutionContextAdapter` for AsyncLocalStorage-based context tracking
+    - `NoOpExecutionContextAdapter` for environments without context support
+    - Context management utilities for tracking execution flow across async operations
+
+- fed7444: - Breaking Changes
+
+        - Public async APIs now use native Promises instead of the prior task abstraction across many modules (cache, collections, eventing, storage, locks, rate-limiters, semaphores, shared locks). Update integrations accordingly.
+
+    - New Features
+
+        - Added a reusable delay utility and a configurable waitUntil hook to control background event/dispatch scheduling.
+
+    - Chores
+        - Removed legacy task exports, task implementation, and related tests; updated test suites to use the new delay utility.
+
 ## 0.50.0
 
 ### Minor Changes
@@ -827,8 +850,8 @@
 - 3ca9190: Renamed `FallbackSettings.fallbackPolicy` to `FallbackSettings.errorPolicy`
 - 3ca9190: - Removed the following types:
 
-                                                            - `AsyncFactoryable`
-                                                            - `Factoryable`
+                                                              - `AsyncFactoryable`
+                                                              - `Factoryable`
 
     - Updated remaining factory types to use the new `InvokableFn` and `InvokableObject` contracts:
         - Synchronous factories:
