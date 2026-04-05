@@ -10,6 +10,7 @@ import {
     type IDatabaseCacheAdapter,
     type IDatabaseCacheTransaction,
 } from "@/cache/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -90,7 +91,10 @@ export class DatabaseCacheTransaction<TType>
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
     }
 
-    async find(key: string): Promise<ICacheData<TType> | null> {
+    async find(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<ICacheData<TType> | null> {
         const cacheData = await this.kysely
             .selectFrom("cache")
             .where("cache.key", "=", key)
@@ -110,6 +114,7 @@ export class DatabaseCacheTransaction<TType>
     }
 
     async upsert(
+        _context: IReadableContext,
         key: string,
         value: TType,
         expiration?: Date | null,
@@ -276,7 +281,10 @@ export class KyselyCacheAdapter<TType = unknown>
         }
     }
 
-    async find(key: string): Promise<ICacheData<TType> | null> {
+    async find(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<ICacheData<TType> | null> {
         const cacheData = await this.kysely
             .selectFrom("cache")
             .where("cache.key", "=", key)
@@ -296,6 +304,7 @@ export class KyselyCacheAdapter<TType = unknown>
     }
 
     private _transaction<TValue>(
+        _context: IReadableContext,
         trxFn: InvokableFn<[trx: Kysely<KyselyCacheTables>], Promise<TValue>>,
     ): Promise<TValue> {
         if (this.enableTransactions) {
@@ -307,24 +316,26 @@ export class KyselyCacheAdapter<TType = unknown>
     }
 
     async transaction<TValue>(
+        _context: IReadableContext,
         trxFn: InvokableFn<
             [trx: IDatabaseCacheTransaction<TType>],
             Promise<TValue>
         >,
     ): Promise<TValue> {
-        return await this._transaction((trx) =>
+        return await this._transaction(_context, (trx) =>
             trxFn(new DatabaseCacheTransaction(trx, this.serde)),
         );
     }
 
     async update(
+        context: IReadableContext,
         key: string,
         value: TType,
     ): Promise<ICacheDataExpiration | null> {
         let row: Pick<KyselyCacheTable, "expiration"> | undefined;
         const serializedValue = this.serde.serialize(value);
         if (this.isMysql) {
-            row = await this._transaction(async (trx) => {
+            row = await this._transaction(context, async (trx) => {
                 const rows = await trx
                     .selectFrom("cache")
                     .where("cache.key", "=", key)
@@ -361,11 +372,12 @@ export class KyselyCacheAdapter<TType = unknown>
     }
 
     async removeMany(
+        context: IReadableContext,
         keys: Array<string>,
     ): Promise<Array<ICacheDataExpiration>> {
         let rows: Array<Pick<KyselyCacheTable, "expiration">>;
         if (this.isMysql) {
-            rows = await this._transaction(async (trx) => {
+            rows = await this._transaction(context, async (trx) => {
                 const rows = await trx
                     .selectFrom("cache")
                     .where("cache.key", "in", keys)
@@ -394,11 +406,14 @@ export class KyselyCacheAdapter<TType = unknown>
         });
     }
 
-    async removeAll(): Promise<void> {
+    async removeAll(_context: IReadableContext): Promise<void> {
         await this.kysely.deleteFrom("cache").execute();
     }
 
-    async removeByKeyPrefix(prefix: string): Promise<void> {
+    async removeByKeyPrefix(
+        _context: IReadableContext,
+        prefix: string,
+    ): Promise<void> {
         await this.kysely
             .deleteFrom("cache")
             .where("cache.key", "like", `${prefix}%`)

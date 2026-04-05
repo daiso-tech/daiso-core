@@ -14,6 +14,7 @@ import {
 
 import { type ICacheAdapter } from "@/cache/contracts/_module.js";
 import { MongodbCacheAdapterSerde } from "@/cache/implementations/adapters/mongodb-cache-adapter/mongodb-cache-adapter-serde.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
@@ -204,7 +205,7 @@ export class MongodbCacheAdapter<TType = unknown>
         return this.serde.deserialize(value);
     }
 
-    async get(key: string): Promise<TType | null> {
+    async get(_context: IReadableContext, key: string): Promise<TType | null> {
         const document = await this.collection.findOne(
             {
                 key,
@@ -220,7 +221,10 @@ export class MongodbCacheAdapter<TType = unknown>
         return this.getDocValue(document);
     }
 
-    async getAndRemove(key: string): Promise<TType | null> {
+    async getAndRemove(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<TType | null> {
         const document = await this.collection.findOneAndDelete(
             {
                 key,
@@ -249,6 +253,7 @@ export class MongodbCacheAdapter<TType = unknown>
     }
 
     async add(
+        _context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
@@ -299,6 +304,7 @@ export class MongodbCacheAdapter<TType = unknown>
     }
 
     async put(
+        _context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
@@ -324,7 +330,11 @@ export class MongodbCacheAdapter<TType = unknown>
         return !this.isDocExpired(document);
     }
 
-    async update(key: string, value: TType): Promise<boolean> {
+    async update(
+        _context: IReadableContext,
+        key: string,
+        value: TType,
+    ): Promise<boolean> {
         const updateResult = await this.collection.updateOne(
             MongodbCacheAdapter.filterUnexpiredKeys([key]),
             {
@@ -339,7 +349,11 @@ export class MongodbCacheAdapter<TType = unknown>
         return updateResult.modifiedCount > 0;
     }
 
-    async increment(key: string, value: number): Promise<boolean> {
+    async increment(
+        _context: IReadableContext,
+        key: string,
+        value: number,
+    ): Promise<boolean> {
         try {
             const updateResult = await this.collection.updateOne(
                 MongodbCacheAdapter.filterUnexpiredKeys([key]),
@@ -365,7 +379,10 @@ export class MongodbCacheAdapter<TType = unknown>
         }
     }
 
-    async removeMany(keys: Array<string>): Promise<boolean> {
+    async removeMany(
+        _context: IReadableContext,
+        keys: Array<string>,
+    ): Promise<boolean> {
         const deleteResult = await this.collection.deleteMany(
             MongodbCacheAdapter.filterUnexpiredKeys(keys),
         );
@@ -382,7 +399,10 @@ export class MongodbCacheAdapter<TType = unknown>
         }
     }
 
-    async removeByKeyPrefix(prefix: string): Promise<void> {
+    async removeByKeyPrefix(
+        _context: IReadableContext,
+        prefix: string,
+    ): Promise<void> {
         const mongodbResult = await this.collection.deleteMany({
             key: {
                 $regex: new RegExp(`^${escapeStringRegexp(prefix)}`),

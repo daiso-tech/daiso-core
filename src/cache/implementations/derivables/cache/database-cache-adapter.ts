@@ -8,6 +8,7 @@ import {
     type ICacheData,
     type ICacheDataExpiration,
 } from "@/cache/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
@@ -45,63 +46,78 @@ export class DatabaseCacheAdapter<TType = unknown>
         return cacheExpiration.expiration <= new Date();
     }
 
-    async get(key: string): Promise<TType | null> {
-        return DatabaseCacheAdapter.handleData(await this.adapter.find(key));
+    async get(context: IReadableContext, key: string): Promise<TType | null> {
+        return DatabaseCacheAdapter.handleData(
+            await this.adapter.find(context, key),
+        );
     }
 
-    async getAndRemove(key: string): Promise<TType | null> {
-        const value = await this.get(key);
+    async getAndRemove(
+        context: IReadableContext,
+        key: string,
+    ): Promise<TType | null> {
+        const value = await this.get(context, key);
         if (value !== null) {
-            await this.removeMany([key]);
+            await this.removeMany(context, [key]);
         }
         return value;
     }
 
     async add(
+        context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
     ): Promise<boolean> {
         const expiration = ttl?.toEndDate() ?? null;
-        return await this.adapter.transaction(async (trx) => {
+        return await this.adapter.transaction(context, async (trx) => {
             const storedValue = DatabaseCacheAdapter.handleData(
-                await trx.find(key),
+                await trx.find(context, key),
             );
             if (storedValue !== null) {
                 return false;
             }
 
-            await trx.upsert(key, value, expiration);
+            await trx.upsert(context, key, value, expiration);
 
             return true;
         });
     }
 
     async put(
+        context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
     ): Promise<boolean> {
         const expiration = ttl?.toEndDate() ?? null;
-        return await this.adapter.transaction(async (trx) => {
+        return await this.adapter.transaction(context, async (trx) => {
             const storedValue = DatabaseCacheAdapter.handleData(
-                await trx.find(key),
+                await trx.find(context, key),
             );
-            await trx.upsert(key, value, expiration);
+            await trx.upsert(context, key, value, expiration);
             return storedValue !== null;
         });
     }
 
-    async update(key: string, value: TType): Promise<boolean> {
+    async update(
+        context: IReadableContext,
+        key: string,
+        value: TType,
+    ): Promise<boolean> {
         return !DatabaseCacheAdapter.isExpired(
-            await this.adapter.update(key, value),
+            await this.adapter.update(context, key, value),
         );
     }
 
-    async increment(key: string, value: number): Promise<boolean> {
-        return await this.adapter.transaction(async (trx) => {
+    async increment(
+        context: IReadableContext,
+        key: string,
+        value: number,
+    ): Promise<boolean> {
+        return await this.adapter.transaction(context, async (trx) => {
             const storedValue = DatabaseCacheAdapter.handleData(
-                await trx.find(key),
+                await trx.find(context, key),
             );
             if (storedValue === null) {
                 return false;
@@ -113,14 +129,17 @@ export class DatabaseCacheAdapter<TType = unknown>
                 );
             }
 
-            await trx.upsert(key, (storedValue + value) as TType);
+            await trx.upsert(context, key, (storedValue + value) as TType);
 
             return true;
         });
     }
 
-    async removeMany(keys: Array<string>): Promise<boolean> {
-        const results = await this.adapter.removeMany(keys);
+    async removeMany(
+        context: IReadableContext,
+        keys: Array<string>,
+    ): Promise<boolean> {
+        const results = await this.adapter.removeMany(context, keys);
         for (const result of results) {
             if (!DatabaseCacheAdapter.isExpired(result)) {
                 return true;
@@ -129,11 +148,14 @@ export class DatabaseCacheAdapter<TType = unknown>
         return false;
     }
 
-    async removeAll(): Promise<void> {
-        await this.adapter.removeAll();
+    async removeAll(context: IReadableContext): Promise<void> {
+        await this.adapter.removeAll(context);
     }
 
-    async removeByKeyPrefix(prefix: string): Promise<void> {
-        await this.adapter.removeByKeyPrefix(prefix);
+    async removeByKeyPrefix(
+        context: IReadableContext,
+        prefix: string,
+    ): Promise<void> {
+        await this.adapter.removeByKeyPrefix(context, prefix);
     }
 }
