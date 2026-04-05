@@ -8,6 +8,7 @@ import {
     type beforeEach,
 } from "vitest";
 
+import { type IContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
@@ -29,6 +30,17 @@ export type DatabaseSemaphoreAdapterTestSuiteSettings = {
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
     createAdapter: () => Promisable<IDatabaseSemaphoreAdapter>;
+
+    /**
+     * @default
+     * ```ts
+     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
+     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     *
+     * new ExecutionContext(new NoOpExecutionContextAdapter())
+     * ```
+     */
+    context?: IContext;
 };
 
 /**
@@ -79,9 +91,15 @@ export type DatabaseSemaphoreAdapterTestSuiteSettings = {
 export function databaseSemaphoreAdapterTestSuite(
     settings: DatabaseSemaphoreAdapterTestSuiteSettings,
 ): void {
-    const { expect, test, createAdapter, describe, beforeEach } = settings;
+    const {
+        expect,
+        test,
+        createAdapter,
+        describe,
+        beforeEach,
+        context = new ExecutionContext(new NoOpExecutionContextAdapter()),
+    } = settings;
     let adapter: IDatabaseSemaphoreAdapter;
-    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
 
     describe("IDatabaseSemaphoreAdapter tests:", () => {
         beforeEach(async () => {
@@ -91,16 +109,16 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should return null when key doesnt exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const noneExistingKey = "b";
                 const result = await adapter.transaction(
-                    noOpContext,
+                    context,
                     async (trx) => {
                         return await trx.findSemaphore(
-                            noOpContext,
+                            context,
                             noneExistingKey,
                         );
                     },
@@ -111,14 +129,14 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should return ISemaphoreData when key exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const result = await adapter.transaction(
-                    noOpContext,
+                    context,
                     async (trx) => {
-                        return await trx.findSemaphore(noOpContext, key);
+                        return await trx.findSemaphore(context, key);
                     },
                 );
 
@@ -129,18 +147,15 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should return empty array when key doesnt exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const noneExistingKey = "b";
                 const result = await adapter.transaction(
-                    noOpContext,
+                    context,
                     async (trx) => {
-                        return await trx.findSlots(
-                            noOpContext,
-                            noneExistingKey,
-                        );
+                        return await trx.findSlots(context, noneExistingKey);
                     },
                 );
 
@@ -149,14 +164,14 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should return empty array when key exists and has no slots", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const result = await adapter.transaction(
-                    noOpContext,
+                    context,
                     async (trx) => {
-                        return await trx.findSlots(noOpContext, key);
+                        return await trx.findSlots(context, key);
                     },
                 );
 
@@ -165,38 +180,28 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should not return empty array when key exists and has no slots", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
                 const slotId1 = "1";
                 const expiration1 = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(
-                        noOpContext,
-                        key,
-                        slotId1,
-                        expiration1,
-                    );
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId1, expiration1);
                 });
                 const slotId2 = "2";
                 const expiration2 = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(
-                        noOpContext,
-                        key,
-                        slotId2,
-                        expiration2,
-                    );
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId2, expiration2);
                 });
 
                 const result = await adapter.transaction(
-                    noOpContext,
+                    context,
                     async (trx) => {
-                        return await trx.findSlots(noOpContext, key);
+                        return await trx.findSlots(context, key);
                     },
                 );
 
-                expect(result).toEqual([
+                expect(result).to.have.deep.members([
                     {
                         id: slotId1,
                         expiration: expiration1,
@@ -213,14 +218,14 @@ export function databaseSemaphoreAdapterTestSuite(
                 const key = "a";
                 const limit = 2;
 
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const result = await adapter.transaction(
-                    noOpContext,
+                    context,
                     async (trx) => {
-                        return await trx.findSemaphore(noOpContext, key);
+                        return await trx.findSemaphore(context, key);
                     },
                 );
                 expect(result).toEqual({ limit } satisfies ISemaphoreData);
@@ -228,19 +233,19 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should update when key exists exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const newLimit = 4;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, newLimit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, newLimit);
                 });
 
                 const result = await adapter.transaction(
-                    noOpContext,
+                    context,
                     async (trx) => {
-                        return await trx.findSemaphore(noOpContext, key);
+                        return await trx.findSemaphore(context, key);
                     },
                 );
                 expect(result).toEqual({
@@ -252,23 +257,20 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should insert when key doesnt exists exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId = "a";
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId, expiration);
                 });
 
-                const slot = await adapter.transaction(
-                    noOpContext,
-                    async (trx) => {
-                        const slots = await trx.findSlots(noOpContext, key);
-                        return slots.find((slot) => slot.id === slotId);
-                    },
-                );
+                const slot = await adapter.transaction(context, async (trx) => {
+                    const slots = await trx.findSlots(context, key);
+                    return slots.find((slot) => slot.id === slotId);
+                });
                 expect(slot).toEqual({
                     expiration,
                     id: slotId,
@@ -277,39 +279,26 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should update when key exists exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration1 = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(
-                        noOpContext,
-                        key,
-                        slotId1,
-                        expiration1,
-                    );
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId1, expiration1);
                 });
 
                 const slotId2 = "2";
                 const expiration2 = TimeSpan.fromMilliseconds(100).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(
-                        noOpContext,
-                        key,
-                        slotId2,
-                        expiration2,
-                    );
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId2, expiration2);
                 });
 
-                const slot = await adapter.transaction(
-                    noOpContext,
-                    async (trx) => {
-                        const slots = await trx.findSlots(noOpContext, key);
-                        return slots.find((slot) => slot.id === slotId2);
-                    },
-                );
+                const slot = await adapter.transaction(context, async (trx) => {
+                    const slots = await trx.findSlots(context, key);
+                    return slots.find((slot) => slot.id === slotId2);
+                });
                 expect(slot).toEqual({
                     expiration: expiration2,
                     id: slotId2,
@@ -322,16 +311,16 @@ export function databaseSemaphoreAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId, expiration);
                 });
 
                 const noneExistingKey = "c";
                 const result = await adapter.removeSlot(
-                    noOpContext,
+                    context,
                     noneExistingKey,
                     slotId,
                 );
@@ -343,16 +332,16 @@ export function databaseSemaphoreAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId, expiration);
                 });
 
                 const noneExistingSlotId = "c";
                 const result = await adapter.removeSlot(
-                    noOpContext,
+                    context,
                     key,
                     noneExistingSlotId,
                 );
@@ -364,18 +353,14 @@ export function databaseSemaphoreAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId, expiration);
                 });
 
-                const result = await adapter.removeSlot(
-                    noOpContext,
-                    key,
-                    slotId,
-                );
+                const result = await adapter.removeSlot(context, key, slotId);
 
                 expect(result).toEqual({
                     expiration,
@@ -386,18 +371,14 @@ export function databaseSemaphoreAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const expiration = TimeSpan.fromMilliseconds(100).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId, expiration);
                 });
 
-                const result = await adapter.removeSlot(
-                    noOpContext,
-                    key,
-                    slotId,
-                );
+                const result = await adapter.removeSlot(context, key, slotId);
 
                 expect(result).toEqual({
                     expiration,
@@ -408,22 +389,19 @@ export function databaseSemaphoreAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId, expiration);
                 });
 
-                await adapter.removeSlot(noOpContext, key, slotId);
+                await adapter.removeSlot(context, key, slotId);
 
-                const slot = await adapter.transaction(
-                    noOpContext,
-                    async (trx) => {
-                        const slots = await trx.findSlots(noOpContext, key);
-                        return slots.find((slot) => slot.id === slotId);
-                    },
-                );
+                const slot = await adapter.transaction(context, async (trx) => {
+                    const slots = await trx.findSlots(context, key);
+                    return slots.find((slot) => slot.id === slotId);
+                });
                 expect(slot).toBeUndefined();
             });
             test("Should not remove slot when key exists and slotId does not exists", async () => {
@@ -431,23 +409,20 @@ export function databaseSemaphoreAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId, expiration);
                 });
 
                 const noneExistingSlotId = "c";
-                await adapter.removeSlot(noOpContext, key, noneExistingSlotId);
+                await adapter.removeSlot(context, key, noneExistingSlotId);
 
-                const slot = await adapter.transaction(
-                    noOpContext,
-                    async (trx) => {
-                        const slots = await trx.findSlots(noOpContext, key);
-                        return slots.find((slot) => slot.id === slotId);
-                    },
-                );
+                const slot = await adapter.transaction(context, async (trx) => {
+                    const slots = await trx.findSlots(context, key);
+                    return slots.find((slot) => slot.id === slotId);
+                });
                 expect(slot).toEqual({
                     id: slotId,
                     expiration,
@@ -460,16 +435,16 @@ export function databaseSemaphoreAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId, expiration);
                 });
 
                 const noneExistingKey = "c";
                 const result = await adapter.removeAllSlots(
-                    noOpContext,
+                    context,
                     noneExistingKey,
                 );
 
@@ -478,44 +453,34 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should return empty array when key exists and has no slots", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
-                const result = await adapter.removeAllSlots(noOpContext, key);
+                const result = await adapter.removeAllSlots(context, key);
 
                 expect(result).toEqual([]);
             });
             test("Should return array with 2 items when key exists and has slots", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
                 const slotId1 = "b";
                 const expiration1 = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(
-                        noOpContext,
-                        key,
-                        slotId1,
-                        expiration1,
-                    );
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId1, expiration1);
                 });
                 const slotId2 = "c";
                 const expiration2 = TimeSpan.fromMilliseconds(10).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(
-                        noOpContext,
-                        key,
-                        slotId2,
-                        expiration2,
-                    );
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId2, expiration2);
                 });
 
-                const result = await adapter.removeAllSlots(noOpContext, key);
+                const result = await adapter.removeAllSlots(context, key);
 
-                expect(result).toEqual([
+                expect(result).to.have.deep.members([
                     {
                         expiration: expiration1,
                     },
@@ -527,36 +492,26 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should remove all items when key exists and has slots", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
                 const slotId1 = "b";
                 const expiration1 = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(
-                        noOpContext,
-                        key,
-                        slotId1,
-                        expiration1,
-                    );
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId1, expiration1);
                 });
                 const slotId2 = "c";
                 const expiration2 = TimeSpan.fromMilliseconds(10).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(
-                        noOpContext,
-                        key,
-                        slotId2,
-                        expiration2,
-                    );
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId2, expiration2);
                 });
 
-                await adapter.removeAllSlots(noOpContext, key);
+                await adapter.removeAllSlots(context, key);
 
                 const slots = await adapter.transaction(
-                    noOpContext,
+                    context,
                     async (trx) => {
-                        return await trx.findSlots(noOpContext, key);
+                        return await trx.findSlots(context, key);
                     },
                 );
                 expect(slots).toEqual([]);
@@ -566,21 +521,21 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should return 0 when semaphore key doesnt exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId1, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId1, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 const noneExistingKey = "b";
                 const result1 = await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     noneExistingKey,
                     slotId1,
                     newExpiration,
@@ -591,21 +546,21 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should return 0 when slot doesnt exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId1, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId1, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 const noneExistingSlotId = "b";
                 const result1 = await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     key,
                     noneExistingSlotId,
                     newExpiration,
@@ -616,20 +571,20 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should return 0 when slot is expired", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toStartDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId1, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId1, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 const result1 = await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     key,
                     slotId1,
                     newExpiration,
@@ -640,20 +595,20 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should return 0 when slot is unexpireable", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId1, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId1, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 const result1 = await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     key,
                     slotId1,
                     newExpiration,
@@ -664,15 +619,15 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should return number greater than 0 when slot is unexpired", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = TimeSpan.fromMilliseconds(50);
-                await adapter.transaction(noOpContext, async (trx) => {
+                await adapter.transaction(context, async (trx) => {
                     await trx.upsertSlot(
-                        noOpContext,
+                        context,
                         key,
                         slotId1,
                         expiration.toEndDate(),
@@ -681,7 +636,7 @@ export function databaseSemaphoreAdapterTestSuite(
 
                 const newExpiration = TimeSpan.fromMilliseconds(100);
                 const result1 = await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     key,
                     slotId1,
                     newExpiration.toEndDate(),
@@ -692,32 +647,29 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should not update expiration when slot is expired", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toStartDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId1, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId1, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     key,
                     slotId1,
                     newExpiration,
                 );
 
-                const slot = await adapter.transaction(
-                    noOpContext,
-                    async (trx) => {
-                        const slots = await trx.findSlots(noOpContext, key);
-                        return slots.find((slot) => slot.id === slotId1);
-                    },
-                );
+                const slot = await adapter.transaction(context, async (trx) => {
+                    const slots = await trx.findSlots(context, key);
+                    return slots.find((slot) => slot.id === slotId1);
+                });
                 expect(slot).toEqual({
                     id: slotId1,
                     expiration,
@@ -726,32 +678,29 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should not update expiration when slot is unexpireable", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId1, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId1, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     key,
                     slotId1,
                     newExpiration,
                 );
 
-                const slot = await adapter.transaction(
-                    noOpContext,
-                    async (trx) => {
-                        const slots = await trx.findSlots(noOpContext, key);
-                        return slots.find((slot) => slot.id === slotId1);
-                    },
-                );
+                const slot = await adapter.transaction(context, async (trx) => {
+                    const slots = await trx.findSlots(context, key);
+                    return slots.find((slot) => slot.id === slotId1);
+                });
                 expect(slot).toEqual({
                     id: slotId1,
                     expiration,
@@ -760,32 +709,29 @@ export function databaseSemaphoreAdapterTestSuite(
             test("Should update expiration when slot is unexpired", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSemaphore(noOpContext, key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsertSlot(noOpContext, key, slotId1, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsertSlot(context, key, slotId1, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     key,
                     slotId1,
                     newExpiration,
                 );
 
-                const slot = await adapter.transaction(
-                    noOpContext,
-                    async (trx) => {
-                        const slots = await trx.findSlots(noOpContext, key);
-                        return slots.find((slot) => slot.id === slotId1);
-                    },
-                );
+                const slot = await adapter.transaction(context, async (trx) => {
+                    const slots = await trx.findSlots(context, key);
+                    return slots.find((slot) => slot.id === slotId1);
+                });
                 expect(slot).toEqual({
                     id: slotId1,
                     expiration: newExpiration,
