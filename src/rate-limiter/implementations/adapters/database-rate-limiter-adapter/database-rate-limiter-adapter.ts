@@ -6,6 +6,7 @@ import {
     exponentialBackoff,
     type BackoffPolicy,
 } from "@/backoff-policies/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type IRateLimiterAdapter,
     type IRateLimiterAdapterState,
@@ -95,8 +96,11 @@ export class DatabaseRateLimiterAdapter<TMetrics = unknown>
         );
     }
 
-    async getState(key: string): Promise<IRateLimiterAdapterState | null> {
-        const state = await this.rateLimiterStorage.find(key);
+    async getState(
+        context: IReadableContext,
+        key: string,
+    ): Promise<IRateLimiterAdapterState | null> {
+        const state = await this.rateLimiterStorage.find(context, key);
         if (state === null) {
             return null;
         }
@@ -110,6 +114,7 @@ export class DatabaseRateLimiterAdapter<TMetrics = unknown>
     }
 
     async updateState(
+        context: IReadableContext,
         key: string,
         limit: number,
     ): Promise<IRateLimiterAdapterState> {
@@ -120,6 +125,7 @@ export class DatabaseRateLimiterAdapter<TMetrics = unknown>
             currentDate,
         );
         const state = await this.rateLimiterStorage.atomicUpdate({
+            context,
             key,
             update: (prevState) => {
                 const newState1 = track(prevState);
@@ -136,7 +142,7 @@ export class DatabaseRateLimiterAdapter<TMetrics = unknown>
         };
     }
 
-    async reset(key: string): Promise<void> {
-        await this.rateLimiterStorage.remove(key);
+    async reset(context: IReadableContext, key: string): Promise<void> {
+        await this.rateLimiterStorage.remove(context, key);
     }
 }

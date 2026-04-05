@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/execution-context.contract.js";
 import {
     BlockedRateLimiterError,
     RATE_LIMITER_EVENTS,
@@ -27,17 +28,22 @@ import { delay as delay_ } from "@/utilities/_module.js";
 describe("class: RateLimiterFactory", () => {
     const adapter: IRateLimiterAdapter = {
         getState: function (
+            _context: IReadableContext,
             _key: string,
         ): Promise<IRateLimiterAdapterState | null> {
             throw new Error("Function not implemented.");
         },
         updateState: function (
+            _context: IReadableContext,
             _key: string,
             _limit: number,
         ): Promise<IRateLimiterAdapterState> {
             throw new Error("Function not implemented.");
         },
-        reset: function (_key: string): Promise<void> {
+        reset: function (
+            _context: IReadableContext,
+            _key: string,
+        ): Promise<void> {
             throw new Error("Function not implemented.");
         },
     };

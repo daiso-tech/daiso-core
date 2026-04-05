@@ -9,6 +9,9 @@ import {
     type beforeEach,
 } from "vitest";
 
+import { type IContext } from "@/execution-context/contracts/_module.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
     type IRateLimiterData,
     type IRateLimiterStorageAdapter,
@@ -26,6 +29,17 @@ export type RateLimiterStorageAdapterTestSuiteSettings = {
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
     createAdapter: () => Promisable<IRateLimiterStorageAdapter>;
+
+    /**
+     * @default
+     * ```ts
+     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
+     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     *
+     * new ExecutionContext(new NoOpExecutionContextAdapter())
+     * ```
+     */
+    context?: IContext;
 };
 
 /**
@@ -57,7 +71,14 @@ export type RateLimiterStorageAdapterTestSuiteSettings = {
 export function rateLimiterStorageAdapterTestSuite(
     settings: RateLimiterStorageAdapterTestSuiteSettings,
 ): void {
-    const { expect, test, createAdapter, describe, beforeEach } = settings;
+    const {
+        expect,
+        test,
+        createAdapter,
+        describe,
+        beforeEach,
+        context = new ExecutionContext(new NoOpExecutionContextAdapter()),
+    } = settings;
     let adapter: IRateLimiterStorageAdapter<string>;
 
     describe("IRateLimiterStorageAdapter tests:", () => {
@@ -74,9 +95,9 @@ export function rateLimiterStorageAdapterTestSuite(
                     new Date("2026-01-01"),
                 );
 
-                const data = await adapter.transaction(async (trx) => {
-                    await trx.upsert(key, value, expiration);
-                    return await trx.find(key);
+                const data = await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, value, expiration);
+                    return await trx.find(context, key);
                 });
 
                 expect(data).toEqual({
@@ -91,16 +112,17 @@ export function rateLimiterStorageAdapterTestSuite(
                     new Date("2026-01-01"),
                 );
 
-                const data = await adapter.transaction(async (trx) => {
+                const data = await adapter.transaction(context, async (trx) => {
                     await trx.upsert(
+                        context,
                         "a",
                         "b",
                         TimeSpan.fromMinutes(5).toEndDate(
                             new Date("2026-01-01"),
                         ),
                     );
-                    await trx.upsert(key, value, expiration);
-                    return await trx.find(key);
+                    await trx.upsert(context, key, value, expiration);
+                    return await trx.find(context, key);
                 });
 
                 expect(data).toEqual({
@@ -113,8 +135,8 @@ export function rateLimiterStorageAdapterTestSuite(
             test("Should return null when key doesnt exists", async () => {
                 const noneExistingKey = "a";
 
-                const data = await adapter.transaction(async (trx) => {
-                    return await trx.find(noneExistingKey);
+                const data = await adapter.transaction(context, async (trx) => {
+                    return await trx.find(context, noneExistingKey);
                 });
 
                 expect(data).toBeNull();
@@ -124,7 +146,7 @@ export function rateLimiterStorageAdapterTestSuite(
             test("Should return null when key doesnt exists", async () => {
                 const noneExistingKey = "a";
 
-                const data = await adapter.find(noneExistingKey);
+                const data = await adapter.find(context, noneExistingKey);
 
                 expect(data).toBeNull();
             });
@@ -137,11 +159,11 @@ export function rateLimiterStorageAdapterTestSuite(
                     new Date("2026-01-01"),
                 );
 
-                await adapter.transaction(async (trx) => {
-                    await trx.upsert(key, value, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, value, expiration);
                 });
-                await adapter.remove(key);
-                const item = await adapter.find(key);
+                await adapter.remove(context, key);
+                const item = await adapter.find(context, key);
 
                 expect(item).toBeNull();
             });

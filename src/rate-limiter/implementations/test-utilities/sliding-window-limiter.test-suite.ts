@@ -15,7 +15,11 @@ import {
     type ConstantBackoffSettingsEnum,
 } from "@/backoff-policies/_module.js";
 import { type IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
-import { type SlidingWindowLimiterSettings } from "@/rate-limiter/implementations/policies/_module.js";
+import {
+    LIMITER_POLICIES,
+    type SlidingWindowLimiterSettings,
+    type SlidingWindowLimiterSettingsEnum,
+} from "@/rate-limiter/implementations/policies/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay as delay_, type Promisable } from "@/utilities/_module.js";
@@ -45,7 +49,8 @@ export type SlidingWindowLimiterTestSuiteSettings = {
 /**
  * @group TestUtilities
  */
-const rateLimiterPolicySettings: Required<SlidingWindowLimiterSettings> = {
+const rateLimiterPolicySettings: Required<SlidingWindowLimiterSettingsEnum> = {
+    type: LIMITER_POLICIES.SLIDING_WINDOW,
     margin: TimeSpan.fromMilliseconds(25),
     window: TimeSpan.fromMilliseconds(100),
 };

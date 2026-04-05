@@ -10,6 +10,7 @@ import {
     serializeBackoffSettingsEnum,
     type BackoffSettingsEnum,
 } from "@/backoff-policies/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type IRateLimiterAdapter,
     type IRateLimiterAdapterState,
@@ -171,7 +172,10 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
         });
     }
 
-    async getState(key: string): Promise<IRateLimiterAdapterState | null> {
+    async getState(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<IRateLimiterAdapterState | null> {
         const json = await this.database.daiso_rate_limiter_get_state(
             key,
             JSON.stringify(serializeBackoffSettingsEnum(this.backoff)),
@@ -192,6 +196,7 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
     }
 
     async updateState(
+        _context: IReadableContext,
         key: string,
         limit: number,
     ): Promise<IRateLimiterAdapterState> {
@@ -212,7 +217,7 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
         };
     }
 
-    async reset(key: string): Promise<void> {
+    async reset(_context: IReadableContext, key: string): Promise<void> {
         await this.database.del(key);
     }
 }

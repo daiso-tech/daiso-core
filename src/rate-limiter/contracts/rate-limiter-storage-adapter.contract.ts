@@ -2,6 +2,7 @@
  * @module RateLimiter
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
@@ -28,7 +29,12 @@ export type IRateLimiterStorageAdapterTransaction<TType = unknown> = {
      *
      * @param key The unique identifier for the rate limiter.
      */
-    upsert(key: string, state: TType, expiration: Date): Promise<void>;
+    upsert(
+        context: IReadableContext,
+        key: string,
+        state: TType,
+        expiration: Date,
+    ): Promise<void>;
 
     /**
      * Retrieves the current rate limiter state for a given key.
@@ -36,7 +42,10 @@ export type IRateLimiterStorageAdapterTransaction<TType = unknown> = {
      * @param key The unique identifier for the rate limiter.
      * @returns Returns the rate limiter state if found, otherwise `null`.
      */
-    find(key: string): Promise<IRateLimiterData<TType> | null>;
+    find(
+        context: IReadableContext,
+        key: string,
+    ): Promise<IRateLimiterData<TType> | null>;
 };
 
 /**
@@ -52,6 +61,7 @@ export type IRateLimiterStorageAdapter<TType = unknown> = {
      * The `fn` function is given a {@link IRateLimiterStorageAdapterTransaction | `IRateLimiterStorageAdapterTransaction`} object.
      */
     transaction<TValue>(
+        context: IReadableContext,
         fn: InvokableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
@@ -64,12 +74,15 @@ export type IRateLimiterStorageAdapter<TType = unknown> = {
      * @param key The unique identifier for the rate limiter.
      * @returns Returns the rate limiter state if found, otherwise `null`.
      */
-    find(key: string): Promise<IRateLimiterData<TType> | null>;
+    find(
+        context: IReadableContext,
+        key: string,
+    ): Promise<IRateLimiterData<TType> | null>;
 
     /**
      * Removes a rate limiter from the database.
      *
      * @param key The unique identifier for the rate limiter to remove.
      */
-    remove(key: string): Promise<void>;
+    remove(context: IReadableContext, key: string): Promise<void>;
 };

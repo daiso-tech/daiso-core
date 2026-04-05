@@ -2,6 +2,7 @@
  * @module RateLimiter
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type IRateLimiterFactory,
@@ -17,7 +18,10 @@ import { TimeSpan } from "@/time-span/implementations/time-span.js";
  * @group Adapters
  */
 export class NoOpRateLimiterAdapter implements IRateLimiterAdapter {
-    getState(_key: string): Promise<IRateLimiterAdapterState> {
+    getState(
+        _context: IReadableContext,
+        _key: string,
+    ): Promise<IRateLimiterAdapterState> {
         return Promise.resolve({
             success: true,
             attempt: 1,
@@ -26,6 +30,7 @@ export class NoOpRateLimiterAdapter implements IRateLimiterAdapter {
     }
 
     updateState(
+        _context: IReadableContext,
         _key: string,
         limit: number,
     ): Promise<IRateLimiterAdapterState> {
@@ -37,7 +42,7 @@ export class NoOpRateLimiterAdapter implements IRateLimiterAdapter {
         });
     }
 
-    reset(_key: string): Promise<void> {
+    reset(_context: IReadableContext, _key: string): Promise<void> {
         return Promise.resolve();
     }
 }
