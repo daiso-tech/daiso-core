@@ -11,6 +11,7 @@ import {
     type EventListenerFn,
     type IEventBusAdapter,
 } from "@/event-bus/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -66,6 +67,7 @@ export class RedisPubSubEventBusAdapter implements IEventBusAdapter {
     };
 
     async addListener(
+        _context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
     ): Promise<void> {
@@ -79,6 +81,7 @@ export class RedisPubSubEventBusAdapter implements IEventBusAdapter {
     }
 
     async removeListener(
+        _context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
     ): Promise<void> {
@@ -88,7 +91,11 @@ export class RedisPubSubEventBusAdapter implements IEventBusAdapter {
         await this.listenerClient.unsubscribe(eventName);
     }
 
-    async dispatch(eventName: string, eventData: BaseEvent): Promise<void> {
+    async dispatch(
+        _context: IReadableContext,
+        eventName: string,
+        eventData: BaseEvent,
+    ): Promise<void> {
         await this.dispatcherClient.publish(
             eventName,
             this.serde.serialize(eventData),

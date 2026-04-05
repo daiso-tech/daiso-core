@@ -2,6 +2,7 @@
  * @module EventBus
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
@@ -24,7 +25,11 @@ export type IEventBusDispatcherAdapter = {
     /**
      * The `dispatch` method is used for dispatching one or multiple `events`.
      */
-    dispatch(eventName: string, eventData: BaseEvent): Promise<void>;
+    dispatch(
+        context: IReadableContext,
+        eventName: string,
+        eventData: BaseEvent,
+    ): Promise<void>;
 };
 
 /**
@@ -36,6 +41,7 @@ export type IEventBusListenableAdapter = {
      * The `addListener` method is used for adding {@link EventListenerFn | `listener`} for certain `eventName`.
      */
     addListener(
+        context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
     ): Promise<void>;
@@ -44,6 +50,7 @@ export type IEventBusListenableAdapter = {
      * The `removeListener` method is used for removing {@link EventListenerFn | `listener`} for certain `eventName`.
      */
     removeListener(
+        context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
     ): Promise<void>;

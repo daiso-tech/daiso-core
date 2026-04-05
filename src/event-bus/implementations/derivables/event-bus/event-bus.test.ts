@@ -7,6 +7,8 @@ import { type EventListenerFn } from "@/event-bus/contracts/event-bus-adapter.co
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/memory-event-bus-adapter/memory-event-bus-adapter.js";
 import { EventBus } from "@/event-bus/implementations/derivables/event-bus/event-bus.js";
 import { eventBusTestSuite } from "@/event-bus/implementations/test-utilities/_module.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { Namespace } from "@/namespace/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -18,6 +20,7 @@ describe("class: EventBus", () => {
     }
 
     let eventEmitter: EventEmitter;
+    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
     beforeEach(() => {
         eventEmitter = new EventEmitter();
     });
@@ -73,6 +76,7 @@ describe("class: EventBus", () => {
 
                 await eventBus.addListener("add", listener);
                 await adapter.dispatch(
+                    noOpContext,
                     namespace.create("add").toString(),
                     invalidInput,
                 );
@@ -97,6 +101,7 @@ describe("class: EventBus", () => {
 
                 await eventBus.listenOnce("add", listener);
                 await adapter.dispatch(
+                    noOpContext,
                     namespace.create("add").toString(),
                     invalidInput,
                 );
@@ -119,6 +124,7 @@ describe("class: EventBus", () => {
 
                 void eventBus.asPromise("add");
                 await adapter.dispatch(
+                    noOpContext,
                     namespace.create("add").toString(),
                     invalidInput,
                 );
@@ -145,6 +151,7 @@ describe("class: EventBus", () => {
                     listener,
                 );
                 await adapter.dispatch(
+                    noOpContext,
                     namespace.create("add").toString(),
                     invalidInput,
                 );
@@ -169,6 +176,7 @@ describe("class: EventBus", () => {
 
                 const unsubscribe = await eventBus.subscribe("add", listener);
                 await adapter.dispatch(
+                    noOpContext,
                     namespace.create("add").toString(),
                     invalidInput,
                 );
