@@ -21,7 +21,7 @@ import { resolveCacheAdapter } from "@/cache/implementations/derivables/cache/re
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
@@ -35,7 +35,6 @@ import {
     validate,
     withJitter,
     type AsyncLazyable,
-    type Invokable,
     type NoneFunc,
     type WaitUntil,
 } from "@/utilities/_module.js";
@@ -132,10 +131,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     private readonly schema: StandardSchemaV1<TType> | undefined;
     private readonly shouldValidateOutput: boolean;
     private readonly defaultJitter: number | null;
-    private readonly waitUntil: Invokable<
-        [promise: PromiseLike<unknown>],
-        void
-    >;
+    private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
 
     /**
