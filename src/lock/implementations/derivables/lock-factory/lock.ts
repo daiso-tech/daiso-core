@@ -29,7 +29,6 @@ import {
     type AsyncLazy,
     callInvokable,
     delay,
-    type Invokable,
     resolveLazyable,
     type WaitUntil,
 } from "@/utilities/_module.js";
@@ -90,10 +89,7 @@ export class Lock implements ILock {
     private readonly defaultBlockingTime: TimeSpan;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
-    private readonly waitUntil: Invokable<
-        [promise: PromiseLike<unknown>],
-        void
-    >;
+    private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
 
     constructor(settings: LockSettings) {

@@ -2,6 +2,7 @@
  * @module Semaphore
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type ISemaphoreFactory,
@@ -113,7 +114,11 @@ export class MemorySemaphoreAdapter
 
         return Promise.resolve(true);
     }
-    async release(key: string, slotId: string): Promise<boolean> {
+    async release(
+        _context: IReadableContext,
+        key: string,
+        slotId: string,
+    ): Promise<boolean> {
         const semaphore = this.map.get(key);
         if (!semaphore) {
             return Promise.resolve(false);
@@ -137,7 +142,10 @@ export class MemorySemaphoreAdapter
 
         return Promise.resolve(true);
     }
-    async forceReleaseAll(key: string): Promise<boolean> {
+    async forceReleaseAll(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
         const semaphore = this.map.get(key);
         if (semaphore === undefined) {
             return Promise.resolve(false);
@@ -152,6 +160,7 @@ export class MemorySemaphoreAdapter
     }
 
     async refresh(
+        _context: IReadableContext,
         key: string,
         slotId: string,
         ttl: TimeSpan,
@@ -183,7 +192,10 @@ export class MemorySemaphoreAdapter
         return Promise.resolve(true);
     }
 
-    async getState(key: string): Promise<ISemaphoreAdapterState | null> {
+    async getState(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<ISemaphoreAdapterState | null> {
         const semaphore = this.map.get(key);
         if (semaphore === undefined) {
             return Promise.resolve(null);

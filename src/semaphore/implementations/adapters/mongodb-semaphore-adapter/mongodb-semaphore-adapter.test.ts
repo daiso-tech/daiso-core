@@ -5,6 +5,8 @@ import {
 import { MongoClient } from "mongodb";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
     MongodbSemaphoreAdapter,
     type MongodbSemaphoreDocument,
@@ -96,6 +98,9 @@ describe("class: MongodbSemaphoreAdapter", () => {
         });
     });
     describe("Expiration tests:", () => {
+        const noOpContext = new ExecutionContext(
+            new NoOpExecutionContextAdapter(),
+        );
         test("Should set expiration to null when slot is unexpireable", async () => {
             const database = client.db("database");
             const collectionName = "locks";
@@ -112,6 +117,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const limit = 3;
 
             await adapter.acquire({
+                context: noOpContext,
                 key,
                 ttl,
                 slotId,
@@ -143,6 +149,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const ttl = TimeSpan.fromMinutes(4);
             const expiration = ttl.toEndDate();
             await adapter.acquire({
+                context: noOpContext,
                 key,
                 ttl,
                 slotId,
@@ -173,6 +180,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const slotId1 = "1";
             const ttl1 = null;
             await adapter.acquire({
+                context: noOpContext,
                 key,
                 ttl: ttl1,
                 slotId: slotId1,
@@ -182,6 +190,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const slotId2 = "2";
             const ttl2 = TimeSpan.fromMinutes(5);
             await adapter.acquire({
+                context: noOpContext,
                 key,
                 ttl: ttl2,
                 slotId: slotId2,
@@ -212,6 +221,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const slotId1 = "1";
             const ttl1 = TimeSpan.fromMinutes(5);
             await adapter.acquire({
+                context: noOpContext,
                 key,
                 ttl: ttl1,
                 slotId: slotId1,
@@ -221,6 +231,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const slotId2 = "2";
             const ttl2 = null;
             await adapter.acquire({
+                context: noOpContext,
                 key,
                 ttl: ttl2,
                 slotId: slotId2,
@@ -251,6 +262,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const slotId1 = "1";
             const ttl1 = TimeSpan.fromMinutes(5);
             await adapter.acquire({
+                context: noOpContext,
                 key,
                 ttl: ttl1,
                 slotId: slotId1,
@@ -261,6 +273,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const ttl2 = TimeSpan.fromMinutes(10);
             const expiration2 = ttl2.toEndDate();
             await adapter.acquire({
+                context: noOpContext,
                 key,
                 ttl: ttl2,
                 slotId: slotId2,
@@ -293,6 +306,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const ttl1 = TimeSpan.fromMinutes(10);
             const expiration1 = ttl1.toEndDate();
             await adapter.acquire({
+                context: noOpContext,
                 key,
                 ttl: ttl1,
                 slotId: slotId1,
@@ -302,6 +316,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const slotId2 = "2";
             const ttl2 = TimeSpan.fromMinutes(5);
             await adapter.acquire({
+                context: noOpContext,
                 key,
                 ttl: ttl2,
                 slotId: slotId2,
@@ -333,6 +348,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const slotId1 = "1";
             const ttl1 = TimeSpan.fromMinutes(10);
             await adapter.acquire({
+                context: noOpContext,
                 key,
                 ttl: ttl1,
                 slotId: slotId1,
@@ -342,14 +358,15 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const slotId2 = "2";
             const ttl2 = TimeSpan.fromMinutes(5);
             await adapter.acquire({
+                context: noOpContext,
                 key,
                 ttl: ttl2,
                 slotId: slotId2,
                 limit,
             });
 
-            await adapter.release(key, slotId1);
-            await adapter.release(key, slotId2);
+            await adapter.release(noOpContext, key, slotId1);
+            await adapter.release(noOpContext, key, slotId2);
 
             const doc = await collection.findOne({ key });
 

@@ -4,6 +4,7 @@
 
 import { MysqlAdapter, Transaction, type Kysely } from "kysely";
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type IDatabaseSemaphoreTransaction,
     type IDatabaseSemaphoreAdapter,
@@ -94,7 +95,10 @@ class DatabaseSemaphoreTransaction implements IDatabaseSemaphoreTransaction {
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
     }
 
-    async findSlots(key: string): Promise<Array<ISemaphoreSlotData>> {
+    async findSlots(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<Array<ISemaphoreSlotData>> {
         const rows = await this.kysely
             .selectFrom("semaphoreSlot")
             .where("semaphoreSlot.key", "=", key)
@@ -114,7 +118,10 @@ class DatabaseSemaphoreTransaction implements IDatabaseSemaphoreTransaction {
         });
     }
 
-    async findSemaphore(key: string): Promise<ISemaphoreData | null> {
+    async findSemaphore(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<ISemaphoreData | null> {
         const row = await this.kysely
             .selectFrom("semaphore")
             .where("semaphore.key", "=", key)
@@ -126,7 +133,11 @@ class DatabaseSemaphoreTransaction implements IDatabaseSemaphoreTransaction {
         return row;
     }
 
-    async upsertSemaphore(key: string, limit: number): Promise<void> {
+    async upsertSemaphore(
+        _context: IReadableContext,
+        key: string,
+        limit: number,
+    ): Promise<void> {
         await this.kysely
             .insertInto("semaphore")
             .values({ key, limit })
@@ -148,6 +159,7 @@ class DatabaseSemaphoreTransaction implements IDatabaseSemaphoreTransaction {
     }
 
     async upsertSlot(
+        _context: IReadableContext,
         key: string,
         slotId: string,
         expiration: Date | null,
@@ -359,6 +371,7 @@ export class KyselySemaphoreAdapter
     }
 
     async transaction<TValue>(
+        _context: IReadableContext,
         fn: InvokableFn<
             [methods: IDatabaseSemaphoreTransaction],
             Promise<TValue>
@@ -370,6 +383,7 @@ export class KyselySemaphoreAdapter
     }
 
     async removeSlot(
+        _context: IReadableContext,
         key: string,
         slotId: string,
     ): Promise<ISemaphoreSlotExpirationData | null> {
@@ -413,6 +427,7 @@ export class KyselySemaphoreAdapter
     }
 
     async removeAllSlots(
+        _context: IReadableContext,
         key: string,
     ): Promise<Array<ISemaphoreSlotExpirationData>> {
         let rows: Array<Pick<KyselySemaphoreSlotTable, "expiration">>;
@@ -451,6 +466,7 @@ export class KyselySemaphoreAdapter
     }
 
     async updateExpiration(
+        _context: IReadableContext,
         key: string,
         slotId: string,
         expiration: Date,
