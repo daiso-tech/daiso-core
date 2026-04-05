@@ -1,6 +1,7 @@
 /**
  * @module Cache
  */
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
@@ -13,30 +14,44 @@ export type ICacheAdapter<TType = unknown> = {
     /**
      * The `get` method returns the value when `key` is found otherwise null will be returned.
      */
-    get(key: string): Promise<TType | null>;
+    get(context: IReadableContext, key: string): Promise<TType | null>;
 
     /**
      * The `getAndRemove` method returns the value when `key` is found otherwise null will be returned.
      * The key will be removed after it is returned.
      */
-    getAndRemove(key: string): Promise<TType | null>;
+    getAndRemove(context: IReadableContext, key: string): Promise<TType | null>;
 
     /**
      * The `add` method adds a `value` when `key` doesn't exists. Returns `true` when key doesn't exists otherwise `false` will be returned.
      * You can provide a `ttl` value. If null is passed, the item will not expire.
      */
-    add(key: string, value: TType, ttl: TimeSpan | null): Promise<boolean>;
+    add(
+        context: IReadableContext,
+        key: string,
+        value: TType,
+        ttl: TimeSpan | null,
+    ): Promise<boolean>;
 
     /**
      * The `put` methods upsert the given key and replaces the ttl when updated.
      * Returns `true` when the key was updated otherwise `false` is returned.
      */
-    put(key: string, value: TType, ttl: TimeSpan | null): Promise<boolean>;
+    put(
+        context: IReadableContext,
+        key: string,
+        value: TType,
+        ttl: TimeSpan | null,
+    ): Promise<boolean>;
 
     /**
      * The `update` method updates the given `key` with given `value`. Returns `true` if the `key` where updated otherwise `false` will be returned.
      */
-    update(key: string, value: TType): Promise<boolean>;
+    update(
+        context: IReadableContext,
+        key: string,
+        value: TType,
+    ): Promise<boolean>;
 
     /**
      * The `increment` method increments the given `key` with given `value`. Returns `true` if the `key` where incremented otherwise `false` will be returned.
@@ -44,20 +59,27 @@ export type ICacheAdapter<TType = unknown> = {
      * An error will thrown if the key is not a number.
      * @throws {TypeError} {@link TypeError}
      */
-    increment(key: string, value: number): Promise<boolean>;
+    increment(
+        context: IReadableContext,
+        key: string,
+        value: number,
+    ): Promise<boolean>;
 
     /**
      * The `removeMany` method removes many keys. Returns `true` if one of the keys where deleted otherwise `false` is returned.
      */
-    removeMany(keys: Array<string>): Promise<boolean>;
+    removeMany(
+        context: IReadableContext,
+        keys: Array<string>,
+    ): Promise<boolean>;
 
     /**
      * The `removeAll` method removes all keys from the cache.
      */
-    removeAll(): Promise<void>;
+    removeAll(context: IReadableContext): Promise<void>;
 
     /**
      * The `removeByKeyPrefix` method removes all the keys in the cache that starts with the given `prefix`.
      */
-    removeByKeyPrefix(prefix: string): Promise<void>;
+    removeByKeyPrefix(context: IReadableContext, prefix: string): Promise<void>;
 };

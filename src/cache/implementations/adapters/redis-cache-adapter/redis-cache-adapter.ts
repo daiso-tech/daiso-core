@@ -7,6 +7,7 @@ import { ReplyError, type Redis, type Result } from "ioredis";
 import { type ICacheAdapter } from "@/cache/contracts/_module.js";
 import { RedisCacheAdapterSerde } from "@/cache/implementations/adapters/redis-cache-adapter/redis-cache-adapter-serde.js";
 import { ClearIterable } from "@/cache/implementations/adapters/redis-cache-adapter/utilities.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
@@ -96,7 +97,7 @@ export class RedisCacheAdapter<TType = unknown>
         });
     }
 
-    async get(key: string): Promise<TType | null> {
+    async get(_context: IReadableContext, key: string): Promise<TType | null> {
         const value = await this.database.get(key);
         if (value === null) {
             return null;
@@ -104,7 +105,10 @@ export class RedisCacheAdapter<TType = unknown>
         return await this.serde.deserialize(value);
     }
 
-    async getAndRemove(key: string): Promise<TType | null> {
+    async getAndRemove(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<TType | null> {
         const value = await this.database.getdel(key);
         if (value === null) {
             return null;
@@ -113,6 +117,7 @@ export class RedisCacheAdapter<TType = unknown>
     }
 
     async add(
+        _context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
@@ -136,6 +141,7 @@ export class RedisCacheAdapter<TType = unknown>
     }
 
     async put(
+        _context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
@@ -158,7 +164,11 @@ export class RedisCacheAdapter<TType = unknown>
         return result !== null;
     }
 
-    async update(key: string, value: TType): Promise<boolean> {
+    async update(
+        _context: IReadableContext,
+        key: string,
+        value: TType,
+    ): Promise<boolean> {
         const result = await this.database.set(
             key,
             this.serde.serialize(value),
@@ -167,7 +177,11 @@ export class RedisCacheAdapter<TType = unknown>
         return result === "OK";
     }
 
-    async increment(key: string, value: number): Promise<boolean> {
+    async increment(
+        _context: IReadableContext,
+        key: string,
+        value: number,
+    ): Promise<boolean> {
         try {
             const redisResult = await this.database.daiso_cache_increment(
                 key,
@@ -185,16 +199,22 @@ export class RedisCacheAdapter<TType = unknown>
         }
     }
 
-    async removeMany(keys: Array<string>): Promise<boolean> {
+    async removeMany(
+        _context: IReadableContext,
+        keys: Array<string>,
+    ): Promise<boolean> {
         const deleteResult = await this.database.del(...keys);
         return deleteResult > 0;
     }
 
-    async removeAll(): Promise<void> {
+    async removeAll(_context: IReadableContext): Promise<void> {
         await this.database.flushdb();
     }
 
-    async removeByKeyPrefix(prefix: string): Promise<void> {
+    async removeByKeyPrefix(
+        _context: IReadableContext,
+        prefix: string,
+    ): Promise<void> {
         for await (const _ of new ClearIterable(this.database, prefix)) {
             /* Empty */
         }

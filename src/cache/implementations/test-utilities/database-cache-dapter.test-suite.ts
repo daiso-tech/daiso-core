@@ -14,6 +14,8 @@ import {
     type ICacheDataExpiration,
     type IDatabaseCacheAdapter,
 } from "@/cache/contracts/_module.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type Promisable } from "@/utilities/_module.js";
 
@@ -86,22 +88,23 @@ export function databaseCacheAdapterTestSuite(
         adapter = (await createAdapter()) as IDatabaseCacheAdapter<string>;
     });
     const KEY = "a";
+    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
 
     describe("IDatabaseCacheAdapter tests:", () => {
         describe("method: find", () => {
             test("Should return null when key does not exists", async () => {
-                const data = await adapter.find(KEY);
+                const data = await adapter.find(noOpContext, KEY);
 
                 expect(data).toBeNull();
             });
             test("Should return value when key exists", async () => {
                 const value = "1";
 
-                await adapter.transaction(async (trx) => {
-                    await trx.upsert(KEY, value);
+                await adapter.transaction(noOpContext, async (trx) => {
+                    await trx.upsert(noOpContext, KEY, value);
                 });
 
-                const storedValue = await adapter.find(KEY);
+                const storedValue = await adapter.find(noOpContext, KEY);
 
                 expect(storedValue).toEqual({
                     value,
@@ -111,19 +114,25 @@ export function databaseCacheAdapterTestSuite(
         });
         describe("method: transaction find", () => {
             test("Should return null when key does not exists", async () => {
-                const data = await adapter.transaction(async (trx) => {
-                    return await trx.find(KEY);
-                });
+                const data = await adapter.transaction(
+                    noOpContext,
+                    async (trx) => {
+                        return await trx.find(noOpContext, KEY);
+                    },
+                );
 
                 expect(data).toBeNull();
             });
             test("Should return value when key exists", async () => {
                 const value = "1";
 
-                const storedValue = await adapter.transaction(async (trx) => {
-                    await trx.upsert(KEY, value);
-                    return await trx.find(KEY);
-                });
+                const storedValue = await adapter.transaction(
+                    noOpContext,
+                    async (trx) => {
+                        await trx.upsert(noOpContext, KEY, value);
+                        return await trx.find(noOpContext, KEY);
+                    },
+                );
 
                 expect(storedValue).toEqual({
                     value,
@@ -136,11 +145,11 @@ export function databaseCacheAdapterTestSuite(
                 const value = "a-1";
                 const expiration = null;
 
-                await adapter.transaction(async (trx) => {
-                    await trx.upsert(KEY, value, expiration);
+                await adapter.transaction(noOpContext, async (trx) => {
+                    await trx.upsert(noOpContext, KEY, value, expiration);
                 });
 
-                const storedValue = await adapter.find(KEY);
+                const storedValue = await adapter.find(noOpContext, KEY);
 
                 expect(storedValue).toEqual({
                     value,
@@ -153,11 +162,11 @@ export function databaseCacheAdapterTestSuite(
                 const expiration =
                     TimeSpan.fromSeconds(10).toEndDate(currentDate);
 
-                await adapter.transaction(async (trx) => {
-                    await trx.upsert(KEY, value, expiration);
+                await adapter.transaction(noOpContext, async (trx) => {
+                    await trx.upsert(noOpContext, KEY, value, expiration);
                 });
 
-                const storedValue = await adapter.find(KEY);
+                const storedValue = await adapter.find(noOpContext, KEY);
 
                 expect(storedValue).toEqual({
                     value,
@@ -167,11 +176,11 @@ export function databaseCacheAdapterTestSuite(
             test("Should add without expiration when key doesnt exists and expiration is undefined", async () => {
                 const value = "a-1";
 
-                await adapter.transaction(async (trx) => {
-                    await trx.upsert(KEY, value);
+                await adapter.transaction(noOpContext, async (trx) => {
+                    await trx.upsert(noOpContext, KEY, value);
                 });
 
-                const storedValue = await adapter.find(KEY);
+                const storedValue = await adapter.find(noOpContext, KEY);
 
                 expect(storedValue).toEqual({
                     value,
@@ -185,12 +194,12 @@ export function databaseCacheAdapterTestSuite(
                     TimeSpan.fromSeconds(6).toEndDate(currentDate);
 
                 const newValue = "2";
-                await adapter.transaction(async (trx) => {
-                    await trx.upsert(KEY, value, expiration);
-                    await trx.upsert(KEY, newValue);
+                await adapter.transaction(noOpContext, async (trx) => {
+                    await trx.upsert(noOpContext, KEY, value, expiration);
+                    await trx.upsert(noOpContext, KEY, newValue);
                 });
 
-                const storedValue = await adapter.find(KEY);
+                const storedValue = await adapter.find(noOpContext, KEY);
 
                 expect(storedValue).toEqual({
                     value: newValue,
@@ -206,12 +215,12 @@ export function databaseCacheAdapterTestSuite(
                 const newValue = "2";
                 const newExpiration = null;
 
-                await adapter.transaction(async (trx) => {
-                    await trx.upsert(KEY, value, expiration);
-                    await trx.upsert(KEY, newValue, newExpiration);
+                await adapter.transaction(noOpContext, async (trx) => {
+                    await trx.upsert(noOpContext, KEY, value, expiration);
+                    await trx.upsert(noOpContext, KEY, newValue, newExpiration);
                 });
 
-                const storedValue = await adapter.find(KEY);
+                const storedValue = await adapter.find(noOpContext, KEY);
 
                 expect(storedValue).toEqual({
                     value: newValue,
@@ -228,12 +237,12 @@ export function databaseCacheAdapterTestSuite(
                 const newExpiration = TimeSpan.fromSeconds(6).toEndDate(
                     new Date("2027-01-17"),
                 );
-                await adapter.transaction(async (trx) => {
-                    await trx.upsert(KEY, value, expiration);
-                    await trx.upsert(KEY, newValue, newExpiration);
+                await adapter.transaction(noOpContext, async (trx) => {
+                    await trx.upsert(noOpContext, KEY, value, expiration);
+                    await trx.upsert(noOpContext, KEY, newValue, newExpiration);
                 });
 
-                const storedValue = await adapter.find(KEY);
+                const storedValue = await adapter.find(noOpContext, KEY);
 
                 expect(storedValue).toEqual({
                     value: newValue,
@@ -242,8 +251,13 @@ export function databaseCacheAdapterTestSuite(
             });
         });
         describe("method: removeMany", () => {
+            test("Should return empty array when given none existing keys", async () => {
+                const data = await adapter.removeMany(noOpContext, [KEY]);
+
+                expect(data).toEqual([]);
+            });
             test("Should return empty array when given empty array as keys", async () => {
-                const data = await adapter.removeMany([KEY]);
+                const data = await adapter.removeMany(noOpContext, []);
 
                 expect(data).toEqual([]);
             });
@@ -261,12 +275,12 @@ export function databaseCacheAdapterTestSuite(
 
                 const noneExistingKey = "c";
 
-                await adapter.transaction(async (trx) => {
-                    await trx.upsert(key1, value1, expiration1);
-                    await trx.upsert(key2, value2, expiration2);
+                await adapter.transaction(noOpContext, async (trx) => {
+                    await trx.upsert(noOpContext, key1, value1, expiration1);
+                    await trx.upsert(noOpContext, key2, value2, expiration2);
                 });
 
-                const data = await adapter.removeMany([
+                const data = await adapter.removeMany(noOpContext, [
                     key1,
                     noneExistingKey,
                     key2,
@@ -295,15 +309,15 @@ export function databaseCacheAdapterTestSuite(
                 const value2 = "2";
                 const expiration2 = null;
 
-                await adapter.transaction(async (trx) => {
-                    await trx.upsert(key1, value1, expiration1);
-                    await trx.upsert(key2, value2, expiration2);
+                await adapter.transaction(noOpContext, async (trx) => {
+                    await trx.upsert(noOpContext, key1, value1, expiration1);
+                    await trx.upsert(noOpContext, key2, value2, expiration2);
                 });
 
-                await adapter.removeMany([key1, key2]);
+                await adapter.removeMany(noOpContext, [key1, key2]);
 
-                const storedKey1 = await adapter.find(key1);
-                const storedKey2 = await adapter.find(key2);
+                const storedKey1 = await adapter.find(noOpContext, key1);
+                const storedKey2 = await adapter.find(noOpContext, key2);
 
                 expect(storedKey1).toBeNull();
                 expect(storedKey2).toBeNull();
@@ -327,17 +341,17 @@ export function databaseCacheAdapterTestSuite(
                 const value3 = "3";
                 const expiration3 = null;
 
-                await adapter.transaction(async (trx) => {
-                    await trx.upsert(key1, value1, expiration1);
-                    await trx.upsert(key2, value2, expiration2);
-                    await trx.upsert(key3, value3, expiration3);
+                await adapter.transaction(noOpContext, async (trx) => {
+                    await trx.upsert(noOpContext, key1, value1, expiration1);
+                    await trx.upsert(noOpContext, key2, value2, expiration2);
+                    await trx.upsert(noOpContext, key3, value3, expiration3);
                 });
 
-                await adapter.removeAll();
+                await adapter.removeAll(noOpContext);
 
-                const storedValue1 = await adapter.find(key1);
-                const storedValue2 = await adapter.find(key2);
-                const storedValue3 = await adapter.find(key3);
+                const storedValue1 = await adapter.find(noOpContext, key1);
+                const storedValue2 = await adapter.find(noOpContext, key2);
+                const storedValue3 = await adapter.find(noOpContext, key3);
 
                 expect(storedValue1).toBeNull();
                 expect(storedValue2).toBeNull();
@@ -356,18 +370,18 @@ export function databaseCacheAdapterTestSuite(
                 const valueB1 = "b-1";
                 const valueB2 = "b-2";
 
-                await adapter.transaction(async (trx) => {
-                    await trx.upsert(keyA1, valueA1);
-                    await trx.upsert(keyA2, valueA2);
-                    await trx.upsert(keyB1, valueB1);
-                    await trx.upsert(keyB2, valueB2);
+                await adapter.transaction(noOpContext, async (trx) => {
+                    await trx.upsert(noOpContext, keyA1, valueA1);
+                    await trx.upsert(noOpContext, keyA2, valueA2);
+                    await trx.upsert(noOpContext, keyB1, valueB1);
+                    await trx.upsert(noOpContext, keyB2, valueB2);
                 });
-                await adapter.removeByKeyPrefix("a/");
+                await adapter.removeByKeyPrefix(noOpContext, "a/");
 
-                const storedValueA1 = await adapter.find(keyA1);
-                const storedValueA2 = await adapter.find(keyA2);
-                const storedValueB1 = await adapter.find(keyB1);
-                const storedValueB2 = await adapter.find(keyB2);
+                const storedValueA1 = await adapter.find(noOpContext, keyA1);
+                const storedValueA2 = await adapter.find(noOpContext, keyA2);
+                const storedValueB1 = await adapter.find(noOpContext, keyB1);
+                const storedValueB2 = await adapter.find(noOpContext, keyB2);
 
                 expect(storedValueA1).toBeNull();
                 expect(storedValueA2).toBeNull();

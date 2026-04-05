@@ -2,6 +2,7 @@
  * @module Cache
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
@@ -18,8 +19,16 @@ export type ICacheData<TType = unknown> = {
  * @group Contracts
  */
 export type IDatabaseCacheTransaction<TType = unknown> = {
-    find(key: string): Promise<ICacheData<TType> | null>;
-    upsert(key: string, value: TType, expiration?: Date | null): Promise<void>;
+    find(
+        context: IReadableContext,
+        key: string,
+    ): Promise<ICacheData<TType> | null>;
+    upsert(
+        context: IReadableContext,
+        key: string,
+        value: TType,
+        expiration?: Date | null,
+    ): Promise<void>;
 };
 
 /**
@@ -38,26 +47,37 @@ export type ICacheDataExpiration = {
  * @group Contracts
  */
 export type IDatabaseCacheAdapter<TType = unknown> = {
-    find(key: string): Promise<ICacheData<TType> | null>;
+    find(
+        context: IReadableContext,
+        key: string,
+    ): Promise<ICacheData<TType> | null>;
 
     transaction<TValue>(
+        context: IReadableContext,
         trxFn: InvokableFn<
             [trx: IDatabaseCacheTransaction<TType>],
             Promise<TValue>
         >,
     ): Promise<TValue>;
 
-    update(key: string, value: TType): Promise<ICacheDataExpiration | null>;
+    update(
+        context: IReadableContext,
+        key: string,
+        value: TType,
+    ): Promise<ICacheDataExpiration | null>;
 
-    removeMany(keys: Array<string>): Promise<Array<ICacheDataExpiration>>;
+    removeMany(
+        context: IReadableContext,
+        keys: Array<string>,
+    ): Promise<Array<ICacheDataExpiration>>;
 
     /**
      * The `removeAll` method removes all keys from the cache.
      */
-    removeAll(): Promise<void>;
+    removeAll(context: IReadableContext): Promise<void>;
 
     /**
      * The `removeByKeyPrefix` method removes all the keys in the cache that starts with the given `prefix`.
      */
-    removeByKeyPrefix(prefix: string): Promise<void>;
+    removeByKeyPrefix(context: IReadableContext, prefix: string): Promise<void>;
 };

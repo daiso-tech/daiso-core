@@ -21,6 +21,9 @@ import { resolveCacheAdapter } from "@/cache/implementations/derivables/cache/re
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -96,6 +99,17 @@ export type CacheSettingsBase<TType = unknown> = {
      * ```
      */
     waitUntil?: WaitUntil;
+
+    /**
+     * @default
+     * ```ts
+     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
+     * import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter"
+     *
+     * new ExecutionContext(new AlsExecutionContextAdapter())
+     * ```
+     */
+    executionContext?: IExecutionContext;
 };
 
 /**
@@ -122,6 +136,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         [promise: PromiseLike<unknown>],
         void
     >;
+    private readonly executionContext: IExecutionContext;
 
     /**
      *
@@ -164,8 +179,12 @@ export class Cache<TType = unknown> implements ICache<TType> {
             defaultTtl = null,
             defaultJitter = 0.2,
             waitUntil = defaultWaitUntil,
+            executionContext = new ExecutionContext(
+                new NoOpExecutionContextAdapter(),
+            ),
         } = settings;
 
+        this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.shouldValidateOutput = shouldValidateOutput;
         this.schema = schema;
@@ -194,7 +213,10 @@ export class Cache<TType = unknown> implements ICache<TType> {
     async get(key: string): Promise<TType | null> {
         const keyObj = this.namespace.create(key);
         try {
-            const value = await this.adapter.get(keyObj.toString());
+            const value = await this.adapter.get(
+                this.executionContext,
+                keyObj.toString(),
+            );
             if (this.shouldValidateOutput && value !== null) {
                 await validate(this.schema, value);
             }
@@ -241,7 +263,10 @@ export class Cache<TType = unknown> implements ICache<TType> {
     async getAndRemove(key: string): Promise<TType | null> {
         const keyObj = this.namespace.create(key);
         try {
-            const value = await this.adapter.getAndRemove(keyObj.toString());
+            const value = await this.adapter.getAndRemove(
+                this.executionContext,
+                keyObj.toString(),
+            );
             if (this.shouldValidateOutput && value !== null) {
                 await validate(this.schema, value);
             }
@@ -295,7 +320,10 @@ export class Cache<TType = unknown> implements ICache<TType> {
     ): Promise<TType> {
         const ttl = this.resolveCacheWriteSettings(settings);
         const keyObj = this.namespace.create(key);
-        const value = await this.adapter.get(keyObj.toString());
+        const value = await this.adapter.get(
+            this.executionContext,
+            keyObj.toString(),
+        );
         if (this.shouldValidateOutput && value !== null) {
             await validate(this.schema, value);
         }
@@ -303,6 +331,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
             const resolvedValueToAdd = await resolveAsyncLazyable(valueToAdd);
             await validate(this.schema, resolvedValueToAdd);
             const hasAdded = await this.adapter.add(
+                this.executionContext,
                 keyObj.toString(),
                 resolvedValueToAdd,
                 ttl,
@@ -367,6 +396,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         try {
             await validate(this.schema, value);
             const hasAdded = await this.adapter.add(
+                this.executionContext,
                 keyObj.toString(),
                 value,
                 ttl,
@@ -424,6 +454,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         try {
             await validate(this.schema, value);
             const hasUpdated = await this.adapter.put(
+                this.executionContext,
                 keyObj.toString(),
                 value,
                 ttl,
@@ -466,6 +497,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         try {
             await validate(this.schema, value);
             const hasUpdated = await this.adapter.update(
+                this.executionContext,
                 keyObj.toString(),
                 value,
             );
@@ -514,6 +546,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         const keyObj = this.namespace.create(key);
         try {
             const hasUpdated = await this.adapter.increment(
+                this.executionContext,
                 keyObj.toString(),
                 value,
             );
@@ -591,9 +624,10 @@ export class Cache<TType = unknown> implements ICache<TType> {
     async remove(key: string): Promise<boolean> {
         const keyObj = this.namespace.create(key);
         try {
-            const hasRemoved = await this.adapter.removeMany([
-                keyObj.toString(),
-            ]);
+            const hasRemoved = await this.adapter.removeMany(
+                this.executionContext,
+                [keyObj.toString()],
+            );
             if (hasRemoved) {
                 callInvokable(
                     this.waitUntil,
@@ -643,6 +677,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         const keyObjArr = keysArr.map((key) => this.namespace.create(key));
         try {
             const hasRemovedAtLeastOne = await this.adapter.removeMany(
+                this.executionContext,
                 keyObjArr.map((keyObj) => keyObj.toString()),
             );
             if (hasRemovedAtLeastOne) {
@@ -698,7 +733,10 @@ export class Cache<TType = unknown> implements ICache<TType> {
 
     async clear(): Promise<void> {
         try {
-            await this.adapter.removeByKeyPrefix(this.namespace.toString());
+            await this.adapter.removeByKeyPrefix(
+                this.executionContext,
+                this.namespace.toString(),
+            );
             callInvokable(
                 this.waitUntil,
                 this.eventBus.dispatch(CACHE_EVENTS.CLEARED, {}),
