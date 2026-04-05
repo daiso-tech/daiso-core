@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type WritableFileAdapterContent } from "@/file-storage/contracts/file-storage-adapter.contract.js";
 import {
     MemoryFileStorageAdapter,
@@ -10,6 +12,7 @@ import { fileStorageAdapterTestSuite } from "@/file-storage/implementations/test
 describe("class: MemoryFileStorageAdapter", () => {
     let map = new Map<string, MemoryFile>();
     let adapter: MemoryFileStorageAdapter;
+    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
     beforeEach(() => {
         map = new Map();
         adapter = new MemoryFileStorageAdapter(map);
@@ -37,10 +40,10 @@ describe("class: MemoryFileStorageAdapter", () => {
                 contentDisposition: null,
                 cacheControl: null,
             };
-            await adapter.add("a", content);
-            await adapter.add("a", content);
-            await adapter.add("b", content);
-            await adapter.add("b", content);
+            await adapter.add(noOpContext, "a", content);
+            await adapter.add(noOpContext, "a", content);
+            await adapter.add(noOpContext, "b", content);
+            await adapter.add(noOpContext, "b", content);
 
             await adapter.deInit();
 

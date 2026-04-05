@@ -3,6 +3,7 @@
  */
 
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import {
     type IFileStorage,
     type ISignedFileStorageAdapter,
@@ -157,6 +158,15 @@ export class FileStorageResolver<TAdapters extends string = string>
         return new FileStorageResolver({
             ...this.settings,
             waitUntil,
+        });
+    }
+
+    setExecutionContext(
+        executionContext: IExecutionContext,
+    ): FileStorageResolver<TAdapters> {
+        return new FileStorageResolver({
+            ...this.settings,
+            executionContext,
         });
     }
 

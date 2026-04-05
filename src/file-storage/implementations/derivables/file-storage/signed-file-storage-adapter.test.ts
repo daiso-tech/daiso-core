@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
     FILE_WRITE_ENUM,
     type FileAdapterMetadata,
@@ -17,104 +20,136 @@ import { SignedFileStorageAdapter } from "@/file-storage/implementations/derivab
 describe("class: SignedFileStorageAdapter", () => {
     let signedFileStorageAdapter: SignedFileStorageAdapter;
     const fileStorageAdapter: IFileStorageAdapter = {
-        exists: function (_key: string): Promise<boolean> {
+        exists: function (
+            _context: IReadableContext,
+            _key: string,
+        ): Promise<boolean> {
             return Promise.resolve(false);
         },
-        getStream: function (_key: string): Promise<FileAdapterStream | null> {
+        getStream: function (
+            _context: IReadableContext,
+            _key: string,
+        ): Promise<FileAdapterStream | null> {
             return Promise.resolve(null);
         },
-        getBytes: function (_key: string): Promise<Uint8Array | null> {
+        getBytes: function (
+            _context: IReadableContext,
+            _key: string,
+        ): Promise<Uint8Array | null> {
             return Promise.resolve(null);
         },
         getMetaData: function (
+            _context: IReadableContext,
             _key: string,
         ): Promise<FileAdapterMetadata | null> {
             return Promise.resolve(null);
         },
         add: function (
+            _context: IReadableContext,
             _key: string,
             _content: WritableFileAdapterContent,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         addStream: function (
+            _context: IReadableContext,
             _key: string,
             _stream: WritableFileAdapterStream,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         update: function (
+            _context: IReadableContext,
             _key: string,
             _content: WritableFileAdapterContent,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         updateStream: function (
+            _context: IReadableContext,
             _key: string,
             _stream: WritableFileAdapterStream,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         put: function (
+            _context: IReadableContext,
             _key: string,
             _content: WritableFileAdapterContent,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         putStream: function (
+            _context: IReadableContext,
             _key: string,
             _stream: WritableFileAdapterStream,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         copy: function (
+            _context: IReadableContext,
             _source: string,
             _destination: string,
         ): Promise<FileWriteEnum> {
             return Promise.resolve(FILE_WRITE_ENUM.NOT_FOUND);
         },
         copyAndReplace: function (
+            _context: IReadableContext,
             _source: string,
             _destination: string,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         move: function (
+            _context: IReadableContext,
             _source: string,
             _destination: string,
         ): Promise<FileWriteEnum> {
             return Promise.resolve(FILE_WRITE_ENUM.NOT_FOUND);
         },
         moveAndReplace: function (
+            _context: IReadableContext,
             _source: string,
             _destination: string,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
-        removeMany: function (_keys: Array<string>): Promise<boolean> {
+        removeMany: function (
+            _context: IReadableContext,
+            _keys: Array<string>,
+        ): Promise<boolean> {
             return Promise.resolve(false);
         },
-        removeByPrefix: function (_prefix: string): Promise<void> {
+        removeByPrefix: function (
+            _context: IReadableContext,
+            _prefix: string,
+        ): Promise<void> {
             return Promise.resolve();
         },
     };
     const fileUrlAdapter: IFileUrlAdapter = {
-        getPublicUrl: function (_key: string): Promise<string | null> {
+        getPublicUrl: function (
+            _context: IReadableContext,
+            _key: string,
+        ): Promise<string | null> {
             return Promise.resolve(null);
         },
         getSignedDownloadUrl: function (
+            _context: IReadableContext,
             _key: string,
             _settings: FileAdapterSignedDownloadUrlSettings,
         ): Promise<string | null> {
             return Promise.resolve(null);
         },
         getSignedUploadUrl: function (
+            _context: IReadableContext,
             _key: string,
             _settings: FileAdapterSignedUploadUrlSettings,
         ): Promise<string> {
             return Promise.resolve("");
         },
     };
+    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
     beforeEach(() => {
         vi.clearAllMocks();
         signedFileStorageAdapter = new SignedFileStorageAdapter(
@@ -127,7 +162,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.exists", async () => {
             const existsSpy = vi.spyOn(fileStorageAdapter, "exists");
 
-            await signedFileStorageAdapter.exists("a");
+            await signedFileStorageAdapter.exists(noOpContext, "a");
 
             expect(existsSpy).toHaveBeenCalledOnce();
         });
@@ -136,7 +171,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.getStream", async () => {
             const getStreamSpy = vi.spyOn(fileStorageAdapter, "getStream");
 
-            await signedFileStorageAdapter.getStream("a");
+            await signedFileStorageAdapter.getStream(noOpContext, "a");
 
             expect(getStreamSpy).toHaveBeenCalledOnce();
         });
@@ -145,7 +180,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.getBytes", async () => {
             const getBytesSpy = vi.spyOn(fileStorageAdapter, "getBytes");
 
-            await signedFileStorageAdapter.getBytes("a");
+            await signedFileStorageAdapter.getBytes(noOpContext, "a");
 
             expect(getBytesSpy).toHaveBeenCalledOnce();
         });
@@ -154,7 +189,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.getMetaData", async () => {
             const getMetaDataSpy = vi.spyOn(fileStorageAdapter, "getMetaData");
 
-            await signedFileStorageAdapter.getMetaData("a");
+            await signedFileStorageAdapter.getMetaData(noOpContext, "a");
 
             expect(getMetaDataSpy).toHaveBeenCalledOnce();
         });
@@ -163,7 +198,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.add", async () => {
             const addSpy = vi.spyOn(fileStorageAdapter, "add");
 
-            await signedFileStorageAdapter.add("a", {
+            await signedFileStorageAdapter.add(noOpContext, "a", {
                 contentType: "",
                 contentLanguage: null,
                 contentEncoding: null,
@@ -180,7 +215,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.addStream", async () => {
             const addStreamSpy = vi.spyOn(fileStorageAdapter, "addStream");
 
-            await signedFileStorageAdapter.addStream("a", {
+            await signedFileStorageAdapter.addStream(noOpContext, "a", {
                 contentType: "",
                 contentLanguage: null,
                 contentEncoding: null,
@@ -202,7 +237,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.update", async () => {
             const updateSpy = vi.spyOn(fileStorageAdapter, "update");
 
-            await signedFileStorageAdapter.update("a", {
+            await signedFileStorageAdapter.update(noOpContext, "a", {
                 contentType: "",
                 contentLanguage: null,
                 contentEncoding: null,
@@ -222,7 +257,7 @@ describe("class: SignedFileStorageAdapter", () => {
                 "updateStream",
             );
 
-            await signedFileStorageAdapter.updateStream("a", {
+            await signedFileStorageAdapter.updateStream(noOpContext, "a", {
                 contentType: "",
                 contentLanguage: null,
                 contentEncoding: null,
@@ -245,7 +280,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.put", async () => {
             const putSpy = vi.spyOn(fileStorageAdapter, "put");
 
-            await signedFileStorageAdapter.put("a", {
+            await signedFileStorageAdapter.put(noOpContext, "a", {
                 contentType: "",
                 contentLanguage: null,
                 contentEncoding: null,
@@ -262,7 +297,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.putStream", async () => {
             const putStreamSpy = vi.spyOn(fileStorageAdapter, "putStream");
 
-            await signedFileStorageAdapter.putStream("a", {
+            await signedFileStorageAdapter.putStream(noOpContext, "a", {
                 contentType: "",
                 contentLanguage: null,
                 contentEncoding: null,
@@ -285,7 +320,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.copy", async () => {
             const copySpy = vi.spyOn(fileStorageAdapter, "copy");
 
-            await signedFileStorageAdapter.copy("a", "b");
+            await signedFileStorageAdapter.copy(noOpContext, "a", "b");
 
             expect(copySpy).toHaveBeenCalledOnce();
         });
@@ -297,7 +332,11 @@ describe("class: SignedFileStorageAdapter", () => {
                 "copyAndReplace",
             );
 
-            await signedFileStorageAdapter.copyAndReplace("a", "b");
+            await signedFileStorageAdapter.copyAndReplace(
+                noOpContext,
+                "a",
+                "b",
+            );
 
             expect(copyAndReplaceSpy).toHaveBeenCalledOnce();
         });
@@ -306,7 +345,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.move", async () => {
             const moveSpy = vi.spyOn(fileStorageAdapter, "move");
 
-            await signedFileStorageAdapter.move("a", "b");
+            await signedFileStorageAdapter.move(noOpContext, "a", "b");
 
             expect(moveSpy).toHaveBeenCalledOnce();
         });
@@ -318,7 +357,11 @@ describe("class: SignedFileStorageAdapter", () => {
                 "moveAndReplace",
             );
 
-            await signedFileStorageAdapter.moveAndReplace("a", "b");
+            await signedFileStorageAdapter.moveAndReplace(
+                noOpContext,
+                "a",
+                "b",
+            );
 
             expect(moveAndReplaceSpy).toHaveBeenCalledOnce();
         });
@@ -327,7 +370,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.removeMany", async () => {
             const removeManySpy = vi.spyOn(fileStorageAdapter, "removeMany");
 
-            await signedFileStorageAdapter.removeMany(["a"]);
+            await signedFileStorageAdapter.removeMany(noOpContext, ["a"]);
 
             expect(removeManySpy).toHaveBeenCalledOnce();
         });
@@ -339,7 +382,7 @@ describe("class: SignedFileStorageAdapter", () => {
                 "removeByPrefix",
             );
 
-            await signedFileStorageAdapter.removeByPrefix("a");
+            await signedFileStorageAdapter.removeByPrefix(noOpContext, "a");
 
             expect(removeManySpy).toHaveBeenCalledOnce();
         });
@@ -348,7 +391,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileUrlAdapter.getPublicUrl", async () => {
             const getPublicUrlSpy = vi.spyOn(fileUrlAdapter, "getPublicUrl");
 
-            await signedFileStorageAdapter.getPublicUrl("a");
+            await signedFileStorageAdapter.getPublicUrl(noOpContext, "a");
 
             expect(getPublicUrlSpy).toHaveBeenCalledOnce();
         });
@@ -360,11 +403,15 @@ describe("class: SignedFileStorageAdapter", () => {
                 "getSignedDownloadUrl",
             );
 
-            await signedFileStorageAdapter.getSignedDownloadUrl("a", {
-                contentDisposition: null,
-                contentType: null,
-                expirationInSeconds: 5000,
-            });
+            await signedFileStorageAdapter.getSignedDownloadUrl(
+                noOpContext,
+                "a",
+                {
+                    contentDisposition: null,
+                    contentType: null,
+                    expirationInSeconds: 5000,
+                },
+            );
 
             expect(getSignedDownloadUrlSpy).toHaveBeenCalledOnce();
         });
@@ -376,10 +423,14 @@ describe("class: SignedFileStorageAdapter", () => {
                 "getSignedUploadUrl",
             );
 
-            await signedFileStorageAdapter.getSignedUploadUrl("a", {
-                contentType: null,
-                expirationInSeconds: 5000,
-            });
+            await signedFileStorageAdapter.getSignedUploadUrl(
+                noOpContext,
+                "a",
+                {
+                    contentType: null,
+                    expirationInSeconds: 5000,
+                },
+            );
 
             expect(getSignedUploadUrlSpy).toHaveBeenCalledOnce();
         });

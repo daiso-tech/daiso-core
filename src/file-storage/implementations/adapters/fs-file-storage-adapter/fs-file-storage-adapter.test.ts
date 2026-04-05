@@ -5,6 +5,8 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type FileAdapterMetadata } from "@/file-storage/contracts/file-storage-adapter.contract.js";
 import { FsFileStorageAdapter } from "@/file-storage/implementations/adapters/fs-file-storage-adapter/_module.js";
 import { fileStorageAdapterTestSuite } from "@/file-storage/implementations/test-utilities/_module.js";
@@ -12,6 +14,7 @@ import { fileStorageAdapterTestSuite } from "@/file-storage/implementations/test
 describe("class: FsFileStorageAdapter", () => {
     let adapter: FsFileStorageAdapter;
     let folderPath: string;
+    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
     beforeEach(async () => {
         folderPath = await mkdtemp(
             join(tmpdir(), "fs-file-storage-adapter-tests-"),
@@ -36,7 +39,10 @@ describe("class: FsFileStorageAdapter", () => {
         test("Should return null when key does not exists", async () => {
             const noneExistingKey = "a";
 
-            const result = await adapter.getMetaData(noneExistingKey);
+            const result = await adapter.getMetaData(
+                noOpContext,
+                noneExistingKey,
+            );
 
             expect(result).toBeNull();
         });
@@ -45,7 +51,7 @@ describe("class: FsFileStorageAdapter", () => {
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
             const contentType = "text/plain";
-            await adapter.add(key, {
+            await adapter.add(noOpContext, key, {
                 data,
                 cacheControl: null,
                 contentDisposition: null,
@@ -54,7 +60,7 @@ describe("class: FsFileStorageAdapter", () => {
                 contentType,
                 fileSizeInBytes: data.length,
             });
-            const result = await adapter.getMetaData(key);
+            const result = await adapter.getMetaData(noOpContext, key);
 
             expect(result).toEqual({
                 etag: expect.any(String) as string,
@@ -68,7 +74,7 @@ describe("class: FsFileStorageAdapter", () => {
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
             const contentType = "application/json";
-            await adapter.add(key, {
+            await adapter.add(noOpContext, key, {
                 data,
                 cacheControl: null,
                 contentDisposition: null,
@@ -77,7 +83,7 @@ describe("class: FsFileStorageAdapter", () => {
                 contentType,
                 fileSizeInBytes: data.length,
             });
-            const result = await adapter.getMetaData(key);
+            const result = await adapter.getMetaData(noOpContext, key);
 
             expect(result).toEqual({
                 etag: expect.any(String) as string,
@@ -91,7 +97,7 @@ describe("class: FsFileStorageAdapter", () => {
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
             const contentType = "application/json";
-            await adapter.add(key, {
+            await adapter.add(noOpContext, key, {
                 data,
                 cacheControl: null,
                 contentDisposition: null,
@@ -100,7 +106,7 @@ describe("class: FsFileStorageAdapter", () => {
                 contentType,
                 fileSizeInBytes: data.length,
             });
-            const result = await adapter.getMetaData(key);
+            const result = await adapter.getMetaData(noOpContext, key);
 
             expect(result).toEqual({
                 etag: expect.any(String) as string,

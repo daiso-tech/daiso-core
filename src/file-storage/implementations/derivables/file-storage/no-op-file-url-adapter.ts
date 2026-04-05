@@ -1,6 +1,7 @@
 /**
  * @module FileStorage
  */
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type FileAdapterSignedDownloadUrlSettings,
     type FileAdapterSignedUploadUrlSettings,
@@ -11,11 +12,15 @@ import {
  * @internal
  */
 export class NoOpFileUrlAdapter implements IFileUrlAdapter {
-    getPublicUrl(_key: string): Promise<string | null> {
+    getPublicUrl(
+        _context: IReadableContext,
+        _key: string,
+    ): Promise<string | null> {
         return Promise.resolve(null);
     }
 
     getSignedDownloadUrl(
+        _context: IReadableContext,
         _key: string,
         _settings: FileAdapterSignedDownloadUrlSettings,
     ): Promise<string | null> {
@@ -23,6 +28,7 @@ export class NoOpFileUrlAdapter implements IFileUrlAdapter {
     }
 
     getSignedUploadUrl(
+        _context: IReadableContext,
         _key: string,
         _settings: FileAdapterSignedUploadUrlSettings,
     ): Promise<string> {
