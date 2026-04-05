@@ -2,6 +2,7 @@
  * @module SharedLock
  */
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type ISharedLockFactoryResolver,
@@ -134,6 +135,15 @@ export class SharedLockFactoryResolver<TAdapters extends string>
         return new SharedLockFactoryResolver({
             ...this.settings,
             waitUntil,
+        });
+    }
+
+    setExecutionContext(
+        executionContext: IExecutionContext,
+    ): SharedLockFactoryResolver<TAdapters> {
+        return new SharedLockFactoryResolver({
+            ...this.settings,
+            executionContext,
         });
     }
 

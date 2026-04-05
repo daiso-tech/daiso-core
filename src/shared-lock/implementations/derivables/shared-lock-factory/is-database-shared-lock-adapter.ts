@@ -19,6 +19,6 @@ export function isDatabaseSharedLockAdapter(
 
     return (
         typeof adapter_["transaction"] === "function" &&
-        adapter_["transaction"].length === 1
+        adapter_["transaction"].length === 2
     );
 }

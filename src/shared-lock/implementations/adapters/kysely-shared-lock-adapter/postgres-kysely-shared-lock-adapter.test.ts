@@ -11,6 +11,8 @@ import {
 import { Pool } from "pg";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
     KyselySharedLockAdapter,
     type KyselySharedLockTables,
@@ -23,6 +25,7 @@ describe("postgres class: KyselySharedLockAdapter", () => {
     let database: Pool;
     let container: StartedPostgreSqlContainer;
     let kysely: Kysely<KyselySharedLockTables>;
+    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
 
     beforeEach(async () => {
         container = await new PostgreSqlContainer("postgres:17.5").start();
@@ -66,18 +69,21 @@ describe("postgres class: KyselySharedLockAdapter", () => {
             });
             await adapter.init();
 
-            await adapter.transaction(async (trx) => {
+            await adapter.transaction(noOpContext, async (trx) => {
                 await trx.writer.upsert(
+                    noOpContext,
                     "a",
                     "owner",
                     TimeSpan.fromMilliseconds(50).toStartDate(),
                 );
                 await trx.writer.upsert(
+                    noOpContext,
                     "b",
                     "owner",
                     TimeSpan.fromMilliseconds(50).toStartDate(),
                 );
                 await trx.writer.upsert(
+                    noOpContext,
                     "c",
                     "owner",
                     TimeSpan.fromMilliseconds(50).toEndDate(),
@@ -87,18 +93,18 @@ describe("postgres class: KyselySharedLockAdapter", () => {
             await adapter.removeAllExpired();
 
             expect(
-                await adapter.transaction(async (trx) => {
-                    return trx.writer.find("a");
+                await adapter.transaction(noOpContext, async (trx) => {
+                    return trx.writer.find(noOpContext, "a");
                 }),
             ).toBeNull();
             expect(
-                await adapter.transaction(async (trx) => {
-                    return trx.writer.find("b");
+                await adapter.transaction(noOpContext, async (trx) => {
+                    return trx.writer.find(noOpContext, "b");
                 }),
             ).toBeNull();
             expect(
-                await adapter.transaction(async (trx) => {
-                    return trx.writer.find("c");
+                await adapter.transaction(noOpContext, async (trx) => {
+                    return trx.writer.find(noOpContext, "c");
                 }),
             ).not.toBeNull();
         });
@@ -117,40 +123,82 @@ describe("postgres class: KyselySharedLockAdapter", () => {
             const slotId2 = "2";
             const slotId3 = "3";
 
-            await adapter.transaction(async (trx) => {
-                await trx.reader.upsertSemaphore(key1, limit);
-                await trx.reader.upsertSlot(key1, slotId1, expiration);
-                await trx.reader.upsertSlot(key1, slotId2, expiration);
-                await trx.reader.upsertSlot(key1, slotId3, expiration);
+            await adapter.transaction(noOpContext, async (trx) => {
+                await trx.reader.upsertSemaphore(noOpContext, key1, limit);
+                await trx.reader.upsertSlot(
+                    noOpContext,
+                    key1,
+                    slotId1,
+                    expiration,
+                );
+                await trx.reader.upsertSlot(
+                    noOpContext,
+                    key1,
+                    slotId2,
+                    expiration,
+                );
+                await trx.reader.upsertSlot(
+                    noOpContext,
+                    key1,
+                    slotId3,
+                    expiration,
+                );
 
-                await trx.reader.upsertSemaphore(key2, limit);
-                await trx.reader.upsertSlot(key2, slotId1, expiration);
-                await trx.reader.upsertSlot(key2, slotId2, expiration);
-                await trx.reader.upsertSlot(key2, slotId3, expiration);
+                await trx.reader.upsertSemaphore(noOpContext, key2, limit);
+                await trx.reader.upsertSlot(
+                    noOpContext,
+                    key2,
+                    slotId1,
+                    expiration,
+                );
+                await trx.reader.upsertSlot(
+                    noOpContext,
+                    key2,
+                    slotId2,
+                    expiration,
+                );
+                await trx.reader.upsertSlot(
+                    noOpContext,
+                    key2,
+                    slotId3,
+                    expiration,
+                );
             });
 
             await adapter.removeAllExpired();
 
-            const result1 = await adapter.transaction(async (trx) => {
-                return await trx.reader.findSemaphore(key1);
-            });
+            const result1 = await adapter.transaction(
+                noOpContext,
+                async (trx) => {
+                    return await trx.reader.findSemaphore(noOpContext, key1);
+                },
+            );
             expect(result1).toBeNull();
 
-            const result2 = await adapter.transaction(async (trx) => {
-                return await trx.reader.findSlots(key1);
-            });
+            const result2 = await adapter.transaction(
+                noOpContext,
+                async (trx) => {
+                    return await trx.reader.findSlots(noOpContext, key1);
+                },
+            );
             expect(result2).toEqual([]);
             expect(result2.length).toBe(0);
 
-            const result3 = await adapter.transaction(async (trx) => {
-                return await trx.reader.findSlots(key2);
-            });
+            const result3 = await adapter.transaction(
+                noOpContext,
+                async (trx) => {
+                    return await trx.reader.findSlots(noOpContext, key2);
+                },
+            );
             expect(result3).toEqual([]);
             expect(result3.length).toBe(0);
 
-            const result4 = await adapter.transaction(async (trx) => {
-                return await trx.reader.findSemaphore(key2);
-            });
+            const result4 = await adapter.transaction(
+                noOpContext,
+                async (trx) => {
+                    return await trx.reader.findSemaphore(noOpContext, key2);
+                },
+            );
             expect(result4).toBeNull();
         });
     });

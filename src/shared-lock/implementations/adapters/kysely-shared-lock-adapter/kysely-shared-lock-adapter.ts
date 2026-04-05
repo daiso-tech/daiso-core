@@ -4,6 +4,7 @@
 
 import { MysqlAdapter, Transaction, type Kysely } from "kysely";
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type IDatabaseReaderSemaphoreTransaction,
     type IDatabaseSharedLockAdapter,
@@ -122,7 +123,10 @@ class DatabaseReaderSemaphoreTransaction
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
     }
 
-    async findSemaphore(key: string): Promise<IReaderSemaphoreData | null> {
+    async findSemaphore(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<IReaderSemaphoreData | null> {
         const row = await this.kysely
             .selectFrom("readerSemaphore")
             .where("readerSemaphore.key", "=", key)
@@ -134,7 +138,10 @@ class DatabaseReaderSemaphoreTransaction
         return row;
     }
 
-    async findSlots(key: string): Promise<Array<IReaderSemaphoreSlotData>> {
+    async findSlots(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<Array<IReaderSemaphoreSlotData>> {
         const rows = await this.kysely
             .selectFrom("readerSemaphoreSlot")
             .where("readerSemaphoreSlot.key", "=", key)
@@ -157,7 +164,11 @@ class DatabaseReaderSemaphoreTransaction
         });
     }
 
-    async upsertSemaphore(key: string, limit: number): Promise<void> {
+    async upsertSemaphore(
+        _context: IReadableContext,
+        key: string,
+        limit: number,
+    ): Promise<void> {
         await this.kysely
             .insertInto("readerSemaphore")
             .values({ key, limit })
@@ -179,6 +190,7 @@ class DatabaseReaderSemaphoreTransaction
     }
 
     async upsertSlot(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         expiration: Date | null,
@@ -211,6 +223,7 @@ class DatabaseReaderSemaphoreTransaction
     }
 
     async removeSlot(
+        _context: IReadableContext,
         key: string,
         slotId: string,
     ): Promise<IReaderSemaphoreSlotExpirationData | null> {
@@ -251,6 +264,7 @@ class DatabaseReaderSemaphoreTransaction
     }
 
     async removeAllSlots(
+        _context: IReadableContext,
         key: string,
     ): Promise<Array<IReaderSemaphoreSlotExpirationData>> {
         let rows: Array<Pick<KyselyReaderSemaphoreSlotTable, "expiration">>;
@@ -286,6 +300,7 @@ class DatabaseReaderSemaphoreTransaction
     }
 
     async updateExpiration(
+        _context: IReadableContext,
         key: string,
         slotId: string,
         expiration: Date,
@@ -319,7 +334,10 @@ class DatabaseWriterLockTransaction implements IDatabaseWriterLockTransaction {
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
     }
 
-    async find(key: string): Promise<IWriterLockData | null> {
+    async find(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<IWriterLockData | null> {
         const row = await this.kysely
             .selectFrom("writerLock")
             .where("writerLock.key", "=", key)
@@ -341,6 +359,7 @@ class DatabaseWriterLockTransaction implements IDatabaseWriterLockTransaction {
     }
 
     async upsert(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         expiration: Date | null,
@@ -372,7 +391,10 @@ class DatabaseWriterLockTransaction implements IDatabaseWriterLockTransaction {
             .execute();
     }
 
-    async remove(key: string): Promise<IWriterLockExpirationData | null> {
+    async remove(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<IWriterLockExpirationData | null> {
         let result: Pick<KyselyWriterLockTable, "expiration"> | undefined;
         if (this.isMysql) {
             result = await this.kysely
@@ -405,6 +427,7 @@ class DatabaseWriterLockTransaction implements IDatabaseWriterLockTransaction {
     }
 
     async removeIfOwner(
+        _context: IReadableContext,
         key: string,
         lockId: string,
     ): Promise<IWriterLockData | null> {
@@ -451,6 +474,7 @@ class DatabaseWriterLockTransaction implements IDatabaseWriterLockTransaction {
     }
 
     async updateExpiration(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         expiration: Date,
@@ -720,6 +744,7 @@ export class KyselySharedLockAdapter
     }
 
     async transaction<TReturn>(
+        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: IDatabaseSharedLockTransaction],
             Promise<TReturn>

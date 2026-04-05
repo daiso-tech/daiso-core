@@ -2,6 +2,7 @@
  * @module SharedLock
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type ISharedLockFactory,
@@ -107,6 +108,7 @@ export class MemorySharedLockAdapter
     }
 
     async acquireWriter(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
@@ -150,7 +152,11 @@ export class MemorySharedLockAdapter
         return Promise.resolve(true);
     }
 
-    async releaseWriter(key: string, lockId: string): Promise<boolean> {
+    async releaseWriter(
+        _context: IReadableContext,
+        key: string,
+        lockId: string,
+    ): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const readerSemaphore = sharedLock?.readerSemaphore ?? null;
         if (readerSemaphore !== null) {
@@ -173,7 +179,10 @@ export class MemorySharedLockAdapter
         return Promise.resolve(true);
     }
 
-    async forceReleaseWriter(key: string): Promise<boolean> {
+    async forceReleaseWriter(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const readerSemaphore = sharedLock?.readerSemaphore ?? null;
         if (readerSemaphore !== null) {
@@ -195,6 +204,7 @@ export class MemorySharedLockAdapter
     }
 
     async refreshWriter(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
@@ -283,7 +293,11 @@ export class MemorySharedLockAdapter
         return Promise.resolve(true);
     }
 
-    async releaseReader(key: string, lockId: string): Promise<boolean> {
+    async releaseReader(
+        _context: IReadableContext,
+        key: string,
+        lockId: string,
+    ): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const writerLock = sharedLock?.writerLock ?? null;
         if (writerLock !== null) {
@@ -317,7 +331,10 @@ export class MemorySharedLockAdapter
         return Promise.resolve(true);
     }
 
-    async forceReleaseAllReaders(key: string): Promise<boolean> {
+    async forceReleaseAllReaders(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const writerLock = sharedLock?.writerLock ?? null;
         if (writerLock !== null) {
@@ -338,6 +355,7 @@ export class MemorySharedLockAdapter
     }
 
     async refreshReader(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
@@ -381,15 +399,21 @@ export class MemorySharedLockAdapter
         return Promise.resolve(true);
     }
 
-    async forceRelease(key: string): Promise<boolean> {
+    async forceRelease(
+        context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
         const [hasReleasedAllReaders, hasReleasedWriter] = await Promise.all([
-            this.forceReleaseAllReaders(key),
-            this.forceReleaseWriter(key),
+            this.forceReleaseAllReaders(context, key),
+            this.forceReleaseWriter(context, key),
         ]);
         return hasReleasedAllReaders || hasReleasedWriter;
     }
 
-    async getState(key: string): Promise<ISharedLockAdapterState | null> {
+    async getState(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<ISharedLockAdapterState | null> {
         const sharedLock = this.map.get(key);
 
         if (sharedLock === undefined) {

@@ -9,6 +9,9 @@ import {
     type beforeEach,
 } from "vitest";
 
+import { type IContext } from "@/execution-context/contracts/_module.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
     type IDatabaseSharedLockAdapter,
     type IReaderSemaphoreData,
@@ -30,6 +33,17 @@ export type DatabaseSharedLockAdapterTestSuiteSettings = {
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
     createAdapter: () => Promisable<IDatabaseSharedLockAdapter>;
+
+    /**
+     * @default
+     * ```ts
+     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
+     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     *
+     * new ExecutionContext(new NoOpExecutionContextAdapter())
+     * ```
+     */
+    context?: IContext;
 };
 
 /**
@@ -80,7 +94,14 @@ export type DatabaseSharedLockAdapterTestSuiteSettings = {
 export function databaseSharedLockAdapterTestSuite(
     settings: DatabaseSharedLockAdapterTestSuiteSettings,
 ): void {
-    const { expect, test, createAdapter, describe, beforeEach } = settings;
+    const {
+        expect,
+        test,
+        createAdapter,
+        describe,
+        beforeEach,
+        context = new ExecutionContext(new NoOpExecutionContextAdapter()),
+    } = settings;
 
     describe("IDatabaseSharedLockAdapter tests:", () => {
         let adapter: IDatabaseSharedLockAdapter;
@@ -92,14 +113,17 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "1";
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const noneExistingKey = "b";
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.writer.find(noneExistingKey);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.find(context, noneExistingKey);
+                    },
+                );
 
                 expect(result).toBeNull();
             });
@@ -107,13 +131,16 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "1";
                 const expiration = TimeSpan.fromMinutes(2).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.writer.find(key);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.find(context, key);
+                    },
+                );
 
                 expect(result).toEqual({
                     owner,
@@ -126,13 +153,16 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
-                const lockData = await adapter.transaction(async (trx) => {
-                    return await trx.writer.find(key);
-                });
+                const lockData = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.find(context, key);
+                    },
+                );
                 expect(lockData).toEqual({
                     expiration,
                     owner,
@@ -143,19 +173,22 @@ export function databaseSharedLockAdapterTestSuite(
 
                 const owner1 = "1";
                 const expiration1 = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner1, expiration1);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner1, expiration1);
                 });
 
                 const owner2 = "2";
                 const expiration2 = TimeSpan.fromMilliseconds(100).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner2, expiration2);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner2, expiration2);
                 });
 
-                const lockData = await adapter.transaction(async (trx) => {
-                    return await trx.writer.find(key);
-                });
+                const lockData = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.find(context, key);
+                    },
+                );
                 expect(lockData).toEqual({
                     expiration: expiration2,
                     owner: owner2,
@@ -167,14 +200,18 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const noneExistingKey = "c";
                 const lockExpirationData = await adapter.transaction(
+                    context,
                     async (trx) => {
-                        return await trx.writer.remove(noneExistingKey);
+                        return await trx.writer.remove(
+                            context,
+                            noneExistingKey,
+                        );
                     },
                 );
 
@@ -184,13 +221,14 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const lockExpirationData = await adapter.transaction(
+                    context,
                     async (trx) => {
-                        return await trx.writer.remove(key);
+                        return await trx.writer.remove(context, key);
                     },
                 );
 
@@ -202,13 +240,14 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = TimeSpan.fromMinutes(5).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const lockExpirationData = await adapter.transaction(
+                    context,
                     async (trx) => {
-                        return await trx.writer.remove(key);
+                        return await trx.writer.remove(context, key);
                     },
                 );
 
@@ -220,17 +259,18 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = TimeSpan.fromMinutes(5).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
-                await adapter.transaction(async (trx) => {
-                    return await trx.writer.remove(key);
+                await adapter.transaction(context, async (trx) => {
+                    return await trx.writer.remove(context, key);
                 });
 
                 const lockExpirationData = await adapter.transaction(
+                    context,
                     async (trx) => {
-                        return await trx.writer.find(key);
+                        return await trx.writer.find(context, key);
                     },
                 );
                 expect(lockExpirationData).toBeNull();
@@ -241,17 +281,21 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const noneExistingKey = "c";
-                const lockData = await adapter.transaction(async (trx) => {
-                    return await trx.writer.removeIfOwner(
-                        noneExistingKey,
-                        owner,
-                    );
-                });
+                const lockData = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.removeIfOwner(
+                            context,
+                            noneExistingKey,
+                            owner,
+                        );
+                    },
+                );
 
                 expect(lockData).toBeNull();
             });
@@ -259,17 +303,21 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const noneExistingOwner = "c";
-                const lockData = await adapter.transaction(async (trx) => {
-                    return await trx.writer.removeIfOwner(
-                        key,
-                        noneExistingOwner,
-                    );
-                });
+                const lockData = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.removeIfOwner(
+                            context,
+                            key,
+                            noneExistingOwner,
+                        );
+                    },
+                );
 
                 expect(lockData).toBeNull();
             });
@@ -277,13 +325,20 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
-                const lockData = await adapter.transaction(async (trx) => {
-                    return await trx.writer.removeIfOwner(key, owner);
-                });
+                const lockData = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.removeIfOwner(
+                            context,
+                            key,
+                            owner,
+                        );
+                    },
+                );
 
                 expect(lockData).toEqual({
                     expiration,
@@ -294,13 +349,20 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = TimeSpan.fromMinutes(10).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
-                const lockData = await adapter.transaction(async (trx) => {
-                    return await trx.writer.removeIfOwner(key, owner);
-                });
+                const lockData = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.removeIfOwner(
+                            context,
+                            key,
+                            owner,
+                        );
+                    },
+                );
 
                 expect(lockData).toEqual({
                     expiration,
@@ -311,35 +373,45 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = TimeSpan.fromMinutes(10).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.removeIfOwner(key, owner);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.removeIfOwner(context, key, owner);
                 });
 
-                const lockData = await adapter.transaction(async (trx) => {
-                    return await trx.writer.find(key);
-                });
+                const lockData = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.find(context, key);
+                    },
+                );
                 expect(lockData).toBeNull();
             });
             test("Should not remove lock when key exists and owner does not exists", async () => {
                 const key = "a";
                 const owner = "b";
                 const expiration = TimeSpan.fromMinutes(10).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const noneExsitingOwner = "c";
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.removeIfOwner(key, noneExsitingOwner);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.removeIfOwner(
+                        context,
+                        key,
+                        noneExsitingOwner,
+                    );
                 });
 
-                const lockData = await adapter.transaction(async (trx) => {
-                    return await trx.writer.find(key);
-                });
+                const lockData = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.find(context, key);
+                    },
+                );
                 expect(lockData).toEqual({
                     expiration,
                     owner,
@@ -352,20 +424,24 @@ export function databaseSharedLockAdapterTestSuite(
                 const owner = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toEndDate();
 
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 const noneExistingKey = "b";
-                const result1 = await adapter.transaction(async (trx) => {
-                    return await trx.writer.updateExpiration(
-                        noneExistingKey,
-                        owner,
-                        newExpiration,
-                    );
-                });
+                const result1 = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.updateExpiration(
+                            context,
+                            noneExistingKey,
+                            owner,
+                            newExpiration,
+                        );
+                    },
+                );
 
                 expect(result1).toBe(0);
             });
@@ -374,20 +450,24 @@ export function databaseSharedLockAdapterTestSuite(
                 const owner = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toEndDate();
 
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 const noneExistingOwner = "b";
-                const result1 = await adapter.transaction(async (trx) => {
-                    return await trx.writer.updateExpiration(
-                        key,
-                        noneExistingOwner,
-                        newExpiration,
-                    );
-                });
+                const result1 = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.updateExpiration(
+                            context,
+                            key,
+                            noneExistingOwner,
+                            newExpiration,
+                        );
+                    },
+                );
 
                 expect(result1).toBe(0);
             });
@@ -396,19 +476,23 @@ export function databaseSharedLockAdapterTestSuite(
                 const owner = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toStartDate();
 
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
-                const result1 = await adapter.transaction(async (trx) => {
-                    return await trx.writer.updateExpiration(
-                        key,
-                        owner,
-                        newExpiration,
-                    );
-                });
+                const result1 = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.updateExpiration(
+                            context,
+                            key,
+                            owner,
+                            newExpiration,
+                        );
+                    },
+                );
 
                 expect(result1).toBe(0);
             });
@@ -416,19 +500,23 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "1";
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
-                const result1 = await adapter.transaction(async (trx) => {
-                    return await trx.writer.updateExpiration(
-                        key,
-                        owner,
-                        newExpiration,
-                    );
-                });
+                const result1 = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.updateExpiration(
+                            context,
+                            key,
+                            owner,
+                            newExpiration,
+                        );
+                    },
+                );
 
                 expect(result1).toBe(0);
             });
@@ -437,18 +525,27 @@ export function databaseSharedLockAdapterTestSuite(
                 const owner = "1";
                 const expiration = TimeSpan.fromMilliseconds(50);
 
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration.toEndDate());
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(
+                        context,
+                        key,
+                        owner,
+                        expiration.toEndDate(),
+                    );
                 });
 
                 const newExpiration = TimeSpan.fromMilliseconds(100);
-                const result1 = await adapter.transaction(async (trx) => {
-                    return await trx.writer.updateExpiration(
-                        key,
-                        owner,
-                        newExpiration.toEndDate(),
-                    );
-                });
+                const result1 = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.updateExpiration(
+                            context,
+                            key,
+                            owner,
+                            newExpiration.toEndDate(),
+                        );
+                    },
+                );
 
                 expect(result1).toBeGreaterThan(0);
             });
@@ -457,23 +554,27 @@ export function databaseSharedLockAdapterTestSuite(
                 const owner = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toStartDate();
 
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
-                await adapter.transaction(async (trx) => {
+                await adapter.transaction(context, async (trx) => {
                     await trx.writer.updateExpiration(
+                        context,
                         key,
                         owner,
                         newExpiration,
                     );
                 });
 
-                const lockData = await adapter.transaction(async (trx) => {
-                    return await trx.writer.find(key);
-                });
+                const lockData = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.find(context, key);
+                    },
+                );
                 expect(lockData).toEqual({
                     owner,
                     expiration,
@@ -484,23 +585,27 @@ export function databaseSharedLockAdapterTestSuite(
                 const owner = "1";
                 const expiration = null;
 
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
-                await adapter.transaction(async (trx) => {
+                await adapter.transaction(context, async (trx) => {
                     await trx.writer.updateExpiration(
+                        context,
                         key,
                         owner,
                         newExpiration,
                     );
                 });
 
-                const lockData = await adapter.transaction(async (trx) => {
-                    return await trx.writer.find(key);
-                });
+                const lockData = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.find(context, key);
+                    },
+                );
                 expect(lockData).toEqual({
                     owner,
                     expiration,
@@ -511,23 +616,27 @@ export function databaseSharedLockAdapterTestSuite(
                 const owner = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toEndDate();
 
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
-                await adapter.transaction(async (trx) => {
+                await adapter.transaction(context, async (trx) => {
                     await trx.writer.updateExpiration(
+                        context,
                         key,
                         owner,
                         newExpiration,
                     );
                 });
 
-                const lockData = await adapter.transaction(async (trx) => {
-                    return await trx.writer.find(key);
-                });
+                const lockData = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.find(context, key);
+                    },
+                );
                 expect(lockData).toEqual({
                     owner,
                     expiration: newExpiration,
@@ -539,14 +648,17 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "1";
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
                 const noneExistingKey = "b";
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.writer.find(noneExistingKey);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.find(context, noneExistingKey);
+                    },
+                );
 
                 expect(result).toBeNull();
             });
@@ -554,13 +666,16 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const owner = "1";
                 const expiration = TimeSpan.fromMinutes(2).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.writer.upsert(key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.writer.upsert(context, key, owner, expiration);
                 });
 
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.writer.find(key);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.writer.find(context, key);
+                    },
+                );
 
                 expect(result).toEqual({
                     owner,
@@ -572,27 +687,36 @@ export function databaseSharedLockAdapterTestSuite(
             test("Should return null when key doesnt exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
                 const noneExistingKey = "b";
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.reader.findSemaphore(noneExistingKey);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.reader.findSemaphore(
+                            context,
+                            noneExistingKey,
+                        );
+                    },
+                );
 
                 expect(result).toBeNull();
             });
             test("Should return ISemaphoreData when key exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.reader.findSemaphore(key);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.reader.findSemaphore(context, key);
+                    },
+                );
 
                 expect(result).toEqual({
                     limit,
@@ -603,52 +727,74 @@ export function databaseSharedLockAdapterTestSuite(
             test("Should return empty array when key doesnt exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
                 const noneExistingKey = "b";
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.reader.findSlots(noneExistingKey);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.reader.findSlots(
+                            context,
+                            noneExistingKey,
+                        );
+                    },
+                );
 
                 expect(result).toEqual([]);
             });
             test("Should return empty array when key exists and has no slots", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.reader.findSlots(key);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.reader.findSlots(context, key);
+                    },
+                );
 
                 expect(result).toEqual([]);
             });
             test("Should not return empty array when key exists and has no slots", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
                 const slotId1 = "1";
                 const expiration1 = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId1, expiration1);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId1,
+                        expiration1,
+                    );
                 });
                 const slotId2 = "2";
                 const expiration2 = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId2, expiration2);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId2,
+                        expiration2,
+                    );
                 });
 
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.reader.findSlots(key);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.reader.findSlots(context, key);
+                    },
+                );
 
-                expect(result).toEqual([
+                expect(result).to.have.deep.members([
                     {
                         id: slotId1,
                         expiration: expiration1,
@@ -665,13 +811,16 @@ export function databaseSharedLockAdapterTestSuite(
                 const key = "a";
                 const limit = 2;
 
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.reader.findSemaphore(key);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.reader.findSemaphore(context, key);
+                    },
+                );
                 expect(result).toEqual({
                     limit,
                 } satisfies IReaderSemaphoreData);
@@ -679,18 +828,21 @@ export function databaseSharedLockAdapterTestSuite(
             test("Should update when key exists exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
                 const newLimit = 4;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, newLimit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, newLimit);
                 });
 
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.reader.findSemaphore(key);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.reader.findSemaphore(context, key);
+                    },
+                );
                 expect(result).toEqual({
                     limit: newLimit,
                 } satisfies IReaderSemaphoreData);
@@ -700,18 +852,23 @@ export function databaseSharedLockAdapterTestSuite(
             test("Should insert when key doesnt exists exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId = "a";
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId,
+                        expiration,
+                    );
                 });
 
-                const slot = await adapter.transaction(async (trx) => {
-                    const slots = await trx.reader.findSlots(key);
+                const slot = await adapter.transaction(context, async (trx) => {
+                    const slots = await trx.reader.findSlots(context, key);
                     return slots.find((slot) => slot.id === slotId);
                 });
                 expect(slot).toEqual({
@@ -722,24 +879,34 @@ export function databaseSharedLockAdapterTestSuite(
             test("Should update when key exists exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration1 = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId1, expiration1);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId1,
+                        expiration1,
+                    );
                 });
 
                 const slotId2 = "2";
                 const expiration2 = TimeSpan.fromMilliseconds(100).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId2, expiration2);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId2,
+                        expiration2,
+                    );
                 });
 
-                const slot = await adapter.transaction(async (trx) => {
-                    const slots = await trx.reader.findSlots(key);
+                const slot = await adapter.transaction(context, async (trx) => {
+                    const slots = await trx.reader.findSlots(context, key);
                     return slots.find((slot) => slot.id === slotId2);
                 });
                 expect(slot).toEqual({
@@ -754,17 +921,29 @@ export function databaseSharedLockAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId,
+                        expiration,
+                    );
                 });
 
                 const noneExistingKey = "c";
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.reader.removeSlot(noneExistingKey, slotId);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.reader.removeSlot(
+                            context,
+                            noneExistingKey,
+                            slotId,
+                        );
+                    },
+                );
 
                 expect(result).toBeNull();
             });
@@ -773,17 +952,29 @@ export function databaseSharedLockAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId,
+                        expiration,
+                    );
                 });
 
                 const noneExistingSlotId = "c";
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.reader.removeSlot(key, noneExistingSlotId);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.reader.removeSlot(
+                            context,
+                            key,
+                            noneExistingSlotId,
+                        );
+                    },
+                );
 
                 expect(result).toBeNull();
             });
@@ -792,16 +983,28 @@ export function databaseSharedLockAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId,
+                        expiration,
+                    );
                 });
 
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.reader.removeSlot(key, slotId);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.reader.removeSlot(
+                            context,
+                            key,
+                            slotId,
+                        );
+                    },
+                );
 
                 expect(result).toEqual({
                     expiration,
@@ -812,16 +1015,28 @@ export function databaseSharedLockAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const expiration = TimeSpan.fromMilliseconds(100).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId,
+                        expiration,
+                    );
                 });
 
-                const result = await adapter.transaction(async (trx) => {
-                    return await trx.reader.removeSlot(key, slotId);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.reader.removeSlot(
+                            context,
+                            key,
+                            slotId,
+                        );
+                    },
+                );
 
                 expect(result).toEqual({
                     expiration,
@@ -832,19 +1047,24 @@ export function databaseSharedLockAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId,
+                        expiration,
+                    );
                 });
 
-                await adapter.transaction(async (trx) => {
-                    return await trx.reader.removeSlot(key, slotId);
+                await adapter.transaction(context, async (trx) => {
+                    return await trx.reader.removeSlot(context, key, slotId);
                 });
 
-                const slot = await adapter.transaction(async (trx) => {
-                    const slots = await trx.reader.findSlots(key);
+                const slot = await adapter.transaction(context, async (trx) => {
+                    const slots = await trx.reader.findSlots(context, key);
                     return slots.find((slot) => slot.id === slotId);
                 });
                 expect(slot).toBeUndefined();
@@ -854,20 +1074,29 @@ export function databaseSharedLockAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId,
+                        expiration,
+                    );
                 });
 
                 const noneExistingSlotId = "c";
-                await adapter.transaction(async (trx) => {
-                    return await trx.reader.removeSlot(key, noneExistingSlotId);
+                await adapter.transaction(context, async (trx) => {
+                    return await trx.reader.removeSlot(
+                        context,
+                        key,
+                        noneExistingSlotId,
+                    );
                 });
 
-                const slot = await adapter.transaction(async (trx) => {
-                    const slots = await trx.reader.findSlots(key);
+                const slot = await adapter.transaction(context, async (trx) => {
+                    const slots = await trx.reader.findSlots(context, key);
                     return slots.find((slot) => slot.id === slotId);
                 });
                 expect(slot).toEqual({
@@ -882,55 +1111,82 @@ export function databaseSharedLockAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId,
+                        expiration,
+                    );
                 });
 
                 const noneExistingKey = "c";
-                const result = await adapter.transaction(async (trx) => {
-                    return trx.reader.removeAllSlots(noneExistingKey);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return trx.reader.removeAllSlots(
+                            context,
+                            noneExistingKey,
+                        );
+                    },
+                );
 
                 expect(result).toEqual([]);
             });
             test("Should return empty array when key exists and has no slots", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
-                const result = await adapter.transaction(async (trx) => {
-                    return trx.reader.removeAllSlots(key);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return trx.reader.removeAllSlots(context, key);
+                    },
+                );
 
                 expect(result).toEqual([]);
             });
             test("Should return array with 2 items when key exists and has slots", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
                 const slotId1 = "b";
                 const expiration1 = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId1, expiration1);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId1,
+                        expiration1,
+                    );
                 });
                 const slotId2 = "c";
                 const expiration2 = TimeSpan.fromMilliseconds(10).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId2, expiration2);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId2,
+                        expiration2,
+                    );
                 });
 
-                const result = await adapter.transaction(async (trx) => {
-                    return trx.reader.removeAllSlots(key);
-                });
+                const result = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return trx.reader.removeAllSlots(context, key);
+                    },
+                );
 
-                expect(result).toEqual([
+                expect(result).to.have.deep.members([
                     {
                         expiration: expiration1,
                     },
@@ -942,27 +1198,40 @@ export function databaseSharedLockAdapterTestSuite(
             test("Should remove all items when key exists and has slots", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
                 const slotId1 = "b";
                 const expiration1 = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId1, expiration1);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId1,
+                        expiration1,
+                    );
                 });
                 const slotId2 = "c";
                 const expiration2 = TimeSpan.fromMilliseconds(10).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId2, expiration2);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId2,
+                        expiration2,
+                    );
                 });
 
-                await adapter.transaction(async (trx) => {
-                    return trx.reader.removeAllSlots(key);
+                await adapter.transaction(context, async (trx) => {
+                    return trx.reader.removeAllSlots(context, key);
                 });
 
-                const slots = await adapter.transaction(async (trx) => {
-                    return await trx.reader.findSlots(key);
-                });
+                const slots = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return await trx.reader.findSlots(context, key);
+                    },
+                );
                 expect(slots).toEqual([]);
             });
         });
@@ -970,116 +1239,153 @@ export function databaseSharedLockAdapterTestSuite(
             test("Should return 0 when semaphore key doesnt exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId1, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId1,
+                        expiration,
+                    );
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 const noneExistingKey = "b";
-                const result1 = await adapter.transaction(async (trx) => {
-                    return trx.reader.updateExpiration(
-                        noneExistingKey,
-                        slotId1,
-                        newExpiration,
-                    );
-                });
+                const result1 = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return trx.reader.updateExpiration(
+                            context,
+                            noneExistingKey,
+                            slotId1,
+                            newExpiration,
+                        );
+                    },
+                );
 
                 expect(result1).toBe(0);
             });
             test("Should return 0 when slot doesnt exists", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId1, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId1,
+                        expiration,
+                    );
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 const noneExistingSlotId = "b";
-                const result1 = await adapter.transaction(async (trx) => {
-                    return trx.reader.updateExpiration(
-                        key,
-                        noneExistingSlotId,
-                        newExpiration,
-                    );
-                });
+                const result1 = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return trx.reader.updateExpiration(
+                            context,
+                            key,
+                            noneExistingSlotId,
+                            newExpiration,
+                        );
+                    },
+                );
 
                 expect(result1).toBe(0);
             });
             test("Should return 0 when slot is expired", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toStartDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId1, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId1,
+                        expiration,
+                    );
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
-                const result1 = await adapter.transaction(async (trx) => {
-                    return trx.reader.updateExpiration(
-                        key,
-                        slotId1,
-                        newExpiration,
-                    );
-                });
+                const result1 = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return trx.reader.updateExpiration(
+                            context,
+                            key,
+                            slotId1,
+                            newExpiration,
+                        );
+                    },
+                );
 
                 expect(result1).toBe(0);
             });
             test("Should return 0 when slot is unexpireable", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId1, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId1,
+                        expiration,
+                    );
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
-                const result1 = await adapter.transaction(async (trx) => {
-                    return trx.reader.updateExpiration(
-                        key,
-                        slotId1,
-                        newExpiration,
-                    );
-                });
+                const result1 = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return trx.reader.updateExpiration(
+                            context,
+                            key,
+                            slotId1,
+                            newExpiration,
+                        );
+                    },
+                );
 
                 expect(result1).toBe(0);
             });
             test("Should return number greater than 0 when slot is unexpired", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = TimeSpan.fromMilliseconds(50);
-                await adapter.transaction(async (trx) => {
+                await adapter.transaction(context, async (trx) => {
                     await trx.reader.upsertSlot(
+                        context,
                         key,
                         slotId1,
                         expiration.toEndDate(),
@@ -1087,41 +1393,51 @@ export function databaseSharedLockAdapterTestSuite(
                 });
 
                 const newExpiration = TimeSpan.fromMilliseconds(100);
-                const result1 = await adapter.transaction(async (trx) => {
-                    return trx.reader.updateExpiration(
-                        key,
-                        slotId1,
-                        newExpiration.toEndDate(),
-                    );
-                });
+                const result1 = await adapter.transaction(
+                    context,
+                    async (trx) => {
+                        return trx.reader.updateExpiration(
+                            context,
+                            key,
+                            slotId1,
+                            newExpiration.toEndDate(),
+                        );
+                    },
+                );
 
                 expect(result1).toBeGreaterThan(0);
             });
             test("Should not update expiration when slot is expired", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toStartDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId1, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId1,
+                        expiration,
+                    );
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
-                await adapter.transaction(async (trx) => {
+                await adapter.transaction(context, async (trx) => {
                     return await trx.reader.updateExpiration(
+                        context,
                         key,
                         slotId1,
                         newExpiration,
                     );
                 });
 
-                const slot = await adapter.transaction(async (trx) => {
-                    const slots = await trx.reader.findSlots(key);
+                const slot = await adapter.transaction(context, async (trx) => {
+                    const slots = await trx.reader.findSlots(context, key);
                     return slots.find((slot) => slot.id === slotId1);
                 });
                 expect(slot).toEqual({
@@ -1132,28 +1448,34 @@ export function databaseSharedLockAdapterTestSuite(
             test("Should not update expiration when slot is unexpireable", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = null;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId1, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId1,
+                        expiration,
+                    );
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
-                await adapter.transaction(async (trx) => {
+                await adapter.transaction(context, async (trx) => {
                     return await trx.reader.updateExpiration(
+                        context,
                         key,
                         slotId1,
                         newExpiration,
                     );
                 });
 
-                const slot = await adapter.transaction(async (trx) => {
-                    const slots = await trx.reader.findSlots(key);
+                const slot = await adapter.transaction(context, async (trx) => {
+                    const slots = await trx.reader.findSlots(context, key);
                     return slots.find((slot) => slot.id === slotId1);
                 });
                 expect(slot).toEqual({
@@ -1164,28 +1486,34 @@ export function databaseSharedLockAdapterTestSuite(
             test("Should update expiration when slot is unexpired", async () => {
                 const key = "a";
                 const limit = 2;
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSemaphore(key, limit);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSemaphore(context, key, limit);
                 });
 
                 const slotId1 = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toEndDate();
-                await adapter.transaction(async (trx) => {
-                    await trx.reader.upsertSlot(key, slotId1, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.reader.upsertSlot(
+                        context,
+                        key,
+                        slotId1,
+                        expiration,
+                    );
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
-                await adapter.transaction(async (trx) => {
+                await adapter.transaction(context, async (trx) => {
                     return await trx.reader.updateExpiration(
+                        context,
                         key,
                         slotId1,
                         newExpiration,
                     );
                 });
 
-                const slot = await adapter.transaction(async (trx) => {
-                    const slots = await trx.reader.findSlots(key);
+                const slot = await adapter.transaction(context, async (trx) => {
+                    const slots = await trx.reader.findSlots(context, key);
                     return slots.find((slot) => slot.id === slotId1);
                 });
                 expect(slot).toEqual({
