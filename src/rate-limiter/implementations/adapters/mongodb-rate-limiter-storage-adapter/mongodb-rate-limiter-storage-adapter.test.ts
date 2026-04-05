@@ -141,7 +141,7 @@ describe("class: MongodbRateLimiterStorageAdapter", () => {
                 } satisfies Partial<MongodbRateLimiterDocument>),
             );
         });
-        test("Should set expiration field to Date when given given expiration", async () => {
+        test("Should set expiration field to Date when given expiration", async () => {
             const database = client.db("database");
             const collectionName = "rateLimiter";
             const collection =

@@ -4,6 +4,7 @@
 
 import { type Result, type Redis } from "ioredis";
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type ILockAdapter,
     type ILockAdapterState,
@@ -196,6 +197,7 @@ export class RedisLockAdapter implements ILockAdapter {
     }
 
     async acquire(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
@@ -208,17 +210,25 @@ export class RedisLockAdapter implements ILockAdapter {
         return result === 1;
     }
 
-    async release(key: string, lockId: string): Promise<boolean> {
+    async release(
+        _context: IReadableContext,
+        key: string,
+        lockId: string,
+    ): Promise<boolean> {
         const result = await this.database.daiso_lock_release(key, lockId);
         return result === 1;
     }
 
-    async forceRelease(key: string): Promise<boolean> {
+    async forceRelease(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
         const result = await this.database.del(key);
         return result > 0;
     }
 
     async refresh(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
@@ -231,7 +241,10 @@ export class RedisLockAdapter implements ILockAdapter {
         return result === 1;
     }
 
-    async getState(key: string): Promise<ILockAdapterState | null> {
+    async getState(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<ILockAdapterState | null> {
         const json = JSON.parse(
             await this.database.daiso_lock_get_state(key),
         ) as IRedisJsonLockState | null;

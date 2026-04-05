@@ -2,6 +2,7 @@
  * @module Lock
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type ILockFactory } from "@/lock/contracts/lock-factory.contract.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
@@ -29,6 +30,7 @@ export type ILockAdapter = {
      * @returns Returns `true` if expired otherwise `false` is returned.
      */
     acquire(
+        context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
@@ -39,21 +41,33 @@ export type ILockAdapter = {
      *
      * @returns Returns `true` if released otherwise `false` is returned.
      */
-    release(key: string, lockId: string): Promise<boolean>;
+    release(
+        context: IReadableContext,
+        key: string,
+        lockId: string,
+    ): Promise<boolean>;
 
     /**
      * The `forceRelease` method releases a lock regardless of the owner.
      *
      * @returns Returns `true` if the lock exists or `false` if the lock is expired.
      */
-    forceRelease(key: string): Promise<boolean>;
+    forceRelease(context: IReadableContext, key: string): Promise<boolean>;
 
     /**
      * The `refresh` method will upadte `ttl` of lock if it matches the `owner` and is expireable.
      *
      * @returns Returns `false` if the lock is unexpireable, the is expired, does not match the `owner` otherwise `true` is returned.
      */
-    refresh(key: string, lockId: string, ttl: TimeSpan): Promise<boolean>;
+    refresh(
+        context: IReadableContext,
+        key: string,
+        lockId: string,
+        ttl: TimeSpan,
+    ): Promise<boolean>;
 
-    getState(key: string): Promise<ILockAdapterState | null>;
+    getState(
+        context: IReadableContext,
+        key: string,
+    ): Promise<ILockAdapterState | null>;
 };

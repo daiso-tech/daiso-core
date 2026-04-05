@@ -9,6 +9,8 @@ import {
     vi,
 } from "vitest";
 
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
     type ILockAdapter,
     type ILockAdapterState,
@@ -96,6 +98,8 @@ export function lockAdapterTestSuite(
         await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
+    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
+
     describe("ILockAdapter tests:", () => {
         beforeEach(async () => {
             adapter = await createAdapter();
@@ -106,7 +110,12 @@ export function lockAdapterTestSuite(
                 const lockId = "b";
                 const ttl = null;
 
-                const result = await adapter.acquire(key, lockId, ttl);
+                const result = await adapter.acquire(
+                    noOpContext,
+                    key,
+                    lockId,
+                    ttl,
+                );
 
                 expect(result).toBe(true);
             });
@@ -115,10 +124,15 @@ export function lockAdapterTestSuite(
                 const lockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
                 await delay(ttl);
 
-                const result = await adapter.acquire(key, lockId, null);
+                const result = await adapter.acquire(
+                    noOpContext,
+                    key,
+                    lockId,
+                    null,
+                );
                 expect(result).toBe(true);
             });
             test("Should return true when key is unexpireable and acquired by same lock-id", async () => {
@@ -126,8 +140,13 @@ export function lockAdapterTestSuite(
                 const lockId = "b";
                 const ttl = null;
 
-                await adapter.acquire(key, lockId, ttl);
-                const result = await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
+                const result = await adapter.acquire(
+                    noOpContext,
+                    key,
+                    lockId,
+                    ttl,
+                );
 
                 expect(result).toBe(true);
             });
@@ -136,8 +155,13 @@ export function lockAdapterTestSuite(
                 const lockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquire(key, lockId, ttl);
-                const result = await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
+                const result = await adapter.acquire(
+                    noOpContext,
+                    key,
+                    lockId,
+                    ttl,
+                );
 
                 expect(result).toBe(true);
             });
@@ -146,9 +170,14 @@ export function lockAdapterTestSuite(
                 const lockId1 = "b";
                 const ttl = null;
 
-                await adapter.acquire(key, lockId1, ttl);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
                 const lockId2 = "c";
-                const result = await adapter.acquire(key, lockId2, ttl);
+                const result = await adapter.acquire(
+                    noOpContext,
+                    key,
+                    lockId2,
+                    ttl,
+                );
 
                 expect(result).toBe(false);
             });
@@ -157,9 +186,14 @@ export function lockAdapterTestSuite(
                 const lockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquire(key, lockId1, ttl);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
                 const lockId2 = "c";
-                const result = await adapter.acquire(key, lockId2, ttl);
+                const result = await adapter.acquire(
+                    noOpContext,
+                    key,
+                    lockId2,
+                    ttl,
+                );
 
                 expect(result).toBe(false);
             });
@@ -169,7 +203,7 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId = "b";
 
-                const result = await adapter.release(key, lockId);
+                const result = await adapter.release(noOpContext, key, lockId);
 
                 expect(result).toBe(false);
             });
@@ -177,10 +211,10 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId1 = "b";
                 const ttl = null;
-                await adapter.acquire(key, lockId1, ttl);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
 
                 const lockId2 = "c";
-                const result = await adapter.release(key, lockId2);
+                const result = await adapter.release(noOpContext, key, lockId2);
 
                 expect(result).toBe(false);
             });
@@ -188,10 +222,10 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquire(key, lockId1, ttl);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
 
                 const lockId2 = "c";
-                const result = await adapter.release(key, lockId2);
+                const result = await adapter.release(noOpContext, key, lockId2);
 
                 expect(result).toBe(false);
             });
@@ -199,11 +233,11 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquire(key, lockId1, ttl);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
                 await delay(ttl);
 
                 const lockId2 = "c";
-                const result = await adapter.release(key, lockId2);
+                const result = await adapter.release(noOpContext, key, lockId2);
 
                 expect(result).toBe(false);
             });
@@ -211,10 +245,10 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
                 await delay(ttl);
 
-                const result = await adapter.release(key, lockId);
+                const result = await adapter.release(noOpContext, key, lockId);
 
                 expect(result).toBe(false);
             });
@@ -222,9 +256,9 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId = "b";
                 const ttl = null;
-                await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
 
-                const result = await adapter.release(key, lockId);
+                const result = await adapter.release(noOpContext, key, lockId);
 
                 expect(result).toBe(true);
             });
@@ -232,9 +266,9 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
 
-                const result = await adapter.release(key, lockId);
+                const result = await adapter.release(noOpContext, key, lockId);
 
                 expect(result).toBe(true);
             });
@@ -242,11 +276,16 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId1 = "b";
                 const ttl = null;
-                await adapter.acquire(key, lockId1, ttl);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
                 const lockId2 = "c";
 
-                await adapter.release(key, lockId2);
-                const result = await adapter.acquire(key, lockId2, ttl);
+                await adapter.release(noOpContext, key, lockId2);
+                const result = await adapter.acquire(
+                    noOpContext,
+                    key,
+                    lockId2,
+                    ttl,
+                );
 
                 expect(result).toBe(false);
             });
@@ -254,11 +293,16 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquire(key, lockId1, ttl);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
 
                 const lockId2 = "c";
-                await adapter.release(key, lockId2);
-                const result = await adapter.acquire(key, lockId2, ttl);
+                await adapter.release(noOpContext, key, lockId2);
+                const result = await adapter.acquire(
+                    noOpContext,
+                    key,
+                    lockId2,
+                    ttl,
+                );
 
                 expect(result).toBe(false);
             });
@@ -266,11 +310,16 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId1 = "b";
                 const ttl = null;
-                await adapter.acquire(key, lockId1, ttl);
-                await adapter.release(key, lockId1);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
+                await adapter.release(noOpContext, key, lockId1);
 
                 const lockId2 = "c";
-                const result = await adapter.acquire(key, lockId2, ttl);
+                const result = await adapter.acquire(
+                    noOpContext,
+                    key,
+                    lockId2,
+                    ttl,
+                );
 
                 expect(result).toBe(true);
             });
@@ -278,11 +327,16 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquire(key, lockId1, ttl);
-                await adapter.release(key, lockId1);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
+                await adapter.release(noOpContext, key, lockId1);
 
                 const lockId2 = "c";
-                const result = await adapter.acquire(key, lockId2, ttl);
+                const result = await adapter.acquire(
+                    noOpContext,
+                    key,
+                    lockId2,
+                    ttl,
+                );
 
                 expect(result).toBe(true);
             });
@@ -291,7 +345,7 @@ export function lockAdapterTestSuite(
             test("Should return false when key doesnt exists", async () => {
                 const key = "a";
 
-                const result = await adapter.forceRelease(key);
+                const result = await adapter.forceRelease(noOpContext, key);
 
                 expect(result).toBe(false);
             });
@@ -300,10 +354,10 @@ export function lockAdapterTestSuite(
                 const lockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
                 await delay(ttl);
 
-                const result = await adapter.forceRelease(key);
+                const result = await adapter.forceRelease(noOpContext, key);
 
                 expect(result).toBe(false);
             });
@@ -312,9 +366,9 @@ export function lockAdapterTestSuite(
                 const lockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
 
-                const result = await adapter.forceRelease(key);
+                const result = await adapter.forceRelease(noOpContext, key);
 
                 expect(result).toBe(true);
             });
@@ -323,9 +377,9 @@ export function lockAdapterTestSuite(
                 const lockId = "b";
                 const ttl = null;
 
-                await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
 
-                const result = await adapter.forceRelease(key);
+                const result = await adapter.forceRelease(noOpContext, key);
 
                 expect(result).toBe(true);
             });
@@ -333,12 +387,17 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId1 = "b";
                 const ttl = null;
-                await adapter.acquire(key, lockId1, ttl);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
 
-                await adapter.forceRelease(key);
+                await adapter.forceRelease(noOpContext, key);
 
                 const lockId2 = "c";
-                const result = await adapter.acquire(key, lockId2, ttl);
+                const result = await adapter.acquire(
+                    noOpContext,
+                    key,
+                    lockId2,
+                    ttl,
+                );
                 expect(result).toBe(true);
             });
         });
@@ -348,7 +407,12 @@ export function lockAdapterTestSuite(
                 const lockId = "b";
 
                 const newTtl = TimeSpan.fromMinutes(1);
-                const result = await adapter.refresh(key, lockId, newTtl);
+                const result = await adapter.refresh(
+                    noOpContext,
+                    key,
+                    lockId,
+                    newTtl,
+                );
 
                 expect(result).toBe(false);
             });
@@ -356,11 +420,16 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId1 = "b";
                 const ttl = null;
-                await adapter.acquire(key, lockId1, ttl);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
                 const lockId2 = "c";
-                const result = await adapter.refresh(key, lockId2, newTtl);
+                const result = await adapter.refresh(
+                    noOpContext,
+                    key,
+                    lockId2,
+                    newTtl,
+                );
 
                 expect(result).toBe(false);
             });
@@ -368,11 +437,16 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquire(key, lockId1, ttl);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
                 const lockId2 = "c";
-                const result = await adapter.refresh(key, lockId2, newTtl);
+                const result = await adapter.refresh(
+                    noOpContext,
+                    key,
+                    lockId2,
+                    newTtl,
+                );
 
                 expect(result).toBe(false);
             });
@@ -380,12 +454,17 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquire(key, lockId1, ttl);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
                 await delay(ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
                 const lockId2 = "c";
-                const result = await adapter.refresh(key, lockId2, newTtl);
+                const result = await adapter.refresh(
+                    noOpContext,
+                    key,
+                    lockId2,
+                    newTtl,
+                );
 
                 expect(result).toBe(false);
             });
@@ -393,11 +472,16 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
                 await delay(ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
-                const result = await adapter.refresh(key, lockId, newTtl);
+                const result = await adapter.refresh(
+                    noOpContext,
+                    key,
+                    lockId,
+                    newTtl,
+                );
 
                 expect(result).toBe(false);
             });
@@ -405,10 +489,15 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId = "b";
                 const ttl = null;
-                await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
-                const result = await adapter.refresh(key, lockId, newTtl);
+                const result = await adapter.refresh(
+                    noOpContext,
+                    key,
+                    lockId,
+                    newTtl,
+                );
 
                 expect(result).toBe(false);
             });
@@ -416,10 +505,15 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
-                const result = await adapter.refresh(key, lockId, newTtl);
+                const result = await adapter.refresh(
+                    noOpContext,
+                    key,
+                    lockId,
+                    newTtl,
+                );
 
                 expect(result).toBe(true);
             });
@@ -427,13 +521,18 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId1 = "b";
                 const ttl = null;
-                await adapter.acquire(key, lockId1, ttl);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
 
                 const newTtl = TimeSpan.fromMilliseconds(50);
-                await adapter.refresh(key, lockId1, newTtl);
+                await adapter.refresh(noOpContext, key, lockId1, newTtl);
                 await delay(newTtl);
                 const lockId2 = "a";
-                const result = await adapter.acquire(key, lockId2, ttl);
+                const result = await adapter.acquire(
+                    noOpContext,
+                    key,
+                    lockId2,
+                    ttl,
+                );
 
                 expect(result).toBe(false);
             });
@@ -441,18 +540,28 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquire(key, lockId1, ttl);
+                await adapter.acquire(noOpContext, key, lockId1, ttl);
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
-                await adapter.refresh(key, lockId1, newTtl);
+                await adapter.refresh(noOpContext, key, lockId1, newTtl);
                 await delay(newTtl.divide(2));
 
                 const lockId2 = "c";
-                const result1 = await adapter.acquire(key, lockId2, ttl);
+                const result1 = await adapter.acquire(
+                    noOpContext,
+                    key,
+                    lockId2,
+                    ttl,
+                );
                 expect(result1).toBe(false);
 
                 await delay(newTtl.divide(2));
-                const result2 = await adapter.acquire(key, lockId2, ttl);
+                const result2 = await adapter.acquire(
+                    noOpContext,
+                    key,
+                    lockId2,
+                    ttl,
+                );
                 expect(result2).toBe(true);
             });
         });
@@ -460,7 +569,7 @@ export function lockAdapterTestSuite(
             test("Should return null when key doesnt exists", async () => {
                 const key = "a";
 
-                const lockData = await adapter.getState(key);
+                const lockData = await adapter.getState(noOpContext, key);
 
                 expect(lockData).toBeNull();
             });
@@ -468,10 +577,10 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const lockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
                 await delay(ttl);
 
-                const lockData = await adapter.getState(key);
+                const lockData = await adapter.getState(noOpContext, key);
 
                 expect(lockData).toBeNull();
             });
@@ -479,11 +588,11 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const ttl = null;
                 const lockId = "1";
-                await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
 
-                await adapter.forceRelease(key);
+                await adapter.forceRelease(noOpContext, key);
 
-                const lockData = await adapter.getState(key);
+                const lockData = await adapter.getState(noOpContext, key);
 
                 expect(lockData).toBeNull();
             });
@@ -491,11 +600,11 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const ttl = null;
                 const lockId = "1";
-                await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
 
-                await adapter.release(key, lockId);
+                await adapter.release(noOpContext, key, lockId);
 
-                const lockData = await adapter.getState(key);
+                const lockData = await adapter.getState(noOpContext, key);
 
                 expect(lockData).toBeNull();
             });
@@ -503,9 +612,9 @@ export function lockAdapterTestSuite(
                 const key = "a";
                 const ttl = null;
                 const lockId = "1";
-                await adapter.acquire(key, lockId, ttl);
+                await adapter.acquire(noOpContext, key, lockId, ttl);
 
-                const state = await adapter.getState(key);
+                const state = await adapter.getState(noOpContext, key);
 
                 expect(state).toEqual({
                     owner: lockId,
@@ -521,12 +630,12 @@ export function lockAdapterTestSuite(
                 try {
                     vi.useFakeTimers();
                     expiration = ttl.toEndDate();
-                    await adapter.acquire(key, lockId, ttl);
+                    await adapter.acquire(noOpContext, key, lockId, ttl);
                 } finally {
                     vi.useRealTimers();
                 }
 
-                const state = await adapter.getState(key);
+                const state = await adapter.getState(noOpContext, key);
 
                 expect(state).toEqual({
                     owner: lockId,

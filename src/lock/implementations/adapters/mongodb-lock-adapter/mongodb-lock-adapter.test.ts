@@ -5,6 +5,8 @@ import {
 import { MongoClient } from "mongodb";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
     MongodbLockAdapter,
     type MongodbLockDocument,
@@ -16,6 +18,8 @@ const timeout = TimeSpan.fromMinutes(2);
 describe("class: MongodbLockAdapter", () => {
     let client: MongoClient;
     let startedContainer: StartedMongoDBContainer;
+    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
+
     beforeEach(async () => {
         startedContainer = await new MongoDBContainer("mongo:5.0.0").start();
         client = new MongoClient(startedContainer.getConnectionString(), {
@@ -112,7 +116,7 @@ describe("class: MongodbLockAdapter", () => {
             const lockId = "1";
             const ttl = null;
 
-            await adapter.acquire(key, lockId, ttl);
+            await adapter.acquire(noOpContext, key, lockId, ttl);
 
             const doc = await collection.findOne({
                 key,
@@ -124,7 +128,7 @@ describe("class: MongodbLockAdapter", () => {
                 } satisfies Partial<MongodbLockDocument>),
             );
         });
-        test("Should set expiration field to Date when given given expiration", async () => {
+        test("Should set expiration field to Date when given expiration", async () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
@@ -140,7 +144,7 @@ describe("class: MongodbLockAdapter", () => {
             const ttl = TimeSpan.fromMinutes(5);
             const expiration = ttl.toEndDate();
 
-            await adapter.acquire(key, lockId, ttl);
+            await adapter.acquire(noOpContext, key, lockId, ttl);
 
             const doc = await collection.findOne({
                 key,
