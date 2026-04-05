@@ -8,7 +8,7 @@ import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/_module.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
     type ILock,
@@ -238,7 +238,7 @@ export class LockFactory implements ILockFactory {
             serdeTransformerName = "",
             waitUntil = defaultWaitUntil,
             executionContext = new ExecutionContext(
-                new AlsExecutionContextAdapter(),
+                new NoOpExecutionContextAdapter(),
             ),
         } = settings;
 
