@@ -20,9 +20,9 @@ export function isDatabaseLockAdapter(
         typeof adapter_["transaction"] === "function" &&
         adapter_["transaction"].length === 2 &&
         typeof adapter_["remove"] === "function" &&
-        adapter_["remove"].length === 3 &&
+        adapter_["remove"].length === 2 &&
         typeof adapter_["removeIfOwner"] === "function" &&
-        adapter_["removeIfOwner"].length === 4 &&
+        adapter_["removeIfOwner"].length === 3 &&
         typeof adapter_["updateExpiration"] === "function" &&
         adapter_["updateExpiration"].length === 4 &&
         typeof adapter_["find"] === "function" &&
