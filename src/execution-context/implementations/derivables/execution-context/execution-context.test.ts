@@ -1,14 +1,18 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, beforeEach } from "vitest";
 
 import { contextToken } from "@/execution-context/contracts/execution-context.contract.js";
 import { NotFoundExecutionContextError } from "@/execution-context/contracts/execution-context.errors.js";
+import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/als-execution-context-adapter.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/execution-context/execution-context.js";
 import { type InvokableFn } from "@/utilities/_module.js";
 
 describe("class: ExecutionContext", () => {
+    let context: ExecutionContext;
+    beforeEach(() => {
+        context = new ExecutionContext(new AlsExecutionContextAdapter());
+    });
     describe("method: contains", () => {
         test("Should return false when array token does not exist", () => {
-            const context = new ExecutionContext();
             const token = contextToken<Array<number>>("items");
 
             const result = context.run(() => {
@@ -19,7 +23,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return true when array contains matching value", () => {
-            const context = new ExecutionContext();
             const token = contextToken<Array<number>>("items");
 
             const result = context.run(() => {
@@ -31,7 +34,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return false when array does not contain value", () => {
-            const context = new ExecutionContext();
             const token = contextToken<Array<number>>("items");
 
             const result = context.run(() => {
@@ -43,7 +45,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should work with predicate function", () => {
-            const context = new ExecutionContext();
             const token = contextToken<Array<number>>("items");
 
             const result = context.run(() => {
@@ -60,7 +61,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: exists", () => {
         test("Should return false for non-existent token", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -71,7 +71,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return true for existing token", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -85,7 +84,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: missing", () => {
         test("Should return true for non-existent token", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -96,7 +94,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return false for existing token", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -110,7 +107,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: get", () => {
         test("Should return null when token does not exist", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -121,7 +117,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return value when token exists", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -133,7 +128,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should work with different value types", () => {
-            const context = new ExecutionContext();
             const numberToken = contextToken<number>("count");
             const boolToken = contextToken<boolean>("active");
             const objectToken = contextToken<{ id: string }>("config");
@@ -160,7 +154,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: getOr", () => {
         test("Should return default value from static value when token missing", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -171,7 +164,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return default value from function when token missing", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -182,7 +174,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return actual value when token exists", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -196,7 +187,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: getOrFail", () => {
         test("Should throw NotFoundExecutionContextError when token missing", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             expect(() => {
@@ -207,7 +197,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return value when token exists", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -221,7 +210,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: add", () => {
         test("Should add a new key-value pair", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -233,7 +221,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should not overwrite existing value", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -246,7 +233,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return context for chaining", () => {
-            const context = new ExecutionContext();
             const nameToken = contextToken<string>("name");
             const ageToken = contextToken<number>("age");
 
@@ -264,7 +250,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: put", () => {
         test("Should set a new key-value pair", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -276,7 +261,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should overwrite existing value", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -289,7 +273,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return context for chaining", () => {
-            const context = new ExecutionContext();
             const nameToken = contextToken<string>("name");
             const ageToken = contextToken<number>("age");
 
@@ -307,7 +290,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: putIncrement", () => {
         test("Should initialize value to 0 if missing", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -319,7 +301,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should increment existing value by default 1", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -332,7 +313,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should increment by custom amount", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -345,7 +325,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should respect max boundary", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -363,7 +342,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should use custom initialValue", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -375,7 +353,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should increment with no max constraint", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -388,7 +365,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should add initialValue with no max when token does not exist", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -400,7 +376,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should cap initialValue exactly to max when equal", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -414,7 +389,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: putDecrement", () => {
         test("Should initialize value to 0 if missing", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -426,7 +400,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should decrement existing value by default 1", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -439,7 +412,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should decrement by custom amount", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -452,7 +424,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should respect min boundary", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -470,7 +441,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should add initialValue with no min when token does not exist", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -482,7 +452,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should cap initialValue exactly to min when equal", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -494,7 +463,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should decrement with no min constraint when value exists", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -509,7 +477,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: putPush", () => {
         test("Should create array if token missing", () => {
-            const context = new ExecutionContext();
             const token = contextToken<Array<number>>("items");
 
             const result = context.run(() => {
@@ -521,7 +488,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should append values to existing array", () => {
-            const context = new ExecutionContext();
             const token = contextToken<Array<number>>("items");
 
             const result = context.run(() => {
@@ -534,7 +500,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should work with single value", () => {
-            const context = new ExecutionContext();
             const token = contextToken<Array<string>>("tags");
 
             const result = context.run(() => {
@@ -548,7 +513,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: update", () => {
         test("Should update existing value", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -561,7 +525,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should do nothing if token missing", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -573,7 +536,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return context for chaining", () => {
-            const context = new ExecutionContext();
             const nameToken = contextToken<string>("name");
             const ageToken = contextToken<number>("age");
 
@@ -593,7 +555,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: updateIncrement", () => {
         test("Should increment existing value by default 1", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -606,7 +567,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should do nothing if token missing", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -618,7 +578,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should increment by custom amount", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -631,7 +590,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should respect max boundary", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -649,7 +607,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should cap value to max when incrementing brings it to exactly max", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -662,7 +619,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should not increment when value is already at max", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -675,7 +631,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should increment with no max constraint when value exists", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -688,7 +643,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should increment to exactly max value", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -703,7 +657,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: updateDecrement", () => {
         test("Should decrement existing value by default 1", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -716,7 +669,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should do nothing if token missing", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -728,7 +680,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should decrement by custom amount", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -741,7 +692,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should respect min boundary", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -759,7 +709,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should cap value to min when decrementing brings it to exactly min", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -772,7 +721,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should not decrement when value is already at min", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -785,7 +733,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should decrement with no min constraint when value exists", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -798,7 +745,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should decrement to exactly min value", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -813,7 +759,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: updatePush", () => {
         test("Should append values to existing array", () => {
-            const context = new ExecutionContext();
             const token = contextToken<Array<number>>("items");
 
             const result = context.run(() => {
@@ -826,7 +771,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should do nothing if token missing", () => {
-            const context = new ExecutionContext();
             const token = contextToken<Array<number>>("items");
 
             const result = context.run(() => {
@@ -838,7 +782,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should work with single value push", () => {
-            const context = new ExecutionContext();
             const token = contextToken<Array<string>>("tags");
 
             const result = context.run(() => {
@@ -853,7 +796,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: remove", () => {
         test("Should remove existing key", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -867,7 +809,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should do nothing if key missing", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             expect(() => {
@@ -878,7 +819,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return context for chaining", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -893,7 +833,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: when", () => {
         test("Should execute invokable when condition is true", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -905,7 +844,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should not execute invokable when condition is false", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -917,7 +855,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should evaluate condition lazily", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -939,7 +876,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should execute multiple invokables in sequence", () => {
-            const context = new ExecutionContext();
             const token1 = contextToken<number>("count1");
             const token2 = contextToken<number>("count2");
 
@@ -962,14 +898,12 @@ describe("class: ExecutionContext", () => {
 
     describe("method: run", () => {
         test("Should execute invokable and return its value", () => {
-            const context = new ExecutionContext();
             const result = context.run(() => 42);
 
             expect(result).toBe(42);
         });
 
         test("Should isolate context between runs", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             // First run sets a value
@@ -996,7 +930,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should allow inner run to see outer context values at start", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -1018,7 +951,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should maintain separate contexts for nested runs", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -1056,7 +988,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: bind", () => {
         test("Should return a function that preserves context", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("value");
 
             context.run(() => {
@@ -1074,8 +1005,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should receive correct arguments in bound function", () => {
-            const context = new ExecutionContext();
-
             const boundFn = context.bind((a: number, b: string) => {
                 return `${String(a)}-${b}`;
             });
@@ -1084,7 +1013,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should receive outer context state at bind time in bound function", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             let boundFn = () => {
@@ -1103,7 +1031,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should not affect outer context with modifications in bound function", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             let boundFn = () => {
@@ -1121,7 +1048,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should have independent snapshots for multiple bound functions", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             let boundFn1 = () => context.get(token);
@@ -1140,7 +1066,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should handle multiple arguments and complex logic in bound function", () => {
-            const context = new ExecutionContext();
             const baseToken = contextToken<number>("base");
             const multiplierToken = contextToken<number>("multiplier");
 
@@ -1163,7 +1088,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: contains (extended)", () => {
         test("Should work with different types in contains", () => {
-            const context = new ExecutionContext();
             const token =
                 contextToken<Array<{ id: number; name: string }>>("objects");
 
@@ -1179,7 +1103,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return false when array is empty", () => {
-            const context = new ExecutionContext();
             const token = contextToken<Array<number>>("items");
 
             const result = context.run(() => {
@@ -1193,7 +1116,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: exists (extended)", () => {
         test("Should return true even when value is falsy", () => {
-            const context = new ExecutionContext();
             const token = contextToken<boolean>("falsy");
 
             const result = context.run(() => {
@@ -1205,7 +1127,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return true when value is null", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string | null>("nullable");
 
             const result = context.run(() => {
@@ -1219,7 +1140,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: missing (extended)", () => {
         test("Should return false even when value is falsy", () => {
-            const context = new ExecutionContext();
             const token = contextToken<boolean>("falsy");
 
             const result = context.run(() => {
@@ -1233,7 +1153,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: getOr (extended)", () => {
         test("Should return the value even when it is falsy", () => {
-            const context = new ExecutionContext();
             const token = contextToken<boolean>("falsy");
 
             const result = context.run(() => {
@@ -1245,7 +1164,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should support lazy default values", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("nonexistent");
 
             const result = context.run(() => {
@@ -1256,7 +1174,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should only call lazy default when needed", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("key");
 
             let called = false;
@@ -1275,7 +1192,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: add (extended)", () => {
         test("Should work with various types", () => {
-            const context = new ExecutionContext();
             const stringToken = contextToken<string>("string");
             const numberToken = contextToken<number>("number");
             const arrayToken = contextToken<Array<number>>("array");
@@ -1302,7 +1218,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: put (extended)", () => {
         test("Should overwrite an existing value", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("key");
 
             const result = context.run(() => {
@@ -1315,7 +1230,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return context for chaining with put", () => {
-            const context = new ExecutionContext();
             const token1 = contextToken<string>("key1");
             const token2 = contextToken<string>("key2");
 
@@ -1333,7 +1247,6 @@ describe("class: ExecutionContext", () => {
 
     describe("method: when (extended)", () => {
         test("Should invoke multiple functions in order", () => {
-            const context = new ExecutionContext();
             const invocations: Array<number> = [];
 
             context.run(() => {
@@ -1358,7 +1271,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should support lazy conditions", () => {
-            const context = new ExecutionContext();
             let conditionEvaluated = false;
 
             context.run(() => {
@@ -1375,7 +1287,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should pass context to each invokable", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("count");
 
             context.run(() => {
@@ -1398,7 +1309,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should return context even when condition is false", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("key");
 
             const result = context.run(() => {
@@ -1414,7 +1324,6 @@ describe("class: ExecutionContext", () => {
 
     describe("integration: method chaining", () => {
         test("Should support chaining multiple operations", () => {
-            const context = new ExecutionContext();
             const token1 = contextToken<string>("name");
             const token2 = contextToken<number>("count");
             const token3 = contextToken<Array<string>>("items");
@@ -1442,7 +1351,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should support complex workflows", () => {
-            const context = new ExecutionContext();
             const userCountToken = contextToken<number>("userCount");
             const activeUsersToken = contextToken<Array<string>>("activeUsers");
             const maxUsersToken = contextToken<number>("maxUsers");
@@ -1480,7 +1388,6 @@ describe("class: ExecutionContext", () => {
 
     describe("context scopes: run", () => {
         test("Should create isolated scopes between consecutive runs", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("value");
 
             const first = context.run(() => {
@@ -1496,7 +1403,6 @@ describe("class: ExecutionContext", () => {
             expect(second).toBeNull(); // Isolated scope
         });
         test("Should create isolated scopes between consecutive async runs", async () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("value");
 
             const first = await context.run(() => {
@@ -1513,7 +1419,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should inherit outer context values at run start", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = context.run(() => {
@@ -1528,7 +1433,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should inherit outer context values at async run start", async () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("name");
 
             const result = await context.run(async () => {
@@ -1543,7 +1447,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should not leak inner context modifications to outer scope", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -1560,7 +1463,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should not leak inner context modifications to outer scope async", async () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const result = await context.run(async () => {
@@ -1578,7 +1480,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should maintain independent snapshots in nested runs", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("value");
 
             const results = context.run(() => {
@@ -1602,7 +1503,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should maintain independent snapshots in nested async runs", async () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("value");
 
             const results = await context.run(async () => {
@@ -1628,7 +1528,6 @@ describe("class: ExecutionContext", () => {
 
     describe("context scopes: bind", () => {
         test("Should capture context snapshot at bind time across runs", () => {
-            const context = new ExecutionContext();
             const token = contextToken<string>("state");
 
             const boundFn = context.run(() => {
@@ -1646,7 +1545,6 @@ describe("class: ExecutionContext", () => {
         });
 
         test("Should create independent snapshots for different bound functions", () => {
-            const context = new ExecutionContext();
             const token = contextToken<number>("counter");
 
             const fn1 = context.run(() => {
@@ -1669,7 +1567,6 @@ describe("class: ExecutionContext", () => {
     describe("nested context scopes: run depth levels", () => {
         describe("method: run", () => {
             test("Maintains isolation with three levels of nesting", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("value");
 
                 const result = context.run(() => {
@@ -1705,7 +1602,6 @@ describe("class: ExecutionContext", () => {
             });
 
             test("Maintains isolation with four levels of nesting", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<Array<number>>("levels");
 
                 const result = context.run(() => {
@@ -1753,7 +1649,6 @@ describe("class: ExecutionContext", () => {
             });
 
             test("Handles multiple sibling nested runs at same level", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("counter");
 
                 const result = context.run(() => {
@@ -1792,7 +1687,6 @@ describe("class: ExecutionContext", () => {
             });
 
             test("Preserves inner run changes via explicit returns", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("value");
 
                 const result = context.run(() => {
@@ -1820,7 +1714,6 @@ describe("class: ExecutionContext", () => {
     describe("nested context scopes: bind within run", () => {
         describe("method: bind", () => {
             test("Binds within nested run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("value");
 
                 let boundFn = null as InvokableFn<[], number | null> | null;
@@ -1841,7 +1734,6 @@ describe("class: ExecutionContext", () => {
             });
 
             test("Creates independent bound functions in nested contexts", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("counter");
 
                 const results: Array<() => number | null> = [];
@@ -1867,7 +1759,6 @@ describe("class: ExecutionContext", () => {
             });
 
             test("Captures proper snapshot in deeply nested contexts", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("value");
 
                 let capturedBound = null as InvokableFn<
@@ -1893,7 +1784,6 @@ describe("class: ExecutionContext", () => {
             });
 
             test("Isolates bound function from subsequent outer mutations", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("value");
 
                 const boundFn = context.run(() => {
@@ -1922,7 +1812,6 @@ describe("class: ExecutionContext", () => {
     describe("nested context scopes: complex interactions", () => {
         describe("method: update", () => {
             test("Handles modifications across multiple nested levels", () => {
-                const context = new ExecutionContext();
                 const token1 = contextToken<number>("token1");
                 const token2 = contextToken<number>("token2");
                 const token3 = contextToken<number>("token3");
@@ -1956,7 +1845,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: when", () => {
             test("Handles when() conditions in nested contexts", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("counter");
 
                 const result = context.run(() => {
@@ -1984,7 +1872,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: updatePush", () => {
             test("Handles array mutations in nested contexts", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<Array<string>>("items");
 
                 const result = context.run(() => {
@@ -2007,7 +1894,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: getOrFail", () => {
             test("Handles getOrFail() in nested contexts with inherited values", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<string>("key");
                 const missing = contextToken<string>("missing");
 
@@ -2042,7 +1928,6 @@ describe("class: ExecutionContext", () => {
 
         describe("integration: method chaining", () => {
             test("Supports method chaining across nested boundaries", () => {
-                const context = new ExecutionContext();
                 const t1 = contextToken<number>("t1");
                 const t2 = contextToken<number>("t2");
 
@@ -2078,7 +1963,6 @@ describe("class: ExecutionContext", () => {
     describe("nested context scopes: inheritance and visibility", () => {
         describe("method: get", () => {
             test("Allows reading parent context in nested run", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("shared");
 
                 const result = context.run(() => {
@@ -2106,7 +1990,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: putIncrement", () => {
             test("Does not share mutations between sibling nested runs", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("counter");
 
                 const result = context.run(() => {
@@ -2134,7 +2017,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: contains", () => {
             test("Handles contains() predicate in nested contexts with inheritance", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<Array<number>>("items");
 
                 const result = context.run(() => {
@@ -2174,7 +2056,6 @@ describe("class: ExecutionContext", () => {
     describe("no-op behavior: outside run context", () => {
         describe("method: get", () => {
             test("Returns null when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<string>("key");
 
                 const result = context.get(token);
@@ -2184,7 +2065,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: exists", () => {
             test("Returns false when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<string>("key");
 
                 const result = context.exists(token);
@@ -2194,7 +2074,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: missing", () => {
             test("Returns true when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<string>("key");
 
                 const result = context.missing(token);
@@ -2204,7 +2083,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: contains", () => {
             test("Returns false when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<Array<number>>("items");
 
                 const result = context.contains(token, 42);
@@ -2214,7 +2092,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: getOr", () => {
             test("Returns default value when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<string>("key");
 
                 const result = context.getOr(token, "default");
@@ -2222,7 +2099,6 @@ describe("class: ExecutionContext", () => {
             });
 
             test("Calls lazy function when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<string>("key");
 
                 const result = context.getOr(token, () => "lazy");
@@ -2232,7 +2108,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: getOrFail", () => {
             test("Throws when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<string>("key");
 
                 expect(() => {
@@ -2243,7 +2118,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: put", () => {
             test("Is no-op when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<string>("key");
 
                 context.put(token, "value");
@@ -2256,7 +2130,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: add", () => {
             test("Is no-op when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<string>("key");
 
                 context.add(token, "value");
@@ -2269,7 +2142,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: update", () => {
             test("Is no-op when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<string>("key");
 
                 context.update(token, "value");
@@ -2282,7 +2154,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: remove", () => {
             test("Is no-op when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<string>("key");
 
                 expect(() => {
@@ -2296,7 +2167,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: putIncrement", () => {
             test("Is no-op when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("counter");
 
                 context.putIncrement(token);
@@ -2309,7 +2179,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: putDecrement", () => {
             test("Is no-op when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("counter");
 
                 context.putDecrement(token);
@@ -2322,7 +2191,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: updateIncrement", () => {
             test("Is no-op when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("counter");
 
                 context.updateIncrement(token);
@@ -2335,7 +2203,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: updateDecrement", () => {
             test("Is no-op when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("counter");
 
                 context.updateDecrement(token);
@@ -2348,7 +2215,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: putPush", () => {
             test("Is no-op when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<Array<number>>("items");
 
                 context.putPush(token, 1, 2, 3);
@@ -2361,7 +2227,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: updatePush", () => {
             test("Is no-op when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<Array<number>>("items");
 
                 context.updatePush(token, 1, 2, 3);
@@ -2374,7 +2239,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: when", () => {
             test("With true condition is no-op when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("counter");
 
                 let invoked = false;
@@ -2389,7 +2253,6 @@ describe("class: ExecutionContext", () => {
             });
 
             test("With false condition is no-op when not in run context", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("counter");
 
                 let invoked = false;
@@ -2406,7 +2269,6 @@ describe("class: ExecutionContext", () => {
 
         describe("method: bind", () => {
             test("Outside run context captures empty context snapshot that mutations work in", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("value");
 
                 const boundFn = context.bind(() => {
@@ -2425,7 +2287,6 @@ describe("class: ExecutionContext", () => {
 
         describe("integration: method chaining", () => {
             test("Method chaining outside run context returns no-op context", () => {
-                const context = new ExecutionContext();
                 const token1 = contextToken<string>("key1");
                 const token2 = contextToken<number>("key2");
 
@@ -2443,7 +2304,6 @@ describe("class: ExecutionContext", () => {
             });
 
             test("Multiple mutations outside run context all no-op", () => {
-                const context = new ExecutionContext();
                 const token = contextToken<number>("counter");
 
                 context.putIncrement(token);

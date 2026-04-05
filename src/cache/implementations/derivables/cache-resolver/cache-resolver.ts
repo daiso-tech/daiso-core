@@ -14,6 +14,7 @@ import {
     type CacheSettingsBase,
 } from "@/cache/implementations/derivables/cache/_module.js";
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
@@ -126,6 +127,15 @@ export class CacheResolver<TAdapters extends string = string, TType = unknown>
         return new CacheResolver({
             ...this.settings,
             waitUntil,
+        });
+    }
+
+    setExecutionContext(
+        executionContext: IExecutionContext,
+    ): CacheResolver<TAdapters, TType> {
+        return new CacheResolver({
+            ...this.settings,
+            executionContext,
         });
     }
 

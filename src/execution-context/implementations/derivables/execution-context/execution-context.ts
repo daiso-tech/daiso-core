@@ -13,7 +13,6 @@ import {
     type PutDecrementSettings,
     type PutIncrementSettings,
 } from "@/execution-context/contracts/_module.js";
-import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/_module.js";
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
 import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import {
@@ -27,8 +26,9 @@ import {
  * IMPORT_PATH: `"@daiso-tech/core/execution-context"`
  */
 export class ExecutionContext implements IExecutionContext {
-    private readonly executionContextStorage: IExecutionContextAdapter<ICopyableContext> =
-        new AlsExecutionContextAdapter();
+    constructor(
+        private readonly executionContextStorage: IExecutionContextAdapter<ICopyableContext>,
+    ) {}
 
     private get current(): ICopyableContext {
         const context = this.executionContextStorage.get();

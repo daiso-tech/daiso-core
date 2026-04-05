@@ -6,6 +6,8 @@ import { Cache } from "@/cache/implementations/derivables/_module.js";
 import { cacheTestSuite } from "@/cache/implementations/test-utilities/_module.js";
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { Namespace } from "@/namespace/implementations/_module.js";
 import { ValidationError } from "@/utilities/_module.js";
 
@@ -77,28 +79,56 @@ describe("class: Cache", () => {
             });
         });
         describe("output validation:", () => {
+            const noOpContext = new ExecutionContext(
+                new NoOpExecutionContextAdapter(),
+            );
             test("method: get", async () => {
-                await adapter.add(namespace.create("a").toString(), 1, null);
+                await adapter.add(
+                    noOpContext,
+                    namespace.create("a").toString(),
+                    1,
+                    null,
+                );
                 const promise = cache.get("a");
                 await expect(promise).rejects.toBeInstanceOf(ValidationError);
             });
             test("method: getOrFail", async () => {
-                await adapter.add(namespace.create("a").toString(), 1, null);
+                await adapter.add(
+                    noOpContext,
+                    namespace.create("a").toString(),
+                    1,
+                    null,
+                );
                 const promise = cache.getOrFail("a");
                 await expect(promise).rejects.toBeInstanceOf(ValidationError);
             });
             test("method: getAndRemove", async () => {
-                await adapter.add(namespace.create("a").toString(), 1, null);
+                await adapter.add(
+                    noOpContext,
+                    namespace.create("a").toString(),
+                    1,
+                    null,
+                );
                 const promise = cache.getAndRemove("a");
                 await expect(promise).rejects.toBeInstanceOf(ValidationError);
             });
             test("method: getOr", async () => {
-                await adapter.add(namespace.create("a").toString(), 1, null);
+                await adapter.add(
+                    noOpContext,
+                    namespace.create("a").toString(),
+                    1,
+                    null,
+                );
                 const promise = cache.getOr("a", "1");
                 await expect(promise).rejects.toBeInstanceOf(ValidationError);
             });
             test("method: getOrAdd", async () => {
-                await adapter.add(namespace.create("a").toString(), 1, null);
+                await adapter.add(
+                    noOpContext,
+                    namespace.create("a").toString(),
+                    1,
+                    null,
+                );
                 const promise = cache.getOrAdd("a", "1");
                 await expect(promise).rejects.toBeInstanceOf(ValidationError);
             });
