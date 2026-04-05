@@ -2,6 +2,7 @@
  * @module Semaphore
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/execution-context.contract.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type ISemaphoreFactory } from "@/semaphore/contracts/semaphore-factory.contract.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
@@ -11,6 +12,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  * @group Contracts
  */
 export type SemaphoreAcquireSettings = {
+    context: IReadableContext;
     key: string;
     slotId: string;
     limit: number;
@@ -46,24 +48,36 @@ export type ISemaphoreAdapter = {
      *
      * @returns Returns true if the semaphore exists and has at least one unavailable slot or false if all slots are available.
      */
-    release(key: string, slotId: string): Promise<boolean>;
+    release(
+        context: IReadableContext,
+        key: string,
+        slotId: string,
+    ): Promise<boolean>;
 
     /**
      * The `forceReleaseAll` method releases all slots related to the key.
      */
-    forceReleaseAll(key: string): Promise<boolean>;
+    forceReleaseAll(context: IReadableContext, key: string): Promise<boolean>;
 
     /**
      * The `refresh` method expiration of slot if not already expired.
      *
      * @returns Returns true if the slot is refreshed* otherwise false is returned.
      */
-    refresh(key: string, slotId: string, ttl: TimeSpan): Promise<boolean>;
+    refresh(
+        context: IReadableContext,
+        key: string,
+        slotId: string,
+        ttl: TimeSpan,
+    ): Promise<boolean>;
 
     /**
      * The `getState` method returns the state of the semaphore.
      *
      * @returns Returns {@link ISemaphoreAdapterState | `ISemaphoreAdapterState`} if the semaphore exists in the database or null if doesnt exists.
      */
-    getState(key: string): Promise<ISemaphoreAdapterState | null>;
+    getState(
+        context: IReadableContext,
+        key: string,
+    ): Promise<ISemaphoreAdapterState | null>;
 };

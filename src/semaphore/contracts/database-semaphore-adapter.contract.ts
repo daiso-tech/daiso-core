@@ -2,6 +2,7 @@
  * @module Semaphore
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
@@ -40,25 +41,36 @@ export type IDatabaseSemaphoreTransaction = {
     /**
      * The `findSemaphore` returns the semaphore if it exists otherwise `null` is returned.
      */
-    findSemaphore(key: string): Promise<ISemaphoreData | null>;
+    findSemaphore(
+        context: IReadableContext,
+        key: string,
+    ): Promise<ISemaphoreData | null>;
 
     /**
      * The `findSlots` returns the semaphore slot if it exists otherwise `null` is returned.
      *
      */
-    findSlots(key: string): Promise<Array<ISemaphoreSlotData>>;
+    findSlots(
+        context: IReadableContext,
+        key: string,
+    ): Promise<Array<ISemaphoreSlotData>>;
 
     /**
      * The `upsertSemaphore` inserts a semaphore if it doesnt exist otherwise it will be updated.
      *
      */
-    upsertSemaphore(key: string, limit: number): Promise<void>;
+    upsertSemaphore(
+        context: IReadableContext,
+        key: string,
+        limit: number,
+    ): Promise<void>;
 
     /**
      * The `upsertSlot` inserts a semaphore slot if it doesnt exist otherwise it will be updated.
      *
      */
     upsertSlot(
+        context: IReadableContext,
         key: string,
         slotId: string,
         expiration: Date | null,
@@ -80,6 +92,7 @@ export type IDatabaseSemaphoreAdapter = {
      * Note when implementing this method use the strictest transaction level mode.
      */
     transaction<TValue>(
+        context: IReadableContext,
         fn: InvokableFn<
             [transaction: IDatabaseSemaphoreTransaction],
             Promise<TValue>
@@ -92,6 +105,7 @@ export type IDatabaseSemaphoreAdapter = {
      * @returns Returns the slot expiration.
      */
     removeSlot(
+        context: IReadableContext,
         key: string,
         slotId: string,
     ): Promise<ISemaphoreSlotExpirationData | null>;
@@ -101,7 +115,10 @@ export type IDatabaseSemaphoreAdapter = {
      *
      * @returns Returns the slot expiration.
      */
-    removeAllSlots(key: string): Promise<Array<ISemaphoreSlotExpirationData>>;
+    removeAllSlots(
+        context: IReadableContext,
+        key: string,
+    ): Promise<Array<ISemaphoreSlotExpirationData>>;
 
     /**
      * The `updateExpiration` updates the specified slot expiration as long as it is expireable and unexpired of the given semaphore.
@@ -109,6 +126,7 @@ export type IDatabaseSemaphoreAdapter = {
      * @returns Returns a number greater than `0` if the slot expiration was updated, otherwise returns `0`.
      */
     updateExpiration(
+        context: IReadableContext,
         key: string,
         slotId: string,
         expiration: Date,

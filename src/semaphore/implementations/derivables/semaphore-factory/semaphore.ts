@@ -3,6 +3,7 @@
  */
 
 import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { AsyncHooks, type AsyncMiddlewareFn } from "@/hooks/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import {
@@ -26,7 +27,6 @@ import {
     delay,
     resolveLazyable,
     type AsyncLazy,
-    type Invokable,
     type WaitUntil,
 } from "@/utilities/_module.js";
 
@@ -58,6 +58,7 @@ export type SemaphoreSettings = {
     defaultRefreshTime: TimeSpan;
     namespace: INamespace;
     waitUntil: WaitUntil;
+    executionContext: IExecutionContext;
 };
 
 /**
@@ -91,10 +92,8 @@ export class Semaphore implements ISemaphore {
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly namespace: INamespace;
-    private readonly waitUntil: Invokable<
-        [promise: PromiseLike<unknown>],
-        void
-    >;
+    private readonly waitUntil: WaitUntil;
+    private readonly executionContext: IExecutionContext;
 
     constructor(settings: SemaphoreSettings) {
         const {
@@ -111,8 +110,10 @@ export class Semaphore implements ISemaphore {
             defaultRefreshTime,
             namespace,
             waitUntil,
+            executionContext,
         } = settings;
 
+        this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.namespace = namespace;
         this.slotId = slotId;
@@ -227,6 +228,7 @@ export class Semaphore implements ISemaphore {
     acquire(): Promise<boolean> {
         return new AsyncHooks(async () => {
             return await this.adapter.acquire({
+                context: this.executionContext,
                 key: this._key.toString(),
                 slotId: this.slotId,
                 limit: this.limit,
@@ -291,6 +293,7 @@ export class Semaphore implements ISemaphore {
     release(): Promise<boolean> {
         return new AsyncHooks(async () => {
             return await this.adapter.release(
+                this.executionContext,
                 this._key.toString(),
                 this.slotId,
             );
@@ -322,7 +325,10 @@ export class Semaphore implements ISemaphore {
 
     forceReleaseAll(): Promise<boolean> {
         return new AsyncHooks(async () => {
-            return await this.adapter.forceReleaseAll(this._key.toString());
+            return await this.adapter.forceReleaseAll(
+                this.executionContext,
+                this._key.toString(),
+            );
         }, [
             this.handleUnexpectedError(),
             async (args, next) => {
@@ -345,6 +351,7 @@ export class Semaphore implements ISemaphore {
     refresh(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
         return new AsyncHooks(async () => {
             return await this.adapter.refresh(
+                this.executionContext,
                 this._key.toString(),
                 this.slotId,
                 TimeSpan.fromTimeSpan(ttl),
@@ -396,7 +403,10 @@ export class Semaphore implements ISemaphore {
 
     getState(): Promise<ISemaphoreState> {
         return new AsyncHooks(async () => {
-            const state = await this.adapter.getState(this._key.toString());
+            const state = await this.adapter.getState(
+                this.executionContext,
+                this._key.toString(),
+            );
             if (state === null) {
                 return {
                     type: SEMAPHORE_STATE.EXPIRED,

@@ -3,6 +3,7 @@
  */
 
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type ISemaphoreAdapter,
@@ -16,7 +17,6 @@ import {
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
-    type Invokable,
     type OneOrMore,
     type WaitUntil,
     getConstructorName,
@@ -35,6 +35,7 @@ export type SemaphoreSerdeTransformerSettings = {
     eventBus: IEventBus<SemaphoreEventMap>;
     serdeTransformerName: string;
     waitUntil: WaitUntil;
+    executionContext: IExecutionContext;
 };
 
 /**
@@ -51,10 +52,8 @@ export class SemaphoreSerdeTransformer
     private readonly defaultRefreshTime: TimeSpan;
     private readonly eventBus: IEventBus<SemaphoreEventMap>;
     private readonly serdeTransformerName: string;
-    private readonly waitUntil: Invokable<
-        [promise: PromiseLike<unknown>],
-        void
-    >;
+    private readonly waitUntil: WaitUntil;
+    private readonly executionContext: IExecutionContext;
 
     constructor(settings: SemaphoreSerdeTransformerSettings) {
         const {
@@ -67,8 +66,10 @@ export class SemaphoreSerdeTransformer
             eventBus,
             serdeTransformerName,
             waitUntil,
+            executionContext,
         } = settings;
 
+        this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
@@ -120,6 +121,7 @@ export class SemaphoreSerdeTransformer
         const { key, slotId, limit, ttlInMs } = serializedValue;
         const keyObj = this.namespace.create(key);
         return new Semaphore({
+            executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             slotId,
             adapter: this.adapter,

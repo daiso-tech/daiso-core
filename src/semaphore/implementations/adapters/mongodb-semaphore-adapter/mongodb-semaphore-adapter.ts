@@ -10,6 +10,7 @@ import {
     type ObjectId,
 } from "mongodb";
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type ISemaphoreAdapter,
     type ISemaphoreAdapterState,
@@ -347,7 +348,11 @@ export class MongodbSemaphoreAdapter
         return true;
     }
 
-    async release(key: string, slotId: string): Promise<boolean> {
+    async release(
+        _context: IReadableContext,
+        key: string,
+        slotId: string,
+    ): Promise<boolean> {
         const semaphoreData = await this.collection.findOneAndUpdate(
             {
                 key,
@@ -392,7 +397,10 @@ export class MongodbSemaphoreAdapter
         return false;
     }
 
-    async forceReleaseAll(key: string): Promise<boolean> {
+    async forceReleaseAll(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
         const semaphoreData = await this.collection.findOneAndDelete(
             {
                 key,
@@ -412,6 +420,7 @@ export class MongodbSemaphoreAdapter
     }
 
     async refresh(
+        _context: IReadableContext,
         key: string,
         slotId: string,
         ttl: TimeSpan,
@@ -477,7 +486,10 @@ export class MongodbSemaphoreAdapter
         return hasRefreshed;
     }
 
-    async getState(key: string): Promise<ISemaphoreAdapterState | null> {
+    async getState(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<ISemaphoreAdapterState | null> {
         const semaphore = await this.collection.findOne(
             { key },
             {
