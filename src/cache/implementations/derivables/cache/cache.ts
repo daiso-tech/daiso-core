@@ -104,9 +104,9 @@ export type CacheSettingsBase<TType = unknown> = {
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter"
+     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
      *
-     * new ExecutionContext(new AlsExecutionContextAdapter())
+     * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
      */
     executionContext?: IExecutionContext;

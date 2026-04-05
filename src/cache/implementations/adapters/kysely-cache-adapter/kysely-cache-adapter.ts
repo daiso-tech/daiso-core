@@ -376,6 +376,9 @@ export class KyselyCacheAdapter<TType = unknown>
         keys: Array<string>,
     ): Promise<Array<ICacheDataExpiration>> {
         let rows: Array<Pick<KyselyCacheTable, "expiration">>;
+        if (keys.length === 0) {
+            return [];
+        }
         if (this.isMysql) {
             rows = await this._transaction(context, async (trx) => {
                 const rows = await trx
