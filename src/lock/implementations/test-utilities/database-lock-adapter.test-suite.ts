@@ -8,6 +8,7 @@ import {
     type beforeEach,
 } from "vitest";
 
+import { type IContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
@@ -28,6 +29,17 @@ export type DatabaseLockAdapterTestSuiteSettings = {
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
     createAdapter: () => Promisable<IDatabaseLockAdapter>;
+
+    /**
+     * @default
+     * ```ts
+     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
+     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     *
+     * new ExecutionContext(new NoOpExecutionContextAdapter())
+     * ```
+     */
+    context?: IContext;
 };
 
 /**
@@ -78,9 +90,14 @@ export type DatabaseLockAdapterTestSuiteSettings = {
 export function databaseLockAdapterTestSuite(
     settings: DatabaseLockAdapterTestSuiteSettings,
 ): void {
-    const { expect, test, createAdapter, describe, beforeEach } = settings;
-
-    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
+    const {
+        expect,
+        test,
+        createAdapter,
+        describe,
+        beforeEach,
+        context = new ExecutionContext(new NoOpExecutionContextAdapter()),
+    } = settings;
 
     describe("IDatabaseLockAdapter tests:", () => {
         let adapter: IDatabaseLockAdapter;
@@ -92,15 +109,15 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "1";
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const noneExistingKey = "b";
                 const result = await adapter.transaction(
-                    noOpContext,
+                    context,
                     async (trx) => {
-                        return await trx.find(noOpContext, noneExistingKey);
+                        return await trx.find(context, noneExistingKey);
                     },
                 );
 
@@ -110,14 +127,14 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "1";
                 const expiration = TimeSpan.fromMinutes(2).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const result = await adapter.transaction(
-                    noOpContext,
+                    context,
                     async (trx) => {
-                        return await trx.find(noOpContext, key);
+                        return await trx.find(context, key);
                     },
                 );
 
@@ -132,11 +149,11 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
-                const lockData = await adapter.find(noOpContext, key);
+                const lockData = await adapter.find(context, key);
                 expect(lockData).toEqual({
                     expiration,
                     owner,
@@ -147,17 +164,17 @@ export function databaseLockAdapterTestSuite(
 
                 const owner1 = "1";
                 const expiration1 = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner1, expiration1);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner1, expiration1);
                 });
 
                 const owner2 = "2";
                 const expiration2 = TimeSpan.fromMilliseconds(100).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner2, expiration2);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner2, expiration2);
                 });
 
-                const lockData = await adapter.find(noOpContext, key);
+                const lockData = await adapter.find(context, key);
                 expect(lockData).toEqual({
                     expiration: expiration2,
                     owner: owner2,
@@ -169,13 +186,13 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const noneExistingKey = "c";
                 const lockExpirationData = await adapter.remove(
-                    noOpContext,
+                    context,
                     noneExistingKey,
                 );
 
@@ -185,14 +202,11 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
-                const lockExpirationData = await adapter.remove(
-                    noOpContext,
-                    key,
-                );
+                const lockExpirationData = await adapter.remove(context, key);
 
                 expect(lockExpirationData).toEqual({
                     expiration,
@@ -202,14 +216,11 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = TimeSpan.fromMinutes(5).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
-                const lockExpirationData = await adapter.remove(
-                    noOpContext,
-                    key,
-                );
+                const lockExpirationData = await adapter.remove(context, key);
 
                 expect(lockExpirationData).toEqual({
                     expiration,
@@ -219,13 +230,13 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = TimeSpan.fromMinutes(5).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
-                await adapter.remove(noOpContext, key);
+                await adapter.remove(context, key);
 
-                const lockExpirationData = await adapter.find(noOpContext, key);
+                const lockExpirationData = await adapter.find(context, key);
                 expect(lockExpirationData).toBeNull();
             });
         });
@@ -234,13 +245,13 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const noneExistingKey = "c";
                 const lockData = await adapter.removeIfOwner(
-                    noOpContext,
+                    context,
                     noneExistingKey,
                     owner,
                 );
@@ -251,13 +262,13 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const noneExistingOwner = "c";
                 const lockData = await adapter.removeIfOwner(
-                    noOpContext,
+                    context,
                     key,
                     noneExistingOwner,
                 );
@@ -268,12 +279,12 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const lockData = await adapter.removeIfOwner(
-                    noOpContext,
+                    context,
                     key,
                     owner,
                 );
@@ -287,12 +298,12 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = TimeSpan.fromMinutes(10).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const lockData = await adapter.removeIfOwner(
-                    noOpContext,
+                    context,
                     key,
                     owner,
                 );
@@ -306,31 +317,27 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "b";
                 const expiration = TimeSpan.fromMinutes(10).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
-                await adapter.removeIfOwner(noOpContext, key, owner);
+                await adapter.removeIfOwner(context, key, owner);
 
-                const lockData = await adapter.find(noOpContext, key);
+                const lockData = await adapter.find(context, key);
                 expect(lockData).toBeNull();
             });
             test("Should not remove lock when key exists and owner does not exists", async () => {
                 const key = "a";
                 const owner = "b";
                 const expiration = TimeSpan.fromMinutes(10).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const noneExsitingOwner = "c";
-                await adapter.removeIfOwner(
-                    noOpContext,
-                    key,
-                    noneExsitingOwner,
-                );
+                await adapter.removeIfOwner(context, key, noneExsitingOwner);
 
-                const lockData = await adapter.find(noOpContext, key);
+                const lockData = await adapter.find(context, key);
                 expect(lockData).toEqual({
                     expiration,
                     owner,
@@ -343,15 +350,15 @@ export function databaseLockAdapterTestSuite(
                 const owner = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toEndDate();
 
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 const noneExistingKey = "b";
                 const result1 = await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     noneExistingKey,
                     owner,
                     newExpiration,
@@ -364,15 +371,15 @@ export function databaseLockAdapterTestSuite(
                 const owner = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toEndDate();
 
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 const noneExistingOwner = "b";
                 const result1 = await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     key,
                     noneExistingOwner,
                     newExpiration,
@@ -385,14 +392,14 @@ export function databaseLockAdapterTestSuite(
                 const owner = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toStartDate();
 
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 const result1 = await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     key,
                     owner,
                     newExpiration,
@@ -404,14 +411,14 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "1";
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 const result1 = await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     key,
                     owner,
                     newExpiration,
@@ -424,9 +431,9 @@ export function databaseLockAdapterTestSuite(
                 const owner = "1";
                 const expiration = TimeSpan.fromMilliseconds(50);
 
-                await adapter.transaction(noOpContext, async (trx) => {
+                await adapter.transaction(context, async (trx) => {
                     await trx.upsert(
-                        noOpContext,
+                        context,
                         key,
                         owner,
                         expiration.toEndDate(),
@@ -435,7 +442,7 @@ export function databaseLockAdapterTestSuite(
 
                 const newExpiration = TimeSpan.fromMilliseconds(100);
                 const result1 = await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     key,
                     owner,
                     newExpiration.toEndDate(),
@@ -448,20 +455,20 @@ export function databaseLockAdapterTestSuite(
                 const owner = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toStartDate();
 
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     key,
                     owner,
                     newExpiration,
                 );
 
-                const lockData = await adapter.find(noOpContext, key);
+                const lockData = await adapter.find(context, key);
                 expect(lockData).toEqual({
                     owner,
                     expiration,
@@ -472,20 +479,20 @@ export function databaseLockAdapterTestSuite(
                 const owner = "1";
                 const expiration = null;
 
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     key,
                     owner,
                     newExpiration,
                 );
 
-                const lockData = await adapter.find(noOpContext, key);
+                const lockData = await adapter.find(context, key);
                 expect(lockData).toEqual({
                     owner,
                     expiration,
@@ -496,20 +503,20 @@ export function databaseLockAdapterTestSuite(
                 const owner = "1";
                 const expiration = TimeSpan.fromMilliseconds(50).toEndDate();
 
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const newExpiration =
                     TimeSpan.fromMilliseconds(100).toEndDate();
                 await adapter.updateExpiration(
-                    noOpContext,
+                    context,
                     key,
                     owner,
                     newExpiration,
                 );
 
-                const lockData = await adapter.find(noOpContext, key);
+                const lockData = await adapter.find(context, key);
                 expect(lockData).toEqual({
                     owner,
                     expiration: newExpiration,
@@ -521,12 +528,12 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "1";
                 const expiration = null;
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
                 const noneExistingKey = "b";
-                const result = await adapter.find(noOpContext, noneExistingKey);
+                const result = await adapter.find(context, noneExistingKey);
 
                 expect(result).toBeNull();
             });
@@ -534,11 +541,11 @@ export function databaseLockAdapterTestSuite(
                 const key = "a";
                 const owner = "1";
                 const expiration = TimeSpan.fromMinutes(2).toEndDate();
-                await adapter.transaction(noOpContext, async (trx) => {
-                    await trx.upsert(noOpContext, key, owner, expiration);
+                await adapter.transaction(context, async (trx) => {
+                    await trx.upsert(context, key, owner, expiration);
                 });
 
-                const result = await adapter.find(noOpContext, key);
+                const result = await adapter.find(context, key);
 
                 expect(result).toEqual({
                     owner,

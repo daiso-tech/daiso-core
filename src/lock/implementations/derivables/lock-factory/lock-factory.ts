@@ -189,10 +189,7 @@ export class LockFactory implements ILockFactory {
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
-    private readonly waitUntil: Invokable<
-        [promise: PromiseLike<unknown>],
-        void
-    >;
+    private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
 
     /**
