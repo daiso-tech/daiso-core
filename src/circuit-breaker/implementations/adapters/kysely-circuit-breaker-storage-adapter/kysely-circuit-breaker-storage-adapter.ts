@@ -8,6 +8,7 @@ import {
     type ICircuitBreakerStorageAdapter,
     type ICircuitBreakerStorageAdapterTransaction,
 } from "@/circuit-breaker/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
 import {
     type IDeinitizable,
@@ -88,7 +89,11 @@ class KyselyCircuitBreakerStorageAdapterTransaction<TType = unknown>
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
     }
 
-    async upsert(key: string, state: TType): Promise<void> {
+    async upsert(
+        _context: IReadableContext,
+        key: string,
+        state: TType,
+    ): Promise<void> {
         const serializedState = this.serde.serialize(state);
         await this.kysely
             .insertInto("circuitBreaker")
@@ -111,7 +116,7 @@ class KyselyCircuitBreakerStorageAdapterTransaction<TType = unknown>
             .execute();
     }
 
-    async find(key: string): Promise<TType | null> {
+    async find(_context: IReadableContext, key: string): Promise<TType | null> {
         return find(key, {
             serde: this.serde,
             kysely: this.kysely,
@@ -215,6 +220,7 @@ export class KyselyCircuitBreakerStorageAdapter<TType>
     }
 
     async transaction<TValue>(
+        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: ICircuitBreakerStorageAdapterTransaction],
             Promise<TValue>
@@ -230,14 +236,14 @@ export class KyselyCircuitBreakerStorageAdapter<TType>
         });
     }
 
-    async find(key: string): Promise<TType | null> {
+    async find(_context: IReadableContext, key: string): Promise<TType | null> {
         return find(key, {
             serde: this.serde,
             kysely: this.kysely,
         });
     }
 
-    async remove(key: string): Promise<void> {
+    async remove(_context: IReadableContext, key: string): Promise<void> {
         await this.kysely
             .deleteFrom("circuitBreaker")
             .where("circuitBreaker.key", "=", key)

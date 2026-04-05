@@ -14,6 +14,7 @@ import {
     type ICircuitBreakerStorageAdapter,
     type ICircuitBreakerStorageAdapterTransaction,
 } from "@/circuit-breaker/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
 import {
     type IDeinitizable,
@@ -145,7 +146,11 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
         }
     }
 
-    private async upsert<TType>(key: string, state: TType): Promise<void> {
+    private async upsert<TType>(
+        _context: IReadableContext,
+        key: string,
+        state: TType,
+    ): Promise<void> {
         await this.collection.updateOne(
             {
                 key,
@@ -175,6 +180,7 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
     }
 
     async transaction<TValue>(
+        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: ICircuitBreakerStorageAdapterTransaction<TType>],
             Promise<TValue>
@@ -182,13 +188,14 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
     ): Promise<TValue> {
         return await this._transaction(async () => {
             return await fn({
-                upsert: (key, state) => this.upsert(key, state),
-                find: (key) => this.find(key),
+                upsert: (context, key, state) =>
+                    this.upsert(context, key, state),
+                find: (context, key) => this.find(context, key),
             });
         });
     }
 
-    async find(key: string): Promise<TType | null> {
+    async find(_context: IReadableContext, key: string): Promise<TType | null> {
         const doc = await this.collection.findOne({ key });
         if (doc === null) {
             return null;
@@ -196,7 +203,7 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
         return this.serde.deserialize<TType>(doc.state);
     }
 
-    async remove(key: string): Promise<void> {
+    async remove(_context: IReadableContext, key: string): Promise<void> {
         await this.collection.deleteOne({
             key,
         });
