@@ -49,10 +49,11 @@ export class DatabaseSemaphoreAdapter implements ISemaphoreAdapter {
                 );
 
                 if (unexpiredSlots.length === 0) {
+                    limit = settings.limit;
                     await methods.upsertSemaphore(
                         settings.context,
                         settings.key,
-                        settings.limit,
+                        limit,
                     );
                 }
 
