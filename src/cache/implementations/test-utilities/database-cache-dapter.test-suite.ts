@@ -251,8 +251,13 @@ export function databaseCacheAdapterTestSuite(
             });
         });
         describe("method: removeMany", () => {
-            test("Should return empty array when given empty array as keys", async () => {
+            test("Should return empty array when given none existing keys", async () => {
                 const data = await adapter.removeMany(noOpContext, [KEY]);
+
+                expect(data).toEqual([]);
+            });
+            test("Should return empty array when given empty array as keys", async () => {
+                const data = await adapter.removeMany(noOpContext, []);
 
                 expect(data).toEqual([]);
             });
