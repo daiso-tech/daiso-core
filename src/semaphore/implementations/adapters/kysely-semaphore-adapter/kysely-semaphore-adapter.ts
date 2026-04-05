@@ -304,7 +304,7 @@ export class KyselySemaphoreAdapter
             await this.kysely.schema
                 .createIndex("semaphoreSlot_expiration_index")
                 .on("semaphoreSlot")
-                .columns(["key", "expiresAt"])
+                .columns(["key", "expiration"])
                 .execute();
         } catch {
             /* EMPTY */

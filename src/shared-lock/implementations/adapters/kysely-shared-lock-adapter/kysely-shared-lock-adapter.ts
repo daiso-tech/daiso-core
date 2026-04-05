@@ -585,7 +585,7 @@ export class KyselySharedLockAdapter
             await this.kysely.schema
                 .createIndex("readerSemaphoreSlot_expiration_index")
                 .on("readerSemaphoreSlot")
-                .columns(["key", "expiresAt"])
+                .columns(["key", "expiration"])
                 .execute();
         } catch {
             /* EMPTY */
