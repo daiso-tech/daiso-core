@@ -2,13 +2,31 @@
 "@daiso-tech/core": minor
 ---
 
-- Breaking Changes
+#### Breaking Changes
 
-    - Public async APIs now use native Promises instead of the prior task abstraction across many modules (cache, collections, eventing, storage, locks, rate-limiters, semaphores, shared locks). Update integrations accordingly.
+The `Task` class and `ITask` contract have been removed completly. Now native `Promise` is used accross following components:
 
-- New Features
+- cache
+- collection
+- event-bus
+- file-storage
+- rate-limiter
+- circuit-breaker
+- lock
+- semaphore
+- shared-lock
 
-    - Added a reusable delay utility and a configurable waitUntil hook to control background event/dispatch scheduling.
+#### New Features
 
-- Chores
-    - Removed legacy task exports, task implementation, and related tests; updated test suites to use the new delay utility.
+- Added a reusable delay utility
+
+- The following classes support `waitUntil` configuration, facilitating seamless integration with serverless environments like `Vercel`, `Cloudflare`, and `Netlify`:
+    - `Cache`
+    - `LockFactory`
+    - `SemaphoreFactory`
+    - `SharedLockFactory`
+    - `CircuitBreakerFactory`
+    - `RateLimiterFactory`
+    - `FileStorage`
+    - `EventBus`
+
