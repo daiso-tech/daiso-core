@@ -4,6 +4,7 @@
 
 import { MysqlAdapter, Transaction, type Kysely } from "kysely";
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type IDatabaseLockAdapter,
     type IDatabaseLockTransaction,
@@ -108,11 +109,15 @@ class DatabaseLockTransaction implements IDatabaseLockTransaction {
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
     }
 
-    async find(key: string): Promise<ILockData | null> {
+    async find(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<ILockData | null> {
         return await find(this.kysely, key);
     }
 
     async upsert(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         expiration: Date | null,
@@ -286,6 +291,7 @@ export class KyselyLockAdapter
     }
 
     async transaction<TReturn>(
+        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: IDatabaseLockTransaction],
             Promise<TReturn>
@@ -296,7 +302,10 @@ export class KyselyLockAdapter
         });
     }
 
-    async remove(key: string): Promise<ILockExpirationData | null> {
+    async remove(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<ILockExpirationData | null> {
         let result: Pick<KyselyLockTable, "expiration"> | undefined;
         if (this.isMysql) {
             result = await this._transaction(async (trx) => {
@@ -332,6 +341,7 @@ export class KyselyLockAdapter
     }
 
     async removeIfOwner(
+        _context: IReadableContext,
         key: string,
         lockId: string,
     ): Promise<ILockData | null> {
@@ -379,6 +389,7 @@ export class KyselyLockAdapter
     }
 
     async updateExpiration(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         expiration: Date,
@@ -400,7 +411,10 @@ export class KyselyLockAdapter
         return Number(result.numUpdatedRows);
     }
 
-    async find(key: string): Promise<ILockData | null> {
+    async find(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<ILockData | null> {
         return await find(this.kysely, key);
     }
 }

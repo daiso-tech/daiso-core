@@ -2,6 +2,7 @@
  * @module Lock
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type IDatabaseLockAdapter,
     type ILockAdapter,
@@ -16,15 +17,16 @@ export class DatabaseLockAdapter implements ILockAdapter {
     constructor(private readonly adapter: IDatabaseLockAdapter) {}
 
     async acquire(
+        context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
     ): Promise<boolean> {
         const expiration = ttl?.toEndDate() ?? null;
-        return await this.adapter.transaction<boolean>(async (trx) => {
-            const lockData = await trx.find(key);
+        return await this.adapter.transaction<boolean>(context, async (trx) => {
+            const lockData = await trx.find(context, key);
             if (lockData === null) {
-                await trx.upsert(key, lockId, expiration);
+                await trx.upsert(context, key, lockId, expiration);
                 return true;
             }
             if (lockData.owner === lockId) {
@@ -34,7 +36,7 @@ export class DatabaseLockAdapter implements ILockAdapter {
                 return false;
             }
             if (lockData.expiration <= new Date()) {
-                await trx.upsert(key, lockId, expiration);
+                await trx.upsert(context, key, lockId, expiration);
                 return true;
             }
 
@@ -42,8 +44,12 @@ export class DatabaseLockAdapter implements ILockAdapter {
         });
     }
 
-    async release(key: string, lockId: string): Promise<boolean> {
-        const lockData = await this.adapter.removeIfOwner(key, lockId);
+    async release(
+        context: IReadableContext,
+        key: string,
+        lockId: string,
+    ): Promise<boolean> {
+        const lockData = await this.adapter.removeIfOwner(context, key, lockId);
         if (lockData === null) {
             return false;
         }
@@ -60,8 +66,11 @@ export class DatabaseLockAdapter implements ILockAdapter {
         return isNotExpired && isCurrentOwner;
     }
 
-    async forceRelease(key: string): Promise<boolean> {
-        const lockData = await this.adapter.remove(key);
+    async forceRelease(
+        context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
+        const lockData = await this.adapter.remove(context, key);
         if (lockData === null) {
             return false;
         }
@@ -72,11 +81,13 @@ export class DatabaseLockAdapter implements ILockAdapter {
     }
 
     async refresh(
+        context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
     ): Promise<boolean> {
         const updateCount = await this.adapter.updateExpiration(
+            context,
             key,
             lockId,
             ttl.toEndDate(),
@@ -84,8 +95,11 @@ export class DatabaseLockAdapter implements ILockAdapter {
         return Number(updateCount) > 0;
     }
 
-    async getState(key: string): Promise<ILockAdapterState | null> {
-        const lockData = await this.adapter.find(key);
+    async getState(
+        context: IReadableContext,
+        key: string,
+    ): Promise<ILockAdapterState | null> {
+        const lockData = await this.adapter.find(context, key);
         if (lockData === null) {
             return null;
         }

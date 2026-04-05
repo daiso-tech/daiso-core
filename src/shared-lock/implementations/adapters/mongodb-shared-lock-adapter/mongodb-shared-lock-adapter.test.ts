@@ -124,7 +124,7 @@ describe("class: MongodbSharedLockAdapter", () => {
                 } satisfies Partial<MongodbSharedLockDocument>),
             );
         });
-        test("Should set expiration field to Date when given given expiration", async () => {
+        test("Should set expiration field to Date when given expiration", async () => {
             const database = client.db("database");
             const collectionName = "shared-locks";
             const collection =

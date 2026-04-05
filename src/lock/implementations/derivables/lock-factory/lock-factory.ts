@@ -7,6 +7,9 @@ import { v4 } from "uuid";
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
     type ILock,
     type LockFactoryCreateSettings,
@@ -143,6 +146,17 @@ export type LockFactorySettingsBase = {
      * ```
      */
     waitUntil?: WaitUntil;
+
+    /**
+     * @default
+     * ```ts
+     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
+     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     *
+     * new ExecutionContext(new NoOpExecutionContextAdapter())
+     * ```
+     */
+    executionContext?: IExecutionContext;
 };
 
 /**
@@ -179,6 +193,7 @@ export class LockFactory implements ILockFactory {
         [promise: PromiseLike<unknown>],
         void
     >;
+    private readonly executionContext: IExecutionContext;
 
     /**
      * @example
@@ -222,8 +237,12 @@ export class LockFactory implements ILockFactory {
             }),
             serdeTransformerName = "",
             waitUntil = defaultWaitUntil,
+            executionContext = new ExecutionContext(
+                new AlsExecutionContextAdapter(),
+            ),
         } = settings;
 
+        this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.serde = serde;
         this.defaultBlockingInterval = TimeSpan.fromTimeSpan(
@@ -245,6 +264,7 @@ export class LockFactory implements ILockFactory {
 
     private registerToSerde(): void {
         const transformer = new LockSerdeTransformer({
+            executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             originalAdapter: this.originalAdapter,
             adapter: this.adapter,
@@ -291,6 +311,7 @@ export class LockFactory implements ILockFactory {
         const keyObj = this.namespace.create(key);
 
         return new Lock({
+            executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             namespace: this.namespace,
             adapter: this.adapter,

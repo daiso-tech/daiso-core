@@ -9,6 +9,7 @@ import {
     type ObjectId,
 } from "mongodb";
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type ILockAdapter,
     type ILockAdapterState,
@@ -130,6 +131,7 @@ export class MongodbLockAdapter
     }
 
     async acquire(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
@@ -196,7 +198,11 @@ export class MongodbLockAdapter
         return lockData.expiration <= new Date();
     }
 
-    async release(key: string, lockId: string): Promise<boolean> {
+    async release(
+        _context: IReadableContext,
+        key: string,
+        lockId: string,
+    ): Promise<boolean> {
         const isUnexpirableQuery = {
             expiration: {
                 $eq: null,
@@ -229,7 +235,10 @@ export class MongodbLockAdapter
         return isNotExpired && isCurrentOwner;
     }
 
-    async forceRelease(key: string): Promise<boolean> {
+    async forceRelease(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
         const lockData = await this.collection.findOneAndDelete({ key });
         if (lockData === null) {
             return false;
@@ -242,6 +251,7 @@ export class MongodbLockAdapter
     }
 
     async refresh(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
@@ -295,7 +305,10 @@ export class MongodbLockAdapter
         return true;
     }
 
-    async getState(key: string): Promise<ILockAdapterState | null> {
+    async getState(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<ILockAdapterState | null> {
         const lockData = await this.collection.findOne({
             key,
         });

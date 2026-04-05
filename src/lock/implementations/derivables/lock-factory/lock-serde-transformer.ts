@@ -3,6 +3,7 @@
  */
 
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import {
     type ILockAdapter,
     type LockAdapterVariants,
@@ -35,6 +36,7 @@ export type LockSerdeTransformerSettings = {
     eventBus: IEventBus<LockEventMap>;
     serdeTransformerName: string;
     waitUntil: WaitUntil;
+    executionContext: IExecutionContext;
 };
 
 /**
@@ -55,6 +57,7 @@ export class LockSerdeTransformer
         [promise: PromiseLike<unknown>],
         void
     >;
+    private readonly executionContext: IExecutionContext;
 
     constructor(settings: LockSerdeTransformerSettings) {
         const {
@@ -67,7 +70,10 @@ export class LockSerdeTransformer
             eventBus,
             serdeTransformerName,
             waitUntil,
+            executionContext,
         } = settings;
+
+        this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
@@ -119,6 +125,7 @@ export class LockSerdeTransformer
         const keyObj = this.namespace.create(key);
 
         return new Lock({
+            executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             namespace: this.namespace,
             adapter: this.adapter,

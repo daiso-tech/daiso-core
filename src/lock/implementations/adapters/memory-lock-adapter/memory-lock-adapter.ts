@@ -2,6 +2,7 @@
  * @module Lock
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type ILockFactory,
@@ -67,6 +68,7 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     }
 
     async acquire(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
@@ -98,7 +100,11 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
         return Promise.resolve(true);
     }
 
-    async release(key: string, lockId: string): Promise<boolean> {
+    async release(
+        _context: IReadableContext,
+        key: string,
+        lockId: string,
+    ): Promise<boolean> {
         const lock = this.map.get(key);
         if (lock === undefined) {
             return Promise.resolve(false);
@@ -115,7 +121,10 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
         return Promise.resolve(true);
     }
 
-    async forceRelease(key: string): Promise<boolean> {
+    async forceRelease(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
         const lock = this.map.get(key);
 
         if (lock === undefined) {
@@ -132,6 +141,7 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     }
 
     async refresh(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
@@ -159,7 +169,10 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
         return Promise.resolve(true);
     }
 
-    async getState(key: string): Promise<ILockAdapterState | null> {
+    async getState(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<ILockAdapterState | null> {
         const lockData = this.map.get(key);
         if (lockData === undefined) {
             return Promise.resolve(null);
