@@ -17,12 +17,8 @@ export function isDatabaseSemaphoreAdapter(
     >;
     return (
         typeof adapter_["transaction"] === "function" &&
-        adapter_["transaction"].length === 2 &&
         typeof adapter_["removeSlot"] === "function" &&
-        adapter_["removeSlot"].length === 3 &&
         typeof adapter_["removeAllSlots"] === "function" &&
-        adapter_["removeAllSlots"].length === 2 &&
-        typeof adapter_["updateExpiration"] === "function" &&
-        adapter_["updateExpiration"].length === 4
+        typeof adapter_["updateExpiration"] === "function"
     );
 }

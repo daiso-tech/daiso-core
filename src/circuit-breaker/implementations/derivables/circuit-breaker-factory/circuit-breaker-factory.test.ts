@@ -30,7 +30,7 @@ import {
 import { CircuitBreakerFactory } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker-factory.js";
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/execution-context.contract.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/serde.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";

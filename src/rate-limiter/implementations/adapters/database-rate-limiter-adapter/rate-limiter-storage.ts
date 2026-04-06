@@ -97,7 +97,7 @@ export class RateLimiterStorage<TMetrics = unknown> {
             args.context,
             async (trx) => {
                 let currentState = RateLimiterStorage.resolveStorageData(
-                    await this.adapter.find(args.context, args.key),
+                    await trx.find(args.context, args.key),
                 );
                 if (currentState === null) {
                     currentState =

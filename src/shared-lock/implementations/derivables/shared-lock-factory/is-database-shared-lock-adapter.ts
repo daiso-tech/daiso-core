@@ -17,8 +17,5 @@ export function isDatabaseSharedLockAdapter(
         Record<string, (...args_: Array<unknown>) => unknown>
     >;
 
-    return (
-        typeof adapter_["transaction"] === "function" &&
-        adapter_["transaction"].length === 2
-    );
+    return typeof adapter_["transaction"] === "function";
 }

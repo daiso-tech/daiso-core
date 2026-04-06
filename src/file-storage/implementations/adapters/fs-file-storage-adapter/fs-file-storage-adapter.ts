@@ -353,7 +353,9 @@ export class FsFileStorageAdapter
         destination: string,
     ): Promise<FileWriteEnum> {
         const result = await this.copy(context, source, destination);
-        await this.removeMany(context, [source]);
+        if (result === FILE_WRITE_ENUM.SUCCESS) {
+            await this.removeMany(context, [source]);
+        }
         return result;
     }
 
@@ -362,9 +364,15 @@ export class FsFileStorageAdapter
         source: string,
         destination: string,
     ): Promise<boolean> {
-        const result = await this.copyAndReplace(context, source, destination);
-        await this.removeMany(context, [source]);
-        return result;
+        const hasMoved = await this.copyAndReplace(
+            context,
+            source,
+            destination,
+        );
+        if (hasMoved) {
+            await this.removeMany(context, [source]);
+        }
+        return hasMoved;
     }
 
     async removeMany(

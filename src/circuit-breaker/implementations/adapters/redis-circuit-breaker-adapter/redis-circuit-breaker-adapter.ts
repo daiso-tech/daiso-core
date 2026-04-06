@@ -24,7 +24,7 @@ import {
     serializeCircuitBreakerPolicySettingsEnum,
     type CircuitBreakerPolicySettingsEnum,
 } from "@/circuit-breaker/implementations/policies/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/execution-context.contract.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter"`
