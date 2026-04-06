@@ -285,45 +285,32 @@ export class MemoryFileStorageAdapter
         return Promise.resolve(true);
     }
 
-    move(
-        _context: IReadableContext,
+    async move(
+        context: IReadableContext,
         source: string,
         destination: string,
     ): Promise<FileWriteEnum> {
-        const sourceFile = this.map.get(source);
-        if (sourceFile === undefined) {
-            return Promise.resolve(FILE_WRITE_ENUM.NOT_FOUND);
+        const result = await this.copy(context, source, destination);
+        if (result === FILE_WRITE_ENUM.SUCCESS) {
+            await this.removeMany(context, [source]);
         }
-        if (this.map.has(destination)) {
-            return Promise.resolve(FILE_WRITE_ENUM.KEY_EXISTS);
-        }
-        const copiedBuffer = Buffer.alloc(sourceFile.data.byteLength);
-        sourceFile.data.copy(copiedBuffer);
-        this.map.set(destination, {
-            data: copiedBuffer,
-            metadata: structuredClone(sourceFile.metadata),
-        });
-        this.map.delete(source);
-        return Promise.resolve(FILE_WRITE_ENUM.SUCCESS);
+        return result;
     }
 
-    moveAndReplace(
-        _context: IReadableContext,
+    async moveAndReplace(
+        context: IReadableContext,
         source: string,
         destination: string,
     ): Promise<boolean> {
-        const sourceFile = this.map.get(source);
-        if (sourceFile === undefined) {
-            return Promise.resolve(false);
+        const hasMoved = await this.copyAndReplace(
+            context,
+            source,
+            destination,
+        );
+        if (hasMoved) {
+            await this.removeMany(context, [source]);
         }
-        const copiedBuffer = Buffer.alloc(sourceFile.data.byteLength);
-        sourceFile.data.copy(copiedBuffer);
-        this.map.set(destination, {
-            data: copiedBuffer,
-            metadata: structuredClone(sourceFile.metadata),
-        });
-        this.map.delete(source);
-        return Promise.resolve(true);
+        return hasMoved;
     }
 
     removeMany(

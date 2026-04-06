@@ -9,7 +9,7 @@ import {
     type beforeEach,
 } from "vitest";
 
-import { type IContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
@@ -43,7 +43,7 @@ export type DatabaseSharedLockAdapterTestSuiteSettings = {
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
      */
-    context?: IContext;
+    context?: IReadableContext;
 };
 
 /**

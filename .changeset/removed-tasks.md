@@ -4,7 +4,7 @@
 
 #### Breaking Changes
 
-The `Task` class and `ITask` contract have been removed completly. Now native `Promise` is used accross following components:
+The `Task` class and `ITask` contract have been removed completely. Now native `Promise` is used across following components:
 
 - cache
 - collection

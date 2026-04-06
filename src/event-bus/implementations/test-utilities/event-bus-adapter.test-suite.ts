@@ -15,7 +15,7 @@ import {
     type BaseEvent,
     type IEventBusAdapter,
 } from "@/event-bus/contracts/_module.js";
-import { type IContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -42,7 +42,7 @@ export type EventBusAdapterTestSuiteSettings = {
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
      */
-    context?: IContext;
+    context?: IReadableContext;
 };
 
 /**

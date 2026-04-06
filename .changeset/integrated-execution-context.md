@@ -20,7 +20,7 @@
 - `ISharedLockAdapter`
 - `IDatabaseSharedLockAdapter`
 
-Now all this adapters take instance of `IReadableExecutionContext` as first argument.
+Now all these adapters take instance of `IReadableExecutionContext` as first argument.
 
 #### Integrated execution-context with following classes:
 

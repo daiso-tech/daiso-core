@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/execution-context.contract.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     BlockedRateLimiterError,
     RATE_LIMITER_EVENTS,
