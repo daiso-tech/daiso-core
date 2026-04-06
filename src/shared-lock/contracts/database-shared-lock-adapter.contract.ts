@@ -2,6 +2,7 @@
  * @module SharedLock
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
@@ -60,16 +61,27 @@ export type IReaderSemaphoreData = {
  * @group Contracts
  */
 export type IDatabaseWriterLockTransaction = {
-    find(key: string): Promise<IWriterLockData | null>;
+    find(
+        context: IReadableContext,
+        key: string,
+    ): Promise<IWriterLockData | null>;
 
-    upsert(key: string, lockId: string, expiration: Date | null): Promise<void>;
+    upsert(
+        context: IReadableContext,
+        key: string,
+        lockId: string,
+        expiration: Date | null,
+    ): Promise<void>;
 
     /**
      * Removes a lock from the database regardless of its lock id.
      *
      * @param key The unique identifier for the lock to remove.
      */
-    remove(key: string): Promise<IWriterLockExpirationData | null>;
+    remove(
+        context: IReadableContext,
+        key: string,
+    ): Promise<IWriterLockExpirationData | null>;
 
     /**
      * Removes a lock from the database only if it is currently held by the specified lock id.
@@ -78,7 +90,11 @@ export type IDatabaseWriterLockTransaction = {
      * @param lockId The identifier of the expected lock.
      * @returns Returns {@link IWriterLockData |`IWriterLockData | null`}. The {@link IWriterLockData |`IWriterLockData`} data if successfully removed, otherwise `null` if the lock wasn't found or the owner didn't match.
      */
-    removeIfOwner(key: string, lockId: string): Promise<IWriterLockData | null>;
+    removeIfOwner(
+        context: IReadableContext,
+        key: string,
+        lockId: string,
+    ): Promise<IWriterLockData | null>;
 
     /**
      * Updates the expiration date of a lock if it is currently held by the specified lock id.
@@ -89,6 +105,7 @@ export type IDatabaseWriterLockTransaction = {
      * @returns Returns a number greater than or equal to `1` if the lock's expiration was updated, or `0` if the lock wasn't found or the lock id didn't match.
      */
     updateExpiration(
+        context: IReadableContext,
         key: string,
         lockId: string,
         expiration: Date,
@@ -103,23 +120,34 @@ export type IDatabaseReaderSemaphoreTransaction = {
     /**
      * The `findSemaphore` returns the semaphore if it exists otherwise `null` is returned.
      */
-    findSemaphore(key: string): Promise<IReaderSemaphoreData | null>;
+    findSemaphore(
+        context: IReadableContext,
+        key: string,
+    ): Promise<IReaderSemaphoreData | null>;
 
     /**
      * The `findSlots` returns the semaphore slot if it exists otherwise `null` is returned.
      *
      */
-    findSlots(key: string): Promise<Array<IReaderSemaphoreSlotData>>;
+    findSlots(
+        context: IReadableContext,
+        key: string,
+    ): Promise<Array<IReaderSemaphoreSlotData>>;
 
     /**
      * The `upsertSemaphore` inserts a semaphore if it doesnt exist otherwise it will be updated.
      */
-    upsertSemaphore(key: string, limit: number): Promise<void>;
+    upsertSemaphore(
+        context: IReadableContext,
+        key: string,
+        limit: number,
+    ): Promise<void>;
 
     /**
      * The `upsertSlot` inserts a semaphore slot if it doesnt exist otherwise it will be updated.
      */
     upsertSlot(
+        context: IReadableContext,
         key: string,
         lockId: string,
         expiration: Date | null,
@@ -131,6 +159,7 @@ export type IDatabaseReaderSemaphoreTransaction = {
      * @returns Returns the slot expiration.
      */
     removeSlot(
+        context: IReadableContext,
         key: string,
         slotId: string,
     ): Promise<IReaderSemaphoreSlotExpirationData | null>;
@@ -141,6 +170,7 @@ export type IDatabaseReaderSemaphoreTransaction = {
      * @returns Returns the slot expiration.
      */
     removeAllSlots(
+        context: IReadableContext,
         key: string,
     ): Promise<Array<IReaderSemaphoreSlotExpirationData>>;
 
@@ -150,6 +180,7 @@ export type IDatabaseReaderSemaphoreTransaction = {
      * @returns Returns a number greater than `0` if the slot expiration was updated, otherwise returns `0`.
      */
     updateExpiration(
+        context: IReadableContext,
         key: string,
         slotId: string,
         expiration: Date,
@@ -174,6 +205,7 @@ export type IDatabaseSharedLockTransaction = {
  */
 export type IDatabaseSharedLockAdapter = {
     transaction<TReturn>(
+        context: IReadableContext,
         fn: InvokableFn<
             [transaction: IDatabaseSharedLockTransaction],
             Promise<TReturn>

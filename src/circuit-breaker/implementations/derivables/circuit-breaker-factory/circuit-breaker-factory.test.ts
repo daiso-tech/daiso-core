@@ -30,6 +30,7 @@ import {
 import { CircuitBreakerFactory } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker-factory.js";
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/execution-context.contract.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/serde.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -38,24 +39,40 @@ import { delay as delay_ } from "@/utilities/_module.js";
 
 describe("class: CircuitBreakerFactory", () => {
     const adapter: ICircuitBreakerAdapter = {
-        getState: function (_key: string): Promise<CircuitBreakerState> {
+        getState: function (
+            _context: IReadableContext,
+            _key: string,
+        ): Promise<CircuitBreakerState> {
             throw new Error("Function not implemented.");
         },
         updateState: function (
+            _context: IReadableContext,
             _key: string,
         ): Promise<CircuitBreakerStateTransition> {
             throw new Error("Function not implemented.");
         },
-        isolate: function (_key: string): Promise<void> {
+        isolate: function (
+            _context: IReadableContext,
+            _key: string,
+        ): Promise<void> {
             throw new Error("Function not implemented.");
         },
-        trackFailure: function (_key: string): Promise<void> {
+        trackFailure: function (
+            _context: IReadableContext,
+            _key: string,
+        ): Promise<void> {
             throw new Error("Function not implemented.");
         },
-        trackSuccess: function (_key: string): Promise<void> {
+        trackSuccess: function (
+            _context: IReadableContext,
+            _key: string,
+        ): Promise<void> {
             throw new Error("Function not implemented.");
         },
-        reset: function (_key: string): Promise<void> {
+        reset: function (
+            _context: IReadableContext,
+            _key: string,
+        ): Promise<void> {
             throw new Error("Function not implemented.");
         },
     };

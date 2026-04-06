@@ -14,6 +14,9 @@ import {
     type Unsubscribe,
 } from "@/event-bus/contracts/_module.js";
 import { ListenerStore } from "@/event-bus/implementations/derivables/event-bus/listener-store.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import {
@@ -57,6 +60,17 @@ export type EventBusSettingsBase<
      * ```
      */
     namespace?: INamespace;
+
+    /**
+     * @default
+     * ```ts
+     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
+     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     *
+     * new ExecutionContext(new NoOpExecutionContextAdapter())
+     * ```
+     */
+    executionContext?: IExecutionContext;
 };
 
 /**
@@ -88,6 +102,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
     private readonly adapter: IEventBusAdapter;
     private readonly namespace: INamespace;
     private readonly eventMapSchema: EventMapSchema<TEventMap> | undefined;
+    private readonly executionContext: IExecutionContext;
 
     /**
      * Thist instance variable is only used for testing!
@@ -112,7 +127,12 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
             eventMapSchema,
             namespace = new NoOpNamespace(),
             adapter,
+            executionContext = new ExecutionContext(
+                new NoOpExecutionContextAdapter(),
+            ),
         } = settings;
+
+        this.executionContext = executionContext;
         this.shouldValidateOutput = shouldValidateOutput;
         this.eventMapSchema = eventMapSchema;
         this.adapter = adapter;
@@ -155,6 +175,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         );
         try {
             await this.adapter.addListener(
+                this.executionContext,
                 key.toString(),
                 resolvedListener as EventListenerFn<BaseEvent>,
             );
@@ -178,6 +199,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         }
         try {
             await this.adapter.removeListener(
+                this.executionContext,
                 key.toString(),
                 resolvedListener as EventListenerFn<BaseEvent>,
             );
@@ -220,6 +242,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         );
         try {
             await this.adapter.addListener(
+                this.executionContext,
                 key.toString(),
                 resolvedListener as EventListenerFn<BaseEvent>,
             );
@@ -265,6 +288,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
     ): Promise<void> {
         await validate(this.eventMapSchema?.[eventName], event);
         await this.adapter.dispatch(
+            this.executionContext,
             this.namespace.create(String(eventName)).toString(),
             event,
         );

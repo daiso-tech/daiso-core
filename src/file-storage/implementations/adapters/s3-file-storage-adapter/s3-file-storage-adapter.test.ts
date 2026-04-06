@@ -11,6 +11,8 @@ import {
 import { Wait } from "testcontainers";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { S3FileStorageAdapter } from "@/file-storage/implementations/adapters/s3-file-storage-adapter/_module.js";
 import { fileStorageAdapterTestSuite } from "@/file-storage/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -20,6 +22,7 @@ describe("class: S3FileStorageAdapter", () => {
     let client: S3Client;
     let adapter: S3FileStorageAdapter;
     let startedContainer: StartedMinioContainer;
+    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
     beforeEach(async () => {
         startedContainer = await new MinioContainer(
             "minio/minio:RELEASE.2025-09-07T16-13-09Z",
@@ -82,7 +85,7 @@ describe("class: S3FileStorageAdapter", () => {
             );
 
             const key = "a";
-            const result = await adapter.getPublicUrl(key);
+            const result = await adapter.getPublicUrl(noOpContext, key);
 
             expect(result).toBeNull();
         });
@@ -113,7 +116,7 @@ describe("class: S3FileStorageAdapter", () => {
             );
 
             const key = "a";
-            const result = await adapter.getPublicUrl(key);
+            const result = await adapter.getPublicUrl(noOpContext, key);
 
             expect(result).toBeTypeOf("string");
         });
@@ -144,7 +147,7 @@ describe("class: S3FileStorageAdapter", () => {
 
             const key = "a";
             const data = new Uint8Array(Buffer.from("CONTENT"));
-            await adapter.add(key, {
+            await adapter.add(noOpContext, key, {
                 cacheControl: null,
                 contentDisposition: null,
                 contentEncoding: null,
@@ -153,7 +156,7 @@ describe("class: S3FileStorageAdapter", () => {
                 fileSizeInBytes: data.byteLength,
                 data,
             });
-            const url = await adapter.getPublicUrl(key);
+            const url = await adapter.getPublicUrl(noOpContext, key);
             if (url === null) {
                 throw new Error("url is null");
             }
@@ -175,11 +178,15 @@ describe("class: S3FileStorageAdapter", () => {
             const key = "a";
             const contentType = "text/plain";
             const contentDisposition = "inline";
-            const result = await adapter.getSignedDownloadUrl(key, {
-                expirationInSeconds: 5000,
-                contentType,
-                contentDisposition,
-            });
+            const result = await adapter.getSignedDownloadUrl(
+                noOpContext,
+                key,
+                {
+                    expirationInSeconds: 5000,
+                    contentType,
+                    contentDisposition,
+                },
+            );
 
             expect(result).toBeNull();
         });
@@ -195,11 +202,15 @@ describe("class: S3FileStorageAdapter", () => {
             const key = "a";
             const contentType = "text/plain";
             const contentDisposition = "inline";
-            const result = await adapter.getSignedDownloadUrl(key, {
-                expirationInSeconds: 5000,
-                contentType,
-                contentDisposition,
-            });
+            const result = await adapter.getSignedDownloadUrl(
+                noOpContext,
+                key,
+                {
+                    expirationInSeconds: 5000,
+                    contentType,
+                    contentDisposition,
+                },
+            );
 
             expect(result).toBeTypeOf("string");
         });
@@ -214,7 +225,7 @@ describe("class: S3FileStorageAdapter", () => {
             const key = "a";
             const data = new Uint8Array(Buffer.from("CONTENT"));
             const contentType = "text/plain";
-            await adapter.add(key, {
+            await adapter.add(noOpContext, key, {
                 cacheControl: null,
                 contentDisposition: null,
                 contentEncoding: null,
@@ -224,7 +235,7 @@ describe("class: S3FileStorageAdapter", () => {
                 data,
             });
             const contentDisposition = "inline";
-            const url = await adapter.getSignedDownloadUrl(key, {
+            const url = await adapter.getSignedDownloadUrl(noOpContext, key, {
                 expirationInSeconds: 5000,
                 contentType,
                 contentDisposition,
@@ -253,7 +264,7 @@ describe("class: S3FileStorageAdapter", () => {
 
             const key = "a";
             const contentType = "text/plain";
-            const url = await adapter.getSignedUploadUrl(key, {
+            const url = await adapter.getSignedUploadUrl(noOpContext, key, {
                 expirationInSeconds: 5000,
                 contentType,
             });
@@ -264,7 +275,7 @@ describe("class: S3FileStorageAdapter", () => {
                 body: data,
             });
 
-            const bytes = await adapter.getBytes(key);
+            const bytes = await adapter.getBytes(noOpContext, key);
             expect(bytes).toEqual(data);
         });
         test("Should persit file data when key exists", async () => {
@@ -278,7 +289,7 @@ describe("class: S3FileStorageAdapter", () => {
             const key = "a";
             const data = new Uint8Array(Buffer.from("CONTENT"));
             const contentType = "text/plain";
-            await adapter.add(key, {
+            await adapter.add(noOpContext, key, {
                 data,
                 fileSizeInBytes: data.byteLength,
                 contentType,
@@ -288,7 +299,7 @@ describe("class: S3FileStorageAdapter", () => {
                 cacheControl: null,
             });
 
-            const url = await adapter.getSignedUploadUrl(key, {
+            const url = await adapter.getSignedUploadUrl(noOpContext, key, {
                 expirationInSeconds: 5000,
                 contentType,
             });
@@ -298,7 +309,7 @@ describe("class: S3FileStorageAdapter", () => {
                 body: newData,
             });
 
-            const bytes = await adapter.getBytes(key);
+            const bytes = await adapter.getBytes(noOpContext, key);
             expect(bytes).toEqual(newData);
         });
     });
@@ -316,7 +327,7 @@ describe("class: S3FileStorageAdapter", () => {
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
             const contentType = "application/octet-stream";
-            const result = await adapter.put(key, {
+            const result = await adapter.put(noOpContext, key, {
                 data,
                 cacheControl: null,
                 contentDisposition: null,
@@ -341,7 +352,7 @@ describe("class: S3FileStorageAdapter", () => {
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
             const contentType = "application/octet-stream";
-            await adapter.put(key, {
+            await adapter.put(noOpContext, key, {
                 data: data,
                 cacheControl: null,
                 contentDisposition: null,
@@ -351,7 +362,7 @@ describe("class: S3FileStorageAdapter", () => {
                 fileSizeInBytes: data.length,
             });
 
-            const result = await adapter.getBytes(key);
+            const result = await adapter.getBytes(noOpContext, key);
             expect(result).toEqual(data);
         });
         test("Should return true when key exists and enableAccuratePut setting is false", async () => {
@@ -367,7 +378,7 @@ describe("class: S3FileStorageAdapter", () => {
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
             const contentType = "application/octet-stream";
-            await adapter.add(key, {
+            await adapter.add(noOpContext, key, {
                 data,
                 cacheControl: null,
                 contentDisposition: null,
@@ -378,7 +389,7 @@ describe("class: S3FileStorageAdapter", () => {
             });
 
             const newData = new Uint8Array(Buffer.from("CONTENT", "utf8"));
-            const result = await adapter.put(key, {
+            const result = await adapter.put(noOpContext, key, {
                 data: newData,
                 cacheControl: null,
                 contentDisposition: null,
@@ -403,7 +414,7 @@ describe("class: S3FileStorageAdapter", () => {
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
             const contentType = "application/octet-stream";
-            await adapter.add(key, {
+            await adapter.add(noOpContext, key, {
                 data,
                 cacheControl: null,
                 contentDisposition: null,
@@ -414,7 +425,7 @@ describe("class: S3FileStorageAdapter", () => {
             });
 
             const newData = new Uint8Array(Buffer.from("CONTENT", "utf8"));
-            await adapter.put(key, {
+            await adapter.put(noOpContext, key, {
                 data: newData,
                 cacheControl: null,
                 contentDisposition: null,
@@ -424,7 +435,7 @@ describe("class: S3FileStorageAdapter", () => {
                 fileSizeInBytes: data.length,
             });
 
-            const result = await adapter.getBytes(key);
+            const result = await adapter.getBytes(noOpContext, key);
             expect(result).toEqual(newData);
         });
     });
@@ -438,7 +449,11 @@ describe("class: S3FileStorageAdapter", () => {
             });
             await adapter.init();
 
-            const result = await adapter.removeMany(["a", "b", "c"]);
+            const result = await adapter.removeMany(noOpContext, [
+                "a",
+                "b",
+                "c",
+            ]);
 
             expect(result).toBe(true);
         });
@@ -455,7 +470,7 @@ describe("class: S3FileStorageAdapter", () => {
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
             const contentType = "application/octet-stream";
-            await adapter.add(key, {
+            await adapter.add(noOpContext, key, {
                 data,
                 cacheControl: null,
                 contentDisposition: null,
@@ -465,7 +480,11 @@ describe("class: S3FileStorageAdapter", () => {
                 fileSizeInBytes: data.length,
             });
 
-            const result = await adapter.removeMany([key, "b", "c"]);
+            const result = await adapter.removeMany(noOpContext, [
+                key,
+                "b",
+                "c",
+            ]);
 
             expect(result).toBe(true);
         });
@@ -480,7 +499,7 @@ describe("class: S3FileStorageAdapter", () => {
 
             const data1 = new Uint8Array(Buffer.from("CONTENT_A", "utf8"));
             const contentType = "application/octet-stream";
-            await adapter.add("a", {
+            await adapter.add(noOpContext, "a", {
                 data: data1,
                 cacheControl: null,
                 contentDisposition: null,
@@ -491,7 +510,7 @@ describe("class: S3FileStorageAdapter", () => {
             });
 
             const data2 = new Uint8Array(Buffer.from("CONTENT_B", "utf8"));
-            await adapter.add("b", {
+            await adapter.add(noOpContext, "b", {
                 data: data2,
                 cacheControl: null,
                 contentDisposition: null,
@@ -502,7 +521,7 @@ describe("class: S3FileStorageAdapter", () => {
             });
 
             const data3 = new Uint8Array(Buffer.from("CONTENT_C", "utf8"));
-            await adapter.add("c", {
+            await adapter.add(noOpContext, "c", {
                 data: data3,
                 cacheControl: null,
                 contentDisposition: null,
@@ -512,12 +531,12 @@ describe("class: S3FileStorageAdapter", () => {
                 fileSizeInBytes: data3.length,
             });
 
-            await adapter.removeMany(["a", "b"]);
+            await adapter.removeMany(noOpContext, ["a", "b"]);
 
             const result = [
-                await adapter.getBytes("a"),
-                await adapter.getBytes("b"),
-                await adapter.getBytes("c"),
+                await adapter.getBytes(noOpContext, "a"),
+                await adapter.getBytes(noOpContext, "b"),
+                await adapter.getBytes(noOpContext, "c"),
             ];
             expect(result).toEqual([null, null, data3]);
         });

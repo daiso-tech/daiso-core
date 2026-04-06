@@ -5,6 +5,8 @@ import {
 import { MongoClient } from "mongodb";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
     MongodbRateLimiterStorageAdapter,
     type MongodbRateLimiterDocument,
@@ -18,6 +20,7 @@ const timeout = TimeSpan.fromMinutes(2);
 describe("class: MongodbRateLimiterStorageAdapter", () => {
     let client: MongoClient;
     let startedContainer: StartedMongoDBContainer;
+    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
 
     beforeEach(async () => {
         startedContainer = await new MongoDBContainer("mongo:5.0.0").start();
@@ -127,8 +130,8 @@ describe("class: MongodbRateLimiterStorageAdapter", () => {
             const state = "1";
             const ttl = TimeSpan.fromSeconds(1).toEndDate();
 
-            await adapter.transaction(async (trx) => {
-                await trx.upsert(key, state, ttl);
+            await adapter.transaction(noOpContext, async (trx) => {
+                await trx.upsert(noOpContext, key, state, ttl);
             });
 
             const doc = await collection.findOne({
@@ -159,8 +162,8 @@ describe("class: MongodbRateLimiterStorageAdapter", () => {
             const ttl = TimeSpan.fromMinutes(5);
             const expiration = ttl.toEndDate();
 
-            await adapter.transaction(async (trx) => {
-                await trx.upsert(key, state, expiration);
+            await adapter.transaction(noOpContext, async (trx) => {
+                await trx.upsert(noOpContext, key, state, expiration);
             });
 
             const doc = await collection.findOne({

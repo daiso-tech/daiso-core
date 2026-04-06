@@ -2,6 +2,7 @@
  * @module RateLimiter
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type IRateLimiterFactory,
@@ -18,11 +19,19 @@ import { type InvokableFn } from "@/utilities/_module.js";
 class NoOpRateLimiterStorageAdapterTransaction<TType>
     implements IRateLimiterStorageAdapterTransaction<TType>
 {
-    upsert(_key: string, _state: TType, _expiration: Date): Promise<void> {
+    upsert(
+        _context: IReadableContext,
+        _key: string,
+        _state: TType,
+        _expiration: Date,
+    ): Promise<void> {
         return Promise.resolve();
     }
 
-    find(_key: string): Promise<IRateLimiterData<TType> | null> {
+    find(
+        _context: IReadableContext,
+        _key: string,
+    ): Promise<IRateLimiterData<TType> | null> {
         return Promise.resolve(null);
     }
 }
@@ -37,6 +46,7 @@ export class NoOpRateLimiterStorageAdapter<TType>
     implements IRateLimiterStorageAdapter<TType>
 {
     transaction<TValue>(
+        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
@@ -47,11 +57,14 @@ export class NoOpRateLimiterStorageAdapter<TType>
         );
     }
 
-    find(_key: string): Promise<IRateLimiterData<TType> | null> {
+    find(
+        _context: IReadableContext,
+        _key: string,
+    ): Promise<IRateLimiterData<TType> | null> {
         return Promise.resolve(null);
     }
 
-    remove(_key: string): Promise<void> {
+    remove(_context: IReadableContext, _key: string): Promise<void> {
         return Promise.resolve();
     }
 }

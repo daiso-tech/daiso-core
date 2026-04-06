@@ -13,6 +13,7 @@ import {
     type EventBusSettingsBase,
     type EventMapSchema,
 } from "@/event-bus/implementations/derivables/event-bus/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
@@ -110,6 +111,15 @@ export class EventBusResolver<
         return new EventBusResolver({
             ...this.settings,
             eventMapSchema,
+        });
+    }
+
+    setExecutionContext(
+        executionContext: IExecutionContext,
+    ): EventBusResolver<TAdapters, TEventMap> {
+        return new EventBusResolver({
+            ...this.settings,
+            executionContext,
         });
     }
 

@@ -2,6 +2,7 @@
  * @module Lock
  */
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import {
     type ILockFactoryResolver,
     type ILockFactory,
@@ -130,6 +131,15 @@ export class LockFactoryResolver<TAdapters extends string>
         return new LockFactoryResolver({
             ...this.settings,
             waitUntil,
+        });
+    }
+
+    setExecutionContext(
+        executionContext: IExecutionContext,
+    ): LockFactoryResolver<TAdapters> {
+        return new LockFactoryResolver({
+            ...this.settings,
+            executionContext,
         });
     }
 

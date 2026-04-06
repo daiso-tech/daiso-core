@@ -5,6 +5,9 @@
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import {
@@ -25,7 +28,6 @@ import {
     defaultWaitUntil,
     resolveOneOrMore,
     type ErrorPolicy,
-    type Invokable,
     type OneOrMore,
     type WaitUntil,
 } from "@/utilities/_module.js";
@@ -104,6 +106,17 @@ export type RateLimiterFactorySettingsBase = {
      * ```
      */
     waitUntil?: WaitUntil;
+
+    /**
+     * @default
+     * ```ts
+     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
+     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     *
+     * new ExecutionContext(new NoOpExecutionContextAdapter())
+     * ```
+     */
+    executionContext?: IExecutionContext;
 };
 
 /**
@@ -129,10 +142,8 @@ export class RateLimiterFactory implements IRateLimiterFactory {
     private readonly enableAsyncTracking: boolean;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
-    private readonly waitUntil: Invokable<
-        [promise: PromiseLike<unknown>],
-        void
-    >;
+    private readonly waitUntil: WaitUntil;
+    private readonly executionContext: IExecutionContext;
 
     /**
      * @example
@@ -178,8 +189,12 @@ export class RateLimiterFactory implements IRateLimiterFactory {
             serde = new Serde(new NoOpSerdeAdapter()),
             serdeTransformerName = "",
             waitUntil = defaultWaitUntil,
+            executionContext = new ExecutionContext(
+                new NoOpExecutionContextAdapter(),
+            ),
         } = settings;
 
+        this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.enableAsyncTracking = enableAsyncTracking;
@@ -194,6 +209,7 @@ export class RateLimiterFactory implements IRateLimiterFactory {
 
     private registerToSerde(): void {
         const transformer = new RateLimiterSerdeTransformer({
+            executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             namespace: this.namespace,
@@ -222,6 +238,7 @@ export class RateLimiterFactory implements IRateLimiterFactory {
             limit,
         } = settings;
         return new RateLimiter({
+            executionContext: this.executionContext,
             limit,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,

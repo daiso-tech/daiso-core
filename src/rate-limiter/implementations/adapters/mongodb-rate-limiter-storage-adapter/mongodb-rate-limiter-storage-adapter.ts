@@ -10,6 +10,7 @@ import {
     type ObjectId,
 } from "mongodb";
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type IRateLimiterData,
     type IRateLimiterStorageAdapter,
@@ -153,6 +154,7 @@ export class MongodbRateLimiterStorageAdapter<TType>
     }
 
     private async upsert(
+        _context: IReadableContext,
         key: string,
         state: TType,
         expiration: Date,
@@ -174,6 +176,7 @@ export class MongodbRateLimiterStorageAdapter<TType>
     }
 
     private async _transaction<TValue>(
+        _context: IReadableContext,
         trxFn: InvokableFn<[], Promise<TValue>>,
     ): Promise<TValue> {
         if (this.enableTransactions) {
@@ -187,21 +190,25 @@ export class MongodbRateLimiterStorageAdapter<TType>
     }
 
     async transaction<TValue>(
+        context: IReadableContext,
         fn: InvokableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
     ): Promise<TValue> {
-        return await this._transaction(async () => {
+        return await this._transaction(context, async () => {
             return await fn({
-                upsert: (key, state, exiration) =>
-                    this.upsert(key, state, exiration),
-                find: (key) => this.find(key),
+                upsert: (context, key, state, exiration) =>
+                    this.upsert(context, key, state, exiration),
+                find: (context, key) => this.find(context, key),
             });
         });
     }
 
-    async find(key: string): Promise<IRateLimiterData<TType> | null> {
+    async find(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<IRateLimiterData<TType> | null> {
         const doc = await this.collection.findOne({
             key,
         });
@@ -214,7 +221,7 @@ export class MongodbRateLimiterStorageAdapter<TType>
         };
     }
 
-    async remove(key: string): Promise<void> {
+    async remove(_context: IReadableContext, key: string): Promise<void> {
         await this.collection.deleteOne({
             key,
         });

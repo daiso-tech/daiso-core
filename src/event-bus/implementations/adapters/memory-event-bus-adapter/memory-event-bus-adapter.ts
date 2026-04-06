@@ -11,6 +11,7 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type IEventBus,
 } from "@/event-bus/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * The `MemoryEventBusAdapter` is used for easily faking{@link IEventBus | `IEventBus`} for testing.
@@ -43,6 +44,7 @@ export class MemoryEventBusAdapter implements IEventBusAdapter {
     }
 
     addListener(
+        _context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
     ): Promise<void> {
@@ -51,6 +53,7 @@ export class MemoryEventBusAdapter implements IEventBusAdapter {
     }
 
     removeListener(
+        _context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
     ): Promise<void> {
@@ -58,7 +61,11 @@ export class MemoryEventBusAdapter implements IEventBusAdapter {
         return Promise.resolve();
     }
 
-    dispatch(eventName: string, eventData: BaseEvent): Promise<void> {
+    dispatch(
+        _context: IReadableContext,
+        eventName: string,
+        eventData: BaseEvent,
+    ): Promise<void> {
         this.eventEmitter.emit(eventName, eventData);
         return Promise.resolve();
     }

@@ -2,6 +2,7 @@
  * @module CircuitBreaker
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
@@ -14,7 +15,7 @@ export type ICircuitBreakerStorageAdapterTransaction<TType = unknown> = {
      *
      * @param key The unique identifier for the circuit breaker.
      */
-    upsert(key: string, state: TType): Promise<void>;
+    upsert(context: IReadableContext, key: string, state: TType): Promise<void>;
 
     /**
      * Retrieves the current circuit breaker state for a given key.
@@ -22,7 +23,7 @@ export type ICircuitBreakerStorageAdapterTransaction<TType = unknown> = {
      * @param key The unique identifier for the cricuit breaker.
      * @returns Returns the circuit breaker state if found, otherwise `null`.
      */
-    find(key: string): Promise<TType | null>;
+    find(context: IReadableContext, key: string): Promise<TType | null>;
 };
 
 /**
@@ -38,6 +39,7 @@ export type ICircuitBreakerStorageAdapter<TType = unknown> = {
      * The `fn` function is given a {@link ICircuitBreakerStorageAdapterTransaction | `ICircuitBreakerStorageAdapterTransaction`} object.
      */
     transaction<TValue>(
+        context: IReadableContext,
         fn: InvokableFn<
             [transaction: ICircuitBreakerStorageAdapterTransaction<TType>],
             Promise<TValue>
@@ -50,12 +52,12 @@ export type ICircuitBreakerStorageAdapter<TType = unknown> = {
      * @param key The unique identifier for the cricuit breaker.
      * @returns Returns the circuit breaker state if found, otherwise `null`.
      */
-    find(key: string): Promise<TType | null>;
+    find(context: IReadableContext, key: string): Promise<TType | null>;
 
     /**
      * Removes a circuit breaker from the database.
      *
      * @param key The unique identifier for the cricuit breaker to remove.
      */
-    remove(key: string): Promise<void>;
+    remove(context: IReadableContext, key: string): Promise<void>;
 };

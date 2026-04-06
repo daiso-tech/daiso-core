@@ -4,6 +4,7 @@
 
 import { MysqlAdapter, Transaction, type Kysely } from "kysely";
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type IRateLimiterData,
     type IRateLimiterStorageAdapter,
@@ -78,7 +79,12 @@ class KyselyRateLimiterStorageAdapterTransaction<TType>
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
     }
 
-    async upsert(key: string, state: TType, expiration: Date): Promise<void> {
+    async upsert(
+        _context: IReadableContext,
+        key: string,
+        state: TType,
+        expiration: Date,
+    ): Promise<void> {
         const expirationAsMs = expiration.getTime();
         const serializedState = this.serde.serialize(state);
         await this.kysely
@@ -107,7 +113,10 @@ class KyselyRateLimiterStorageAdapterTransaction<TType>
             .execute();
     }
 
-    async find(key: string): Promise<IRateLimiterData<TType> | null> {
+    async find(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<IRateLimiterData<TType> | null> {
         return await find(this.kysely, this.serde, key);
     }
 }
@@ -290,6 +299,7 @@ export class KyselyRateLimiterStorageAdapter<TType>
     }
 
     async transaction<TValue>(
+        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
@@ -302,11 +312,14 @@ export class KyselyRateLimiterStorageAdapter<TType>
         });
     }
 
-    async find(key: string): Promise<IRateLimiterData<TType> | null> {
+    async find(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<IRateLimiterData<TType> | null> {
         return await find(this.kysely, this.serde, key);
     }
 
-    async remove(key: string): Promise<void> {
+    async remove(_context: IReadableContext, key: string): Promise<void> {
         await this.kysely
             .deleteFrom("rateLimiter")
             .where("rateLimiter.key", "=", key)

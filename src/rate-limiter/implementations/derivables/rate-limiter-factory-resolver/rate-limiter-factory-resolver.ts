@@ -3,6 +3,7 @@
  */
 
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type IRateLimiterFactoryResolver,
@@ -114,6 +115,15 @@ export class RateLimiterFactoryResolver<TAdapters extends string>
         return new RateLimiterFactoryResolver({
             ...this.settings,
             waitUntil,
+        });
+    }
+
+    setExecutionContext(
+        executionContext: IExecutionContext,
+    ): RateLimiterFactoryResolver<TAdapters> {
+        return new RateLimiterFactoryResolver({
+            ...this.settings,
+            executionContext,
         });
     }
 

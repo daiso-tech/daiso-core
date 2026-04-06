@@ -2,6 +2,7 @@
  * @module FileStorage
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type FileAdapterSignedDownloadUrlSettings,
     type FileAdapterSignedUploadUrlSettings,
@@ -28,115 +29,161 @@ export class SignedFileStorageAdapter implements ISignedFileStorageAdapter {
         this.fileUrlAdapter = new MergedFileUrlAdapter(fileUrlAdapter);
     }
 
-    async getPublicUrl(key: string): Promise<string | null> {
-        return await this.fileUrlAdapter.getPublicUrl(key);
+    async getPublicUrl(
+        context: IReadableContext,
+        key: string,
+    ): Promise<string | null> {
+        return await this.fileUrlAdapter.getPublicUrl(context, key);
     }
 
     async getSignedDownloadUrl(
+        context: IReadableContext,
         key: string,
         settings: FileAdapterSignedDownloadUrlSettings,
     ): Promise<string | null> {
-        return await this.fileUrlAdapter.getSignedDownloadUrl(key, settings);
+        return await this.fileUrlAdapter.getSignedDownloadUrl(
+            context,
+            key,
+            settings,
+        );
     }
 
     async getSignedUploadUrl(
+        context: IReadableContext,
         key: string,
         settings: FileAdapterSignedUploadUrlSettings,
     ): Promise<string> {
-        return await this.fileUrlAdapter.getSignedUploadUrl(key, settings);
+        return await this.fileUrlAdapter.getSignedUploadUrl(
+            context,
+            key,
+            settings,
+        );
     }
 
-    async exists(key: string): Promise<boolean> {
-        return await this.fileStorageAdapter.exists(key);
+    async exists(context: IReadableContext, key: string): Promise<boolean> {
+        return await this.fileStorageAdapter.exists(context, key);
     }
 
-    async getStream(key: string): Promise<FileAdapterStream | null> {
-        return await this.fileStorageAdapter.getStream(key);
+    async getStream(
+        context: IReadableContext,
+        key: string,
+    ): Promise<FileAdapterStream | null> {
+        return await this.fileStorageAdapter.getStream(context, key);
     }
 
-    async getBytes(key: string): Promise<Uint8Array | null> {
-        return await this.fileStorageAdapter.getBytes(key);
+    async getBytes(
+        context: IReadableContext,
+        key: string,
+    ): Promise<Uint8Array | null> {
+        return await this.fileStorageAdapter.getBytes(context, key);
     }
 
-    async getMetaData(key: string): Promise<FileAdapterMetadata | null> {
-        return await this.fileStorageAdapter.getMetaData(key);
+    async getMetaData(
+        context: IReadableContext,
+        key: string,
+    ): Promise<FileAdapterMetadata | null> {
+        return await this.fileStorageAdapter.getMetaData(context, key);
     }
 
     async add(
+        context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
     ): Promise<boolean> {
-        return await this.fileStorageAdapter.add(key, content);
+        return await this.fileStorageAdapter.add(context, key, content);
     }
 
     async addStream(
+        context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
     ): Promise<boolean> {
-        return await this.fileStorageAdapter.addStream(key, stream);
+        return await this.fileStorageAdapter.addStream(context, key, stream);
     }
 
     async update(
+        context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
     ): Promise<boolean> {
-        return await this.fileStorageAdapter.update(key, content);
+        return await this.fileStorageAdapter.update(context, key, content);
     }
 
     async updateStream(
+        context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
     ): Promise<boolean> {
-        return await this.fileStorageAdapter.updateStream(key, stream);
+        return await this.fileStorageAdapter.updateStream(context, key, stream);
     }
 
     async put(
+        context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
     ): Promise<boolean> {
-        return await this.fileStorageAdapter.put(key, content);
+        return await this.fileStorageAdapter.put(context, key, content);
     }
 
     async putStream(
+        context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
     ): Promise<boolean> {
-        return await this.fileStorageAdapter.putStream(key, stream);
+        return await this.fileStorageAdapter.putStream(context, key, stream);
     }
 
-    async copy(source: string, destination: string): Promise<FileWriteEnum> {
-        return await this.fileStorageAdapter.copy(source, destination);
+    async copy(
+        context: IReadableContext,
+        source: string,
+        destination: string,
+    ): Promise<FileWriteEnum> {
+        return await this.fileStorageAdapter.copy(context, source, destination);
     }
 
     async copyAndReplace(
+        context: IReadableContext,
         source: string,
         destination: string,
     ): Promise<boolean> {
         return await this.fileStorageAdapter.copyAndReplace(
+            context,
             source,
             destination,
         );
     }
 
-    async move(source: string, destination: string): Promise<FileWriteEnum> {
-        return await this.fileStorageAdapter.move(source, destination);
+    async move(
+        context: IReadableContext,
+        source: string,
+        destination: string,
+    ): Promise<FileWriteEnum> {
+        return await this.fileStorageAdapter.move(context, source, destination);
     }
 
     async moveAndReplace(
+        context: IReadableContext,
         source: string,
         destination: string,
     ): Promise<boolean> {
         return await this.fileStorageAdapter.moveAndReplace(
+            context,
             source,
             destination,
         );
     }
 
-    async removeMany(keys: Array<string>): Promise<boolean> {
-        return await this.fileStorageAdapter.removeMany(keys);
+    async removeMany(
+        context: IReadableContext,
+        keys: Array<string>,
+    ): Promise<boolean> {
+        return await this.fileStorageAdapter.removeMany(context, keys);
     }
 
-    async removeByPrefix(prefix: string): Promise<void> {
-        await this.fileStorageAdapter.removeByPrefix(prefix);
+    async removeByPrefix(
+        context: IReadableContext,
+        prefix: string,
+    ): Promise<void> {
+        await this.fileStorageAdapter.removeByPrefix(context, prefix);
     }
 }

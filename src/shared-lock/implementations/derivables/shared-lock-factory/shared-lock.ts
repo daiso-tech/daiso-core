@@ -3,6 +3,7 @@
  */
 
 import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { AsyncHooks, type AsyncMiddlewareFn } from "@/hooks/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import {
@@ -36,7 +37,6 @@ import {
     resolveLazyable,
     UnexpectedError,
     type AsyncLazy,
-    type Invokable,
     type WaitUntil,
 } from "@/utilities/_module.js";
 
@@ -68,6 +68,7 @@ export type SharedLockSettings = {
     defaultBlockingTime: TimeSpan;
     defaultRefreshTime: TimeSpan;
     waitUntil: WaitUntil;
+    executionContext: IExecutionContext;
 };
 
 /**
@@ -101,10 +102,8 @@ export class SharedLock implements ISharedLock {
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly limit: number;
-    private readonly waitUntil: Invokable<
-        [promise: PromiseLike<unknown>],
-        void
-    >;
+    private readonly waitUntil: WaitUntil;
+    private readonly executionContext: IExecutionContext;
 
     constructor(settings: SharedLockSettings) {
         const {
@@ -121,8 +120,10 @@ export class SharedLock implements ISharedLock {
             defaultRefreshTime,
             limit,
             waitUntil,
+            executionContext,
         } = settings;
 
+        this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.limit = limit;
         this.namespace = namespace;
@@ -237,6 +238,7 @@ export class SharedLock implements ISharedLock {
     acquireReader(): Promise<boolean> {
         return new AsyncHooks(async () => {
             return await this.adapter.acquireReader({
+                context: this.executionContext,
                 key: this._key.toString(),
                 lockId: this.lockId,
                 limit: this.limit,
@@ -300,6 +302,7 @@ export class SharedLock implements ISharedLock {
     releaseReader(): Promise<boolean> {
         return new AsyncHooks(async () => {
             return await this.adapter.releaseReader(
+                this.executionContext,
                 this._key.toString(),
                 this.lockId,
             );
@@ -335,6 +338,7 @@ export class SharedLock implements ISharedLock {
     forceReleaseAllReaders(): Promise<boolean> {
         return new AsyncHooks(async () => {
             return await this.adapter.forceReleaseAllReaders(
+                this.executionContext,
                 this._key.toString(),
             );
         }, [
@@ -359,6 +363,7 @@ export class SharedLock implements ISharedLock {
     refreshReader(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
         return new AsyncHooks(async () => {
             return await this.adapter.refreshReader(
+                this.executionContext,
                 this._key.toString(),
                 this.lockId,
                 TimeSpan.fromTimeSpan(ttl),
@@ -425,6 +430,7 @@ export class SharedLock implements ISharedLock {
     acquireWriter(): Promise<boolean> {
         return new AsyncHooks(async () => {
             return await this.adapter.acquireWriter(
+                this.executionContext,
                 this._key.toString(),
                 this.lockId,
                 this._ttl,
@@ -487,6 +493,7 @@ export class SharedLock implements ISharedLock {
     releaseWriter(): Promise<boolean> {
         return new AsyncHooks(async () => {
             return await this.adapter.releaseWriter(
+                this.executionContext,
                 this._key.toString(),
                 this.lockId,
             );
@@ -518,7 +525,10 @@ export class SharedLock implements ISharedLock {
 
     forceReleaseWriter(): Promise<boolean> {
         return new AsyncHooks(async () => {
-            return await this.adapter.forceReleaseWriter(this._key.toString());
+            return await this.adapter.forceReleaseWriter(
+                this.executionContext,
+                this._key.toString(),
+            );
         }, [
             this.handleUnexpectedError(),
             async (args, next) => {
@@ -541,6 +551,7 @@ export class SharedLock implements ISharedLock {
     refreshWriter(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
         return new AsyncHooks(async () => {
             return await this.adapter.refreshWriter(
+                this.executionContext,
                 this._key.toString(),
                 this.lockId,
                 TimeSpan.fromTimeSpan(ttl),
@@ -592,13 +603,19 @@ export class SharedLock implements ISharedLock {
 
     forceRelease(): Promise<boolean> {
         return new AsyncHooks(async () => {
-            return await this.adapter.forceRelease(this._key.toString());
+            return await this.adapter.forceRelease(
+                this.executionContext,
+                this._key.toString(),
+            );
         }, [this.handleUnexpectedError()]).invoke();
     }
 
     getState(): Promise<ISharedLockState> {
         return new AsyncHooks<[], ISharedLockState>(async () => {
-            const state = await this.adapter.getState(this._key.toString());
+            const state = await this.adapter.getState(
+                this.executionContext,
+                this._key.toString(),
+            );
             if (state === null) {
                 return {
                     type: SHARED_LOCK_STATE.EXPIRED,

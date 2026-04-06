@@ -13,6 +13,9 @@ import {
     BACKOFFS,
     type ConstantBackoffSettingsEnum,
 } from "@/backoff-policies/_module.js";
+import { type IContext } from "@/execution-context/contracts/_module.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
     type IRateLimiterAdapter,
     type IRateLimiterAdapterState,
@@ -45,6 +48,17 @@ export type FixedWindowLimiterTestSuiteSettings = {
      * ```
      */
     delayBuffer?: ITimeSpan;
+
+    /**
+     * @default
+     * ```ts
+     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
+     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     *
+     * new ExecutionContext(new NoOpExecutionContextAdapter())
+     * ```
+     */
+    context?: IContext;
 };
 
 /**
@@ -109,6 +123,7 @@ export function fixedWindowLimiterTestSuite(
         describe,
         beforeEach,
         delayBuffer = TimeSpan.fromMilliseconds(10),
+        context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
     let adapter: IRateLimiterAdapter;
     describe("fixed-window-limiter IRateLimiterAdapter tests:", () => {
@@ -118,6 +133,7 @@ export function fixedWindowLimiterTestSuite(
 
         const KEY = "a";
         const LIMIT = 4;
+
         async function delay(timeSpan: TimeSpan): Promise<void> {
             await delay_(
                 TimeSpan.fromTimeSpan(timeSpan).addTimeSpan(delayBuffer),
@@ -126,16 +142,16 @@ export function fixedWindowLimiterTestSuite(
 
         describe("method: getState", () => {
             test("Should return null when updateState method have not been called", async () => {
-                const state = await adapter.getState(KEY);
+                const state = await adapter.getState(context, KEY);
 
                 expect(state).toBeNull();
             });
             test("Should return AllowedState attempt when 3 attempts occurs during window time", async () => {
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
 
-                const state = await adapter.getState(KEY);
+                const state = await adapter.getState(context, KEY);
 
                 expect(state).toEqual({
                     success: true,
@@ -144,12 +160,12 @@ export function fixedWindowLimiterTestSuite(
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return AllowedState attempt when 4 attempts occurs during window time", async () => {
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
 
-                const state = await adapter.getState(KEY);
+                const state = await adapter.getState(context, KEY);
 
                 expect(state).toEqual({
                     success: true,
@@ -158,24 +174,24 @@ export function fixedWindowLimiterTestSuite(
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return null when 4 attempts occurs during window time and resetTime is awaited", async () => {
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
 
-                const state1 = await adapter.updateState(KEY, LIMIT);
+                const state1 = await adapter.updateState(context, KEY, LIMIT);
                 await delay(state1.resetTime);
 
-                const state2 = await adapter.getState(KEY);
+                const state2 = await adapter.getState(context, KEY);
                 expect(state2).toBeNull();
             });
             test("Should return BlockedState when 5 attempts occurs during window time", async () => {
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
 
-                const state = await adapter.getState(KEY);
+                const state = await adapter.getState(context, KEY);
 
                 expect(state).toEqual({
                     success: false,
@@ -184,14 +200,14 @@ export function fixedWindowLimiterTestSuite(
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return BlockedState attempt when 6 attempts occurs during window time", async () => {
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
 
-                const state = await adapter.getState(KEY);
+                const state = await adapter.getState(context, KEY);
 
                 expect(state).toEqual({
                     success: false,
@@ -200,25 +216,25 @@ export function fixedWindowLimiterTestSuite(
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return null when 6 attempts occurs during window time and resetTime is awaited", async () => {
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
 
-                const state1 = await adapter.updateState(KEY, LIMIT);
+                const state1 = await adapter.updateState(context, KEY, LIMIT);
                 await delay(state1.resetTime);
 
-                const state2 = await adapter.getState(KEY);
+                const state2 = await adapter.getState(context, KEY);
                 expect(state2).toBeNull();
             });
         });
         describe("method: updateState", () => {
             test("Should return AllowedState with incremented attempt when 3 attempts occurs during window time", async () => {
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
 
-                const state = await adapter.updateState(KEY, LIMIT);
+                const state = await adapter.updateState(context, KEY, LIMIT);
 
                 expect(state).toEqual({
                     success: true,
@@ -227,11 +243,11 @@ export function fixedWindowLimiterTestSuite(
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return AllowedState with incremented attempt when 4 attempts occurs during window time", async () => {
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
 
-                const state = await adapter.updateState(KEY, LIMIT);
+                const state = await adapter.updateState(context, KEY, LIMIT);
 
                 expect(state).toEqual({
                     success: true,
@@ -240,14 +256,14 @@ export function fixedWindowLimiterTestSuite(
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return reseted AllowedState when 4 attempts occurs during window time and resetTime is awaited", async () => {
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
 
-                const state1 = await adapter.updateState(KEY, LIMIT);
+                const state1 = await adapter.updateState(context, KEY, LIMIT);
                 await delay(state1.resetTime);
 
-                const state2 = await adapter.updateState(KEY, LIMIT);
+                const state2 = await adapter.updateState(context, KEY, LIMIT);
                 expect(state2).toEqual({
                     success: true,
                     attempt: 1,
@@ -255,12 +271,12 @@ export function fixedWindowLimiterTestSuite(
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return BlockedState when 5 attempts occurs during window time", async () => {
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
 
-                const state = await adapter.updateState(KEY, LIMIT);
+                const state = await adapter.updateState(context, KEY, LIMIT);
 
                 expect(state).toEqual({
                     success: false,
@@ -269,13 +285,13 @@ export function fixedWindowLimiterTestSuite(
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return BlockedState with incremented attempt when 6 attempts occurs during window time", async () => {
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
 
-                const state = await adapter.updateState(KEY, LIMIT);
+                const state = await adapter.updateState(context, KEY, LIMIT);
 
                 expect(state).toEqual({
                     success: false,
@@ -284,16 +300,16 @@ export function fixedWindowLimiterTestSuite(
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return reseted AllowedState when 6 attempts occurs during window time and resetTime is awaited", async () => {
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
 
-                const state1 = await adapter.updateState(KEY, LIMIT);
+                const state1 = await adapter.updateState(context, KEY, LIMIT);
                 await delay(state1.resetTime);
 
-                const state2 = await adapter.updateState(KEY, LIMIT);
+                const state2 = await adapter.updateState(context, KEY, LIMIT);
                 expect(state2).toEqual({
                     success: true,
                     attempt: 1,
@@ -303,24 +319,24 @@ export function fixedWindowLimiterTestSuite(
         });
         describe("method: reset", () => {
             test("Should return null when reseted in AllowedState", async () => {
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
 
-                await adapter.reset(KEY);
-                const state = await adapter.getState(KEY);
+                await adapter.reset(context, KEY);
+                const state = await adapter.getState(context, KEY);
 
                 expect(state).toBeNull();
             });
             test("Should return null when reseted in BlockedState", async () => {
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
-                await adapter.updateState(KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
+                await adapter.updateState(context, KEY, LIMIT);
 
-                await adapter.reset(KEY);
-                const state = await adapter.getState(KEY);
+                await adapter.reset(context, KEY);
+                const state = await adapter.getState(context, KEY);
 
                 expect(state).toBeNull();
             });

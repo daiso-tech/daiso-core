@@ -2,6 +2,7 @@
  * @module SharedLock
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type ISharedLockFactory } from "@/shared-lock/contracts/shared-lock-factory.contract.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
@@ -38,6 +39,7 @@ export type ISharedLockAdapterState = {
  * @group Contracts
  */
 export type SharedLockAcquireSettings = {
+    context: IReadableContext;
     key: string;
     lockId: string;
     limit: number;
@@ -58,6 +60,7 @@ export type ISharedLockAdapter = {
      * @returns Returns `true` if expired otherwise `false` is returned.
      */
     acquireWriter(
+        context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
@@ -68,21 +71,33 @@ export type ISharedLockAdapter = {
      *
      * @returns Returns `true` if released otherwise `false` is returned.
      */
-    releaseWriter(key: string, lockId: string): Promise<boolean>;
+    releaseWriter(
+        context: IReadableContext,
+        key: string,
+        lockId: string,
+    ): Promise<boolean>;
 
     /**
      * The `forceReleaseWriter` method releases a lock regardless of the owner.
      *
      * @returns Returns `true` if the lock exists or `false` if the lock is expired.
      */
-    forceReleaseWriter(key: string): Promise<boolean>;
+    forceReleaseWriter(
+        context: IReadableContext,
+        key: string,
+    ): Promise<boolean>;
 
     /**
      * The `refreshWriter` method will upadte `ttl` of lock if it matches the `owner` and is expireable.
      *
      * @returns Returns `false` if the lock is unexpireable, the is expired, does not match the `owner` otherwise `true` is returned.
      */
-    refreshWriter(key: string, lockId: string, ttl: TimeSpan): Promise<boolean>;
+    refreshWriter(
+        context: IReadableContext,
+        key: string,
+        lockId: string,
+        ttl: TimeSpan,
+    ): Promise<boolean>;
 
     /**
      * The `acquireReader` method acquires a slot only if the slot limit is not reached.
@@ -96,21 +111,36 @@ export type ISharedLockAdapter = {
      *
      * @returns Returns true if the semaphore exists and has at least one unavailable slot or false if all slots are available.
      */
-    releaseReader(key: string, slotId: string): Promise<boolean>;
+    releaseReader(
+        context: IReadableContext,
+        key: string,
+        slotId: string,
+    ): Promise<boolean>;
 
     /**
      * The `forceReleaseAllReaders` method releases all slots related to the key.
      */
-    forceReleaseAllReaders(key: string): Promise<boolean>;
+    forceReleaseAllReaders(
+        context: IReadableContext,
+        key: string,
+    ): Promise<boolean>;
 
     /**
      * The `refreshReader` method expiration of slot if not already expired.
      *
      * @returns Returns true if the slot is refreshed* otherwise false is returned.
      */
-    refreshReader(key: string, slotId: string, ttl: TimeSpan): Promise<boolean>;
+    refreshReader(
+        context: IReadableContext,
+        key: string,
+        slotId: string,
+        ttl: TimeSpan,
+    ): Promise<boolean>;
 
-    forceRelease(key: string): Promise<boolean>;
+    forceRelease(context: IReadableContext, key: string): Promise<boolean>;
 
-    getState(key: string): Promise<ISharedLockAdapterState | null>;
+    getState(
+        context: IReadableContext,
+        key: string,
+    ): Promise<ISharedLockAdapterState | null>;
 };

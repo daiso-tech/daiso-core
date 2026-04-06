@@ -10,6 +10,7 @@ import {
     type CircuitBreakerStateTransition,
     type ICircuitBreakerAdapter,
 } from "@/circuit-breaker/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * The `NoOpCircuitBreakerAdapter` will do nothing and is used for easily mocking {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} for testing.
@@ -18,30 +19,36 @@ import {
  * @group Adapters
  */
 export class NoOpCircuitBreakerAdapter implements ICircuitBreakerAdapter {
-    getState(_key: string): Promise<CircuitBreakerState> {
+    getState(
+        _context: IReadableContext,
+        _key: string,
+    ): Promise<CircuitBreakerState> {
         return Promise.resolve(CIRCUIT_BREAKER_STATE.CLOSED);
     }
 
-    updateState(_key: string): Promise<CircuitBreakerStateTransition> {
+    updateState(
+        _context: IReadableContext,
+        _key: string,
+    ): Promise<CircuitBreakerStateTransition> {
         return Promise.resolve({
             from: CIRCUIT_BREAKER_STATE.CLOSED,
             to: CIRCUIT_BREAKER_STATE.CLOSED,
         } satisfies CircuitBreakerStateTransition);
     }
 
-    isolate(_key: string): Promise<void> {
+    isolate(_context: IReadableContext, _key: string): Promise<void> {
         return Promise.resolve();
     }
 
-    trackFailure(_key: string): Promise<void> {
+    trackFailure(_context: IReadableContext, _key: string): Promise<void> {
         return Promise.resolve();
     }
 
-    trackSuccess(_key: string): Promise<void> {
+    trackSuccess(_context: IReadableContext, _key: string): Promise<void> {
         return Promise.resolve();
     }
 
-    reset(_key: string): Promise<void> {
+    reset(_context: IReadableContext, _key: string): Promise<void> {
         return Promise.resolve();
     }
 }

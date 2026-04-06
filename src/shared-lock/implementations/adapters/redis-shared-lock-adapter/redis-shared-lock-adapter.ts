@@ -4,6 +4,7 @@
 
 import { type Redis, type Result } from "ioredis";
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type ISharedLockAdapter,
     type ISharedLockAdapterState,
@@ -720,6 +721,7 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     }
 
     async acquireWriter(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
@@ -732,7 +734,11 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         return result === 1;
     }
 
-    async releaseWriter(key: string, lockId: string): Promise<boolean> {
+    async releaseWriter(
+        _context: IReadableContext,
+        key: string,
+        lockId: string,
+    ): Promise<boolean> {
         const result = await this.database.daiso_shared_lock_release_writer(
             key,
             lockId,
@@ -741,6 +747,7 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     }
 
     async refreshWriter(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
@@ -753,7 +760,10 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         return result === 1;
     }
 
-    async forceReleaseWriter(key: string): Promise<boolean> {
+    async forceReleaseWriter(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
         const result =
             await this.database.daiso_shared_lock_force_release_writer(key);
         return result === 1;
@@ -771,7 +781,11 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         return result === 1;
     }
 
-    async releaseReader(key: string, lockId: string): Promise<boolean> {
+    async releaseReader(
+        _context: IReadableContext,
+        key: string,
+        lockId: string,
+    ): Promise<boolean> {
         const result = await this.database.daiso_shared_lock_release_reader(
             key,
             lockId,
@@ -781,6 +795,7 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     }
 
     async refreshReader(
+        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
@@ -794,7 +809,10 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         return result === 1;
     }
 
-    async forceReleaseAllReaders(key: string): Promise<boolean> {
+    async forceReleaseAllReaders(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
         const result =
             await this.database.daiso_shared_lock_force_release_all_readers(
                 key,
@@ -803,7 +821,10 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         return result === 1;
     }
 
-    async forceRelease(key: string): Promise<boolean> {
+    async forceRelease(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
         const result = await this.database.daiso_shared_lock_force_release(
             key,
             Date.now(),
@@ -811,7 +832,10 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         return result === 1;
     }
 
-    async getState(key: string): Promise<ISharedLockAdapterState | null> {
+    async getState(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<ISharedLockAdapterState | null> {
         const json = JSON.parse(
             await this.database.daiso_shared_lock_get_state(key, Date.now()),
         ) as IRedisJsonSharedLockState | null;

@@ -8,6 +8,7 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type ICircuitBreakerFactory,
 } from "@/circuit-breaker/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type IDeinitizable, type InvokableFn } from "@/utilities/_module.js";
 
 /**
@@ -45,28 +46,33 @@ export class MemoryCircuitBreakerStorageAdapter<TType = unknown>
         return Promise.resolve();
     }
 
-    private upsert(key: string, state: TType): Promise<void> {
+    private upsert(
+        _context: IReadableContext,
+        key: string,
+        state: TType,
+    ): Promise<void> {
         this.map.set(key, state);
         return Promise.resolve();
     }
 
     async transaction<TValue>(
+        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: ICircuitBreakerStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
     ): Promise<TValue> {
         return await fn({
-            upsert: (key, state) => this.upsert(key, state),
-            find: (key) => this.find(key),
+            upsert: (context, key, state) => this.upsert(context, key, state),
+            find: (context, key) => this.find(context, key),
         });
     }
 
-    async find(key: string): Promise<TType | null> {
+    async find(_context: IReadableContext, key: string): Promise<TType | null> {
         return Promise.resolve(this.map.get(key) ?? null);
     }
 
-    async remove(key: string): Promise<void> {
+    async remove(_context: IReadableContext, key: string): Promise<void> {
         this.map.delete(key);
         return Promise.resolve();
     }

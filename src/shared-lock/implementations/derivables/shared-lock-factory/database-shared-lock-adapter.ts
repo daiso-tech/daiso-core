@@ -2,6 +2,7 @@
  * @module SharedLock
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type IDatabaseSharedLockAdapter,
     type IDatabaseSharedLockTransaction,
@@ -18,15 +19,16 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  */
 export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
     private static async _forceReleaseWriter(
+        context: IReadableContext,
         trx: IDatabaseSharedLockTransaction,
         key: string,
     ): Promise<boolean> {
-        const readerSemaphore = await trx.reader.findSemaphore(key);
+        const readerSemaphore = await trx.reader.findSemaphore(context, key);
         if (readerSemaphore !== null) {
             return false;
         }
 
-        const lockData = await trx.writer.remove(key);
+        const lockData = await trx.writer.remove(context, key);
         if (lockData === null) {
             return false;
         }
@@ -37,15 +39,19 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
     }
 
     private static async _forceReleaseAllReaders(
+        context: IReadableContext,
         trx: IDatabaseSharedLockTransaction,
         key: string,
     ): Promise<boolean> {
-        const writerLock = await trx.writer.find(key);
+        const writerLock = await trx.writer.find(context, key);
         if (writerLock !== null) {
             return false;
         }
 
-        const semaphoreSlotDataArray = await trx.reader.removeAllSlots(key);
+        const semaphoreSlotDataArray = await trx.reader.removeAllSlots(
+            context,
+            key,
+        );
         return semaphoreSlotDataArray.some((semaphoreSlotData) => {
             return (
                 semaphoreSlotData.expiration === null ||
@@ -55,10 +61,11 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
     }
 
     private static async getWriterState(
+        context: IReadableContext,
         trx: IDatabaseSharedLockTransaction,
         key: string,
     ): Promise<IWriterLockAdapterState | null> {
-        const lockData = await trx.writer.find(key);
+        const lockData = await trx.writer.find(context, key);
         if (lockData === null) {
             return null;
         }
@@ -72,14 +79,15 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
     }
 
     private static async getReaderState(
+        context: IReadableContext,
         trx: IDatabaseSharedLockTransaction,
         key: string,
     ): Promise<IReaderSemaphoreAdapterState | null> {
-        const semaphore = await trx.reader.findSemaphore(key);
+        const semaphore = await trx.reader.findSemaphore(context, key);
         if (semaphore === null) {
             return null;
         }
-        const slots = await trx.reader.findSlots(key);
+        const slots = await trx.reader.findSlots(context, key);
         const unexpiredSlots = slots.filter(
             (slot) => slot.expiration === null || slot.expiration > new Date(),
         );
@@ -98,20 +106,24 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
     constructor(private readonly adapter: IDatabaseSharedLockAdapter) {}
 
     async acquireWriter(
+        context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
     ): Promise<boolean> {
         const expiration = ttl?.toEndDate() ?? null;
-        return await this.adapter.transaction<boolean>(async (trx) => {
-            const readerSemaphore = await trx.reader.findSemaphore(key);
+        return await this.adapter.transaction<boolean>(context, async (trx) => {
+            const readerSemaphore = await trx.reader.findSemaphore(
+                context,
+                key,
+            );
             if (readerSemaphore !== null) {
                 return false;
             }
 
-            const writerLock = await trx.writer.find(key);
+            const writerLock = await trx.writer.find(context, key);
             if (writerLock === null) {
-                await trx.writer.upsert(key, lockId, expiration);
+                await trx.writer.upsert(context, key, lockId, expiration);
                 return true;
             }
             if (writerLock.owner === lockId) {
@@ -121,7 +133,7 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
                 return false;
             }
             if (writerLock.expiration <= new Date()) {
-                await trx.writer.upsert(key, lockId, expiration);
+                await trx.writer.upsert(context, key, lockId, expiration);
                 return true;
             }
 
@@ -129,14 +141,25 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
         });
     }
 
-    async releaseWriter(key: string, lockId: string): Promise<boolean> {
-        return await this.adapter.transaction<boolean>(async (trx) => {
-            const readerSemaphore = await trx.reader.findSemaphore(key);
+    async releaseWriter(
+        context: IReadableContext,
+        key: string,
+        lockId: string,
+    ): Promise<boolean> {
+        return await this.adapter.transaction<boolean>(context, async (trx) => {
+            const readerSemaphore = await trx.reader.findSemaphore(
+                context,
+                key,
+            );
             if (readerSemaphore !== null) {
                 return false;
             }
 
-            const lockData = await trx.writer.removeIfOwner(key, lockId);
+            const lockData = await trx.writer.removeIfOwner(
+                context,
+                key,
+                lockId,
+            );
             if (lockData === null) {
                 return false;
             }
@@ -154,24 +177,36 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
         });
     }
 
-    async forceReleaseWriter(key: string): Promise<boolean> {
-        return await this.adapter.transaction<boolean>(async (trx) => {
-            return DatabaseSharedLockAdapter._forceReleaseWriter(trx, key);
+    async forceReleaseWriter(
+        context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
+        return await this.adapter.transaction<boolean>(context, async (trx) => {
+            return DatabaseSharedLockAdapter._forceReleaseWriter(
+                context,
+                trx,
+                key,
+            );
         });
     }
 
     async refreshWriter(
+        context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
     ): Promise<boolean> {
-        return await this.adapter.transaction<boolean>(async (trx) => {
-            const readerSemaphore = await trx.reader.findSemaphore(key);
+        return await this.adapter.transaction<boolean>(context, async (trx) => {
+            const readerSemaphore = await trx.reader.findSemaphore(
+                context,
+                key,
+            );
             if (readerSemaphore !== null) {
                 return false;
             }
 
             const updateCount = await trx.writer.updateExpiration(
+                context,
                 key,
                 lockId,
                 ttl.toEndDate(),
@@ -182,57 +217,87 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
 
     async acquireReader(settings: SharedLockAcquireSettings): Promise<boolean> {
         const expiration = settings.ttl?.toEndDate() ?? null;
-        return await this.adapter.transaction<boolean>(async (trx) => {
-            const writerLock = await trx.writer.find(settings.key);
-            if (writerLock !== null) {
-                return false;
-            }
-
-            const semaphoreData = await trx.reader.findSemaphore(settings.key);
-
-            let limit = semaphoreData?.limit;
-            if (limit === undefined) {
-                limit = settings.limit;
-                await trx.reader.upsertSemaphore(settings.key, limit);
-            }
-
-            const slots = await trx.reader.findSlots(settings.key);
-            const unexpiredSlots = slots.filter(
-                (slot) =>
-                    slot.expiration === null || slot.expiration > new Date(),
-            );
-
-            if (unexpiredSlots.length === 0) {
-                await trx.reader.upsertSemaphore(settings.key, settings.limit);
-            }
-
-            if (unexpiredSlots.length >= limit) {
-                return false;
-            }
-
-            const hasNotSlot = unexpiredSlots.every(
-                (slot) => slot.id !== settings.lockId,
-            );
-            if (hasNotSlot) {
-                await trx.reader.upsertSlot(
+        return await this.adapter.transaction<boolean>(
+            settings.context,
+            async (trx) => {
+                const writerLock = await trx.writer.find(
+                    settings.context,
                     settings.key,
-                    settings.lockId,
-                    expiration,
                 );
-            }
+                if (writerLock !== null) {
+                    return false;
+                }
 
-            return true;
-        });
+                const semaphoreData = await trx.reader.findSemaphore(
+                    settings.context,
+                    settings.key,
+                );
+
+                let limit = semaphoreData?.limit;
+                if (limit === undefined) {
+                    limit = settings.limit;
+                    await trx.reader.upsertSemaphore(
+                        settings.context,
+                        settings.key,
+                        limit,
+                    );
+                }
+
+                const slots = await trx.reader.findSlots(
+                    settings.context,
+                    settings.key,
+                );
+                const unexpiredSlots = slots.filter(
+                    (slot) =>
+                        slot.expiration === null ||
+                        slot.expiration > new Date(),
+                );
+
+                if (unexpiredSlots.length === 0) {
+                    await trx.reader.upsertSemaphore(
+                        settings.context,
+                        settings.key,
+                        settings.limit,
+                    );
+                }
+
+                if (unexpiredSlots.length >= limit) {
+                    return false;
+                }
+
+                const hasNotSlot = unexpiredSlots.every(
+                    (slot) => slot.id !== settings.lockId,
+                );
+                if (hasNotSlot) {
+                    await trx.reader.upsertSlot(
+                        settings.context,
+                        settings.key,
+                        settings.lockId,
+                        expiration,
+                    );
+                }
+
+                return true;
+            },
+        );
     }
 
-    async releaseReader(key: string, lockId: string): Promise<boolean> {
-        return await this.adapter.transaction<boolean>(async (trx) => {
-            const writerLock = await trx.writer.find(key);
+    async releaseReader(
+        context: IReadableContext,
+        key: string,
+        lockId: string,
+    ): Promise<boolean> {
+        return await this.adapter.transaction<boolean>(context, async (trx) => {
+            const writerLock = await trx.writer.find(context, key);
             if (writerLock !== null) {
                 return false;
             }
 
-            const semaphoreSlotData = await trx.reader.removeSlot(key, lockId);
+            const semaphoreSlotData = await trx.reader.removeSlot(
+                context,
+                key,
+                lockId,
+            );
             if (semaphoreSlotData === null) {
                 return false;
             }
@@ -243,24 +308,33 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
         });
     }
 
-    async forceReleaseAllReaders(key: string): Promise<boolean> {
-        return await this.adapter.transaction<boolean>(async (trx) => {
-            return DatabaseSharedLockAdapter._forceReleaseAllReaders(trx, key);
+    async forceReleaseAllReaders(
+        context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
+        return await this.adapter.transaction<boolean>(context, async (trx) => {
+            return DatabaseSharedLockAdapter._forceReleaseAllReaders(
+                context,
+                trx,
+                key,
+            );
         });
     }
 
     async refreshReader(
+        context: IReadableContext,
         key: string,
         slotId: string,
         ttl: TimeSpan,
     ): Promise<boolean> {
-        return await this.adapter.transaction<boolean>(async (trx) => {
-            const writerLock = await trx.writer.find(key);
+        return await this.adapter.transaction<boolean>(context, async (trx) => {
+            const writerLock = await trx.writer.find(context, key);
             if (writerLock !== null) {
                 return false;
             }
 
             const updateCount = await trx.reader.updateExpiration(
+                context,
                 key,
                 slotId,
                 ttl.toEndDate(),
@@ -269,15 +343,20 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
         });
     }
 
-    async forceRelease(key: string): Promise<boolean> {
-        return await this.adapter.transaction<boolean>(async (trx) => {
+    async forceRelease(
+        context: IReadableContext,
+        key: string,
+    ): Promise<boolean> {
+        return await this.adapter.transaction<boolean>(context, async (trx) => {
             const [hasForceReleasedWriter, hasForceReleasedAllReaders] =
                 await Promise.all([
                     await DatabaseSharedLockAdapter._forceReleaseWriter(
+                        context,
                         trx,
                         key,
                     ),
                     await DatabaseSharedLockAdapter._forceReleaseAllReaders(
+                        context,
                         trx,
                         key,
                     ),
@@ -286,12 +365,16 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
         });
     }
 
-    async getState(key: string): Promise<ISharedLockAdapterState | null> {
+    async getState(
+        context: IReadableContext,
+        key: string,
+    ): Promise<ISharedLockAdapterState | null> {
         return await this.adapter.transaction<ISharedLockAdapterState | null>(
+            context,
             async (trx) => {
                 const [writerState, readerState] = await Promise.all([
-                    DatabaseSharedLockAdapter.getWriterState(trx, key),
-                    DatabaseSharedLockAdapter.getReaderState(trx, key),
+                    DatabaseSharedLockAdapter.getWriterState(context, trx, key),
+                    DatabaseSharedLockAdapter.getReaderState(context, trx, key),
                 ]);
                 if (writerState === null && readerState === null) {
                     return null;

@@ -3,6 +3,7 @@
  */
 
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import {
     type FileEventMap,
     type FileStorageAdapterVariants,
@@ -16,7 +17,6 @@ import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import {
     getConstructorName,
-    type Invokable,
     type InvokableFn,
     type OneOrMore,
     type WaitUntil,
@@ -39,6 +39,7 @@ export type FileSerdeTransformerSettings = {
     serdeTransformerName: string;
     onlyLowercase: boolean;
     keyValidator: InvokableFn<[key: string], string | null>;
+    executionContext: IExecutionContext;
 };
 
 /**
@@ -47,10 +48,7 @@ export type FileSerdeTransformerSettings = {
 export class FileSerdeTransformer
     implements ISerdeTransformer<File, ISerializedFile>
 {
-    private readonly waitUntil: Invokable<
-        [promise: PromiseLike<unknown>],
-        void
-    >;
+    private readonly waitUntil: WaitUntil;
     private readonly onlyLowercase: boolean;
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
     private readonly originalAdapter: FileStorageAdapterVariants;
@@ -63,6 +61,7 @@ export class FileSerdeTransformer
     private readonly defaultContentEncoding: string | null;
     private readonly defaultCacheControl: string | null;
     private readonly defaultContentLanguage: string | null;
+    private readonly executionContext: IExecutionContext;
 
     constructor(settings: FileSerdeTransformerSettings) {
         const {
@@ -79,8 +78,10 @@ export class FileSerdeTransformer
             defaultContentLanguage,
             originalAdapter,
             waitUntil,
+            executionContext,
         } = settings;
 
+        this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
@@ -136,6 +137,7 @@ export class FileSerdeTransformer
         const keyObj = this.namespace.create(key);
 
         return new File({
+            executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,

@@ -4,6 +4,9 @@
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
     FILE_EVENTS,
     isFileError,
@@ -29,7 +32,6 @@ import {
     CORE,
     defaultWaitUntil,
     resolveOneOrMore,
-    type Invokable,
     type InvokableFn,
     type OneOrMore,
     type WaitUntil,
@@ -168,6 +170,17 @@ export type FileStorageSettingsBase = {
      * ```
      */
     waitUntil?: WaitUntil;
+
+    /**
+     * @default
+     * ```ts
+     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
+     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     *
+     * new ExecutionContext(new NoOpExecutionContextAdapter())
+     * ```
+     */
+    executionContext?: IExecutionContext;
 };
 
 /**
@@ -202,10 +215,8 @@ export class FileStorage implements IFileStorage {
     private readonly defaultContentLanguage: string | null;
     private readonly onlyLowercase: boolean;
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
-    private readonly waitUntil: Invokable<
-        [promise: PromiseLike<unknown>],
-        void
-    >;
+    private readonly waitUntil: WaitUntil;
+    private readonly executionContext: IExecutionContext;
 
     /**
      * @example
@@ -241,8 +252,12 @@ export class FileStorage implements IFileStorage {
             defaultContentLanguage = null,
             urlAdapter = {},
             waitUntil = defaultWaitUntil,
+            executionContext = new ExecutionContext(
+                new NoOpExecutionContextAdapter(),
+            ),
         } = settings;
 
+        this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
@@ -262,6 +277,7 @@ export class FileStorage implements IFileStorage {
 
     private registerToSerde(): void {
         const transformer = new FileSerdeTransformer({
+            executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,
@@ -283,6 +299,7 @@ export class FileStorage implements IFileStorage {
 
     create(key: string): IFile {
         return new File({
+            executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,
@@ -326,7 +343,10 @@ export class FileStorage implements IFileStorage {
 
     clear(): Promise<void> {
         return new AsyncHooks(async () => {
-            await this.adapter.removeByPrefix(this.namespace.toString());
+            await this.adapter.removeByPrefix(
+                this.executionContext,
+                this.namespace.toString(),
+            );
             callInvokable(
                 this.waitUntil,
                 this.eventBus.dispatch(FILE_EVENTS.CLEARED, {}),
@@ -341,8 +361,10 @@ export class FileStorage implements IFileStorage {
                 return file.key.toString();
             });
 
-            const hasRemovedAtLeastOne =
-                await this.adapter.removeMany(namespacedKeys);
+            const hasRemovedAtLeastOne = await this.adapter.removeMany(
+                this.executionContext,
+                namespacedKeys,
+            );
 
             if (hasRemovedAtLeastOne) {
                 for (const file of filesArr) {

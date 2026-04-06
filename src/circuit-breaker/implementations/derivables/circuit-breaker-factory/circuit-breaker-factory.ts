@@ -17,6 +17,9 @@ import { CircuitBreaker } from "@/circuit-breaker/implementations/derivables/cir
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
@@ -29,7 +32,6 @@ import {
     defaultWaitUntil,
     resolveOneOrMore,
     type ErrorPolicy,
-    type Invokable,
     type OneOrMore,
     type WaitUntil,
 } from "@/utilities/_module.js";
@@ -125,6 +127,17 @@ export type CircuitBreakerFactorySettingsBase = {
      * ```
      */
     waitUntil?: WaitUntil;
+
+    /**
+     * @default
+     * ```ts
+     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
+     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     *
+     * new ExecutionContext(new NoOpExecutionContextAdapter())
+     * ```
+     */
+    executionContext?: IExecutionContext;
 };
 
 /**
@@ -156,10 +169,8 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
     private readonly enableAsyncTracking: boolean;
-    private readonly waitUntil: Invokable<
-        [promise: PromiseLike<unknown>],
-        void
-    >;
+    private readonly waitUntil: WaitUntil;
+    private readonly executionContext: IExecutionContext;
 
     /**
      * @example
@@ -206,8 +217,12 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
             serde = new Serde(new NoOpSerdeAdapter()),
             serdeTransformerName = "",
             waitUntil = defaultWaitUntil,
+            executionContext = new ExecutionContext(
+                new NoOpExecutionContextAdapter(),
+            ),
         } = settings;
 
+        this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.enableAsyncTracking = enableAsyncTracking;
         this.namespace = namespace;
@@ -223,6 +238,7 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
 
     private registerToSerde(): void {
         const transformer = new CircuitBreakerSerdeTransformer({
+            executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             adapter: this.adapter,
@@ -253,6 +269,7 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
         } = settings;
 
         return new CircuitBreaker({
+            executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             eventDispatcher: this.eventBus,

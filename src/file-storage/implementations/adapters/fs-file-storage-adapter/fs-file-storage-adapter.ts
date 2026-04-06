@@ -12,6 +12,7 @@ import { lookup } from "mime-types";
 
 import { type ICodec } from "@/codec/contracts/_module.js";
 import { Base64Codec } from "@/codec/implementations/base-64-codec/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     FILE_WRITE_ENUM,
     type FileAdapterMetadata,
@@ -141,12 +142,15 @@ export class FsFileStorageAdapter
         return join(this.location, this.codec.encode(key));
     }
 
-    async exists(key: string): Promise<boolean> {
+    async exists(_context: IReadableContext, key: string): Promise<boolean> {
         const normalizeKey = this.normalizeKey(key);
         return FsFileStorageAdapter.isFileFound(normalizeKey);
     }
 
-    async getStream(key: string): Promise<FileAdapterStream | null> {
+    async getStream(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<FileAdapterStream | null> {
         const normalizeKey = this.normalizeKey(key);
         if (!(await FsFileStorageAdapter.isFileFound(normalizeKey))) {
             return null;
@@ -154,7 +158,10 @@ export class FsFileStorageAdapter
         return createReadStream(normalizeKey);
     }
 
-    async getBytes(key: string): Promise<Uint8Array | null> {
+    async getBytes(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<Uint8Array | null> {
         try {
             const normalizeKey = this.normalizeKey(key);
             const file = await fs.readFile(normalizeKey);
@@ -167,7 +174,10 @@ export class FsFileStorageAdapter
         }
     }
 
-    async getMetaData(key: string): Promise<FileAdapterMetadata | null> {
+    async getMetaData(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<FileAdapterMetadata | null> {
         try {
             const normalizeKey = this.normalizeKey(key);
             const stat = await fs.stat(normalizeKey);
@@ -190,6 +200,7 @@ export class FsFileStorageAdapter
     }
 
     async add(
+        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
     ): Promise<boolean> {
@@ -208,6 +219,7 @@ export class FsFileStorageAdapter
     }
 
     async addStream(
+        _context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
     ): Promise<boolean> {
@@ -227,6 +239,7 @@ export class FsFileStorageAdapter
     }
 
     async update(
+        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
     ): Promise<boolean> {
@@ -246,6 +259,7 @@ export class FsFileStorageAdapter
     }
 
     async updateStream(
+        _context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
     ): Promise<boolean> {
@@ -265,6 +279,7 @@ export class FsFileStorageAdapter
     }
 
     async put(
+        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
     ): Promise<boolean> {
@@ -275,6 +290,7 @@ export class FsFileStorageAdapter
     }
 
     async putStream(
+        _context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
     ): Promise<boolean> {
@@ -285,7 +301,11 @@ export class FsFileStorageAdapter
         return isFound;
     }
 
-    async copy(source: string, destination: string): Promise<FileWriteEnum> {
+    async copy(
+        _context: IReadableContext,
+        source: string,
+        destination: string,
+    ): Promise<FileWriteEnum> {
         try {
             const normalizeSource = this.normalizeKey(source);
             const normalizeDestination = this.normalizeKey(destination);
@@ -309,6 +329,7 @@ export class FsFileStorageAdapter
     }
 
     async copyAndReplace(
+        _context: IReadableContext,
         source: string,
         destination: string,
     ): Promise<boolean> {
@@ -326,22 +347,30 @@ export class FsFileStorageAdapter
         }
     }
 
-    async move(source: string, destination: string): Promise<FileWriteEnum> {
-        const result = await this.copy(source, destination);
-        await this.removeMany([source]);
+    async move(
+        context: IReadableContext,
+        source: string,
+        destination: string,
+    ): Promise<FileWriteEnum> {
+        const result = await this.copy(context, source, destination);
+        await this.removeMany(context, [source]);
         return result;
     }
 
     async moveAndReplace(
+        context: IReadableContext,
         source: string,
         destination: string,
     ): Promise<boolean> {
-        const result = await this.copyAndReplace(source, destination);
-        await this.removeMany([source]);
+        const result = await this.copyAndReplace(context, source, destination);
+        await this.removeMany(context, [source]);
         return result;
     }
 
-    async removeMany(keys: Array<string>): Promise<boolean> {
+    async removeMany(
+        _context: IReadableContext,
+        keys: Array<string>,
+    ): Promise<boolean> {
         const promises = [
             ...new Set(
                 keys.map((key) => {
@@ -368,7 +397,10 @@ export class FsFileStorageAdapter
         return false;
     }
 
-    async removeByPrefix(prefix: string): Promise<void> {
+    async removeByPrefix(
+        _context: IReadableContext,
+        prefix: string,
+    ): Promise<void> {
         const encodedFiles = await fs.readdir(normalize(this.location), {
             recursive: true,
         });

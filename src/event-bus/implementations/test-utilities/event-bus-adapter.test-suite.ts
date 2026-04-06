@@ -15,6 +15,9 @@ import {
     type BaseEvent,
     type IEventBusAdapter,
 } from "@/event-bus/contracts/_module.js";
+import { type IContext } from "@/execution-context/contracts/_module.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay as delay_, type Promisable } from "@/utilities/_module.js";
@@ -29,6 +32,17 @@ export type EventBusAdapterTestSuiteSettings = {
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
     createAdapter: () => Promisable<IEventBusAdapter>;
+
+    /**
+     * @default
+     * ```ts
+     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
+     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     *
+     * new ExecutionContext(new NoOpExecutionContextAdapter())
+     * ```
+     */
+    context?: IContext;
 };
 
 /**
@@ -40,7 +54,13 @@ export type EventBusAdapterTestSuiteSettings = {
 export function eventBusAdapterTestSuite(
     settings: EventBusAdapterTestSuiteSettings,
 ): void {
-    const { expect, test, createAdapter, beforeEach } = settings;
+    const {
+        expect,
+        test,
+        createAdapter,
+        beforeEach,
+        context = new ExecutionContext(new NoOpExecutionContextAdapter()),
+    } = settings;
 
     let adapter: IEventBusAdapter;
 
@@ -58,18 +78,18 @@ export function eventBusAdapterTestSuite(
             test("Should be null when listener added and event is not triggered", async () => {
                 const handlerFn = vi.fn((_event: BaseEvent) => {});
 
-                await adapter.addListener("event", handlerFn);
+                await adapter.addListener(context, "event", handlerFn);
 
                 expect(handlerFn).not.toHaveBeenCalled();
             });
             test("Should be TestEvent when listener added and event is triggered", async () => {
                 const handlerFn = vi.fn((_event: BaseEvent) => {});
-                await adapter.addListener("event", handlerFn);
+                await adapter.addListener(context, "event", handlerFn);
 
                 const event = {
                     type: "event",
                 };
-                await adapter.dispatch("event", event);
+                await adapter.dispatch(context, "event", event);
                 await delay(TTL);
 
                 expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -78,13 +98,13 @@ export function eventBusAdapterTestSuite(
             test("Should be null when listener removed and event is triggered", async () => {
                 const handlerFn = vi.fn((_event: BaseEvent) => {});
 
-                await adapter.addListener("event", handlerFn);
-                await adapter.removeListener("event", handlerFn);
+                await adapter.addListener(context, "event", handlerFn);
+                await adapter.removeListener(context, "event", handlerFn);
                 const event = {
                     type: "event",
                 };
 
-                await adapter.dispatch("event", event);
+                await adapter.dispatch(context, "event", event);
                 await delay(TTL);
 
                 expect(handlerFn).not.toHaveBeenCalled();

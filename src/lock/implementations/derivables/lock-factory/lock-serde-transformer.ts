@@ -18,7 +18,6 @@ import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     getConstructorName,
-    type Invokable,
     type OneOrMore,
     type WaitUntil,
 } from "@/utilities/_module.js";
@@ -53,10 +52,7 @@ export class LockSerdeTransformer
     private readonly defaultRefreshTime: TimeSpan;
     private readonly eventBus: IEventBus<LockEventMap>;
     private readonly serdeTransformerName: string;
-    private readonly waitUntil: Invokable<
-        [promise: PromiseLike<unknown>],
-        void
-    >;
+    private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
 
     constructor(settings: LockSerdeTransformerSettings) {

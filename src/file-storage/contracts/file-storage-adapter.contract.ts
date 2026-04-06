@@ -2,6 +2,8 @@
  * @module FileStorage
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+
 /**
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
  * @group Contracts
@@ -28,14 +30,19 @@ export type FileAdapterSignedUploadUrlSettings = {
  * @group Contracts
  */
 export type IFileUrlAdapter = {
-    getPublicUrl(key: string): Promise<string | null>;
+    getPublicUrl(
+        context: IReadableContext,
+        key: string,
+    ): Promise<string | null>;
 
     getSignedDownloadUrl(
+        context: IReadableContext,
         key: string,
         settings: FileAdapterSignedDownloadUrlSettings,
     ): Promise<string | null>;
 
     getSignedUploadUrl(
+        context: IReadableContext,
         key: string,
         settings: FileAdapterSignedUploadUrlSettings,
     ): Promise<string>;
@@ -116,42 +123,64 @@ export type FileWriteEnum =
  * @group Contracts
  */
 export type IFileStorageAdapter = {
-    exists(key: string): Promise<boolean>;
+    exists(context: IReadableContext, key: string): Promise<boolean>;
 
     /**
      * The `getStream` method returns the file as stream when `key` is found otherwise null will be returned.
      */
-    getStream(key: string): Promise<FileAdapterStream | null>;
+    getStream(
+        context: IReadableContext,
+        key: string,
+    ): Promise<FileAdapterStream | null>;
 
     /**
      * The `getBytes` method returns the file as bytes when `key` is found otherwise null will be returned.
      */
-    getBytes(key: string): Promise<Uint8Array | null>;
+    getBytes(
+        context: IReadableContext,
+        key: string,
+    ): Promise<Uint8Array | null>;
 
     /**
      * The `getMetaData` method returns the file metadata when `key` is found otherwise null will be returned.
      */
-    getMetaData(key: string): Promise<FileAdapterMetadata | null>;
+    getMetaData(
+        context: IReadableContext,
+        key: string,
+    ): Promise<FileAdapterMetadata | null>;
 
     /**
      * The `add` method adds the file as bytes when `key` doesn't exists. Returns `true` when key doesn't exists otherwise `false` will be returned.
      */
-    add(key: string, content: WritableFileAdapterContent): Promise<boolean>;
+    add(
+        context: IReadableContext,
+        key: string,
+        content: WritableFileAdapterContent,
+    ): Promise<boolean>;
 
     /**
      * The `addStream` method adds the file as streaming when `key` doesn't exists. Returns `true` when key doesn't exists otherwise `false` will be returned.
      */
-    addStream(key: string, stream: WritableFileAdapterStream): Promise<boolean>;
+    addStream(
+        context: IReadableContext,
+        key: string,
+        stream: WritableFileAdapterStream,
+    ): Promise<boolean>;
 
     /**
      * The `update` method updates the file by bytes. Returns `true` if the `key` where updated otherwise `false` will be returned.
      */
-    update(key: string, content: WritableFileAdapterContent): Promise<boolean>;
+    update(
+        context: IReadableContext,
+        key: string,
+        content: WritableFileAdapterContent,
+    ): Promise<boolean>;
 
     /**
      * The `updateStream` method updates the file by stream. Returns `true` if the `key` where updated otherwise `false` will be returned.
      */
     updateStream(
+        context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
     ): Promise<boolean>;
@@ -160,13 +189,21 @@ export type IFileStorageAdapter = {
      * The `put` methods upsert the given key with file bytes.
      * Returns `true` when the key was updated otherwise `false` is returned.
      */
-    put(key: string, content: WritableFileAdapterContent): Promise<boolean>;
+    put(
+        context: IReadableContext,
+        key: string,
+        content: WritableFileAdapterContent,
+    ): Promise<boolean>;
 
     /**
      * The `putStream` methods upsert the given key with file stream.
      * Returns `true` when the key was updated otherwise `false` is returned.
      */
-    putStream(key: string, stream: WritableFileAdapterStream): Promise<boolean>;
+    putStream(
+        context: IReadableContext,
+        key: string,
+        stream: WritableFileAdapterStream,
+    ): Promise<boolean>;
 
     /**
      * The `copy` methods copies the `source` file to the given `destination` when it doesnt exists.
@@ -176,13 +213,21 @@ export type IFileStorageAdapter = {
      * - `FILE_WRITE_ENUM.NOT_FOUND` when `source` file is not found.
      * - `FILE_WRITE_ENUM.KEY_EXISTS` when `destination` file already exists.
      */
-    copy(source: string, destination: string): Promise<FileWriteEnum>;
+    copy(
+        context: IReadableContext,
+        source: string,
+        destination: string,
+    ): Promise<FileWriteEnum>;
 
     /**
      * The `copyAndReplace` methods copies the `source` file to the given `destination`. The `destination` file will always be replaces.
      * Returns `true` if the `source` is found otherwise `false` is returned.
      */
-    copyAndReplace(source: string, destination: string): Promise<boolean>;
+    copyAndReplace(
+        context: IReadableContext,
+        source: string,
+        destination: string,
+    ): Promise<boolean>;
 
     /**
      * The `move` methods moves the `source` file to the given `destination` when it doesnt exists.
@@ -192,23 +237,34 @@ export type IFileStorageAdapter = {
      * - `FILE_WRITE_ENUM.NOT_FOUND` when `source` file is not found.
      * - `FILE_WRITE_ENUM.KEY_EXISTS` when `destination` file already exists.
      */
-    move(source: string, destination: string): Promise<FileWriteEnum>;
+    move(
+        context: IReadableContext,
+        source: string,
+        destination: string,
+    ): Promise<FileWriteEnum>;
 
     /**
      * The `moveAndReplace` methods moves the `source` file to the given `destination`. The `destination` file will always be replaces.
      * Returns `true` if the `source` is found otherwise `false` is returned.
      */
-    moveAndReplace(source: string, destination: string): Promise<boolean>;
+    moveAndReplace(
+        context: IReadableContext,
+        source: string,
+        destination: string,
+    ): Promise<boolean>;
 
     /**
      * The `removeMany` method removes many keys. Returns `true` if one of the keys where deleted otherwise `false` is returned.
      */
-    removeMany(keys: Array<string>): Promise<boolean>;
+    removeMany(
+        context: IReadableContext,
+        keys: Array<string>,
+    ): Promise<boolean>;
 
     /**
      * The `removeByKeyPrefix` method removes all the keys in the file-storage that starts with the given `prefix`.
      */
-    removeByPrefix(prefix: string): Promise<void>;
+    removeByPrefix(context: IReadableContext, prefix: string): Promise<void>;
 };
 
 /**

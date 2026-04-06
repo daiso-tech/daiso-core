@@ -2,7 +2,7 @@
 "@daiso-tech/core": minor
 ---
 
-Add ExecutionContext support for managing execution state and context propagation. Includes:
+#### Added ExecutionContext support for managing execution state and context propagation. Includes:
 
 - `IExecutionContext` contract defining the execution context interface
 - `ExecutionContext` class for managing execution state

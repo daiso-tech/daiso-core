@@ -2,7 +2,7 @@
  * @module Semaphore
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/execution-context.contract.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type SemaphoreAcquireSettings,
     type IDatabaseSemaphoreAdapter,

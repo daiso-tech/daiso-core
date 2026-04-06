@@ -9,6 +9,7 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type IEventBus,
 } from "@/event-bus/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * The `NoOpEventBusAdapter` will do nothing and is used for easily mocking {@link IEventBus | `IEventBus`} for testing.
@@ -18,6 +19,7 @@ import {
  */
 export class NoOpEventBusAdapter implements IEventBusAdapter {
     addListener(
+        _context: IReadableContext,
         _eventName: string,
         _listener: EventListenerFn<BaseEvent>,
     ): Promise<void> {
@@ -25,13 +27,18 @@ export class NoOpEventBusAdapter implements IEventBusAdapter {
     }
 
     removeListener(
+        _context: IReadableContext,
         _eventName: string,
         _listener: EventListenerFn<BaseEvent>,
     ): Promise<void> {
         return Promise.resolve();
     }
 
-    dispatch(_eventName: string, _eventData: BaseEvent): Promise<void> {
+    dispatch(
+        _context: IReadableContext,
+        _eventName: string,
+        _eventData: BaseEvent,
+    ): Promise<void> {
         return Promise.resolve();
     }
 }

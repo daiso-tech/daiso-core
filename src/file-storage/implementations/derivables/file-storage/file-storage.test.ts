@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     FILE_EVENTS,
     KeyNotFoundFileError,
@@ -56,16 +57,21 @@ describe("class: FileStorage", () => {
     });
 
     const mockedUrlAdapter: IFileUrlAdapter = {
-        getPublicUrl: function (_key: string): Promise<string | null> {
+        getPublicUrl: function (
+            _context: IReadableContext,
+            _key: string,
+        ): Promise<string | null> {
             return Promise.resolve(null);
         },
         getSignedDownloadUrl: function (
+            _context: IReadableContext,
             _key: string,
             _settings: FileAdapterSignedDownloadUrlSettings,
         ): Promise<string | null> {
             return Promise.resolve(null);
         },
         getSignedUploadUrl: function (
+            _context: IReadableContext,
             _key: string,
             _settings: FileAdapterSignedUploadUrlSettings,
         ): Promise<string> {
@@ -73,84 +79,110 @@ describe("class: FileStorage", () => {
         },
     };
     const mockedAdapter: IFileStorageAdapter = {
-        exists: function (_key: string): Promise<boolean> {
+        exists: function (
+            _context: IReadableContext,
+            _key: string,
+        ): Promise<boolean> {
             throw new Error("Function not implemented.");
         },
-        getStream: function (_key: string): Promise<FileAdapterStream | null> {
+        getStream: function (
+            _context: IReadableContext,
+            _key: string,
+        ): Promise<FileAdapterStream | null> {
             throw new Error("Function not implemented.");
         },
-        getBytes: function (_key: string): Promise<Uint8Array | null> {
+        getBytes: function (
+            _context: IReadableContext,
+            _key: string,
+        ): Promise<Uint8Array | null> {
             throw new Error("Function not implemented.");
         },
         getMetaData: function (
+            _context: IReadableContext,
             _key: string,
         ): Promise<FileAdapterMetadata | null> {
             throw new Error("Function not implemented.");
         },
         add: function (
+            _context: IReadableContext,
             _key: string,
             _content: WritableFileAdapterContent,
         ): Promise<boolean> {
             throw new Error("Function not implemented.");
         },
         addStream: function (
+            _context: IReadableContext,
             _key: string,
             _stream: WritableFileAdapterStream,
         ): Promise<boolean> {
             throw new Error("Function not implemented.");
         },
         update: function (
+            _context: IReadableContext,
             _key: string,
             _content: WritableFileAdapterContent,
         ): Promise<boolean> {
             throw new Error("Function not implemented.");
         },
         updateStream: function (
+            _context: IReadableContext,
             _key: string,
             _stream: WritableFileAdapterStream,
         ): Promise<boolean> {
             throw new Error("Function not implemented.");
         },
         put: function (
+            _context: IReadableContext,
             _key: string,
             _content: WritableFileAdapterContent,
         ): Promise<boolean> {
             throw new Error("Function not implemented.");
         },
         putStream: function (
+            _context: IReadableContext,
             _key: string,
             _stream: WritableFileAdapterStream,
         ): Promise<boolean> {
             throw new Error("Function not implemented.");
         },
         copy: function (
+            _context: IReadableContext,
             _source: string,
             _destination: string,
         ): Promise<FileWriteEnum> {
             throw new Error("Function not implemented.");
         },
         copyAndReplace: function (
+            _context: IReadableContext,
             _source: string,
             _destination: string,
         ): Promise<boolean> {
             throw new Error("Function not implemented.");
         },
         move: function (
+            _context: IReadableContext,
             _source: string,
             _destination: string,
         ): Promise<FileWriteEnum> {
             throw new Error("Function not implemented.");
         },
         moveAndReplace: function (
+            _context: IReadableContext,
             _source: string,
             _destination: string,
         ): Promise<boolean> {
             throw new Error("Function not implemented.");
         },
-        removeMany: function (_keys: Array<string>): Promise<boolean> {
+        removeMany: function (
+            _context: IReadableContext,
+            _keys: Array<string>,
+        ): Promise<boolean> {
             throw new Error("Function not implemented.");
         },
-        removeByPrefix: function (_prefix: string): Promise<void> {
+        removeByPrefix: function (
+            _context: IReadableContext,
+            _prefix: string,
+        ): Promise<void> {
             throw new Error("Function not implemented.");
         },
     };

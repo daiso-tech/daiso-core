@@ -10,6 +10,7 @@ import {
 } from "vitest";
 
 import { type ICacheAdapter } from "@/cache/contracts/_module.js";
+import { type IContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -36,6 +37,17 @@ export type CacheAdapterTestSuiteSettings = {
      * ```
      */
     delayBuffer?: ITimeSpan;
+
+    /**
+     * @default
+     * ```ts
+     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
+     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     *
+     * new ExecutionContext(new NoOpExecutionContextAdapter())
+     * ```
+     */
+    context?: IContext;
 };
 
 /**
@@ -93,6 +105,7 @@ export function cacheAdapterTestSuite(
         describe,
         beforeEach,
         delayBuffer = TimeSpan.fromMilliseconds(10),
+        context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
     let adapter: ICacheAdapter<string | number>;
     beforeEach(async () => {
@@ -103,212 +116,199 @@ export function cacheAdapterTestSuite(
         await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
-    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
     const TTL = TimeSpan.fromMilliseconds(50);
     describe("ICacheAdapter tests:", () => {
         describe("method: get", () => {
             test("Should return the value when key exists", async () => {
-                await adapter.add(noOpContext, "a", 1, null);
+                await adapter.add(context, "a", 1, null);
                 await delay(TTL.divide(4));
-                expect(await adapter.get(noOpContext, "a")).toBe(1);
+                expect(await adapter.get(context, "a")).toBe(1);
             });
             test("Should return null when keys doesnt exists", async () => {
-                expect(await adapter.get(noOpContext, "a")).toBeNull();
+                expect(await adapter.get(context, "a")).toBeNull();
             });
             test("Should return null when key is experied", async () => {
-                await adapter.add(noOpContext, "a", 1, TTL);
+                await adapter.add(context, "a", 1, TTL);
                 await delay(TTL);
-                expect(await adapter.get(noOpContext, "a")).toBeNull();
+                expect(await adapter.get(context, "a")).toBeNull();
             });
         });
         describe("method: getAndRemove", () => {
             test("Should return value when key exists", async () => {
-                await adapter.add(noOpContext, "a", 1, null);
+                await adapter.add(context, "a", 1, null);
                 await delay(TTL.divide(4));
-                expect(await adapter.getAndRemove(noOpContext, "a")).toBe(1);
+                expect(await adapter.getAndRemove(context, "a")).toBe(1);
             });
             test("Should return null when key doesnt exists", async () => {
-                expect(await adapter.getAndRemove(noOpContext, "a")).toBeNull();
+                expect(await adapter.getAndRemove(context, "a")).toBeNull();
             });
             test("Should return null when key is expired", async () => {
-                await adapter.add(noOpContext, "a", 1, TTL);
+                await adapter.add(context, "a", 1, TTL);
                 await delay(TTL);
-                expect(await adapter.getAndRemove(noOpContext, "a")).toBeNull();
+                expect(await adapter.getAndRemove(context, "a")).toBeNull();
             });
             test("Should persist removal when key exists", async () => {
-                await adapter.add(noOpContext, "a", 1, null);
+                await adapter.add(context, "a", 1, null);
                 await delay(TTL.divide(4));
-                await adapter.getAndRemove(noOpContext, "a");
+                await adapter.getAndRemove(context, "a");
                 await delay(TTL.divide(4));
-                expect(await adapter.get(noOpContext, "a")).toBeNull();
+                expect(await adapter.get(context, "a")).toBeNull();
             });
         });
         describe("method: add", () => {
             test("Should return true when key doesnt exists", async () => {
-                const result = await adapter.add(noOpContext, "a", 1, null);
+                const result = await adapter.add(context, "a", 1, null);
                 await delay(TTL.divide(4));
                 expect(result).toBe(true);
             });
             test("Should return true when key is expired", async () => {
-                await adapter.add(noOpContext, "a", 1, TTL);
+                await adapter.add(context, "a", 1, TTL);
                 await delay(TTL);
-                expect(await adapter.add(noOpContext, "a", 1, null)).toBe(true);
+                expect(await adapter.add(context, "a", 1, null)).toBe(true);
             });
             test("Should persist values when key doesnt exist", async () => {
-                await adapter.add(noOpContext, "a", 1, null);
+                await adapter.add(context, "a", 1, null);
                 await delay(TTL.divide(4));
-                expect(await adapter.get(noOpContext, "a")).toBe(1);
+                expect(await adapter.get(context, "a")).toBe(1);
             });
             test("Should persist values when key is expired", async () => {
-                await adapter.add(noOpContext, "a", -1, TTL);
+                await adapter.add(context, "a", -1, TTL);
                 await delay(TTL);
-                await adapter.add(noOpContext, "a", 1, null);
-                expect(await adapter.get(noOpContext, "a")).toBe(1);
+                await adapter.add(context, "a", 1, null);
+                expect(await adapter.get(context, "a")).toBe(1);
             });
             test("Should return false when key exists", async () => {
-                await adapter.add(noOpContext, "a", 1, null);
+                await adapter.add(context, "a", 1, null);
                 await delay(TTL.divide(4));
-                expect(await adapter.add(noOpContext, "a", 1, null)).toBe(
-                    false,
-                );
+                expect(await adapter.add(context, "a", 1, null)).toBe(false);
             });
             test("Should not persist value when key exist", async () => {
-                await adapter.add(noOpContext, "a", 1, null);
+                await adapter.add(context, "a", 1, null);
                 await delay(TTL.divide(4));
-                await adapter.add(noOpContext, "a", 2, null);
+                await adapter.add(context, "a", 2, null);
                 await delay(TTL.divide(4));
-                expect(await adapter.get(noOpContext, "a")).toBe(1);
+                expect(await adapter.get(context, "a")).toBe(1);
             });
         });
         describe("method: put", () => {
             test("Should return true when key exists", async () => {
-                await adapter.add(noOpContext, "a", 1, null);
+                await adapter.add(context, "a", 1, null);
                 await delay(TTL.divide(4));
-                expect(await adapter.put(noOpContext, "a", -1, null)).toBe(
-                    true,
-                );
+                expect(await adapter.put(context, "a", -1, null)).toBe(true);
             });
             test("Should persist value when key exist", async () => {
-                await adapter.add(noOpContext, "a", 1, null);
+                await adapter.add(context, "a", 1, null);
                 await delay(TTL.divide(4));
-                await adapter.put(noOpContext, "a", -1, null);
+                await adapter.put(context, "a", -1, null);
                 await delay(TTL.divide(4));
-                expect(await adapter.get(noOpContext, "a")).toBe(-1);
+                expect(await adapter.get(context, "a")).toBe(-1);
             });
             test("Should return false when key doesnt exists", async () => {
-                expect(await adapter.put(noOpContext, "a", -1, null)).toBe(
-                    false,
-                );
+                expect(await adapter.put(context, "a", -1, null)).toBe(false);
             });
             test("Should return false when key is expired", async () => {
-                await adapter.add(noOpContext, "a", 1, TTL);
+                await adapter.add(context, "a", 1, TTL);
                 await delay(TTL);
-                expect(await adapter.put(noOpContext, "a", -1, null)).toBe(
-                    false,
-                );
+                expect(await adapter.put(context, "a", -1, null)).toBe(false);
             });
             test("Should persist values when key doesnt exist", async () => {
-                await adapter.put(noOpContext, "a", -1, null);
+                await adapter.put(context, "a", -1, null);
                 await delay(TTL.divide(4));
-                expect(await adapter.get(noOpContext, "a")).toBe(-1);
+                expect(await adapter.get(context, "a")).toBe(-1);
             });
             test("Should persist values when key is expired", async () => {
-                await adapter.add(noOpContext, "a", 1, TTL);
+                await adapter.add(context, "a", 1, TTL);
                 await delay(TTL);
-                await adapter.put(noOpContext, "a", -1, null);
+                await adapter.put(context, "a", -1, null);
                 await delay(TTL.divide(4));
-                expect(await adapter.get(noOpContext, "a")).toBe(-1);
+                expect(await adapter.get(context, "a")).toBe(-1);
             });
             test("Should replace the ttl value", async () => {
                 const ttlA = TimeSpan.fromMilliseconds(100);
-                await adapter.add(noOpContext, "a", 1, ttlA);
+                await adapter.add(context, "a", 1, ttlA);
                 await delay(TTL.divide(4));
                 const ttlB = TimeSpan.fromMilliseconds(50);
-                await adapter.put(noOpContext, "a", -1, ttlB);
+                await adapter.put(context, "a", -1, ttlB);
                 await delay(ttlB);
-                expect(await adapter.get(noOpContext, "a")).toBeNull();
+                expect(await adapter.get(context, "a")).toBeNull();
             });
         });
         describe("method: update", () => {
             test("Should return true when key exists", async () => {
-                await adapter.add(noOpContext, "a", 1, null);
+                await adapter.add(context, "a", 1, null);
                 await delay(TTL.divide(4));
-                expect(await adapter.update(noOpContext, "a", -1)).toBe(true);
+                expect(await adapter.update(context, "a", -1)).toBe(true);
             });
             test("Should persist value when key exist", async () => {
-                await adapter.add(noOpContext, "a", 1, null);
+                await adapter.add(context, "a", 1, null);
                 await delay(TTL.divide(4));
-                await adapter.update(noOpContext, "a", -1);
+                await adapter.update(context, "a", -1);
                 await delay(TTL.divide(4));
-                expect(await adapter.get(noOpContext, "a")).toBe(-1);
+                expect(await adapter.get(context, "a")).toBe(-1);
             });
             test("Should return false when key doesnt exists", async () => {
-                expect(await adapter.update(noOpContext, "a", -1)).toBe(false);
+                expect(await adapter.update(context, "a", -1)).toBe(false);
             });
             test("Should return false when key is expired", async () => {
-                await adapter.add(noOpContext, "a", 1, TTL);
+                await adapter.add(context, "a", 1, TTL);
                 await delay(TTL);
-                expect(await adapter.update(noOpContext, "a", -1)).toBe(false);
+                expect(await adapter.update(context, "a", -1)).toBe(false);
             });
             test("Should not persist value when key doesnt exist", async () => {
-                await adapter.update(noOpContext, "a", -1);
+                await adapter.update(context, "a", -1);
                 await delay(TTL.divide(4));
-                expect(await adapter.get(noOpContext, "a")).toBeNull();
+                expect(await adapter.get(context, "a")).toBeNull();
             });
             test("Should not persist value when key is expired", async () => {
-                await adapter.add(noOpContext, "a", 1, TTL);
+                await adapter.add(context, "a", 1, TTL);
                 await delay(TTL);
-                await adapter.update(noOpContext, "a", -1);
-                expect(await adapter.get(noOpContext, "a")).toBeNull();
+                await adapter.update(context, "a", -1);
+                expect(await adapter.get(context, "a")).toBeNull();
             });
         });
         describe("method: increment", () => {
             test("Should return true when key exists", async () => {
-                await adapter.add(noOpContext, "a", 1, null);
+                await adapter.add(context, "a", 1, null);
                 await delay(TTL.divide(4));
-                expect(await adapter.increment(noOpContext, "a", 1)).toBe(true);
+                expect(await adapter.increment(context, "a", 1)).toBe(true);
             });
             test("Should persist increment when key exists", async () => {
-                await adapter.add(noOpContext, "a", 1, null);
+                await adapter.add(context, "a", 1, null);
                 await delay(TTL.divide(4));
-                await adapter.increment(noOpContext, "a", 1);
+                await adapter.increment(context, "a", 1);
                 await delay(TTL.divide(4));
-                expect(await adapter.get(noOpContext, "a")).toBe(2);
+                expect(await adapter.get(context, "a")).toBe(2);
             });
             test("Should return false when key doesnt exists", async () => {
-                expect(await adapter.increment(noOpContext, "a", 1)).toBe(
-                    false,
-                );
+                expect(await adapter.increment(context, "a", 1)).toBe(false);
             });
             test("Should return false when key is expired", async () => {
-                await adapter.add(noOpContext, "a", 1, TTL);
+                await adapter.add(context, "a", 1, TTL);
                 await delay(TTL);
-                expect(await adapter.increment(noOpContext, "a", 1)).toBe(
-                    false,
-                );
+                expect(await adapter.increment(context, "a", 1)).toBe(false);
             });
             test("Should not persist increment when key doesnt exists", async () => {
-                await adapter.increment(noOpContext, "a", 1);
+                await adapter.increment(context, "a", 1);
                 await delay(TTL.divide(4));
-                expect(await adapter.get(noOpContext, "a")).toBeNull();
+                expect(await adapter.get(context, "a")).toBeNull();
             });
             test("Should not persist increment when key is expired", async () => {
-                await adapter.add(noOpContext, "a", 1, TTL);
+                await adapter.add(context, "a", 1, TTL);
                 await delay(TTL);
-                await adapter.increment(noOpContext, "a", 1);
-                expect(await adapter.get(noOpContext, "a")).toBeNull();
+                await adapter.increment(context, "a", 1);
+                expect(await adapter.get(context, "a")).toBeNull();
             });
             test("Should throw TypeError when value is not number type", async () => {
-                await adapter.add(noOpContext, "a", "str", null);
+                await adapter.add(context, "a", "str", null);
                 await delay(TTL.divide(4));
                 await expect(
-                    adapter.increment(noOpContext, "a", 1),
+                    adapter.increment(context, "a", 1),
                 ).rejects.toBeInstanceOf(TypeError);
             });
         });
         describe("method: removeMany", () => {
             test("Should return false when all keys does not exists", async () => {
-                const result = await adapter.removeMany(noOpContext, [
+                const result = await adapter.removeMany(context, [
                     "a",
                     "b",
                     "c",
@@ -317,10 +317,10 @@ export function cacheAdapterTestSuite(
                 expect(result).toBe(false);
             });
             test("Should return true when one key exists", async () => {
-                await adapter.add(noOpContext, "a", 1, null);
+                await adapter.add(context, "a", 1, null);
                 await delay(TTL.divide(4));
 
-                const result = await adapter.removeMany(noOpContext, [
+                const result = await adapter.removeMany(context, [
                     "a",
                     "b",
                     "c",
@@ -329,49 +329,49 @@ export function cacheAdapterTestSuite(
                 expect(result).toBe(true);
             });
             test("Should persist removal of the keys that exists", async () => {
-                await adapter.add(noOpContext, "a", 1, null);
-                await adapter.add(noOpContext, "b", 2, null);
-                await adapter.add(noOpContext, "c", 3, null);
+                await adapter.add(context, "a", 1, null);
+                await adapter.add(context, "b", 2, null);
+                await adapter.add(context, "c", 3, null);
                 await delay(TTL.divide(4));
 
-                await adapter.removeMany(noOpContext, ["a", "b"]);
+                await adapter.removeMany(context, ["a", "b"]);
                 await delay(TTL.divide(4));
 
                 const result = [
-                    await adapter.get(noOpContext, "a"),
-                    await adapter.get(noOpContext, "b"),
-                    await adapter.get(noOpContext, "c"),
+                    await adapter.get(context, "a"),
+                    await adapter.get(context, "b"),
+                    await adapter.get(context, "c"),
                 ];
                 expect(result).toEqual([null, null, 3]);
             });
         });
         describe("method: removeAll", () => {
             test("Should remove all keys", async () => {
-                await adapter.add(noOpContext, "cache/a", 1, null);
-                await adapter.add(noOpContext, "cache/b", 2, null);
-                await adapter.add(noOpContext, "c", 3, null);
+                await adapter.add(context, "cache/a", 1, null);
+                await adapter.add(context, "cache/b", 2, null);
+                await adapter.add(context, "c", 3, null);
                 await delay(TTL.divide(4));
-                await adapter.removeAll(noOpContext);
+                await adapter.removeAll(context);
                 await delay(TTL.divide(4));
                 expect([
-                    await adapter.get(noOpContext, "cache/a"),
-                    await adapter.get(noOpContext, "cache/b"),
-                    await adapter.get(noOpContext, "c"),
+                    await adapter.get(context, "cache/a"),
+                    await adapter.get(context, "cache/b"),
+                    await adapter.get(context, "c"),
                 ]).toEqual([null, null, null]);
             });
         });
         describe("method: removeByKeyPrefix", () => {
             test(`Should remove all keys that start with prefix "cache"`, async () => {
-                await adapter.add(noOpContext, "cache/a", 1, null);
-                await adapter.add(noOpContext, "cache/b", 2, null);
-                await adapter.add(noOpContext, "c", 3, null);
+                await adapter.add(context, "cache/a", 1, null);
+                await adapter.add(context, "cache/b", 2, null);
+                await adapter.add(context, "c", 3, null);
                 await delay(TTL.divide(4));
-                await adapter.removeByKeyPrefix(noOpContext, "cache");
+                await adapter.removeByKeyPrefix(context, "cache");
                 await delay(TTL.divide(4));
                 const result = [
-                    await adapter.get(noOpContext, "cache/a"),
-                    await adapter.get(noOpContext, "cache/b"),
-                    await adapter.get(noOpContext, "c"),
+                    await adapter.get(context, "cache/a"),
+                    await adapter.get(context, "cache/b"),
+                    await adapter.get(context, "c"),
                 ];
                 expect(result).toEqual([null, null, 3]);
             });

@@ -2,6 +2,7 @@
  * @module RateLimiter
  */
 
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type IRateLimiterFactory,
@@ -52,6 +53,7 @@ export class MemoryRateLimiterStorageAdapter<TType>
     }
 
     async transaction<TValue>(
+        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
@@ -59,6 +61,7 @@ export class MemoryRateLimiterStorageAdapter<TType>
     ): Promise<TValue> {
         return await fn({
             upsert: (
+                _context: IReadableContext,
                 key: string,
                 state: TType,
                 expiration: Date,
@@ -74,13 +77,19 @@ export class MemoryRateLimiterStorageAdapter<TType>
                 });
                 return Promise.resolve();
             },
-            find: (key: string): Promise<IRateLimiterData<TType> | null> => {
-                return this.find(key);
+            find: (
+                context: IReadableContext,
+                key: string,
+            ): Promise<IRateLimiterData<TType> | null> => {
+                return this.find(context, key);
             },
         });
     }
 
-    find(key: string): Promise<IRateLimiterData<TType> | null> {
+    find(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<IRateLimiterData<TType> | null> {
         const data = this.map.get(key);
         if (data === undefined) {
             return Promise.resolve(null);
@@ -91,7 +100,7 @@ export class MemoryRateLimiterStorageAdapter<TType>
         });
     }
 
-    remove(key: string): Promise<void> {
+    remove(_context: IReadableContext, key: string): Promise<void> {
         const data = this.map.get(key);
         if (data === undefined) {
             return Promise.resolve();

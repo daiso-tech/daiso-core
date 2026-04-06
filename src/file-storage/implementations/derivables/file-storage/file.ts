@@ -8,6 +8,7 @@ import { Readable } from "stream";
 import { lookup } from "mime-types";
 
 import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
+import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { TO_BYTES } from "@/file-size/contracts/_module.js";
 import { FileSize } from "@/file-size/implementations/_module.js";
 import {
@@ -35,7 +36,6 @@ import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callInvokable,
-    type Invokable,
     type InvokableFn,
     type WaitUntil,
 } from "@/utilities/_module.js";
@@ -58,6 +58,7 @@ export type FileSettings = {
     defaultCacheControl: string | null;
     defaultContentLanguage: string | null;
     waitUntil: WaitUntil;
+    executionContext: IExecutionContext;
 };
 
 /**
@@ -82,10 +83,7 @@ export class File implements IFile {
         };
     }
 
-    private readonly waitUntil: Invokable<
-        [promise: PromiseLike<unknown>],
-        void
-    >;
+    private readonly waitUntil: WaitUntil;
     private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
     private readonly _key: IKey;
@@ -99,6 +97,7 @@ export class File implements IFile {
     private readonly defaultContentLanguage: string | null;
     private readonly onlyLowercase: boolean;
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
+    private readonly executionContext: IExecutionContext;
 
     constructor(settings: FileSettings) {
         const {
@@ -116,8 +115,10 @@ export class File implements IFile {
             defaultContentLanguage,
             originalAdapter,
             waitUntil,
+            executionContext,
         } = settings;
 
+        this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
@@ -258,7 +259,10 @@ export class File implements IFile {
 
     async getBytes(): Promise<Uint8Array | null> {
         return new AsyncHooks(async () => {
-            return await this.adapter.getBytes(this._key.toString());
+            return await this.adapter.getBytes(
+                this.executionContext,
+                this._key.toString(),
+            );
         }, [
             this.handleUnexpectedErrorEvent(),
             this.handleNullableFoundEvent(),
@@ -307,7 +311,10 @@ export class File implements IFile {
 
     async getReadable(): Promise<Readable | null> {
         return new AsyncHooks(async () => {
-            const stream = await this.adapter.getStream(this._key.toString());
+            const stream = await this.adapter.getStream(
+                this.executionContext,
+                this._key.toString(),
+            );
             if (stream === null) {
                 return null;
             }
@@ -328,7 +335,10 @@ export class File implements IFile {
 
     async getReadableStream(): Promise<ReadableStream<Uint8Array> | null> {
         return new AsyncHooks(async () => {
-            const stream = await this.adapter.getStream(this._key.toString());
+            const stream = await this.adapter.getStream(
+                this.executionContext,
+                this._key.toString(),
+            );
             if (stream === null) {
                 return null;
             }
@@ -350,6 +360,7 @@ export class File implements IFile {
     async getMetadata(): Promise<FileMetadata | null> {
         return new AsyncHooks(async () => {
             const metadata = await this.adapter.getMetaData(
+                this.executionContext,
                 this._key.toString(),
             );
             if (metadata === null) {
@@ -377,7 +388,10 @@ export class File implements IFile {
 
     async exists(): Promise<boolean> {
         return new AsyncHooks(async () => {
-            return await this.adapter.exists(this._key.toString());
+            return await this.adapter.exists(
+                this.executionContext,
+                this._key.toString(),
+            );
         }, [
             this.handleUnexpectedErrorEvent(),
             this.handleBooleanFoundEvent(),
@@ -417,15 +431,19 @@ export class File implements IFile {
             const { data, contentType = this.getContentType(this._key.get()) } =
                 content;
             const resolvedData = resolveFileContent(data);
-            return await this.adapter.add(this._key.toString(), {
-                data: resolvedData,
-                contentType,
-                contentDisposition: this.defaultContentDisposition,
-                contentEncoding: this.defaultContentEncoding,
-                cacheControl: this.defaultCacheControl,
-                contentLanguage: this.defaultContentLanguage,
-                fileSizeInBytes: resolvedData.length,
-            });
+            return await this.adapter.add(
+                this.executionContext,
+                this._key.toString(),
+                {
+                    data: resolvedData,
+                    contentType,
+                    contentDisposition: this.defaultContentDisposition,
+                    contentEncoding: this.defaultContentEncoding,
+                    cacheControl: this.defaultCacheControl,
+                    contentLanguage: this.defaultContentLanguage,
+                    fileSizeInBytes: resolvedData.length,
+                },
+            );
         }, [this.handleUnexpectedErrorEvent(), this.handleAddEvent()]).invoke();
     }
 
@@ -451,15 +469,19 @@ export class File implements IFile {
                 fileSize = null,
                 contentType = this.getContentType(this._key.get()),
             } = stream;
-            return await this.adapter.addStream(this._key.toString(), {
-                data: new ResolveFileStream(data),
-                fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
-                contentType,
-                contentDisposition: this.defaultContentDisposition,
-                contentEncoding: this.defaultContentEncoding,
-                cacheControl: this.defaultCacheControl,
-                contentLanguage: this.defaultContentLanguage,
-            });
+            return await this.adapter.addStream(
+                this.executionContext,
+                this._key.toString(),
+                {
+                    data: new ResolveFileStream(data),
+                    fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
+                    contentType,
+                    contentDisposition: this.defaultContentDisposition,
+                    contentEncoding: this.defaultContentEncoding,
+                    cacheControl: this.defaultCacheControl,
+                    contentLanguage: this.defaultContentLanguage,
+                },
+            );
         }, [this.handleUnexpectedErrorEvent(), this.handleAddEvent()]).invoke();
     }
 
@@ -499,15 +521,19 @@ export class File implements IFile {
             const { data, contentType = this.getContentType(this._key.get()) } =
                 content;
             const resolvedData = resolveFileContent(data);
-            return await this.adapter.update(this._key.toString(), {
-                data: resolvedData,
-                contentType,
-                contentDisposition: this.defaultContentDisposition,
-                contentEncoding: this.defaultContentEncoding,
-                cacheControl: this.defaultCacheControl,
-                contentLanguage: this.defaultContentLanguage,
-                fileSizeInBytes: resolvedData.length,
-            });
+            return await this.adapter.update(
+                this.executionContext,
+                this._key.toString(),
+                {
+                    data: resolvedData,
+                    contentType,
+                    contentDisposition: this.defaultContentDisposition,
+                    contentEncoding: this.defaultContentEncoding,
+                    cacheControl: this.defaultCacheControl,
+                    contentLanguage: this.defaultContentLanguage,
+                    fileSizeInBytes: resolvedData.length,
+                },
+            );
         }, [
             this.handleUnexpectedErrorEvent(),
             this.handleUpdateEvent(),
@@ -528,15 +554,19 @@ export class File implements IFile {
                 fileSize = null,
                 contentType = this.getContentType(this._key.get()),
             } = stream;
-            return await this.adapter.updateStream(this._key.toString(), {
-                data: new ResolveFileStream(data),
-                fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
-                contentType,
-                contentDisposition: this.defaultContentDisposition,
-                contentEncoding: this.defaultContentEncoding,
-                cacheControl: this.defaultCacheControl,
-                contentLanguage: this.defaultContentLanguage,
-            });
+            return await this.adapter.updateStream(
+                this.executionContext,
+                this._key.toString(),
+                {
+                    data: new ResolveFileStream(data),
+                    fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
+                    contentType,
+                    contentDisposition: this.defaultContentDisposition,
+                    contentEncoding: this.defaultContentEncoding,
+                    cacheControl: this.defaultCacheControl,
+                    contentLanguage: this.defaultContentLanguage,
+                },
+            );
         }, [
             this.handleUnexpectedErrorEvent(),
             this.handleUpdateEvent(),
@@ -579,15 +609,19 @@ export class File implements IFile {
             const { data, contentType = this.getContentType(this._key.get()) } =
                 content;
             const resolvedData = resolveFileContent(data);
-            return await this.adapter.put(this._key.toString(), {
-                data: resolvedData,
-                contentType,
-                contentDisposition: this.defaultContentDisposition,
-                contentEncoding: this.defaultContentEncoding,
-                cacheControl: this.defaultCacheControl,
-                contentLanguage: this.defaultContentLanguage,
-                fileSizeInBytes: resolvedData.length,
-            });
+            return await this.adapter.put(
+                this.executionContext,
+                this._key.toString(),
+                {
+                    data: resolvedData,
+                    contentType,
+                    contentDisposition: this.defaultContentDisposition,
+                    contentEncoding: this.defaultContentEncoding,
+                    cacheControl: this.defaultCacheControl,
+                    contentLanguage: this.defaultContentLanguage,
+                    fileSizeInBytes: resolvedData.length,
+                },
+            );
         }, [this.handleUnexpectedErrorEvent(), this.handlePutEvent()]).invoke();
     }
 
@@ -598,15 +632,19 @@ export class File implements IFile {
                 fileSize = null,
                 contentType = this.getContentType(this._key.get()),
             } = stream;
-            return await this.adapter.putStream(this._key.toString(), {
-                data: new ResolveFileStream(data),
-                fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
-                contentType,
-                contentDisposition: this.defaultContentDisposition,
-                contentEncoding: this.defaultContentEncoding,
-                cacheControl: this.defaultCacheControl,
-                contentLanguage: this.defaultContentLanguage,
-            });
+            return await this.adapter.putStream(
+                this.executionContext,
+                this._key.toString(),
+                {
+                    data: new ResolveFileStream(data),
+                    fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
+                    contentType,
+                    contentDisposition: this.defaultContentDisposition,
+                    contentEncoding: this.defaultContentEncoding,
+                    cacheControl: this.defaultCacheControl,
+                    contentLanguage: this.defaultContentLanguage,
+                },
+            );
         }, [this.handleUnexpectedErrorEvent(), this.handlePutEvent()]).invoke();
     }
 
@@ -636,7 +674,9 @@ export class File implements IFile {
 
     async remove(): Promise<boolean> {
         return new AsyncHooks(async () => {
-            return await this.adapter.removeMany([this.key.toString()]);
+            return await this.adapter.removeMany(this.executionContext, [
+                this.key.toString(),
+            ]);
         }, [
             this.handleUnexpectedErrorEvent(),
             this.handleRemoveEvent(),
@@ -654,6 +694,7 @@ export class File implements IFile {
         return new AsyncHooks(async () => {
             const destinationKey = this.namespace.create(destination);
             const result = await this.adapter.copy(
+                this.executionContext,
                 this._key.toString(),
                 destinationKey.toString(),
             );
@@ -710,6 +751,7 @@ export class File implements IFile {
         return new AsyncHooks(async () => {
             const destinationKey = this.namespace.create(destination);
             const hasCopied = await this.adapter.copyAndReplace(
+                this.executionContext,
                 this._key.toString(),
                 destinationKey.toString(),
             );
@@ -744,6 +786,7 @@ export class File implements IFile {
         return new AsyncHooks(async () => {
             const destinationKey = this.namespace.create(destination);
             const result = await this.adapter.move(
+                this.executionContext,
                 this._key.toString(),
                 destinationKey.toString(),
             );
@@ -801,6 +844,7 @@ export class File implements IFile {
         return new AsyncHooks(async () => {
             const destinationKey = this.namespace.create(destination);
             const hasMoved = await this.adapter.moveAndReplace(
+                this.executionContext,
                 this._key.toString(),
                 destinationKey.toString(),
             );
@@ -834,7 +878,10 @@ export class File implements IFile {
 
     async getPublicUrl(): Promise<string | null> {
         return new AsyncHooks(async () => {
-            return await this.adapter.getPublicUrl(this.key.toString());
+            return await this.adapter.getPublicUrl(
+                this.executionContext,
+                this.key.toString(),
+            );
         }, [
             this.handleUnexpectedErrorEvent(),
             this.handleNullableFoundEvent(),
@@ -853,10 +900,14 @@ export class File implements IFile {
         options: FileUploadUrlOptions = {},
     ): Promise<string> {
         const { ttl = TimeSpan.fromMinutes(10), contentType = null } = options;
-        return await this.adapter.getSignedUploadUrl(this._key.toString(), {
-            expirationInSeconds: TimeSpan.fromTimeSpan(ttl).toSeconds(),
-            contentType,
-        });
+        return await this.adapter.getSignedUploadUrl(
+            this.executionContext,
+            this._key.toString(),
+            {
+                expirationInSeconds: TimeSpan.fromTimeSpan(ttl).toSeconds(),
+                contentType,
+            },
+        );
     }
 
     async getSignedDownloadUrl(
@@ -869,6 +920,7 @@ export class File implements IFile {
                 contentDisposition = null,
             } = options;
             return await this.adapter.getSignedDownloadUrl(
+                this.executionContext,
                 this._key.toString(),
                 {
                     expirationInSeconds:
