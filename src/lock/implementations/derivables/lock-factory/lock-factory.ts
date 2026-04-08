@@ -25,6 +25,7 @@ import {
 import { LockSerdeTransformer } from "@/lock/implementations/derivables/lock-factory/lock-serde-transformer.js";
 import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
 import { resolveLockAdapter } from "@/lock/implementations/derivables/lock-factory/resolve-lock-adapter.js";
+import { useFactory, type Use } from "@/middleware/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
@@ -191,6 +192,7 @@ export class LockFactory implements ILockFactory {
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
+    private readonly use: Use;
 
     /**
      * @example
@@ -239,6 +241,7 @@ export class LockFactory implements ILockFactory {
             ),
         } = settings;
 
+        this.use = useFactory(executionContext);
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.serde = serde;
@@ -261,6 +264,7 @@ export class LockFactory implements ILockFactory {
 
     private registerToSerde(): void {
         const transformer = new LockSerdeTransformer({
+            use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             originalAdapter: this.originalAdapter,
@@ -308,6 +312,7 @@ export class LockFactory implements ILockFactory {
         const keyObj = this.namespace.create(key);
 
         return new Lock({
+            use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             namespace: this.namespace,
