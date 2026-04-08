@@ -4,6 +4,7 @@
 
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type Use } from "@/middleware/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import {
@@ -36,6 +37,7 @@ export type SharedLockSerdeTransformerSettings = {
     serdeTransformerName: string;
     waitUntil: WaitUntil;
     executionContext: IExecutionContext;
+    use: Use;
 };
 
 /**
@@ -54,6 +56,7 @@ export class SharedLockSerdeTransformer
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
+    private readonly use: Use;
 
     constructor(settings: SharedLockSerdeTransformerSettings) {
         const {
@@ -67,8 +70,10 @@ export class SharedLockSerdeTransformer
             serdeTransformerName,
             waitUntil,
             executionContext,
+            use,
         } = settings;
 
+        this.use = use;
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
@@ -121,6 +126,7 @@ export class SharedLockSerdeTransformer
         const { key, lockId, limit, ttlInMs } = serializedValue;
         const keyObj = this.namespace.create(key);
         return new SharedLock({
+            use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             lockId,

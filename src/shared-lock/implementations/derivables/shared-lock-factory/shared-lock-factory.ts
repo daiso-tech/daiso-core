@@ -10,6 +10,7 @@ import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
+import { useFactory, type Use } from "@/middleware/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
@@ -188,6 +189,7 @@ export class SharedLockFactory implements ISharedLockFactory {
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
+    private readonly use: Use;
 
     /**
      * @example
@@ -236,6 +238,7 @@ export class SharedLockFactory implements ISharedLockFactory {
             ),
         } = settings;
 
+        this.use = useFactory(executionContext);
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.serde = serde;
@@ -258,6 +261,7 @@ export class SharedLockFactory implements ISharedLockFactory {
 
     private registerToSerde(): void {
         const transformer = new SharedLockSerdeTransformer({
+            use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             originalAdapter: this.originalAdapter,
@@ -309,6 +313,7 @@ export class SharedLockFactory implements ISharedLockFactory {
         const keyObj = this.namespace.create(key);
 
         return new SharedLock({
+            use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             limit,
