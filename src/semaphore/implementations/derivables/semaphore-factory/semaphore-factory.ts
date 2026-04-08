@@ -10,6 +10,7 @@ import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
+import { useFactory, type Use } from "@/middleware/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import {
@@ -191,6 +192,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
     private readonly createSlotId: Invokable<[], string>;
     private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
+    private readonly use: Use;
 
     /**
      * @example
@@ -239,6 +241,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
             ),
         } = settings;
 
+        this.use = useFactory(executionContext);
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.createSlotId = createSlotId;
@@ -262,6 +265,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
 
     private registerToSerde(): void {
         const transformer = new SemaphoreSerdeTransformer({
+            use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             adapter: this.adapter,
@@ -291,6 +295,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
         isPositiveNbr(limit);
 
         return new Semaphore({
+            use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             slotId,
