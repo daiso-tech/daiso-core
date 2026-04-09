@@ -36,7 +36,7 @@ import {
     type ITimeSpan,
 } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay as delay_, type Promisable } from "@/utilities/_module.js";
+import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/lock/test-utilities"`
@@ -156,11 +156,7 @@ export function lockFactoryTestSuite(
     let serde: ISerde;
 
     async function delayWithBuffer(ttl: ITimeSpan): Promise<void> {
-        await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
-    }
-
-    async function delayExact(ttl: ITimeSpan): Promise<void> {
-        await delay_(TimeSpan.fromTimeSpan(ttl));
+        await delay(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
     const RETURN_VALUE = "RETURN_VALUE";
@@ -2032,7 +2028,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2062,7 +2058,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2090,7 +2086,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2120,7 +2116,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2152,7 +2148,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2182,7 +2178,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2213,7 +2209,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquireOrFail();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2243,7 +2239,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquireOrFail();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2271,7 +2267,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquireOrFail();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2301,7 +2297,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquireOrFail();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2337,7 +2333,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2371,7 +2367,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2405,7 +2401,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2438,7 +2434,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2469,7 +2465,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2502,7 +2498,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2537,7 +2533,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
                         1,
@@ -2573,7 +2569,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
                         1,
@@ -2610,7 +2606,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2643,7 +2639,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2674,7 +2670,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2707,7 +2703,7 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2746,7 +2742,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
                         1,
@@ -2786,7 +2782,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
                         1,
@@ -2822,7 +2818,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.forceRelease();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2855,7 +2851,7 @@ export function lockFactoryTestSuite(
                     await delayWithBuffer(ttl);
 
                     await lock.forceRelease();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2886,7 +2882,7 @@ export function lockFactoryTestSuite(
                     );
                     await lock.acquire();
                     await lock.forceRelease();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2920,7 +2916,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.release();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2950,7 +2946,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.release();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -2980,7 +2976,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.release();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3068,7 +3064,7 @@ export function lockFactoryTestSuite(
                     await lock.acquire();
 
                     await lock.release();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3096,7 +3092,7 @@ export function lockFactoryTestSuite(
                     await lock.acquire();
 
                     await lock.release();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3133,7 +3129,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3167,7 +3163,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3201,7 +3197,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3270,7 +3266,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3298,7 +3294,7 @@ export function lockFactoryTestSuite(
                     await lock.acquire();
 
                     await lock.releaseOrFail();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3326,7 +3322,7 @@ export function lockFactoryTestSuite(
                     await lock.acquire();
 
                     await lock.releaseOrFail();
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3360,7 +3356,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refresh(newTtl);
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3392,7 +3388,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock2.refresh(newTtl);
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3424,7 +3420,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock2.refresh(newTtl);
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3457,7 +3453,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock2.refresh(newTtl);
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3491,7 +3487,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refresh(newTtl);
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3522,7 +3518,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refresh(newTtl);
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3551,7 +3547,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refresh(newTtl);
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3589,7 +3585,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3625,7 +3621,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3661,7 +3657,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3698,7 +3694,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3736,7 +3732,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3771,7 +3767,7 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -3800,7 +3796,7 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refreshOrFail(newTtl);
-                    await delayExact(eventDispatchWaitTime);
+                    await delay(eventDispatchWaitTime);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                     expect(handlerFn).toHaveBeenCalledWith(

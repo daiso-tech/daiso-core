@@ -31,6 +31,8 @@ import { fileStorageTestSuite } from "@/file-storage/implementations/test-utilit
 import { Namespace } from "@/namespace/implementations/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
+import { TimeSpan } from "@/time-span/implementations/time-span.js";
+import { delay } from "@/utilities/_module.js";
 
 describe("class: FileStorage", () => {
     fileStorageTestSuite({
@@ -215,6 +217,7 @@ describe("class: FileStorage", () => {
             });
 
             await fileStorage.create("a").getPublicUrl();
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(getPublicUrlSpy).toHaveBeenCalledOnce();
         });
@@ -226,6 +229,7 @@ describe("class: FileStorage", () => {
             });
 
             await fileStorage.create("a").getPublicUrl();
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(getPublicUrlSpy).toHaveBeenCalledOnce();
         });
@@ -250,6 +254,7 @@ describe("class: FileStorage", () => {
             );
 
             await fileStorage.create("a").getPublicUrl();
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(listener).toHaveBeenCalledOnce();
         });
@@ -271,6 +276,7 @@ describe("class: FileStorage", () => {
             await fileStorage.events.addListener(FILE_EVENTS.FOUND, listener);
 
             await fileStorage.create("a").getPublicUrl();
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(listener).toHaveBeenCalledOnce();
         });
@@ -300,6 +306,7 @@ describe("class: FileStorage", () => {
             } catch {
                 /* EMPTY */
             }
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(getPublicUrlSpy).toHaveBeenCalledOnce();
         });
@@ -315,6 +322,7 @@ describe("class: FileStorage", () => {
             } catch {
                 /* EMPTY */
             }
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(getPublicUrlSpy).toHaveBeenCalledOnce();
         });
@@ -343,6 +351,7 @@ describe("class: FileStorage", () => {
             } catch {
                 /* EMPTY */
             }
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(listener).toHaveBeenCalledOnce();
         });
@@ -403,6 +412,7 @@ describe("class: FileStorage", () => {
             });
 
             await fileStorage.create("a").getSignedUploadUrl();
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(getSignedUploadUrlSpy).toHaveBeenCalledOnce();
         });
@@ -428,6 +438,7 @@ describe("class: FileStorage", () => {
             });
 
             await fileStorage.create("a").getSignedDownloadUrl();
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(getSignedDownloadUrlSpy).toHaveBeenCalledOnce();
         });
@@ -442,6 +453,7 @@ describe("class: FileStorage", () => {
             });
 
             await fileStorage.create("a").getSignedDownloadUrl();
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(getSignedDownloadUrlSpy).toHaveBeenCalledOnce();
         });
@@ -466,6 +478,7 @@ describe("class: FileStorage", () => {
             );
 
             await fileStorage.create("a").getSignedDownloadUrl();
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(listener).toHaveBeenCalledOnce();
         });
@@ -487,6 +500,7 @@ describe("class: FileStorage", () => {
             await fileStorage.events.addListener(FILE_EVENTS.FOUND, listener);
 
             await fileStorage.create("a").getSignedDownloadUrl();
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(listener).toHaveBeenCalledOnce();
         });
@@ -518,6 +532,7 @@ describe("class: FileStorage", () => {
             }
 
             expect(getSignedDownloadUrlSpy).toHaveBeenCalledOnce();
+            await delay(TimeSpan.fromMilliseconds(10));
         });
         test("Should call the derivable method when the adapter method is not defined", async () => {
             const getSignedDownloadUrlSpy = vi.spyOn(
@@ -534,6 +549,7 @@ describe("class: FileStorage", () => {
             } catch {
                 /* EMPTY */
             }
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(getSignedDownloadUrlSpy).toHaveBeenCalledOnce();
         });
@@ -562,6 +578,7 @@ describe("class: FileStorage", () => {
             } catch {
                 /* EMPTY */
             }
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(listener).toHaveBeenCalledOnce();
         });
@@ -583,6 +600,7 @@ describe("class: FileStorage", () => {
             await fileStorage.events.addListener(FILE_EVENTS.FOUND, listener);
 
             await fileStorage.create("a").getSignedDownloadUrlOrFail();
+            await delay(TimeSpan.fromMilliseconds(10));
 
             expect(listener).toHaveBeenCalledOnce();
         });

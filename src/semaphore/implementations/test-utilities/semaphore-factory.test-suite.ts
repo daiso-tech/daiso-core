@@ -38,7 +38,7 @@ import {
     type ITimeSpan,
 } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay as delay_, type Promisable } from "@/utilities/_module.js";
+import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/test-utilities"`
@@ -157,11 +157,7 @@ export function semaphoreFactoryTestSuite(
     let serde: ISerde;
 
     async function delayWithBuffer(ttl: ITimeSpan): Promise<void> {
-        await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
-    }
-
-    async function delayExact(ttl: ITimeSpan): Promise<void> {
-        await delay_(TimeSpan.fromTimeSpan(ttl));
+        await delay(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
     const RETURN_VALUE = "RETURN_VALUE";
@@ -3115,7 +3111,7 @@ export function semaphoreFactoryTestSuite(
                             ttl,
                         });
                         await semaphore.acquire();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3151,7 +3147,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.acquire();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3189,7 +3185,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore2.acquire();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3233,7 +3229,7 @@ export function semaphoreFactoryTestSuite(
                             ttl,
                         });
                         await semaphore3.acquire();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3280,7 +3276,7 @@ export function semaphoreFactoryTestSuite(
                             ttl: ttl3,
                         });
                         await semaphore3.acquire();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3314,7 +3310,7 @@ export function semaphoreFactoryTestSuite(
                         });
                         await semaphore.acquire();
                         await semaphore.acquire();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(2);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3348,7 +3344,7 @@ export function semaphoreFactoryTestSuite(
                         });
                         await semaphore.acquire();
                         await semaphore.acquire();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(2);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3384,7 +3380,7 @@ export function semaphoreFactoryTestSuite(
                             ttl,
                         });
                         await semaphore.acquireOrFail();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3420,7 +3416,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.acquireOrFail();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3458,7 +3454,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore2.acquireOrFail();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3506,7 +3502,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3553,7 +3549,7 @@ export function semaphoreFactoryTestSuite(
                             ttl: ttl3,
                         });
                         await semaphore3.acquireOrFail();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3587,7 +3583,7 @@ export function semaphoreFactoryTestSuite(
                         });
                         await semaphore.acquire();
                         await semaphore.acquireOrFail();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(2);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3621,7 +3617,7 @@ export function semaphoreFactoryTestSuite(
                         });
                         await semaphore.acquire();
                         await semaphore.acquireOrFail();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(2);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3661,6 +3657,7 @@ export function semaphoreFactoryTestSuite(
                             interval: TimeSpan.fromMilliseconds(5),
                         });
 
+                        await delay(eventDispatchWaitTime);
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
                             expect.objectContaining({
@@ -3699,6 +3696,7 @@ export function semaphoreFactoryTestSuite(
                             interval: TimeSpan.fromMilliseconds(5),
                         });
 
+                        await delay(eventDispatchWaitTime);
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
                             expect.objectContaining({
@@ -3739,6 +3737,7 @@ export function semaphoreFactoryTestSuite(
                             interval: TimeSpan.fromMilliseconds(5),
                         });
 
+                        await delay(eventDispatchWaitTime);
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
                             expect.objectContaining({
@@ -3839,6 +3838,7 @@ export function semaphoreFactoryTestSuite(
                             interval: TimeSpan.fromMilliseconds(5),
                         });
 
+                        await delay(eventDispatchWaitTime);
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
                             expect.objectContaining({
@@ -3875,6 +3875,7 @@ export function semaphoreFactoryTestSuite(
                             interval: TimeSpan.fromMilliseconds(5),
                         });
 
+                        await delay(eventDispatchWaitTime);
                         expect(handlerFn).toHaveBeenCalledTimes(2);
                         expect(handlerFn).toHaveBeenCalledWith(
                             expect.objectContaining({
@@ -3911,6 +3912,7 @@ export function semaphoreFactoryTestSuite(
                             interval: TimeSpan.fromMilliseconds(5),
                         });
 
+                        await delay(eventDispatchWaitTime);
                         expect(handlerFn).toHaveBeenCalledTimes(2);
                         expect(handlerFn).toHaveBeenCalledWith(
                             expect.objectContaining({
@@ -3948,7 +3950,7 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -3987,7 +3989,7 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4028,7 +4030,7 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4079,7 +4081,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(
                             handlerFn.mock.calls.length,
@@ -4134,7 +4136,7 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4171,7 +4173,7 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(2);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4208,7 +4210,7 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(2);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4254,7 +4256,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4296,7 +4298,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4336,7 +4338,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4372,7 +4374,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4407,7 +4409,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4442,7 +4444,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4492,7 +4494,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4538,7 +4540,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4582,7 +4584,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4622,7 +4624,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4657,7 +4659,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.releaseOrFail();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4692,7 +4694,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.releaseOrFail();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4746,7 +4748,7 @@ export function semaphoreFactoryTestSuite(
                         );
 
                         await semaphore3.forceReleaseAll();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4790,7 +4792,7 @@ export function semaphoreFactoryTestSuite(
                         );
 
                         await semaphore1.forceReleaseAll();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4837,7 +4839,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore2.refresh();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4879,7 +4881,7 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore2.refresh();
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4915,7 +4917,7 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refresh(newTtl);
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4952,7 +4954,7 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refresh(newTtl);
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -4988,7 +4990,7 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refresh(newTtl);
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -5024,7 +5026,7 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refresh(newTtl);
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -5074,7 +5076,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -5120,7 +5122,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -5160,7 +5162,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -5201,7 +5203,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -5241,7 +5243,7 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -5277,7 +5279,7 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refreshOrFail(newTtl);
-                        await delayExact(eventDispatchWaitTime);
+                        await delay(eventDispatchWaitTime);
 
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
