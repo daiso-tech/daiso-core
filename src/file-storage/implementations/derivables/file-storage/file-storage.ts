@@ -17,9 +17,9 @@ import {
     type IFileUrlAdapter,
     type ISignedFileStorageAdapter,
 } from "@/file-storage/contracts/_module.js";
+import { handleUnexpectedErrorEvent } from "@/file-storage/implementations/derivables/file-storage/event-helpers.js";
 import { FileSerdeTransformer } from "@/file-storage/implementations/derivables/file-storage/file-serde-transformer.js";
 import { File } from "@/file-storage/implementations/derivables/file-storage/file.js";
-import { handleUnexpectedErrorEvent } from "@/file-storage/implementations/derivables/file-storage/event-helpers.js";
 import { resolveFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/resolve-file-storage-adapter.js";
 import { useFactory, type Use } from "@/middleware/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";

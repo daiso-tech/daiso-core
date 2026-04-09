@@ -188,10 +188,6 @@
             "types": "./dist/execution-context/implementations/adapters/no-op-execution-context-adapter/_module-exports.d.ts",
             "import": "./dist/execution-context/implementations/adapters/no-op-execution-context-adapter/_module-exports.js"
         },
-        "./hooks": {
-            "types": "./dist/hooks/_module-exports.d.ts",
-            "import": "./dist/hooks/_module-exports.js"
-        },
         "./lock": {
             "types": "./dist/lock/implementations/derivables/_module-exports.d.ts",
             "import": "./dist/lock/implementations/derivables/_module-exports.js"
@@ -223,6 +219,10 @@
         "./lock/test-utilities": {
             "types": "./dist/lock/implementations/test-utilities/_module-exports.d.ts",
             "import": "./dist/lock/implementations/test-utilities/_module-exports.js"
+        },
+        "./middleware": {
+            "types": "./dist/middleware/_module-exports.d.ts",
+            "import": "./dist/middleware/_module-exports.js"
         },
         "./namespace": {
             "types": "./dist/namespace/implementations/_module-exports.d.ts",
