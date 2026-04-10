@@ -76,17 +76,16 @@ export function timeout<TParameters extends Array<unknown>, TReturn>(
     const { waitTime = TimeSpan.fromSeconds(2), onTimeout = () => {} } =
         settings;
     return async ({ args, next, context }) => {
+        const timeoutError = new TimeoutResilienceError(
+            TimeSpan.fromTimeSpan(waitTime),
+            "Timeout exceeded",
+        );
         try {
             let timeoutId = null as ReturnType<typeof setTimeout> | null;
             try {
                 const promise = new Promise<never>((_resolve, reject) => {
                     timeoutId = setTimeout(() => {
-                        reject(
-                            new TimeoutResilienceError(
-                                TimeSpan.fromTimeSpan(waitTime),
-                                "Timeout exceeded",
-                            ),
-                        );
+                        reject(timeoutError);
                     }, waitTime[TO_MILLISECONDS]());
                 });
                 return await Promise.race([next(), promise]);
@@ -96,7 +95,10 @@ export function timeout<TParameters extends Array<unknown>, TReturn>(
                 }
             }
         } catch (error: unknown) {
-            if (error instanceof TimeoutResilienceError) {
+            if (
+                error instanceof TimeoutResilienceError &&
+                error === timeoutError
+            ) {
                 callInvokable(onTimeout, {
                     args,
                     context,

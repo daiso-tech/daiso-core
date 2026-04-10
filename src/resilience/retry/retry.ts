@@ -187,7 +187,7 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
             return result.value;
         }
         throw new UnexpectedError(
-            "retry middleware reached an unreachble state, this a bug please file issue on github.",
+            "retry middleware reached an unreachble state, this is a bug please file issue on github.",
         );
     };
 }
