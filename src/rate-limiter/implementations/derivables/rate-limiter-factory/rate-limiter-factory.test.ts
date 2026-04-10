@@ -21,9 +21,7 @@ import {
     type RateLimiterBlockedState,
 } from "@/rate-limiter/contracts/_module.js";
 import { RateLimiterFactory } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter-factory.js";
-import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay as delay_ } from "@/utilities/_module.js";
 
 describe("class: RateLimiterFactory", () => {
     const adapter: IRateLimiterAdapter = {
@@ -62,10 +60,6 @@ describe("class: RateLimiterFactory", () => {
             enableAsyncTracking: false,
         });
     });
-
-    async function delay(ttl: ITimeSpan): Promise<void> {
-        await delay_(TimeSpan.fromTimeSpan(ttl));
-    }
 
     describe("API tests:", () => {
         describe("method: runOrFail", () => {
@@ -454,20 +448,32 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            rateLimiter: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as IRateLimiterStateMethods["getState"],
-                                key: rateLimiter.key,
-                                limit,
-                            } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                            error: expect.any(ErrorA),
-                        } satisfies TrackedFailureRateLimiterEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledOnce();
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    rateLimiter: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as IRateLimiterStateMethods["getState"],
+                                        key: rateLimiter.key,
+                                        limit,
+                                    } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
+                                    error: expect.any(ErrorA),
+                                } satisfies TrackedFailureRateLimiterEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should not dispatch TrackedFailureRateLimiterEvent when given error doesnt match the error policy", async () => {
@@ -506,9 +512,21 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).not.toHaveBeenCalled();
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).not.toHaveBeenCalled();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch UntrackedFailureRateLimiterEvent when given error doesnt match the error policy", async () => {
                     const state: IRateLimiterAdapterState = {
@@ -546,20 +564,32 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            rateLimiter: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as IRateLimiterStateMethods["getState"],
-                                key: rateLimiter.key,
-                                limit,
-                            } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                            error: expect.any(ErrorB),
-                        } satisfies UntrackedFailureRateLimiterEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledOnce();
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    rateLimiter: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as IRateLimiterStateMethods["getState"],
+                                        key: rateLimiter.key,
+                                        limit,
+                                    } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
+                                    error: expect.any(ErrorB),
+                                } satisfies UntrackedFailureRateLimiterEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AllowedRateLimiterEvent when limit is not reached by error", async () => {
@@ -596,19 +626,31 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            rateLimiter: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as IRateLimiterStateMethods["getState"],
-                                key: rateLimiter.key,
-                                limit,
-                            } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                        } satisfies AllowedRateLimiterEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledOnce();
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    rateLimiter: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as IRateLimiterStateMethods["getState"],
+                                        key: rateLimiter.key,
+                                        limit,
+                                    } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
+                                } satisfies AllowedRateLimiterEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch BlockedRateLimiterEvent when limit is reached by error", async () => {
@@ -645,19 +687,31 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            rateLimiter: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as IRateLimiterStateMethods["getState"],
-                                key: rateLimiter.key,
-                                limit,
-                            } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                        } satisfies BlockedRateLimiterEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledOnce();
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    rateLimiter: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as IRateLimiterStateMethods["getState"],
+                                        key: rateLimiter.key,
+                                        limit,
+                                    } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
+                                } satisfies BlockedRateLimiterEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AllowedRateLimiterEvent when limit is reached by function call", async () => {
@@ -687,19 +741,31 @@ describe("class: RateLimiterFactory", () => {
                         onlyError: true,
                     });
                     await rateLimiter.runOrFail(() => {});
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            rateLimiter: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as IRateLimiterStateMethods["getState"],
-                                key: rateLimiter.key,
-                                limit,
-                            } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                        } satisfies AllowedRateLimiterEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledOnce();
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    rateLimiter: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as IRateLimiterStateMethods["getState"],
+                                        key: rateLimiter.key,
+                                        limit,
+                                    } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
+                                } satisfies AllowedRateLimiterEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -738,19 +804,31 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            rateLimiter: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as IRateLimiterStateMethods["getState"],
-                                key: rateLimiter.key,
-                                limit,
-                            } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                        } satisfies AllowedRateLimiterEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledOnce();
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    rateLimiter: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as IRateLimiterStateMethods["getState"],
+                                        key: rateLimiter.key,
+                                        limit,
+                                    } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
+                                } satisfies AllowedRateLimiterEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch BlockedRateLimiterEvent when limit is reached by error", async () => {
@@ -787,19 +865,31 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            rateLimiter: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as IRateLimiterStateMethods["getState"],
-                                key: rateLimiter.key,
-                                limit,
-                            } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                        } satisfies BlockedRateLimiterEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledOnce();
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    rateLimiter: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as IRateLimiterStateMethods["getState"],
+                                        key: rateLimiter.key,
+                                        limit,
+                                    } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
+                                } satisfies BlockedRateLimiterEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AllowedRateLimiterEvent when limit is not reached by function call", async () => {
@@ -829,19 +919,31 @@ describe("class: RateLimiterFactory", () => {
                         onlyError: false,
                     });
                     await rateLimiter.runOrFail(() => {});
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            rateLimiter: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as IRateLimiterStateMethods["getState"],
-                                key: rateLimiter.key,
-                                limit,
-                            } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                        } satisfies AllowedRateLimiterEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledOnce();
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    rateLimiter: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as IRateLimiterStateMethods["getState"],
+                                        key: rateLimiter.key,
+                                        limit,
+                                    } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
+                                } satisfies AllowedRateLimiterEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch BlockedRateLimiterEvent when limit is reached by function call", async () => {
@@ -875,19 +977,31 @@ describe("class: RateLimiterFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            rateLimiter: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as IRateLimiterStateMethods["getState"],
-                                key: rateLimiter.key,
-                                limit,
-                            } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                        } satisfies BlockedRateLimiterEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledOnce();
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    rateLimiter: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as IRateLimiterStateMethods["getState"],
+                                        key: rateLimiter.key,
+                                        limit,
+                                    } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
+                                } satisfies BlockedRateLimiterEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -907,19 +1021,29 @@ describe("class: RateLimiterFactory", () => {
                     limit: 10,
                 });
                 await rateLimiter.reset();
-                await delay(eventDispatchWaitTime);
-
-                expect(handlerFn).toHaveBeenCalledOnce();
-                expect(handlerFn).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        rateLimiter: expect.objectContaining({
-                            getState: expect.any(
-                                Function,
-                            ) as IRateLimiterStateMethods["getState"],
-                            key: rateLimiter.key,
-                            limit: 10,
-                        } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                    } satisfies ResetedRateLimiterEvent),
+                await vi.waitFor(
+                    () => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                rateLimiter: expect.objectContaining({
+                                    getState: expect.any(
+                                        Function,
+                                    ) as IRateLimiterStateMethods["getState"],
+                                    key: rateLimiter.key,
+                                    limit: 10,
+                                } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
+                            } satisfies ResetedRateLimiterEvent),
+                        );
+                    },
+                    {
+                        interval: TimeSpan.fromTimeSpan(
+                            eventDispatchWaitTime,
+                        ).toMilliseconds(),
+                        timeout: TimeSpan.fromTimeSpan(eventDispatchWaitTime)
+                            .multiply(3)
+                            .toMilliseconds(),
+                    },
                 );
             });
         });
