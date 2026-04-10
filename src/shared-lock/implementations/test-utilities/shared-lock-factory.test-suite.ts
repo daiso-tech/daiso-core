@@ -6684,20 +6684,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredWriterLockEvent when key is expired", async () => {
@@ -6722,20 +6734,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredWriterLockEvent when key is unexpireable and acquired by same shared-lock-id", async () => {
@@ -6756,20 +6780,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredWriterLockEvent when key is unexpired and acquired by same shared-lock-id", async () => {
@@ -6790,20 +6826,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableSharedLockEvent when key is unexpireable and acquired by different shared-lock-id", async () => {
@@ -6826,20 +6874,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies UnavailableSharedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies UnavailableSharedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableSharedLockEvent when key is unexpired and acquired by different shared-lock-id", async () => {
@@ -6862,20 +6922,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies UnavailableSharedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies UnavailableSharedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -6897,20 +6969,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriterOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredWriterLockEvent when key is expired", async () => {
@@ -6935,20 +7019,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriterOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredWriterLockEvent when key is unexpireable and acquired by same shared-lock-id", async () => {
@@ -6969,20 +7065,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriterOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredWriterLockEvent when key is unexpired and acquired by same shared-lock-id", async () => {
@@ -7003,20 +7111,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireWriterOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableSharedLockEvent when key is unexpireable and acquired by different shared-lock-id", async () => {
@@ -7043,20 +7163,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies UnavailableSharedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies UnavailableSharedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableSharedLockEvent when key is unexpired and acquired by different shared-lock-id", async () => {
@@ -7083,20 +7215,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies UnavailableSharedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies UnavailableSharedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -7121,20 +7265,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredWriterLockEvent when key is expired", async () => {
@@ -7162,20 +7318,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredWriterLockEvent when key is unexpireable and acquired by same shared-lock-id", async () => {
@@ -7199,20 +7367,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredWriterLockEvent when key is unexpired and acquired by same shared-lock-id", async () => {
@@ -7236,20 +7416,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableSharedLockEvent when key is unexpireable and acquired by different shared-lock-id", async () => {
@@ -7275,23 +7467,37 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
-                        1,
-                    );
-                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies UnavailableSharedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeGreaterThanOrEqual(1);
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeLessThanOrEqual(4);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies UnavailableSharedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableSharedLockEvent when key is unexpired and acquired by different shared-lock-id", async () => {
@@ -7317,23 +7523,37 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
-                        1,
-                    );
-                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies UnavailableSharedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeGreaterThanOrEqual(1);
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeLessThanOrEqual(4);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies UnavailableSharedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -7358,20 +7578,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredWriterLockEvent when key is expired", async () => {
@@ -7399,20 +7631,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredWriterLockEvent when key is unexpireable and acquired by same shared-lock-id", async () => {
@@ -7436,20 +7680,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredWriterLockEvent when key is unexpired and acquired by same shared-lock-id", async () => {
@@ -7473,20 +7729,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies AcquiredWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies AcquiredWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableSharedLockEvent when key is unexpireable and acquired by different shared-lock-id", async () => {
@@ -7516,23 +7784,37 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
-                        1,
-                    );
-                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies UnavailableSharedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeGreaterThanOrEqual(1);
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeLessThanOrEqual(4);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies UnavailableSharedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableSharedLockEvent when key is unexpired and acquired by different shared-lock-id", async () => {
@@ -7562,23 +7844,37 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
-                        1,
-                    );
-                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies UnavailableSharedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeGreaterThanOrEqual(1);
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeLessThanOrEqual(4);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies UnavailableSharedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -7600,20 +7896,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseWriterLockEvent when key is unexpireable and released by different shared-lock-id", async () => {
@@ -7637,20 +7945,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseWriterLockEvent when key is unexpired and released by different shared-lock-id", async () => {
@@ -7674,20 +7994,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseWriterLockEvent when key is expired and released by different shared-lock-id", async () => {
@@ -7747,20 +8079,32 @@ export function sharedLockFactoryTestSuite(
                     await delayWithBuffer(ttl);
 
                     await sharedLock.releaseWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ReleasedWriterLockEvent when key is unexpireable and released by same shared-lock-id", async () => {
@@ -7782,20 +8126,32 @@ export function sharedLockFactoryTestSuite(
                     await sharedLock.acquireWriter();
 
                     await sharedLock.releaseWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies ReleasedWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies ReleasedWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ReleasedWriterLockEvent when key is unexpired and released by same shared-lock-id", async () => {
@@ -7817,20 +8173,32 @@ export function sharedLockFactoryTestSuite(
                     await sharedLock.acquireWriter();
 
                     await sharedLock.releaseWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies ReleasedWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies ReleasedWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -7856,20 +8224,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseWriterLockEvent when key is unexpireable and released by different shared-lock-id", async () => {
@@ -7897,20 +8277,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseWriterLockEvent when key is unexpired and released by different shared-lock-id", async () => {
@@ -7938,20 +8330,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseWriterLockEvent when key is expired and released by different shared-lock-id", async () => {
@@ -8019,20 +8423,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ReleasedWriterLockEvent when key is unexpireable and released by same shared-lock-id", async () => {
@@ -8054,20 +8470,32 @@ export function sharedLockFactoryTestSuite(
                     await sharedLock.acquireWriter();
 
                     await sharedLock.releaseWriterOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies ReleasedWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies ReleasedWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ReleasedWriterLockEvent when key is unexpired and released by same shared-lock-id", async () => {
@@ -8089,20 +8517,32 @@ export function sharedLockFactoryTestSuite(
                     await sharedLock.acquireWriter();
 
                     await sharedLock.releaseWriterOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies ReleasedWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies ReleasedWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -8125,20 +8565,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.refreshWriter(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshWriterLockEvent when key is unexpireable and refreshed by different shared-lock-id", async () => {
@@ -8165,20 +8617,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock2.refreshWriter(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock2.key,
-                                id: sharedLock2.id,
-                                ttl: sharedLock2.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock2.key,
+                                        id: sharedLock2.id,
+                                        ttl: sharedLock2.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshWriterLockEvent when key is unexpired and refreshed by different shared-lock-id", async () => {
@@ -8205,20 +8669,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock2.refreshWriter(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock2.key,
-                                id: sharedLock2.id,
-                                ttl: sharedLock2.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock2.key,
+                                        id: sharedLock2.id,
+                                        ttl: sharedLock2.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshWriterLockEvent when key is expired and refreshed by different shared-lock-id", async () => {
@@ -8246,20 +8722,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock2.refreshWriter(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock2.key,
-                                id: sharedLock2.id,
-                                ttl: sharedLock2.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock2.key,
+                                        id: sharedLock2.id,
+                                        ttl: sharedLock2.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshWriterLockEvent when key is expired and refreshed by same shared-lock-id", async () => {
@@ -8283,20 +8771,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.refreshWriter(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshWriterLockEvent when key is unexpireable and refreshed by same shared-lock-id", async () => {
@@ -8319,20 +8819,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.refreshWriter(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch RefreshedWriterLockEvent when key is unexpired and refreshed by same shared-lock-id", async () => {
@@ -8355,20 +8867,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.refreshWriter(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: newTtl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies RefreshedWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: newTtl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies RefreshedWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -8395,20 +8919,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshWriterLockEvent when key is unexpireable and refreshed by different shared-lock-id", async () => {
@@ -8439,20 +8975,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock2.key,
-                                id: sharedLock2.id,
-                                ttl: sharedLock2.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock2.key,
+                                        id: sharedLock2.id,
+                                        ttl: sharedLock2.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshWriterLockEvent when key is unexpired and refreshed by different shared-lock-id", async () => {
@@ -8483,20 +9031,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock2.key,
-                                id: sharedLock2.id,
-                                ttl: sharedLock2.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock2.key,
+                                        id: sharedLock2.id,
+                                        ttl: sharedLock2.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshWriterLockEvent when key is expired and refreshed by different shared-lock-id", async () => {
@@ -8528,20 +9088,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock2.key,
-                                id: sharedLock2.id,
-                                ttl: sharedLock2.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock2.key,
+                                        id: sharedLock2.id,
+                                        ttl: sharedLock2.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshWriterLockEvent when key is expired and refreshed by same shared-lock-id", async () => {
@@ -8569,20 +9141,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshWriterLockEvent when key is unexpireable and refreshed by same shared-lock-id", async () => {
@@ -8609,20 +9193,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch RefreshedWriterLockEvent when key is unexpired and refreshed by same shared-lock-id", async () => {
@@ -8645,20 +9241,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.refreshWriterOrFail(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: newTtl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies RefreshedWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: newTtl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies RefreshedWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -8680,21 +9288,33 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.forceReleaseWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            hasReleased: false,
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies ForceReleasedWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    hasReleased: false,
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies ForceReleasedWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ForceReleasedWriterLockEvent when key is expired", async () => {
@@ -8716,21 +9336,33 @@ export function sharedLockFactoryTestSuite(
                     await sharedLock.acquireWriter();
                     await delayWithBuffer(ttl);
                     await sharedLock.forceReleaseWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            hasReleased: false,
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies ForceReleasedWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    hasReleased: false,
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies ForceReleasedWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ForceReleasedWriterLockEvent when key exists and is acquired", async () => {
@@ -8751,21 +9383,33 @@ export function sharedLockFactoryTestSuite(
                     );
                     await sharedLock.acquireWriter();
                     await sharedLock.forceReleaseWriter();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            hasReleased: true,
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies ForceReleasedWriterLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    hasReleased: true,
+                                    sharedLock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                        key: sharedLock.key,
+                                        id: sharedLock.id,
+                                        ttl: sharedLock.ttl,
+                                    } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                                } satisfies ForceReleasedWriterLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -8788,20 +9432,32 @@ export function sharedLockFactoryTestSuite(
                         ttl,
                     });
                     await sharedLock.acquireReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when key exists and shared-lock-slot is expired", async () => {
@@ -8824,20 +9480,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when limit is not reached", async () => {
@@ -8862,20 +9530,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock2.acquireReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock2.key,
-                                ttl: sharedLock2.ttl,
-                                lockId: sharedLock2.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock2.key,
+                                        ttl: sharedLock2.ttl,
+                                        lockId: sharedLock2.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableSharedLockEvent when limit is reached", async () => {
@@ -8906,20 +9586,32 @@ export function sharedLockFactoryTestSuite(
                         ttl,
                     });
                     await sharedLock3.acquireReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock3.key,
-                                ttl: sharedLock3.ttl,
-                                lockId: sharedLock3.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies UnavailableSharedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock3.key,
+                                        ttl: sharedLock3.ttl,
+                                        lockId: sharedLock3.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies UnavailableSharedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when one shared-lock-slot is expired", async () => {
@@ -8953,20 +9645,32 @@ export function sharedLockFactoryTestSuite(
                         ttl: ttl3,
                     });
                     await sharedLock3.acquireReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock3.key,
-                                ttl: sharedLock3.ttl,
-                                lockId: sharedLock3.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock3.key,
+                                        ttl: sharedLock3.ttl,
+                                        lockId: sharedLock3.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
@@ -8987,20 +9691,32 @@ export function sharedLockFactoryTestSuite(
                     });
                     await sharedLock.acquireReader();
                     await sharedLock.acquireReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(2);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(2);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
@@ -9021,20 +9737,32 @@ export function sharedLockFactoryTestSuite(
                     });
                     await sharedLock.acquireReader();
                     await sharedLock.acquireReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(2);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(2);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -9057,20 +9785,32 @@ export function sharedLockFactoryTestSuite(
                         ttl,
                     });
                     await sharedLock.acquireReaderOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when key exists and shared-lock-slot is expired", async () => {
@@ -9093,20 +9833,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.acquireReaderOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when limit is not reached", async () => {
@@ -9131,20 +9883,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock2.acquireReaderOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock2.key,
-                                ttl: sharedLock2.ttl,
-                                lockId: sharedLock2.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock2.key,
+                                        ttl: sharedLock2.ttl,
+                                        lockId: sharedLock2.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableSharedLockEvent when limit is reached", async () => {
@@ -9179,20 +9943,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock3.key,
-                                ttl: sharedLock3.ttl,
-                                lockId: sharedLock3.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies UnavailableSharedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock3.key,
+                                        ttl: sharedLock3.ttl,
+                                        lockId: sharedLock3.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies UnavailableSharedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when one shared-lock-slot is expired", async () => {
@@ -9226,20 +10002,32 @@ export function sharedLockFactoryTestSuite(
                         ttl: ttl3,
                     });
                     await sharedLock3.acquireReaderOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock3.key,
-                                ttl: sharedLock3.ttl,
-                                lockId: sharedLock3.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock3.key,
+                                        ttl: sharedLock3.ttl,
+                                        lockId: sharedLock3.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
@@ -9260,20 +10048,32 @@ export function sharedLockFactoryTestSuite(
                     });
                     await sharedLock.acquireReader();
                     await sharedLock.acquireReaderOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(2);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(2);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
@@ -9294,20 +10094,32 @@ export function sharedLockFactoryTestSuite(
                     });
                     await sharedLock.acquireReader();
                     await sharedLock.acquireReaderOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(2);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(2);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -9333,20 +10145,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when key exists and shared-lock-slot is expired", async () => {
@@ -9372,20 +10196,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when limit is not reached", async () => {
@@ -9413,20 +10249,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock2.key,
-                                ttl: sharedLock2.ttl,
-                                lockId: sharedLock2.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock2.key,
+                                        ttl: sharedLock2.ttl,
+                                        lockId: sharedLock2.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableSharedLockEvent when limit is reached", async () => {
@@ -9460,23 +10308,37 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
-                        1,
-                    );
-                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock3.key,
-                                ttl: sharedLock3.ttl,
-                                lockId: sharedLock3.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies UnavailableSharedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeGreaterThanOrEqual(1);
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeLessThanOrEqual(4);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock3.key,
+                                        ttl: sharedLock3.ttl,
+                                        lockId: sharedLock3.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies UnavailableSharedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when one shared-lock-slot is expired", async () => {
@@ -9513,20 +10375,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock3.key,
-                                ttl: sharedLock3.ttl,
-                                lockId: sharedLock3.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock3.key,
+                                        ttl: sharedLock3.ttl,
+                                        lockId: sharedLock3.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
@@ -9550,20 +10424,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(2);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(2);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
@@ -9587,20 +10473,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(2);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(2);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -9626,20 +10524,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when key exists and shared-lock-slot is expired", async () => {
@@ -9665,20 +10575,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when limit is not reached", async () => {
@@ -9706,20 +10628,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock2.key,
-                                ttl: sharedLock2.ttl,
-                                lockId: sharedLock2.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock2.key,
+                                        ttl: sharedLock2.ttl,
+                                        lockId: sharedLock2.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableSharedLockEvent when limit is reached", async () => {
@@ -9757,23 +10691,37 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
-                        1,
-                    );
-                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock3.key,
-                                ttl: sharedLock3.ttl,
-                                lockId: sharedLock3.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies UnavailableSharedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeGreaterThanOrEqual(1);
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeLessThanOrEqual(4);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock3.key,
+                                        ttl: sharedLock3.ttl,
+                                        lockId: sharedLock3.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies UnavailableSharedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when one shared-lock-slot is expired", async () => {
@@ -9810,20 +10758,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock3.key,
-                                ttl: sharedLock3.ttl,
-                                lockId: sharedLock3.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock3.key,
+                                        ttl: sharedLock3.ttl,
+                                        lockId: sharedLock3.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpireable and acquired multiple times", async () => {
@@ -9847,20 +10807,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(2);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(2);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredReaderSemaphoreEvent when shared-lock-slot exists, is unexpired and acquired multiple times", async () => {
@@ -9884,20 +10856,32 @@ export function sharedLockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(2);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AcquiredReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(2);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AcquiredReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -9930,20 +10914,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseReaderSemaphoreEvent when shared-lock-slot doesnt exists", async () => {
@@ -9972,20 +10968,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseReaderSemaphoreEvent when shared-lock-slot is expired", async () => {
@@ -10012,20 +11020,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseReaderSemaphoreEvent when shared-lock-slot exists, is expired", async () => {
@@ -10048,20 +11068,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ReleasedReaderSemaphoreEvent when shared-lock-slot exists and is unexpired", async () => {
@@ -10083,20 +11115,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies ReleasedReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies ReleasedReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ReleasedReaderSemaphoreEvent when shared-lock-slot exists and is unexpireable", async () => {
@@ -10118,20 +11162,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies ReleasedReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies ReleasedReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -10168,20 +11224,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseReaderSemaphoreEvent when shared-lock-slot doesnt exists", async () => {
@@ -10214,20 +11282,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseReaderSemaphoreEvent when shared-lock-slot is expired", async () => {
@@ -10258,20 +11338,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseReaderSemaphoreEvent when shared-lock-slot exists, is expired", async () => {
@@ -10298,20 +11390,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedReleaseReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ReleasedReaderSemaphoreEvent when shared-lock-slot exists and is unexpired", async () => {
@@ -10333,20 +11437,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReaderOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies ReleasedReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies ReleasedReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ReleasedReaderSemaphoreEvent when shared-lock-slot exists and is unexpireable", async () => {
@@ -10368,20 +11484,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseReaderOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies ReleasedReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies ReleasedReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -10414,20 +11542,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock2.refreshReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock2.key,
-                                ttl: sharedLock2.ttl,
-                                lockId: sharedLock2.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock2.key,
+                                        ttl: sharedLock2.ttl,
+                                        lockId: sharedLock2.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot doesnt exists", async () => {
@@ -10456,20 +11596,32 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock2.refreshReader();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock2.key,
-                                ttl: sharedLock2.ttl,
-                                lockId: sharedLock2.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock2.key,
+                                        ttl: sharedLock2.ttl,
+                                        lockId: sharedLock2.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot is expired", async () => {
@@ -10492,20 +11644,32 @@ export function sharedLockFactoryTestSuite(
                     );
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await sharedLock.refreshReader(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot exists, is expired", async () => {
@@ -10529,20 +11693,32 @@ export function sharedLockFactoryTestSuite(
                     );
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await sharedLock.refreshReader(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot exists and is unexpireable", async () => {
@@ -10565,20 +11741,32 @@ export function sharedLockFactoryTestSuite(
                     );
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await sharedLock.refreshReader(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch RefreshedReaderSemaphoreEvent when shared-lock-slot exists and is unexpired", async () => {
@@ -10601,20 +11789,32 @@ export function sharedLockFactoryTestSuite(
                     );
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await sharedLock.refreshReader(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: newTtl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies RefreshedReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: newTtl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies RefreshedReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -10651,20 +11851,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock2.key,
-                                ttl: sharedLock2.ttl,
-                                lockId: sharedLock2.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock2.key,
+                                        ttl: sharedLock2.ttl,
+                                        lockId: sharedLock2.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot doesnt exists", async () => {
@@ -10697,20 +11909,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock2.key,
-                                ttl: sharedLock2.ttl,
-                                lockId: sharedLock2.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock2.key,
+                                        ttl: sharedLock2.ttl,
+                                        lockId: sharedLock2.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot is expired", async () => {
@@ -10737,20 +11961,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot exists, is expired", async () => {
@@ -10778,20 +12014,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshReaderSemaphoreEvent when shared-lock-slot exists and is unexpireable", async () => {
@@ -10818,20 +12066,32 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: sharedLock.ttl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies FailedRefreshReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: sharedLock.ttl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies FailedRefreshReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch RefreshedReaderSemaphoreEvent when shared-lock-slot exists and is unexpired", async () => {
@@ -10854,20 +12114,32 @@ export function sharedLockFactoryTestSuite(
                     );
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     await sharedLock.refreshReaderOrFail(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock.key,
-                                ttl: newTtl,
-                                lockId: sharedLock.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies RefreshedReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock.key,
+                                        ttl: newTtl,
+                                        lockId: sharedLock.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies RefreshedReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -10908,21 +12180,33 @@ export function sharedLockFactoryTestSuite(
                     );
 
                     await sharedLock3.forceReleaseAllReaders();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            hasReleased: false,
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock3.key,
-                                ttl: sharedLock3.ttl,
-                                lockId: sharedLock3.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AllForceReleasedReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    hasReleased: false,
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock3.key,
+                                        ttl: sharedLock3.ttl,
+                                        lockId: sharedLock3.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AllForceReleasedReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AllForceReleasedReaderSemaphoreEvent when key exists and has acquired shared-lock-slots", async () => {
@@ -10952,21 +12236,33 @@ export function sharedLockFactoryTestSuite(
                     );
 
                     await sharedLock1.forceReleaseAllReaders();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            hasReleased: true,
-                            sharedLock: expect.objectContaining({
-                                key: sharedLock1.key,
-                                ttl: sharedLock1.ttl,
-                                lockId: sharedLock1.id,
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                            }) as ISharedLockStateMethods,
-                        } satisfies AllForceReleasedReaderSemaphoreEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    hasReleased: true,
+                                    sharedLock: expect.objectContaining({
+                                        key: sharedLock1.key,
+                                        ttl: sharedLock1.ttl,
+                                        lockId: sharedLock1.id,
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ISharedLockStateMethods["getState"],
+                                    }) as ISharedLockStateMethods,
+                                } satisfies AllForceReleasedReaderSemaphoreEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
