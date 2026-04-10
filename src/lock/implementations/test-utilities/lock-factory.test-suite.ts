@@ -2028,20 +2028,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredLockEvent when key is expired", async () => {
@@ -2058,20 +2070,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredLockEvent when key is unexpireable and acquired by same lock-id", async () => {
@@ -2086,20 +2110,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredLockEvent when key is unexpired and acquired by same lock-id", async () => {
@@ -2116,20 +2152,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableLockEvent when key is unexpireable and acquired by different lock-id", async () => {
@@ -2148,20 +2196,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies UnavailableLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies UnavailableLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableLockEvent when key is unexpired and acquired by different lock-id", async () => {
@@ -2178,20 +2238,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquire();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies UnavailableLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies UnavailableLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -2209,20 +2281,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquireOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredLockEvent when key is expired", async () => {
@@ -2239,20 +2323,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquireOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredLockEvent when key is unexpireable and acquired by same lock-id", async () => {
@@ -2267,20 +2363,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquireOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredLockEvent when key is unexpired and acquired by same lock-id", async () => {
@@ -2297,20 +2405,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.acquireOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableLockEvent when key is unexpireable and acquired by different lock-id", async () => {
@@ -2333,20 +2453,32 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies UnavailableLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies UnavailableLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableLockEvent when key is unexpired and acquired by different lock-id", async () => {
@@ -2367,20 +2499,32 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies UnavailableLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies UnavailableLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -2401,20 +2545,32 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredLockEvent when key is expired", async () => {
@@ -2434,20 +2590,32 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredLockEvent when key is unexpireable and acquired by same lock-id", async () => {
@@ -2465,20 +2633,32 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredLockEvent when key is unexpired and acquired by same lock-id", async () => {
@@ -2498,20 +2678,32 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableLockEvent when key is unexpireable and acquired by different lock-id", async () => {
@@ -2533,23 +2725,37 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
-                        1,
-                    );
-                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies UnavailableLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeGreaterThanOrEqual(1);
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeLessThanOrEqual(4);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies UnavailableLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableLockEvent when key is unexpired and acquired by different lock-id", async () => {
@@ -2569,23 +2775,37 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
-                        1,
-                    );
-                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies UnavailableLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeGreaterThanOrEqual(1);
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeLessThanOrEqual(4);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies UnavailableLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -2606,20 +2826,32 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredLockEvent when key is expired", async () => {
@@ -2639,20 +2871,32 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredLockEvent when key is unexpireable and acquired by same lock-id", async () => {
@@ -2670,20 +2914,32 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch AcquiredLockEvent when key is unexpired and acquired by same lock-id", async () => {
@@ -2703,20 +2959,32 @@ export function lockFactoryTestSuite(
                         time: TimeSpan.fromMilliseconds(5),
                         interval: TimeSpan.fromMilliseconds(5),
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies AcquiredLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies AcquiredLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableLockEvent when key is unexpireable and acquired by different lock-id", async () => {
@@ -2742,23 +3010,37 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
-                        1,
-                    );
-                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies UnavailableLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeGreaterThanOrEqual(1);
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeLessThanOrEqual(4);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies UnavailableLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch UnavailableLockEvent when key is unexpired and acquired by different lock-id", async () => {
@@ -2782,23 +3064,37 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn.mock.calls.length).toBeGreaterThanOrEqual(
-                        1,
-                    );
-                    expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(4);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies UnavailableLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeGreaterThanOrEqual(1);
+                            expect(
+                                handlerFn.mock.calls.length,
+                            ).toBeLessThanOrEqual(4);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies UnavailableLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -2818,21 +3114,33 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.forceRelease();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            hasReleased: false,
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies ForceReleasedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    hasReleased: false,
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies ForceReleasedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ForceReleasedLockEvent when key is expired", async () => {
@@ -2851,21 +3159,33 @@ export function lockFactoryTestSuite(
                     await delayWithBuffer(ttl);
 
                     await lock.forceRelease();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            hasReleased: false,
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies ForceReleasedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    hasReleased: false,
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies ForceReleasedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ForceReleasedLockEvent when key exists and is acquired", async () => {
@@ -2882,21 +3202,33 @@ export function lockFactoryTestSuite(
                     );
                     await lock.acquire();
                     await lock.forceRelease();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            hasReleased: true,
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies ForceReleasedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    hasReleased: true,
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies ForceReleasedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -2916,20 +3248,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.release();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedReleaseLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedReleaseLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseLockEvent when key is unexpireable and released by different lock-id", async () => {
@@ -2946,20 +3290,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.release();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedReleaseLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedReleaseLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseLockEvent when key is unexpired and released by different lock-id", async () => {
@@ -2976,20 +3332,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.release();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedReleaseLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedReleaseLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseLockEvent when key is expired and released by different lock-id", async () => {
@@ -3064,20 +3432,32 @@ export function lockFactoryTestSuite(
                     await lock.acquire();
 
                     await lock.release();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies ReleasedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies ReleasedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ReleasedLockEvent when key is unexpired and released by same lock-id", async () => {
@@ -3092,20 +3472,32 @@ export function lockFactoryTestSuite(
                     await lock.acquire();
 
                     await lock.release();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies ReleasedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies ReleasedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -3129,20 +3521,32 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedReleaseLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedReleaseLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseLockEvent when key is unexpireable and released by different lock-id", async () => {
@@ -3163,20 +3567,32 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedReleaseLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedReleaseLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseLockEvent when key is unexpired and released by different lock-id", async () => {
@@ -3197,20 +3613,32 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedReleaseLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedReleaseLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedReleaseLockEvent when key is expired and released by different lock-id", async () => {
@@ -3266,20 +3694,32 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedReleaseLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedReleaseLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ReleasedLockEvent when key is unexpireable and released by same lock-id", async () => {
@@ -3294,20 +3734,32 @@ export function lockFactoryTestSuite(
                     await lock.acquire();
 
                     await lock.releaseOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies ReleasedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies ReleasedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch ReleasedLockEvent when key is unexpired and released by same lock-id", async () => {
@@ -3322,20 +3774,32 @@ export function lockFactoryTestSuite(
                     await lock.acquire();
 
                     await lock.releaseOrFail();
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies ReleasedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies ReleasedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -3356,20 +3820,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refresh(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedRefreshLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedRefreshLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshLockEvent when key is unexpireable and refreshed by different lock-id", async () => {
@@ -3388,20 +3864,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock2.refresh(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock2.key,
-                                id: lock2.id,
-                                ttl: lock2.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedRefreshLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock2.key,
+                                        id: lock2.id,
+                                        ttl: lock2.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedRefreshLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshLockEvent when key is unexpired and refreshed by different lock-id", async () => {
@@ -3420,20 +3908,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock2.refresh(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock2.key,
-                                id: lock2.id,
-                                ttl: lock2.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedRefreshLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock2.key,
+                                        id: lock2.id,
+                                        ttl: lock2.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedRefreshLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshLockEvent when key is expired and refreshed by different lock-id", async () => {
@@ -3453,20 +3953,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock2.refresh(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock2.key,
-                                id: lock2.id,
-                                ttl: lock2.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedRefreshLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock2.key,
+                                        id: lock2.id,
+                                        ttl: lock2.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedRefreshLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshLockEvent when key is expired and refreshed by same lock-id", async () => {
@@ -3487,20 +3999,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refresh(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedRefreshLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedRefreshLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshLockEvent when key is unexpireable and refreshed by same lock-id", async () => {
@@ -3518,20 +4042,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refresh(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedRefreshLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedRefreshLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch RefreshedLockEvent when key is unexpired and refreshed by same lock-id", async () => {
@@ -3547,20 +4083,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refresh(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: newTtl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies RefreshedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: newTtl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies RefreshedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
@@ -3585,20 +4133,32 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedRefreshLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedRefreshLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshLockEvent when key is unexpireable and refreshed by different lock-id", async () => {
@@ -3621,20 +4181,32 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock2.key,
-                                id: lock2.id,
-                                ttl: lock2.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedRefreshLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock2.key,
+                                        id: lock2.id,
+                                        ttl: lock2.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedRefreshLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshLockEvent when key is unexpired and refreshed by different lock-id", async () => {
@@ -3657,20 +4229,32 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock2.key,
-                                id: lock2.id,
-                                ttl: lock2.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedRefreshLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock2.key,
+                                        id: lock2.id,
+                                        ttl: lock2.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedRefreshLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshLockEvent when key is expired and refreshed by different lock-id", async () => {
@@ -3694,20 +4278,32 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock2.key,
-                                id: lock2.id,
-                                ttl: lock2.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedRefreshLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock2.key,
+                                        id: lock2.id,
+                                        ttl: lock2.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedRefreshLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshLockEvent when key is expired and refreshed by same lock-id", async () => {
@@ -3732,20 +4328,32 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedRefreshLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedRefreshLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch FailedRefreshLockEvent when key is unexpireable and refreshed by same lock-id", async () => {
@@ -3767,20 +4375,32 @@ export function lockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: lock.ttl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedRefreshLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: lock.ttl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies FailedRefreshLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
                 test("Should dispatch RefreshedLockEvent when key is unexpired and refreshed by same lock-id", async () => {
@@ -3796,20 +4416,32 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     await lock.refreshOrFail(newTtl);
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            lock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ILockStateMethods["getState"],
-                                key: lock.key,
-                                id: lock.id,
-                                ttl: newTtl,
-                            } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies RefreshedLockEvent),
+                    await vi.waitFor(
+                        () => {
+                            expect(handlerFn).toHaveBeenCalledTimes(1);
+                            expect(handlerFn).toHaveBeenCalledWith(
+                                expect.objectContaining({
+                                    lock: expect.objectContaining({
+                                        getState: expect.any(
+                                            Function,
+                                        ) as ILockStateMethods["getState"],
+                                        key: lock.key,
+                                        id: lock.id,
+                                        ttl: newTtl,
+                                    } satisfies ILockStateMethods) as ILockStateMethods,
+                                } satisfies RefreshedLockEvent),
+                            );
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
                     );
                 });
             });
