@@ -65,7 +65,7 @@ export type CacheAdapterTestSuiteSettings = {
  * } from "@testcontainers/redis";
  * import { cacheAdapterTestSuite } from "@daiso-tech/core/cache/test-utilities";
  * import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
- * import { TimeSpan } from "@daiso-tech/core/time-span" from "@daiso-tech/core/time-span";
+ * import { TimeSpan } from "@daiso-tech/core/time-span";
  * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
  * import { Serde } from "@daiso-tech/core/serde";
  *

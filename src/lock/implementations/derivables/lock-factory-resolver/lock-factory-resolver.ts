@@ -151,7 +151,7 @@ export class LockFactoryResolver<TAdapters extends string>
      * import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
      * import { Serde } from "@daiso-tech/core/serde";
      * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-     * import { TimeSpan } from "@daiso-tech/core/time-span" from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "@daiso-tech/core/time-span";
      * import Redis from "ioredis";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
