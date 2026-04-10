@@ -118,6 +118,11 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
         onRetryDelay = () => {},
         onExecutionAttempt = () => {},
     } = settings;
+    if (maxAttempts < 1) {
+        throw new TypeError(
+            "RetrySettings.maxAttempts cannot be smaller than 1",
+        );
+    }
     return async ({ args, next, context }) => {
         let result: Option<TReturn> = optionNone();
         const allErrors: Array<unknown> = [];
