@@ -10,15 +10,10 @@ import { eventBusTestSuite } from "@/event-bus/implementations/test-utilities/_m
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { Namespace } from "@/namespace/implementations/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay as delay_, ValidationError } from "@/utilities/_module.js";
+import { delay, ValidationError } from "@/utilities/_module.js";
 
 describe("class: EventBus", () => {
-    async function delay(ttl: ITimeSpan): Promise<void> {
-        await delay_(TimeSpan.fromTimeSpan(ttl));
-    }
-
     let eventEmitter: EventEmitter;
     const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
     beforeEach(() => {
@@ -48,6 +43,7 @@ describe("class: EventBus", () => {
         const invalidInput: AddEvent = { a: "asd", c: null } as any;
         const namespace = new Namespace("event-bus");
 
+        const TTL = TimeSpan.fromMilliseconds(10);
         describe("input validation:", () => {
             test("method: dispatch", async () => {
                 const eventBus = new EventBus({
@@ -80,7 +76,7 @@ describe("class: EventBus", () => {
                     namespace.create("add").toString(),
                     invalidInput,
                 );
-                await delay(TimeSpan.fromMilliseconds(10));
+                await delay(TTL);
 
                 expect(error).toBeInstanceOf(ValidationError);
                 await eventBus.removeListener("add", listener);
@@ -105,7 +101,7 @@ describe("class: EventBus", () => {
                     namespace.create("add").toString(),
                     invalidInput,
                 );
-                await delay(TimeSpan.fromMilliseconds(10));
+                await delay(TTL);
 
                 expect(error).toBeInstanceOf(ValidationError);
                 await eventBus.removeListener("add", listener);
@@ -128,7 +124,7 @@ describe("class: EventBus", () => {
                     namespace.create("add").toString(),
                     invalidInput,
                 );
-                await delay(TimeSpan.fromMilliseconds(10));
+                await delay(TTL);
 
                 expect(error).toBeInstanceOf(ValidationError);
             });
@@ -155,7 +151,7 @@ describe("class: EventBus", () => {
                     namespace.create("add").toString(),
                     invalidInput,
                 );
-                await delay(TimeSpan.fromMilliseconds(10));
+                await delay(TTL);
 
                 expect(error).toBeInstanceOf(ValidationError);
                 await unsubscribe();
@@ -180,7 +176,7 @@ describe("class: EventBus", () => {
                     namespace.create("add").toString(),
                     invalidInput,
                 );
-                await delay(TimeSpan.fromMilliseconds(10));
+                await delay(TTL);
 
                 expect(error).toBeInstanceOf(ValidationError);
                 await unsubscribe();
