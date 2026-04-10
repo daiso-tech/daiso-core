@@ -3111,20 +3111,32 @@ export function semaphoreFactoryTestSuite(
                             ttl,
                         });
                         await semaphore.acquire();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when key exists and slot is expired", async () => {
@@ -3147,20 +3159,32 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.acquire();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when limit is not reached", async () => {
@@ -3185,20 +3209,32 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore2.acquire();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore2.key,
-                                    ttl: semaphore2.ttl,
-                                    slotId: semaphore2.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore2.key,
+                                            ttl: semaphore2.ttl,
+                                            slotId: semaphore2.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch LimitReachedSemaphoreEvent when limit is reached", async () => {
@@ -3229,20 +3265,32 @@ export function semaphoreFactoryTestSuite(
                             ttl,
                         });
                         await semaphore3.acquire();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore3.key,
-                                    ttl: semaphore3.ttl,
-                                    slotId: semaphore3.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies LimitReachedSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore3.key,
+                                            ttl: semaphore3.ttl,
+                                            slotId: semaphore3.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies LimitReachedSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when one slot is expired", async () => {
@@ -3276,20 +3324,32 @@ export function semaphoreFactoryTestSuite(
                             ttl: ttl3,
                         });
                         await semaphore3.acquire();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore3.key,
-                                    ttl: semaphore3.ttl,
-                                    slotId: semaphore3.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore3.key,
+                                            ttl: semaphore3.ttl,
+                                            slotId: semaphore3.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when slot exists, is unexpireable and acquired multiple times", async () => {
@@ -3310,20 +3370,32 @@ export function semaphoreFactoryTestSuite(
                         });
                         await semaphore.acquire();
                         await semaphore.acquire();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(2);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(2);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when slot exists, is unexpired and acquired multiple times", async () => {
@@ -3344,20 +3416,32 @@ export function semaphoreFactoryTestSuite(
                         });
                         await semaphore.acquire();
                         await semaphore.acquire();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(2);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(2);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                 });
@@ -3380,20 +3464,32 @@ export function semaphoreFactoryTestSuite(
                             ttl,
                         });
                         await semaphore.acquireOrFail();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when key exists and slot is expired", async () => {
@@ -3416,20 +3512,32 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.acquireOrFail();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when limit is not reached", async () => {
@@ -3454,20 +3562,32 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore2.acquireOrFail();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore2.key,
-                                    ttl: semaphore2.ttl,
-                                    slotId: semaphore2.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore2.key,
+                                            ttl: semaphore2.ttl,
+                                            slotId: semaphore2.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch LimitReachedSemaphoreEvent when limit is reached", async () => {
@@ -3502,20 +3622,32 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore3.key,
-                                    ttl: semaphore3.ttl,
-                                    slotId: semaphore3.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies LimitReachedSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore3.key,
+                                            ttl: semaphore3.ttl,
+                                            slotId: semaphore3.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies LimitReachedSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when one slot is expired", async () => {
@@ -3549,20 +3681,32 @@ export function semaphoreFactoryTestSuite(
                             ttl: ttl3,
                         });
                         await semaphore3.acquireOrFail();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore3.key,
-                                    ttl: semaphore3.ttl,
-                                    slotId: semaphore3.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore3.key,
+                                            ttl: semaphore3.ttl,
+                                            slotId: semaphore3.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when slot exists, is unexpireable and acquired multiple times", async () => {
@@ -3583,20 +3727,32 @@ export function semaphoreFactoryTestSuite(
                         });
                         await semaphore.acquire();
                         await semaphore.acquireOrFail();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(2);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(2);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when slot exists, is unexpired and acquired multiple times", async () => {
@@ -3617,20 +3773,32 @@ export function semaphoreFactoryTestSuite(
                         });
                         await semaphore.acquire();
                         await semaphore.acquireOrFail();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(2);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(2);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                 });
@@ -3657,19 +3825,32 @@ export function semaphoreFactoryTestSuite(
                             interval: TimeSpan.fromMilliseconds(5),
                         });
 
-                        await delay(eventDispatchWaitTime);
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when key exists and slot is expired", async () => {
@@ -3696,19 +3877,32 @@ export function semaphoreFactoryTestSuite(
                             interval: TimeSpan.fromMilliseconds(5),
                         });
 
-                        await delay(eventDispatchWaitTime);
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when limit is not reached", async () => {
@@ -3737,19 +3931,32 @@ export function semaphoreFactoryTestSuite(
                             interval: TimeSpan.fromMilliseconds(5),
                         });
 
-                        await delay(eventDispatchWaitTime);
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore2.key,
-                                    ttl: semaphore2.ttl,
-                                    slotId: semaphore2.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore2.key,
+                                            ttl: semaphore2.ttl,
+                                            slotId: semaphore2.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch LimitReachedSemaphoreEvent when limit is reached", async () => {
@@ -3838,19 +4045,32 @@ export function semaphoreFactoryTestSuite(
                             interval: TimeSpan.fromMilliseconds(5),
                         });
 
-                        await delay(eventDispatchWaitTime);
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore3.key,
-                                    ttl: semaphore3.ttl,
-                                    slotId: semaphore3.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore3.key,
+                                            ttl: semaphore3.ttl,
+                                            slotId: semaphore3.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when slot exists, is unexpireable and acquired multiple times", async () => {
@@ -3875,19 +4095,32 @@ export function semaphoreFactoryTestSuite(
                             interval: TimeSpan.fromMilliseconds(5),
                         });
 
-                        await delay(eventDispatchWaitTime);
-                        expect(handlerFn).toHaveBeenCalledTimes(2);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(2);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when slot exists, is unexpired and acquired multiple times", async () => {
@@ -3912,19 +4145,32 @@ export function semaphoreFactoryTestSuite(
                             interval: TimeSpan.fromMilliseconds(5),
                         });
 
-                        await delay(eventDispatchWaitTime);
-                        expect(handlerFn).toHaveBeenCalledTimes(2);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(2);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                 });
@@ -3950,20 +4196,32 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when key exists and slot is expired", async () => {
@@ -3989,20 +4247,32 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when limit is not reached", async () => {
@@ -4030,20 +4300,32 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore2.key,
-                                    ttl: semaphore2.ttl,
-                                    slotId: semaphore2.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore2.key,
+                                            ttl: semaphore2.ttl,
+                                            slotId: semaphore2.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch LimitReachedSemaphoreEvent when limit is reached", async () => {
@@ -4081,25 +4363,37 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delay(eventDispatchWaitTime);
-
-                        expect(
-                            handlerFn.mock.calls.length,
-                        ).toBeGreaterThanOrEqual(1);
-                        expect(handlerFn.mock.calls.length).toBeLessThanOrEqual(
-                            4,
-                        );
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore3.key,
-                                    ttl: semaphore3.ttl,
-                                    slotId: semaphore3.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies LimitReachedSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(
+                                    handlerFn.mock.calls.length,
+                                ).toBeGreaterThanOrEqual(1);
+                                expect(
+                                    handlerFn.mock.calls.length,
+                                ).toBeLessThanOrEqual(4);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore3.key,
+                                            ttl: semaphore3.ttl,
+                                            slotId: semaphore3.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies LimitReachedSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when one slot is expired", async () => {
@@ -4136,20 +4430,32 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore3.key,
-                                    ttl: semaphore3.ttl,
-                                    slotId: semaphore3.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore3.key,
+                                            ttl: semaphore3.ttl,
+                                            slotId: semaphore3.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when slot exists, is unexpireable and acquired multiple times", async () => {
@@ -4173,20 +4479,32 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(2);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(2);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AcquiredSemaphoreEvent when slot exists, is unexpired and acquired multiple times", async () => {
@@ -4210,20 +4528,32 @@ export function semaphoreFactoryTestSuite(
                             time: TimeSpan.fromMilliseconds(5),
                             interval: TimeSpan.fromMilliseconds(5),
                         });
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(2);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AcquiredSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(2);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AcquiredSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                 });
@@ -4256,20 +4586,32 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedReleaseSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedReleaseSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch FailedReleaseSemaphoreEvent when slot doesnt exists", async () => {
@@ -4298,20 +4640,32 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedReleaseSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedReleaseSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch FailedReleaseSemaphoreEvent when slot is expired", async () => {
@@ -4338,20 +4692,32 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedReleaseSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedReleaseSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch FailedReleaseSemaphoreEvent when slot exists, is expired", async () => {
@@ -4374,20 +4740,32 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedReleaseSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedReleaseSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch ReleasedSemaphoreEvent when slot exists and is unexpired", async () => {
@@ -4409,20 +4787,32 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies ReleasedSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies ReleasedSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch ReleasedSemaphoreEvent when slot exists and is unexpireable", async () => {
@@ -4444,20 +4834,32 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.release();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies ReleasedSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies ReleasedSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                 });
@@ -4494,20 +4896,32 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedReleaseSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedReleaseSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch FailedReleaseSemaphoreEvent when slot doesnt exists", async () => {
@@ -4540,20 +4954,32 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedReleaseSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedReleaseSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch FailedReleaseSemaphoreEvent when slot is expired", async () => {
@@ -4584,20 +5010,32 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedReleaseSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedReleaseSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch FailedReleaseSemaphoreEvent when slot exists, is expired", async () => {
@@ -4624,20 +5062,32 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedReleaseSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedReleaseSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch ReleasedSemaphoreEvent when slot exists and is unexpired", async () => {
@@ -4659,20 +5109,32 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.releaseOrFail();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies ReleasedSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies ReleasedSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch ReleasedSemaphoreEvent when slot exists and is unexpireable", async () => {
@@ -4694,20 +5156,32 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore.releaseOrFail();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies ReleasedSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies ReleasedSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                 });
@@ -4748,21 +5222,33 @@ export function semaphoreFactoryTestSuite(
                         );
 
                         await semaphore3.forceReleaseAll();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                hasReleased: false,
-                                semaphore: expect.objectContaining({
-                                    key: semaphore3.key,
-                                    ttl: semaphore3.ttl,
-                                    slotId: semaphore3.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AllForceReleasedSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        hasReleased: false,
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore3.key,
+                                            ttl: semaphore3.ttl,
+                                            slotId: semaphore3.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AllForceReleasedSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch AllForceReleasedSemaphoreEvent when key exists and has acquired slots", async () => {
@@ -4792,21 +5278,33 @@ export function semaphoreFactoryTestSuite(
                         );
 
                         await semaphore1.forceReleaseAll();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                hasReleased: true,
-                                semaphore: expect.objectContaining({
-                                    key: semaphore1.key,
-                                    ttl: semaphore1.ttl,
-                                    slotId: semaphore1.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies AllForceReleasedSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        hasReleased: true,
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore1.key,
+                                            ttl: semaphore1.ttl,
+                                            slotId: semaphore1.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies AllForceReleasedSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                 });
@@ -4839,20 +5337,32 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore2.refresh();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore2.key,
-                                    ttl: semaphore2.ttl,
-                                    slotId: semaphore2.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedRefreshSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore2.key,
+                                            ttl: semaphore2.ttl,
+                                            slotId: semaphore2.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedRefreshSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch FailedRefreshSemaphoreEvent when slot doesnt exists", async () => {
@@ -4881,20 +5391,32 @@ export function semaphoreFactoryTestSuite(
                             handlerFn,
                         );
                         await semaphore2.refresh();
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore2.key,
-                                    ttl: semaphore2.ttl,
-                                    slotId: semaphore2.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedRefreshSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore2.key,
+                                            ttl: semaphore2.ttl,
+                                            slotId: semaphore2.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedRefreshSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch FailedRefreshSemaphoreEvent when slot is expired", async () => {
@@ -4917,20 +5439,32 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refresh(newTtl);
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedRefreshSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedRefreshSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch FailedRefreshSemaphoreEvent when slot exists, is expired", async () => {
@@ -4954,20 +5488,32 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refresh(newTtl);
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedRefreshSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedRefreshSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch FailedRefreshSemaphoreEvent when slot exists and is unexpireable", async () => {
@@ -4990,20 +5536,32 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refresh(newTtl);
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedRefreshSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedRefreshSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch RefreshedSemaphoreEvent when slot exists and is unexpired", async () => {
@@ -5026,20 +5584,32 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refresh(newTtl);
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: newTtl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies RefreshedSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: newTtl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies RefreshedSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                 });
@@ -5076,20 +5646,32 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore2.key,
-                                    ttl: semaphore2.ttl,
-                                    slotId: semaphore2.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedRefreshSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore2.key,
+                                            ttl: semaphore2.ttl,
+                                            slotId: semaphore2.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedRefreshSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch FailedRefreshSemaphoreEvent when slot doesnt exists", async () => {
@@ -5122,20 +5704,32 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore2.key,
-                                    ttl: semaphore2.ttl,
-                                    slotId: semaphore2.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedRefreshSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore2.key,
+                                            ttl: semaphore2.ttl,
+                                            slotId: semaphore2.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedRefreshSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch FailedRefreshSemaphoreEvent when slot is expired", async () => {
@@ -5162,20 +5756,32 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedRefreshSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedRefreshSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch FailedRefreshSemaphoreEvent when slot exists, is expired", async () => {
@@ -5203,20 +5809,32 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedRefreshSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedRefreshSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch FailedRefreshSemaphoreEvent when slot exists and is unexpireable", async () => {
@@ -5243,20 +5861,32 @@ export function semaphoreFactoryTestSuite(
                         } catch {
                             /* EMPTY */
                         }
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: semaphore.ttl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies FailedRefreshSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: semaphore.ttl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies FailedRefreshSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                     test("Should dispatch RefreshedSemaphoreEvent when slot exists and is unexpired", async () => {
@@ -5279,20 +5909,32 @@ export function semaphoreFactoryTestSuite(
                         );
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         await semaphore.refreshOrFail(newTtl);
-                        await delay(eventDispatchWaitTime);
-
-                        expect(handlerFn).toHaveBeenCalledTimes(1);
-                        expect(handlerFn).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                semaphore: expect.objectContaining({
-                                    key: semaphore.key,
-                                    ttl: newTtl,
-                                    slotId: semaphore.id,
-                                    getState: expect.any(
-                                        Function,
-                                    ) as ISemaphoreStateMethods["getState"],
-                                }) as ISemaphoreStateMethods,
-                            } satisfies RefreshedSemaphoreEvent),
+                        await vi.waitFor(
+                            () => {
+                                expect(handlerFn).toHaveBeenCalledTimes(1);
+                                expect(handlerFn).toHaveBeenCalledWith(
+                                    expect.objectContaining({
+                                        semaphore: expect.objectContaining({
+                                            key: semaphore.key,
+                                            ttl: newTtl,
+                                            slotId: semaphore.id,
+                                            getState: expect.any(
+                                                Function,
+                                            ) as ISemaphoreStateMethods["getState"],
+                                        }) as ISemaphoreStateMethods,
+                                    } satisfies RefreshedSemaphoreEvent),
+                                );
+                            },
+                            {
+                                interval: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                ).toMilliseconds(),
+                                timeout: TimeSpan.fromTimeSpan(
+                                    eventDispatchWaitTime,
+                                )
+                                    .multiply(3)
+                                    .toMilliseconds(),
+                            },
                         );
                     });
                 });

@@ -15,7 +15,7 @@ import { ExecutionContext } from "@/execution-context/implementations/derivables
 import { type ISemaphoreAdapter } from "@/semaphore/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay as delay_, type Promisable } from "@/utilities/_module.js";
+import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/test-utilities"`
@@ -104,8 +104,8 @@ export function semaphoreAdapterTestSuite(
     } = settings;
     let adapter: ISemaphoreAdapter;
 
-    async function delay(ttl: ITimeSpan): Promise<void> {
-        await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
+    async function delayWithBuffer(ttl: ITimeSpan): Promise<void> {
+        await delay(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
     describe("ISemaphoreAdapter tests:", () => {
@@ -142,7 +142,7 @@ export function semaphoreAdapterTestSuite(
                     limit,
                     ttl,
                 });
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.acquire({
                     context: context,
@@ -232,7 +232,7 @@ export function semaphoreAdapterTestSuite(
                     limit,
                     ttl: ttl2,
                 });
-                await delay(ttl2);
+                await delayWithBuffer(ttl2);
 
                 const slotId3 = "3";
                 const ttl3 = null;
@@ -452,7 +452,7 @@ export function semaphoreAdapterTestSuite(
                     ttl,
                     limit,
                 });
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.release(context, key, slotId);
 
@@ -642,7 +642,7 @@ export function semaphoreAdapterTestSuite(
                     limit,
                     ttl,
                 });
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.forceReleaseAll(context, key);
 
@@ -867,7 +867,7 @@ export function semaphoreAdapterTestSuite(
                     limit,
                     ttl,
                 });
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 const result = await adapter.refresh(
@@ -951,7 +951,7 @@ export function semaphoreAdapterTestSuite(
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 await adapter.refresh(context, key, slotId2, newTtl);
-                await delay(newTtl);
+                await delayWithBuffer(newTtl);
 
                 const slotId3 = "3";
                 const result1 = await adapter.acquire({
@@ -989,7 +989,7 @@ export function semaphoreAdapterTestSuite(
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 await adapter.refresh(context, key, slotId2, newTtl);
-                await delay(newTtl.divide(2));
+                await delayWithBuffer(newTtl.divide(2));
 
                 const slotId3 = "3";
                 const result1 = await adapter.acquire({
@@ -1001,7 +1001,7 @@ export function semaphoreAdapterTestSuite(
                 });
                 expect(result1).toBe(false);
 
-                await delay(newTtl.divide(2));
+                await delayWithBuffer(newTtl.divide(2));
                 const result2 = await adapter.acquire({
                     context: context,
                     key,
@@ -1032,7 +1032,7 @@ export function semaphoreAdapterTestSuite(
                     slotId,
                     ttl,
                 });
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.getState(context, key);
 
