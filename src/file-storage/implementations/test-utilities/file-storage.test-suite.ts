@@ -37,7 +37,7 @@ import {
 } from "@/test-utilities/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay, type Promisable } from "@/utilities/_module.js";
+import { type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/test-utilities"`
@@ -2676,8 +2676,21 @@ export function fileStorageTestSuite(
 
                     await file.getText();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -2690,8 +2703,21 @@ export function fileStorageTestSuite(
 
                     await file.getText();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: getTextOrFail", () => {
@@ -2709,8 +2735,21 @@ export function fileStorageTestSuite(
 
                     await file.getTextOrFail();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -2727,8 +2766,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: getBytes", () => {
@@ -2746,8 +2798,21 @@ export function fileStorageTestSuite(
 
                     await file.getBytes();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -2760,8 +2825,21 @@ export function fileStorageTestSuite(
 
                     await file.getBytes();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: getBytesOrFail", () => {
@@ -2779,8 +2857,21 @@ export function fileStorageTestSuite(
 
                     await file.getBytesOrFail();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -2797,8 +2888,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: getBuffer", () => {
@@ -2816,8 +2920,21 @@ export function fileStorageTestSuite(
 
                     await file.getBuffer();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -2830,8 +2947,21 @@ export function fileStorageTestSuite(
 
                     await file.getBuffer();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: getBufferOrFail", () => {
@@ -2849,8 +2979,21 @@ export function fileStorageTestSuite(
 
                     await file.getBufferOrFail();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -2867,8 +3010,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: getArrayBuffer", () => {
@@ -2886,8 +3042,21 @@ export function fileStorageTestSuite(
 
                     await file.getArrayBuffer();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -2900,8 +3069,21 @@ export function fileStorageTestSuite(
 
                     await file.getArrayBuffer();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: getArrayBufferOrFail", () => {
@@ -2919,8 +3101,21 @@ export function fileStorageTestSuite(
 
                     await file.getArrayBufferOrFail();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -2937,8 +3132,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: getReadable", () => {
@@ -2956,8 +3164,21 @@ export function fileStorageTestSuite(
 
                     await file.getReadable();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -2970,8 +3191,21 @@ export function fileStorageTestSuite(
 
                     await file.getReadable();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: getReadableOrFail", () => {
@@ -2989,8 +3223,21 @@ export function fileStorageTestSuite(
 
                     await file.getReadableOrFail();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3007,8 +3254,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: getReadableStream", () => {
@@ -3026,8 +3286,21 @@ export function fileStorageTestSuite(
 
                     await file.getReadableStream();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3040,8 +3313,21 @@ export function fileStorageTestSuite(
 
                     await file.getReadableStream();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: getReadableStreamOrFail", () => {
@@ -3059,8 +3345,21 @@ export function fileStorageTestSuite(
 
                     await file.getReadableStreamOrFail();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3077,8 +3376,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: getMetadata", () => {
@@ -3096,8 +3408,21 @@ export function fileStorageTestSuite(
 
                     await file.getMetadata();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3110,8 +3435,21 @@ export function fileStorageTestSuite(
 
                     await file.getMetadata();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: getMetadataOrFail", () => {
@@ -3129,8 +3467,21 @@ export function fileStorageTestSuite(
 
                     await file.getMetadataOrFail();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3147,8 +3498,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: exists", () => {
@@ -3166,8 +3530,21 @@ export function fileStorageTestSuite(
 
                     await file.exists();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3180,8 +3557,21 @@ export function fileStorageTestSuite(
 
                     await file.exists();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: missing", () => {
@@ -3199,8 +3589,21 @@ export function fileStorageTestSuite(
 
                     await file.missing();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3213,8 +3616,21 @@ export function fileStorageTestSuite(
 
                     await file.missing();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: add", () => {
@@ -3236,8 +3652,21 @@ export function fileStorageTestSuite(
                         ),
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch AddedFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3254,8 +3683,21 @@ export function fileStorageTestSuite(
                         ),
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: addOrFail", () => {
@@ -3281,8 +3723,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch AddedFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3299,8 +3754,21 @@ export function fileStorageTestSuite(
                         ),
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: addStream", () => {
@@ -3328,8 +3796,21 @@ export function fileStorageTestSuite(
                         },
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch AddedFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3352,8 +3833,21 @@ export function fileStorageTestSuite(
                         },
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: addStreamOrFail", () => {
@@ -3385,8 +3879,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch AddedFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3409,8 +3916,21 @@ export function fileStorageTestSuite(
                         },
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: update", () => {
@@ -3432,8 +3952,21 @@ export function fileStorageTestSuite(
                         ),
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3450,8 +3983,21 @@ export function fileStorageTestSuite(
                         ),
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: updateOrFail", () => {
@@ -3473,8 +4019,21 @@ export function fileStorageTestSuite(
                         ),
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3495,8 +4054,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: updateStream", () => {
@@ -3524,8 +4096,21 @@ export function fileStorageTestSuite(
                         },
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3548,8 +4133,21 @@ export function fileStorageTestSuite(
                         },
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: updateStreamOrFail", () => {
@@ -3577,8 +4175,21 @@ export function fileStorageTestSuite(
                         },
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3605,8 +4216,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: put", () => {
@@ -3628,8 +4252,21 @@ export function fileStorageTestSuite(
                         ),
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch AddedFileEvent when key doesnt exists", async () => {
                     const file = fileStorage.create("a");
@@ -3644,8 +4281,21 @@ export function fileStorageTestSuite(
                         data: new Uint8Array(Buffer.from("CONTENT", "utf8")),
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: putStream", () => {
@@ -3673,8 +4323,21 @@ export function fileStorageTestSuite(
                         },
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch AddedFileEvent when key doesnt exists", async () => {
                     const file = fileStorage.create("a");
@@ -3697,8 +4360,21 @@ export function fileStorageTestSuite(
                         },
                     });
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: remove", () => {
@@ -3716,8 +4392,21 @@ export function fileStorageTestSuite(
 
                     await file.remove();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3730,8 +4419,21 @@ export function fileStorageTestSuite(
 
                     await file.remove();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: removeOrFail", () => {
@@ -3749,8 +4451,21 @@ export function fileStorageTestSuite(
 
                     await file.removeOrFail();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
                     const file = fileStorage.create("a");
@@ -3767,8 +4482,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: copy", () => {
@@ -3780,8 +4508,21 @@ export function fileStorageTestSuite(
                     );
                     await fileStorage.create("a").copy("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch DestinationExistsFileEvent when source exists and destination exists", async () => {
                     const listener = vi.fn(
@@ -3801,8 +4542,21 @@ export function fileStorageTestSuite(
                     });
                     await file.copy("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch CopiedFileEvent when source exists and destination doesnt exists", async () => {
                     const listener = vi.fn((_event: CopiedFileEvent) => {});
@@ -3817,8 +4571,21 @@ export function fileStorageTestSuite(
                     });
                     await file.copy("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: copyOrFail", () => {
@@ -3834,8 +4601,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch DestinationExistsFileEvent when source exists and destination exists", async () => {
                     const listener = vi.fn(
@@ -3859,8 +4639,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch CopiedFileEvent when source exists and destination doesnt exists", async () => {
                     const listener = vi.fn((_event: CopiedFileEvent) => {});
@@ -3875,8 +4668,21 @@ export function fileStorageTestSuite(
                     });
                     await file.copyOrFail("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: copyAndReplace", () => {
@@ -3888,8 +4694,21 @@ export function fileStorageTestSuite(
                     );
                     await fileStorage.create("a").copyAndReplace("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch CopiedFileEvent when source exists and destination exists", async () => {
                     const listener = vi.fn((_event: CopiedFileEvent) => {});
@@ -3907,8 +4726,21 @@ export function fileStorageTestSuite(
                     });
                     await file.copyAndReplace("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch CopiedFileEvent when source exists and destination doesnt exists", async () => {
                     const listener = vi.fn((_event: CopiedFileEvent) => {});
@@ -3923,8 +4755,21 @@ export function fileStorageTestSuite(
                     });
                     await file.copyAndReplace("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: copyAndReplaceOrFail", () => {
@@ -3940,8 +4785,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch CopiedFileEvent when source exists and destination exists", async () => {
                     const listener = vi.fn((_event: CopiedFileEvent) => {});
@@ -3959,8 +4817,21 @@ export function fileStorageTestSuite(
                     });
                     await file.copyAndReplaceOrFail("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch CopiedFileEvent when source exists and destination doesnt exists", async () => {
                     const listener = vi.fn((_event: CopiedFileEvent) => {});
@@ -3975,8 +4846,21 @@ export function fileStorageTestSuite(
                     });
                     await file.copyAndReplaceOrFail("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: move", () => {
@@ -3988,8 +4872,21 @@ export function fileStorageTestSuite(
                     );
                     await fileStorage.create("a").move("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch DestinationExistsFileEvent when source exists and destination exists", async () => {
                     const listener = vi.fn(
@@ -4009,8 +4906,21 @@ export function fileStorageTestSuite(
                     });
                     await file.move("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch MovedFileEvent when source exists and destination doesnt exists", async () => {
                     const listener = vi.fn((_event: MovedFileEvent) => {});
@@ -4025,8 +4935,21 @@ export function fileStorageTestSuite(
                     });
                     await file.move("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: moveOrFail", () => {
@@ -4042,8 +4965,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch DestinationExistsFileEvent when source exists and destination exists", async () => {
                     const listener = vi.fn(
@@ -4067,8 +5003,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch MovedFileEvent when source exists and destination doesnt exists", async () => {
                     const listener = vi.fn((_event: MovedFileEvent) => {});
@@ -4083,8 +5032,21 @@ export function fileStorageTestSuite(
                     });
                     await file.moveOrFail("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: moveAndReplace", () => {
@@ -4096,8 +5058,21 @@ export function fileStorageTestSuite(
                     );
                     await fileStorage.create("a").moveAndReplace("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch MovedFileEvent when source exists and destination exists", async () => {
                     const listener = vi.fn((_event: MovedFileEvent) => {});
@@ -4115,8 +5090,21 @@ export function fileStorageTestSuite(
                     });
                     await file.moveAndReplace("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch MovedFileEvent when source exists and destination doesnt exists", async () => {
                     const listener = vi.fn((_event: MovedFileEvent) => {});
@@ -4131,8 +5119,21 @@ export function fileStorageTestSuite(
                     });
                     await file.moveAndReplace("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: moveAndReplaceOrFail", () => {
@@ -4148,8 +5149,21 @@ export function fileStorageTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch MovedFileEvent when source exists and destination exists", async () => {
                     const listener = vi.fn((_event: MovedFileEvent) => {});
@@ -4167,8 +5181,21 @@ export function fileStorageTestSuite(
                     });
                     await file.moveAndReplaceOrFail("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch MovedFileEvent when source exists and destination doesnt exists", async () => {
                     const listener = vi.fn((_event: MovedFileEvent) => {});
@@ -4183,8 +5210,21 @@ export function fileStorageTestSuite(
                     });
                     await file.moveAndReplaceOrFail("b");
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: removeMany", () => {
@@ -4207,8 +5247,21 @@ export function fileStorageTestSuite(
 
                     await fileStorage.removeMany([file1, file2]);
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledTimes(2);
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledTimes(2);
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
                 test("Should dispatch NotFoundFileEvent when all keys doesnt exists", async () => {
                     const listeners = vi.fn((_event: NotFoundFileEvent) => {});
@@ -4221,8 +5274,21 @@ export function fileStorageTestSuite(
                     const file2 = fileStorage.create("b");
                     await fileStorage.removeMany([file1, file2]);
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listeners).toHaveBeenCalledTimes(2);
+                    await vi.waitFor(
+                        () => {
+                            expect(listeners).toHaveBeenCalledTimes(2);
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
             describe("method: clear", () => {
@@ -4244,8 +5310,21 @@ export function fileStorageTestSuite(
                     });
                     await fileStorage.clear();
 
-                    await delay(eventDispatchWaitTime);
-                    expect(listener).toHaveBeenCalledOnce();
+                    await vi.waitFor(
+                        () => {
+                            expect(listener).toHaveBeenCalledOnce();
+                        },
+                        {
+                            interval: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            ).toMilliseconds(),
+                            timeout: TimeSpan.fromTimeSpan(
+                                eventDispatchWaitTime,
+                            )
+                                .multiply(3)
+                                .toMilliseconds(),
+                        },
+                    );
                 });
             });
         });

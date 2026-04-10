@@ -193,6 +193,7 @@ describe("class: FileStorage", () => {
         ...mockedAdapter,
     };
 
+    const TTL = TimeSpan.fromMilliseconds(10);
     beforeEach(() => {
         vi.resetAllMocks();
     });
@@ -217,7 +218,7 @@ describe("class: FileStorage", () => {
             });
 
             await fileStorage.create("a").getPublicUrl();
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(getPublicUrlSpy).toHaveBeenCalledOnce();
         });
@@ -229,7 +230,7 @@ describe("class: FileStorage", () => {
             });
 
             await fileStorage.create("a").getPublicUrl();
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(getPublicUrlSpy).toHaveBeenCalledOnce();
         });
@@ -254,7 +255,7 @@ describe("class: FileStorage", () => {
             );
 
             await fileStorage.create("a").getPublicUrl();
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(listener).toHaveBeenCalledOnce();
         });
@@ -276,7 +277,7 @@ describe("class: FileStorage", () => {
             await fileStorage.events.addListener(FILE_EVENTS.FOUND, listener);
 
             await fileStorage.create("a").getPublicUrl();
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(listener).toHaveBeenCalledOnce();
         });
@@ -306,7 +307,7 @@ describe("class: FileStorage", () => {
             } catch {
                 /* EMPTY */
             }
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(getPublicUrlSpy).toHaveBeenCalledOnce();
         });
@@ -322,7 +323,7 @@ describe("class: FileStorage", () => {
             } catch {
                 /* EMPTY */
             }
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(getPublicUrlSpy).toHaveBeenCalledOnce();
         });
@@ -351,7 +352,7 @@ describe("class: FileStorage", () => {
             } catch {
                 /* EMPTY */
             }
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(listener).toHaveBeenCalledOnce();
         });
@@ -412,7 +413,7 @@ describe("class: FileStorage", () => {
             });
 
             await fileStorage.create("a").getSignedUploadUrl();
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(getSignedUploadUrlSpy).toHaveBeenCalledOnce();
         });
@@ -438,7 +439,7 @@ describe("class: FileStorage", () => {
             });
 
             await fileStorage.create("a").getSignedDownloadUrl();
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(getSignedDownloadUrlSpy).toHaveBeenCalledOnce();
         });
@@ -453,7 +454,7 @@ describe("class: FileStorage", () => {
             });
 
             await fileStorage.create("a").getSignedDownloadUrl();
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(getSignedDownloadUrlSpy).toHaveBeenCalledOnce();
         });
@@ -478,7 +479,7 @@ describe("class: FileStorage", () => {
             );
 
             await fileStorage.create("a").getSignedDownloadUrl();
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(listener).toHaveBeenCalledOnce();
         });
@@ -500,7 +501,7 @@ describe("class: FileStorage", () => {
             await fileStorage.events.addListener(FILE_EVENTS.FOUND, listener);
 
             await fileStorage.create("a").getSignedDownloadUrl();
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(listener).toHaveBeenCalledOnce();
         });
@@ -531,8 +532,8 @@ describe("class: FileStorage", () => {
                 /* EMPTY */
             }
 
+            await delay(TTL);
             expect(getSignedDownloadUrlSpy).toHaveBeenCalledOnce();
-            await delay(TimeSpan.fromMilliseconds(10));
         });
         test("Should call the derivable method when the adapter method is not defined", async () => {
             const getSignedDownloadUrlSpy = vi.spyOn(
@@ -549,7 +550,7 @@ describe("class: FileStorage", () => {
             } catch {
                 /* EMPTY */
             }
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(getSignedDownloadUrlSpy).toHaveBeenCalledOnce();
         });
@@ -578,7 +579,7 @@ describe("class: FileStorage", () => {
             } catch {
                 /* EMPTY */
             }
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(listener).toHaveBeenCalledOnce();
         });
@@ -600,7 +601,7 @@ describe("class: FileStorage", () => {
             await fileStorage.events.addListener(FILE_EVENTS.FOUND, listener);
 
             await fileStorage.create("a").getSignedDownloadUrlOrFail();
-            await delay(TimeSpan.fromMilliseconds(10));
+            await delay(TTL);
 
             expect(listener).toHaveBeenCalledOnce();
         });
