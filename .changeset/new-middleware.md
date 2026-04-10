@@ -9,6 +9,6 @@
 
 ### Changed
 
-- **Removed Hooks Component**: The legacy Hooks system is being phased out to reduce architectural complexity.
+- **Removed Hooks Component**: The legacy Hooks system has been removed to reduce architectural complexity.
     - **Simplified API**: Removed the need for separate classes for sync and async hooks, significantly reducing boilerplate.
     - **Refined DX**: Replaced the verbose and complex Hooks API with a more ergonomic and streamlined middleware pattern.

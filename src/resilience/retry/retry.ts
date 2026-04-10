@@ -126,22 +126,28 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                 callInvokable(onExecutionAttempt, { attempt, args, context });
                 const value = await next();
 
-                // Handle retrying if an Result type is returned
                 result = optionSome(value);
+                // Handle retrying if an false is returned
                 if (!callErrorPolicyOnValue(errorPolicy, value)) {
                     return value;
                 }
 
-                const waitTime = callInvokable(backoffPolicy, attempt, value);
-
-                callInvokable(onRetryDelay, {
-                    error: value,
-                    waitTime,
-                    attempt,
-                    args,
-                    context,
-                });
-                await delay(waitTime);
+                // Only sleep if there will actually be a next attempt
+                if (attempt < maxAttempts) {
+                    const waitTime = callInvokable(
+                        backoffPolicy,
+                        attempt,
+                        value,
+                    );
+                    callInvokable(onRetryDelay, {
+                        error: value,
+                        waitTime,
+                        attempt,
+                        args,
+                        context,
+                    });
+                    await delay(waitTime);
+                }
 
                 // Handle retrying if an error is thrown
             } catch (error: unknown) {
@@ -151,25 +157,37 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                     throw error;
                 }
 
-                const waitTime = callInvokable(backoffPolicy, attempt, error);
-
-                callInvokable(onRetryDelay, {
-                    error: error,
-                    waitTime,
-                    attempt,
-                    args,
-                    context,
-                });
-                await delay(waitTime);
+                // Only sleep if there will actually be a next attempt
+                if (attempt < maxAttempts) {
+                    const waitTime = callInvokable(
+                        backoffPolicy,
+                        attempt,
+                        error,
+                    );
+                    callInvokable(onRetryDelay, {
+                        error: error,
+                        waitTime,
+                        attempt,
+                        args,
+                        context,
+                    });
+                    await delay(waitTime);
+                }
             }
         }
 
         if (allErrors.length !== 0) {
-            throw new RetryResilienceError(allErrors, "!!__MESSAGE__!!");
+            throw new RetryResilienceError(
+                allErrors,
+                maxAttempts,
+                "Failed all retry attempts",
+            );
         }
         if (result.type === OPTION.SOME) {
             return result.value;
         }
-        throw new UnexpectedError("!!__MESSAGE__!!");
+        throw new UnexpectedError(
+            "retry middleware reached an unreachble state, this a bug please file issue on github.",
+        );
     };
 }
