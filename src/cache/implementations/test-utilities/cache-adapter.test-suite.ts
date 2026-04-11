@@ -15,7 +15,7 @@ import { NoOpExecutionContextAdapter } from "@/execution-context/implementations
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay as delay, type Promisable } from "@/utilities/_module.js";
+import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/cache/test-utilities"`
