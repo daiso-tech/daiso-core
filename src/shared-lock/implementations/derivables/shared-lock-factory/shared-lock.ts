@@ -4,7 +4,7 @@
 
 import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { AsyncHooks, type AsyncMiddlewareFn } from "@/hooks/_module.js";
+import { type Use } from "@/middleware/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import {
     FailedAcquireWriterLockError,
@@ -12,7 +12,6 @@ import {
     FailedRefreshWriterLockError,
     FailedReleaseReaderSemaphoreError,
     FailedReleaseWriterLockError,
-    isSharedLockError,
     LimitReachedReaderSemaphoreError,
     SHARED_LOCK_EVENTS,
     SHARED_LOCK_STATE,
@@ -29,6 +28,10 @@ import {
     type SharedLockAquireBlockingSettings,
     type SharedLockEventMap,
 } from "@/shared-lock/contracts/_module.js";
+import {
+    handleDispatch,
+    handleUnexpectedError,
+} from "@/shared-lock/implementations/derivables/shared-lock-factory/event-helpers.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
@@ -69,6 +72,7 @@ export type SharedLockSettings = {
     defaultRefreshTime: TimeSpan;
     waitUntil: WaitUntil;
     executionContext: IExecutionContext;
+    use: Use;
 };
 
 /**
@@ -104,6 +108,7 @@ export class SharedLock implements ISharedLock {
     private readonly limit: number;
     private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
+    private readonly use: Use;
 
     constructor(settings: SharedLockSettings) {
         const {
@@ -121,8 +126,10 @@ export class SharedLock implements ISharedLock {
             limit,
             waitUntil,
             executionContext,
+            use,
         } = settings;
 
+        this.use = use;
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.limit = limit;
@@ -174,69 +181,8 @@ export class SharedLock implements ISharedLock {
         }
     }
 
-    private handleUnexpectedError = <
-        TParameters extends Array<unknown>,
-        TReturn,
-    >(): AsyncMiddlewareFn<TParameters, TReturn> => {
-        return async (args, next) => {
-            try {
-                return await next(...args);
-            } catch (error: unknown) {
-                if (isSharedLockError(error)) {
-                    throw error;
-                }
-
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        SHARED_LOCK_EVENTS.UNEXPECTED_ERROR,
-                        {
-                            error,
-                            sharedLock: this,
-                        },
-                    ),
-                );
-
-                throw error;
-            }
-        };
-    };
-
-    private handleDispatch = <
-        TParameters extends Array<unknown>,
-        TEventName extends keyof SharedLockEventMap,
-        TEvent extends SharedLockEventMap[TEventName],
-    >(settings: {
-        on: "true" | "false";
-        eventName: TEventName;
-        eventData: TEvent;
-    }): AsyncMiddlewareFn<TParameters, boolean> => {
-        return async (args, next) => {
-            const result = await next(...args);
-            if (result && settings.on === "true") {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        settings.eventName,
-                        settings.eventData,
-                    ),
-                );
-            }
-            if (!result && settings.on === "false") {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        settings.eventName,
-                        settings.eventData,
-                    ),
-                );
-            }
-            return result;
-        };
-    };
-
     acquireReader(): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.acquireReader({
                 context: this.executionContext,
                 key: this._key.toString(),
@@ -245,22 +191,26 @@ export class SharedLock implements ISharedLock {
                 ttl: this._ttl,
             });
         }, [
-            this.handleUnexpectedError(),
-            this.handleDispatch({
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            handleDispatch({
                 on: "true",
                 eventName: SHARED_LOCK_EVENTS.READER_ACQUIRED,
                 eventData: {
                     sharedLock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-            this.handleDispatch({
+            handleDispatch({
                 on: "false",
                 eventName: SHARED_LOCK_EVENTS.UNAVAILABLE,
                 eventData: {
                     sharedLock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-        ]).invoke();
+        ])();
     }
 
     async acquireReaderOrFail(): Promise<void> {
@@ -300,29 +250,33 @@ export class SharedLock implements ISharedLock {
     }
 
     releaseReader(): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.releaseReader(
                 this.executionContext,
                 this._key.toString(),
                 this.lockId,
             );
         }, [
-            this.handleUnexpectedError(),
-            this.handleDispatch({
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            handleDispatch({
                 on: "true",
                 eventName: SHARED_LOCK_EVENTS.READER_RELEASED,
                 eventData: {
                     sharedLock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-            this.handleDispatch({
+            handleDispatch({
                 on: "false",
                 eventName: SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
                 eventData: {
                     sharedLock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-        ]).invoke();
+        ])();
     }
 
     async releaseReaderOrFail(): Promise<void> {
@@ -336,15 +290,15 @@ export class SharedLock implements ISharedLock {
     }
 
     forceReleaseAllReaders(): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.forceReleaseAllReaders(
                 this.executionContext,
                 this._key.toString(),
             );
         }, [
-            this.handleUnexpectedError(),
-            async (args, next) => {
-                const hasReleased = await next(...args);
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            async ({ next }) => {
+                const hasReleased = await next();
                 callInvokable(
                     this.waitUntil,
                     this.eventDispatcher.dispatch(
@@ -357,11 +311,11 @@ export class SharedLock implements ISharedLock {
                 );
                 return hasReleased;
             },
-        ]).invoke();
+        ])();
     }
 
     refreshReader(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.refreshReader(
                 this.executionContext,
                 this._key.toString(),
@@ -369,29 +323,33 @@ export class SharedLock implements ISharedLock {
                 TimeSpan.fromTimeSpan(ttl),
             );
         }, [
-            this.handleUnexpectedError(),
-            this.handleDispatch({
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            handleDispatch({
                 on: "true",
                 eventName: SHARED_LOCK_EVENTS.READER_REFRESHED,
                 eventData: {
                     sharedLock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-            this.handleDispatch({
+            handleDispatch({
                 on: "false",
                 eventName: SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
                 eventData: {
                     sharedLock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-            async (args, next) => {
-                const hasRefreshed = await next(...args);
+            async ({ next }) => {
+                const hasRefreshed = await next();
                 if (hasRefreshed) {
                     this._ttl = TimeSpan.fromTimeSpan(ttl);
                 }
                 return hasRefreshed;
             },
-        ]).invoke();
+        ])();
     }
 
     async refreshReaderOrFail(ttl?: ITimeSpan): Promise<void> {
@@ -428,7 +386,7 @@ export class SharedLock implements ISharedLock {
     }
 
     acquireWriter(): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.acquireWriter(
                 this.executionContext,
                 this._key.toString(),
@@ -436,22 +394,26 @@ export class SharedLock implements ISharedLock {
                 this._ttl,
             );
         }, [
-            this.handleUnexpectedError(),
-            this.handleDispatch({
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            handleDispatch({
                 on: "true",
                 eventName: SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
                 eventData: {
                     sharedLock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-            this.handleDispatch({
+            handleDispatch({
                 on: "false",
                 eventName: SHARED_LOCK_EVENTS.UNAVAILABLE,
                 eventData: {
                     sharedLock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-        ]).invoke();
+        ])();
     }
 
     async acquireWriterOrFail(): Promise<void> {
@@ -491,29 +453,33 @@ export class SharedLock implements ISharedLock {
     }
 
     releaseWriter(): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.releaseWriter(
                 this.executionContext,
                 this._key.toString(),
                 this.lockId,
             );
         }, [
-            this.handleUnexpectedError(),
-            this.handleDispatch({
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            handleDispatch({
                 on: "true",
                 eventName: SHARED_LOCK_EVENTS.WRITER_RELEASED,
                 eventData: {
                     sharedLock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-            this.handleDispatch({
+            handleDispatch({
                 on: "false",
                 eventName: SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
                 eventData: {
                     sharedLock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-        ]).invoke();
+        ])();
     }
 
     async releaseWriterOrFail(): Promise<void> {
@@ -524,15 +490,15 @@ export class SharedLock implements ISharedLock {
     }
 
     forceReleaseWriter(): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.forceReleaseWriter(
                 this.executionContext,
                 this._key.toString(),
             );
         }, [
-            this.handleUnexpectedError(),
-            async (args, next) => {
-                const hasReleased = await next(...args);
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            async ({ next }) => {
+                const hasReleased = await next();
                 callInvokable(
                     this.waitUntil,
                     this.eventDispatcher.dispatch(
@@ -545,11 +511,11 @@ export class SharedLock implements ISharedLock {
                 );
                 return hasReleased;
             },
-        ]).invoke();
+        ])();
     }
 
     refreshWriter(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.refreshWriter(
                 this.executionContext,
                 this._key.toString(),
@@ -557,29 +523,33 @@ export class SharedLock implements ISharedLock {
                 TimeSpan.fromTimeSpan(ttl),
             );
         }, [
-            this.handleUnexpectedError(),
-            this.handleDispatch({
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            handleDispatch({
                 on: "true",
                 eventName: SHARED_LOCK_EVENTS.WRITER_REFRESHED,
                 eventData: {
                     sharedLock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-            this.handleDispatch({
+            handleDispatch({
                 on: "false",
                 eventName: SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
                 eventData: {
                     sharedLock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-            async (args, next) => {
-                const hasRefreshed = await next(...args);
+            async ({ next }) => {
+                const hasRefreshed = await next();
                 if (hasRefreshed) {
                     this._ttl = TimeSpan.fromTimeSpan(ttl);
                 }
                 return hasRefreshed;
             },
-        ]).invoke();
+        ])();
     }
 
     async refreshWriterOrFail(ttl?: ITimeSpan): Promise<void> {
@@ -602,16 +572,18 @@ export class SharedLock implements ISharedLock {
     }
 
     forceRelease(): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.forceRelease(
                 this.executionContext,
                 this._key.toString(),
             );
-        }, [this.handleUnexpectedError()]).invoke();
+        }, [
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+        ])();
     }
 
     getState(): Promise<ISharedLockState> {
-        return new AsyncHooks<[], ISharedLockState>(async () => {
+        return this.use<[], Promise<ISharedLockState>>(async () => {
             const state = await this.adapter.getState(
                 this.executionContext,
                 this._key.toString(),
@@ -686,6 +658,8 @@ export class SharedLock implements ISharedLock {
             throw new UnexpectedError(
                 "Invalid ISharedLockAdapterState, expected either the reader field must be defined or the writer field must be defined, but not both.",
             );
-        }, [this.handleUnexpectedError()]).invoke();
+        }, [
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+        ])();
     }
 }

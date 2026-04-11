@@ -52,7 +52,7 @@ export type RateLimiterStorageAdapterTestSuiteSettings = {
  * import { afterEach, beforeEach, describe, expect, test } from "vitest";
  * import { rateLimiterStorageAdapterTestSuite } from "@daiso-tech/core/rate-limiter/test-utilities";
  * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
- * import { TimeSpan } from "@daiso-tech/core/time-span" from "@daiso-tech/core/time-span";
+ * import { TimeSpan } from "@daiso-tech/core/time-span";
  * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
  * import { Serde } from "@daiso-tech/core/serde";
  *

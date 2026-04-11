@@ -170,6 +170,10 @@ export class MemorySharedLockAdapter
         if (writerLock.owner !== lockId) {
             return Promise.resolve(false);
         }
+        // Check expiration: if expired, cannot release
+        if (writerLock.hasExpiration && writerLock.expiration <= new Date()) {
+            return Promise.resolve(false);
+        }
 
         if (writerLock.hasExpiration) {
             clearTimeout(writerLock.timeoutId);
@@ -191,6 +195,10 @@ export class MemorySharedLockAdapter
         const writerLock = sharedLock?.writerLock ?? null;
 
         if (writerLock === null) {
+            return Promise.resolve(false);
+        }
+        // Check expiration: if expired, cannot force release
+        if (writerLock.hasExpiration && writerLock.expiration <= new Date()) {
             return Promise.resolve(false);
         }
 
@@ -220,6 +228,10 @@ export class MemorySharedLockAdapter
             return Promise.resolve(false);
         }
         if (writerLock.owner !== lockId) {
+            return Promise.resolve(false);
+        }
+        // Check expiration: if expired, cannot refresh
+        if (writerLock.hasExpiration && writerLock.expiration <= new Date()) {
             return Promise.resolve(false);
         }
         if (!writerLock.hasExpiration) {
@@ -313,6 +325,10 @@ export class MemorySharedLockAdapter
         if (slot === undefined) {
             return Promise.resolve(false);
         }
+        // Check expiration: if expired, cannot release
+        if (slot.expiration !== null && slot.expiration <= new Date()) {
+            return Promise.resolve(false);
+        }
 
         if (slot.timeoutId !== null) {
             clearTimeout(slot.timeoutId);
@@ -346,8 +362,12 @@ export class MemorySharedLockAdapter
             return Promise.resolve(false);
         }
         const hasSlots = readerSemaphore.slots.size > 0;
-        for (const [slotId, { timeoutId }] of readerSemaphore.slots) {
-            clearTimeout(timeoutId ?? undefined);
+        for (const [slotId, slot] of readerSemaphore.slots) {
+            // Check expiration: if expired, skip force release
+            if (slot.expiration !== null && slot.expiration <= new Date()) {
+                continue;
+            }
+            clearTimeout(slot.timeoutId ?? undefined);
             readerSemaphore.slots.delete(slotId);
         }
         this.map.delete(key);
@@ -372,6 +392,10 @@ export class MemorySharedLockAdapter
         }
         const slot = readerSemaphore.slots.get(lockId);
         if (slot === undefined) {
+            return Promise.resolve(false);
+        }
+        // Check expiration: if expired, cannot refresh
+        if (slot.expiration !== null && slot.expiration <= new Date()) {
             return Promise.resolve(false);
         }
         if (slot.timeoutId === null) {

@@ -4,6 +4,7 @@
 
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type Use } from "@/middleware/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type ISemaphoreAdapter,
@@ -36,6 +37,7 @@ export type SemaphoreSerdeTransformerSettings = {
     serdeTransformerName: string;
     waitUntil: WaitUntil;
     executionContext: IExecutionContext;
+    use: Use;
 };
 
 /**
@@ -54,6 +56,7 @@ export class SemaphoreSerdeTransformer
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
+    private readonly use: Use;
 
     constructor(settings: SemaphoreSerdeTransformerSettings) {
         const {
@@ -67,8 +70,10 @@ export class SemaphoreSerdeTransformer
             serdeTransformerName,
             waitUntil,
             executionContext,
+            use,
         } = settings;
 
+        this.use = use;
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
@@ -121,6 +126,7 @@ export class SemaphoreSerdeTransformer
         const { key, slotId, limit, ttlInMs } = serializedValue;
         const keyObj = this.namespace.create(key);
         return new Semaphore({
+            use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             slotId,

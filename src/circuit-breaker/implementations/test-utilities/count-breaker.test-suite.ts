@@ -27,7 +27,7 @@ import { NoOpExecutionContextAdapter } from "@/execution-context/implementations
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay as delay_, type Promisable } from "@/utilities/_module.js";
+import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/test-utilities"`
@@ -138,8 +138,8 @@ export function countBreakerTestSuite(
         });
 
         const KEY = "a";
-        async function delay(timeSpan: ITimeSpan): Promise<void> {
-            await delay_(
+        async function delayWithBuffer(timeSpan: ITimeSpan): Promise<void> {
+            await delay(
                 TimeSpan.fromTimeSpan(timeSpan).addTimeSpan(delayBuffer),
             );
         }
@@ -231,7 +231,7 @@ export function countBreakerTestSuite(
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
-                await delay(waitTime);
+                await delayWithBuffer(waitTime);
                 await adapter.updateState(context, KEY);
 
                 const state = await adapter.getState(context, KEY);
@@ -374,7 +374,7 @@ export function countBreakerTestSuite(
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
-                await delay(waitTime.divide(2));
+                await delayWithBuffer(waitTime.divide(2));
                 const state = await adapter.updateState(context, KEY);
 
                 expect(state).toEqual({
@@ -401,7 +401,7 @@ export function countBreakerTestSuite(
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
-                await delay(waitTime);
+                await delayWithBuffer(waitTime);
                 const state = await adapter.updateState(context, KEY);
 
                 expect(state).toEqual({
@@ -557,7 +557,7 @@ export function countBreakerTestSuite(
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
-                await delay(waitTime.divide(2));
+                await delayWithBuffer(waitTime.divide(2));
                 const state = await adapter.updateState(context, KEY);
 
                 expect(state).toEqual({
@@ -596,7 +596,7 @@ export function countBreakerTestSuite(
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
-                await delay(waitTime);
+                await delayWithBuffer(waitTime);
                 const state = await adapter.updateState(context, KEY);
 
                 expect(state).toEqual({
@@ -623,7 +623,7 @@ export function countBreakerTestSuite(
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
-                await delay(waitTime);
+                await delayWithBuffer(waitTime);
                 await adapter.updateState(context, KEY);
 
                 await adapter.trackSuccess(context, KEY);
@@ -653,7 +653,7 @@ export function countBreakerTestSuite(
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
-                await delay(waitTime);
+                await delayWithBuffer(waitTime);
                 await adapter.updateState(context, KEY);
 
                 await adapter.trackSuccess(context, KEY);
@@ -695,7 +695,7 @@ export function countBreakerTestSuite(
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
-                await delay(waitTime);
+                await delayWithBuffer(waitTime);
                 await adapter.updateState(context, KEY);
 
                 await adapter.trackFailure(context, KEY);
@@ -737,7 +737,7 @@ export function countBreakerTestSuite(
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
-                await delay(waitTime);
+                await delayWithBuffer(waitTime);
                 await adapter.updateState(context, KEY);
 
                 await adapter.trackFailure(context, KEY);
@@ -782,7 +782,7 @@ export function countBreakerTestSuite(
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
-                await delay(waitTime);
+                await delayWithBuffer(waitTime);
                 await adapter.updateState(context, KEY);
 
                 await adapter.trackFailure(context, KEY);
@@ -892,7 +892,7 @@ export function countBreakerTestSuite(
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
-                await delay(waitTime);
+                await delayWithBuffer(waitTime);
                 await adapter.updateState(context, KEY);
 
                 await adapter.isolate(context, KEY);
@@ -991,7 +991,7 @@ export function countBreakerTestSuite(
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
-                await delay(waitTime);
+                await delayWithBuffer(waitTime);
                 await adapter.updateState(context, KEY);
 
                 await adapter.reset(context, KEY);

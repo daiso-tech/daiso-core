@@ -4,7 +4,6 @@
 
 import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { AsyncHooks, type AsyncMiddlewareFn } from "@/hooks/_module.js";
 import {
     type ILock,
     type ILockAdapter,
@@ -15,13 +14,17 @@ import {
     type LockAquireBlockingSettings,
     type LockEventMap,
     LOCK_STATE,
-    isLockError,
     type ILockState,
     type ILockExpiredState,
     type ILockAcquiredState,
     type ILockUnavailableState,
     type LockAdapterVariants,
 } from "@/lock/contracts/_module.js";
+import {
+    handleDispatch,
+    handleUnexpectedError,
+} from "@/lock/implementations/derivables/lock-factory/event-helpers.js";
+import { type Use } from "@/middleware/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -60,6 +63,7 @@ export type LockSettings = {
     defaultRefreshTime: TimeSpan;
     waitUntil: WaitUntil;
     executionContext: IExecutionContext;
+    use: Use;
 };
 
 /**
@@ -91,6 +95,7 @@ export class Lock implements ILock {
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
+    private readonly use: Use;
 
     constructor(settings: LockSettings) {
         const {
@@ -107,8 +112,10 @@ export class Lock implements ILock {
             defaultRefreshTime,
             waitUntil,
             executionContext,
+            use,
         } = settings;
 
+        this.use = use;
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.namespace = namespace;
@@ -159,69 +166,8 @@ export class Lock implements ILock {
         }
     }
 
-    private handleUnexpectedError = <
-        TParameters extends Array<unknown>,
-        TReturn,
-    >(): AsyncMiddlewareFn<TParameters, TReturn> => {
-        return async (args, next) => {
-            try {
-                return await next(...args);
-            } catch (error: unknown) {
-                if (isLockError(error)) {
-                    throw error;
-                }
-
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        LOCK_EVENTS.UNEXPECTED_ERROR,
-                        {
-                            error,
-                            lock: this,
-                        },
-                    ),
-                );
-
-                throw error;
-            }
-        };
-    };
-
-    private handleDispatch = <
-        TParameters extends Array<unknown>,
-        TEventName extends keyof LockEventMap,
-        TEvent extends LockEventMap[TEventName],
-    >(settings: {
-        on: "true" | "false";
-        eventName: TEventName;
-        eventData: TEvent;
-    }): AsyncMiddlewareFn<TParameters, boolean> => {
-        return async (args, next) => {
-            const result = await next(...args);
-            if (result && settings.on === "true") {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        settings.eventName,
-                        settings.eventData,
-                    ),
-                );
-            }
-            if (!result && settings.on === "false") {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        settings.eventName,
-                        settings.eventData,
-                    ),
-                );
-            }
-            return result;
-        };
-    };
-
     async acquire(): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.acquire(
                 this.executionContext,
                 this._key.toString(),
@@ -229,22 +175,26 @@ export class Lock implements ILock {
                 this._ttl,
             );
         }, [
-            this.handleUnexpectedError(),
-            this.handleDispatch({
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            handleDispatch({
                 on: "true",
                 eventName: LOCK_EVENTS.ACQUIRED,
                 eventData: {
                     lock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-            this.handleDispatch({
+            handleDispatch({
                 on: "false",
                 eventName: LOCK_EVENTS.UNAVAILABLE,
                 eventData: {
                     lock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-        ]).invoke();
+        ])();
     }
 
     async acquireOrFail(): Promise<void> {
@@ -285,29 +235,33 @@ export class Lock implements ILock {
     }
 
     async release(): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.release(
                 this.executionContext,
                 this._key.toString(),
                 this.lockId,
             );
         }, [
-            this.handleUnexpectedError(),
-            this.handleDispatch({
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            handleDispatch({
                 on: "true",
                 eventName: LOCK_EVENTS.RELEASED,
                 eventData: {
                     lock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-            this.handleDispatch({
+            handleDispatch({
                 on: "false",
                 eventName: LOCK_EVENTS.FAILED_RELEASE,
                 eventData: {
                     lock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-        ]).invoke();
+        ])();
     }
 
     async releaseOrFail(): Promise<void> {
@@ -318,15 +272,15 @@ export class Lock implements ILock {
     }
 
     async forceRelease(): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.forceRelease(
                 this.executionContext,
                 this._key.toString(),
             );
         }, [
-            this.handleUnexpectedError(),
-            async (args, next) => {
-                const hasReleased = await next(...args);
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            async ({ next }) => {
+                const hasReleased = await next();
                 callInvokable(
                     this.waitUntil,
                     this.eventDispatcher.dispatch(LOCK_EVENTS.FORCE_RELEASED, {
@@ -336,11 +290,11 @@ export class Lock implements ILock {
                 );
                 return hasReleased;
             },
-        ]).invoke();
+        ])();
     }
 
     async refresh(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.refresh(
                 this.executionContext,
                 this._key.toString(),
@@ -348,29 +302,33 @@ export class Lock implements ILock {
                 TimeSpan.fromTimeSpan(ttl),
             );
         }, [
-            this.handleUnexpectedError(),
-            this.handleDispatch({
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            handleDispatch({
                 on: "true",
                 eventName: LOCK_EVENTS.REFRESHED,
                 eventData: {
                     lock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-            this.handleDispatch({
+            handleDispatch({
                 on: "false",
                 eventName: LOCK_EVENTS.FAILED_REFRESH,
                 eventData: {
                     lock: this,
                 },
+                waitUntil: this.waitUntil,
+                eventDispatcher: this.eventDispatcher,
             }),
-            async (args, next) => {
-                const hasRefreshed = await next(...args);
+            async ({ next }) => {
+                const hasRefreshed = await next();
                 if (hasRefreshed) {
                     this._ttl = TimeSpan.fromTimeSpan(ttl);
                 }
                 return hasRefreshed;
             },
-        ]).invoke();
+        ])();
     }
 
     async refreshOrFail(ttl?: ITimeSpan): Promise<void> {
@@ -393,7 +351,7 @@ export class Lock implements ILock {
     }
 
     async getState(): Promise<ILockState> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             const state = await this.adapter.getState(
                 this.executionContext,
                 this._key.toString(),
@@ -419,6 +377,8 @@ export class Lock implements ILock {
                 type: LOCK_STATE.UNAVAILABLE,
                 owner: state.owner,
             } satisfies ILockUnavailableState;
-        }, [this.handleUnexpectedError()]).invoke();
+        }, [
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+        ])();
     }
 }

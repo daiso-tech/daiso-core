@@ -4,7 +4,7 @@
 
 import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { AsyncHooks, type AsyncMiddlewareFn } from "@/hooks/_module.js";
+import { type Use } from "@/middleware/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type ISemaphoreAdapter,
@@ -17,9 +17,12 @@ import {
     FailedReleaseSemaphoreError,
     SEMAPHORE_EVENTS,
     SEMAPHORE_STATE,
-    isSemaphoreError,
     type ISemaphoreState,
 } from "@/semaphore/contracts/_module.js";
+import {
+    handleDispatch,
+    handleUnexpectedError,
+} from "@/semaphore/implementations/derivables/semaphore-factory/event-helpers.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
@@ -59,6 +62,7 @@ export type SemaphoreSettings = {
     namespace: INamespace;
     waitUntil: WaitUntil;
     executionContext: IExecutionContext;
+    use: Use;
 };
 
 /**
@@ -94,6 +98,7 @@ export class Semaphore implements ISemaphore {
     private readonly namespace: INamespace;
     private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
+    private readonly use: Use;
 
     constructor(settings: SemaphoreSettings) {
         const {
@@ -111,8 +116,10 @@ export class Semaphore implements ISemaphore {
             namespace,
             waitUntil,
             executionContext,
+            use,
         } = settings;
 
+        this.use = use;
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.namespace = namespace;
@@ -164,69 +171,8 @@ export class Semaphore implements ISemaphore {
         }
     }
 
-    private handleUnexpectedError = <
-        TParameters extends Array<unknown>,
-        TReturn,
-    >(): AsyncMiddlewareFn<TParameters, TReturn> => {
-        return async (args, next) => {
-            try {
-                return await next(...args);
-            } catch (error: unknown) {
-                if (isSemaphoreError(error)) {
-                    throw error;
-                }
-
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        SEMAPHORE_EVENTS.UNEXPECTED_ERROR,
-                        {
-                            error,
-                            semaphore: this,
-                        },
-                    ),
-                );
-
-                throw error;
-            }
-        };
-    };
-
-    private handleDispatch = <
-        TParameters extends Array<unknown>,
-        TEventName extends keyof SemaphoreEventMap,
-        TEvent extends SemaphoreEventMap[TEventName],
-    >(settings: {
-        on: "true" | "false";
-        eventName: TEventName;
-        eventData: TEvent;
-    }): AsyncMiddlewareFn<TParameters, boolean> => {
-        return async (args, next) => {
-            const result = await next(...args);
-            if (result && settings.on === "true") {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        settings.eventName,
-                        settings.eventData,
-                    ),
-                );
-            }
-            if (!result && settings.on === "false") {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        settings.eventName,
-                        settings.eventData,
-                    ),
-                );
-            }
-            return result;
-        };
-    };
-
     acquire(): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.acquire({
                 context: this.executionContext,
                 key: this._key.toString(),
@@ -235,22 +181,26 @@ export class Semaphore implements ISemaphore {
                 ttl: this._ttl,
             });
         }, [
-            this.handleUnexpectedError(),
-            this.handleDispatch({
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            handleDispatch({
                 on: "true",
                 eventName: SEMAPHORE_EVENTS.ACQUIRED,
                 eventData: {
                     semaphore: this,
                 },
+                eventDispatcher: this.eventDispatcher,
+                waitUntil: this.waitUntil,
             }),
-            this.handleDispatch({
+            handleDispatch({
                 on: "false",
                 eventName: SEMAPHORE_EVENTS.LIMIT_REACHED,
                 eventData: {
                     semaphore: this,
                 },
+                eventDispatcher: this.eventDispatcher,
+                waitUntil: this.waitUntil,
             }),
-        ]).invoke();
+        ])();
     }
 
     async acquireOrFail(): Promise<void> {
@@ -291,29 +241,33 @@ export class Semaphore implements ISemaphore {
     }
 
     release(): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.release(
                 this.executionContext,
                 this._key.toString(),
                 this.slotId,
             );
         }, [
-            this.handleUnexpectedError(),
-            this.handleDispatch({
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            handleDispatch({
                 on: "true",
                 eventName: SEMAPHORE_EVENTS.RELEASED,
                 eventData: {
                     semaphore: this,
                 },
+                eventDispatcher: this.eventDispatcher,
+                waitUntil: this.waitUntil,
             }),
-            this.handleDispatch({
+            handleDispatch({
                 on: "false",
                 eventName: SEMAPHORE_EVENTS.FAILED_RELEASE,
                 eventData: {
                     semaphore: this,
                 },
+                eventDispatcher: this.eventDispatcher,
+                waitUntil: this.waitUntil,
             }),
-        ]).invoke();
+        ])();
     }
 
     async releaseOrFail(): Promise<void> {
@@ -324,15 +278,15 @@ export class Semaphore implements ISemaphore {
     }
 
     forceReleaseAll(): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.forceReleaseAll(
                 this.executionContext,
                 this._key.toString(),
             );
         }, [
-            this.handleUnexpectedError(),
-            async (args, next) => {
-                const hasReleased = await next(...args);
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            async ({ next }) => {
+                const hasReleased = await next();
                 callInvokable(
                     this.waitUntil,
                     this.eventDispatcher.dispatch(
@@ -345,11 +299,11 @@ export class Semaphore implements ISemaphore {
                 );
                 return hasReleased;
             },
-        ]).invoke();
+        ])();
     }
 
     refresh(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             return await this.adapter.refresh(
                 this.executionContext,
                 this._key.toString(),
@@ -357,29 +311,33 @@ export class Semaphore implements ISemaphore {
                 TimeSpan.fromTimeSpan(ttl),
             );
         }, [
-            this.handleUnexpectedError(),
-            this.handleDispatch({
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+            handleDispatch({
                 on: "true",
                 eventName: SEMAPHORE_EVENTS.REFRESHED,
                 eventData: {
                     semaphore: this,
                 },
+                eventDispatcher: this.eventDispatcher,
+                waitUntil: this.waitUntil,
             }),
-            this.handleDispatch({
+            handleDispatch({
                 on: "false",
                 eventName: SEMAPHORE_EVENTS.FAILED_REFRESH,
                 eventData: {
                     semaphore: this,
                 },
+                eventDispatcher: this.eventDispatcher,
+                waitUntil: this.waitUntil,
             }),
-            async (args, next) => {
-                const hasRefreshed = await next(...args);
+            async ({ next }) => {
+                const hasRefreshed = await next();
                 if (hasRefreshed) {
                     this._ttl = TimeSpan.fromTimeSpan(ttl);
                 }
                 return hasRefreshed;
             },
-        ]).invoke();
+        ])();
     }
 
     async refreshOrFail(ttl?: ITimeSpan): Promise<void> {
@@ -402,7 +360,7 @@ export class Semaphore implements ISemaphore {
     }
 
     getState(): Promise<ISemaphoreState> {
-        return new AsyncHooks(async () => {
+        return this.use(async () => {
             const state = await this.adapter.getState(
                 this.executionContext,
                 this._key.toString(),
@@ -446,6 +404,8 @@ export class Semaphore implements ISemaphore {
                               end: slot,
                           }),
             };
-        }, [this.handleUnexpectedError()]).invoke();
+        }, [
+            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
+        ])();
     }
 }

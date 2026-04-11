@@ -27,7 +27,7 @@ import {
 import { type IKey } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay as delay_, type Promisable } from "@/utilities/_module.js";
+import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/cache/test-utilities"`
@@ -108,12 +108,15 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
         cache = (await createCache()) as ICache<number>;
     });
 
-    async function delayWithBuffer(ttl: ITimeSpan): Promise<void> {
-        await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
-    }
+    const waitForSettings = {
+        interval: TimeSpan.fromTimeSpan(eventDispatchWaitTime).toMilliseconds(),
+        timeout: TimeSpan.fromTimeSpan(eventDispatchWaitTime)
+            .multiply(3)
+            .toMilliseconds(),
+    };
 
-    async function delayExact(ttl: ITimeSpan): Promise<void> {
-        await delay_(TimeSpan.fromTimeSpan(ttl));
+    async function delayWithBuffer(ttl: ITimeSpan): Promise<void> {
+        await delay(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
     const TTL = TimeSpan.fromMilliseconds(50);
@@ -1534,19 +1537,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const key = "a";
                     await cache.exists(key);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
                 test("Should dispatch FoundCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn((_event: FoundCacheEvent) => {});
@@ -1559,20 +1564,22 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.exists(key);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value,
+                        } satisfies FoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value,
-                    } satisfies FoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: missing", () => {
@@ -1585,19 +1592,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const key = "a";
                     await cache.missing(key);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
                 test("Should dispatch FoundCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn((_event: FoundCacheEvent) => {});
@@ -1610,20 +1619,22 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.missing(key);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value,
+                        } satisfies FoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value,
-                    } satisfies FoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: get", () => {
@@ -1636,19 +1647,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const key = "a";
                     await cache.get(key);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
                 test("Should dispatch FoundCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn((_event: FoundCacheEvent) => {});
@@ -1661,20 +1674,22 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.get(key);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value,
+                        } satisfies FoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value,
-                    } satisfies FoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: getOr", () => {
@@ -1687,19 +1702,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const key = "a";
                     await cache.getOr(key, -1);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
                 test("Should dispatch FoundCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn((_event: FoundCacheEvent) => {});
@@ -1712,20 +1729,22 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.getOr(key, -1);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value,
+                        } satisfies FoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value,
-                    } satisfies FoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: getOrFail", () => {
@@ -1742,19 +1761,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
                 test("Should dispatch FoundCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn((_event: FoundCacheEvent) => {});
@@ -1767,20 +1788,22 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.getOrFail(key);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value,
+                        } satisfies FoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value,
-                    } satisfies FoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: add", () => {
@@ -1794,24 +1817,28 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     const value = 1;
                     await cache.add(key, value, { ttl: TTL });
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value,
+                            ttl: expect.any(TimeSpan) as TimeSpan,
+                        } satisfies AddedCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value,
-                        ttl: expect.any(TimeSpan) as TimeSpan,
-                    } satisfies AddedCacheEvent);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
 
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
-
-                    const ttl_ = handlerFn.mock.calls[0]?.[0].ttl;
-                    expect(ttl_?.toMilliseconds()).toBe(TTL.toMilliseconds());
+                        const ttl_ = handlerFn.mock.calls[0]?.[0].ttl;
+                        expect(ttl_?.toMilliseconds()).toBe(
+                            TTL.toMilliseconds(),
+                        );
+                    }, waitForSettings);
                 });
             });
             describe("method: update", () => {
@@ -1825,19 +1852,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     const value = 1;
                     await cache.update(key, value);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
                 test("Should dispatch UpdatedCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn((_event: UpdatedCacheEvent) => {});
@@ -1851,20 +1880,22 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1);
                     const value2 = 2;
                     await cache.update(key, value2);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value: value2,
+                        } satisfies UpdatedCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value: value2,
-                    } satisfies UpdatedCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: updateOrFail", () => {
@@ -1882,19 +1913,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
                 test("Should dispatch UpdatedCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn((_event: UpdatedCacheEvent) => {});
@@ -1908,20 +1941,22 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1);
                     const value2 = 2;
                     await cache.updateOrFail(key, value2);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value: value2,
+                        } satisfies UpdatedCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value: value2,
-                    } satisfies UpdatedCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: put", () => {
@@ -1935,24 +1970,28 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     const value = 1;
                     await cache.put(key, value, { ttl: TTL });
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value,
+                            ttl: expect.any(TimeSpan) as TimeSpan,
+                        } satisfies AddedCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value,
-                        ttl: expect.any(TimeSpan) as TimeSpan,
-                    } satisfies AddedCacheEvent);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
 
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
-
-                    const ttl = handlerFn.mock.calls[0]?.[0].ttl;
-                    expect(ttl?.toMilliseconds()).toBe(ttl?.toMilliseconds());
+                        const ttl = handlerFn.mock.calls[0]?.[0].ttl;
+                        expect(ttl?.toMilliseconds()).toBe(
+                            ttl?.toMilliseconds(),
+                        );
+                    }, waitForSettings);
                 });
                 test("Should dispatch UpdatedCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn((_event: UpdatedCacheEvent) => {});
@@ -1965,20 +2004,22 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.put(key, value, { ttl: TTL });
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value,
+                        } satisfies UpdatedCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value,
-                    } satisfies UpdatedCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: remove", () => {
@@ -1991,16 +2032,18 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const key = "a";
                     await cache.remove(key);
-                    await delayExact(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
+                    }, waitForSettings);
 
                     const keyObj = handlerFn.mock.calls[0]?.[0].key;
                     expect(keyObj?.get()).toBe(key);
@@ -2016,19 +2059,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.remove(key);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies RemovedCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies RemovedCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: removeOrFail", () => {
@@ -2045,19 +2090,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
                 test("Should dispatch RemovedCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn((_event: RemovedCacheEvent) => {});
@@ -2070,19 +2117,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.removeOrFail(key);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies RemovedCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies RemovedCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: removeMany", () => {
@@ -2099,22 +2148,24 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key1, value);
 
                     await cache.removeMany([key1, key2]);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledTimes(2);
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies RemovedCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledTimes(2);
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies RemovedCacheEvent);
+                        const keyObj1 = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj1?.get()).toBe("a");
 
-                    const keyObj1 = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj1?.get()).toBe("a");
-
-                    const keyObj2 = handlerFn.mock.calls[1]?.[0].key;
-                    expect(keyObj2?.get()).toBe("b");
+                        const keyObj2 = handlerFn.mock.calls[1]?.[0].key;
+                        expect(keyObj2?.get()).toBe("b");
+                    }, waitForSettings);
                 });
                 test("Should dispatch NotFoundCacheEvent when all keys doesnt exists", async () => {
                     const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
@@ -2126,22 +2177,24 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key1 = "a";
                     const key2 = "b";
                     await cache.removeMany([key1, key2]);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledTimes(2);
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledTimes(2);
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
+                        const keyObj1 = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj1?.get()).toBe("a");
 
-                    const keyObj1 = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj1?.get()).toBe("a");
-
-                    const keyObj2 = handlerFn.mock.calls[1]?.[0].key;
-                    expect(keyObj2?.get()).toBe("b");
+                        const keyObj2 = handlerFn.mock.calls[1]?.[0].key;
+                        expect(keyObj2?.get()).toBe("b");
+                    }, waitForSettings);
                 });
             });
             describe("method: getAndRemove", () => {
@@ -2154,19 +2207,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const key = "a";
                     await cache.getAndRemove(key);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
                 test("Should not dispatch FoundCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn((_event: FoundCacheEvent) => {});
@@ -2179,8 +2234,8 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.getAndRemove(key);
-                    await delayExact(eventDispatchWaitTime);
 
+                    await delay(eventDispatchWaitTime);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should dispatch RemovedCacheEvent when key exists", async () => {
@@ -2194,19 +2249,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.getAndRemove(key);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies RemovedCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies RemovedCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: getOrAdd", () => {
@@ -2220,8 +2277,8 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     const value = 1;
                     await cache.getOrAdd(key, value);
-                    await delayExact(eventDispatchWaitTime);
 
+                    await delay(eventDispatchWaitTime);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should dispatch FoundCacheEvent when key exists", async () => {
@@ -2235,20 +2292,22 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     await cache.add(key, value);
                     await cache.getOrAdd(key, value);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value,
+                        } satisfies FoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value,
-                    } satisfies FoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
                 test("Should dispatch AddedCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn((_event: AddedCacheEvent) => {});
@@ -2260,24 +2319,28 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     const value = 1;
                     await cache.getOrAdd(key, value, { ttl: TTL });
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value,
+                            ttl: expect.any(TimeSpan) as TimeSpan,
+                        } satisfies AddedCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value,
-                        ttl: expect.any(TimeSpan) as TimeSpan,
-                    } satisfies AddedCacheEvent);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
 
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
-
-                    const ttl = handlerFn.mock.calls[0]?.[0].ttl;
-                    expect(ttl?.toMilliseconds()).toBe(TTL.toMilliseconds());
+                        const ttl = handlerFn.mock.calls[0]?.[0].ttl;
+                        expect(ttl?.toMilliseconds()).toBe(
+                            TTL.toMilliseconds(),
+                        );
+                    }, waitForSettings);
                 });
             });
             describe("method: increment", () => {
@@ -2291,19 +2354,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     const value = 1;
                     await cache.increment(key, value);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
                 test("Should dispatch IncrementedCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn(
@@ -2319,20 +2384,22 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1);
                     const value2 = 2;
                     await cache.increment(key, value2);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value: value2,
+                        } satisfies IncrementedCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value: value2,
-                    } satisfies IncrementedCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: incrementOrFail", () => {
@@ -2350,19 +2417,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
                 test("Should dispatch IncrementedCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn(
@@ -2378,20 +2447,22 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1);
                     const value2 = 2;
                     await cache.incrementOrFail(key, value2);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value: value2,
+                        } satisfies IncrementedCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value: value2,
-                    } satisfies IncrementedCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: decrement", () => {
@@ -2405,19 +2476,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     const value = 1;
                     await cache.decrement(key, value);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
                 test("Should dispatch DecrementedCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn(
@@ -2433,20 +2506,22 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1);
                     const value2 = 2;
                     await cache.decrement(key, value2);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value: value2,
+                        } satisfies DecrementedCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value: value2,
-                    } satisfies DecrementedCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: decrementOrFail", () => {
@@ -2464,19 +2539,21 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     } catch {
                         /* EMPTY */
                     }
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                        } satisfies NotFoundCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                    } satisfies NotFoundCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
                 test("Should dispatch DecrementedCacheEvent when key exists", async () => {
                     const handlerFn = vi.fn(
@@ -2492,20 +2569,22 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1);
                     const value2 = 2;
                     await cache.decrementOrFail(key, value2);
-                    await delayExact(eventDispatchWaitTime);
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith({
+                            key: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            value: value2,
+                        } satisfies DecrementedCacheEvent);
 
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith({
-                        key: expect.objectContaining({
-                            get: expect.any(Function) as IKey["get"],
-                            toString: expect.any(Function) as IKey["toString"],
-                            equals: expect.any(Function) as IKey["equals"],
-                        } satisfies IKey) as IKey,
-                        value: value2,
-                    } satisfies DecrementedCacheEvent);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
+                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
+                        expect(keyObj?.get()).toBe(key);
+                    }, waitForSettings);
                 });
             });
             describe("method: clear", () => {
@@ -2520,10 +2599,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add("b", 2);
                     await cache.add("c", 3);
                     await cache.clear();
-                    await delayExact(eventDispatchWaitTime);
-
-                    expect(handler).toHaveBeenCalledOnce();
-                    expect(handler).toHaveBeenCalledWith({});
+                    await vi.waitFor(() => {
+                        expect(handler).toHaveBeenCalledOnce();
+                        expect(handler).toHaveBeenCalledWith({});
+                    }, waitForSettings);
                 });
             });
         });

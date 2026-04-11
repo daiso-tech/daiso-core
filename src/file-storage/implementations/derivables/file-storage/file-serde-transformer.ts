@@ -13,6 +13,7 @@ import {
     File,
     type ISerializedFile,
 } from "@/file-storage/implementations/derivables/file-storage/file.js";
+import { type Use } from "@/middleware/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import {
@@ -40,6 +41,7 @@ export type FileSerdeTransformerSettings = {
     onlyLowercase: boolean;
     keyValidator: InvokableFn<[key: string], string | null>;
     executionContext: IExecutionContext;
+    use: Use;
 };
 
 /**
@@ -62,6 +64,7 @@ export class FileSerdeTransformer
     private readonly defaultCacheControl: string | null;
     private readonly defaultContentLanguage: string | null;
     private readonly executionContext: IExecutionContext;
+    private readonly use: Use;
 
     constructor(settings: FileSerdeTransformerSettings) {
         const {
@@ -79,8 +82,10 @@ export class FileSerdeTransformer
             originalAdapter,
             waitUntil,
             executionContext,
+            use,
         } = settings;
 
+        this.use = use;
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;
@@ -137,6 +142,7 @@ export class FileSerdeTransformer
         const keyObj = this.namespace.create(key);
 
         return new File({
+            use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,

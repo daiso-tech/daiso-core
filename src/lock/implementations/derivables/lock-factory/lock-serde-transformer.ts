@@ -13,6 +13,7 @@ import {
     Lock,
     type ISerializedLock,
 } from "@/lock/implementations/derivables/lock-factory/lock.js";
+import { type Use } from "@/middleware/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -36,6 +37,7 @@ export type LockSerdeTransformerSettings = {
     serdeTransformerName: string;
     waitUntil: WaitUntil;
     executionContext: IExecutionContext;
+    use: Use;
 };
 
 /**
@@ -54,6 +56,7 @@ export class LockSerdeTransformer
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
+    private readonly use: Use;
 
     constructor(settings: LockSerdeTransformerSettings) {
         const {
@@ -67,8 +70,10 @@ export class LockSerdeTransformer
             serdeTransformerName,
             waitUntil,
             executionContext,
+            use,
         } = settings;
 
+        this.use = use;
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
@@ -121,6 +126,7 @@ export class LockSerdeTransformer
         const keyObj = this.namespace.create(key);
 
         return new Lock({
+            use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             namespace: this.namespace,

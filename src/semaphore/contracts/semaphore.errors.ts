@@ -113,7 +113,7 @@ export type AllSemaphoreErrors = InferInstance<
 export function isSemaphoreError(value: unknown): value is AllSemaphoreErrors {
     for (const ErrorClass of Object.values(SEMAPHORE_ERRORS)) {
         if (value instanceof ErrorClass) {
-            return false;
+            return true;
         }
     }
     return false;

@@ -26,7 +26,7 @@ import {
 } from "@/rate-limiter/implementations/policies/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay as delay_, type Promisable } from "@/utilities/_module.js";
+import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/test-utilities"`
@@ -134,8 +134,8 @@ export function fixedWindowLimiterTestSuite(
         const KEY = "a";
         const LIMIT = 4;
 
-        async function delay(timeSpan: TimeSpan): Promise<void> {
-            await delay_(
+        async function delayWithBuffer(timeSpan: TimeSpan): Promise<void> {
+            await delay(
                 TimeSpan.fromTimeSpan(timeSpan).addTimeSpan(delayBuffer),
             );
         }
@@ -179,7 +179,7 @@ export function fixedWindowLimiterTestSuite(
                 await adapter.updateState(context, KEY, LIMIT);
 
                 const state1 = await adapter.updateState(context, KEY, LIMIT);
-                await delay(state1.resetTime);
+                await delayWithBuffer(state1.resetTime);
 
                 const state2 = await adapter.getState(context, KEY);
                 expect(state2).toBeNull();
@@ -223,7 +223,7 @@ export function fixedWindowLimiterTestSuite(
                 await adapter.updateState(context, KEY, LIMIT);
 
                 const state1 = await adapter.updateState(context, KEY, LIMIT);
-                await delay(state1.resetTime);
+                await delayWithBuffer(state1.resetTime);
 
                 const state2 = await adapter.getState(context, KEY);
                 expect(state2).toBeNull();
@@ -261,7 +261,7 @@ export function fixedWindowLimiterTestSuite(
                 await adapter.updateState(context, KEY, LIMIT);
 
                 const state1 = await adapter.updateState(context, KEY, LIMIT);
-                await delay(state1.resetTime);
+                await delayWithBuffer(state1.resetTime);
 
                 const state2 = await adapter.updateState(context, KEY, LIMIT);
                 expect(state2).toEqual({
@@ -307,7 +307,7 @@ export function fixedWindowLimiterTestSuite(
                 await adapter.updateState(context, KEY, LIMIT);
 
                 const state1 = await adapter.updateState(context, KEY, LIMIT);
-                await delay(state1.resetTime);
+                await delayWithBuffer(state1.resetTime);
 
                 const state2 = await adapter.updateState(context, KEY, LIMIT);
                 expect(state2).toEqual({

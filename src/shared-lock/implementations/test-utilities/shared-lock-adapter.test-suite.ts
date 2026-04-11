@@ -18,7 +18,7 @@ import {
 } from "@/shared-lock/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay as delay_, type Promisable } from "@/utilities/_module.js";
+import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/test-utilities"`
@@ -68,7 +68,7 @@ export type SharedLockAdapterTestSuiteSettings = {
  *     RedisContainer,
  *     type StartedRedisContainer,
  * } from "@testcontainers/redis";
- * import { TimeSpan } from "@daiso-tech/core/time-span" from "@daiso-tech/core/time-span";
+ * import { TimeSpan } from "@daiso-tech/core/time-span";
  *
  * const timeout = TimeSpan.fromMinutes(2);
  * describe("class: RedisSharedLockAdapter", () => {
@@ -107,8 +107,8 @@ export function sharedLockAdapterTestSuite(
     } = settings;
     let adapter: ISharedLockAdapter;
 
-    async function delay(ttl: ITimeSpan): Promise<void> {
-        await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
+    async function delayWithBuffer(ttl: ITimeSpan): Promise<void> {
+        await delay(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
     describe("ISharedLockAdapter tests:", () => {
@@ -136,7 +136,7 @@ export function sharedLockAdapterTestSuite(
                 const ttl = TimeSpan.fromMilliseconds(50);
 
                 await adapter.acquireWriter(context, key, sharedLockId, ttl);
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.acquireWriter(
                     context,
@@ -315,7 +315,7 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
                 await adapter.acquireWriter(context, key, sharedLockId1, ttl);
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const sharedLockId2 = "c";
                 const result = await adapter.releaseWriter(
@@ -331,7 +331,7 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
                 await adapter.acquireWriter(context, key, sharedLockId, ttl);
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.releaseWriter(
                     context,
@@ -510,7 +510,7 @@ export function sharedLockAdapterTestSuite(
                 const ttl = TimeSpan.fromMilliseconds(50);
 
                 await adapter.acquireWriter(context, key, sharedLockId, ttl);
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.forceReleaseWriter(context, key);
 
@@ -664,7 +664,7 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
                 await adapter.acquireWriter(context, key, sharedLockId1, ttl);
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
                 const sharedLockId2 = "c";
@@ -682,7 +682,7 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
                 await adapter.acquireWriter(context, key, sharedLockId, ttl);
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
                 const result = await adapter.refreshWriter(
@@ -739,7 +739,7 @@ export function sharedLockAdapterTestSuite(
                     sharedLockId1,
                     newTtl,
                 );
-                await delay(newTtl);
+                await delayWithBuffer(newTtl);
                 const sharedLockId2 = "2";
                 const result = await adapter.acquireWriter(
                     context,
@@ -763,7 +763,7 @@ export function sharedLockAdapterTestSuite(
                     sharedLockId1,
                     newTtl,
                 );
-                await delay(newTtl.divide(2));
+                await delayWithBuffer(newTtl.divide(2));
 
                 const sharedLockId2 = "c";
                 const result1 = await adapter.acquireWriter(
@@ -774,7 +774,7 @@ export function sharedLockAdapterTestSuite(
                 );
                 expect(result1).toBe(false);
 
-                await delay(newTtl.divide(2));
+                await delayWithBuffer(newTtl.divide(2));
                 const result2 = await adapter.acquireWriter(
                     context,
                     key,
@@ -875,7 +875,7 @@ export function sharedLockAdapterTestSuite(
                     limit,
                     ttl,
                 });
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.acquireReader({
                     context: context,
@@ -965,7 +965,7 @@ export function sharedLockAdapterTestSuite(
                     limit,
                     ttl: ttl2,
                 });
-                await delay(ttl2);
+                await delayWithBuffer(ttl2);
 
                 const lockId3 = "3";
                 const ttl3 = null;
@@ -1227,7 +1227,7 @@ export function sharedLockAdapterTestSuite(
                     ttl,
                     limit,
                 });
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.releaseReader(
                     context,
@@ -1461,7 +1461,7 @@ export function sharedLockAdapterTestSuite(
                     limit,
                     ttl,
                 });
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.forceReleaseAllReaders(
                     context,
@@ -1726,7 +1726,7 @@ export function sharedLockAdapterTestSuite(
                     limit,
                     ttl,
                 });
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 const result = await adapter.refreshReader(
@@ -1810,7 +1810,7 @@ export function sharedLockAdapterTestSuite(
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 await adapter.refreshReader(context, key, lockId2, newTtl);
-                await delay(newTtl);
+                await delayWithBuffer(newTtl);
 
                 const lockId3 = "3";
                 const result1 = await adapter.acquireReader({
@@ -1848,7 +1848,7 @@ export function sharedLockAdapterTestSuite(
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 await adapter.refreshReader(context, key, lockId2, newTtl);
-                await delay(newTtl.divide(2));
+                await delayWithBuffer(newTtl.divide(2));
 
                 const lockId3 = "3";
                 const result1 = await adapter.acquireReader({
@@ -1860,7 +1860,7 @@ export function sharedLockAdapterTestSuite(
                 });
                 expect(result1).toBe(false);
 
-                await delay(newTtl.divide(2));
+                await delayWithBuffer(newTtl.divide(2));
                 const result2 = await adapter.acquireReader({
                     context: context,
                     key,
@@ -1920,7 +1920,7 @@ export function sharedLockAdapterTestSuite(
                 const ttl = TimeSpan.fromMilliseconds(50);
 
                 await adapter.acquireWriter(context, key, sharedLockId, ttl);
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.forceRelease(context, key);
 
@@ -1978,7 +1978,7 @@ export function sharedLockAdapterTestSuite(
                     limit,
                     ttl,
                 });
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.forceRelease(context, key);
 
@@ -2160,7 +2160,7 @@ export function sharedLockAdapterTestSuite(
                         sharedLockId,
                         ttl,
                     );
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const sharedLockData = await adapter.getState(context, key);
 
@@ -2324,7 +2324,7 @@ export function sharedLockAdapterTestSuite(
                         lockId,
                         ttl,
                     });
-                    await delay(ttl);
+                    await delayWithBuffer(ttl);
 
                     const result = await adapter.getState(context, key);
 

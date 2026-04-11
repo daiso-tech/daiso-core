@@ -48,7 +48,7 @@ export type CircuitBreakerStorageAdapterTestSuiteSettings = {
  * import { afterEach, beforeEach, describe, expect, test } from "vitest";
  * import { circuitBreakerStorageAdapterTestSuite } from "@daiso-tech/core/circuit-breaker/test-utilities";
  * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
- * import { TimeSpan } from "@daiso-tech/core/time-span" from "@daiso-tech/core/time-span";
+ * import { TimeSpan } from "@daiso-tech/core/time-span";
  * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
  * import { Serde } from "@daiso-tech/core/serde";
  *

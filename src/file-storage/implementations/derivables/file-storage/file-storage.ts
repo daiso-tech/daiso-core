@@ -9,7 +9,6 @@ import { NoOpExecutionContextAdapter } from "@/execution-context/implementations
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
     FILE_EVENTS,
-    isFileError,
     type FileEventMap,
     type FileStorageAdapterVariants,
     type IFile,
@@ -18,10 +17,11 @@ import {
     type IFileUrlAdapter,
     type ISignedFileStorageAdapter,
 } from "@/file-storage/contracts/_module.js";
+import { handleUnexpectedErrorEvent } from "@/file-storage/implementations/derivables/file-storage/event-helpers.js";
 import { FileSerdeTransformer } from "@/file-storage/implementations/derivables/file-storage/file-serde-transformer.js";
 import { File } from "@/file-storage/implementations/derivables/file-storage/file.js";
 import { resolveFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/resolve-file-storage-adapter.js";
-import { AsyncHooks, type AsyncMiddlewareFn } from "@/hooks/_module.js";
+import { useFactory, type Use } from "@/middleware/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
@@ -217,6 +217,7 @@ export class FileStorage implements IFileStorage {
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
     private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
+    private readonly use: Use;
 
     /**
      * @example
@@ -257,6 +258,7 @@ export class FileStorage implements IFileStorage {
             ),
         } = settings;
 
+        this.use = useFactory(executionContext);
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;
@@ -277,6 +279,7 @@ export class FileStorage implements IFileStorage {
 
     private registerToSerde(): void {
         const transformer = new FileSerdeTransformer({
+            use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,
@@ -299,6 +302,7 @@ export class FileStorage implements IFileStorage {
 
     create(key: string): IFile {
         return new File({
+            use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,
@@ -317,73 +321,59 @@ export class FileStorage implements IFileStorage {
         });
     }
 
-    private handleUnexpectedErrorEvent = <
-        TParameters extends Array<unknown>,
-        TReturn,
-    >(): AsyncMiddlewareFn<TParameters, TReturn> => {
-        return async (args, next) => {
-            try {
-                return await next(...args);
-            } catch (error: unknown) {
-                if (isFileError(error)) {
-                    throw error;
-                }
-
+    clear(): Promise<void> {
+        return this.use(
+            async () => {
+                await this.adapter.removeByPrefix(
+                    this.executionContext,
+                    this.namespace.toString(),
+                );
                 callInvokable(
                     this.waitUntil,
-                    this.eventBus.dispatch(FILE_EVENTS.UNEXPECTED_ERROR, {
-                        error,
-                    }),
+                    this.eventBus.dispatch(FILE_EVENTS.CLEARED, {}),
                 );
-
-                throw error;
-            }
-        };
-    };
-
-    clear(): Promise<void> {
-        return new AsyncHooks(async () => {
-            await this.adapter.removeByPrefix(
-                this.executionContext,
-                this.namespace.toString(),
-            );
-            callInvokable(
-                this.waitUntil,
-                this.eventBus.dispatch(FILE_EVENTS.CLEARED, {}),
-            );
-        }, [this.handleUnexpectedErrorEvent()]).invoke();
+            },
+            handleUnexpectedErrorEvent(this.waitUntil, this.eventBus),
+        )();
     }
 
     removeMany(files: Iterable<IFile>): Promise<boolean> {
-        return new AsyncHooks(async () => {
-            const filesArr = [...files];
-            const namespacedKeys = filesArr.map((file) => {
-                return file.key.toString();
-            });
+        return this.use(
+            async () => {
+                const filesArr = [...files];
+                const namespacedKeys = filesArr.map((file) => {
+                    return file.key.toString();
+                });
 
-            const hasRemovedAtLeastOne = await this.adapter.removeMany(
-                this.executionContext,
-                namespacedKeys,
-            );
+                const hasRemovedAtLeastOne = await this.adapter.removeMany(
+                    this.executionContext,
+                    namespacedKeys,
+                );
 
-            if (hasRemovedAtLeastOne) {
-                for (const file of filesArr) {
-                    callInvokable(
-                        this.waitUntil,
-                        this.eventBus.dispatch(FILE_EVENTS.REMOVED, { file }),
-                    );
+                if (hasRemovedAtLeastOne) {
+                    for (const file of filesArr) {
+                        callInvokable(
+                            this.waitUntil,
+                            this.eventBus.dispatch(FILE_EVENTS.REMOVED, {
+                                file,
+                            }),
+                        );
+                    }
+                } else {
+                    for (const file of filesArr) {
+                        callInvokable(
+                            this.waitUntil,
+                            this.eventBus.dispatch(FILE_EVENTS.NOT_FOUND, {
+                                file,
+                            }),
+                        );
+                    }
                 }
-            } else {
-                for (const file of filesArr) {
-                    callInvokable(
-                        this.waitUntil,
-                        this.eventBus.dispatch(FILE_EVENTS.NOT_FOUND, { file }),
-                    );
-                }
-            }
 
-            return hasRemovedAtLeastOne;
-        }, [this.handleUnexpectedErrorEvent()]).invoke();
+                return hasRemovedAtLeastOne;
+            },
+            handleUnexpectedErrorEvent(this.waitUntil, this.eventBus),
+        )();
     }
 
     get events(): IFileListenable {

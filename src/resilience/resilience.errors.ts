@@ -2,12 +2,18 @@
  * @module Resilience
  */
 
+import { type TimeSpan } from "@/time-span/implementations/_module.js";
+
 /**
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Errors
  */
 export class TimeoutResilienceError extends Error {
-    constructor(message: string, cause?: unknown) {
+    constructor(
+        public readonly waitTime: TimeSpan,
+        message: string,
+        cause?: unknown,
+    ) {
         super(message, { cause });
         this.name = TimeoutResilienceError.name;
     }
@@ -18,7 +24,11 @@ export class TimeoutResilienceError extends Error {
  * @group Errors
  */
 export class RetryResilienceError extends AggregateError {
-    constructor(errors: Array<unknown>, message: string) {
+    constructor(
+        errors: Array<unknown>,
+        public readonly maxAttempts: number,
+        message: string,
+    ) {
         super(errors, message);
         this.name = RetryResilienceError.name;
     }
@@ -47,9 +57,9 @@ export function isResilienceError(
     value: unknown,
 ): value is AllResilienceErrors {
     for (const ErrorClass of Object.values(RESILIENCE_ERRORS)) {
-        if (!(value instanceof ErrorClass)) {
-            return false;
+        if (value instanceof ErrorClass) {
+            return true;
         }
     }
-    return true;
+    return false;
 }

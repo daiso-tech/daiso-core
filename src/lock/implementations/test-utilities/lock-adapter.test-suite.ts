@@ -18,7 +18,7 @@ import {
 } from "@/lock/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay as delay_, type Promisable } from "@/utilities/_module.js";
+import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/lock/test-utilities"`
@@ -68,7 +68,7 @@ export type LockAdapterTestSuiteSettings = {
  *     RedisContainer,
  *     type StartedRedisContainer,
  * } from "@testcontainers/redis";
- * import { TimeSpan } from "@daiso-tech/core/time-span" from "@daiso-tech/core/time-span";
+ * import { TimeSpan } from "@daiso-tech/core/time-span";
  *
  * const timeout = TimeSpan.fromMinutes(2);
  * describe("class: RedisLockAdapter", () => {
@@ -107,8 +107,8 @@ export function lockAdapterTestSuite(
     } = settings;
     let adapter: ILockAdapter;
 
-    async function delay(ttl: ITimeSpan): Promise<void> {
-        await delay_(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
+    async function delayWithBuffer(ttl: ITimeSpan): Promise<void> {
+        await delay(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
     describe("ILockAdapter tests:", () => {
@@ -131,7 +131,7 @@ export function lockAdapterTestSuite(
                 const ttl = TimeSpan.fromMilliseconds(50);
 
                 await adapter.acquire(context, key, lockId, ttl);
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.acquire(
                     context,
@@ -230,7 +230,7 @@ export function lockAdapterTestSuite(
                 const lockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
                 await adapter.acquire(context, key, lockId1, ttl);
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const lockId2 = "c";
                 const result = await adapter.release(context, key, lockId2);
@@ -242,7 +242,7 @@ export function lockAdapterTestSuite(
                 const lockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
                 await adapter.acquire(context, key, lockId, ttl);
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.release(context, key, lockId);
 
@@ -351,7 +351,7 @@ export function lockAdapterTestSuite(
                 const ttl = TimeSpan.fromMilliseconds(50);
 
                 await adapter.acquire(context, key, lockId, ttl);
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const result = await adapter.forceRelease(context, key);
 
@@ -451,7 +451,7 @@ export function lockAdapterTestSuite(
                 const lockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
                 await adapter.acquire(context, key, lockId1, ttl);
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
                 const lockId2 = "c";
@@ -469,7 +469,7 @@ export function lockAdapterTestSuite(
                 const lockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
                 await adapter.acquire(context, key, lockId, ttl);
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
                 const result = await adapter.refresh(
@@ -521,7 +521,7 @@ export function lockAdapterTestSuite(
 
                 const newTtl = TimeSpan.fromMilliseconds(50);
                 await adapter.refresh(context, key, lockId1, newTtl);
-                await delay(newTtl);
+                await delayWithBuffer(newTtl);
                 const lockId2 = "a";
                 const result = await adapter.acquire(
                     context,
@@ -540,7 +540,7 @@ export function lockAdapterTestSuite(
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 await adapter.refresh(context, key, lockId1, newTtl);
-                await delay(newTtl.divide(2));
+                await delayWithBuffer(newTtl.divide(2));
 
                 const lockId2 = "c";
                 const result1 = await adapter.acquire(
@@ -551,7 +551,7 @@ export function lockAdapterTestSuite(
                 );
                 expect(result1).toBe(false);
 
-                await delay(newTtl.divide(2));
+                await delayWithBuffer(newTtl.divide(2));
                 const result2 = await adapter.acquire(
                     context,
                     key,
@@ -574,7 +574,7 @@ export function lockAdapterTestSuite(
                 const lockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
                 await adapter.acquire(context, key, lockId, ttl);
-                await delay(ttl);
+                await delayWithBuffer(ttl);
 
                 const lockData = await adapter.getState(context, key);
 

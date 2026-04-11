@@ -33,9 +33,8 @@ import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/serde.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay as delay_ } from "@/utilities/_module.js";
+import { delay } from "@/utilities/_module.js";
 
 describe("class: CircuitBreakerFactory", () => {
     const adapter: ICircuitBreakerAdapter = {
@@ -93,9 +92,13 @@ describe("class: CircuitBreakerFactory", () => {
             enableAsyncTracking: false,
         });
     });
-    async function delay(timeSpan: ITimeSpan): Promise<void> {
-        await delay_(TimeSpan.fromTimeSpan(timeSpan));
-    }
+
+    const waitForSettings = {
+        interval: TimeSpan.fromTimeSpan(eventDispatchWaitTime).toMilliseconds(),
+        timeout: TimeSpan.fromTimeSpan(eventDispatchWaitTime)
+            .multiply(3)
+            .toMilliseconds(),
+    };
 
     describe("API tests:", () => {
         describe("method: runOrFail", () => {
@@ -594,20 +597,20 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            circuitBreaker: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ICircuitBreakerStateMethods["getState"],
-                                key: circuitBreaker.key,
-                            } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                            error: expect.any(Error),
-                        } satisfies TrackedFailureCircuitBreakerEvent),
-                    );
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                circuitBreaker: expect.objectContaining({
+                                    getState: expect.any(
+                                        Function,
+                                    ) as ICircuitBreakerStateMethods["getState"],
+                                    key: circuitBreaker.key,
+                                } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
+                                error: expect.any(Error),
+                            } satisfies TrackedFailureCircuitBreakerEvent),
+                        );
+                    }, waitForSettings);
                 });
                 test("Should dispatch TrackedSlowCallCircuitBreakerEvent when the function exceedes the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
@@ -637,19 +640,19 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            circuitBreaker: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ICircuitBreakerStateMethods["getState"],
-                                key: circuitBreaker.key,
-                            } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                        } satisfies TrackedSlowCallCircuitBreakerEvent),
-                    );
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                circuitBreaker: expect.objectContaining({
+                                    getState: expect.any(
+                                        Function,
+                                    ) as ICircuitBreakerStateMethods["getState"],
+                                    key: circuitBreaker.key,
+                                } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
+                            } satisfies TrackedSlowCallCircuitBreakerEvent),
+                        );
+                    }, waitForSettings);
                 });
                 test("Should dispatch TrackedSuccessCircuitBreakerEvent when the function does not throw an error and does not exceed the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
@@ -677,19 +680,19 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            circuitBreaker: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ICircuitBreakerStateMethods["getState"],
-                                key: circuitBreaker.key,
-                            } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                        } satisfies TrackedSuccessCircuitBreakerEvent),
-                    );
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                circuitBreaker: expect.objectContaining({
+                                    getState: expect.any(
+                                        Function,
+                                    ) as ICircuitBreakerStateMethods["getState"],
+                                    key: circuitBreaker.key,
+                                } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
+                            } satisfies TrackedSuccessCircuitBreakerEvent),
+                        );
+                    }, waitForSettings);
                 });
                 test("Should not dispatch TrackedFailureCircuitBreakerEvent when given error doesnt match the error policy", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
@@ -722,8 +725,8 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
 
+                    await delay(eventDispatchWaitTime);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should dispatch UntrackedFailureCircuitBreakerEvent when given error doesnt match the error policy", async () => {
@@ -757,9 +760,9 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalled();
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalled();
+                    }, waitForSettings);
                 });
             });
             describe("trigger = CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR:", () => {
@@ -793,20 +796,20 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            circuitBreaker: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ICircuitBreakerStateMethods["getState"],
-                                key: circuitBreaker.key,
-                            } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                            error: expect.any(Error),
-                        } satisfies TrackedFailureCircuitBreakerEvent),
-                    );
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                circuitBreaker: expect.objectContaining({
+                                    getState: expect.any(
+                                        Function,
+                                    ) as ICircuitBreakerStateMethods["getState"],
+                                    key: circuitBreaker.key,
+                                } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
+                                error: expect.any(Error),
+                            } satisfies TrackedFailureCircuitBreakerEvent),
+                        );
+                    }, waitForSettings);
                 });
                 test("Should not dispatch TrackedSlowCallCircuitBreakerEvent when the function exceedes the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
@@ -836,9 +839,9 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
 
-                    expect(handlerFn).not.toHaveBeenCalledOnce();
+                    await delay(eventDispatchWaitTime);
+                    expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should dispatch TrackedSuccessCircuitBreakerEvent when the function does not throw", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
@@ -866,19 +869,19 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            circuitBreaker: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ICircuitBreakerStateMethods["getState"],
-                                key: circuitBreaker.key,
-                            } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                        } satisfies TrackedSlowCallCircuitBreakerEvent),
-                    );
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                circuitBreaker: expect.objectContaining({
+                                    getState: expect.any(
+                                        Function,
+                                    ) as ICircuitBreakerStateMethods["getState"],
+                                    key: circuitBreaker.key,
+                                } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
+                            } satisfies TrackedSuccessCircuitBreakerEvent),
+                        );
+                    }, waitForSettings);
                 });
                 test("Should dispatch TrackedSuccessCircuitBreakerEvent when the function does exceed the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
@@ -908,19 +911,19 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            circuitBreaker: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ICircuitBreakerStateMethods["getState"],
-                                key: circuitBreaker.key,
-                            } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                        } satisfies TrackedSuccessCircuitBreakerEvent),
-                    );
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                circuitBreaker: expect.objectContaining({
+                                    getState: expect.any(
+                                        Function,
+                                    ) as ICircuitBreakerStateMethods["getState"],
+                                    key: circuitBreaker.key,
+                                } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
+                            } satisfies TrackedSuccessCircuitBreakerEvent),
+                        );
+                    }, waitForSettings);
                 });
                 test("Should not dispatch TrackedFailureCircuitBreakerEvent when given error doesnt match the error policy", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
@@ -953,8 +956,8 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
 
+                    await delay(eventDispatchWaitTime);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should dispatch UntrackedFailureCircuitBreakerEvent when given error doesnt match the error policy", async () => {
@@ -988,9 +991,9 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalled();
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalled();
+                    }, waitForSettings);
                 });
             });
             describe("trigger = CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL:", () => {
@@ -1024,8 +1027,8 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
 
+                    await delay(eventDispatchWaitTime);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should dispatch TrackedSlowCallCircuitBreakerEvent when the function exceedes the CircuitBreakerFactorySettings.slowCallTime", async () => {
@@ -1052,19 +1055,19 @@ describe("class: CircuitBreakerFactory", () => {
                     await circuitBreaker.runOrFail(async () => {
                         await delay(slowCallTime.addMilliseconds(10));
                     });
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            circuitBreaker: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ICircuitBreakerStateMethods["getState"],
-                                key: circuitBreaker.key,
-                            } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                        } satisfies TrackedSlowCallCircuitBreakerEvent),
-                    );
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                circuitBreaker: expect.objectContaining({
+                                    getState: expect.any(
+                                        Function,
+                                    ) as ICircuitBreakerStateMethods["getState"],
+                                    key: circuitBreaker.key,
+                                } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
+                            } satisfies TrackedSlowCallCircuitBreakerEvent),
+                        );
+                    }, waitForSettings);
                 });
                 test("Should dispatch TrackedSuccessCircuitBreakerEvent when does not exceed the CircuitBreakerFactorySettings.slowCallTime", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
@@ -1088,19 +1091,19 @@ describe("class: CircuitBreakerFactory", () => {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                     });
                     await circuitBreaker.runOrFail(async () => {});
-                    await delay(eventDispatchWaitTime);
-
-                    expect(handlerFn).toHaveBeenCalledOnce();
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            circuitBreaker: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ICircuitBreakerStateMethods["getState"],
-                                key: circuitBreaker.key,
-                            } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                        } satisfies TrackedSuccessCircuitBreakerEvent),
-                    );
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledOnce();
+                        expect(handlerFn).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                circuitBreaker: expect.objectContaining({
+                                    getState: expect.any(
+                                        Function,
+                                    ) as ICircuitBreakerStateMethods["getState"],
+                                    key: circuitBreaker.key,
+                                } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
+                            } satisfies TrackedSuccessCircuitBreakerEvent),
+                        );
+                    }, waitForSettings);
                 });
                 test("Should not dispatch TrackedFailureCircuitBreakerEvent when given error doesnt match the error policy", async () => {
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
@@ -1133,8 +1136,8 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
 
+                    await delay(eventDispatchWaitTime);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not dispatch TrackedSuccessCircuitBreakerEvent when given error doesnt match the error policy", async () => {
@@ -1168,8 +1171,8 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
 
+                    await delay(eventDispatchWaitTime);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not dispatch UntrackedFailureCircuitBreakerEvent when given error doesnt match the error policy", async () => {
@@ -1203,8 +1206,8 @@ describe("class: CircuitBreakerFactory", () => {
                     } catch {
                         /* EMPTY */
                     }
-                    await delay(eventDispatchWaitTime);
 
+                    await delay(eventDispatchWaitTime);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
             });
@@ -1235,21 +1238,21 @@ describe("class: CircuitBreakerFactory", () => {
                 } catch {
                     /* EMPTY */
                 }
-                await delay(eventDispatchWaitTime);
-
-                expect(handlerFn).toHaveBeenCalledOnce();
-                expect(handlerFn).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        circuitBreaker: expect.objectContaining({
-                            getState: expect.any(
-                                Function,
-                            ) as ICircuitBreakerStateMethods["getState"],
-                            key: circuitBreaker.key,
-                        } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                        from: CIRCUIT_BREAKER_STATE.CLOSED,
-                        to: CIRCUIT_BREAKER_STATE.OPEN,
-                    } satisfies StateTransitionCircuitBreakerEvent),
-                );
+                await vi.waitFor(() => {
+                    expect(handlerFn).toHaveBeenCalledOnce();
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            circuitBreaker: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ICircuitBreakerStateMethods["getState"],
+                                key: circuitBreaker.key,
+                            } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
+                            from: CIRCUIT_BREAKER_STATE.CLOSED,
+                            to: CIRCUIT_BREAKER_STATE.OPEN,
+                        } satisfies StateTransitionCircuitBreakerEvent),
+                    );
+                }, waitForSettings);
             });
         });
         describe("method: isolate", () => {
@@ -1265,19 +1268,19 @@ describe("class: CircuitBreakerFactory", () => {
 
                 const circuitBreaker = circuitBreakerFactory.create(KEY);
                 await circuitBreaker.isolate();
-                await delay(eventDispatchWaitTime);
-
-                expect(handlerFn).toHaveBeenCalledOnce();
-                expect(handlerFn).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        circuitBreaker: expect.objectContaining({
-                            getState: expect.any(
-                                Function,
-                            ) as ICircuitBreakerStateMethods["getState"],
-                            key: circuitBreaker.key,
-                        } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                    } satisfies IsolatedCircuitBreakerEvent),
-                );
+                await vi.waitFor(() => {
+                    expect(handlerFn).toHaveBeenCalledOnce();
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            circuitBreaker: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ICircuitBreakerStateMethods["getState"],
+                                key: circuitBreaker.key,
+                            } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
+                        } satisfies IsolatedCircuitBreakerEvent),
+                    );
+                }, waitForSettings);
             });
         });
         describe("method: reset", () => {
@@ -1293,19 +1296,19 @@ describe("class: CircuitBreakerFactory", () => {
 
                 const circuitBreaker = circuitBreakerFactory.create(KEY);
                 await circuitBreaker.reset();
-                await delay(eventDispatchWaitTime);
-
-                expect(handlerFn).toHaveBeenCalledOnce();
-                expect(handlerFn).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        circuitBreaker: expect.objectContaining({
-                            getState: expect.any(
-                                Function,
-                            ) as ICircuitBreakerStateMethods["getState"],
-                            key: circuitBreaker.key,
-                        } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                    } satisfies ResetedCircuitBreakerEvent),
-                );
+                await vi.waitFor(() => {
+                    expect(handlerFn).toHaveBeenCalledOnce();
+                    expect(handlerFn).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            circuitBreaker: expect.objectContaining({
+                                getState: expect.any(
+                                    Function,
+                                ) as ICircuitBreakerStateMethods["getState"],
+                                key: circuitBreaker.key,
+                            } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
+                        } satisfies ResetedCircuitBreakerEvent),
+                    );
+                }, waitForSettings);
             });
         });
     });

@@ -22,7 +22,7 @@ import {
 } from "@/rate-limiter/implementations/policies/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay as delay_, type Promisable } from "@/utilities/_module.js";
+import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/test-utilities"`
@@ -118,8 +118,8 @@ export function slidingWindowLimiterTestSuite(
         });
 
         const KEY = "a";
-        async function delay(timeSpan: TimeSpan): Promise<void> {
-            await delay_(
+        async function delayWithBuffer(timeSpan: TimeSpan): Promise<void> {
+            await delay(
                 TimeSpan.fromTimeSpan(timeSpan).addTimeSpan(delayBuffer),
             );
         }
