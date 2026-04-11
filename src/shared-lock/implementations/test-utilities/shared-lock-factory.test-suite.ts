@@ -7740,20 +7740,21 @@ export function sharedLockFactoryTestSuite(
                         handlerFn,
                     );
                     await sharedLock.releaseWriter();
-
-                    expect(handlerFn).toHaveBeenCalledTimes(1);
-                    expect(handlerFn).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            sharedLock: expect.objectContaining({
-                                getState: expect.any(
-                                    Function,
-                                ) as ISharedLockStateMethods["getState"],
-                                key: sharedLock.key,
-                                id: sharedLock.id,
-                                ttl: sharedLock.ttl,
-                            } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseWriterLockEvent),
-                    );
+                    await vi.waitFor(() => {
+                        expect(handlerFn).toHaveBeenCalledTimes(1);
+                        expect(handlerFn).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                sharedLock: expect.objectContaining({
+                                    getState: expect.any(
+                                        Function,
+                                    ) as ISharedLockStateMethods["getState"],
+                                    key: sharedLock.key,
+                                    id: sharedLock.id,
+                                    ttl: sharedLock.ttl,
+                                } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
+                            } satisfies FailedReleaseWriterLockEvent),
+                        );
+                    });
                 });
                 test("Should dispatch FailedReleaseWriterLockEvent when key is expired and released by same shared-lock-id", async () => {
                     const key = "a";
@@ -8047,6 +8048,7 @@ export function sharedLockFactoryTestSuite(
                     } catch {
                         /* EMPTY */
                     }
+
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
                         expect(handlerFn).toHaveBeenCalledWith(
