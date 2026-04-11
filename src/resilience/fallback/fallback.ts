@@ -81,12 +81,16 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
 
             const resolvedFallbackValue =
                 await resolveAsyncLazyable(fallbackValue);
-            callInvokable(onFallback, {
-                error: value,
-                fallbackValue: resolvedFallbackValue,
-                args,
-                context,
-            });
+            try {
+                await callInvokable(onFallback, {
+                    error: value,
+                    fallbackValue: resolvedFallbackValue,
+                    args,
+                    context,
+                });
+            } catch {
+                /* EMPTY */
+            }
             return resolvedFallbackValue;
 
             // Handle fallback value if an error is thrown
@@ -96,12 +100,16 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
             }
             const resolvedFallbackValue =
                 await resolveAsyncLazyable(fallbackValue);
-            callInvokable(onFallback, {
-                error,
-                fallbackValue: resolvedFallbackValue as TReturn,
-                args,
-                context,
-            });
+            try {
+                await callInvokable(onFallback, {
+                    error,
+                    fallbackValue: resolvedFallbackValue as TReturn,
+                    args,
+                    context,
+                });
+            } catch {
+                /* EMPTY */
+            }
             return resolvedFallbackValue as TReturn;
         }
     };

@@ -128,7 +128,15 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
         const allErrors: Array<unknown> = [];
         for (let attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
-                callInvokable(onExecutionAttempt, { attempt, args, context });
+                try {
+                    await callInvokable(onExecutionAttempt, {
+                        attempt,
+                        args,
+                        context,
+                    });
+                } catch {
+                    /* EMPTY */
+                }
                 const value = await next();
 
                 result = optionSome(value);
@@ -144,13 +152,17 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                         attempt,
                         value,
                     );
-                    callInvokable(onRetryDelay, {
-                        error: value,
-                        waitTime,
-                        attempt,
-                        args,
-                        context,
-                    });
+                    try {
+                        await callInvokable(onRetryDelay, {
+                            error: value,
+                            waitTime,
+                            attempt,
+                            args,
+                            context,
+                        });
+                    } catch {
+                        /* EMPTY */
+                    }
                     await delay(waitTime);
                 }
 
@@ -169,13 +181,17 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                         attempt,
                         error,
                     );
-                    callInvokable(onRetryDelay, {
-                        error: error,
-                        waitTime,
-                        attempt,
-                        args,
-                        context,
-                    });
+                    try {
+                        await callInvokable(onRetryDelay, {
+                            error: error,
+                            waitTime,
+                            attempt,
+                            args,
+                            context,
+                        });
+                    } catch {
+                        /* EMPTY */
+                    }
                     await delay(waitTime);
                 }
             }

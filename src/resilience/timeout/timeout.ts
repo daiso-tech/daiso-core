@@ -99,11 +99,15 @@ export function timeout<TParameters extends Array<unknown>, TReturn>(
                 error instanceof TimeoutResilienceError &&
                 error === timeoutError
             ) {
-                callInvokable(onTimeout, {
-                    args,
-                    context,
-                    waitTime: TimeSpan.fromTimeSpan(waitTime),
-                });
+                try {
+                    await callInvokable(onTimeout, {
+                        args,
+                        context,
+                        waitTime: TimeSpan.fromTimeSpan(waitTime),
+                    });
+                } catch {
+                    /* EMPTY */
+                }
             }
             throw error;
         }
