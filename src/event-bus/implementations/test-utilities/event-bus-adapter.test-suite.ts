@@ -75,6 +75,7 @@ export function eventBusAdapterTestSuite(
 
                 await adapter.addListener(context, "event", handlerFn);
 
+                await delay(TTL);
                 expect(handlerFn).not.toHaveBeenCalled();
             });
             test("Should be TestEvent when listener added and event is triggered", async () => {
@@ -100,8 +101,8 @@ export function eventBusAdapterTestSuite(
                 };
 
                 await adapter.dispatch(context, "event", event);
-                await delay(TTL);
 
+                await delay(TTL);
                 expect(handlerFn).not.toHaveBeenCalled();
             });
         });
