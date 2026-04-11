@@ -128,6 +128,10 @@ export class MemorySemaphoreAdapter
         if (slot === undefined) {
             return Promise.resolve(false);
         }
+        // Check expiration: if expired, cannot release
+        if (slot.expiration !== null && slot.expiration <= new Date()) {
+            return Promise.resolve(false);
+        }
 
         if (slot.timeoutId !== null) {
             clearTimeout(slot.timeoutId);
@@ -151,8 +155,12 @@ export class MemorySemaphoreAdapter
             return Promise.resolve(false);
         }
         const hasSlots = semaphore.slots.size > 0;
-        for (const [slotId, { timeoutId }] of semaphore.slots) {
-            clearTimeout(timeoutId ?? undefined);
+        for (const [slotId, slot] of semaphore.slots) {
+            // Check expiration: if expired, skip force release
+            if (slot.expiration !== null && slot.expiration <= new Date()) {
+                continue;
+            }
+            clearTimeout(slot.timeoutId ?? undefined);
             semaphore.slots.delete(slotId);
         }
         this.map.delete(key);
@@ -171,6 +179,10 @@ export class MemorySemaphoreAdapter
         }
         const slot = semaphore.slots.get(slotId);
         if (slot === undefined) {
+            return Promise.resolve(false);
+        }
+        // Check expiration: if expired, cannot refresh
+        if (slot.expiration !== null && slot.expiration <= new Date()) {
             return Promise.resolve(false);
         }
         if (slot.timeoutId === null) {

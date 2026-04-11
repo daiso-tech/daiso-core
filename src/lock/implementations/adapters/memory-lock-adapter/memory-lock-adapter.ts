@@ -112,6 +112,10 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
         if (lock.owner !== lockId) {
             return Promise.resolve(false);
         }
+        // Check expiration: if expired, cannot release
+        if (lock.hasExpiration && lock.expiration <= new Date()) {
+            return Promise.resolve(false);
+        }
 
         if (lock.hasExpiration) {
             clearTimeout(lock.timeoutId);
@@ -128,6 +132,10 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
         const lock = this.map.get(key);
 
         if (lock === undefined) {
+            return Promise.resolve(false);
+        }
+        // Check expiration: if expired, cannot force release
+        if (lock.hasExpiration && lock.expiration <= new Date()) {
             return Promise.resolve(false);
         }
 
@@ -151,6 +159,10 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
             return Promise.resolve(false);
         }
         if (lock.owner !== lockId) {
+            return Promise.resolve(false);
+        }
+        // Check expiration: if expired, cannot refresh
+        if (lock.hasExpiration && lock.expiration <= new Date()) {
             return Promise.resolve(false);
         }
         if (!lock.hasExpiration) {
