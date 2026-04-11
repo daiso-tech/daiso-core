@@ -355,7 +355,7 @@ export function semaphoreFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when slot is unexpired", async () => {
@@ -377,7 +377,7 @@ export function semaphoreFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when slot is unexpireable", async () => {
@@ -405,7 +405,7 @@ export function semaphoreFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when slot is unexpired", async () => {
@@ -433,7 +433,7 @@ export function semaphoreFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should return value when key doesnt exists", async () => {
@@ -776,7 +776,7 @@ export function semaphoreFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when slot is unexpired", async () => {
@@ -801,7 +801,7 @@ export function semaphoreFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when slot is unexpireable", async () => {
@@ -832,7 +832,7 @@ export function semaphoreFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when slot is unexpired", async () => {
@@ -863,7 +863,7 @@ export function semaphoreFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should return value when key doesnt exists", async () => {

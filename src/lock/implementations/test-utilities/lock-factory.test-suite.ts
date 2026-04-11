@@ -353,7 +353,7 @@ export function lockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when key is unexpired and acquired by different lock-id", async () => {
@@ -372,7 +372,7 @@ export function lockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should return value when key doesnt exists", async () => {
@@ -692,7 +692,7 @@ export function lockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when key is unexpired and acquired by different lock-id", async () => {
@@ -714,7 +714,7 @@ export function lockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should return value when key doesnt exists", async () => {

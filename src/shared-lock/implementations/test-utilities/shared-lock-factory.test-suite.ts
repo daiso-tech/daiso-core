@@ -412,7 +412,7 @@ export function sharedLockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when key is unexpired and acquired by different shared-lock-id", async () => {
@@ -440,7 +440,7 @@ export function sharedLockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should return value when key doesnt exists", async () => {
@@ -842,7 +842,7 @@ export function sharedLockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when key is unexpired and acquired by different shared-lock-id", async () => {
@@ -873,7 +873,7 @@ export function sharedLockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should return value when key doesnt exists", async () => {
@@ -3108,7 +3108,7 @@ export function sharedLockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when shared-lock-slot is unexpired", async () => {
@@ -3130,7 +3130,7 @@ export function sharedLockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when shared-lock-slot is unexpireable", async () => {
@@ -3158,7 +3158,7 @@ export function sharedLockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when shared-lock-slot is unexpired", async () => {
@@ -3186,7 +3186,7 @@ export function sharedLockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should return value when key doesnt exists", async () => {
@@ -4021,7 +4021,7 @@ export function sharedLockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when shared-lock-slot is unexpired", async () => {
@@ -4046,7 +4046,7 @@ export function sharedLockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when shared-lock-slot is unexpireable", async () => {
@@ -4077,7 +4077,7 @@ export function sharedLockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should not call handler function when shared-lock-slot is unexpired", async () => {
@@ -4108,7 +4108,7 @@ export function sharedLockFactoryTestSuite(
                         /* EMPTY */
                     }
 
-                    await delay(eventDispatchWaitTime);
+                    await delay(delayBuffer);
                     expect(handlerFn).not.toHaveBeenCalled();
                 });
                 test("Should return value when key doesnt exists", async () => {
