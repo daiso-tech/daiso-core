@@ -105,6 +105,13 @@ export type RetrySettings<TParameters extends Array<unknown> = Array<unknown>> =
              * ```
              */
             backoffPolicy?: BackoffPolicy;
+
+            /**
+             * If true last error will be thrown otherwise an {@link RetryResilienceError | `RetryResilienceError`} will be thrown.
+             *
+             * @default false
+             */
+            throwLastError?: boolean;
         };
 
 /**
@@ -121,6 +128,7 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
         errorPolicy,
         onRetryDelay = () => {},
         onExecutionAttempt = () => {},
+        throwLastError = false,
     } = settings;
     if (maxAttempts < 1) {
         throw new TypeError(
@@ -209,12 +217,15 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
             }
         }
 
-        if (allErrors.length !== 0) {
+        if (allErrors.length !== 0 && !throwLastError) {
             throw new RetryResilienceError(
                 allErrors,
                 maxAttempts,
                 `Retry limit reached: Failed after ${String(maxAttempts)} attempts`,
             );
+        }
+        if (allErrors.length !== 0 && throwLastError) {
+            throw allErrors.at(-1);
         }
         if (result.type === OPTION.SOME) {
             return result.value;

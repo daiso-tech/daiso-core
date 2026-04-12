@@ -30,6 +30,13 @@ export type RetryIntervalSettings<
     ErrorPolicySettings & {
         time: ITimeSpan;
         interval: ITimeSpan;
+
+        /**
+         * If true last error will be thrown otherwise an {@link RetryIntervalResilienceError | `RetryIntervalResilienceError`} will be thrown.
+         *
+         * @default false
+         */
+        throwLastError?: boolean;
     };
 
 /**
@@ -46,6 +53,7 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
         errorPolicy,
         onRetryDelay = () => {},
         onExecutionAttempt = () => {},
+        throwLastError = false,
     } = settings;
 
     const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
@@ -117,7 +125,7 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
             }
         }
 
-        if (allErrors.length !== 0) {
+        if (allErrors.length !== 0 && !throwLastError) {
             throw new RetryIntervalResilienceError(
                 allErrors,
                 attempt,
@@ -125,6 +133,9 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                 intervalAsTimeSpan,
                 `Retry limit reached: Failed after ${String(timeAsTimeSpan.toMilliseconds())}ms (Interval: ${String(intervalAsTimeSpan.toMilliseconds())}ms)`,
             );
+        }
+        if (allErrors.length !== 0 && throwLastError) {
+            throw allErrors.at(-1);
         }
         if (result.type === OPTION.SOME) {
             return result.value;
