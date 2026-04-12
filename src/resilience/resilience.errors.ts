@@ -19,11 +19,13 @@ export class TimeoutResilienceError extends Error {
     }
 }
 
+export abstract class RetryResilience extends AggregateError {}
+
 /**
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Errors
  */
-export class RetryResilienceError extends AggregateError {
+export class RetryResilienceError extends RetryResilience {
     constructor(
         errors: Array<unknown>,
         public readonly maxAttempts: number,
@@ -31,6 +33,23 @@ export class RetryResilienceError extends AggregateError {
     ) {
         super(errors, message);
         this.name = RetryResilienceError.name;
+    }
+}
+
+/**
+ * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * @group Errors
+ */
+export class RetryIntervalResilienceError extends RetryResilience {
+    constructor(
+        errors: Array<unknown>,
+        public readonly attemps: number,
+        public readonly time: TimeSpan,
+        public readonly interval: TimeSpan,
+        message: string,
+    ) {
+        super(errors, message);
+        this.name = RetryIntervalResilienceError.name;
     }
 }
 

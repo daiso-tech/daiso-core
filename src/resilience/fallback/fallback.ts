@@ -82,12 +82,21 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
             const resolvedFallbackValue =
                 await resolveAsyncLazyable(fallbackValue);
             try {
-                await callInvokable(onFallback, {
-                    error: value,
-                    fallbackValue: resolvedFallbackValue,
-                    args,
-                    context,
-                });
+                void (async () => {
+                    try {
+                        await callInvokable(onFallback, {
+                            error: value,
+                            fallbackValue: resolvedFallbackValue,
+                            args,
+                            context,
+                        });
+                    } catch (error: unknown) {
+                        console.error(
+                            "Error occured in onFallback callback:",
+                            error,
+                        );
+                    }
+                })();
             } catch {
                 /* EMPTY */
             }
@@ -101,12 +110,21 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
             const resolvedFallbackValue =
                 await resolveAsyncLazyable(fallbackValue);
             try {
-                await callInvokable(onFallback, {
-                    error,
-                    fallbackValue: resolvedFallbackValue as TReturn,
-                    args,
-                    context,
-                });
+                void (async () => {
+                    try {
+                        await callInvokable(onFallback, {
+                            error,
+                            fallbackValue: resolvedFallbackValue as TReturn,
+                            args,
+                            context,
+                        });
+                    } catch (error: unknown) {
+                        console.error(
+                            "Error occured in onFallback callback:",
+                            error,
+                        );
+                    }
+                })();
             } catch {
                 /* EMPTY */
             }

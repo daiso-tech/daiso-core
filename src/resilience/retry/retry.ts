@@ -9,7 +9,7 @@ import {
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type MiddlewareFn } from "@/middleware/_module.js";
 import { RetryResilienceError } from "@/resilience/resilience.errors.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type Invokable,
     type ErrorPolicySettings,
@@ -53,7 +53,7 @@ export type OnRetryDelayData<
 > = {
     error: unknown;
     attempt: number;
-    waitTime: ITimeSpan;
+    waitTime: TimeSpan;
     args: TParameters;
     context: IReadableContext;
 };
@@ -86,7 +86,6 @@ export type RetryCallbacks<
 /**
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
- * @throws {RetryResilienceError} {@link RetryResilienceError}
  */
 export type RetrySettings<TParameters extends Array<unknown> = Array<unknown>> =
     RetryCallbacks<TParameters> &
@@ -108,6 +107,11 @@ export type RetrySettings<TParameters extends Array<unknown> = Array<unknown>> =
             backoffPolicy?: BackoffPolicy;
         };
 
+/**
+ * IMPORT_PATH: `@daiso-tech/core/resilience`
+ * @group Middlewares
+ * @throws {RetryResilienceError} {@link RetryResilienceError}
+ */
 export function retry<TParameters extends Array<unknown>, TReturn>(
     settings: NoInfer<RetrySettings<TParameters>> = {},
 ): MiddlewareFn<TParameters, Promise<TReturn>> {
@@ -123,27 +127,30 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
             "RetrySettings.maxAttempts cannot be smaller than 1",
         );
     }
+
     return async ({ args, next, context }) => {
         let result: Option<TReturn> = optionNone();
         const allErrors: Array<unknown> = [];
         for (let attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
-                try {
-                    await callInvokable(onExecutionAttempt, {
-                        attempt,
-                        args,
-                        context,
-                    });
-                } catch {
-                    /* EMPTY */
-                }
+                void (async () => {
+                    try {
+                        await callInvokable(onExecutionAttempt, {
+                            attempt,
+                            args,
+                            context,
+                        });
+                    } catch (error: unknown) {
+                        console.log(":", error);
+                    }
+                })();
                 const value = await next();
 
                 result = optionSome(value);
-                // Handle retrying if an false is returned
                 if (!callErrorPolicyOnValue(errorPolicy, value)) {
                     return value;
                 }
+                // Handle retrying if an false is returned
 
                 // Only sleep if there will actually be a next attempt
                 if (attempt < maxAttempts) {
@@ -152,17 +159,19 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                         attempt,
                         value,
                     );
-                    try {
-                        await callInvokable(onRetryDelay, {
-                            error: value,
-                            waitTime,
-                            attempt,
-                            args,
-                            context,
-                        });
-                    } catch {
-                        /* EMPTY */
-                    }
+                    void (async () => {
+                        try {
+                            await callInvokable(onRetryDelay, {
+                                error: value,
+                                waitTime: TimeSpan.fromTimeSpan(waitTime),
+                                attempt,
+                                args,
+                                context,
+                            });
+                        } catch (error: unknown) {
+                            console.log(":", error);
+                        }
+                    })();
                     await delay(waitTime);
                 }
 
@@ -181,17 +190,20 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                         attempt,
                         error,
                     );
-                    try {
-                        await callInvokable(onRetryDelay, {
-                            error: error,
-                            waitTime,
-                            attempt,
-                            args,
-                            context,
-                        });
-                    } catch {
-                        /* EMPTY */
-                    }
+
+                    void (async () => {
+                        try {
+                            await callInvokable(onRetryDelay, {
+                                error: error,
+                                waitTime: TimeSpan.fromTimeSpan(waitTime),
+                                attempt,
+                                args,
+                                context,
+                            });
+                        } catch (error: unknown) {
+                            console.log(":", error);
+                        }
+                    })();
                     await delay(waitTime);
                 }
             }
@@ -201,7 +213,7 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
             throw new RetryResilienceError(
                 allErrors,
                 maxAttempts,
-                "Failed all retry attempts",
+                `Retry limit reached: Failed after ${String(maxAttempts)} attempts`,
             );
         }
         if (result.type === OPTION.SOME) {
