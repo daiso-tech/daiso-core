@@ -106,28 +106,6 @@ export type SharedLockFactorySettingsBase = {
     defaultTtl?: ITimeSpan | null;
 
     /**
-     * The default refresh time used in the {@link ISharedLock | `ISharedLock`} `acquireBlocking` and `runBlocking` methods.
-     * @default
-     * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
-     *
-     * TimeSpan.fromSeconds(1);
-     * ```
-     */
-    defaultBlockingInterval?: ITimeSpan;
-
-    /**
-     * The default refresh time used in the {@link ISharedLock | `ISharedLock`} `acquireBlocking` and `runBlocking` methods.
-     * @default
-     * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
-     *
-     * TimeSpan.fromMinutes(1);
-     * ```
-     */
-    defaultBlockingTime?: ITimeSpan;
-
-    /**
      * The default refresh time used in the {@link ISharedLock | `ISharedLock`} `refresh` method.
      * ```ts
      * import { TimeSpan } from "@daiso-tech/core/time-span";
@@ -182,8 +160,6 @@ export class SharedLockFactory implements ISharedLockFactory {
     private readonly namespace: INamespace;
     private readonly creatLockId: Invokable<[], string>;
     private readonly defaultTtl: TimeSpan | null;
-    private readonly defaultBlockingInterval: TimeSpan;
-    private readonly defaultBlockingTime: TimeSpan;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
@@ -221,8 +197,6 @@ export class SharedLockFactory implements ISharedLockFactory {
     constructor(settings: SharedLockFactorySettings) {
         const {
             defaultTtl = TimeSpan.fromMinutes(5),
-            defaultBlockingInterval = TimeSpan.fromSeconds(1),
-            defaultBlockingTime = TimeSpan.fromMinutes(1),
             defaultRefreshTime = TimeSpan.fromMinutes(5),
             createLockId = () => v4(),
             serde = new Serde(new NoOpSerdeAdapter()),
@@ -242,10 +216,6 @@ export class SharedLockFactory implements ISharedLockFactory {
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.serde = serde;
-        this.defaultBlockingInterval = TimeSpan.fromTimeSpan(
-            defaultBlockingInterval,
-        );
-        this.defaultBlockingTime = TimeSpan.fromTimeSpan(defaultBlockingTime);
         this.defaultRefreshTime = TimeSpan.fromTimeSpan(defaultRefreshTime);
         this.creatLockId = createLockId;
         this.namespace = namespace;
@@ -266,8 +236,6 @@ export class SharedLockFactory implements ISharedLockFactory {
             waitUntil: this.waitUntil,
             originalAdapter: this.originalAdapter,
             adapter: this.adapter,
-            defaultBlockingInterval: this.defaultBlockingInterval,
-            defaultBlockingTime: this.defaultBlockingTime,
             defaultRefreshTime: this.defaultRefreshTime,
             eventBus: this.eventBus,
             namespace: this.namespace,
@@ -325,8 +293,6 @@ export class SharedLockFactory implements ISharedLockFactory {
             lockId,
             ttl: ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
             serdeTransformerName: this.serdeTransformerName,
-            defaultBlockingInterval: this.defaultBlockingInterval,
-            defaultBlockingTime: this.defaultBlockingTime,
             defaultRefreshTime: this.defaultRefreshTime,
         });
     }

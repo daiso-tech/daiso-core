@@ -104,24 +104,6 @@ export class SharedLockFactoryResolver<TAdapters extends string>
         });
     }
 
-    setDefaultBlockingInterval(
-        interval: ITimeSpan,
-    ): SharedLockFactoryResolver<TAdapters> {
-        return new SharedLockFactoryResolver({
-            ...this.settings,
-            defaultBlockingInterval: interval,
-        });
-    }
-
-    setDefaultBlockingTime(
-        time: ITimeSpan,
-    ): SharedLockFactoryResolver<TAdapters> {
-        return new SharedLockFactoryResolver({
-            ...this.settings,
-            defaultBlockingTime: time,
-        });
-    }
-
     setDefaultRefreshTime(
         time: ITimeSpan,
     ): SharedLockFactoryResolver<TAdapters> {

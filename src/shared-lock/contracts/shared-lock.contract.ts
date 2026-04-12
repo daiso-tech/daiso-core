@@ -47,15 +47,6 @@ export type IReaderSemaphore = {
     runReaderOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
 
     /**
-     * The `runReaderBlockingOrFail` method wraps an {@link Invokable | `Invokable`} with the `acquireBlockingOrFail` and `release` method.
-     * @throws {LimitReachedReaderSemaphoreError} {@link LimitReachedReaderSemaphoreError}
-     */
-    runReaderBlockingOrFail<TValue = void>(
-        asyncFn: AsyncLazy<TValue>,
-        settings?: SharedLockAquireBlockingSettings,
-    ): Promise<TValue>;
-
-    /**
      * The `acquireReader` method acquires an slots only if the slot limit is not reached.
      *
      * @returns Returns true if the slot limit is not reached otherwise false is returned.
@@ -69,27 +60,6 @@ export type IReaderSemaphore = {
      * @throws {LimitReachedReaderSemaphoreError} {@link LimitReachedReaderSemaphoreError}
      */
     acquireReaderOrFail(): Promise<void>;
-
-    /**
-     * The `acquireReaderBlocking` method acquires an slots only if the slot limit is not reached.
-     * If the slot limit is reached, it retries every `settings.interval` until `settings.time` is reached.
-     *
-     * @returns Returns true if the slot limit is not reached otherwise false is returned.
-     */
-    acquireReaderBlocking(
-        settings?: SharedLockAquireBlockingSettings,
-    ): Promise<boolean>;
-
-    /**
-     * The `acquireReaderBlockingOrFail` method acquires an slots only if the slot limit is not reached.
-     * If the slot limit is reached, it retries every `settings.interval` until `settings.time` is reached.
-     * Throws an error if the slot limit is reached after the given `settings.time`.
-     *
-     * @throws {LimitReachedReaderSemaphoreError} {@link LimitReachedReaderSemaphoreError}
-     */
-    acquireReaderBlockingOrFail(
-        settings?: SharedLockAquireBlockingSettings,
-    ): Promise<void>;
 
     /**
      * The `releaseReader` method releases the current slot.
@@ -139,15 +109,6 @@ export type IWriterLock = {
     runWriterOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
 
     /**
-     * The `runWriterBlockingOrFail` method wraps an {@link Invokable | `Invokable`} with the `acquireBlockingOrFail` and `release` method.
-     * @throws {FailedAcquireWriterLockError} {@link FailedAcquireWriterLockError}
-     */
-    runWriterBlockingOrFail<TValue = void>(
-        asyncFn: AsyncLazy<TValue>,
-        settings?: SharedLockAquireBlockingSettings,
-    ): Promise<TValue>;
-
-    /**
      * The `acquireWriter` method acquires a lock only if the key is not already acquired by different owner.
      *
      * @returns Returns true if the lock is not already acquired otherwise false is returned.
@@ -161,27 +122,6 @@ export type IWriterLock = {
      * @throws {FailedAcquireWriterLockError} {@link FailedAcquireWriterLockError}
      */
     acquireWriterOrFail(): Promise<void>;
-
-    /**
-     * The `acquireWriterBlocking` method acquires a lock only if the key is not already acquired by different owner.
-     * If the lock is not acquired, it retries every `settings.interval` until `settings.time` is reached.
-     *
-     * @returns Returns true if the lock is not already acquired otherwise false is returned.
-     */
-    acquireWriterBlocking(
-        settings?: SharedLockAquireBlockingSettings,
-    ): Promise<boolean>;
-
-    /**
-     * The `acquireWriterBlockingOrFail` method acquires a lock only if the key is not already acquired by different owner.
-     * If the lock is not acquired, it retries every `settings.interval` until `settings.time` is reached.
-     * Throws an error if the lock is already acquired by different owner.
-     *
-     * @throws {FailedAcquireWriterLockError} {@link FailedAcquireWriterLockError}
-     */
-    acquireWriterBlockingOrFail(
-        settings?: SharedLockAquireBlockingSettings,
-    ): Promise<void>;
 
     /**
      * The `releaseWriter` method releases a lock if owned by the same owner.
