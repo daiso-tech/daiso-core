@@ -218,11 +218,7 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
         }
 
         if (allErrors.length !== 0 && !throwLastError) {
-            throw new RetryResilienceError(
-                allErrors,
-                maxAttempts,
-                `Retry limit reached: Failed after ${String(maxAttempts)} attempts`,
-            );
+            throw RetryResilienceError.create(allErrors, maxAttempts);
         }
         if (allErrors.length !== 0 && throwLastError) {
             throw allErrors.at(-1);

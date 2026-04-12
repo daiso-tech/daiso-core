@@ -126,12 +126,11 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
         }
 
         if (allErrors.length !== 0 && !throwLastError) {
-            throw new RetryIntervalResilienceError(
+            throw RetryIntervalResilienceError.create(
                 allErrors,
                 attempt,
                 timeAsTimeSpan,
                 intervalAsTimeSpan,
-                `Retry limit reached: Failed after ${String(timeAsTimeSpan.toMilliseconds())}ms (Interval: ${String(intervalAsTimeSpan.toMilliseconds())}ms)`,
             );
         }
         if (allErrors.length !== 0 && throwLastError) {
