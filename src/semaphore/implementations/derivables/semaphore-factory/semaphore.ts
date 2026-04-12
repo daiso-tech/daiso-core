@@ -11,7 +11,6 @@ import {
     type SemaphoreAdapterVariants,
     type SemaphoreEventMap,
     type ISemaphore,
-    type SemaphoreAquireBlockingSettings,
     FailedRefreshSemaphoreError,
     LimitReachedSemaphoreError,
     FailedReleaseSemaphoreError,
@@ -27,7 +26,6 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callInvokable,
-    delay,
     resolveLazyable,
     type AsyncLazy,
     type WaitUntil,
@@ -56,8 +54,6 @@ export type SemaphoreSettings = {
     eventDispatcher: IEventDispatcher<SemaphoreEventMap>;
     key: IKey;
     ttl: TimeSpan | null;
-    defaultBlockingInterval: TimeSpan;
-    defaultBlockingTime: TimeSpan;
     defaultRefreshTime: TimeSpan;
     namespace: INamespace;
     waitUntil: WaitUntil;
@@ -91,8 +87,6 @@ export class Semaphore implements ISemaphore {
     private readonly eventDispatcher: IEventDispatcher<SemaphoreEventMap>;
     private readonly _key: IKey;
     private _ttl: TimeSpan | null;
-    private readonly defaultBlockingInterval: TimeSpan;
-    private readonly defaultBlockingTime: TimeSpan;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly namespace: INamespace;
@@ -110,8 +104,6 @@ export class Semaphore implements ISemaphore {
             key,
             ttl,
             serdeTransformerName,
-            defaultBlockingInterval,
-            defaultBlockingTime,
             defaultRefreshTime,
             namespace,
             waitUntil,
@@ -130,8 +122,6 @@ export class Semaphore implements ISemaphore {
         this.eventDispatcher = eventDispatcher;
         this._key = key;
         this._ttl = ttl;
-        this.defaultBlockingInterval = defaultBlockingInterval;
-        this.defaultBlockingTime = defaultBlockingTime;
         this.defaultRefreshTime = defaultRefreshTime;
         this.originalAdapter = originalAdapter;
     }
@@ -152,18 +142,6 @@ export class Semaphore implements ISemaphore {
         asyncFn: AsyncLazy<TValue>,
     ): Promise<TValue> {
         await this.acquireOrFail();
-        try {
-            return await resolveLazyable(asyncFn);
-        } finally {
-            await this.release();
-        }
-    }
-
-    async runBlockingOrFail<TValue = void>(
-        asyncFn: AsyncLazy<TValue>,
-        settings?: SemaphoreAquireBlockingSettings,
-    ): Promise<TValue> {
-        await this.acquireBlockingOrFail(settings);
         try {
             return await resolveLazyable(asyncFn);
         } finally {
@@ -205,36 +183,6 @@ export class Semaphore implements ISemaphore {
 
     async acquireOrFail(): Promise<void> {
         const hasAquired = await this.acquire();
-        if (!hasAquired) {
-            throw LimitReachedSemaphoreError.create(this._key);
-        }
-    }
-
-    async acquireBlocking(
-        settings: SemaphoreAquireBlockingSettings = {},
-    ): Promise<boolean> {
-        const {
-            time = this.defaultBlockingTime,
-            interval = this.defaultBlockingInterval,
-        } = settings;
-
-        const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
-        const intervalAsTimeSpan = TimeSpan.fromTimeSpan(interval);
-        const endDate = timeAsTimeSpan.toEndDate();
-        while (endDate.getTime() > new Date().getTime()) {
-            const hasAquired = await this.acquire();
-            if (hasAquired) {
-                return true;
-            }
-            await delay(intervalAsTimeSpan);
-        }
-        return false;
-    }
-
-    async acquireBlockingOrFail(
-        settings?: SemaphoreAquireBlockingSettings,
-    ): Promise<void> {
-        const hasAquired = await this.acquireBlocking(settings);
         if (!hasAquired) {
             throw LimitReachedSemaphoreError.create(this._key);
         }
