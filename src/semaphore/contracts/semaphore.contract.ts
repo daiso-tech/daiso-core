@@ -47,15 +47,6 @@ export type ISemaphoreStateMethods = {
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
-export type SemaphoreAquireBlockingSettings = {
-    time?: ITimeSpan;
-    interval?: ITimeSpan;
-};
-
-/**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
- * @group Contracts
- */
 export type ISemaphoreBase = {
     /**
      * The `runOrFail` method wraps an {@link Invokable | `Invokable`} with the `acquireOrFail` and `release` method.

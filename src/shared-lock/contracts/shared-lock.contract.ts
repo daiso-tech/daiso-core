@@ -30,15 +30,6 @@ import {
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
  * @group Contracts
  */
-export type SharedLockAquireBlockingSettings = {
-    time?: ITimeSpan;
-    interval?: ITimeSpan;
-};
-
-/**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
- * @group Contracts
- */
 export type IReaderSemaphore = {
     /**
      * The `runReaderOrFail` method wraps an {@link Invokable | `Invokable`} with the `acquireOrFail` and `release` method.

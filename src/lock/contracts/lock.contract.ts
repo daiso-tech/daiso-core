@@ -24,15 +24,6 @@ import {
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
-export type LockAquireBlockingSettings = {
-    time?: ITimeSpan;
-    interval?: ITimeSpan;
-};
-
-/**
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
- * @group Contracts
- */
 export type ILockStateMethods = {
     getState(): Promise<ILockState>;
 
