@@ -6,7 +6,6 @@ import { type IKey } from "@/namespace/contracts/_module.js";
 import { type RateLimiterState } from "@/rate-limiter/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { BlockedRateLimiterError } from "@/rate-limiter/contracts/rate-limiter.errors.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { type AsyncLazy } from "@/utilities/_module.js";
 
 /**
@@ -25,15 +24,6 @@ export type IRateLimiterStateMethods = {
      * The `limit` of the `IRateLimiter` instance.
      */
     readonly limit: number;
-};
-
-/**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
- * @group Contracts
- */
-export type RateLimiterRunBlockingSettings = {
-    time?: ITimeSpan;
-    interval?: ITimeSpan;
 };
 
 /**

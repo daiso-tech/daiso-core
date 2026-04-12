@@ -109,28 +109,6 @@ export type SemaphoreFactorySettingsBase = {
     defaultTtl?: ITimeSpan | null;
 
     /**
-     * The default refresh time used in the {@link ISemaphore | `ISemaphore`} `acquireBlocking` and `runBlocking` methods.
-     * @default
-     * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
-     *
-     * TimeSpan.fromSeconds(1);
-     * ```
-     */
-    defaultBlockingInterval?: ITimeSpan;
-
-    /**
-     * The default refresh time used in the {@link ISemaphore | `ISemaphore`} `acquireBlocking` and `runBlocking` methods.
-     * @default
-     * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
-     *
-     * TimeSpan.fromMinutes(1);
-     * ```
-     */
-    defaultBlockingTime?: ITimeSpan;
-
-    /**
      * The default refresh time used in the {@link ISemaphore | `ISemaphore`} `refresh` method.
      * ```ts
      * import { TimeSpan } from "@daiso-tech/core/time-span";
@@ -184,8 +162,6 @@ export class SemaphoreFactory implements ISemaphoreFactory {
     private readonly originalAdapter: SemaphoreAdapterVariants;
     private readonly namespace: INamespace;
     private readonly defaultTtl: TimeSpan | null;
-    private readonly defaultBlockingInterval: TimeSpan;
-    private readonly defaultBlockingTime: TimeSpan;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
@@ -225,8 +201,6 @@ export class SemaphoreFactory implements ISemaphoreFactory {
         const {
             createSlotId = () => v4(),
             defaultTtl = TimeSpan.fromMinutes(5),
-            defaultBlockingInterval = TimeSpan.fromSeconds(1),
-            defaultBlockingTime = TimeSpan.fromMinutes(1),
             defaultRefreshTime = TimeSpan.fromMinutes(5),
             serde = new Serde(new NoOpSerdeAdapter()),
             namespace = new NoOpNamespace(),
@@ -246,10 +220,6 @@ export class SemaphoreFactory implements ISemaphoreFactory {
         this.waitUntil = waitUntil;
         this.createSlotId = createSlotId;
         this.serde = serde;
-        this.defaultBlockingInterval = TimeSpan.fromTimeSpan(
-            defaultBlockingInterval,
-        );
-        this.defaultBlockingTime = TimeSpan.fromTimeSpan(defaultBlockingTime);
         this.defaultRefreshTime = TimeSpan.fromTimeSpan(defaultRefreshTime);
         this.namespace = namespace;
         this.defaultTtl =
@@ -270,8 +240,6 @@ export class SemaphoreFactory implements ISemaphoreFactory {
             waitUntil: this.waitUntil,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
-            defaultBlockingInterval: this.defaultBlockingInterval,
-            defaultBlockingTime: this.defaultBlockingTime,
             defaultRefreshTime: this.defaultRefreshTime,
             eventBus: this.eventBus,
             namespace: this.namespace,
@@ -306,8 +274,6 @@ export class SemaphoreFactory implements ISemaphoreFactory {
             key: this.namespace.create(key),
             ttl: ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
             serdeTransformerName: this.serdeTransformerName,
-            defaultBlockingInterval: this.defaultBlockingInterval,
-            defaultBlockingTime: this.defaultBlockingTime,
             defaultRefreshTime: this.defaultRefreshTime,
             namespace: this.namespace,
         });

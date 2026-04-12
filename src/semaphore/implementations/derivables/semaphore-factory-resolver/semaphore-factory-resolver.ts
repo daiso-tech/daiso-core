@@ -94,24 +94,6 @@ export class SemaphoreFactoryResolver<TAdapters extends string>
         });
     }
 
-    setDefaultBlockingInterval(
-        interval: ITimeSpan,
-    ): SemaphoreFactoryResolver<TAdapters> {
-        return new SemaphoreFactoryResolver({
-            ...this.settings,
-            defaultBlockingInterval: interval,
-        });
-    }
-
-    setDefaultBlockingTime(
-        time: ITimeSpan,
-    ): SemaphoreFactoryResolver<TAdapters> {
-        return new SemaphoreFactoryResolver({
-            ...this.settings,
-            defaultBlockingTime: time,
-        });
-    }
-
     setDefaultRefreshTime(
         time: ITimeSpan,
     ): SemaphoreFactoryResolver<TAdapters> {

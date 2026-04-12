@@ -76,9 +76,8 @@ export function timeout<TParameters extends Array<unknown>, TReturn>(
     const { waitTime = TimeSpan.fromSeconds(2), onTimeout = () => {} } =
         settings;
     return async ({ args, next, context }) => {
-        const timeoutError = new TimeoutResilienceError(
+        const timeoutError = TimeoutResilienceError.create(
             TimeSpan.fromTimeSpan(waitTime),
-            "Timeout exceeded",
         );
         try {
             let timeoutId = null as ReturnType<typeof setTimeout> | null;

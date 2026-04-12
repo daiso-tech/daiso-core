@@ -47,30 +47,12 @@ export type ISemaphoreStateMethods = {
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
-export type SemaphoreAquireBlockingSettings = {
-    time?: ITimeSpan;
-    interval?: ITimeSpan;
-};
-
-/**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
- * @group Contracts
- */
 export type ISemaphoreBase = {
     /**
      * The `runOrFail` method wraps an {@link Invokable | `Invokable`} with the `acquireOrFail` and `release` method.
      * @throws {LimitReachedSemaphoreError} {@link LimitReachedSemaphoreError}
      */
     runOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
-
-    /**
-     * The `runBlockingOrFail` method wraps an {@link Invokable | `Invokable`} with the `acquireBlockingOrFail` and `release` method.
-     * @throws {LimitReachedSemaphoreError} {@link LimitReachedSemaphoreError}
-     */
-    runBlockingOrFail<TValue = void>(
-        asyncFn: AsyncLazy<TValue>,
-        settings?: SemaphoreAquireBlockingSettings,
-    ): Promise<TValue>;
 
     /**
      * The `acquire` method acquires an slots only if the slot limit is not reached.
@@ -86,27 +68,6 @@ export type ISemaphoreBase = {
      * @throws {LimitReachedSemaphoreError} {@link LimitReachedSemaphoreError}
      */
     acquireOrFail(): Promise<void>;
-
-    /**
-     * The `acquireBlocking` method acquires an slots only if the slot limit is not reached.
-     * If the slot limit is reached, it retries every `settings.interval` until `settings.time` is reached.
-     *
-     * @returns Returns true if the slot limit is not reached otherwise false is returned.
-     */
-    acquireBlocking(
-        settings?: SemaphoreAquireBlockingSettings,
-    ): Promise<boolean>;
-
-    /**
-     * The `acquireBlockingOrFail` method acquires an slots only if the slot limit is not reached.
-     * If the slot limit is reached, it retries every `settings.interval` until `settings.time` is reached.
-     * Throws an error if the slot limit is reached after the given `settings.time`.
-     *
-     * @throws {LimitReachedSemaphoreError} {@link LimitReachedSemaphoreError}
-     */
-    acquireBlockingOrFail(
-        settings?: SemaphoreAquireBlockingSettings,
-    ): Promise<void>;
 
     /**
      * The `release` method releases the current slot.

@@ -104,22 +104,6 @@ export class LockFactoryResolver<TAdapters extends string>
         });
     }
 
-    setDefaultBlockingInterval(
-        interval: ITimeSpan,
-    ): LockFactoryResolver<TAdapters> {
-        return new LockFactoryResolver({
-            ...this.settings,
-            defaultBlockingInterval: interval,
-        });
-    }
-
-    setDefaultBlockingTime(time: ITimeSpan): LockFactoryResolver<TAdapters> {
-        return new LockFactoryResolver({
-            ...this.settings,
-            defaultBlockingTime: time,
-        });
-    }
-
     setDefaultRefreshTime(time: ITimeSpan): LockFactoryResolver<TAdapters> {
         return new LockFactoryResolver({
             ...this.settings,

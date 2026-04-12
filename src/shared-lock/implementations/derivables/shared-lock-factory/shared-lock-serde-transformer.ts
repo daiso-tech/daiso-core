@@ -30,8 +30,6 @@ export type SharedLockSerdeTransformerSettings = {
     adapter: ISharedLockAdapter;
     originalAdapter: SharedLockAdapterVariants;
     namespace: INamespace;
-    defaultBlockingInterval: TimeSpan;
-    defaultBlockingTime: TimeSpan;
     defaultRefreshTime: TimeSpan;
     eventBus: IEventBus<SharedLockEventMap>;
     serdeTransformerName: string;
@@ -49,8 +47,6 @@ export class SharedLockSerdeTransformer
     private readonly adapter: ISharedLockAdapter;
     private readonly originalAdapter: SharedLockAdapterVariants;
     private readonly namespace: INamespace;
-    private readonly defaultBlockingInterval: TimeSpan;
-    private readonly defaultBlockingTime: TimeSpan;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly eventBus: IEventBus<SharedLockEventMap>;
     private readonly serdeTransformerName: string;
@@ -63,8 +59,6 @@ export class SharedLockSerdeTransformer
             adapter,
             originalAdapter,
             namespace,
-            defaultBlockingInterval,
-            defaultBlockingTime,
             defaultRefreshTime,
             eventBus,
             serdeTransformerName,
@@ -80,8 +74,6 @@ export class SharedLockSerdeTransformer
         this.adapter = adapter;
         this.originalAdapter = originalAdapter;
         this.namespace = namespace;
-        this.defaultBlockingInterval = defaultBlockingInterval;
-        this.defaultBlockingTime = defaultBlockingTime;
         this.defaultRefreshTime = defaultRefreshTime;
         this.eventBus = eventBus;
     }
@@ -137,8 +129,6 @@ export class SharedLockSerdeTransformer
             limit,
             serdeTransformerName: this.serdeTransformerName,
             ttl: ttlInMs === null ? null : TimeSpan.fromMilliseconds(ttlInMs),
-            defaultBlockingInterval: this.defaultBlockingInterval,
-            defaultBlockingTime: this.defaultBlockingTime,
             defaultRefreshTime: this.defaultRefreshTime,
             namespace: this.namespace,
         });

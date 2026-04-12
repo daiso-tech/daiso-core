@@ -30,8 +30,6 @@ export type SemaphoreSerdeTransformerSettings = {
     adapter: ISemaphoreAdapter;
     originalAdapter: SemaphoreAdapterVariants;
     namespace: INamespace;
-    defaultBlockingInterval: TimeSpan;
-    defaultBlockingTime: TimeSpan;
     defaultRefreshTime: TimeSpan;
     eventBus: IEventBus<SemaphoreEventMap>;
     serdeTransformerName: string;
@@ -49,8 +47,6 @@ export class SemaphoreSerdeTransformer
     private readonly adapter: ISemaphoreAdapter;
     private readonly originalAdapter: SemaphoreAdapterVariants;
     private readonly namespace: INamespace;
-    private readonly defaultBlockingInterval: TimeSpan;
-    private readonly defaultBlockingTime: TimeSpan;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly eventBus: IEventBus<SemaphoreEventMap>;
     private readonly serdeTransformerName: string;
@@ -63,8 +59,6 @@ export class SemaphoreSerdeTransformer
             adapter,
             originalAdapter,
             namespace,
-            defaultBlockingInterval,
-            defaultBlockingTime,
             defaultRefreshTime,
             eventBus,
             serdeTransformerName,
@@ -80,8 +74,6 @@ export class SemaphoreSerdeTransformer
         this.adapter = adapter;
         this.originalAdapter = originalAdapter;
         this.namespace = namespace;
-        this.defaultBlockingInterval = defaultBlockingInterval;
-        this.defaultBlockingTime = defaultBlockingTime;
         this.defaultRefreshTime = defaultRefreshTime;
         this.eventBus = eventBus;
     }
@@ -137,8 +129,6 @@ export class SemaphoreSerdeTransformer
             limit,
             serdeTransformerName: this.serdeTransformerName,
             ttl: ttlInMs === null ? null : TimeSpan.fromMilliseconds(ttlInMs),
-            defaultBlockingInterval: this.defaultBlockingInterval,
-            defaultBlockingTime: this.defaultBlockingTime,
             defaultRefreshTime: this.defaultRefreshTime,
             namespace: this.namespace,
         });

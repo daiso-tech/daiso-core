@@ -25,7 +25,6 @@ import {
     type ISharedLockWriterAcquiredState,
     type ISharedLockWriterUnavailableState,
     type SharedLockAdapterVariants,
-    type SharedLockAquireBlockingSettings,
     type SharedLockEventMap,
 } from "@/shared-lock/contracts/_module.js";
 import {
@@ -36,7 +35,6 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callInvokable,
-    delay,
     resolveLazyable,
     UnexpectedError,
     type AsyncLazy,
@@ -67,8 +65,6 @@ export type SharedLockSettings = {
     key: IKey;
     lockId: string;
     ttl: TimeSpan | null;
-    defaultBlockingInterval: TimeSpan;
-    defaultBlockingTime: TimeSpan;
     defaultRefreshTime: TimeSpan;
     waitUntil: WaitUntil;
     executionContext: IExecutionContext;
@@ -101,8 +97,6 @@ export class SharedLock implements ISharedLock {
     private readonly _key: IKey;
     private readonly lockId: string;
     private _ttl: TimeSpan | null;
-    private readonly defaultBlockingInterval: TimeSpan;
-    private readonly defaultBlockingTime: TimeSpan;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly limit: number;
@@ -120,8 +114,6 @@ export class SharedLock implements ISharedLock {
             lockId,
             ttl,
             serdeTransformerName,
-            defaultBlockingInterval,
-            defaultBlockingTime,
             defaultRefreshTime,
             limit,
             waitUntil,
@@ -141,8 +133,6 @@ export class SharedLock implements ISharedLock {
         this._key = key;
         this.lockId = lockId;
         this._ttl = ttl;
-        this.defaultBlockingInterval = defaultBlockingInterval;
-        this.defaultBlockingTime = defaultBlockingTime;
         this.defaultRefreshTime = defaultRefreshTime;
     }
 
@@ -162,18 +152,6 @@ export class SharedLock implements ISharedLock {
         asyncFn: AsyncLazy<TValue>,
     ): Promise<TValue> {
         await this.acquireReaderOrFail();
-        try {
-            return await resolveLazyable(asyncFn);
-        } finally {
-            await this.releaseReader();
-        }
-    }
-
-    async runReaderBlockingOrFail<TValue = void>(
-        asyncFn: AsyncLazy<TValue>,
-        settings?: SharedLockAquireBlockingSettings,
-    ): Promise<TValue> {
-        await this.acquireReaderBlockingOrFail(settings);
         try {
             return await resolveLazyable(asyncFn);
         } finally {
@@ -215,35 +193,6 @@ export class SharedLock implements ISharedLock {
 
     async acquireReaderOrFail(): Promise<void> {
         const hasAquired = await this.acquireReader();
-        if (!hasAquired) {
-            throw LimitReachedReaderSemaphoreError.create(this._key);
-        }
-    }
-
-    async acquireReaderBlocking(
-        settings: SharedLockAquireBlockingSettings = {},
-    ): Promise<boolean> {
-        const {
-            time = this.defaultBlockingTime,
-            interval = this.defaultBlockingInterval,
-        } = settings;
-
-        const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
-        const endDate = timeAsTimeSpan.toEndDate();
-        while (endDate.getTime() > new Date().getTime()) {
-            const hasAquired = await this.acquireReader();
-            if (hasAquired) {
-                return true;
-            }
-            await delay(interval);
-        }
-        return false;
-    }
-
-    async acquireReaderBlockingOrFail(
-        settings?: SharedLockAquireBlockingSettings,
-    ): Promise<void> {
-        const hasAquired = await this.acquireReaderBlocking(settings);
         if (!hasAquired) {
             throw LimitReachedReaderSemaphoreError.create(this._key);
         }
@@ -373,18 +322,6 @@ export class SharedLock implements ISharedLock {
         }
     }
 
-    async runWriterBlockingOrFail<TValue = void>(
-        asyncFn: AsyncLazy<TValue>,
-        settings?: SharedLockAquireBlockingSettings,
-    ): Promise<TValue> {
-        await this.acquireWriterBlockingOrFail(settings);
-        try {
-            return await resolveLazyable(asyncFn);
-        } finally {
-            await this.releaseWriter();
-        }
-    }
-
     acquireWriter(): Promise<boolean> {
         return this.use(async () => {
             return await this.adapter.acquireWriter(
@@ -418,35 +355,6 @@ export class SharedLock implements ISharedLock {
 
     async acquireWriterOrFail(): Promise<void> {
         const hasAquired = await this.acquireWriter();
-        if (!hasAquired) {
-            throw FailedAcquireWriterLockError.create(this._key);
-        }
-    }
-
-    async acquireWriterBlocking(
-        settings: SharedLockAquireBlockingSettings = {},
-    ): Promise<boolean> {
-        const {
-            time = this.defaultBlockingTime,
-            interval = this.defaultBlockingInterval,
-        } = settings;
-
-        const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
-        const endDate = timeAsTimeSpan.toEndDate();
-        while (endDate.getTime() > new Date().getTime()) {
-            const hasAquired = await this.acquireWriter();
-            if (hasAquired) {
-                return true;
-            }
-            await delay(interval);
-        }
-        return false;
-    }
-
-    async acquireWriterBlockingOrFail(
-        settings?: SharedLockAquireBlockingSettings,
-    ): Promise<void> {
-        const hasAquired = await this.acquireWriterBlocking(settings);
         if (!hasAquired) {
             throw FailedAcquireWriterLockError.create(this._key);
         }
