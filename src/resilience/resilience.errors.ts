@@ -88,7 +88,7 @@ export class RetryIntervalResilienceError extends AggregateError {
      */
     constructor(
         errors: Array<unknown>,
-        public readonly attemps: number,
+        public readonly attempts: number,
         public readonly time: TimeSpan,
         public readonly interval: TimeSpan,
         message: string,
@@ -112,7 +112,10 @@ export const RESILIENCE_ERRORS = {
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Errors
  */
-export type AllResilienceErrors = RetryResilienceError | TimeoutResilienceError;
+export type AllResilienceErrors =
+    | RetryIntervalResilienceError
+    | RetryResilienceError
+    | TimeoutResilienceError;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`

@@ -74,13 +74,16 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                             context,
                         });
                     } catch (error: unknown) {
-                        console.log(":", error);
+                        console.log(
+                            "Error occured in onExecutionAttempt callback:",
+                            error,
+                        );
                     }
                 })();
                 const value = await next();
 
-                result = optionSome(value);
                 if (!callErrorPolicyOnValue(errorPolicy, value)) {
+                    result = optionSome(value);
                     return value;
                 }
                 // Handle retrying if an false is returned
@@ -95,9 +98,17 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                             context,
                         });
                     } catch (error: unknown) {
-                        console.log(":", error);
+                        console.log(
+                            "Error occured in onRetryDelay callback:",
+                            error,
+                        );
                     }
                 })();
+
+                const remainingAfterValue = endDate.getTime() - Date.now();
+                if (remainingAfterValue <= 0) {
+                    break;
+                }
                 await delay(interval);
             } catch (error: unknown) {
                 if (await callErrorPolicyOnThrow<any>(errorPolicy, error)) {
@@ -110,15 +121,23 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                     try {
                         await callInvokable(onRetryDelay, {
                             error: error,
-                            waitTime: TimeSpan.fromTimeSpan(intervalAsTimeSpan),
+                            waitTime: intervalAsTimeSpan,
                             attempt,
                             args,
                             context,
                         });
                     } catch (error: unknown) {
-                        console.log(":", error);
+                        console.log(
+                            "Error occured in onRetryDelay callback:",
+                            error,
+                        );
                     }
                 })();
+
+                const remainingAfterValue = endDate.getTime() - Date.now();
+                if (remainingAfterValue <= 0) {
+                    break;
+                }
                 await delay(intervalAsTimeSpan);
             } finally {
                 attempt++;
@@ -128,7 +147,7 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
         if (allErrors.length !== 0 && !throwLastError) {
             throw RetryIntervalResilienceError.create(
                 allErrors,
-                attempt,
+                attempt - 1,
                 timeAsTimeSpan,
                 intervalAsTimeSpan,
             );

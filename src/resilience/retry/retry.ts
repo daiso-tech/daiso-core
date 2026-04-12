@@ -149,13 +149,16 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                             context,
                         });
                     } catch (error: unknown) {
-                        console.log(":", error);
+                        console.log(
+                            "Error occured in onExecutionAttempt callback:",
+                            error,
+                        );
                     }
                 })();
                 const value = await next();
 
-                result = optionSome(value);
                 if (!callErrorPolicyOnValue(errorPolicy, value)) {
+                    result = optionSome(value);
                     return value;
                 }
                 // Handle retrying if an false is returned
@@ -177,7 +180,10 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                                 context,
                             });
                         } catch (error: unknown) {
-                            console.log(":", error);
+                            console.log(
+                                "Error occured in onRetryDelay callback:",
+                                error,
+                            );
                         }
                     })();
                     await delay(waitTime);
@@ -209,7 +215,10 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                                 context,
                             });
                         } catch (error: unknown) {
-                            console.log(":", error);
+                            console.log(
+                                "Error occured in onRetryDelay callback:",
+                                error,
+                            );
                         }
                     })();
                     await delay(waitTime);
