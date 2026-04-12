@@ -11,7 +11,6 @@ import {
     LOCK_EVENTS,
     FailedReleaseLockError,
     FailedRefreshLockError,
-    type LockAquireBlockingSettings,
     type LockEventMap,
     LOCK_STATE,
     type ILockState,
@@ -31,7 +30,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type AsyncLazy,
     callInvokable,
-    delay,
     resolveLazyable,
     type WaitUntil,
 } from "@/utilities/_module.js";
@@ -58,8 +56,6 @@ export type LockSettings = {
     key: IKey;
     lockId: string;
     ttl: TimeSpan | null;
-    defaultBlockingInterval: TimeSpan;
-    defaultBlockingTime: TimeSpan;
     defaultRefreshTime: TimeSpan;
     waitUntil: WaitUntil;
     executionContext: IExecutionContext;
@@ -89,8 +85,6 @@ export class Lock implements ILock {
     private readonly _key: IKey;
     private readonly lockId: string;
     private _ttl: TimeSpan | null;
-    private readonly defaultBlockingInterval: TimeSpan;
-    private readonly defaultBlockingTime: TimeSpan;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
@@ -107,8 +101,6 @@ export class Lock implements ILock {
             lockId,
             ttl,
             serdeTransformerName,
-            defaultBlockingInterval,
-            defaultBlockingTime,
             defaultRefreshTime,
             waitUntil,
             executionContext,
@@ -126,8 +118,6 @@ export class Lock implements ILock {
         this._key = key;
         this.lockId = lockId;
         this._ttl = ttl;
-        this.defaultBlockingInterval = defaultBlockingInterval;
-        this.defaultBlockingTime = defaultBlockingTime;
         this.defaultRefreshTime = defaultRefreshTime;
     }
 
@@ -147,18 +137,6 @@ export class Lock implements ILock {
         asyncFn: AsyncLazy<TValue>,
     ): Promise<TValue> {
         await this.acquireOrFail();
-        try {
-            return await resolveLazyable(asyncFn);
-        } finally {
-            await this.release();
-        }
-    }
-
-    async runBlockingOrFail<TValue = void>(
-        asyncFn: AsyncLazy<TValue>,
-        settings?: LockAquireBlockingSettings,
-    ): Promise<TValue> {
-        await this.acquireBlockingOrFail(settings);
         try {
             return await resolveLazyable(asyncFn);
         } finally {
@@ -199,36 +177,6 @@ export class Lock implements ILock {
 
     async acquireOrFail(): Promise<void> {
         const hasAquired = await this.acquire();
-        if (!hasAquired) {
-            throw FailedAcquireLockError.create(this._key);
-        }
-    }
-
-    async acquireBlocking(
-        settings: LockAquireBlockingSettings = {},
-    ): Promise<boolean> {
-        const {
-            time = this.defaultBlockingTime,
-            interval = this.defaultBlockingInterval,
-        } = settings;
-
-        const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
-        const intervalAsTimeSpan = TimeSpan.fromTimeSpan(interval);
-        const endDate = timeAsTimeSpan.toEndDate();
-        while (endDate.getTime() > new Date().getTime()) {
-            const hasAquired = await this.acquire();
-            if (hasAquired) {
-                return true;
-            }
-            await delay(intervalAsTimeSpan);
-        }
-        return false;
-    }
-
-    async acquireBlockingOrFail(
-        settings?: LockAquireBlockingSettings,
-    ): Promise<void> {
-        const hasAquired = await this.acquireBlocking(settings);
         if (!hasAquired) {
             throw FailedAcquireLockError.create(this._key);
         }

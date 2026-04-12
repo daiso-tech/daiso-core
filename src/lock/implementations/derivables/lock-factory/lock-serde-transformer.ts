@@ -30,8 +30,6 @@ export type LockSerdeTransformerSettings = {
     adapter: ILockAdapter;
     originalAdapter: LockAdapterVariants;
     namespace: INamespace;
-    defaultBlockingInterval: TimeSpan;
-    defaultBlockingTime: TimeSpan;
     defaultRefreshTime: TimeSpan;
     eventBus: IEventBus<LockEventMap>;
     serdeTransformerName: string;
@@ -49,8 +47,6 @@ export class LockSerdeTransformer
     private readonly adapter: ILockAdapter;
     private readonly originalAdapter: LockAdapterVariants;
     private readonly namespace: INamespace;
-    private readonly defaultBlockingInterval: TimeSpan;
-    private readonly defaultBlockingTime: TimeSpan;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly eventBus: IEventBus<LockEventMap>;
     private readonly serdeTransformerName: string;
@@ -63,8 +59,6 @@ export class LockSerdeTransformer
             adapter,
             originalAdapter,
             namespace,
-            defaultBlockingInterval,
-            defaultBlockingTime,
             defaultRefreshTime,
             eventBus,
             serdeTransformerName,
@@ -80,8 +74,6 @@ export class LockSerdeTransformer
         this.adapter = adapter;
         this.originalAdapter = originalAdapter;
         this.namespace = namespace;
-        this.defaultBlockingInterval = defaultBlockingInterval;
-        this.defaultBlockingTime = defaultBlockingTime;
         this.defaultRefreshTime = defaultRefreshTime;
         this.eventBus = eventBus;
     }
@@ -137,8 +129,6 @@ export class LockSerdeTransformer
             lockId,
             serdeTransformerName: this.serdeTransformerName,
             ttl: ttlInMs === null ? null : TimeSpan.fromMilliseconds(ttlInMs),
-            defaultBlockingInterval: this.defaultBlockingInterval,
-            defaultBlockingTime: this.defaultBlockingTime,
             defaultRefreshTime: this.defaultRefreshTime,
         });
     }

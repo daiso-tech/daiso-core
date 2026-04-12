@@ -64,15 +64,6 @@ export type ILockBase = {
     runOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
 
     /**
-     * The `runBlockingOrFail` method wraps an {@link Invokable | `Invokable`} with the `acquireBlockingOrFail` and `release` method.
-     * @throws {FailedAcquireLockError} {@link FailedAcquireLockError}
-     */
-    runBlockingOrFail<TValue = void>(
-        asyncFn: AsyncLazy<TValue>,
-        settings?: LockAquireBlockingSettings,
-    ): Promise<TValue>;
-
-    /**
      * The `acquire` method acquires a lock only if the key is not already acquired by different owner.
      *
      * @returns Returns true if the lock is not already acquired otherwise false is returned.
@@ -86,23 +77,6 @@ export type ILockBase = {
      * @throws {FailedAcquireLockError} {@link FailedAcquireLockError}
      */
     acquireOrFail(): Promise<void>;
-
-    /**
-     * The `acquireBlocking` method acquires a lock only if the key is not already acquired by different owner.
-     * If the lock is not acquired, it retries every `settings.interval` until `settings.time` is reached.
-     *
-     * @returns Returns true if the lock is not already acquired otherwise false is returned.
-     */
-    acquireBlocking(settings?: LockAquireBlockingSettings): Promise<boolean>;
-
-    /**
-     * The `acquireBlockingOrFail` method acquires a lock only if the key is not already acquired by different owner.
-     * If the lock is not acquired, it retries every `settings.interval` until `settings.time` is reached.
-     * Throws an error if the lock is already acquired by different owner.
-     *
-     * @throws {FailedAcquireLockError} {@link FailedAcquireLockError}
-     */
-    acquireBlockingOrFail(settings?: LockAquireBlockingSettings): Promise<void>;
 
     /**
      * The `release` method releases a lock if owned by the same owner.
