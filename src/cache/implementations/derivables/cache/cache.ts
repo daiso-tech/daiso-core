@@ -96,6 +96,8 @@ export type CacheSettingsBase<TType = unknown> = {
     defaultJitter?: number | null;
 
     /**
+     * You can pass the `waitUntil` function to handle background promises.
+     * This is required when working with environments like Cloudflare Workers or Vercel Functions to ensure tasks complete after the response is sent.
      * @default
      * ```ts
      * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
@@ -114,6 +116,15 @@ export type CacheSettingsBase<TType = unknown> = {
      */
     executionContext?: IExecutionContext;
 
+    /**
+     * You can provide an `ILockFactoryBase` instance to handle locking when `GetOrAddSettings.enableLocking` is set to true during a `getOrAdd` call.
+     * @default
+     * ```ts
+     * lockFactory = new LockFactory({
+     *   adapter: new NoOpLockAdapter(),
+     * })
+     * ```
+     */
     lockFactory?: ILockFactoryBase;
 };
 

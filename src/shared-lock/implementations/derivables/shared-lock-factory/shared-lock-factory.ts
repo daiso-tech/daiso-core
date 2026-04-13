@@ -116,6 +116,8 @@ export type SharedLockFactorySettingsBase = {
     defaultRefreshTime?: ITimeSpan;
 
     /**
+     * You can pass the `waitUntil` function to handle background promises.
+     * This is required when working with environments like Cloudflare Workers or Vercel Functions to ensure tasks complete after the response is sent.
      * @default
      * ```ts
      * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
