@@ -85,6 +85,17 @@ export type IReadableCache<TType = unknown> = {
 };
 
 /**
+ * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
+ * @group Contracts
+ */
+export type GetOrAddSettings = CacheWriteSettings & {
+    /**
+     * @default false
+     */
+    enableLocking?: boolean;
+};
+
+/**
  * The `ICacheBase` contract defines a way for storing and reading as key-value pairs independent of data storage.
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
@@ -105,7 +116,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
     getOrAdd(
         key: string,
         valueToAdd: AsyncLazyable<NoneFunc<TType>>,
-        settings?: CacheWriteSettings,
+        settings?: GetOrAddSettings,
     ): Promise<TType>;
 
     /**
