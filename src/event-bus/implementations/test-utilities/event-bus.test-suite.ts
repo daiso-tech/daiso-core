@@ -213,7 +213,6 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
 
                 expect(listener).toHaveBeenCalledTimes(0);
             });
-            test.todo("Write test for multiple events.");
         });
         describe("method: listenOnce", () => {
             test("Should not call listener when listener is added and event is not triggered", async () => {
@@ -252,7 +251,6 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
 
                 expect(listener).toHaveBeenCalledTimes(0);
             });
-            test.todo("Write test for multiple events.");
         });
         describe("method: asPromise", () => {
             test("Should not call onfulfilled handler when event is not triggered", () => {
@@ -276,7 +274,6 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
                 expect(listener).toHaveBeenCalledTimes(1);
                 expect(listener).toHaveBeenCalledWith(event);
             });
-            test.todo("Write test for multiple events.");
         });
     });
 }

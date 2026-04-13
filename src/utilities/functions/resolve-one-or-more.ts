@@ -18,6 +18,9 @@ export type OneOrArray<TItem> = TItem | Array<TItem>;
  * @internal
  */
 export function resolveOneOrMore<TType>(value: OneOrMore<TType>): Array<TType> {
+    if (typeof value === "string") {
+        return [value];
+    }
     if (isIterable(value)) {
         return [...value];
     }

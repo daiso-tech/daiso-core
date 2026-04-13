@@ -126,7 +126,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
     constructor(settings: EventBusSettings<TEventMap>) {
         const {
             __onUncaughtRejection = (error) => {
-                console.log(
+                console.error(
                     `An error of type "${String(error)}" occured in event listener`,
                 );
             },
@@ -227,7 +227,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         }
     }
 
-    private async _listenOnce<TEventName extends keyof TEventMap>(
+    async listenOnce<TEventName extends keyof TEventMap>(
         eventName: TEventName,
         listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void> {
@@ -265,24 +265,17 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         }
     }
 
-    async listenOnce<TEventName extends keyof TEventMap>(
-        eventNames: OneOrArray<TEventName>,
-        listener: EventListener<InferEvent<TEventMap, TEventName>>,
-    ): Promise<void> {
-        for (const eventName of resolveOneOrMore<TEventName>(eventNames)) {
-            await this._listenOnce(eventName, listener);
-        }
-    }
-
     asPromise<TEventName extends keyof TEventMap>(
-        eventNames: OneOrArray<TEventName>,
+        eventName: TEventName,
     ): Promise<InferEvent<TEventMap, TEventName>> {
         return new Promise((resolve, reject) => {
-            this.listenOnce(eventNames, resolve).then(() => {}, reject);
+            this.listenOnce(eventName, resolve)
+                .then(() => {})
+                .catch(reject);
         });
     }
 
-    private async _subscribeOnce<TEventName extends keyof TEventMap>(
+    async subscribeOnce<TEventName extends keyof TEventMap>(
         eventName: TEventName,
         listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<Unsubscribe> {
@@ -291,22 +284,6 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
             await this.removeListener(eventName, listener);
         };
         return unsubscribe;
-    }
-
-    async subscribeOnce<TEventName extends keyof TEventMap>(
-        eventNames: OneOrArray<TEventName>,
-        listener: EventListener<InferEvent<TEventMap, TEventName>>,
-    ): Promise<Unsubscribe> {
-        const unsubscribeArr: Array<Unsubscribe> = [];
-        for (const eventName of resolveOneOrMore<TEventName>(eventNames)) {
-            const unsubscribe = await this._subscribeOnce(eventName, listener);
-            unsubscribeArr.push(unsubscribe);
-        }
-        return async () => {
-            for (const unsubscribe of unsubscribeArr) {
-                await unsubscribe();
-            }
-        };
     }
 
     private async _subscribe<TEventName extends keyof TEventMap>(

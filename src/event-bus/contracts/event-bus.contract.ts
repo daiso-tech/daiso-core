@@ -56,7 +56,7 @@ export type InferEvent<
  */
 export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
     /**
-     * The `addListener` method is used for listening to a {@link BaseEvent | `BaseEvent`}.
+     * The `addListener` method is used for listening to one or more {@link BaseEvent | `BaseEvent:s`}.
      * The same listener can only be added once for a specific event. Adding the same listener multiple times will have no effect and nothing will occur.
      */
     addListener<TEventName extends keyof TEventMap>(
@@ -65,7 +65,7 @@ export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
     ): Promise<void>;
 
     /**
-     * The `removeListener` method is used for stop listening to a {@link BaseEvent | `BaseEvent`}.
+     * The `removeListener` method is used for stop listening to one or more {@link BaseEvent | `BaseEvent:s`}.
      * Removing unadded listener will have no effect and nothing will occur.
      */
     removeListener<TEventName extends keyof TEventMap>(
@@ -74,31 +74,31 @@ export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
     ): Promise<void>;
 
     /**
-     * The `listenOnce` method is used for listening to a {@link BaseEvent | `BaseEvent`} once.
+     * The `listenOnce` method is used for listening to one or more {@link BaseEvent | `BaseEvent:s`} once.
      */
     listenOnce<TEventName extends keyof TEventMap>(
-        eventNames: OneOrArray<TEventName>,
+        eventName: TEventName,
         listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void>;
 
     /**
-     * The `asPromise` method returns {@link Promise | `Promise`} that resolves once the {@link BaseEvent | `BaseEvent`} is dispatched.
+     * The `asPromise` method returns {@link Promise | `Promise`} that resolves once one or more {@link BaseEvent | `BaseEvent:s`} is dispatched.
      */
     asPromise<TEventName extends keyof TEventMap>(
-        eventNames: OneOrArray<TEventName>,
+        eventName: TEventName,
     ): Promise<InferEvent<TEventMap, TEventName>>;
 
     /**
-     * The `subscribeOnce` method is used for listening to a {@link BaseEvent | `BaseEvent`} once and it returns a cleanup function that removes listener when called.
+     * The `subscribeOnce` method is used for listening to one or more {@link BaseEvent | `BaseEvent:s`} once and it returns a cleanup function that removes listener when called.
      * The same listener can only be added once for a specific event. Adding the same listener multiple times will have no effect and nothing will occur.
      */
     subscribeOnce<TEventName extends keyof TEventMap>(
-        eventNames: OneOrArray<TEventName>,
+        eventName: TEventName,
         listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<Unsubscribe>;
 
     /**
-     * The `subscribe` method is used for listening to a {@link BaseEvent | `BaseEvent`} and it returns a cleanup function that removes listener when called.
+     * The `subscribe` method is used for listening to one or more {@link BaseEvent | `BaseEvent:s`} and it returns a cleanup function that removes listener when called.
      * The same listener can only be added once for a specific event. Adding the same listener multiple times will have no effect and nothing will occur.
      */
     subscribe<TEventName extends keyof TEventMap>(
