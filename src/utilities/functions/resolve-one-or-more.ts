@@ -10,9 +10,17 @@ import { isIterable } from "@/utilities/functions/is-iterable.js";
 export type OneOrMore<TItem> = TItem | Iterable<TItem>;
 
 /**
+ * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ */
+export type OneOrArray<TItem> = TItem | Array<TItem>;
+
+/**
  * @internal
  */
 export function resolveOneOrMore<TType>(value: OneOrMore<TType>): Array<TType> {
+    if (typeof value === "string") {
+        return [value];
+    }
     if (isIterable(value)) {
         return [...value];
     }

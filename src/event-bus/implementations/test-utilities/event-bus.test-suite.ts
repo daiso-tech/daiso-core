@@ -88,6 +88,7 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
 
                 expect(listener).toHaveBeenCalledTimes(0);
             });
+            test.todo("Write test for multiple events.");
         });
         describe("method: subscribe, dispatch", () => {
             test("Should not call listener when listener is added and event is not triggered", async () => {
@@ -142,6 +143,7 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
 
                 expect(listener).toHaveBeenCalledTimes(0);
             });
+            test.todo("Write test for multiple events.");
         });
         describe("method: subscribeOnce", () => {
             test("Should not call listener when listener is added and event is not triggered", async () => {
