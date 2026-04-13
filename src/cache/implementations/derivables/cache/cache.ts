@@ -15,6 +15,7 @@ import {
     KeyExistsCacheError,
     type CacheWriteSettings,
     type ICacheListenable,
+    type GetOrAddSettings,
 } from "@/cache/contracts/_module.js";
 import { type CacheAdapterVariants } from "@/cache/contracts/types.js";
 import { resolveCacheAdapter } from "@/cache/implementations/derivables/cache/resolve-cache-adapter.js";
@@ -24,6 +25,9 @@ import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
+import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
+import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
+import { LockFactory } from "@/lock/implementations/derivables/_module-exports.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -109,6 +113,8 @@ export type CacheSettingsBase<TType = unknown> = {
      * ```
      */
     executionContext?: IExecutionContext;
+
+    lockFactory?: ILockFactoryBase;
 };
 
 /**
@@ -133,6 +139,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     private readonly defaultJitter: number | null;
     private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
+    private readonly lockFactory: ILockFactoryBase;
 
     /**
      *
@@ -178,8 +185,12 @@ export class Cache<TType = unknown> implements ICache<TType> {
             executionContext = new ExecutionContext(
                 new NoOpExecutionContextAdapter(),
             ),
+            lockFactory = new LockFactory({
+                adapter: new NoOpLockAdapter(),
+            }),
         } = settings;
 
+        this.lockFactory = lockFactory;
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.shouldValidateOutput = shouldValidateOutput;
@@ -309,10 +320,10 @@ export class Cache<TType = unknown> implements ICache<TType> {
         return value;
     }
 
-    async getOrAdd(
+    private async _getOrAdd(
         key: string,
         valueToAdd: AsyncLazyable<NoneFunc<TType>>,
-        settings?: CacheWriteSettings,
+        settings?: GetOrAddSettings,
     ): Promise<TType> {
         const ttl = this.resolveCacheWriteSettings(settings);
         const keyObj = this.namespace.create(key);
@@ -354,6 +365,21 @@ export class Cache<TType = unknown> implements ICache<TType> {
         }
 
         return value;
+    }
+
+    async getOrAdd(
+        key: string,
+        valueToAdd: AsyncLazyable<NoneFunc<TType>>,
+        settings?: GetOrAddSettings,
+    ): Promise<TType> {
+        const enableLocking = settings?.enableLocking ?? false;
+
+        if (enableLocking) {
+            return await this.lockFactory.create(key).runOrFail(async () => {
+                return await this._getOrAdd(key, valueToAdd, settings);
+            });
+        }
+        return await this._getOrAdd(key, valueToAdd, settings);
     }
 
     private resolveCacheWriteSettings(
