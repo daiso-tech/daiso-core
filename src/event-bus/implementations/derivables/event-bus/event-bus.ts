@@ -12,6 +12,7 @@ import {
     type EventListener,
     type EventListenerFn,
     type Unsubscribe,
+    type InferEvent,
 } from "@/event-bus/contracts/_module.js";
 import { ListenerStore } from "@/event-bus/implementations/derivables/event-bus/listener-store.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
@@ -20,9 +21,11 @@ import { ExecutionContext } from "@/execution-context/implementations/derivables
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import {
-    getInvokableName,
     validate,
     resolveInvokable,
+    type OneOrArray,
+    type InvokableFn,
+    resolveOneOrMore,
 } from "@/utilities/_module.js";
 
 /**
@@ -107,7 +110,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
     /**
      * Thist instance variable is only used for testing!
      */
-    private readonly __onUncaughtRejection?: (error: unknown) => void;
+    private readonly __onUncaughtRejection: InvokableFn<[error: unknown], void>;
 
     /**
      * @example
@@ -122,7 +125,11 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
      */
     constructor(settings: EventBusSettings<TEventMap>) {
         const {
-            __onUncaughtRejection,
+            __onUncaughtRejection = (error) => {
+                console.log(
+                    `An error of type "${String(error)}" occured in event listener`,
+                );
+            },
             shouldValidateOutput = true,
             eventMapSchema,
             namespace = new NoOpNamespace(),
@@ -142,30 +149,23 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
 
     private createWrappedListener<TEventName extends keyof TEventMap>(
         eventName: TEventName,
-        listener: EventListener<TEventMap[TEventName]>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ) {
-        return async (event: TEventMap[TEventName]) => {
+        return async (event: InferEvent<TEventMap, TEventName>) => {
             try {
                 if (this.shouldValidateOutput) {
                     await validate(this.eventMapSchema?.[eventName], event);
                 }
                 await resolveInvokable(listener)(event);
             } catch (error: unknown) {
-                if (this.__onUncaughtRejection !== undefined) {
-                    this.__onUncaughtRejection(error);
-                } else {
-                    console.error(
-                        `An error of type "${String(error)}" occured in listener with name of "${getInvokableName(listener)}" for "${String(eventName)}" event`,
-                    );
-                    throw error;
-                }
+                this.__onUncaughtRejection(error);
             }
         };
     }
 
-    async addListener<TEventName extends keyof TEventMap>(
+    private async _addListener<TEventName extends keyof TEventMap>(
         eventName: TEventName,
-        listener: EventListener<TEventMap[TEventName]>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void> {
         const key = this.namespace.create(String(eventName));
         const resolvedListener = this.store.getOrAdd(
@@ -185,9 +185,18 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         }
     }
 
-    async removeListener<TEventName extends keyof TEventMap>(
+    async addListener<TEventName extends keyof TEventMap>(
+        eventNames: OneOrArray<TEventName>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
+    ): Promise<void> {
+        for (const eventName of resolveOneOrMore<TEventName>(eventNames)) {
+            await this._addListener(eventName, listener);
+        }
+    }
+
+    private async _removeListener<TEventName extends keyof TEventMap>(
         eventName: TEventName,
-        listener: EventListener<TEventMap[TEventName]>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void> {
         const key = this.namespace.create(String(eventName));
         const resolvedListener = this.store.getAndRemove(
@@ -209,11 +218,22 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         }
     }
 
-    async listenOnce<TEventName extends keyof TEventMap>(
-        eventName: TEventName,
-        listener: EventListener<TEventMap[TEventName]>,
+    async removeListener<TEventName extends keyof TEventMap>(
+        eventNames: OneOrArray<TEventName>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void> {
-        const wrappedListener = async (event_: TEventMap[TEventName]) => {
+        for (const eventName of resolveOneOrMore<TEventName>(eventNames)) {
+            await this._removeListener(eventName, listener);
+        }
+    }
+
+    private async _listenOnce<TEventName extends keyof TEventMap>(
+        eventName: TEventName,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
+    ): Promise<void> {
+        const wrappedListener = async (
+            event_: InferEvent<TEventMap, TEventName>,
+        ) => {
             try {
                 if (this.shouldValidateOutput) {
                     await validate(this.eventMapSchema?.[eventName], event_);
@@ -221,14 +241,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
                 const resolvedListener = resolveInvokable(listener);
                 await resolvedListener(event_);
             } catch (error: unknown) {
-                if (this.__onUncaughtRejection !== undefined) {
-                    this.__onUncaughtRejection(error);
-                } else {
-                    console.error(
-                        `An error of type "${String(error)}" occured in listener with name of "${getInvokableName(listener)}" for "${String(eventName)}" event`,
-                    );
-                    throw error;
-                }
+                this.__onUncaughtRejection(error);
             } finally {
                 await this.removeListener(eventName, listener);
             }
@@ -252,17 +265,26 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         }
     }
 
-    async asPromise<TEventName extends keyof TEventMap>(
-        eventName: TEventName,
-    ): Promise<TEventMap[TEventName]> {
+    async listenOnce<TEventName extends keyof TEventMap>(
+        eventNames: OneOrArray<TEventName>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
+    ): Promise<void> {
+        for (const eventName of resolveOneOrMore<TEventName>(eventNames)) {
+            await this._listenOnce(eventName, listener);
+        }
+    }
+
+    asPromise<TEventName extends keyof TEventMap>(
+        eventNames: OneOrArray<TEventName>,
+    ): Promise<InferEvent<TEventMap, TEventName>> {
         return new Promise((resolve, reject) => {
-            this.listenOnce(eventName, resolve).then(() => {}, reject);
+            this.listenOnce(eventNames, resolve).then(() => {}, reject);
         });
     }
 
-    async subscribeOnce<TEventName extends keyof TEventMap>(
+    private async _subscribeOnce<TEventName extends keyof TEventMap>(
         eventName: TEventName,
-        listener: EventListener<TEventMap[TEventName]>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<Unsubscribe> {
         await this.listenOnce(eventName, listener);
         const unsubscribe = async () => {
@@ -271,15 +293,47 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         return unsubscribe;
     }
 
-    async subscribe<TEventName extends keyof TEventMap>(
+    async subscribeOnce<TEventName extends keyof TEventMap>(
+        eventNames: OneOrArray<TEventName>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
+    ): Promise<Unsubscribe> {
+        const unsubscribeArr: Array<Unsubscribe> = [];
+        for (const eventName of resolveOneOrMore<TEventName>(eventNames)) {
+            const unsubscribe = await this._subscribeOnce(eventName, listener);
+            unsubscribeArr.push(unsubscribe);
+        }
+        return async () => {
+            for (const unsubscribe of unsubscribeArr) {
+                await unsubscribe();
+            }
+        };
+    }
+
+    private async _subscribe<TEventName extends keyof TEventMap>(
         eventName: TEventName,
-        listener: EventListener<TEventMap[TEventName]>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<Unsubscribe> {
         await this.addListener(eventName, listener);
         const unsubscribe = async () => {
             await this.removeListener(eventName, listener);
         };
         return unsubscribe;
+    }
+
+    async subscribe<TEventName extends keyof TEventMap>(
+        eventNames: OneOrArray<TEventName>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
+    ): Promise<Unsubscribe> {
+        const unsubscribeArr: Array<Unsubscribe> = [];
+        for (const eventName of resolveOneOrMore<TEventName>(eventNames)) {
+            const unsubscribe = await this._subscribe(eventName, listener);
+            unsubscribeArr.push(unsubscribe);
+        }
+        return async () => {
+            for (const unsubscribe of unsubscribeArr) {
+                await unsubscribe();
+            }
+        };
     }
 
     async dispatch<TEventName extends keyof TEventMap>(

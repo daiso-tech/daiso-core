@@ -6,7 +6,7 @@ import {
     type BaseEvent,
     type EventListenerFn,
 } from "@/event-bus/contracts/event-bus-adapter.contract.js";
-import { type IInvokableObject } from "@/utilities/_module.js";
+import { type IInvokableObject, type OneOrArray } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
@@ -34,6 +34,20 @@ export type EventListener<TEvent> =
     | IEventListenerObject<TEvent>
     | EventListenerFn<TEvent>;
 
+export type EventWithType<TEvent, TEventName> = TEvent & {
+    type: TEventName;
+};
+
+export type InferEvent<
+    TEventMap extends BaseEventMap = BaseEventMap,
+    TEventName extends keyof TEventMap = keyof TEventMap,
+> = {
+    [TCurrentEventName in keyof TEventMap]: EventWithType<
+        TEventMap[TCurrentEventName],
+        TCurrentEventName
+    >;
+}[TEventName];
+
 /**
  * The `IEventListenable` contract defines a way listening to events independent of underlying technology
  *
@@ -46,8 +60,8 @@ export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
      * The same listener can only be added once for a specific event. Adding the same listener multiple times will have no effect and nothing will occur.
      */
     addListener<TEventName extends keyof TEventMap>(
-        eventName: TEventName,
-        listener: EventListener<TEventMap[TEventName]>,
+        eventNames: OneOrArray<TEventName>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void>;
 
     /**
@@ -55,32 +69,32 @@ export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
      * Removing unadded listener will have no effect and nothing will occur.
      */
     removeListener<TEventName extends keyof TEventMap>(
-        eventName: TEventName,
-        listener: EventListener<TEventMap[TEventName]>,
+        eventNames: OneOrArray<TEventName>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void>;
 
     /**
      * The `listenOnce` method is used for listening to a {@link BaseEvent | `BaseEvent`} once.
      */
     listenOnce<TEventName extends keyof TEventMap>(
-        eventName: TEventName,
-        listener: EventListener<TEventMap[TEventName]>,
+        eventNames: OneOrArray<TEventName>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void>;
 
     /**
      * The `asPromise` method returns {@link Promise | `Promise`} that resolves once the {@link BaseEvent | `BaseEvent`} is dispatched.
      */
     asPromise<TEventName extends keyof TEventMap>(
-        eventName: TEventName,
-    ): Promise<TEventMap[TEventName]>;
+        eventNames: OneOrArray<TEventName>,
+    ): Promise<InferEvent<TEventMap, TEventName>>;
 
     /**
      * The `subscribeOnce` method is used for listening to a {@link BaseEvent | `BaseEvent`} once and it returns a cleanup function that removes listener when called.
      * The same listener can only be added once for a specific event. Adding the same listener multiple times will have no effect and nothing will occur.
      */
     subscribeOnce<TEventName extends keyof TEventMap>(
-        eventName: TEventName,
-        listener: EventListener<TEventMap[TEventName]>,
+        eventNames: OneOrArray<TEventName>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<Unsubscribe>;
 
     /**
@@ -88,8 +102,8 @@ export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
      * The same listener can only be added once for a specific event. Adding the same listener multiple times will have no effect and nothing will occur.
      */
     subscribe<TEventName extends keyof TEventMap>(
-        eventName: TEventName,
-        listener: EventListener<TEventMap[TEventName]>,
+        eventNames: OneOrArray<TEventName>,
+        listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<Unsubscribe>;
 };
 

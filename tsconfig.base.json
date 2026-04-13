@@ -2,11 +2,9 @@
     "compilerOptions": {
         "target": "ES2022",
         "lib": ["ES2022"],
-        "baseUrl": "./src",
         "paths": {
-            "@/*": ["./*"]
+            "@/*": ["./src/*"]
         },
-        "downlevelIteration": true,
         "isolatedModules": true,
         "useDefineForClassFields": true,
         "allowSyntheticDefaultImports": true,
