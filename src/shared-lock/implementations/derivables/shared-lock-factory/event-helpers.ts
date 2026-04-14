@@ -15,14 +15,11 @@ import { callInvokable, type WaitUntil } from "@/utilities/_module.js";
 /**
  * @internal
  */
-export function handleUnexpectedError<
-    TParameters extends Array<unknown>,
-    TReturn,
->(
+export function handleUnexpectedError<TReturn>(
     waitUntil: WaitUntil,
     eventDispatcher: IEventDispatcher,
     sharedLock: ISharedLock,
-): Middleware<TParameters, Promise<TReturn>> {
+): Middleware<[], Promise<TReturn>> {
     return async ({ next }) => {
         try {
             return await next();
@@ -48,7 +45,6 @@ export function handleUnexpectedError<
  * @internal
  */
 export function handleDispatch<
-    TParameters extends Array<unknown>,
     TEventName extends keyof SharedLockEventMap,
     TEvent extends SharedLockEventMap[TEventName],
 >(settings: {
@@ -57,7 +53,7 @@ export function handleDispatch<
     eventData: TEvent;
     waitUntil: WaitUntil;
     eventDispatcher: IEventDispatcher;
-}): Middleware<TParameters, Promise<boolean>> {
+}): Middleware<[], Promise<boolean>> {
     return async ({ next }) => {
         const result = await next();
         if (result && settings.on === "true") {
