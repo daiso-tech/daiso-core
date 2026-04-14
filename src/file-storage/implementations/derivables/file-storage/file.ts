@@ -18,7 +18,6 @@ import {
     type WritableFileStream,
     KeyExistsFileError,
     KeyNotFoundFileError,
-    FILE_EVENTS,
     type FileEventMap,
     type FileDownloadUrlOptions,
     FILE_WRITE_ENUM,
@@ -31,6 +30,10 @@ import {
 import {
     handleAddEvent,
     handleBooleanFoundEvent,
+    handleCopyAndReplaceEvent,
+    handleCopyEvent,
+    handleMoveAndReplaceEvent,
+    handleMoveEvent,
     handleNullableFoundEvent,
     handlePutEvent,
     handleRemoveEvent,
@@ -39,19 +42,18 @@ import {
 } from "@/file-storage/implementations/derivables/file-storage/event-helpers.js";
 import { resolveFileContent } from "@/file-storage/implementations/derivables/file-storage/resolve-file-content.js";
 import { ResolveFileStream } from "@/file-storage/implementations/derivables/file-storage/resolve-file-stream.js";
-import { type Use } from "@/middleware/_module.js";
+import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
+import { type MiddlewareFn, type Use } from "@/middleware/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    callInvokable,
-    type InvokableFn,
-    type WaitUntil,
-} from "@/utilities/_module.js";
+import { type InvokableFn, type WaitUntil } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
 export type FileSettings = {
+    originalKey: string;
+    lockFactory: ILockFactoryBase;
     onlyLowercase: boolean;
     keyValidator: InvokableFn<[key: string], string | null>;
     defaultContentType: string;
@@ -108,6 +110,8 @@ export class File implements IFile {
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
     private readonly executionContext: IExecutionContext;
     private readonly use: Use;
+    private readonly lockFactory: ILockFactoryBase;
+    private readonly originalKey: string;
 
     constructor(settings: FileSettings) {
         const {
@@ -127,8 +131,12 @@ export class File implements IFile {
             waitUntil,
             executionContext,
             use,
+            lockFactory,
+            originalKey,
         } = settings;
 
+        this.originalKey = originalKey;
+        this.lockFactory = lockFactory;
         this.use = use;
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
@@ -373,6 +381,19 @@ export class File implements IFile {
         return !(await this.exists());
     }
 
+    private lock<TParameters extends Array<unknown>, TReturn>(): MiddlewareFn<
+        TParameters,
+        Promise<TReturn>
+    > {
+        return async ({ next }) => {
+            return await this.lockFactory
+                .create(this.originalKey)
+                .runOrFail(async () => {
+                    return await next();
+                });
+        };
+    }
+
     async add(content: WritableFileContent): Promise<boolean> {
         return this.use(async () => {
             const { data, contentType = this.getContentType(this._key.get()) } =
@@ -392,6 +413,7 @@ export class File implements IFile {
                 },
             );
         }, [
+            this.lock(),
             handleUnexpectedErrorEvent(
                 this.waitUntil,
                 this.eventDispatcher,
@@ -423,6 +445,7 @@ export class File implements IFile {
                 fileSize = null,
                 contentType = this.getContentType(this._key.get()),
             } = stream;
+
             return await this.adapter.addStream(
                 this.executionContext,
                 this._key.toString(),
@@ -437,6 +460,7 @@ export class File implements IFile {
                 },
             );
         }, [
+            this.lock(),
             handleUnexpectedErrorEvent(
                 this.waitUntil,
                 this.eventDispatcher,
@@ -472,6 +496,7 @@ export class File implements IFile {
                 },
             );
         }, [
+            this.lock(),
             handleUnexpectedErrorEvent(
                 this.waitUntil,
                 this.eventDispatcher,
@@ -509,6 +534,7 @@ export class File implements IFile {
                 },
             );
         }, [
+            this.lock(),
             handleUnexpectedErrorEvent(
                 this.waitUntil,
                 this.eventDispatcher,
@@ -544,6 +570,7 @@ export class File implements IFile {
                 },
             );
         }, [
+            this.lock(),
             handleUnexpectedErrorEvent(
                 this.waitUntil,
                 this.eventDispatcher,
@@ -574,6 +601,7 @@ export class File implements IFile {
                 },
             );
         }, [
+            this.lock(),
             handleUnexpectedErrorEvent(
                 this.waitUntil,
                 this.eventDispatcher,
@@ -589,6 +617,7 @@ export class File implements IFile {
                 this.key.toString(),
             ]);
         }, [
+            this.lock(),
             handleUnexpectedErrorEvent(
                 this.waitUntil,
                 this.eventDispatcher,
@@ -606,45 +635,21 @@ export class File implements IFile {
     }
 
     private async _copy(destination: string): Promise<FileWriteEnum> {
+        const destinationKey = this.namespace.create(destination);
         return this.use(async () => {
-            const destinationKey = this.namespace.create(destination);
-            const result = await this.adapter.copy(
+            return await this.adapter.copy(
                 this.executionContext,
                 this._key.toString(),
                 destinationKey.toString(),
             );
-            if (result === FILE_WRITE_ENUM.KEY_EXISTS) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        FILE_EVENTS.DESTINATION_EXISTS,
-                        {
-                            source: this,
-                            destination: destinationKey,
-                        },
-                    ),
-                );
-            }
-            if (result === FILE_WRITE_ENUM.NOT_FOUND) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
-                        file: this,
-                    }),
-                );
-            }
-            if (result === FILE_WRITE_ENUM.SUCCESS) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(FILE_EVENTS.COPIED, {
-                        source: this,
-                        destination: destinationKey,
-                        replaced: false,
-                    }),
-                );
-            }
-            return result;
         }, [
+            this.lock(),
+            handleCopyEvent(
+                this.waitUntil,
+                this.eventDispatcher,
+                destinationKey,
+                this,
+            ),
             handleUnexpectedErrorEvent(
                 this.waitUntil,
                 this.eventDispatcher,
@@ -669,32 +674,21 @@ export class File implements IFile {
     }
 
     async copyAndReplace(destination: string): Promise<boolean> {
+        const destinationKey = this.namespace.create(destination);
         return this.use(async () => {
-            const destinationKey = this.namespace.create(destination);
-            const hasCopied = await this.adapter.copyAndReplace(
+            return await this.adapter.copyAndReplace(
                 this.executionContext,
                 this._key.toString(),
                 destinationKey.toString(),
             );
-            if (hasCopied) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(FILE_EVENTS.COPIED, {
-                        source: this,
-                        destination: destinationKey,
-                        replaced: true,
-                    }),
-                );
-            } else {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
-                        file: this,
-                    }),
-                );
-            }
-            return hasCopied;
         }, [
+            this.lock(),
+            handleCopyAndReplaceEvent(
+                this.waitUntil,
+                this.eventDispatcher,
+                destinationKey,
+                this,
+            ),
             handleUnexpectedErrorEvent(
                 this.waitUntil,
                 this.eventDispatcher,
@@ -710,46 +704,21 @@ export class File implements IFile {
         }
     }
     private async _move(destination: string): Promise<FileWriteEnum> {
+        const destinationKey = this.namespace.create(destination);
         return this.use(async () => {
-            const destinationKey = this.namespace.create(destination);
-            const result = await this.adapter.move(
+            return await this.adapter.move(
                 this.executionContext,
                 this._key.toString(),
                 destinationKey.toString(),
             );
-
-            if (result === FILE_WRITE_ENUM.KEY_EXISTS) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        FILE_EVENTS.DESTINATION_EXISTS,
-                        {
-                            source: this,
-                            destination: destinationKey,
-                        },
-                    ),
-                );
-            }
-            if (result === FILE_WRITE_ENUM.NOT_FOUND) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
-                        file: this,
-                    }),
-                );
-            }
-            if (result === FILE_WRITE_ENUM.SUCCESS) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(FILE_EVENTS.MOVED, {
-                        source: this,
-                        destination: destinationKey,
-                        replaced: false,
-                    }),
-                );
-            }
-            return result;
         }, [
+            this.lock(),
+            handleMoveEvent(
+                this.waitUntil,
+                this.eventDispatcher,
+                destinationKey,
+                this,
+            ),
             handleUnexpectedErrorEvent(
                 this.waitUntil,
                 this.eventDispatcher,
@@ -774,32 +743,21 @@ export class File implements IFile {
     }
 
     async moveAndReplace(destination: string): Promise<boolean> {
+        const destinationKey = this.namespace.create(destination);
         return this.use(async () => {
-            const destinationKey = this.namespace.create(destination);
-            const hasMoved = await this.adapter.moveAndReplace(
+            return await this.adapter.moveAndReplace(
                 this.executionContext,
                 this._key.toString(),
                 destinationKey.toString(),
             );
-            if (hasMoved) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(FILE_EVENTS.MOVED, {
-                        source: this,
-                        destination: destinationKey,
-                        replaced: true,
-                    }),
-                );
-            } else {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
-                        file: this,
-                    }),
-                );
-            }
-            return hasMoved;
         }, [
+            this.lock(),
+            handleMoveAndReplaceEvent(
+                this.waitUntil,
+                this.eventDispatcher,
+                destinationKey,
+                this,
+            ),
             handleUnexpectedErrorEvent(
                 this.waitUntil,
                 this.eventDispatcher,

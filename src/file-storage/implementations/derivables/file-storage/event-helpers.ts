@@ -5,25 +5,25 @@
 import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
 import {
     FILE_EVENTS,
+    FILE_WRITE_ENUM,
     isFileError,
     type FileEventMap,
+    type FileWriteEnum,
     type IFile,
     type IReadableFile,
 } from "@/file-storage/contracts/_module.js";
 import { type MiddlewareFn } from "@/middleware/_module.js";
+import { type IKey } from "@/namespace/contracts/_module.js";
 import { callInvokable, type WaitUntil } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
-export function handleUnexpectedErrorEvent<
-    TParameters extends Array<unknown>,
-    TReturn,
->(
+export function handleUnexpectedErrorEvent<TReturn>(
     waitUntil: WaitUntil,
     eventDispatcher: IEventDispatcher<FileEventMap>,
     file?: IReadableFile,
-): MiddlewareFn<TParameters, Promise<TReturn>> {
+): MiddlewareFn<[], Promise<TReturn>> {
     return async ({ next }) => {
         try {
             return await next();
@@ -48,14 +48,11 @@ export function handleUnexpectedErrorEvent<
 /**
  * @internal
  */
-export function handleNullableFoundEvent<
-    TParameters extends Array<unknown>,
-    TReturn,
->(
+export function handleNullableFoundEvent<TReturn>(
     waitUntil: WaitUntil,
     eventDispatcher: IEventDispatcher,
     file: IFile,
-): MiddlewareFn<TParameters, Promise<TReturn | null>> {
+): MiddlewareFn<[], Promise<TReturn | null>> {
     return async ({ next }) => {
         const value = await next();
         if (value === null) {
@@ -80,11 +77,11 @@ export function handleNullableFoundEvent<
 /**
  * @internal
  */
-export function handleBooleanFoundEvent<TParameters extends Array<unknown>>(
+export function handleBooleanFoundEvent(
     waitUntil: WaitUntil,
     eventDispatcher: IEventDispatcher,
     file: IFile,
-): MiddlewareFn<TParameters, Promise<boolean>> {
+): MiddlewareFn<[], Promise<boolean>> {
     return async ({ next }) => {
         const exists = await next();
         if (exists) {
@@ -109,11 +106,11 @@ export function handleBooleanFoundEvent<TParameters extends Array<unknown>>(
 /**
  * @internal
  */
-export function handleAddEvent<TParameters extends Array<unknown>>(
+export function handleAddEvent(
     waitUntil: WaitUntil,
     eventDispatcher: IEventDispatcher,
     file: IFile,
-): MiddlewareFn<TParameters, Promise<boolean>> {
+): MiddlewareFn<[], Promise<boolean>> {
     return async ({ next }) => {
         const hasAdded = await next();
         if (hasAdded) {
@@ -138,11 +135,11 @@ export function handleAddEvent<TParameters extends Array<unknown>>(
 /**
  * @internal
  */
-export function handleUpdateEvent<TParameters extends Array<unknown>>(
+export function handleUpdateEvent(
     waitUntil: WaitUntil,
     eventDispatcher: IEventDispatcher,
     file: IFile,
-): MiddlewareFn<TParameters, Promise<boolean>> {
+): MiddlewareFn<[], Promise<boolean>> {
     return async ({ next }) => {
         const hasUpdated = await next();
         if (hasUpdated) {
@@ -167,11 +164,11 @@ export function handleUpdateEvent<TParameters extends Array<unknown>>(
 /**
  * @internal
  */
-export function handlePutEvent<TParameters extends Array<unknown>>(
+export function handlePutEvent(
     waitUntil: WaitUntil,
     eventDispatcher: IEventDispatcher,
     file: IFile,
-): MiddlewareFn<TParameters, Promise<boolean>> {
+): MiddlewareFn<[], Promise<boolean>> {
     return async ({ next }) => {
         const hasUpdated = await next();
         if (hasUpdated) {
@@ -196,11 +193,11 @@ export function handlePutEvent<TParameters extends Array<unknown>>(
 /**
  * @internal
  */
-export function handleRemoveEvent<TParameters extends Array<unknown>>(
+export function handleRemoveEvent(
     waitUntil: WaitUntil,
     eventDispatcher: IEventDispatcher,
     file: IFile,
-): MiddlewareFn<TParameters, Promise<boolean>> {
+): MiddlewareFn<[], Promise<boolean>> {
     return async ({ next }) => {
         const hasRemoved = await next();
         if (hasRemoved) {
@@ -219,5 +216,153 @@ export function handleRemoveEvent<TParameters extends Array<unknown>>(
             );
         }
         return hasRemoved;
+    };
+}
+
+/**
+ * @internal
+ */
+export function handleCopyEvent(
+    waitUntil: WaitUntil,
+    eventDispatcher: IEventDispatcher,
+    destinationKey: IKey,
+    file: IReadableFile,
+): MiddlewareFn<[], Promise<FileWriteEnum>> {
+    return async ({ next }) => {
+        const hasCopied = await next();
+        if (hasCopied === FILE_WRITE_ENUM.KEY_EXISTS) {
+            callInvokable(
+                waitUntil,
+                eventDispatcher.dispatch(FILE_EVENTS.DESTINATION_EXISTS, {
+                    source: file,
+                    destination: destinationKey,
+                }),
+            );
+        }
+        if (hasCopied === FILE_WRITE_ENUM.NOT_FOUND) {
+            callInvokable(
+                waitUntil,
+                eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
+                    file: file,
+                }),
+            );
+        }
+        if (hasCopied === FILE_WRITE_ENUM.SUCCESS) {
+            callInvokable(
+                waitUntil,
+                eventDispatcher.dispatch(FILE_EVENTS.COPIED, {
+                    source: file,
+                    destination: destinationKey,
+                    replaced: false,
+                }),
+            );
+        }
+        return hasCopied;
+    };
+}
+
+/**
+ * @internal
+ */
+export function handleCopyAndReplaceEvent(
+    waitUntil: WaitUntil,
+    eventDispatcher: IEventDispatcher,
+    destinationKey: IKey,
+    file: IReadableFile,
+): MiddlewareFn<[], Promise<boolean>> {
+    return async ({ next }) => {
+        const hasCopied = await next();
+        if (hasCopied) {
+            callInvokable(
+                waitUntil,
+                eventDispatcher.dispatch(FILE_EVENTS.COPIED, {
+                    source: file,
+                    destination: destinationKey,
+                    replaced: true,
+                }),
+            );
+        } else {
+            callInvokable(
+                waitUntil,
+                eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
+                    file: file,
+                }),
+            );
+        }
+        return hasCopied;
+    };
+}
+
+/**
+ * @internal
+ */
+export function handleMoveEvent(
+    waitUntil: WaitUntil,
+    eventDispatcher: IEventDispatcher,
+    destinationKey: IKey,
+    file: IReadableFile,
+): MiddlewareFn<[], Promise<FileWriteEnum>> {
+    return async ({ next }) => {
+        const hasMoved = await next();
+        if (hasMoved === FILE_WRITE_ENUM.KEY_EXISTS) {
+            callInvokable(
+                waitUntil,
+                eventDispatcher.dispatch(FILE_EVENTS.DESTINATION_EXISTS, {
+                    source: file,
+                    destination: destinationKey,
+                }),
+            );
+        }
+        if (hasMoved === FILE_WRITE_ENUM.NOT_FOUND) {
+            callInvokable(
+                waitUntil,
+                eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
+                    file: file,
+                }),
+            );
+        }
+        if (hasMoved === FILE_WRITE_ENUM.SUCCESS) {
+            callInvokable(
+                waitUntil,
+                eventDispatcher.dispatch(FILE_EVENTS.MOVED, {
+                    source: file,
+                    destination: destinationKey,
+                    replaced: false,
+                }),
+            );
+        }
+        return hasMoved;
+    };
+}
+
+/**
+ * @internal
+ */
+export function handleMoveAndReplaceEvent(
+    waitUntil: WaitUntil,
+    eventDispatcher: IEventDispatcher,
+    destinationKey: IKey,
+    file: IReadableFile,
+): MiddlewareFn<[], Promise<boolean>> {
+    return async ({ next }) => {
+        const hasMoved = await next();
+        if (hasMoved) {
+            callInvokable(
+                waitUntil,
+                eventDispatcher.dispatch(FILE_EVENTS.MOVED, {
+                    source: file,
+                    destination: destinationKey,
+                    replaced: true,
+                }),
+            );
+        } else {
+            callInvokable(
+                waitUntil,
+                eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
+                    file: file,
+                }),
+            );
+        }
+        return hasMoved;
     };
 }

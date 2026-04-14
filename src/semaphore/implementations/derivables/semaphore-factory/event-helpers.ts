@@ -14,14 +14,11 @@ import { callInvokable, type WaitUntil } from "@/utilities/_module.js";
 /**
  * @internal
  */
-export function handleUnexpectedError<
-    TParameters extends Array<unknown>,
-    TReturn,
->(
+export function handleUnexpectedError<TReturn>(
     waitUntil: WaitUntil,
     eventDispatcher: IEventDispatcher<SemaphoreEventMap>,
     semaphore: ISemaphore,
-): MiddlewareFn<TParameters, Promise<TReturn>> {
+): MiddlewareFn<[], Promise<TReturn>> {
     return async ({ next }) => {
         try {
             return await next();
@@ -47,7 +44,6 @@ export function handleUnexpectedError<
  * @internal
  */
 export function handleDispatch<
-    TParameters extends Array<unknown>,
     TEventName extends keyof SemaphoreEventMap,
     TEvent extends SemaphoreEventMap[TEventName],
 >(settings: {
@@ -56,7 +52,7 @@ export function handleDispatch<
     eventData: TEvent;
     waitUntil: WaitUntil;
     eventDispatcher: IEventDispatcher;
-}): MiddlewareFn<TParameters, Promise<boolean>> {
+}): MiddlewareFn<[], Promise<boolean>> {
     return async ({ next }) => {
         const result = await next();
         if (result && settings.on === "true") {

@@ -736,4 +736,7 @@ describe("class: FileStorage", () => {
             expect(result).toBe(true);
         });
     });
+    describe("Locking:", () => {
+        test.todo("Write tests");
+    });
 });

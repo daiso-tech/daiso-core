@@ -16,7 +16,6 @@ import { callInvokable, type WaitUntil } from "@/utilities/_module.js";
  * @internal
  */
 export function handleDispatch<
-    TParameters extends Array<unknown>,
     TEventName extends keyof LockEventMap,
     TEvent extends LockEventMap[TEventName],
 >(settings: {
@@ -25,7 +24,7 @@ export function handleDispatch<
     eventData: TEvent;
     waitUntil: WaitUntil;
     eventDispatcher: IEventDispatcher<LockEventMap>;
-}): MiddlewareFn<TParameters, Promise<boolean>> {
+}): MiddlewareFn<[], Promise<boolean>> {
     return async ({ next }) => {
         const result = await next();
         if (result && settings.on === "true") {
@@ -53,14 +52,11 @@ export function handleDispatch<
 /**
  * @internal
  */
-export function handleUnexpectedError<
-    TParameters extends Array<unknown>,
-    TReturn,
->(
+export function handleUnexpectedError<TReturn>(
     waitUntil: WaitUntil,
     eventDispatcher: IEventDispatcher<LockEventMap>,
     lock: ILock,
-): MiddlewareFn<TParameters, Promise<TReturn>> {
+): MiddlewareFn<[], Promise<TReturn>> {
     return async ({ next }) => {
         try {
             return await next();

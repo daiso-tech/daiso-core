@@ -21,6 +21,9 @@ import { handleUnexpectedErrorEvent } from "@/file-storage/implementations/deriv
 import { FileSerdeTransformer } from "@/file-storage/implementations/derivables/file-storage/file-serde-transformer.js";
 import { File } from "@/file-storage/implementations/derivables/file-storage/file.js";
 import { resolveFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/resolve-file-storage-adapter.js";
+import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
+import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
+import { LockFactory } from "@/lock/implementations/derivables/_module-exports.js";
 import { useFactory, type Use } from "@/middleware/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
@@ -183,6 +186,17 @@ export type FileStorageSettingsBase = {
      * ```
      */
     executionContext?: IExecutionContext;
+
+    /**
+     * You can provide an `ILockFactoryBase` instance to handle locking when write methods are called.
+     * @default
+     * ```ts
+     * lockFactory = new LockFactory({
+     *   adapter: new NoOpLockAdapter(),
+     * })
+     * ```
+     */
+    lockFactory?: ILockFactoryBase;
 };
 
 /**
@@ -220,6 +234,7 @@ export class FileStorage implements IFileStorage {
     private readonly waitUntil: WaitUntil;
     private readonly executionContext: IExecutionContext;
     private readonly use: Use;
+    private readonly lockFactory: ILockFactoryBase;
 
     /**
      * @example
@@ -258,8 +273,12 @@ export class FileStorage implements IFileStorage {
             executionContext = new ExecutionContext(
                 new NoOpExecutionContextAdapter(),
             ),
+            lockFactory = new LockFactory({
+                adapter: new NoOpLockAdapter(),
+            }),
         } = settings;
 
+        this.lockFactory = lockFactory;
         this.use = useFactory(executionContext);
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
@@ -281,6 +300,7 @@ export class FileStorage implements IFileStorage {
 
     private registerToSerde(): void {
         const transformer = new FileSerdeTransformer({
+            lockFactory: this.lockFactory,
             use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
@@ -304,6 +324,7 @@ export class FileStorage implements IFileStorage {
 
     create(key: string): IFile {
         return new File({
+            lockFactory: this.lockFactory,
             use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
@@ -317,6 +338,7 @@ export class FileStorage implements IFileStorage {
             defaultContentLanguage: this.defaultContentLanguage,
             adapter: this.adapter,
             key: this.namespace.create(key),
+            originalKey: key,
             eventDispatcher: this.eventBus,
             serdeTransformerName: this.serdeTransformerName,
             namespace: this.namespace,
