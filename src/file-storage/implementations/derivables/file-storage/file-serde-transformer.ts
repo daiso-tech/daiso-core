@@ -13,6 +13,7 @@ import {
     File,
     type ISerializedFile,
 } from "@/file-storage/implementations/derivables/file-storage/file.js";
+import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
 import { type Use } from "@/middleware/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
@@ -27,6 +28,7 @@ import {
  * @internal
  */
 export type FileSerdeTransformerSettings = {
+    lockFactory: ILockFactoryBase;
     waitUntil: WaitUntil;
     defaultContentType: string;
     defaultContentDisposition: string | null;
@@ -65,9 +67,11 @@ export class FileSerdeTransformer
     private readonly defaultContentLanguage: string | null;
     private readonly executionContext: IExecutionContext;
     private readonly use: Use;
+    private readonly lockFactory: ILockFactoryBase;
 
     constructor(settings: FileSerdeTransformerSettings) {
         const {
+            lockFactory,
             onlyLowercase,
             keyValidator,
             adapter,
@@ -85,6 +89,7 @@ export class FileSerdeTransformer
             use,
         } = settings;
 
+        this.lockFactory = lockFactory;
         this.use = use;
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
@@ -142,6 +147,8 @@ export class FileSerdeTransformer
         const keyObj = this.namespace.create(key);
 
         return new File({
+            originalKey: key,
+            lockFactory: this.lockFactory,
             use: this.use,
             executionContext: this.executionContext,
             waitUntil: this.waitUntil,
