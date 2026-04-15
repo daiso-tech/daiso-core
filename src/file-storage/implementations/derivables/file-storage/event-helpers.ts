@@ -366,3 +366,37 @@ export function handleMoveAndReplaceEvent(
         return hasMoved;
     };
 }
+
+/**
+ * @internal
+ */
+export function handleClearEvent(
+    waitUntil: WaitUntil,
+    eventDispatcher: IEventDispatcher,
+    filesArr: Array<IReadableFile>,
+): MiddlewareFn<[], Promise<boolean>> {
+    return async ({ next }) => {
+        const hasRemovedAtLeastOne = await next();
+        if (hasRemovedAtLeastOne) {
+            for (const file of filesArr) {
+                callInvokable(
+                    waitUntil,
+                    eventDispatcher.dispatch(FILE_EVENTS.REMOVED, {
+                        file,
+                    }),
+                );
+            }
+        } else {
+            for (const file of filesArr) {
+                callInvokable(
+                    waitUntil,
+                    eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
+                        file,
+                    }),
+                );
+            }
+        }
+
+        return hasRemovedAtLeastOne;
+    };
+}

@@ -17,14 +17,21 @@ import {
     type IFileUrlAdapter,
     type ISignedFileStorageAdapter,
 } from "@/file-storage/contracts/_module.js";
-import { handleUnexpectedErrorEvent } from "@/file-storage/implementations/derivables/file-storage/event-helpers.js";
+import {
+    handleClearEvent,
+    handleUnexpectedErrorEvent,
+} from "@/file-storage/implementations/derivables/file-storage/event-helpers.js";
 import { FileSerdeTransformer } from "@/file-storage/implementations/derivables/file-storage/file-serde-transformer.js";
 import { File } from "@/file-storage/implementations/derivables/file-storage/file.js";
 import { resolveFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/resolve-file-storage-adapter.js";
 import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
 import { LockFactory } from "@/lock/implementations/derivables/_module-exports.js";
-import { useFactory, type Use } from "@/middleware/_module.js";
+import {
+    useFactory,
+    type MiddlewareFn,
+    type Use,
+} from "@/middleware/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
@@ -362,42 +369,23 @@ export class FileStorage implements IFileStorage {
     }
 
     removeMany(files: Iterable<IFile>): Promise<boolean> {
-        return this.use(
-            async () => {
-                const filesArr = [...files];
-                const namespacedKeys = filesArr.map((file) => {
-                    return file.key.toString();
-                });
-
-                const hasRemovedAtLeastOne = await this.adapter.removeMany(
-                    this.executionContext,
-                    namespacedKeys,
-                );
-
-                if (hasRemovedAtLeastOne) {
-                    for (const file of filesArr) {
-                        callInvokable(
-                            this.waitUntil,
-                            this.eventBus.dispatch(FILE_EVENTS.REMOVED, {
-                                file,
-                            }),
-                        );
-                    }
-                } else {
-                    for (const file of filesArr) {
-                        callInvokable(
-                            this.waitUntil,
-                            this.eventBus.dispatch(FILE_EVENTS.NOT_FOUND, {
-                                file,
-                            }),
-                        );
-                    }
-                }
-
-                return hasRemovedAtLeastOne;
-            },
+        const filesArr = [...files];
+        return this.use(async () => {
+            const keys = filesArr.map((file) => {
+                return file.key.toString();
+            });
+            return await this.adapter.removeMany(this.executionContext, keys);
+        }, [
+            ...filesArr.map<MiddlewareFn<[], Promise<boolean>>>((file) => {
+                return async ({ next }) => {
+                    return await this.lockFactory
+                        .create(file.key.get())
+                        .runOrFail(next);
+                };
+            }),
+            handleClearEvent(this.waitUntil, this.eventBus, filesArr),
             handleUnexpectedErrorEvent(this.waitUntil, this.eventBus),
-        )();
+        ])();
     }
 
     get events(): IFileListenable {
