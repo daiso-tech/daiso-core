@@ -19,9 +19,9 @@ export class ValidationError extends Error {
  *
  * @throws {ValidationError} {@link ValidationError}
  */
-export async function validate<TValue>(
-    schema: StandardSchemaV1<TValue, TValue> | undefined,
-    value: TValue,
+export async function validate(
+    schema: StandardSchemaV1 | undefined,
+    value: unknown,
 ): Promise<void> {
     const result = await schema?.["~standard"].validate(value);
     if (result?.issues) {
