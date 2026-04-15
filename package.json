@@ -324,6 +324,10 @@
             "types": "./dist/serde/implementations/adapters/no-op-serde-adapter/_module-exports.d.ts",
             "import": "./dist/serde/implementations/adapters/no-op-serde-adapter/_module-exports.js"
         },
+        "./serde/required-serde-adapter": {
+            "types": "./dist/serde/implementations/adapters/required-serde-adapter/_module-exports.d.ts",
+            "import": "./dist/serde/implementations/adapters/required-serde-adapter/_module-exports.js"
+        },
         "./serde/super-json-serde-adapter": {
             "types": "./dist/serde/implementations/adapters/super-json-serde-adapter/_module-exports.d.ts",
             "import": "./dist/serde/implementations/adapters/super-json-serde-adapter/_module-exports.js"
