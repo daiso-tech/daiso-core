@@ -15,6 +15,7 @@ import {
     type FileKeyValidator,
     type FileStorageSettingsBase,
 } from "@/file-storage/implementations/derivables/file-storage/_module.js";
+import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
@@ -167,6 +168,15 @@ export class FileStorageResolver<TAdapters extends string = string>
         return new FileStorageResolver({
             ...this.settings,
             executionContext,
+        });
+    }
+
+    setLockFactory(
+        lockFactory: ILockFactoryBase,
+    ): FileStorageResolver<TAdapters> {
+        return new FileStorageResolver({
+            ...this.settings,
+            lockFactory,
         });
     }
 
