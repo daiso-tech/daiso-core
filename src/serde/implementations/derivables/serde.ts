@@ -41,7 +41,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/serde/deriavables"`
+ * IMPORT_PATH: `"@daiso-tech/core/serde"`
  * @group Derivables
  */
 export type SerdeSettings = {
@@ -157,7 +157,7 @@ export type SerdeSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/serde/deriavables"`
+ * IMPORT_PATH: `"@daiso-tech/core/serde"`
  * @group Derivables
  */
 export type SerializedClass = {
@@ -168,7 +168,7 @@ export type SerializedClass = {
 /**
  * `Serde` class can be derived from any {@link IFlexibleSerdeAdapter | `IFlexibleSerdeAdapter`}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/deriavables"`
+ * IMPORT_PATH: `"@daiso-tech/core/serde"`
  * @group Derivables
  */
 export class Serde<TSerializedValue>
