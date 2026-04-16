@@ -160,7 +160,4 @@ describe("class: LockFactory", () => {
             expect(result).toBe(true);
         });
     });
-    describe("Locking tests:", () => {
-        test.todo("Write tests!!!");
-    });
 });
