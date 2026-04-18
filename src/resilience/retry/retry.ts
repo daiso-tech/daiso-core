@@ -66,6 +66,9 @@ export type OnRetryDelay<TParameters extends Array<unknown> = Array<unknown>> =
     Invokable<[data: OnRetryDelayData<TParameters>]>;
 
 /**
+ * Lifecycle callbacks for the `retry` middleware.
+ * Invoked at key points during retry attempts: before execution and before the delay.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -84,6 +87,10 @@ export type RetryCallbacks<
 };
 
 /**
+ * Configuration for the `retry` resilience middleware.
+ * Retries the wrapped function up to a maximum number of attempts.
+ * Supports configurable backoff policies and lifecycle callbacks.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -117,7 +124,7 @@ export type RetrySettings<TParameters extends Array<unknown> = Array<unknown>> =
 /**
  * IMPORT_PATH: `@daiso-tech/core/resilience`
  * @group Middlewares
- * @throws {RetryResilienceError} {@link RetryResilienceError}
+ * @throws {RetryResilienceError}
  */
 export function retry<TParameters extends Array<unknown>, TReturn>(
     settings: NoInfer<RetrySettings<TParameters>> = {},

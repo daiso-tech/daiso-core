@@ -42,7 +42,7 @@ export type RetryIntervalSettings<
 /**
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
- * @throws {RetryIntervalResilienceError} {@link RetryIntervalResilienceError}
+ * @throws {RetryIntervalResilienceError}
  */
 export function retryInterval<TParameters extends Array<unknown>, TReturn>(
     settings: RetryIntervalSettings<TParameters>,

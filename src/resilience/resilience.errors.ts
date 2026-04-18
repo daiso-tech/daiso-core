@@ -109,6 +109,8 @@ export const RESILIENCE_ERRORS = {
 } as const;
 
 /**
+ * Union of all error types that can be thrown by resilience middlewares.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Errors
  */

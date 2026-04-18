@@ -44,6 +44,9 @@ export type TimeoutCallbacks<
 };
 
 /**
+ * Configuration for the `timeout` resilience middleware.
+ * Rejects if the middleware result does not complete within the specified time; it does not cancel or abort next().
+ *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -68,7 +71,7 @@ export type TimeoutSettings<
  *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
- * @throws {TimeoutResilienceError} {@link TimeoutResilienceError}
+ * @throws {TimeoutResilienceError}
  */
 export function timeout<TParameters extends Array<unknown>, TReturn>(
     settings: NoInfer<TimeoutSettings<TParameters>> = {},
