@@ -61,12 +61,7 @@ Note the method throws an error when the circuit-breaker is in open state or iso
 :::
 
 :::info
-You can provide [`Task<TValue>`](../task.md), synchronous and asynchronous [`Invokable<[], TValue>`](../../utilities/invokable.md) as values for `runOrFail` method.
-:::
-
-:::danger
-Note `CircuitBreaker` class instance uses `Task` instead of a regular `Promise`. This means you must either await the `Task` or call its `detach` method to run it.
-Refer to the [`@daiso-tech/core/task`](../task.md) documentation for further information.
+You can provide synchronous and asynchronous [`Invokable<[], Promiseable<TValue>>`](../../utilities/invokable.md) as values for `runOrFail` method.
 :::
 
 ### Applying circuit-breaker on certiain errors
