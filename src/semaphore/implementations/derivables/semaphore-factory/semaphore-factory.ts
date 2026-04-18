@@ -44,6 +44,8 @@ import {
 } from "@/utilities/_module.js";
 
 /**
+ * Base configuration shared by all `SemaphoreFactory` variants.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
  * @group Derivables
  */
@@ -59,6 +61,7 @@ export type SemaphoreFactorySettingsBase = {
     namespace?: INamespace;
 
     /**
+     * You pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link SemaphoreFactory | `SemaphoreFactory`} to register the semaphore's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
      * import { Serde } from "@daiso-tech/serde";
@@ -70,6 +73,7 @@ export type SemaphoreFactorySettingsBase = {
     serde?: OneOrMore<ISerderRegister>;
 
     /**
+     * The serde transformer name used to identify semaphore serializer and deserializer adapters when there are adapters with the same name.
      * @default ""
      */
     serdeTransformerName?: string;
@@ -129,6 +133,7 @@ export type SemaphoreFactorySettingsBase = {
     waitUntil?: WaitUntil;
 
     /**
+     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
@@ -141,10 +146,16 @@ export type SemaphoreFactorySettingsBase = {
 };
 
 /**
+ * Configuration for `SemaphoreFactory`.
+ * Extends {@link SemaphoreFactorySettingsBase | `SemaphoreFactorySettingsBase`} with a required adapter.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
  * @group Derivables
  */
 export type SemaphoreFactorySettings = SemaphoreFactorySettingsBase & {
+    /**
+     * The underlying semaphore adapter that handles the actual slot acquisition operations.
+     */
     adapter: SemaphoreAdapterVariants;
 };
 
@@ -217,7 +228,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
             ),
         } = settings;
 
-        this.use = useFactory(executionContext);
+        this.use = useFactory({ executionContext });
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.createSlotId = createSlotId;

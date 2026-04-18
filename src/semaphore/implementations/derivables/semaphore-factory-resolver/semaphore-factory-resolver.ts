@@ -29,13 +29,22 @@ export type SemaphoreAdapters<TAdapters extends string> = Partial<
 >;
 
 /**
+ * Configuration for `SemaphoreFactoryResolver`.
+ * Registers named semaphore adapters and optionally designates a default.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
  * @group Derivables
  */
 export type SemaphoreFactoryResolverSettings<TAdapters extends string> =
     SemaphoreFactorySettingsBase & {
+        /**
+         * Named registry of semaphore adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
+         */
         adapters: SemaphoreAdapters<TAdapters>;
 
+        /**
+         * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
+         */
         defaultAdapter?: NoInfer<TAdapters>;
     };
 
