@@ -51,10 +51,16 @@ export type S3FilePublicUrlGenerator = Invokable<
 >;
 
 /**
+ * Configuration for `S3FileStorageAdapter`.
+ * Provides AWS S3-backed file storage.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/aws-file-storage-adapter"`
  * @group Adapters
  */
 export type S3FileStorageAdapterSettings = {
+    /**
+     * The AWS S3 client instance for communicating with the S3 API.
+     */
     client: S3Client;
 
     /**
@@ -97,6 +103,8 @@ export type S3FileStorageAdapterSettings = {
     enableAccurateGetPublicUrl?: boolean;
 
     /**
+     * When `false`, `removeMany` will skip verifying whether each key exists before deletion, reducing API calls at the cost of accuracy.
+     * Note the fewer database calls the cheaper it will be when using aws s3.
      * @default true
      */
     enableAccurateRemoveMany?: boolean;

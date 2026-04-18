@@ -114,7 +114,9 @@ export type FileStorageSettingsBase = {
     defaultContentLanguage?: string | null;
 
     /**
-     * @default true
+     * When `true`, all file keys are automatically converted to lowercase before storage and retrieval.
+     * Helps avoid case-sensitivity issues across different storage backends.
+     * @default false
      */
     onlyLowercase?: boolean;
 
@@ -158,6 +160,7 @@ export type FileStorageSettingsBase = {
     eventBus?: IEventBus;
 
     /**
+     * You pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link FileStorage | `FileStorage`} to register the file's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
      * import { Serde } from "@daiso-tech/serde";
@@ -169,6 +172,7 @@ export type FileStorageSettingsBase = {
     serde?: OneOrMore<ISerderRegister>;
 
     /**
+     * The serde transformer name used to identify file storage serializer's and deserializer's when there are adapters with same name.
      * @default ""
      */
     serdeTransformerName?: string;
@@ -184,6 +188,7 @@ export type FileStorageSettingsBase = {
     waitUntil?: WaitUntil;
 
     /**
+     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
@@ -211,11 +216,14 @@ export type FileStorageSettingsBase = {
  * @group Derivables
  */
 export type FileStorageSettings = FileStorageSettingsBase & {
+    /**
+     * The underlying storage adapter that handles the actual file operations.
+     */
     adapter: FileStorageAdapterVariants;
 };
 
 /**
- * `FileStorage` class can be derived from any {@link ISignedFileStorageAdapter | `IFileStorageAdapter`}.
+ * `FileStorage` class can be derived from any {@link ISignedFileStorageAdapter | `ISignedFileStorageAdapter`}.
  *
  * Note the {@link IFile | `IFile`} instances created by the `FileStorage` class are serializable and deserializable,
  * allowing them to be seamlessly transferred across different servers, processes, and databases.
@@ -286,7 +294,7 @@ export class FileStorage implements IFileStorage {
         } = settings;
 
         this.lockFactory = lockFactory;
-        this.use = useFactory(executionContext);
+        this.use = useFactory({ executionContext });
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;

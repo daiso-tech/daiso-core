@@ -25,6 +25,9 @@ import {
 import { type IDeinitizable, type IInitizable } from "@/utilities/_module.js";
 
 /**
+ * Configuration for `FsFileStorageAdapter`.
+ * Provides local filesystem-based file storage.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/fs-file-storage-adapter"`
  * @group Adapters
  */

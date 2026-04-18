@@ -3,25 +3,32 @@
  */
 
 import { type IFileStorage } from "@/file-storage/contracts/_module.js";
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    UnregisteredAdapterError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    DefaultAdapterNotDefinedError,
-} from "@/utilities/_module.js";
 
 /**
- * The `IFileStorageResolver` contract makes it easy to configure and switch between different {@link IFileStorage | `IFileStorage`} dynamically.
+ * File storage resolver contract for dynamically selecting and switching between storage adapters.
+ * Simplifies adapter management by providing a single interface to access registered storage implementations.
+ *
+ * Typical usage:
+ * - Development: Use memory storage
+ * - Testing: Use mock storage
+ * - Production: Use S3 or cloud storage
+ * All without changing application code (just switch the configured adapter).
+ *
+ * @template TAdapters - Union type of registered adapter names (e.g., "memory" | "s3" | "fs")
  *
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
  * @group Contracts
  */
 export type IFileStorageResolver<TAdapters extends string = string> = {
     /**
-     * The `use` method will throw an error if you provide it unregisted adapter.
-     * If no default adapter is defined an error will be thrown.
-     * @throws {UnregisteredAdapterError} {@link UnregisteredAdapterError}
-     * @throws {DefaultAdapterNotDefinedError} {@link DefaultAdapterNotDefinedError}
+     * Retrieves a file storage adapter by name.
+     * If no adapter name is provided, uses the default registered adapter.
+     *
+     * @param adapterName - The name of the adapter to retrieve (optional). If not provided, uses the default adapter.
+     * @returns The requested file storage adapter
+     *
+     * @throws {UnregisteredAdapterError} If the specified adapter name is not registered
+     * @throws {DefaultAdapterNotDefinedError} If no adapter name is provided and no default adapter is defined
      */
     use(adapterName?: TAdapters): IFileStorage;
 };
