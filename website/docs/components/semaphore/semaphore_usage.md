@@ -160,36 +160,6 @@ if (state.type === SEMAPHORE_STATE.UNACQUIRED) {
 
 ## Patterns
 
-### Acquire blocking
-
-You can acquire a semaphore at regular intervals until either successful or a specified timeout is reached:
-
-```ts
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2,
-});
-
-const hasAcquired = await semaphore.acquireBlocking({
-    // Time to wait 1 minute
-    time: TimeSpan.fromMinutes(1),
-    // Intervall to try acquire a semaphore
-    interval: TimeSpan.fromSeconds(1),
-});
-if (hasAcquired) {
-    try {
-        await doWork();
-    } finally {
-        await semaphore.release();
-    }
-}
-// Will be logged after 1min
-console.log("END");
-```
-
-:::warning
-Note using `acquireBlocking`, `acquireBlockingOrFail` or `runBlockingOrFail` in a HTTP request handler is discouraged because it blocks the HTTP request handler causing the handler wait until the semaphore becomes available or the timeout is reached. This will delay HTTP request handler to generate response and will make frontend app slow because of HTTP request handler.
-:::
-
 ### Refreshing semaphores
 
 The semaphore can be refreshed by the current owner before it expires. This is particularly useful for long-running tasks,
@@ -241,18 +211,6 @@ console.log(hasRefreshed);
 
 ### Additional methods
 
-The `acquireBlockingOrFail` method is the same as `acquireBlocking` method but it throws an error when not enable to acquire the semaphore:
-
-```ts
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2,
-});
-
-await semaphore.acquireBlockingOrFail({
-    // You can provide the same configuration as in acquireBlocking method
-});
-```
-
 The `releaseOrFail` method is the same `release` method but it throws an error when not enable to release the semaphore:
 
 ```ts
@@ -296,28 +254,6 @@ await semaphore.runOrFail(async () => {
 
 :::info
 Note the method throws an error when the semaphore cannot be acquired.
-:::
-
-The `runBlockingOrFail` method automatically manages semaphore acquisition and release around function execution.
-It calls `acquireBlockingOrFail` before invoking the function and calls `release` in a finally block, ensuring the semaphore is always freed, even if an error occurs during execution.
-
-```ts
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2,
-});
-
-await semaphore.runBlockingOrFail(
-    async () => {
-        await doWork();
-    },
-    {
-        // You can provide the same configuration as in acquireBlocking method
-    },
-);
-```
-
-:::info
-Note the method throws an error when a semaphore cannot be acquired.
 :::
 
 :::info
@@ -514,6 +450,107 @@ await use(async () => {
     }),
 ])();
 ```
+
+### Retrying acquiring semaphore by interval
+
+To retry acquiring semaphore at regular intervals you can use the [`retryInterval`](../resilience.md) middleware:
+
+Retrying acquiring semaphore with `acquireOrFail` method:
+
+```ts
+import { retryInterval } from "@daiso-tech/core/resilience";
+import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+const semaphore = semaphoreFactory.create("resource", {
+    limit: 2,
+});
+
+const use = useFactory();
+try {
+    await use(async () => {
+        await semaphore.acquireOrFail();
+    }, [
+        retryInterval({
+            // Time to wait 1 minute
+            time: TimeSpan.fromMinutes(1),
+            // Interval to try acquire the semaphore
+            interval: TimeSpan.fromSeconds(1),
+            errorPolicy: FailedAcquireSemaphoreError,
+        }),
+    ])();
+    // The concurrent section
+    await doWork();
+} finally {
+    await semaphore.release();
+}
+```
+
+Retrying acquiring semaphore with `acquire` method:
+
+```ts
+import { retryInterval } from "@daiso-tech/core/resilience";
+import { useFactory } from "@daiso-tech/core/middleware";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+const semaphore = semaphoreFactory.create("resource", {
+    limit: 2,
+});
+
+const use = useFactory();
+const hasAcquired = await use(async () => {
+    return await semaphore.acquire();
+}, [
+    retryInterval({
+        time: TimeSpan.fromMinutes(1),
+        interval: TimeSpan.fromSeconds(1),
+        errorPolicy: {
+            treatFalseAsError: true,
+        },
+    }),
+])();
+
+if (hasAcquired) {
+    try {
+        await doWork();
+    } finally {
+        await semaphore.release();
+    }
+}
+```
+
+Retrying acquiring semaphore with `runOrFail` method:
+
+```ts
+import { retryInterval } from "@daiso-tech/core/resilience";
+import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+const semaphore = semaphoreFactory.create("resource", {
+    limit: 2,
+});
+
+const use = useFactory();
+
+await use(async () => {
+    await semaphore.runOrFail(async () => {
+        // The concurrent section
+        await doWork();
+    });
+}, [
+    retryInterval({
+        time: TimeSpan.fromMinutes(1),
+        interval: TimeSpan.fromSeconds(1),
+        errorPolicy: FailedAcquireSemaphoreError,
+    }),
+])();
+```
+
+:::warning
+Note using `retryInterval` middleware with semaphore acquiring in a HTTP request handler is discouraged because it blocks the HTTP request handler causing the handler wait until the semaphore becomes available or the timeout is reached. This will delay HTTP request handler to generate response and will make frontend app slow because of HTTP request handler.
+:::
 
 ### Serialization and deserialization of semaphore
 
