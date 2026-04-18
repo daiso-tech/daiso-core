@@ -33,6 +33,9 @@ export type CacheAdapters<TAdapters extends string = string> = Partial<
 >;
 
 /**
+ * Configuration for `CacheResolver`.
+ * Registers named cache adapters with optional schema validation and designates a default.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */
@@ -40,8 +43,14 @@ export type CacheResolverSettings<
     TAdapters extends string = string,
     TType = unknown,
 > = CacheSettingsBase<TType> & {
+    /**
+     * Named registry of cache adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
+     */
     adapters: CacheAdapters<TAdapters>;
 
+    /**
+     * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
+     */
     defaultAdapter?: NoInfer<TAdapters>;
 };
 

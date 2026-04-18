@@ -23,16 +23,25 @@ declare module "ioredis" {
 }
 
 /**
+ * Configuration for `RedisCacheAdapter`.
+ * Requires a Redis client and a serde for serialising cache values to strings.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/cache/redis-cache-adapter"`
  * @group Adapters
  */
 export type RedisCacheAdapterSettings = {
+    /**
+     * The Redis client instance for cache operations.
+     */
     database: Redis;
+    /**
+     * Serde instance for serializing and deserializing cache values to and from strings.
+     */
     serde: ISerde<string>;
 };
 
 /**
- * To utilize the `RedisCacheAdapter`, you must install the [`"ioredis"`](https://www.npmjs.com/package/ioredis) package and supply a {@link ISerde | `ISerde<string>`}, with adapter like {@link SuperJsonSerdeAdapter | `SuperJsonSerdeAdapter `}.
+ * To utilize the `RedisCacheAdapter`, you must install the [`"ioredis"`](https://www.npmjs.com/package/ioredis) package and supply a {@link ISerde | `ISerde`}, with adapter like {@link SuperJsonSerdeAdapter | `SuperJsonSerdeAdapter`}.
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache/redis-cache-adapter"`
  * @group Adapters

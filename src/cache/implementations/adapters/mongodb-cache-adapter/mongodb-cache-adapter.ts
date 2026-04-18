@@ -26,16 +26,29 @@ import {
 } from "@/utilities/_module.js";
 
 /**
+ * Configuration for `MongodbCacheAdapter`.
+ * Requires a MongoDB `Db` instance and a serde for serialising cache values to strings.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/cache/mongodb-cache-adapter"`
  * @group Adapters
  */
 export type MongodbCacheAdapterSettings = {
+    /**
+     * The MongoDB `Db` instance to store cache entries in.
+     */
     database: Db;
+    /**
+     * Serde instance for serializing and deserializing cache values to and from strings.
+     */
     serde: ISerde<string>;
     /**
+     * Name of the MongoDB collection used to store cache entries.
      * @default "cache"
      */
     collectionName?: string;
+    /**
+     * Additional options passed when creating or accessing the MongoDB collection.
+     */
     collectionSettings?: CollectionOptions;
 };
 
@@ -51,7 +64,7 @@ export type MongodbCacheDocument = {
 };
 
 /**
- * To utilize the `MongodbCacheAdapter`, you must install the [`"mongodb"`](https://www.npmjs.com/package/mongodb) package and supply a {@link ISerde | `ISerde<string>`}, with an adapter like {@link SuperJsonSerdeAdapter | `SuperJsonSerdeAdapter `}.
+ * To utilize the `MongodbCacheAdapter`, you must install the [`"mongodb"`](https://www.npmjs.com/package/mongodb) package and supply a {@link ISerde | `ISerde`}, with an adapter like {@link SuperJsonSerdeAdapter | `SuperJsonSerdeAdapter`}.
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache/mongodb-cache-adapter"`
  * @group Adapters
