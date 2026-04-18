@@ -10,7 +10,7 @@ keywords:
 The `@daiso-tech/core/resilience` component provides predefined fault tolerant `middlewares`.
 
 :::info
-For further information about `middlewares` refer to [`@daiso-tech/core/hooks`](./hooks.md) documentation.
+For further information about `middlewares` refer to [`@daiso-tech/core/middleware`](./middleware.md) documentation.
 :::
 
 ## Fallback
@@ -21,7 +21,9 @@ The `fallback` middleware adds fallback value when an error occurs:
 
 ```ts
 import { fallback } from "@daiso-tech/core/resilience";
-import { AsyncHooks } from "@daiso-tech/core/hooks";
+import { useFactory } from "@daiso-tech/core/middleware";
+
+const use = useFactory();
 
 function unstableFn(): number {
     // We simulate a function that can throw unexpected errors
@@ -30,18 +32,18 @@ function unstableFn(): number {
     }
     return Math.round((Math.random() + 1) * 99);
 }
-const fn = new AsyncHooks(unstableFn, [
+const fn = use(unstableFn, [
     fallback({
         fallbackValue: 1,
     }),
 ]);
 
 // Will never throw and when error occurs the fallback value will be returned.
-console.log(await fn.invoke());
+console.log(await fn());
 ```
 
 :::info
-You can provide [`Task<TValue>`](./task.md), synchronous and asynchronous [`Invokable<TValue, []>`](../utilities/invokable.md) as fallback value.
+You can provide synchronous and asynchronous [`Invokable<[], Promiseable<TValue>>`](../utilities/invokable.md) as fallback value.
 :::
 
 ### Custom ErrorPolicy
@@ -49,13 +51,15 @@ You can provide [`Task<TValue>`](./task.md), synchronous and asynchronous [`Invo
 You can define an [`ErrorPolicy`](../utilities/error_policy_type.md) to specify fallback values for specific error cases:
 
 ```ts
-const fn = new AsyncHooks(unstableFn, [
+const fn = use(unstableFn, [
     fallback({
         fallbackValue: 1,
         // Will only fallback errors that are not a TypeError
         errorPolicy: (error) => !(error instanceof TypeError),
     }),
 ]);
+
+await fn();
 ```
 
 ### Callbacks
@@ -63,12 +67,14 @@ const fn = new AsyncHooks(unstableFn, [
 You can add callback [`Invokable`](../utilities/invokable.md) that will be called before the fallback value is returned.
 
 ```ts
-const fn = new AsyncHooks(unstableFn, [
+const fn = use(unstableFn, [
     fallback({
         fallbackValue: 1,
         onFallback: (fallbackData) => console.log(fallbackData),
     }),
 ]);
+
+await fn();
 ```
 
 :::info
@@ -83,7 +89,9 @@ The `retry` middleware enables automatic retries for all errors or specific erro
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
-import { AsyncHooks } from "@daiso-tech/core/hooks";
+import { useFactory } from "@daiso-tech/core/middleware";
+
+const use = useFactory();
 
 function unstableFn(): number {
     // We simulate a function that can throw unexpected errors
@@ -92,14 +100,14 @@ function unstableFn(): number {
     }
     return Math.round((Math.random() + 1) * 99);
 }
-const fn = new AsyncHooks(unstableFn, [
+const fn = use(unstableFn, [
     retry({
         // Will retry 4 times
         maxAttempts: 4,
     }),
 ]);
 
-await fn.invoke();
+await fn();
 ```
 
 ### Custom ErrorPolicy
@@ -107,13 +115,15 @@ await fn.invoke();
 You can define an [`ErrorPolicy`](../utilities/error_policy_type.md) to retry specific error cases:
 
 ```ts
-const fn = new AsyncHooks(unstableFn, [
+const fn = use(unstableFn, [
     retry({
         maxAttempts: 4,
         // Will only retry errors that are not TypeError
         errorPolicy: (error) => !(error instanceof TypeError),
     }),
 ]);
+
+await fn();
 ```
 
 ### Custom BackoffPolicy
@@ -123,7 +133,7 @@ You can use custom [`BackoffPolicy`](./backoff_policies.md):
 ```ts
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
-const fn = new AsyncHooks(unstableFn, [
+const fn = use(unstableFn, [
     retry({
         maxAttempts: 4,
         // By default a exponential policy is used
@@ -131,6 +141,8 @@ const fn = new AsyncHooks(unstableFn, [
             TimeSpan.fromMilliseconds(attempt * 100),
     }),
 ]);
+
+await fn();
 ```
 
 ### Callbacks
@@ -138,12 +150,14 @@ const fn = new AsyncHooks(unstableFn, [
 You can add callback [`Invokable`](../utilities/invokable.md) that will be called before execution attempt:
 
 ```ts
-const fn = new AsyncHooks(unstableFn, [
+const fn = use(unstableFn, [
     retry({
         maxAttempts: 4,
         onExecutionAttempt: (data) => console.log(data),
     }),
 ]);
+
+await fn();
 ```
 
 You can add callback [`Invokable`](../utilities/invokable.md) that will be called before the retry delay starts:
@@ -153,12 +167,14 @@ For more details about `onExecutionAttempt` callback data, see the `OnRetryAttem
 :::
 
 ```ts
-const fn = new AsyncHooks(unstableFn, [
+const fn = use(unstableFn, [
     retry({
         maxAttempts: 4,
         onRetryDelay: (data) => console.log(data),
     }),
 ]);
+
+await fn();
 ```
 
 :::info
@@ -173,69 +189,31 @@ The `timeout` middleware automatically aborts functions after a specified time p
 
 ```ts
 import { timeout } from "@daiso-tech/core/resilience";
-import { AsyncHooks } from "@daiso-tech/core/hooks";
+import { useFactory } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
-function fetchData(): Promise<Response> {
+const use = useFactory();
+
+async function fetchData(): Promise<Response> {
     const response = await fetch("ENDPOINT");
     console.log("DONE");
     return response;
 }
-const fn = new AsyncHooks(fetchData, [
+const fn = use(fetchData, [
     timeout({
         waitTime: TimeSpan.fromSeconds(2),
     }),
 ]);
 
-await fn.invoke();
+await fn();
 ```
-
-:::warning
-Note when a timeout occurs, the function call continues executing in the background and only the `Promise` will be aborted.
-To ensure correct abortion behavior, provide an `AbortSignalBinder` to `AsyncHooks`.
-
-For further information about `AbortSignalBinder` and `AsyncHooks` refer to [`@daiso-tech/core/hooks`](./hooks.md) documentation.
-
-```ts
-import { timeout } from "@daiso-tech/core/resilience";
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { AsyncHooks } from "@daiso-tech/core/hooks";
-
-function fetchData(signal?: AbortSignal): Promise<Response> {
-    const response = await fetch("ENDPOINT", {
-        signal,
-    });
-    console.log("DONE");
-    return response;
-}
-const fn = new AsyncHooks(
-    fetchData,
-    [
-        timeout({
-            waitTime: TimeSpan.fromSeconds(2),
-        }),
-    ],
-    {
-        signalBinder: {
-            getSignal: (args) => args[0],
-            forwardSignal: (args, signal) => {
-                args[0] = signal;
-            },
-        },
-    },
-);
-
-await fn.invoke();
-```
-
-:::
 
 ### Callbacks
 
 You can add callback [`Invokable`](../utilities/invokable.md) that will be called before the timeout occurs.
 
 ```ts
-const fn = new AsyncHooks(
+const fn = use(
     fetchData,
     [
         timeout({
@@ -252,6 +230,8 @@ const fn = new AsyncHooks(
         },
     },
 );
+
+await fn();
 ```
 
 :::info
@@ -266,7 +246,9 @@ The `observe` middleware tracks an async function's state and runs callbacks whe
 
 ```ts
 import { observe } from "@daiso-tech/core/resilience";
-import { AsyncHooks } from "@daiso-tech/core/hooks";
+import { useFactory } from "@daiso-tech/core/middleware";
+
+const use = useFactory();
 
 function unstableFn(): Promise<number> {
     // We simulate a function that can throw unexpected errors
@@ -275,7 +257,7 @@ function unstableFn(): Promise<number> {
     }
     return Math.round((Math.random() + 1) * 99);
 }
-const fn = new AsyncHooks(unstableFn, [
+const fn = use(unstableFn, [
     observe({
         onStart: (data) => console.log("START:", data),
         onSuccess: (data) => console.log("SUCCESS:", data),
@@ -284,7 +266,7 @@ const fn = new AsyncHooks(unstableFn, [
     }),
 ]);
 
-await fn.invoke();
+await fn();
 ```
 
 :::info
