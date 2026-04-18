@@ -23,10 +23,16 @@ import { ConsecutiveBreaker } from "@/circuit-breaker/implementations/policies/_
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
+ * Configuration for `DatabaseCircuitBreakerAdapter`.
+ * Wraps a {@link ICircuitBreakerStorageAdapter | `ICircuitBreakerStorageAdapter`} with circuit-breaker logic.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter"`
  * @group Adapters
  */
 export type DatabaseCircuitBreakerAdapterSettings = {
+    /**
+     * The underlying storage adapter used to persist and retrieve circuit-breaker state.
+     */
     adapter: ICircuitBreakerStorageAdapter;
 
     /**

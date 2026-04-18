@@ -33,20 +33,38 @@ export type MongodbCircuitBreakerStorageDocument = {
 };
 
 /**
+ * Configuration for `MongodbCircuitBreakerStorageAdapter`.
+ * Requires a MongoDB `Db` instance.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/mongodb-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export type MongodbCircuitBreakerStorageAdapterSettings = {
+    /**
+     * The MongoDB `MongoClient` instance, required for transaction support.
+     */
     client: MongoClient;
+    /**
+     * The MongoDB `Db` instance to store circuit-breaker state in.
+     */
     database: Db;
     /**
+     * Name of the MongoDB collection used to store circuit-breaker state records.
      * @default "circuitBreaker"
      */
     collectionName?: string;
+    /**
+     * Additional options passed when creating or accessing the MongoDB collection.
+     */
     collectionSettings?: CollectionOptions;
+    /**
+     * Serde instance for serializing and deserializing circuit-breaker state to and from strings.
+     */
     serde: ISerde<string>;
 
     /**
+     * When `true`, operations are wrapped in MongoDB transactions for atomicity.
+     * Requires a Replica Set or sharded cluster that supports transactions.
      * @default true
      */
     enableTransactions?: boolean;
@@ -170,11 +188,11 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
         trxFn: InvokableFn<[], Promise<TValue>>,
     ): Promise<TValue> {
         if (this.enableTransactions) {
-            return await this.client
-                .startSession()
-                .withTransaction(async () => {
+            return await this.client.withSession(async (session) => {
+                return await session.withTransaction(async () => {
                     return await trxFn();
                 });
+            });
         }
         return trxFn();
     }

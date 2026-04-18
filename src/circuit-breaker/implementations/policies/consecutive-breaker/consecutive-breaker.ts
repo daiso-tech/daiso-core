@@ -14,6 +14,8 @@ import {
 } from "@/circuit-breaker/contracts/_module.js";
 
 /**
+ * Tracks in-memory failure and success counts for the consecutive circuit breaker.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
  * @group Policies
  */
@@ -23,6 +25,10 @@ export type ConsecutiveBreakerState = {
 };
 
 /**
+ * Configuration for the consecutive-failures circuit breaker policy.
+ * Opens the circuit when `failureThreshold` consecutive failures occur,
+ * and closes it again after `successThreshold` consecutive successes in half-open state.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
  * @group Policies
  */

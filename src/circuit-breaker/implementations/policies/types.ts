@@ -24,6 +24,9 @@ export const BREAKER_POLICIES = {
  * @group Policies
  */
 export type ConsecutiveBreakerSettingsEnum = ConsecutiveBreakerSettings & {
+    /**
+     * Discriminant identifying this as the consecutive breaker policy.
+     */
     type: (typeof BREAKER_POLICIES)["CONSECUTIVE"];
 };
 
@@ -32,6 +35,9 @@ export type ConsecutiveBreakerSettingsEnum = ConsecutiveBreakerSettings & {
  * @group Policies
  */
 export type CountBreakerSettingsEnum = CountBreakerSettings & {
+    /**
+     * Discriminant identifying this as the count breaker policy.
+     */
     type: (typeof BREAKER_POLICIES)["COUNT"];
 };
 
@@ -40,6 +46,9 @@ export type CountBreakerSettingsEnum = CountBreakerSettings & {
  * @group Policies
  */
 export type SamplingBreakerSettingsEnum = SamplingBreakerSettings & {
+    /**
+     * Discriminant identifying this as the sampling breaker policy.
+     */
     type: (typeof BREAKER_POLICIES)["SAMPLING"];
 };
 

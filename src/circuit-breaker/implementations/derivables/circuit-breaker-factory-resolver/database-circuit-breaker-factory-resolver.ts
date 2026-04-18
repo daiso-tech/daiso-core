@@ -37,14 +37,24 @@ export type DatabaseCircuitBreakerAdapters<TAdapters extends string> = Partial<
 >;
 
 /**
+ * Configuration for `DatabaseCircuitBreakerFactoryResolver`.
+ * Convenience resolver that wires a {@link ICircuitBreakerStorageAdapter | `ICircuitBreakerStorageAdapter`} database adapter
+ * with circuit-breaker logic and registers it as the sole named adapter.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
 export type DatabaseCircuitBreakerFactoryResolverSettings<
     TAdapters extends string,
 > = CircuitBreakerFactorySettingsBase & {
+    /**
+     * Named registry of circuit-breaker storage adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
+     */
     adapters: DatabaseCircuitBreakerAdapters<TAdapters>;
 
+    /**
+     * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
+     */
     defaultAdapter?: NoInfer<TAdapters>;
 
     /**

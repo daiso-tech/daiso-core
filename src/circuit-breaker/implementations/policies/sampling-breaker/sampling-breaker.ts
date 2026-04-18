@@ -18,6 +18,10 @@ import {
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
+ * Configuration for the time-based sampling circuit breaker policy.
+ * Tracks requests over a sliding time window and opens the circuit when the failure
+ * percentage exceeds `failureThreshold`.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
  * @group Policies
  */
