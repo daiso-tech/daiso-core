@@ -3,13 +3,13 @@ sidebar_position: 1
 sidebar_label: Usage
 pagination_label: Shared-lock usage
 tags:
- - Shared-lock
- - Usage
- - Namespace
+    - Shared-lock
+    - Usage
+    - Namespace
 keywords:
- - Shared-lock
- - Usage
- - Namespace
+    - Shared-lock
+    - Usage
+    - Namespace
 ---
 
 # Shared-lock usage
@@ -42,10 +42,11 @@ Here is a complete list of settings for the [`SharedLockFactory`](https://daiso-
 ## Shared lock basics
 
 ### Creating a shared-lock
+
 ```ts
 const sharedLock = sharedLockFactory.create("shared-resource", {
     // You need to define a limit
-    limit: 2
+    limit: 2,
 });
 ```
 
@@ -60,8 +61,7 @@ if (await sharedLock.acquireReader()) {
     } finally {
         await sharedLock.releaseReader();
     }
-}
-else {
+} else {
     console.log("Unable to acquire");
 }
 
@@ -73,8 +73,7 @@ if (await sharedLock.acquireReader()) {
     } finally {
         await sharedLock.releaseReader();
     }
-}
-else {
+} else {
     console.log("Unable to acquire");
 }
 
@@ -85,18 +84,15 @@ console.log(await sharedLock.acquireReader());
 Alternatively you could write it as follows:
 
 ```ts
-
 // 1 slot will be acquired
 try {
     console.log("Acquired");
     // This method will throw if the shared-lock limit is reached.
     await sharedLock.acquireReaderOrFail();
     // The critical section
-}
-catch {
+} catch {
     console.log("Unable to acquire");
-}
-finally {
+} finally {
     await sharedLock.releaseReader();
 }
 
@@ -106,11 +102,9 @@ try {
     // This method will throw if the shared-lock limit is reached.
     await sharedLock.acquireReaderOrFail();
     // The critical section
-}
-catch {
+} catch {
     console.log("Unable to acquire");
-}
-finally {
+} finally {
     await sharedLock.releaseReader();
 }
 
@@ -120,11 +114,6 @@ await sharedLock.acquireReaderOrFail();
 
 :::danger
 You need always to wrap the concurrent section with `try-finally` so the shared-lock get released when error occurs.
-:::
-
-:::danger
-Note `Shared-lock` class uses `Task` instead of a regular `Promise`. This means you must either await the `Task` or call its `detach` method to run it.
-Refer to the [`@daiso-tech/core/task`](../task.md) documentation for further information.
 :::
 
 ### Acquiring and releasing the shared-lock as writer
@@ -186,7 +175,9 @@ if (state.type === SHARED_LOCK_STATE.EXPIRED) {
 }
 
 if (state.type === SHARED_LOCK_STATE.READER_LIMIT_REACHED) {
-    console.log("The shared-lock is in reader mode and limit have been reached and all slots are unavailable");
+    console.log(
+        "The shared-lock is in reader mode and limit have been reached and all slots are unavailable",
+    );
 }
 
 if (state.type === SHARED_LOCK_STATE.READER_ACQUIRED) {
@@ -194,11 +185,15 @@ if (state.type === SHARED_LOCK_STATE.READER_ACQUIRED) {
 }
 
 if (state.type === SHARED_LOCK_STATE.READER_UNACQUIRED) {
-    console.log("The shared-lock is in reader mode and there are avilable slots but the shared-lock is not acquired");
+    console.log(
+        "The shared-lock is in reader mode and there are avilable slots but the shared-lock is not acquired",
+    );
 }
 
 if (state.type === SHARED_LOCK_STATE.WRITER_UNAVAILABLE) {
-    console.log("The shared-lock is in writer mode and is acquired by different owner");
+    console.log(
+        "The shared-lock is in writer mode and is acquired by different owner",
+    );
 }
 
 if (state.type === SHARED_LOCK_STATE.WRITER_ACQUIRED) {
@@ -216,7 +211,7 @@ You can acquire a shared-lock at regular intervals until either successful or a 
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 const hasAcquired = await sharedLock.acquireReaderBlocking({
@@ -240,7 +235,7 @@ console.log("END");
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 const hasAcquired = await sharedLock.acquireWriterBlocking({
@@ -264,7 +259,6 @@ console.log("END");
 Note using `acquireReaderBlocking`, `acquireReaderBlockingOrFail`, `runReaderBlockingOrFail`, `acquireWriterBlocking`, `acquireWriterBlockingOrFail` and `runWriterBlockingOrFail` in a HTTP request handler is discouraged because it blocks the HTTP request handler causing the handler wait until the shared becomes available or the timeout is reached. This will delay HTTP request handler to generate response and will make frontend app slow because of HTTP request handler.
 :::
 
-
 ### Refreshing shared-locks
 
 The shared-lock can be refreshed by the current owner before it expires. This is particularly useful for long-running tasks,
@@ -287,7 +281,7 @@ if (hasAcquired) {
             if (hasFinished) {
                 break;
             }
-            await Task.delay(TimeSpan.fromSeconds(1));
+            await delay(TimeSpan.fromSeconds(1));
         }
     } finally {
         await sharedLock.releaseWriter();
@@ -312,7 +306,7 @@ if (hasAcquired) {
             if (hasFinished) {
                 break;
             }
-            await Task.delay(TimeSpan.fromSeconds(1));
+            await delay(TimeSpan.fromSeconds(1));
         }
     } finally {
         await sharedLock.releaseReader();
@@ -342,6 +336,7 @@ const hasRefreshedReader = await sharedLock.refreshReader();
 // This will log 'false' because the sharedLock cannot be refreshed
 console.log(hasRefreshedReader);
 ```
+
 :::
 
 ### Additional writer methods
@@ -350,7 +345,7 @@ The `acquireWriterBlockingOrFail` method is the same as `acquireWriterBlocking` 
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await sharedLock.acquireWriterBlockingOrFail({
@@ -362,7 +357,7 @@ The `releaseWriterOrFail` method is the same `releaseWriter` method but it throw
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await sharedLock.releaseWriterOrFail();
@@ -372,7 +367,7 @@ The `forceReleaseWriter` method releases the shared-lock regardless of the owner
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await sharedLock.forceReleaseWriter();
@@ -382,7 +377,7 @@ The `refreshWriterOrFail` method is the same `refreshWriter` method but it throw
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await sharedLock.refreshWriterOrFail();
@@ -393,7 +388,7 @@ It calls `acquireWriterOrFail` before invoking the function and calls `releaseWr
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await sharedLock.runWriterOrFail(async () => {
@@ -410,7 +405,7 @@ It calls `acquireWriterBlockingOrFail` before invoking the function and calls `r
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await sharedLock.runWriterBlockingOrFail(
@@ -428,7 +423,7 @@ Note the method throws an error when a shared-lock cannot be acquired as writer.
 :::
 
 :::info
-You can provide [`Task`](../task.md), synchronous and asynchronous [`Invokable`](../../utilities/invokable.md) as values for `runWriterOrFail`, and `runWriterBlockingOrFail` methods.
+You can provide synchronous Invokable or async/promisable invokable as values for `runWriterOrFail`, and `runWriterBlockingOrFail` methods.
 :::
 
 ### Additional reader methods
@@ -437,7 +432,7 @@ The `acquireReaderBlockingOrFail` method is the same as `acquireReaderBlocking` 
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await sharedLock.acquireReaderBlockingOrFail({
@@ -449,7 +444,7 @@ The `releaseReaderOrFail` method is the same `releaseReader` method but it throw
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await sharedLock.releaseReaderOrFail();
@@ -459,7 +454,7 @@ The `forceReleaseAllReaders` method releases all the slots of the shared-lock if
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await sharedLock.forceReleaseAllReaders();
@@ -469,7 +464,7 @@ The `refreshReaderOrFail` method is the same `refreshReader` method but it throw
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await sharedLock.refreshReaderOrFail();
@@ -480,7 +475,7 @@ It calls `acquireReaderOrFail` before invoking the function and calls `releaseRe
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await sharedLock.runReaderOrFail(async () => {
@@ -497,7 +492,7 @@ It calls `acquireReaderBlockingOrFail` before invoking the function and calls `r
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await sharedLock.runReaderBlockingOrFail(
@@ -515,7 +510,7 @@ Note the method throws an error when a shared-lock cannot be acquired as reader.
 :::
 
 :::info
-You can provide [`Task`](../task.md), synchronous and asynchronous [`Invokable`](../../utilities/invokable.md) as values for `runReaderOrFail`, and `runReaderBlockingOrFail` methods.
+You can provide synchronous Invokable or async/promisable invokable as values for `runReaderOrFail`, and `runReaderBlockingOrFail` methods.
 :::
 
 ### Additional methods
@@ -524,7 +519,7 @@ The `forceRelease` method releases the shared-lock regardless it its in reader o
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await sharedLock.forceRelease();
@@ -536,7 +531,7 @@ The `Shared-lock` class exposes instance variables such as:
 
 ```ts
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 // Will return the key of the shared-lock which is "resource"
@@ -604,11 +599,11 @@ const sharedLockFactoryB = new SharedLockFactory({
 
 const sharedLockA = await sharedLockFactoryA.create("key", {
     ttl: null,
-    limit: 1
+    limit: 1,
 });
 const sharedLockB = await sharedLockFactoryB.create("key", {
     ttl: null,
-    limit: 1
+    limit: 1,
 });
 
 const hasAquiredA = await sharedLockA.acquireWriter();
@@ -632,25 +627,29 @@ console.log(await sharedLockB.getState());
 
 ### Retrying acquiring shared-lock as writer
 
-To retry acquiring shared-lock you can use the [`retry`](../resilience.md) middleware with [`Task.pipe`](../task.md) method.
+To retry acquiring shared-lock you can use the [`retry`](../resilience.md) middleware.
 
 Retrying acquiring shared-lock with `acquireWriterOrFail` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireWriterLockError } from "@daiso-tech/core/shared-lock/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
-    limit: 2
+    limit: 2,
 });
 
+const use = useFactory();
 try {
-    await sharedLock.acquireWriterOrFail().pipe(
+    await use(async () => {
+        await sharedLock.acquireWriterOrFail();
+    }, [
         retry({
             maxAttempts: 4,
             errorPolicy: FailedAcquireWriterLockError,
         }),
-    );
+    ])();
     // The critical section
 } finally {
     await sharedLock.release();
@@ -661,19 +660,24 @@ Retrying acquiring sharedLock with `acquireWriter` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
+import { useFactory } from "@daiso-tech/core/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
-    limit: 2
+    limit: 2,
 });
 
-const hasAquired = await sharedLock.acquireWriter().pipe(
+const use = useFactory();
+const hasAquired = await use(async () => {
+    return await sharedLock.acquireWriter();
+}, [
     retry({
         maxAttempts: 4,
         errorPolicy: {
             treatFalseAsError: true,
         },
     }),
-);
+])();
+
 if (hasAquired) {
     try {
         // The critical section
@@ -688,21 +692,23 @@ Retrying acquiring shared-lock with `runWriterOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireWriterLockError } from "@daiso-tech/core/shared-lock/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
-    limit: 2
+    limit: 2,
 });
 
-await sharedLock
-    .runWriterOrFail(async () => {
+const use = useFactory();
+await use(async () => {
+    await sharedLock.runWriterOrFail(async () => {
         // The critical section
-    })
-    .pipe(
-        retry({
-            maxAttempts: 4,
-            errorPolicy: FailedAcquireWriterLockError,
-        }),
-    );
+    });
+}, [
+    retry({
+        maxAttempts: 4,
+        errorPolicy: FailedAcquireWriterLockError,
+    }),
+])();
 ```
 
 ### Retrying acquiring shared-lock as reader
@@ -712,18 +718,22 @@ Retrying acquiring shared-lock with `acquireReaderOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
-    limit: 2
+    limit: 2,
 });
 
+const use = useFactory();
 try {
-    await sharedLock.acquireReaderOrFail().pipe(
+    await use(async () => {
+        await sharedLock.acquireReaderOrFail();
+    }, [
         retry({
             maxAttempts: 4,
             errorPolicy: LimitReachedReaderSemaphoreError,
         }),
-    );
+    ])();
     // The critical section
 } finally {
     await sharedLock.release();
@@ -734,19 +744,24 @@ Retrying acquiring sharedLock with `acquireReader` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
+import { useFactory } from "@daiso-tech/core/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
-    limit: 2
+    limit: 2,
 });
 
-const hasAquired = await sharedLock.acquireReader().pipe(
+const use = useFactory();
+const hasAquired = await use(async () => {
+    return await sharedLock.acquireReader();
+}, [
     retry({
         maxAttempts: 4,
         errorPolicy: {
             treatFalseAsError: true,
         },
     }),
-);
+])();
+
 if (hasAquired) {
     try {
         // The critical section
@@ -761,28 +776,30 @@ Retrying acquiring shared-lock with `runReaderOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
-    limit: 2
+    limit: 2,
 });
 
-await sharedLock
-    .runReaderOrFail(async () => {
+const use = useFactory();
+await use(async () => {
+    await sharedLock.runReaderOrFail(async () => {
         // The critical section
-    })
-    .pipe(
-        retry({
-            maxAttempts: 4,
-            errorPolicy: LimitReachedReaderSemaphoreError,
-        }),
-    );
+    });
+}, [
+    retry({
+        maxAttempts: 4,
+        errorPolicy: LimitReachedReaderSemaphoreError,
+    }),
+])();
 ```
 
 ### Serialization and deserialization of shared-lock
 
 Shared-locks can be serialized, allowing them to be transmitted over the network to another server and later deserialized for reuse.
 This means you can, for example, acquire the shared-lock on the main server, transfer it to a queue worker server, and release it there.
-In order to serialize or deserialize a shared-lock you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `SharedLockFactory`. 
+In order to serialize or deserialize a shared-lock you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `SharedLockFactory`.
 
 Manually serializing and deserializing the shared-lock:
 
@@ -803,7 +820,7 @@ const sharedLockFactory = new SharedLockFactory({
 });
 
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 const serializedSharedLock = serde.serialize(sharedLock);
 const deserializedSharedLock = serde.deserialize(sharedLock);
@@ -849,7 +866,7 @@ const sharedLockFactory = new SharedLockFactory({
     eventBus,
 });
 const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 // We are sending the shared-lock over the network to other servers.
@@ -858,10 +875,13 @@ await eventBus.dispatch("sending-shared-lock-over-network", {
 });
 
 // The other servers will recieve the serialized shared-lock and automattically deserialize it.
-await eventBus.addListener("sending-shared-lock-over-network", ({ sharedLock }) => {
-    // The shared-lock is deserialized and can be used
-    console.log("SHARED_LOCK:", sharedLock);
-});
+await eventBus.addListener(
+    "sending-shared-lock-over-network",
+    ({ sharedLock }) => {
+        // The shared-lock is deserialized and can be used
+        console.log("SHARED_LOCK:", sharedLock);
+    },
+);
 ```
 
 ### Shared-lock events
@@ -871,10 +891,12 @@ Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to lear
 
 ```ts
 import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
-import { SharedLockFactory, SHARED_LOCK_EVENTS } from "@daiso-tech/core/shared-lock";
+import {
+    SharedLockFactory,
+    SHARED_LOCK_EVENTS,
+} from "@daiso-tech/core/shared-lock";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 import { EventBus } from "@daiso-tech/core/event-bus";
-
 
 const redisPubSubEventBusAdapter = new MemoryEventBusAdapter();
 
@@ -885,9 +907,12 @@ const sharedLock = new SharedLockFactory({
     }),
 });
 
-await sharedLockFactory.events.addListener(SHARED_LOCK_EVENTS.WRITER_ACQUIRED, () => {
-    console.log("Lock acquired");
-});
+await sharedLockFactory.events.addListener(
+    SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
+    () => {
+        console.log("Lock acquired");
+    },
+);
 
 await sharedLockFactory.create("a", { limit: 2 }).acquireWriter();
 ```
@@ -935,6 +960,7 @@ const redisSharedLockFactory = new SharedLockFactory({
     }),
 });
 ```
+
 :::
 
 ### Separating creating, listening to and manipulating shared-lock
@@ -976,7 +1002,9 @@ async function writerLockFunc(writerLock: IWriterLock): Promise<void> {
     });
 }
 
-async function readerSemaphoreFunc(readerSemaphore: IReaderSemaphore): Promise<void> {
+async function readerSemaphoreFunc(
+    readerSemaphore: IReaderSemaphore,
+): Promise<void> {
     // You cannot access the reader methods
     // You will get typescript error if you try
 
@@ -993,12 +1021,14 @@ async function sharedLockFunc(sharedLock: ISharedLock): Promise<void> {
     await sharedLock.forceRelease();
 }
 
-async function sharedLockFactoryFunc(sharedLockFactory: ISharedLockFactoryBase): Promise<void> {
+async function sharedLockFactoryFunc(
+    sharedLockFactory: ISharedLockFactoryBase,
+): Promise<void> {
     // You cannot access the listener methods
     // You will get typescript error if you try
 
     const sharedLock = sharedLockFactory.create("resource", {
-        limit: 2
+        limit: 2,
     });
     await sharedLockFunc(sharedLock);
 }
@@ -1009,27 +1039,39 @@ async function sharedLockListenableFunc(
     // You cannot access the sharedLockFactory methods
     // You will get typescript error if you try
 
-    await sharedLockListenable.addListener(SHARED_LOCK_EVENTS.WRITER_ACQUIRED, (event) => {
-        console.log("WRITER ACQUIRED:", event);
-    });
-    await sharedLockListenable.addListener(SHARED_LOCK_EVENTS.WRITER_RELEASED, (event) => {
-        console.log("WRITER RELEASED:", event);
-    });
+    await sharedLockListenable.addListener(
+        SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
+        (event) => {
+            console.log("WRITER ACQUIRED:", event);
+        },
+    );
+    await sharedLockListenable.addListener(
+        SHARED_LOCK_EVENTS.WRITER_RELEASED,
+        (event) => {
+            console.log("WRITER RELEASED:", event);
+        },
+    );
 
-    await sharedLockListenable.addListener(SHARED_LOCK_EVENTS.READER_ACQUIRED, (event) => {
-        console.log("READER ACQUIRED:", event);
-    });
-    await sharedLockListenable.addListener(SHARED_LOCK_EVENTS.READER_RELEASED, (event) => {
-        console.log("READER RELEASED:", event);
-    });
+    await sharedLockListenable.addListener(
+        SHARED_LOCK_EVENTS.READER_ACQUIRED,
+        (event) => {
+            console.log("READER ACQUIRED:", event);
+        },
+    );
+    await sharedLockListenable.addListener(
+        SHARED_LOCK_EVENTS.READER_RELEASED,
+        (event) => {
+            console.log("READER RELEASED:", event);
+        },
+    );
 }
 
 const sharedLockFactory = new SharedLockFactory({
     adapter: new MemorySharedLockAdapter(),
     eventBus: new EventBus({
         adapter: new MemoryEventBusAdapter(),
-    })
-})
+    }),
+});
 await sharedLockListenableFunc(sharedLockFactory.events);
 await sharedLockFactoryFunc(sharedLockFactory);
 ```
