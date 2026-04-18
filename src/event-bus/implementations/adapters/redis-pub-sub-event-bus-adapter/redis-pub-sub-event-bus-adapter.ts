@@ -19,16 +19,25 @@ import {
 } from "@/serde/implementations/adapters/_module.js";
 
 /**
+ * Configuration for `RedisPubSubEventBusAdapter`.
+ * Requires a Redis client and a serde for serialising event payloads.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter"`
  * @group Adapters
  */
 export type RedisPubSubEventBusAdapterSettings = {
+    /**
+     * The Redis client instance used for pub/sub messaging.
+     */
     client: Redis;
+    /**
+     * Serde instance for serializing and deserializing event payloads to and from strings.
+     */
     serde: ISerde<string>;
 };
 
 /**
- * To utilize the `RedisPubSubEventBusAdapter`, you must install the [`"ioredis"`](https://www.npmjs.com/package/ioredis) package and supply a {@link ISerde | `ISerde<string>`}, with a {@link SuperJsonSerdeAdapter | `SuperJsonSerdeAdapter `}.
+ * To utilize the `RedisPubSubEventBusAdapter`, you must install the [`"ioredis"`](https://www.npmjs.com/package/ioredis) package and supply a {@link ISerde | `ISerde`}, with a {@link SuperJsonSerdeAdapter | `SuperJsonSerdeAdapter`}.
  *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter"`
  * @group Adapters

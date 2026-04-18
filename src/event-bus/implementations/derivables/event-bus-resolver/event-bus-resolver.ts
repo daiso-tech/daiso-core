@@ -29,6 +29,9 @@ export type EventBusAdapters<TAdapters extends string = string> = Partial<
 >;
 
 /**
+ * Configuration for `EventBusResolver`.
+ * Registers named event-bus adapters and optionally designates a default.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
  * @group Derivables
  */
@@ -36,8 +39,14 @@ export type EventBusResolverSettings<
     TAdapters extends string = string,
     TEventMap extends BaseEventMap = BaseEventMap,
 > = EventBusSettingsBase<TEventMap> & {
+    /**
+     * Named registry of event-bus adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
+     */
     adapters: EventBusAdapters<TAdapters>;
 
+    /**
+     * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
+     */
     defaultAdapter?: NoInfer<TAdapters>;
 };
 

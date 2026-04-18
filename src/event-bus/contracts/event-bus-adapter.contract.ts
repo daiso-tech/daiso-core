@@ -38,7 +38,7 @@ export type IEventBusDispatcherAdapter = {
  */
 export type IEventBusListenableAdapter = {
     /**
-     * The `addListener` method is used for adding {@link EventListenerFn | `listener`} for certain `eventName`.
+     * The `addListener` method is used for adding {@link EventListenerFn | `EventListenerFn`} for certain `eventName`.
      */
     addListener(
         context: IReadableContext,
@@ -47,7 +47,7 @@ export type IEventBusListenableAdapter = {
     ): Promise<void>;
 
     /**
-     * The `removeListener` method is used for removing {@link EventListenerFn | `listener`} for certain `eventName`.
+     * The `removeListener` method is used for removing {@link EventListenerFn | `EventListenerFn`} for certain `eventName`.
      */
     removeListener(
         context: IReadableContext,
