@@ -37,6 +37,8 @@ import {
 } from "@/utilities/_module.js";
 
 /**
+ * Base configuration shared by all `CircuitBreakerFactory` variants.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
@@ -105,10 +107,11 @@ export type CircuitBreakerFactorySettingsBase = {
     enableAsyncTracking?: boolean;
 
     /**
+     * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link CircuitBreakerFactory | `CircuitBreakerFactory`} to register the circuit breaker's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
-     * import { Serde } from "@daiso-tech/serde";
-     * import { NoOpSerdeAdapter } from "@daiso-tech/serde/no-op-serde-adapter";
+     * import { Serde } from "@daiso-tech/core/serde";
+     * import { NoOpSerdeAdapter } from "@daiso-tech/core/serde/no-op-serde-adapter";
      *
      * new Serde(new NoOpSerdeAdapter())
      * ```
@@ -116,6 +119,7 @@ export type CircuitBreakerFactorySettingsBase = {
     serde?: OneOrMore<ISerderRegister>;
 
     /**
+     * The serde transformer name used to identify circuit-breaker serializers and deserializers when there are adapters with the same name.
      * @default ""
      */
     serdeTransformerName?: string;
@@ -131,6 +135,7 @@ export type CircuitBreakerFactorySettingsBase = {
     waitUntil?: WaitUntil;
 
     /**
+     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
@@ -143,11 +148,17 @@ export type CircuitBreakerFactorySettingsBase = {
 };
 
 /**
+ * Configuration for `CircuitBreakerFactory`.
+ * Extends {@link CircuitBreakerFactorySettingsBase | `CircuitBreakerFactorySettingsBase`} with a required adapter.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
 export type CircuitBreakerFactorySettings =
     CircuitBreakerFactorySettingsBase & {
+        /**
+         * The underlying circuit-breaker adapter that handles state persistence.
+         */
         adapter: ICircuitBreakerAdapter;
     };
 

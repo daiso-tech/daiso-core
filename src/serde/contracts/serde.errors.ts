@@ -11,7 +11,7 @@
 export class SerializationSerdeError extends Error {
     static create(error: unknown): SerializationSerdeError {
         return new SerializationSerdeError(
-            `Serialization error "${String(error)}" occured`,
+            `Serialization error "${String(error)}" occurred`,
             error,
         );
     }
@@ -36,7 +36,7 @@ export class SerializationSerdeError extends Error {
 export class DeserializationSerdeError extends Error {
     static create(error: unknown): DeserializationSerdeError {
         return new DeserializationSerdeError(
-            `Deserialization error "${String(error)}" occured`,
+            `Deserialization error "${String(error)}" occurred`,
             error,
         );
     }

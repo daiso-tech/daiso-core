@@ -13,6 +13,10 @@ import {
 } from "@/circuit-breaker/contracts/_module.js";
 
 /**
+ * Configuration for the count-based sliding-window circuit breaker policy.
+ * Tracks requests over a fixed-size window and opens the circuit when the failure
+ * percentage exceeds `failureThreshold`.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
  * @group Policies
  */
@@ -115,6 +119,9 @@ export function resolveCountBreakerSettings(
 }
 
 /**
+ * In-memory sample window used by the count-based circuit breaker.
+ * Each boolean entry represents whether a single call succeeded (`true`) or failed (`false`).
+ *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
  * @group Policies
  */

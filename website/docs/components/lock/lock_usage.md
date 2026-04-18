@@ -3,13 +3,13 @@ sidebar_position: 1
 sidebar_label: Usage
 pagination_label: Lock usage
 tags:
- - Lock
- - Usage
- - Namespace
+    - Lock
+    - Usage
+    - Namespace
 keywords:
- - Lock
- - Usage
- - Namespace
+    - Lock
+    - Usage
+    - Namespace
 ---
 
 # Lock usage
@@ -76,11 +76,6 @@ try {
 You need always to wrap the critical section with `try-finally` so the lock get released when error occurs.
 :::
 
-:::danger
-Note `Lock` class uses `Task` instead of a regular `Promise`. This means you must either await the `Task` or call its `detach` method to run it.
-Refer to the [`@daiso-tech/core/task`](../task.md) documentation for further information.
-:::
-
 ### Locks with custom TTL
 
 You can provide a custom TTL for the lock.
@@ -118,43 +113,21 @@ if (state.type === LOCK_STATE.ACQUIRED) {
 
 ## Patterns
 
-### Acquire blocking
-
-You can acquire the lock at regular intervals until either successful or a specified timeout is reached:
-
-```ts
-const lock = lockFactory.create("resource");
-
-const hasAcquired = await lock.acquireBlocking({
-    // Time to wait 1 minute
-    time: TimeSpan.fromMinutes(1),
-    // Intervall to try acquire the lock
-    interval: TimeSpan.fromSeconds(1),
-});
-if (hasAcquired) {
-    try {
-        await doWork();
-    } finally {
-        await lock.release();
-    }
-}
-// Will be logged after 1min
-console.log("END");
-```
-
-:::warning
-Note using `acquireBlocking`, `acquireBlockingOrFail` or `runBlockingOrFail` in a HTTP request handler is discouraged because it blocks the HTTP request handler causing the handler wait until the lock becomes available or the timeout is reached. This will delay HTTP request handler to generate response and will make frontend app slow because of HTTP request handler.
-:::
-
 ### Refreshing locks
 
 The lock can be refreshed by the current owner before it expires. This is particularly useful for long-running tasks,
 instead of setting an excessively long TTL initially, you can start with a shorter one and use the `refresh` method to set the TTL of the lock:
 
 ```ts
+import { delay } from "@daiso-tech/core/utilities/functions";
+
 const lock = lockFactory.create("resource", {
     ttl: TimeSpan.fromMinutes(1),
 });
+
+async function doWork(): Promise<boolean> {
+    // ... critical section
+}
 
 const hasAcquired = await lock.acquire();
 if (hasAcquired) {
@@ -165,7 +138,7 @@ if (hasAcquired) {
             if (hasFinished) {
                 break;
             }
-            await Task.delay(TimeSpan.fromSeconds(1));
+            await delay(TimeSpan.fromSeconds(1));
         }
     } finally {
         await lock.release();
@@ -192,16 +165,6 @@ console.log(hasRefreshed);
 :::
 
 ### Additional methods
-
-The `acquireBlockingOrFail` method is the same as `acquireBlocking` method but it throws an error when not enable to acquire the lock:
-
-```ts
-const lock = lockFactory.create("resource");
-
-await lock.acquireBlockingOrFail({
-    // You can provide the same configuration as in acquireBlocking method
-});
-```
 
 The `releaseOrFail` method is the same `release` method but it throws an error when not enable to release the lock:
 
@@ -234,7 +197,7 @@ It calls `acquireOrFail` before invoking the function and calls `release` in a f
 const lock = lockFactory.create("resource");
 
 await lock.runOrFail(async () => {
-    await doWork();
+    // ... critical section
 });
 ```
 
@@ -242,28 +205,8 @@ await lock.runOrFail(async () => {
 Note the method throws an error when the lock cannot be acquired.
 :::
 
-The `runBlockingOrFail` method automatically manages lock acquisition and release around function execution.
-It calls `acquireBlockingOrFail` before invoking the function and calls `release` in a finally block, ensuring the lock is always freed, even if an error occurs during execution.
-
-```ts
-const lock = lockFactory.create("resource");
-
-await lock.runBlockingOrFail(
-    async () => {
-        await doWork();
-    },
-    {
-        // You can provide the same configuration as in acquireBlocking method
-    },
-);
-```
-
 :::info
-Note the method throws an error when the lock cannot be acquired.
-:::
-
-:::info
-You can provide [`Task<TValue>`](../task.md), synchronous and asynchronous [`Invokable<[], TValue>`](../../utilities/invokable.md) as values for `runOrFail`, and `runBlockingOrFail` methods.
+You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as values for the `runOrFail` method.
 :::
 
 ### Lock instance variables
@@ -360,25 +303,29 @@ console.log(await lockA.getState());
 console.log(await lockB.getState());
 ```
 
-### Retrying acquiring lock
+### Retrying acquiring lock by attempts
 
-To retry acquiring lock you can use the [`retry`](../resilience.md) middleware with [`Task.pipe`](../task.md) method.
+To retry acquiring lock you can use the [`retry`](../resilience.md) middleware.
 
 Retrying acquiring lock with `acquireOrFail` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
 
 const lock = lockFactory.create("lock");
 
+const use = useFactory();
 try {
-    await lock.acquireOrFail().pipe(
+    await use(async () => {
+        await lock.acquireOrFail();
+    }, [
         retry({
             maxAttempts: 4,
             errorPolicy: FailedAcquireLockError,
         }),
-    );
+    ])();
     // The critical section
 } finally {
     await lock.release();
@@ -389,17 +336,22 @@ Retrying acquiring lock with `acquire` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
+import { useFactory } from "@daiso-tech/core/middleware";
 
 const lock = lockFactory.create("lock");
 
-const hasAquired = await lock.acquire().pipe(
+const use = useFactory();
+const hasAquired = await use(async () => {
+    return await lock.acquire();
+}, [
     retry({
         maxAttempts: 4,
         errorPolicy: {
             treatFalseAsError: true,
         },
     }),
-);
+])();
+
 if (hasAquired) {
     try {
         // The critical section
@@ -414,20 +366,116 @@ Retrying acquiring lock with `runOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
 
 const lock = lockFactory.create("lock");
 
-await lock
-    .runOrFail(async () => {
+const use = useFactory();
+
+await use(async () => {
+    await lock.runOrFail(async () => {
         // The critical section
-    })
-    .pipe(
-        retry({
-            maxAttempts: 4,
+    });
+}, [
+    retry({
+        maxAttempts: 4,
+        errorPolicy: FailedAcquireLockError,
+    }),
+])();
+```
+
+### Retrying acquiring lock by interval
+
+To retry acquiring lock at regular intervals you can use the [`retryInterval`](../resilience.md) middleware:
+
+Retrying acquiring lock with `acquireOrFail` method:
+
+```ts
+import { retryInterval } from "@daiso-tech/core/resilience";
+import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+const lock = lockFactory.create("resource");
+
+const use = useFactory();
+try {
+    await use(async () => {
+        await lock.acquireOrFail();
+    }, [
+        retryInterval({
+            // Time to wait 1 minute
+            time: TimeSpan.fromMinutes(1),
+            // Interval to try acquire the lock
+            interval: TimeSpan.fromSeconds(1),
             errorPolicy: FailedAcquireLockError,
         }),
-    );
+    ])();
+    // ... critical section
+} finally {
+    await lock.release();
+}
 ```
+
+Retrying acquiring lock with `acquire` method:
+
+```ts
+import { retryInterval } from "@daiso-tech/core/resilience";
+import { useFactory } from "@daiso-tech/core/middleware";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+const lock = lockFactory.create("resource");
+
+const use = useFactory();
+const hasAcquired = await use(async () => {
+    return await lock.acquire();
+}, [
+    retryInterval({
+        time: TimeSpan.fromMinutes(1),
+        interval: TimeSpan.fromSeconds(1),
+        errorPolicy: {
+            treatFalseAsError: true,
+        },
+    }),
+])();
+
+if (hasAcquired) {
+    try {
+        // ... critical section
+    } finally {
+        await lock.release();
+    }
+}
+```
+
+Retrying acquiring lock with `runOrFail` method:
+
+```ts
+import { retryInterval } from "@daiso-tech/core/resilience";
+import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+const lock = lockFactory.create("resource");
+
+const use = useFactory();
+
+await use(async () => {
+    await lock.runOrFail(async () => {
+        // ... critical section
+    });
+}, [
+    retryInterval({
+        time: TimeSpan.fromMinutes(1),
+        interval: TimeSpan.fromSeconds(1),
+        errorPolicy: FailedAcquireLockError,
+    }),
+])();
+```
+
+:::warning
+Note using `retryInterval` middleware with lock acquiring in a HTTP request handler is discouraged because it blocks the HTTP request handler causing the handler wait until the lock becomes available or the timeout is reached. This will delay HTTP request handler to generate response and will make frontend app slow because of HTTP request handler.
+:::
 
 ### Serialization and deserialization of lock
 
@@ -435,7 +483,7 @@ Locks can be serialized, allowing them to be transmitted over the network to ano
 
 This means you can, for example, acquire the lock on the main server, transfer it to a queue worker server, and release it there.
 
-In order to serialize or deserialize a lock you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `LockFactory`. 
+In order to serialize or deserialize a lock you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `LockFactory`.
 
 Manually serializing and deserializing the lock:
 
@@ -610,7 +658,7 @@ import {
 
 async function lockFunc(lock: ILock): Promise<void> {
     await lock.runOrFail(async () => {
-        await doWork();
+        // ... critical section
     });
 }
 
@@ -640,8 +688,8 @@ const lockFactory = new LockFactory({
     adapter: new MemoryLockAdapter(),
     eventBus: new EventBus({
         adapter: new MemoryEventBusAdapter(),
-    })
-})
+    }),
+});
 await lockListenableFunc(lockFactory.events);
 await lockFactoryFunc(lockFactory);
 ```

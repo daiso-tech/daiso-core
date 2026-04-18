@@ -247,7 +247,7 @@ export function countBreakerTestSuite(
             });
         });
         describe("method: updateState / trackFailure / trackSuccess", () => {
-            test("Should transition ClosedState -> ClosedState when 1 failure has occured", async () => {
+            test("Should transition ClosedState -> ClosedState when 1 failure has occurred", async () => {
                 await adapter.trackFailure(context, KEY);
                 const state = await adapter.updateState(context, KEY);
 
@@ -256,7 +256,7 @@ export function countBreakerTestSuite(
                     to: CIRCUIT_BREAKER_STATE.CLOSED,
                 } satisfies CircuitBreakerStateTransition);
             });
-            test("Should transition ClosedState -> ClosedState when 5 failures has occured", async () => {
+            test("Should transition ClosedState -> ClosedState when 5 failures has occurred", async () => {
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
@@ -277,7 +277,7 @@ export function countBreakerTestSuite(
                     to: CIRCUIT_BREAKER_STATE.CLOSED,
                 } satisfies CircuitBreakerStateTransition);
             });
-            test("Should transition ClosedState -> ClosedState when 1 failure and 5 successes has occured", async () => {
+            test("Should transition ClosedState -> ClosedState when 1 failure and 5 successes has occurred", async () => {
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
@@ -301,7 +301,7 @@ export function countBreakerTestSuite(
                     to: CIRCUIT_BREAKER_STATE.CLOSED,
                 } satisfies CircuitBreakerStateTransition);
             });
-            test("Should transition ClosedState -> OpenedState when 1 failure, 5 successes and 2 failures has occured", async () => {
+            test("Should transition ClosedState -> OpenedState when 1 failure, 5 successes and 2 failures has occurred", async () => {
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 

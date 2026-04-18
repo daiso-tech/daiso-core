@@ -14,32 +14,39 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { callInvokable, isInvokable, withJitter } from "@/utilities/_module.js";
 
 /**
+ * Configuration for the linear backoff policy.
+ * The wait time increases linearly with each retry attempt and is capped at
+ * `maxDelay`. An optional `jitter` factor randomises the delay
+ * to spread out concurrent retries.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  */
 export type LinearBackoffSettings = {
     /**
+     * Upper bound on the computed delay. The wait time will never exceed this value.
      * @default
      * ```ts
      * import { TimeSpan } from "@daiso-tech/core/time-span";
      *
-     * TimeSpan.fromSeconds(6)
+     * TimeSpan.fromSeconds(60)
      * ```
      */
     maxDelay?: ITimeSpan;
 
     /**
+     * Starting delay for the first retry. Subsequent delays grow linearly from this base.
      * @default
      * ```ts
      * import { TimeSpan } from "@daiso-tech/core/time-span";
      *
-     * TimeSpan.fromSeconds(1)
+     * TimeSpan.fromMilliseconds(500)
      * ```
      */
     minDelay?: ITimeSpan;
 
     /**
-     * You can pass jitter value to ensure the backoff will not execute at the same time.
-     * If you pas null you can disable the jitrter.
+     * Adds randomness to the delay to avoid thundering-herd effects.
+     * Set to `null` to disable jitter.
      * @default 0.5
      */
     jitter?: number | null;
@@ -58,8 +65,8 @@ export function resolveLinearBackoffSettings(
     settings: LinearBackoffSettings,
 ): Required<LinearBackoffSettings> {
     const {
-        maxDelay = TimeSpan.fromMilliseconds(6000),
-        minDelay = TimeSpan.fromMilliseconds(1_000),
+        maxDelay = TimeSpan.fromSeconds(60),
+        minDelay = TimeSpan.fromMilliseconds(500),
         jitter = 0.5,
         _mathRandom = Math.random,
     } = settings;

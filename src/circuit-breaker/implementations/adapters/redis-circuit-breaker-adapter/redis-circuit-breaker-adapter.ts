@@ -27,10 +27,16 @@ import {
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
+ * Configuration for `RedisCircuitBreakerAdapter`.
+ * Requires a Redis client.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter"`
  * @group Adapters
  */
 export type RedisCircuitBreakerAdapterSettings = {
+    /**
+     * The Redis client instance for circuit-breaker state operations.
+     */
     database: Redis;
 
     /**

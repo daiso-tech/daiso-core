@@ -20,6 +20,9 @@ import {
 } from "@/backoff-policies/polynomial-backoff/_module.js";
 
 /**
+ * Discriminant constants that identify the type of backoff algorithm.
+ * Used as the `type` field in {@link BackoffSettingsEnum | `BackoffSettingsEnum`} discriminated unions.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  * @group Adapters
  */
@@ -31,12 +34,17 @@ export const BACKOFFS = {
 } as const;
 
 /**
+ * Union of all {@link BACKOFFS | `BACKOFFS`} discriminant string values.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  * @group Adapters
  */
 export type BackoffsLiterals = (typeof BACKOFFS)[keyof typeof BACKOFFS];
 
 /**
+ * {@link ConstantBackoffSettings | `ConstantBackoffSettings`} tagged with a `type` discriminant for use in
+ * serialised backoff configuration unions.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  * @group Adapters
  */
@@ -44,10 +52,16 @@ export type ConstantBackoffSettingsEnum = Omit<
     ConstantBackoffSettings,
     "_mathRandom"
 > & {
+    /**
+     * Discriminant identifying this as the constant backoff algorithm.
+     */
     type: (typeof BACKOFFS)["CONSTANT"];
 };
 
 /**
+ * {@link ExponentialBackoffSettings | `ExponentialBackoffSettings`} tagged with a `type` discriminant for use in
+ * serialised backoff configuration unions.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  * @group Adapters
  */
@@ -55,10 +69,16 @@ export type ExponentialBackoffSettingsEnum = Omit<
     ExponentialBackoffSettings,
     "_mathRandom"
 > & {
+    /**
+     * Discriminant identifying this as the exponential backoff algorithm.
+     */
     type: (typeof BACKOFFS)["EXPONENTIAL"];
 };
 
 /**
+ * {@link LinearBackoffSettings | `LinearBackoffSettings`} tagged with a `type` discriminant for use in
+ * serialised backoff configuration unions.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  * @group Adapters
  */
@@ -66,10 +86,16 @@ export type LinearBackoffSettingsEnum = Omit<
     LinearBackoffSettings,
     "_mathRandom"
 > & {
+    /**
+     * Discriminant identifying this as the linear backoff algorithm.
+     */
     type: (typeof BACKOFFS)["LINEAR"];
 };
 
 /**
+ * {@link PolynomialBackoffSettings | `PolynomialBackoffSettings`} tagged with a `type` discriminant for use in
+ * serialised backoff configuration unions.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  * @group Adapters
  */
@@ -77,10 +103,16 @@ export type PolynomialBackoffSettingsEnum = Omit<
     PolynomialBackoffSettings,
     "_mathRandom"
 > & {
+    /**
+     * Discriminant identifying this as the polynomial backoff algorithm.
+     */
     type: (typeof BACKOFFS)["POLYNOMIAL"];
 };
 
 /**
+ * Discriminated union of all backoff settings types.
+ * Use the `type` field to narrow to a specific algorithm's settings.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  * @group Adapters
  */

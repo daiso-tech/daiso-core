@@ -41,116 +41,140 @@ import {
 } from "@/utilities/_module.js";
 
 /**
+ * Configuration for the `Serde` class.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/serde"`
  * @group Derivables
  */
 export type SerdeSettings = {
     /**
+     * When `true`, `ArrayBuffer` values are serialized and deserialized correctly.
      * @default true
      */
     shouldHandleArrayBuffer?: boolean;
 
     /**
+     * When `true`, Node.js `Buffer` values are serialized and deserialized correctly.
      * @default true
      */
     shouldHandleBuffer?: boolean;
 
     /**
+     * When `true`, `Uint8Array` typed arrays are serialized and deserialized correctly.
      * @default true
      */
     shouldHandleUint8Array?: boolean;
 
     /**
+     * When `true`, `Int8Array` typed arrays are serialized and deserialized correctly.
      * @default true
      */
     shouldHandleInt8Array?: boolean;
 
     /**
+     * When `true`, `Uint16Array` typed arrays are serialized and deserialized correctly.
      * @default true
      */
     shouldHandleUint16Array?: boolean;
 
     /**
+     * When `true`, `Int16Array` typed arrays are serialized and deserialized correctly.
      * @default true
      */
     shouldHandleInt16Array?: boolean;
 
     /**
+     * When `true`, `Uint32Array` typed arrays are serialized and deserialized correctly.
      * @default true
      */
     shouldHandleUint32Array?: boolean;
 
     /**
+     * When `true`, `Int32Array` typed arrays are serialized and deserialized correctly.
      * @default true
      */
     shouldHandleInt32Array?: boolean;
 
     /**
+     * When `true`, `BigUint64Array` typed arrays are serialized and deserialized correctly.
      * @default true
      */
     shouldHandleBigUint64Array?: boolean;
 
     /**
+     * When `true`, `BigInt64Array` typed arrays are serialized and deserialized correctly.
      * @default true
      */
     shouldHandleBigInt64Array?: boolean;
 
     /**
+     * When `true`, `Float32Array` typed arrays are serialized and deserialized correctly.
      * @default true
      */
     shouldHandleFloat32Array?: boolean;
 
     /**
+     * When `true`, `Float64Array` typed arrays are serialized and deserialized correctly.
      * @default true
      */
     shouldHandleFloat64Array?: boolean;
 
     /**
+     * When `true`, `Map` objects are serialized and deserialized correctly, preserving their key-value pairs.
      * @default true
      */
     shouldHandleMap?: boolean;
 
     /**
+     * When `true`, `Set` objects are serialized and deserialized correctly, preserving their entries.
      * @default true
      */
     shouldHandleSet?: boolean;
 
     /**
+     * When `true`, `BigInt` values are serialized and deserialized correctly.
      * @default true
      */
     shouldHandleBigInt?: boolean;
 
     /**
+     * When `true`, `NaN` values are serialized and deserialized correctly as `NaN` rather than `null`.
      * @default true
      */
     shouldHandleNaN?: boolean;
 
     /**
+     * When `true`, `Infinity` and `-Infinity` values are serialized and deserialized correctly.
      * @default true
      */
     shouldHandleInfinity?: boolean;
 
     /**
+     * When `true`, `undefined` values are serialized and deserialized correctly rather than being omitted.
      * @default true
      */
     shouldHandleUndefined?: boolean;
 
     /**
+     * When `true`, `RegExp` objects are serialized and deserialized correctly, preserving their pattern and flags.
      * @default true
      */
     shouldHandleRegExp?: boolean;
 
     /**
+     * When `true`, `Date` objects are serialized and deserialized correctly, preserving the timestamp.
      * @default true
      */
     shouldHandleDate?: boolean;
 
     /**
+     * When `true`, `URL` objects are serialized and deserialized correctly, preserving the href.
      * @default true
      */
     shouldHandleURL?: boolean;
 
     /**
+     * When `true`, `URLSearchParams` objects are serialized and deserialized correctly, preserving all parameters.
      * @default true
      */
     shouldHandleURLSearchParams?: boolean;

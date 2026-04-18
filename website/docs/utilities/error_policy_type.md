@@ -8,7 +8,7 @@ A predicate function can be used to dynamically determine if an error should be 
 
 ```ts
 import { fallback } from "@daiso-tech/core/resilience";
-import { AsyncHooks } from "@daiso-tech/core/hooks";
+import { useFactory } from "@daiso-tech/core/middleware";
 
 class CustomError extends Error {
     constructor(
@@ -20,14 +20,17 @@ class CustomError extends Error {
         this.name = CustomError.name;
     }
 }
-const func = new AsyncHooks((): string => {
+const use = useFactory();
+const func = use((): string => {
     return "asd";
 }, [
     fallback({
         fallbackValue: "DEFAULT_VALUE",
         errorPolicy: (error) => error instanceof CustomError,
     }),
-]).toFunc();
+]);
+
+await func();
 ```
 
 ## Classes as ErrorPolicy:
@@ -35,27 +38,39 @@ const func = new AsyncHooks((): string => {
 You can directly pass an class to match if errors are instance of the class:
 
 ```ts
-const func = new AsyncHooks((): string => {
+import { fallback } from "@daiso-tech/core/resilience";
+import { useFactory } from "@daiso-tech/core/middleware";
+
+const use = useFactory();
+const func = use((): string => {
     return "asd";
 }, [
     fallback({
         fallbackValue: "DEFAULT_VALUE",
         errorPolicy: CustomError,
     }),
-]).toFunc();
+]);
+
+await func();
 ```
 
 You can also pass multiple error classes:
 
 ```ts
-const func = new AsyncHooks((): string => {
+import { fallback } from "@daiso-tech/core/resilience";
+import { useFactory } from "@daiso-tech/core/middleware";
+
+const use = useFactory();
+const func = use((): string => {
     return "asd";
 }, [
     fallback({
         fallbackValue: "DEFAULT_VALUE",
         errorPolicy: [CustomErrorA, CustomErrorB],
     }),
-]).toFunc();
+]);
+
+await func();
 ```
 
 ## Standard Schema as ErrorPolicy
@@ -64,8 +79,11 @@ You can use any [standard schema](https://standardschema.dev/) as error policy:
 
 ```ts
 import { z } from "zod";
+import { fallback } from "@daiso-tech/core/resilience";
+import { useFactory } from "@daiso-tech/core/middleware";
 
-const func = new AsyncHooks((): string => {
+const use = useFactory();
+const func = use((): string => {
     return "asd";
 }, [
     fallback({
@@ -75,7 +93,9 @@ const func = new AsyncHooks((): string => {
             message: z.string(),
         }),
     }),
-]).toFunc();
+]);
+
+await func();
 ```
 
 ## False return values as error
@@ -83,10 +103,11 @@ const func = new AsyncHooks((): string => {
 You can treat false return values as errors. This useful when you want to retry functions that return boolean.
 
 ```ts
-import { AsyncHooks } from "@daiso-tech/core/hooks";
 import { retry } from "@daiso-tech/core/resilience";
+import { useFactory } from "@daiso-tech/core/middleware";
 
-await new AsyncHooks((): Promise<boolean> => {
+const use = useFactory();
+const func = use(async (): Promise<boolean> => {
     // Will be
     console.log("EXECUTING");
     return false;
@@ -97,7 +118,9 @@ await new AsyncHooks((): Promise<boolean> => {
             treatFalseAsError: true,
         },
     }),
-]).invoke();
+]);
+
+await func();
 ```
 
 ## Further information

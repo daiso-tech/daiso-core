@@ -29,6 +29,9 @@ import {
 } from "@/utilities/_module.js";
 
 /**
+ * Maps each event name in `TEventMap` to a [standard schema](https://standardschema.dev/)
+ * validator for its payload type. Used to validate event data at runtime.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
  * @group Derivables
  */
@@ -37,6 +40,9 @@ export type EventMapSchema<TEventMap extends BaseEventMap = BaseEventMap> = {
 };
 
 /**
+ * Base configuration shared by all `EventBus` variants.
+ * Supports optional schema-based validation for event maps.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
  * @group Derivables
  */
@@ -65,6 +71,7 @@ export type EventBusSettingsBase<
     namespace?: INamespace;
 
     /**
+     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
@@ -77,11 +84,17 @@ export type EventBusSettingsBase<
 };
 
 /**
+ * Configuration for the `EventBus` class.
+ * Extends {@link EventBusSettingsBase | `EventBusSettingsBase`} with a required adapter.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
  * @group Derivables
  */
 export type EventBusSettings<TEventMap extends BaseEventMap = BaseEventMap> =
     EventBusSettingsBase<TEventMap> & {
+        /**
+         * The underlying event-bus adapter that handles message dispatching and subscription.
+         */
         adapter: IEventBusAdapter;
 
         /**
@@ -127,7 +140,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         const {
             __onUncaughtRejection = (error) => {
                 console.error(
-                    `An error of type "${String(error)}" occured in event listener`,
+                    `An error of type "${String(error)}" occurred in event listener`,
                 );
             },
             shouldValidateOutput = true,

@@ -42,10 +42,16 @@ export type KyselyLockTables = {
 };
 
 /**
+ * Configuration for `KyselyLockAdapter`.
+ * Requires a Kysely database instance with the lock schema applied.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/lock/kysely-lock-adapter"`
  * @group Adapters
  */
 export type KyselyLockAdapterSettings = {
+    /**
+     * The Kysely database instance typed with the required lock table.
+     */
     kysely: Kysely<KyselyLockTables>;
 
     /**
@@ -59,6 +65,8 @@ export type KyselyLockAdapterSettings = {
     expiredKeysRemovalInterval?: ITimeSpan;
 
     /**
+     * When `true`, a background task periodically removes expired lock records.
+     * Set to `false` to disable automatic cleanup.
      * @default true
      */
     shouldRemoveExpiredKeys?: boolean;

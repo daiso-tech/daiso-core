@@ -245,12 +245,6 @@ The library includes 3 types of collections:
 - `AsyncIterableCollection` implements the `IAsyncCollection` contract and uses `AsyncIterable` internally.
   It only filters and transforms items when you loop through or access its items.
 
-    :::danger
-    Note `AsyncIterableCollection` uses `Task` instead of a regular `Promise`.
-    This means you must either `await` the `Task` or call its `detach` method to run it. 
-    Refer to the [`@daiso-tech/core/task`](./task.md) documentation for further information.
-    :::
-
 ## Serialization and deserialization
 
 The `ListCollection` and `IterableCollection` classes supports serialization and deserialization, allowing you to easily convert instances to and from serialized formats. However, registration is required first:

@@ -42,7 +42,7 @@ export type RetryIntervalSettings<
 /**
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
- * @throws {RetryIntervalResilienceError} {@link RetryIntervalResilienceError}
+ * @throws {RetryIntervalResilienceError}
  */
 export function retryInterval<TParameters extends Array<unknown>, TReturn>(
     settings: RetryIntervalSettings<TParameters>,
@@ -75,7 +75,7 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                         });
                     } catch (error: unknown) {
                         console.log(
-                            "Error occured in onExecutionAttempt callback:",
+                            "Error occurred in onExecutionAttempt callback:",
                             error,
                         );
                     }
@@ -99,7 +99,7 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                         });
                     } catch (error: unknown) {
                         console.log(
-                            "Error occured in onRetryDelay callback:",
+                            "Error occurred in onRetryDelay callback:",
                             error,
                         );
                     }
@@ -128,7 +128,7 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                         });
                     } catch (error: unknown) {
                         console.log(
-                            "Error occured in onRetryDelay callback:",
+                            "Error occurred in onRetryDelay callback:",
                             error,
                         );
                     }

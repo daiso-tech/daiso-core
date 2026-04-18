@@ -3,13 +3,13 @@ sidebar_position: 1
 sidebar_label: Usage
 pagination_label: Semaphore usage
 tags:
- - Semaphore
- - Usage
- - Namespace
+    - Semaphore
+    - Usage
+    - Namespace
 keywords:
- - Semaphore
- - Usage
- - Namespace
+    - Semaphore
+    - Usage
+    - Namespace
 ---
 
 # Semaphore usage
@@ -24,7 +24,6 @@ To begin using the `SemaphoreFactory` class, you'll need to create and configure
 import { TimeSpan } from "@daiso-tech/core/time-span";
 import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
 import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
-
 
 const semaphoreFactory = new SemaphoreFactory({
     // You can provide default TTL value
@@ -43,10 +42,11 @@ Here is a complete list of settings for the [`SemaphoreFactory`](https://daiso-t
 ## Semaphore basics
 
 ### Creating a semaphore
+
 ```ts
 const semaphore = semaphoreFactory.create("shared-resource", {
     // You need to define a limit
-    limit: 2
+    limit: 2,
 });
 ```
 
@@ -61,8 +61,7 @@ if (await semaphore.acquire()) {
     } finally {
         await semaphore.release();
     }
-}
-else {
+} else {
     console.log("Unable to acquire");
 }
 
@@ -74,8 +73,7 @@ if (await semaphore.acquire()) {
     } finally {
         await semaphore.release();
     }
-}
-else {
+} else {
     console.log("Unable to acquire");
 }
 
@@ -86,18 +84,15 @@ console.log(await semaphore.acquire());
 Alternatively you could write it as follows:
 
 ```ts
-
 // 1 slot will be acquired
 try {
     console.log("Acquired");
     // This method will throw if the semaphore limit is reached.
     await semaphore.acquireOrFail();
     // The critical section
-}
-catch {
+} catch {
     console.log("Unable to acquire");
-}
-finally {
+} finally {
     await semaphore.release();
 }
 
@@ -107,11 +102,9 @@ try {
     // This method will throw if the semaphore limit is reached.
     await semaphore.acquireOrFail();
     // The critical section
-}
-catch {
+} catch {
     console.log("Unable to acquire");
-}
-finally {
+} finally {
     await semaphore.release();
 }
 
@@ -121,11 +114,6 @@ await semaphore.acquireOrFail();
 
 :::danger
 You need always to wrap the concurrent section with `try-finally` so the semaphore get released when error occurs.
-:::
-
-:::danger
-Note `Semaphore` class uses `Task` instead of a regular `Promise`. This means you must either await the `Task` or call its `detach` method to run it.
-Refer to the [`@daiso-tech/core/task`](../task.md) documentation for further information.
 :::
 
 ### Semaphore with custom TTL
@@ -172,47 +160,22 @@ if (state.type === SEMAPHORE_STATE.UNACQUIRED) {
 
 ## Patterns
 
-### Acquire blocking
-
-You can acquire a semaphore at regular intervals until either successful or a specified timeout is reached:
-
-```ts
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2
-});
-
-const hasAcquired = await semaphore.acquireBlocking({
-    // Time to wait 1 minute
-    time: TimeSpan.fromMinutes(1),
-    // Intervall to try acquire a semaphore
-    interval: TimeSpan.fromSeconds(1),
-});
-if (hasAcquired) {
-    try {
-        await doWork();
-    } finally {
-        await semaphore.release();
-    }
-}
-// Will be logged after 1min
-console.log("END");
-```
-
-:::warning
-Note using `acquireBlocking`, `acquireBlockingOrFail` or `runBlockingOrFail` in a HTTP request handler is discouraged because it blocks the HTTP request handler causing the handler wait until the semaphore becomes available or the timeout is reached. This will delay HTTP request handler to generate response and will make frontend app slow because of HTTP request handler.
-:::
-
-
 ### Refreshing semaphores
 
 The semaphore can be refreshed by the current owner before it expires. This is particularly useful for long-running tasks,
 instead of setting an excessively long TTL initially, you can start with a shorter one and use the `refresh` method to set the TTL of the semaphore:
 
 ```ts
+import { delay } from "@daiso-tech/core/utilities";
+
 const semaphore = semaphoreFactory.create("resource", {
     limit: 2,
     ttl: TimeSpan.fromMinutes(1),
 });
+
+async function doWork(): Promise<boolean> {
+    // ... critical section
+}
 
 const hasAcquired = await semaphore.acquire();
 if (hasAcquired) {
@@ -223,13 +186,14 @@ if (hasAcquired) {
             if (hasFinished) {
                 break;
             }
-            await Task.delay(TimeSpan.fromSeconds(1));
+            await delay(TimeSpan.fromSeconds(1));
         }
     } finally {
         await semaphore.release();
     }
 }
 ```
+
 :::warning
 Note: A semaphore must have an expiration (a `ttl` value) to be refreshed. You cannot refresh a semaphore that was created without an expiration (with `ttl: null`)
 
@@ -246,27 +210,16 @@ const hasRefreshed = await semaphore.refresh();
 // This will log 'false' because the semaphore cannot be refreshed
 console.log(hasRefreshed);
 ```
+
 :::
 
 ### Additional methods
-
-The `acquireBlockingOrFail` method is the same as `acquireBlocking` method but it throws an error when not enable to acquire the semaphore:
-
-```ts
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2
-});
-
-await semaphore.acquireBlockingOrFail({
-    // You can provide the same configuration as in acquireBlocking method
-});
-```
 
 The `releaseOrFail` method is the same `release` method but it throws an error when not enable to release the semaphore:
 
 ```ts
 const semaphore = semaphoreFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await semaphore.releaseOrFail();
@@ -276,7 +229,7 @@ You can force release all the semaphore slots:
 
 ```ts
 const semaphore = semaphoreFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await semaphore.forceReleaseAll();
@@ -295,11 +248,11 @@ It calls `acquireOrFail` before invoking the function and calls `release` in a f
 
 ```ts
 const semaphore = semaphoreFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 await semaphore.runOrFail(async () => {
-    await doWork();
+    // ... critical section
 });
 ```
 
@@ -307,31 +260,10 @@ await semaphore.runOrFail(async () => {
 Note the method throws an error when the semaphore cannot be acquired.
 :::
 
-The `runBlockingOrFail` method automatically manages semaphore acquisition and release around function execution.
-It calls `acquireBlockingOrFail` before invoking the function and calls `release` in a finally block, ensuring the semaphore is always freed, even if an error occurs during execution.
-
-```ts
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2
-});
-
-await semaphore.runBlockingOrFail(
-    async () => {
-        await doWork();
-    },
-    {
-        // You can provide the same configuration as in acquireBlocking method
-    },
-);
-```
-
 :::info
-Note the method throws an error when a semaphore cannot be acquired.
+You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as values for the `runOrFail` method.
 :::
 
-:::info
-You can provide [`Task<TValue>`](../task.md), synchronous and asynchronous [`Invokable<[], TValue>`](../../utilities/invokable.md) as values for `runOrFail`, and `runBlockingOrFail` methods.
-:::
 
 ### Semaphore instance variables
 
@@ -339,7 +271,7 @@ The `Semaphore` class exposes instance variables such as:
 
 ```ts
 const semaphore = semaphoreFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 // Will return the key of the semaphore which is "resource"
@@ -410,11 +342,11 @@ const semaphoreFactoryB = new SemaphoreFactory({
 
 const semaphoreA = semaphoreFactoryA.create("key", {
     ttl: null,
-    limit: 1
+    limit: 1,
 });
 const semaphoreB = semaphoreFactoryB.create("key", {
     ttl: null,
-    limit: 1
+    limit: 1,
 });
 
 const hasAquiredA = await semaphoreA.acquire();
@@ -436,27 +368,31 @@ console.log(await semaphoreA.getState());
 console.log(await semaphoreB.getState());
 ```
 
-### Retrying acquiring semaphore
+### Retrying acquiring semaphore by attempts
 
-To retry acquiring semaphore you can use the [`retry`](../resilience.md) middleware with [`Task.pipe`](../task.md) method.
+To retry acquiring semaphore you can use the [`retry`](../resilience.md) middleware.
 
 Retrying acquiring semaphore with `acquireOrFail` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
 
 const semaphore = semaphoreFactory.create("semaphore", {
-    limit: 2
+    limit: 2,
 });
 
+const use = useFactory();
 try {
-    await semaphore.acquireOrFail().pipe(
+    await use(async () => {
+        await semaphore.acquireOrFail();
+    }, [
         retry({
             maxAttempts: 4,
             errorPolicy: FailedAcquireSemaphoreError,
         }),
-    );
+    ])();
     // The critical section
 } finally {
     await semaphore.release();
@@ -467,19 +403,25 @@ Retrying acquiring semaphore with `acquire` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
+import { useFactory } from "@daiso-tech/core/middleware";
 
 const semaphore = semaphoreFactory.create("semaphore", {
-    limit: 2
+    limit: 2,
 });
 
-const hasAquired = await semaphore.acquire().pipe(
+const use = useFactory();
+
+const hasAquired = await use(async () => {
+    return await semaphore.acquire();
+}, [
     retry({
         maxAttempts: 4,
         errorPolicy: {
             treatFalseAsError: true,
         },
     }),
-);
+])();
+
 if (hasAquired) {
     try {
         // The critical section
@@ -494,28 +436,129 @@ Retrying acquiring semaphore with `runOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
 
 const semaphore = semaphoreFactory.create("semaphore", {
-    limit: 2
+    limit: 2,
 });
 
-await semaphore
-    .runOrFail(async () => {
+const use = useFactory();
+await use(async () => {
+    await semaphore.runOrFail(async () => {
         // The critical section
-    })
-    .pipe(
-        retry({
-            maxAttempts: 4,
+    });
+}, [
+    retry({
+        maxAttempts: 4,
+        errorPolicy: FailedAcquireSemaphoreError,
+    }),
+])();
+```
+
+### Retrying acquiring semaphore by interval
+
+To retry acquiring semaphore at regular intervals you can use the [`retryInterval`](../resilience.md) middleware:
+
+Retrying acquiring semaphore with `acquireOrFail` method:
+
+```ts
+import { retryInterval } from "@daiso-tech/core/resilience";
+import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+const semaphore = semaphoreFactory.create("resource", {
+    limit: 2,
+});
+
+const use = useFactory();
+try {
+    await use(async () => {
+        await semaphore.acquireOrFail();
+    }, [
+        retryInterval({
+            // Time to wait 1 minute
+            time: TimeSpan.fromMinutes(1),
+            // Interval to try acquire the semaphore
+            interval: TimeSpan.fromSeconds(1),
             errorPolicy: FailedAcquireSemaphoreError,
         }),
-    );
+    ])();
+    // ... critical section
+} finally {
+    await semaphore.release();
+}
 ```
+
+Retrying acquiring semaphore with `acquire` method:
+
+```ts
+import { retryInterval } from "@daiso-tech/core/resilience";
+import { useFactory } from "@daiso-tech/core/middleware";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+const semaphore = semaphoreFactory.create("resource", {
+    limit: 2,
+});
+
+const use = useFactory();
+const hasAcquired = await use(async () => {
+    return await semaphore.acquire();
+}, [
+    retryInterval({
+        time: TimeSpan.fromMinutes(1),
+        interval: TimeSpan.fromSeconds(1),
+        errorPolicy: {
+            treatFalseAsError: true,
+        },
+    }),
+])();
+
+if (hasAcquired) {
+    try {
+        // ... critical section
+    } finally {
+        await semaphore.release();
+    }
+}
+```
+
+Retrying acquiring semaphore with `runOrFail` method:
+
+```ts
+import { retryInterval } from "@daiso-tech/core/resilience";
+import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+const semaphore = semaphoreFactory.create("resource", {
+    limit: 2,
+});
+
+const use = useFactory();
+
+await use(async () => {
+    await semaphore.runOrFail(async () => {
+        // ... critical section
+    });
+}, [
+    retryInterval({
+        time: TimeSpan.fromMinutes(1),
+        interval: TimeSpan.fromSeconds(1),
+        errorPolicy: FailedAcquireSemaphoreError,
+    }),
+])();
+```
+
+:::warning
+Note using `retryInterval` middleware with semaphore acquiring in a HTTP request handler is discouraged because it blocks the HTTP request handler causing the handler wait until the semaphore becomes available or the timeout is reached. This will delay HTTP request handler to generate response and will make frontend app slow because of HTTP request handler.
+:::
 
 ### Serialization and deserialization of semaphore
 
 Semaphores can be serialized, allowing them to be transmitted over the network to another server and later deserialized for reuse.
 This means you can, for example, acquire the semaphore on the main server, transfer it to a queue worker server, and release it there.
-In order to serialize or deserialize a semaphore you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `SemaphoreFactory`. 
+In order to serialize or deserialize a semaphore you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `SemaphoreFactory`.
 
 Manually serializing and deserializing the semaphore:
 
@@ -536,7 +579,7 @@ const semaphoreFactory = new SemaphoreFactory({
 });
 
 const semaphore = semaphoreFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 const serializedSemaphore = serde.serialize(semaphore);
 const deserializedSemaphore = serde.deserialize(semaphore);
@@ -582,7 +625,7 @@ const semaphoreFactory = new SemaphoreFactory({
     eventBus,
 });
 const semaphore = semaphoreFactory.create("resource", {
-    limit: 2
+    limit: 2,
 });
 
 // We are sending the semaphore over the network to other servers.
@@ -591,10 +634,13 @@ await eventBus.dispatch("sending-semaphore-over-network", {
 });
 
 // The other servers will recieve the serialized semaphore and automattically deserialize it.
-await eventBus.addListener("sending-semaphore-over-network", ({ semaphore }) => {
-    // The semaphore is deserialized and can be used
-    console.log("SEMAPHORE:", semaphore);
-});
+await eventBus.addListener(
+    "sending-semaphore-over-network",
+    ({ semaphore }) => {
+        // The semaphore is deserialized and can be used
+        console.log("SEMAPHORE:", semaphore);
+    },
+);
 ```
 
 ### Semaphore events
@@ -694,16 +740,18 @@ import {
 
 async function semaphoreFunc(semaphore: ISemaphore): Promise<void> {
     await semaphore.runOrFail(async () => {
-        await doWork();
+        // ... critical section
     });
 }
 
-async function semaphoreFactoryFunc(semaphoreFactory: ISemaphoreFactoryBase): Promise<void> {
+async function semaphoreFactoryFunc(
+    semaphoreFactory: ISemaphoreFactoryBase,
+): Promise<void> {
     // You cannot access the listener methods
     // You will get typescript error if you try
 
     const semaphore = semaphoreFactory.create("resource", {
-        limit: 2
+        limit: 2,
     });
     await semaphoreFunc(semaphore);
 }
@@ -714,20 +762,26 @@ async function semaphoreListenableFunc(
     // You cannot access the semaphoreFactory methods
     // You will get typescript error if you try
 
-    await semaphoreListenable.addListener(SEMAPHORE_EVENTS.ACQUIRED, (event) => {
-        console.log("ACQUIRED:", event);
-    });
-    await semaphoreListenable.addListener(SEMAPHORE_EVENTS.RELEASED, (event) => {
-        console.log("RELEASED:", event);
-    });
+    await semaphoreListenable.addListener(
+        SEMAPHORE_EVENTS.ACQUIRED,
+        (event) => {
+            console.log("ACQUIRED:", event);
+        },
+    );
+    await semaphoreListenable.addListener(
+        SEMAPHORE_EVENTS.RELEASED,
+        (event) => {
+            console.log("RELEASED:", event);
+        },
+    );
 }
 
 const semaphoreFactory = new SemaphoreFactory({
     adapter: new MemorySemaphoreAdapter(),
     eventBus: new EventBus({
         adapter: new MemoryEventBusAdapter(),
-    })
-})
+    }),
+});
 await semaphoreListenableFunc(semaphoreFactory.events);
 await semaphoreFactoryFunc(semaphoreFactory);
 ```

@@ -3,15 +3,11 @@
  */
 
 import { type ICircuitBreakerFactory } from "@/circuit-breaker/contracts/circuit-breaker-factory.contract.js";
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    UnregisteredAdapterError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    DefaultAdapterNotDefinedError,
-} from "@/utilities/_module.js";
 
 /**
- * The `ICircuitBreakerFactoryResolver` contract makes it easy to configure and switch between different {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} dynamically.
+ * Factory resolver contract for dynamically selecting circuit breaker factory implementations.
+ * Enables seamless switching between different storage backends, policies, and adapters at runtime.
+ * Implementations typically use adapter registration patterns to manage multiple implementations.
  *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Contracts
@@ -19,10 +15,14 @@ import {
 export type ICircuitBreakerFactoryResolver<TAdapters extends string = string> =
     {
         /**
-         * The `use` method will throw an error if you provide it unregisted adapter.
-         * If no default adapter is defined an error will be thrown by `use` method.
-         * @throws {UnregisteredAdapterError} {@link UnregisteredAdapterError}
-         * @throws {DefaultAdapterNotDefinedError} {@link DefaultAdapterNotDefinedError}
+         * Selects and returns a circuit breaker factory implementation.
+         * If an adapter name is provided, that specific implementation is returned.
+         * If no name is provided, the default registered adapter is used.
+         *
+         * @param adapterName - Optional name of a registered adapter implementation
+         * @returns The selected circuit breaker factory
+         * @throws {UnregisteredAdapterError} If the specified adapter name is not registered
+         * @throws {DefaultAdapterNotDefinedError} If no adapter name is provided and no default adapter is configured
          */
         use(adapterName?: TAdapters): ICircuitBreakerFactory;
     };

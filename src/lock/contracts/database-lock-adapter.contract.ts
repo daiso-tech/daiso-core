@@ -6,45 +6,60 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
 import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
+ * Represents expiration information for a lock.
+ * Contains the date and time when the lock becomes available for acquisition.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
 export type ILockExpirationData = {
     /**
-     * The expiration date and time of the lock.
-     * `null` indicates the lock does not expire.
+     * The date and time when the lock expires and becomes available for others to acquire.
+     * null indicates the lock does not expire and is held indefinitely.
      */
     expiration: Date | null;
 };
 
 /**
+ * Complete lock data including ownership and expiration information.
+ * Represents the full state of a lock stored in a database.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
 export type ILockData = ILockExpirationData & {
     /**
-     * The identifier of the entity currently holding the lock.
+     * The unique identifier of the entity that currently holds this lock.
      */
     owner: string;
 };
 
 /**
+ * Transactional operations interface for lock state in database.
+ * Used within database transactions to ensure atomic lock updates and consistency.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
 export type IDatabaseLockTransaction = {
     /**
-     * The `find` method retrieves the current lock data for a given key.
+     * Retrieves the current lock data for a given key.
      *
-     * @param key The unique identifier for the lock.
-     * @returns Returns the lock's owner and expiration data if found, otherwise `null`.
+     * @param context - Readable execution context for the operation
+     * @param key - Unique identifier for the lock
+     * @returns Promise resolving to the lock's owner and expiration data if found, otherwise null
      */
     find(context: IReadableContext, key: string): Promise<ILockData | null>;
 
     /**
-     * The `upsert` inserts a lock if it doesnt exist otherwise it will be updated.
+     * Creates a new lock record if it doesn't exist, or updates the existing one.
+     * Used to persist the current owner and expiration state of a lock.
      *
-     * @param key The unique identifier for the lock.
+     * @param context - Readable execution context for the operation
+     * @param key - Unique identifier for the lock
+     * @param lockId - The unique identifier of the lock owner
+     * @param expiration - The date and time when the lock expires, or null for indefinite locks
+     * @returns Promise that resolves when the upsert operation completes
      */
     upsert(
         context: IReadableContext,
@@ -55,18 +70,23 @@ export type IDatabaseLockTransaction = {
 };
 
 /**
- * The `IDatabaseLockAdapter` contract defines a way for managing locks independent of data storage.
- * This contract simplifies the implementation of lock adapters with CRUD-based databases, such as SQL databases and ORMs like TypeOrm and MikroOrm.
+ * Technology-agnostic storage adapter contract for lock persistence in databases.
+ * Implementations handle lock data storage using CRUD-capable backends (SQL databases, ORMs like TypeORM/MikroORM, etc.).
+ * Provides transactional support for atomic lock updates and consistency guarantees in distributed systems.
  *
  * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
  * @group Contracts
  */
 export type IDatabaseLockAdapter = {
     /**
-     * The `transaction` method runs the `fn` function inside a transaction.
-     * The `fn` function is given a {@link IDatabaseLockTransaction | `IDatabaseLockTransaction`} object.
+     * Executes the provided function within a database transaction.
+     * Ensures atomicity of all lock operations (upsert, find) within the transaction.
+     * Should use the strictest transaction isolation level to prevent race conditions.
      *
-     * Note when implementing this method use the strictest transaction level mode.
+     * @template TReturn - The return type of the transaction function
+     * @param context - Readable execution context for the operation
+     * @param fn - Function to execute within the transaction, receives transaction object
+     * @returns Promise resolving to the return value of the transaction function
      */
     transaction<TReturn>(
         context: IReadableContext,
@@ -77,9 +97,12 @@ export type IDatabaseLockAdapter = {
     ): Promise<TReturn>;
 
     /**
-     * Removes a lock from the database regardless of its lock id.
+     * Removes a lock from the database regardless of its current owner.
+     * Used for administrative cleanup or when the current owner is unavailable.
      *
-     * @param key The unique identifier for the lock to remove.
+     * @param context - Readable execution context for the operation
+     * @param key - Unique identifier for the lock
+     * @returns Promise resolving to the removed lock's expiration data if a lock existed, otherwise null
      */
     remove(
         context: IReadableContext,
@@ -87,11 +110,14 @@ export type IDatabaseLockAdapter = {
     ): Promise<ILockExpirationData | null>;
 
     /**
-     * Removes a lock from the database only if it is currently held by the specified lock id.
+     * Removes a lock from the database only if owned by the specified lockId.
+     * Ownership verification prevents accidental deletion of locks held by others.
      *
-     * @param key The unique identifier for the lock.
-     * @param lockId The identifier of the expected lock.
-     * @returns Returns {@link ILockExpirationData |`ILockExpirationData | null`}. The {@link ILockExpirationData |`ILockExpirationData`} data if successfully removed, otherwise `null` if the lock wasn't found or the owner didn't match.
+     * @param context - Readable execution context for the operation
+     * @param key - Unique identifier for the lock
+     * @param lockId - The unique identifier of the expected lock owner
+     * @returns Promise resolving to the lock's owner and expiration data if successfully removed,
+     *          null if the lock wasn't found or the owner didn't match
      */
     removeIfOwner(
         context: IReadableContext,
@@ -100,12 +126,14 @@ export type IDatabaseLockAdapter = {
     ): Promise<ILockData | null>;
 
     /**
-     * Updates the expiration date of a lock if it is currently held by the specified lock id.
+     * Updates the expiration time of a lock if owned by the specified lockId.
+     * Ownership verification ensures only the lock owner can extend the lock.
      *
-     * @param key The unique identifier for the lock.
-     * @param lockId The identifier of the expected lock.
-     * @param expiration The new date and time when the lock should expire.
-     * @returns Returns a number greater than or equal to `1` if the lock's expiration was updated, or `0` if the lock wasn't found or the lock id didn't match.
+     * @param context - Readable execution context for the operation
+     * @param key - Unique identifier for the lock
+     * @param lockId - The unique identifier of the expected lock owner
+     * @param expiration - The new date and time when the lock should expire
+     * @returns Promise resolving to the number of locks updated (1 if successful, 0 if not found or ownership mismatch)
      */
     updateExpiration(
         context: IReadableContext,
@@ -115,10 +143,12 @@ export type IDatabaseLockAdapter = {
     ): Promise<number>;
 
     /**
-     * The `find` method retrieves the current lock data for a given key.
+     * Retrieves the current lock data for a given key.
+     * Used for querying lock state without modifying it.
      *
-     * @param key The unique identifier for the lock.
-     * @returns Returns the lock's id and expiration data if found, otherwise `null`.
+     * @param context - Readable execution context for the operation
+     * @param key - Unique identifier for the lock
+     * @returns Promise resolving to the lock's owner and expiration data if found, otherwise null
      */
     find(context: IReadableContext, key: string): Promise<ILockData | null>;
 };

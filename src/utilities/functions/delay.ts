@@ -11,7 +11,7 @@ import { TimeSpan } from "@/time-span/implementations/time-span.js";
  */
 export async function delay(
     time: ITimeSpan,
-    signal = new AbortController().signal,
+    signal: AbortSignal = new AbortController().signal,
 ): Promise<void> {
     await new Promise<void>((resolve, reject) => {
         if (signal.aborted) {
@@ -33,8 +33,5 @@ export async function delay(
         signal.addEventListener("abort", onAbort, {
             once: true,
         });
-        setTimeout(() => {
-            resolve();
-        }, TimeSpan.fromTimeSpan(time).toMilliseconds());
     });
 }

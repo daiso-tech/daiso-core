@@ -44,6 +44,9 @@ import {
 } from "@/utilities/_module.js";
 
 /**
+ * Base configuration shared by all `Cache` variants.
+ * Provides optional schema validation for all cached values.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */
@@ -106,6 +109,7 @@ export type CacheSettingsBase<TType = unknown> = {
     waitUntil?: WaitUntil;
 
     /**
+     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
@@ -129,10 +133,16 @@ export type CacheSettingsBase<TType = unknown> = {
 };
 
 /**
+ * Configuration for the `Cache` class.
+ * Extends {@link CacheSettingsBase | `CacheSettingsBase`} with a required adapter.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */
 export type CacheSettings<TType = unknown> = CacheSettingsBase<TType> & {
+    /**
+     * The underlying cache adapter that handles the actual storage operations.
+     */
     adapter: CacheAdapterVariants<any>;
 };
 

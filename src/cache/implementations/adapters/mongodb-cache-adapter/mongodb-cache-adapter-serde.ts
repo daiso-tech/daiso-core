@@ -26,7 +26,7 @@ export class MongodbCacheAdapterSerde implements ISerde<string | number> {
             return this.serde.serialize(value);
         } catch (error: unknown) {
             throw new SerializationSerdeError(
-                `Serialization error "${String(error)}" occured`,
+                `Serialization error "${String(error)}" occurred`,
                 error,
             );
         }
@@ -40,7 +40,7 @@ export class MongodbCacheAdapterSerde implements ISerde<string | number> {
             return this.serde.deserialize(value);
         } catch (error: unknown) {
             throw new DeserializationSerdeError(
-                `Serialization error "${String(error)}" occured`,
+                `Serialization error "${String(error)}" occurred`,
                 error,
             );
         }

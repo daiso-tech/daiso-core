@@ -25,6 +25,9 @@ export const LIMITER_POLICIES = {
  * @group Policies
  */
 export type FixedWindowLimiterSettingsEnum = FixedWindowLimiterSettings & {
+    /**
+     * Discriminant identifying this as the fixed-window rate-limiter policy.
+     */
     type: (typeof LIMITER_POLICIES)["FIXED_WINDOW"];
 };
 
@@ -33,6 +36,9 @@ export type FixedWindowLimiterSettingsEnum = FixedWindowLimiterSettings & {
  * @group Policies
  */
 export type SlidingWindowLimiterSettingsEnum = SlidingWindowLimiterSettings & {
+    /**
+     * Discriminant identifying this as the sliding-window rate-limiter policy.
+     */
     type: (typeof LIMITER_POLICIES)["SLIDING_WINDOW"];
 };
 

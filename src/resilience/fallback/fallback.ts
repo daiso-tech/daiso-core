@@ -38,6 +38,9 @@ export type OnFallback<
 > = Invokable<[data: OnFallbackData<TParameters, TFallbackValue>]>;
 
 /**
+ * Lifecycle callbacks for the `fallback` middleware.
+ * Called when the fallback value is about to be returned instead of the original result.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -52,6 +55,10 @@ export type FallbackCallbacks<
 };
 
 /**
+ * Configuration for the `fallback` resilience middleware.
+ * Returns a default value when the wrapped function throws or returns a value matching the error policy.
+ * Supports error-policy filtering to only catch specific errors.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
  * @group Middlewares
  */
@@ -92,7 +99,7 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
                         });
                     } catch (error: unknown) {
                         console.error(
-                            "Error occured in onFallback callback:",
+                            "Error occurred in onFallback callback:",
                             error,
                         );
                     }
@@ -120,7 +127,7 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
                         });
                     } catch (error: unknown) {
                         console.error(
-                            "Error occured in onFallback callback:",
+                            "Error occurred in onFallback callback:",
                             error,
                         );
                     }

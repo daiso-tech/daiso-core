@@ -14,10 +14,15 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { callInvokable, isInvokable, withJitter } from "@/utilities/_module.js";
 
 /**
+ * Configuration for the constant backoff policy.
+ * Each retry waits for the same fixed `delay`, optionally randomised by a jitter
+ * factor to spread out thundering-herd retries across multiple clients.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  */
 export type ConstantBackoffSettings = {
     /**
+     * Fixed wait duration applied between every retry attempt.
      * @default
      * ```ts
      * import { TimeSpan } from "@daiso-tech/core/time-span";
@@ -28,8 +33,8 @@ export type ConstantBackoffSettings = {
     delay?: ITimeSpan;
 
     /**
-     * You can pass jitter value to ensure the backoff will not execute at the same time.
-     * If you pas null you can disable the jitrter.
+     * Adds randomness to the delay to avoid thundering-herd effects.
+     * Set to `null` to disable jitter.
      * @default 0.5
      */
     jitter?: number | null;
@@ -48,7 +53,7 @@ export function resolveConstantBackoffSettings(
     settings: ConstantBackoffSettings,
 ): Required<ConstantBackoffSettings> {
     const {
-        delay = TimeSpan.fromMilliseconds(100),
+        delay = TimeSpan.fromSeconds(1),
         jitter = 0.5,
         _mathRandom = Math.random,
     } = settings;

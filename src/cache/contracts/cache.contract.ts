@@ -2,12 +2,6 @@
  * @module Cache
  */
 
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    KeyExistsCacheError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    KeyNotFoundCacheError,
-} from "@/cache/contracts/cache.errors.js";
 import { type CacheEventMap } from "@/cache/contracts/cache.events.js";
 import { type IEventListenable } from "@/event-bus/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -19,7 +13,8 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * The `ICacheListenable` contract defines a way for listening {@link ICache | `ICache`} operation events.
+ * The `ICacheListenable` contract provides a way to listen to cache operation events and track state changes.
+ * Subscribe to cache events to monitor entry additions, retrievals, updates, evictions, and expirations.
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Contracts
@@ -29,15 +24,28 @@ export type ICacheListenable<TType = unknown> = IEventListenable<
 >;
 
 /**
+ * Configuration settings for cache write operations.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Contracts
  */
 export type CacheWriteSettings = {
+    /**
+     * Time-to-live (TTL) duration for cached entries.
+     * When set, entries will automatically expire after this duration.
+     * Pass `null` to cache entries without automatic expiration.
+     */
     ttl?: ITimeSpan | null;
+
+    /**
+     * Random jitter factor (0-1) to add variance to expiration times.
+     * Prevents thundering herd problems when many entries expire simultaneously.
+     * A value of 0.1 adds ±10% randomness to the TTL.
+     */
     jitter?: number;
 
     /**
-     * Used internally for testin.
+     * Used internally for testing to control random number generation.
      *
      * @internal
      */
@@ -45,38 +53,53 @@ export type CacheWriteSettings = {
 };
 
 /**
- * The `IReadableCache` contract defines a way reading for as key-value pairs independent of data storage.
+ * The `IReadableCache` contract defines a read-only interface for accessing cached key-value pairs.
+ * It provides methods to retrieve values independent of the underlying cache storage backend (Redis, Memcached, database, etc.).
+ * Use this contract when you need read-only access to cache data without mutation capabilities.
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Contracts
  */
 export type IReadableCache<TType = unknown> = {
     /**
-     * The `exists` method returns true when `key` is found otherwise false will be returned.
+     * Checks if a key exists in the cache.
+     *
+     * @param key - The cache key to check
+     * @returns true if the key exists, false otherwise
      */
     exists(key: string): Promise<boolean>;
 
     /**
-     * The `missing` method returns true when `key` is not found otherwise false will be returned.
+     * Checks if a key does not exist in the cache.
+     *
+     * @param key - The cache key to check
+     * @returns true if the key is missing, false if it exists
      */
     missing(key: string): Promise<boolean>;
 
     /**
-     * The `get` method returns the value when `key` is found otherwise null will be returned.
+     * Retrieves a cached value by key.
+     *
+     * @param key - The cache key to retrieve
+     * @returns The cached value, or null if the key is not found or has expired
      */
     get(key: string): Promise<TType | null>;
 
     /**
-     * The `getOrFail` method returns the value when `key` is found otherwise an error will be thrown.
+     * Retrieves a cached value by key, throwing an error if not found.
      *
-     * @throws {KeyNotFoundCacheError} {@link KeyNotFoundCacheError}
+     * @param key - The cache key to retrieve
+     * @returns The cached value
+     * @throws {KeyNotFoundCacheError} If the key is not found or has expired
      */
     getOrFail(key: string): Promise<TType>;
 
     /**
-     * The `getOr` method will retrieve the given `key` if found otherwise `defaultValue` will be returned.
+     * Retrieves a cached value with a default fallback.
      *
-     * @param defaultValue - can be regular value, sync or async {@link Invokable | `Invokable`} value and {@link Promise | `Promise`} value.
+     * @param key - The cache key to retrieve
+     * @param defaultValue - Default value to return if key is not found. Can be a static value, sync function, or async function.
+     * @returns The cached value, or the default value if the key is not found
      */
     getOr(
         key: string,
@@ -85,11 +108,18 @@ export type IReadableCache<TType = unknown> = {
 };
 
 /**
+ * Configuration settings for cache get-or-add operations.
+ * Extends {@link CacheWriteSettings | `CacheWriteSettings`} to support atomic read-compute-write patterns.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Contracts
  */
 export type GetOrAddSettings = CacheWriteSettings & {
     /**
+     * Enable distributed locking for the get-or-add operation.
+     * When enabled, uses a lock to ensure only one client computes and caches the value,
+     * preventing cache stampedes when multiple clients request the same missing key.
+     *
      * @default false
      */
     enableLocking?: boolean;
@@ -136,7 +166,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * The `addOrFail` method adds a `key` with given `value` when key doesn't exists.
      * Throws an error if the `key` exists.
      *
-     * @throws {KeyExistsCacheError} {@link KeyExistsCacheError}
+     * @throws {KeyExistsCacheError}
      */
     addOrFail(
         key: string,
@@ -168,7 +198,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * The `updateOrFail` method updates the given `key` with given `value`.
      * Thorws error if the `key` is not found.
      *
-     * @throws {KeyNotFoundCacheError} {@link KeyNotFoundCacheError}
+     * @throws {KeyNotFoundCacheError}
      */
     updateOrFail(key: string, value: TType): Promise<void>;
 
@@ -180,7 +210,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      *
      * @returns Returns true if the `key` where incremented otherwise false will be returned.
      *
-     * @throws {TypeError} {@link TypeError}
+     * @throws {TypeError}
      */
     increment(key: string, value?: Extract<TType, number>): Promise<boolean>;
 
@@ -190,8 +220,8 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      *
      * @param value - If not defined then it will be defaulted to 1.
      *
-     * @throws {KeyNotFoundCacheError} {@link KeyNotFoundCacheError}
-     * @throws {TypeError} {@link TypeError}
+     * @throws {KeyNotFoundCacheError}
+     * @throws {TypeError}
      */
     incrementOrFail(key: string, value?: Extract<TType, number>): Promise<void>;
 
@@ -203,7 +233,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      *
      * @returns Returns true if the `key` where decremented otherwise false will be returned.
      *
-     * @throws {TypeError} {@link TypeError}
+     * @throws {TypeError}
      */
     decrement(key: string, value?: Extract<TType, number>): Promise<boolean>;
 
@@ -213,8 +243,8 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      *
      * @param value - If not defined then it will be defaulted to 1.
      *
-     * @throws {KeyNotFoundCacheError} {@link KeyNotFoundCacheError}
-     * @throws {TypeError} {@link TypeError}
+     * @throws {KeyNotFoundCacheError}
+     * @throws {TypeError}
      */
     decrementOrFail(key: string, value?: Extract<TType, number>): Promise<void>;
 
@@ -229,7 +259,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * The `removeOrFail` method removes the given `key`.
      * Throws an error if the key is not found.
      *
-     * @throws {KeyNotFoundCacheError} {@link KeyNotFoundCacheError}
+     * @throws {KeyNotFoundCacheError}
      */
     removeOrFail(key: string): Promise<void>;
 

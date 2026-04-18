@@ -30,13 +30,22 @@ export type SharedLockAdapters<TAdapters extends string> = Partial<
 >;
 
 /**
+ * Configuration for `SharedLockFactoryResolver`.
+ * Registers named shared-lock adapters and optionally designates a default.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
  * @group Derivables
  */
 export type SharedLockFactoryResolverSettings<TAdapters extends string> =
     SharedLockFactorySettingsBase & {
+        /**
+         * Named registry of shared-lock adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
+         */
         adapters: SharedLockAdapters<TAdapters>;
 
+        /**
+         * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
+         */
         defaultAdapter?: NoInfer<TAdapters>;
     };
 

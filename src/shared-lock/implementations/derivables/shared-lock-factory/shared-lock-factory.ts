@@ -41,6 +41,8 @@ import {
 } from "@/utilities/_module.js";
 
 /**
+ * Base configuration shared by all `SharedLockFactory` variants.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
  * @group Derivables
  */
@@ -56,10 +58,11 @@ export type SharedLockFactorySettingsBase = {
     namespace?: INamespace;
 
     /**
+     * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link SharedLockFactory | `SharedLockFactory`} to register the shared lock's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
-     * import { Serde } from "@daiso-tech/serde";
-     * import { NoOpSerdeAdapter } from "@daiso-tech/serde/no-op-serde-adapter";
+     * import { Serde } from "@daiso-tech/core/serde";
+     * import { NoOpSerdeAdapter } from "@daiso-tech/core/serde/no-op-serde-adapter";
      *
      * new Serde(new NoOpSerdeAdapter())
      * ```
@@ -67,17 +70,18 @@ export type SharedLockFactorySettingsBase = {
     serde?: OneOrMore<ISerderRegister>;
 
     /**
+     * The serde transformer name used to identify shared-lock serializer and deserializer adapters when there are adapters with the same name.
      * @default ""
      */
     serdeTransformerName?: string;
 
     /**
-     * You can pass your lock id id generator function.
+     * You can pass your own lock id generator function.
      * @default
      * ```ts
      * import { v4 } from "uuid";
      *
-     * () => v4
+     * () => v4()
      */
     createLockId?: Invokable<[], string>;
 
@@ -126,6 +130,7 @@ export type SharedLockFactorySettingsBase = {
     waitUntil?: WaitUntil;
 
     /**
+     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
@@ -138,10 +143,16 @@ export type SharedLockFactorySettingsBase = {
 };
 
 /**
+ * Configuration for `SharedLockFactory`.
+ * Extends {@link SharedLockFactorySettingsBase | `SharedLockFactorySettingsBase`} with a required adapter.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
  * @group Derivables
  */
 export type SharedLockFactorySettings = SharedLockFactorySettingsBase & {
+    /**
+     * The underlying shared-lock adapter that handles the actual locking operations.
+     */
     adapter: SharedLockAdapterVariants;
 };
 
@@ -214,7 +225,7 @@ export class SharedLockFactory implements ISharedLockFactory {
             ),
         } = settings;
 
-        this.use = useFactory(executionContext);
+        this.use = useFactory({ executionContext });
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.serde = serde;

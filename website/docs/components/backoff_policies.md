@@ -35,7 +35,7 @@ import { exponentialBackoff } from "@daiso-tech/core/backoff-policies"
 // The settings argument is optional and all its fields are optional
 const backoff = exponentialBackoff({
     maxDelay: TimeSpan.fromSeconds(60),
-    minDelay: TimeSpan.fromSeconds(1),
+    minDelay: TimeSpan.fromMilliseconds(500),
     multiplier: 2,
     jitter: 0.5 // You can pass null to disable jitter
 })
@@ -49,8 +49,8 @@ import { linearBackoff } from "@daiso-tech/core/backoff-policies"
 
 // The settings argument is optional and all its fields are optional
 const backoff = linearBackoff({
-    maxDelay: TimeSpan.fromSeconds(6),
-    minDelay: TimeSpan.fromSeconds(1),
+    maxDelay: TimeSpan.fromSeconds(60),
+    minDelay: TimeSpan.fromMilliseconds(500),
     jitter: 0.5 // You can pass null to disable jitter
 })
 ```
@@ -64,7 +64,7 @@ import { linearBackoff } from "@daiso-tech/core/backoff-policies"
 // The settings argument is optional and all its fields are optional
 const backoff = linearBackoff({
     maxDelay: TimeSpan.fromSeconds(60),
-    minDelay: TimeSpan.fromSeconds(1),
+    minDelay: TimeSpan.fromMilliseconds(500),
     degree: 2,
     jitter: 0.5 // You can pass null to disable jitter
 })

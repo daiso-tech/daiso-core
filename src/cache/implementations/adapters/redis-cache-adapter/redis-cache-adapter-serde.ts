@@ -25,7 +25,7 @@ export class RedisCacheAdapterSerde implements ISerde<string> {
             return this.serde.serialize(value);
         } catch (error: unknown) {
             throw new SerializationSerdeError(
-                `Serialization error "${String(error)}" occured`,
+                `Serialization error "${String(error)}" occurred`,
                 error,
             );
         }
@@ -40,7 +40,7 @@ export class RedisCacheAdapterSerde implements ISerde<string> {
             return this.serde.deserialize(value);
         } catch (error: unknown) {
             throw new DeserializationSerdeError(
-                `Deserialization error "${String(error)}" occured`,
+                `Deserialization error "${String(error)}" occurred`,
                 error,
             );
         }

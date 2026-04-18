@@ -41,15 +41,25 @@ export type KyselyCacheTables = {
 };
 
 /**
+ * Configuration for `KyselyCacheAdapter`.
+ * Requires a Kysely database instance and a serde for serialising cache values to strings.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/cache/kysely-cache-adapter"`
  * @group Adapters
  */
 export type KyselyCacheAdapterSettings = {
+    /**
+     * The Kysely database instance with the required cache schema tables applied.
+     */
     kysely: Kysely<KyselyCacheTables>;
 
+    /**
+     * Serde instance for serializing and deserializing cache values to and from strings.
+     */
     serde: ISerde<string>;
 
     /**
+     * How often expired cache entries are automatically removed in the background.
      * @default
      * ```ts
      * import { TimeSpan } from "@daiso-tech/core/time-span";
@@ -60,6 +70,8 @@ export type KyselyCacheAdapterSettings = {
     expiredKeysRemovalInterval?: ITimeSpan;
 
     /**
+     * When `true`, a background task periodically removes expired keys.
+     * Set to `false` to disable automatic cleanup.
      * @default true
      */
     shouldRemoveExpiredKeys?: boolean;

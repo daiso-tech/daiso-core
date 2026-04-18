@@ -2,7 +2,6 @@
  * @module Cache
  */
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type IKey } from "@/namespace/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 

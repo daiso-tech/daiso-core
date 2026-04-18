@@ -36,7 +36,7 @@ type IRedisJsonRateLimiterState = {
 declare module "ioredis" {
     interface RedisCommander<Context> {
         /**
-         * @returns {string} {@link IRedisJsonRateLimiterState | `IRedisJsonRateLimiterState`} as json string.
+         * @returns {string} {@link IRedisJsonRateLimiterState | `IRedisJsonRateLimiterState`} or `null` as json string.
          */
         daiso_rate_limiter_update_state(
             key: string,
@@ -47,7 +47,7 @@ declare module "ioredis" {
         ): Result<string, Context>;
 
         /**
-         * @returns {string} {@link IRedisJsonRateLimiterState | `IRedisJsonRateLimiterState | null`} as json string.
+         * @returns {string} {@link IRedisJsonRateLimiterState | `IRedisJsonRateLimiterState`} or `null` as json string.
          */
         daiso_rate_limiter_get_state(
             key: string,
@@ -59,10 +59,16 @@ declare module "ioredis" {
 }
 
 /**
+ * Configuration for `RedisRateLimiterAdapter`.
+ * Requires a Redis client and handles serialization internally with JSON.stringify/JSON.parse.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter"`
  * @group Adapters
  */
 export type RedisRateLimiterAdapterSettings = {
+    /**
+     * The Redis client instance for rate-limiter state operations.
+     */
     database: Redis;
 
     /**

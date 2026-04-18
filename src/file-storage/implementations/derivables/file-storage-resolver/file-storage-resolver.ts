@@ -32,13 +32,22 @@ export type FileStorageAdapters<TAdapters extends string = string> = Partial<
 >;
 
 /**
+ * Configuration for `FileStorageResolver`.
+ * Registers named file-storage adapters and optionally designates a default.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
  * @group Derivables
  */
 export type FileStorageResolverSettings<TAdapters extends string = string> =
     FileStorageSettingsBase & {
+        /**
+         * Named registry of file-storage adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
+         */
         adapters: FileStorageAdapters<TAdapters>;
 
+        /**
+         * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
+         */
         defaultAdapter?: NoInfer<TAdapters>;
     };
 
@@ -180,7 +189,9 @@ export class FileStorageResolver<TAdapters extends string = string>
         });
     }
 
-    use(adapterName?: TAdapters): IFileStorage {
+    use(
+        adapterName: TAdapters | undefined = this.settings.defaultAdapter,
+    ): IFileStorage {
         if (adapterName === undefined) {
             throw new DefaultAdapterNotDefinedError(FileStorageResolver.name);
         }

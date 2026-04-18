@@ -41,15 +41,25 @@ export type MongodbSemaphoreDocument = {
 };
 
 /**
+ * Configuration for `MongodbSemaphoreAdapter`.
+ * Requires a MongoDB `Db` instance.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/mongodb-semaphore-adapter"`
  * @group Adapters
  */
 export type MongodbSemaphoreAdapterSettings = {
+    /**
+     * The MongoDB `Db` instance to store semaphore state in.
+     */
     database: Db;
     /**
+     * Name of the MongoDB collection used to store semaphore records.
      * @default "semaphore"
      */
     collectionName?: string;
+    /**
+     * Additional options passed when creating or accessing the MongoDB collection.
+     */
     collectionSettings?: CollectionOptions;
 };
 

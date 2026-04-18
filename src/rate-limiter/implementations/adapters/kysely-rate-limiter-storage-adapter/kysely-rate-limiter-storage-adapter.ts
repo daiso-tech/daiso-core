@@ -122,11 +122,20 @@ class KyselyRateLimiterStorageAdapterTransaction<TType>
 }
 
 /**
+ * Configuration for `KyselyRateLimiterStorageAdapter`.
+ * Requires a Kysely database instance with the rate-limiter schema applied.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/kysely-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export type KyselyRateLimiterStorageAdapterSettings = {
+    /**
+     * The Kysely database instance with the required rate-limiter schema tables applied.
+     */
     kysely: Kysely<KyselyRateLimiterStorageTables>;
+    /**
+     * Serde instance for serializing and deserializing rate-limiter state to and from strings.
+     */
     serde: ISerde<string>;
 
     /**
@@ -140,6 +149,8 @@ export type KyselyRateLimiterStorageAdapterSettings = {
     expiredKeysRemovalInterval?: ITimeSpan;
 
     /**
+     * When `true`, a background task periodically removes expired rate-limiter records.
+     * Set to `false` to disable automatic cleanup.
      * @default true
      */
     shouldRemoveExpiredKeys?: boolean;

@@ -52,10 +52,17 @@ export type KyselySemaphoreTables = {
 };
 
 /**
+ * Configuration for `KyselySemaphoreAdapter`.
+ * Requires a Kysely instance typed with the semaphore schema.
+ * Call `init()` before using the adapter.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/kysely-semaphore-adapter"`
  * @group Adapters
  */
 export type KyselySemaphoreAdapterSettings = {
+    /**
+     * The Kysely database instance typed with the required semaphore tables.
+     */
     kysely: Kysely<KyselySemaphoreTables>;
 
     /**
@@ -69,6 +76,8 @@ export type KyselySemaphoreAdapterSettings = {
     expiredKeysRemovalInterval?: ITimeSpan;
 
     /**
+     * When `true`, a background task periodically removes expired semaphore records and their related slots.
+     * Set to `false` to disable automatic cleanup.
      * @default true
      */
     shouldRemoveExpiredKeys?: boolean;

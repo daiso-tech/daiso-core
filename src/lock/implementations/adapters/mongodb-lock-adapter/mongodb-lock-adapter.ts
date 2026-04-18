@@ -18,15 +18,25 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import { type IDeinitizable, type IInitizable } from "@/utilities/_module.js";
 
 /**
+ * Configuration for `MongodbLockAdapter`.
+ * Requires a MongoDB `Db` instance.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/lock/mongodb-lock-adapter"`
  * @group Adapters
  */
 export type MongodbLockAdapterSettings = {
+    /**
+     * The MongoDB `Db` instance to store lock state in.
+     */
     database: Db;
     /**
+     * Name of the MongoDB collection used to store lock records.
      * @default "lock"
      */
     collectionName?: string;
+    /**
+     * Additional options passed when creating or accessing the MongoDB collection.
+     */
     collectionSettings?: CollectionOptions;
 };
 

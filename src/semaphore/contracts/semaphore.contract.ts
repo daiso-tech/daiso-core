@@ -4,108 +4,125 @@
 
 import { type IKey } from "@/namespace/contracts/_module.js";
 import { type ISemaphoreState } from "@/semaphore/contracts/_module.js";
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type LimitReachedSemaphoreError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type FailedRefreshSemaphoreError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type FailedReleaseSemaphoreError,
-} from "@/semaphore/contracts/semaphore.errors.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    type AsyncLazy,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type Invokable,
-} from "@/utilities/_module.js";
+import { type AsyncLazy } from "@/utilities/_module.js";
 
 /**
+ * State and metadata methods for a semaphore instance.
+ * Provides read-only access to semaphore state and configuration properties.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
 export type ISemaphoreStateMethods = {
+    /**
+     * Retrieves the current state of the semaphore.
+     *
+     * @returns The current semaphore state (available slots, acquired slots, expiration status, etc.)
+     */
     getState(): Promise<ISemaphoreState>;
 
     /**
-     * The `key` of the `ISemaphore` instance.
+     * The unique identifier for this semaphore instance.
+     * Multiple semaphore instances with the same key share the same slot pool.
      */
     readonly key: IKey;
 
     /**
-     * The `id` of the `ISemaphore` instance.
+     * The unique identifier for the slot holder (semaphore instance).
+     * Used to track which slots are acquired by this holder.
      */
     readonly id: string;
 
     /**
-     * The `ttl` of `ISemaphore` instance.
+     * The time-to-live (TTL) duration before acquired slots automatically expire.
+     * `null` indicates slots do not expire and must be explicitly released.
      */
     readonly ttl: TimeSpan | null;
 };
 
 /**
+ * Base operations for managing semaphore slot acquisition, release, and refresh cycles.
+ * Provides both safe (boolean-returning) and strict (error-throwing) versions of slot operations.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
 export type ISemaphoreBase = {
     /**
-     * The `runOrFail` method wraps an {@link Invokable | `Invokable`} with the `acquireOrFail` and `release` method.
-     * @throws {LimitReachedSemaphoreError} {@link LimitReachedSemaphoreError}
+     * Executes an async function while holding a semaphore slot.
+     * Automatically acquires a slot before execution and releases it after completion.
+     * Throws an error if a slot cannot be acquired.
+     *
+     * @template TValue - The return type of the async function
+     * @param asyncFn - The function to execute under semaphore protection
+     * @returns The return value of the function
+     * @throws {LimitReachedSemaphoreError} If all slots are already acquired
      */
     runOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
 
     /**
-     * The `acquire` method acquires an slots only if the slot limit is not reached.
+     * Attempts to acquire a semaphore slot if the limit is not reached.
      *
-     * @returns Returns true if the slot limit is not reached otherwise false is returned.
+     * @returns true if a slot was successfully acquired, false if the limit is reached
      */
     acquire(): Promise<boolean>;
 
     /**
-     * The `acquireOrFail` method acquires an slots only if the slot limit is not reached.
-     * Throws an error if the slot limit is reached.
+     * Acquires a semaphore slot if the limit is not reached.
+     * Throws an error if a slot cannot be acquired.
      *
-     * @throws {LimitReachedSemaphoreError} {@link LimitReachedSemaphoreError}
+     * @throws {LimitReachedSemaphoreError} If all slots are already acquired
      */
     acquireOrFail(): Promise<void>;
 
     /**
-     * The `release` method releases the current slot.
+     * Releases the currently held semaphore slot.
      *
-     * @returns Returns true if the semaphore exists and has at least one busy slot or false.
+     * @returns true if a slot was successfully released, false if no slot was held
      */
     release(): Promise<boolean>;
 
     /**
-     * The `releaseOrFail` method releases the current slot.
-     * Throws an error if the slot is not acquired.
-     * @throws {FailedReleaseSemaphoreError} {@link FailedReleaseSemaphoreError}
+     * Releases the currently held semaphore slot.
+     * Throws an error if no slot is currently held.
+     *
+     * @throws {FailedReleaseSemaphoreError} If no slot is held
      */
     releaseOrFail(): Promise<void>;
 
     /**
-     * The `forceReleaseAll` method releases the all slots.
+     * Forces release of all slots for this semaphore key, regardless of ownership.
+     * Use with caution as it can break semaphore guarantees.
      *
-     * @returns Returns true if the semaphore exists and has at least one unavailable slot or false if all slots are available.
+     * @returns true if slots existed and were released, false if already empty
      */
     forceReleaseAll(): Promise<boolean>;
 
     /**
-     * The `refresh` method updates the `ttl` of the slot when acquired.
+     * Refreshes (extends) the current slot's TTL if it is expirable.
+     * Updates the expiration time to prevent the slot from timing out.
      *
-     * @returns Returns true if the slot is refreshed otherwise false is returned.
+     * @param ttl - New TTL duration. If not provided, uses the semaphore's original TTL
+     * @returns true if the slot was successfully refreshed, false if not currently held
      */
     refresh(ttl?: ITimeSpan): Promise<boolean>;
 
     /**
-     * The `refreshOrFail` method updates the `ttl` of the slot when acquired.
-     * Throws an error if the slot is not acquired.
-     * @throws {FailedRefreshSemaphoreError} {@link FailedRefreshSemaphoreError}
+     * Refreshes (extends) the current slot's TTL if it is expirable.
+     * Throws an error if the slot cannot be refreshed.
+     *
+     * @param ttl - New TTL duration. If not provided, uses the semaphore's original TTL
+     * @throws {FailedRefreshSemaphoreError} If no slot is held or slot is not expirable
      */
     refreshOrFail(ttl?: ITimeSpan): Promise<void>;
 };
 
 /**
+ * High-level semaphore interface combining state methods and base operations.
+ * Provides a complete counting semaphore API for managing concurrent resource access.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */

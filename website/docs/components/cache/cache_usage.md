@@ -50,11 +50,6 @@ await cache.add("a", "value", { ttl: TimeSpan.fromSeconds("1") });
 ```
 The method returns true if the key does not exists.
 
-:::danger
-Note `Cache` class instance uses `Task` instead of a regular `Promise`. This means you must either await the `Task` or call its `detach` method to run it.
-Refer to the [`@daiso-tech/core/task`](../task.md) documentation for further information.
-:::
-
 ### Retrieving keys
 
 You can retrieve the key:
@@ -255,7 +250,7 @@ await cache.getOrAdd("ab", 1);
 ```
 
 :::info
-You can provide [`Task<TValue>`](../task.md), synchronous and asynchronous [`Invokable<[], TValue>`](../../utilities/invokable.md) as default values for both `getOr` and `getOrAdd` methods.
+You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as default values for both `getOr` and `getOrAdd` methods.
 :::
 
 You can retrieve the key and afterwards remove it and will return true if the value was found:

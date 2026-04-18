@@ -9,35 +9,54 @@ import { BlockedRateLimiterError } from "@/rate-limiter/contracts/rate-limiter.e
 import { type AsyncLazy } from "@/utilities/_module.js";
 
 /**
+ * State and metadata methods for a rate limiter instance.
+ * Provides read-only access to rate limiter state and configuration properties.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Contracts
  */
 export type IRateLimiterStateMethods = {
+    /**
+     * Retrieves the current state of the rate limiter.
+     *
+     * @returns The current rate limiter state (allowed, blocked, expired, etc.)
+     */
     getState(): Promise<RateLimiterState>;
 
     /**
-     * The `key` of the `IRateLimiter` instance.
+     * The unique identifier for this rate limiter instance.
+     * Multiple rate limiter instances with the same key share the same request quota.
      */
     readonly key: IKey;
 
     /**
-     * The `limit` of the `IRateLimiter` instance.
+     * The maximum number of allowed requests within the rate limiting window.
      */
     readonly limit: number;
 };
 
 /**
+ * Rate limiting operations for controlling request throughput.
+ * Provides methods to execute async functions within rate limit constraints.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Contracts
  */
 export type IRateLimiter = IRateLimiterStateMethods & {
     /**
-     * @throws {BlockedRateLimiterError} {@link BlockedRateLimiterError}
+     * Executes an async function if the rate limit quota is available.
+     * The request is blocked if the limit has been reached, throwing an error.
+     *
+     * @template TValue - The return type of the async function
+     * @param asyncFn - The function to execute if rate limit allows
+     * @returns The return value of the function
+     * @throws {BlockedRateLimiterError} If the rate limiter has reached its limit
      */
     runOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
 
     /**
-     * The `reset` method resets rate limiter to its initial state regardless of the current state.
+     * Resets the rate limiter to its initial state.
+     * Clears the request count and allows a fresh quota of requests.
      */
     reset(): Promise<void>;
 };

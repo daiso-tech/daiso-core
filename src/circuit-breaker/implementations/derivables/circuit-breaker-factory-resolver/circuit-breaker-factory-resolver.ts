@@ -34,13 +34,22 @@ export type CircuitBreakerAdapters<TAdapters extends string> = Partial<
 >;
 
 /**
+ * Configuration for `CircuitBreakerFactoryResolver`.
+ * Registers named circuit-breaker adapters and optionally designates a default.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
 export type CircuitBreakerFactoryResolverSettings<TAdapters extends string> =
     CircuitBreakerFactorySettingsBase & {
+        /**
+         * Named registry of circuit-breaker adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
+         */
         adapters: CircuitBreakerAdapters<TAdapters>;
 
+        /**
+         * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
+         */
         defaultAdapter?: NoInfer<TAdapters>;
     };
 

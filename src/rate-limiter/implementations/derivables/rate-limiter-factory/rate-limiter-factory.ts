@@ -33,6 +33,8 @@ import {
 } from "@/utilities/_module.js";
 
 /**
+ * Base configuration shared by all `RateLimiterFactory` variants.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
  * @group Derivables
  */
@@ -84,10 +86,11 @@ export type RateLimiterFactorySettingsBase = {
     enableAsyncTracking?: boolean;
 
     /**
+     * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link RateLimiterFactory | `RateLimiterFactory`} to register the rate limiter's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
-     * import { Serde } from "@daiso-tech/serde";
-     * import { NoOpSerdeAdapter } from "@daiso-tech/serde/no-op-serde-adapter";
+     * import { Serde } from "@daiso-tech/core/serde";
+     * import { NoOpSerdeAdapter } from "@daiso-tech/core/serde/no-op-serde-adapter";
      *
      * new Serde(new NoOpSerdeAdapter())
      * ```
@@ -95,6 +98,7 @@ export type RateLimiterFactorySettingsBase = {
     serde?: OneOrMore<ISerderRegister>;
 
     /**
+     * The serde transformer name used to identify rate-limiter serializers and deserializers when there are adapters with the same name.
      * @default ""
      */
     serdeTransformerName?: string;
@@ -110,6 +114,7 @@ export type RateLimiterFactorySettingsBase = {
     waitUntil?: WaitUntil;
 
     /**
+     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
@@ -122,10 +127,16 @@ export type RateLimiterFactorySettingsBase = {
 };
 
 /**
+ * Configuration for `RateLimiterFactory`.
+ * Extends {@link RateLimiterFactorySettingsBase | `RateLimiterFactorySettingsBase`} with a required adapter.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
  * @group Derivables
  */
 export type RateLimiterFactorySettings = RateLimiterFactorySettingsBase & {
+    /**
+     * The underlying rate-limiter adapter that handles the actual throttling operations.
+     */
     adapter: IRateLimiterAdapter;
 };
 

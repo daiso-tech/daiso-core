@@ -4,27 +4,10 @@
 
 import { type IKey } from "@/namespace/contracts/_module.js";
 import { type ISharedLockState } from "@/shared-lock/contracts/_module.js";
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    FailedRefreshReaderSemaphoreError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    FailedReleaseReaderSemaphoreError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    FailedReleaseWriterLockError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    FailedRefreshWriterLockError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type LimitReachedReaderSemaphoreError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type FailedAcquireWriterLockError,
-} from "@/shared-lock/contracts/shared-lock.errors.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    type AsyncLazy,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type Invokable,
-} from "@/utilities/_module.js";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { type AsyncLazy, type Invokable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
@@ -33,7 +16,7 @@ import {
 export type IReaderSemaphore = {
     /**
      * The `runReaderOrFail` method wraps an {@link Invokable | `Invokable`} with the `acquireOrFail` and `release` method.
-     * @throws {LimitReachedReaderSemaphoreError} {@link LimitReachedReaderSemaphoreError}
+     * @throws {LimitReachedReaderSemaphoreError}
      */
     runReaderOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
 
@@ -48,7 +31,7 @@ export type IReaderSemaphore = {
      * The `acquireReaderOrFail` method acquires an slots only if the slot limit is not reached.
      * Throws an error if the slot limit is reached.
      *
-     * @throws {LimitReachedReaderSemaphoreError} {@link LimitReachedReaderSemaphoreError}
+     * @throws {LimitReachedReaderSemaphoreError}
      */
     acquireReaderOrFail(): Promise<void>;
 
@@ -62,7 +45,7 @@ export type IReaderSemaphore = {
     /**
      * The `releaseReaderOrFail` method releases the current slot.
      * Throws an error if the slot is not acquired.
-     * @throws {FailedReleaseReaderSemaphoreError} {@link FailedReleaseReaderSemaphoreError}
+     * @throws {FailedReleaseReaderSemaphoreError}
      */
     releaseReaderOrFail(): Promise<void>;
 
@@ -83,7 +66,7 @@ export type IReaderSemaphore = {
     /**
      * The `refreshReaderOrFail` method updates the `ttl` of the slot when acquired.
      * Throws an error if the slot is not acquired.
-     * @throws {FailedRefreshReaderSemaphoreError} {@link FailedRefreshReaderSemaphoreError}
+     * @throws {FailedRefreshReaderSemaphoreError}
      */
     refreshReaderOrFail(ttl?: ITimeSpan): Promise<void>;
 };
@@ -95,7 +78,7 @@ export type IReaderSemaphore = {
 export type IWriterLock = {
     /**
      * The `runWriterOrFail` method wraps an {@link Invokable | `Invokable`} with the `acquireOrFail` and `release` method.
-     * @throws {FailedAcquireWriterLockError} {@link FailedAcquireWriterLockError}
+     * @throws {FailedAcquireWriterLockError}
      */
     runWriterOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
 
@@ -110,7 +93,7 @@ export type IWriterLock = {
      * The `acquireWriterOrFail` method acquires a lock only if the key is not already acquired by different owner.
      * Throws an error if the lock is already acquired by different owner.
      *
-     * @throws {FailedAcquireWriterLockError} {@link FailedAcquireWriterLockError}
+     * @throws {FailedAcquireWriterLockError}
      */
     acquireWriterOrFail(): Promise<void>;
 
@@ -125,7 +108,7 @@ export type IWriterLock = {
      * The `releaseWriterOrFail` method releases a lock if owned by the same owner.
      * Throws an error if the lock is not owned by same owner.
      *
-     * @throws {FailedReleaseWriterLockError} {@link FailedReleaseWriterLockError}
+     * @throws {FailedReleaseWriterLockError}
      */
     releaseWriterOrFail(): Promise<void>;
 
@@ -148,7 +131,7 @@ export type IWriterLock = {
      * Throws an error if the lock is not owned by same owner.
      * Throws an error if the key is unexpirable.
      *
-     * @throws {FailedRefreshWriterLockError} {@link FailedRefreshWriterLockError}
+     * @throws {FailedRefreshWriterLockError}
      */
     refreshWriterOrFail(ttl?: ITimeSpan): Promise<void>;
 };

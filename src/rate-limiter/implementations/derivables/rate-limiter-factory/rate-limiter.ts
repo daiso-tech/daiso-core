@@ -133,7 +133,7 @@ export class RateLimiter implements IRateLimiter {
             return {
                 type: RATE_LIMITER_STATE.ALLOWED,
                 usedAttempts: state.attempt,
-                reaminingAttemps: this.limit - state.attempt,
+                remainingAttempts: this.limit - state.attempt,
                 limit: this.limit,
                 resetAfter: state.resetTime,
             } satisfies RateLimiterAllowedState;

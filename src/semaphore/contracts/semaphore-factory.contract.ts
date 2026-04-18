@@ -16,17 +16,31 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 export type ISemaphoreListenable = IEventListenable<SemaphoreEventMap>;
 
 /**
+ * Configuration settings for creating a semaphore instance through the factory.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
  * @group Contracts
  */
 export type SemaphoreFactoryCreateSettings = {
+    /**
+     * Maximum number of concurrent slots that can be acquired.
+     * When this limit is reached, further acquire attempts will be blocked until a slot is released.
+     * This is a required setting that defines the semaphore's capacity.
+     */
     limit: number;
 
     /**
-     * You can also provide a `settings.ttl` value using. If not specified it defaults to null, meaning no TTL is applied.
+     * Time-to-live (TTL) duration for acquired slots.
+     * When set, each acquired slot will automatically expire after this duration.
+     * Pass `null` to create slots without automatic expiration.
      */
     ttl?: ITimeSpan | null;
 
+    /**
+     * Custom identifier for slot tracking within this semaphore.
+     * Used to uniquely identify the slot holder and manage slot state.
+     * If not specified, a unique identifier will be automatically generated.
+     */
     slotId?: string;
 };
 
