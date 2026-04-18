@@ -18,36 +18,37 @@ import {
     type EnsureMap,
 } from "@/collection/contracts/_shared/_module.js";
 import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ItemNotFoundCollectionError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type MultipleItemsFoundCollectionError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type EmptyCollectionError,
-} from "@/collection/contracts/collection.errors.js";
-import {
     type AsyncLazyable,
     type AsyncIterableValue,
 } from "@/utilities/_module.js";
 
 /**
+ * Collapses 1 layer of nested array, iterable, or async-collection types into their element type.
+ * If `TValue` is an `Array`, `Iterable`, or `IAsyncCollection`, the result is
+ * the inner item type. Otherwise `TValue` is returned as-is.
+ *
+ * @template TValue - The value type to collapse.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
-export type AsyncCollapse<TValue> = TValue extends
-    | Array<infer TItem>
-    | Iterable<infer TItem>
-    | IAsyncCollection<infer TItem>
-    ? TItem
-    : TValue;
+export type AsyncCollapse<TValue> = TValue extends string
+    ? string
+    : TValue extends
+            | Array<infer TItem>
+            | AsyncIterableValue<infer TItem>
+            | IAsyncCollection<infer TItem>
+      ? TItem
+      : TValue;
 
 /**
- * The `IAsyncCollection` contract offers a fluent and efficient approach to working with {@link AsyncIterable} objects.
+ * The `IAsyncCollection` contract offers a fluent and efficient approach to working with {@link AsyncIterable | `AsyncIterable`} objects.
  * `IAsyncCollection` is immutable.
  *
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  * @group Contracts
  */
-export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
+export interface IAsyncCollection<TInput = unknown>
+    extends AsyncIterable<TInput> {
     /**
      * The `toIterator` method converts the collection to a new iterator.
      */
@@ -337,7 +338,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
 
     /**
      * The `getOrFail` method returns the item by index. If the item is not found an error will be thrown.
-     * @throws {ItemNotFoundCollectionError} {@link ItemNotFoundCollectionError}
+     * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
      * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
@@ -376,8 +377,8 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
 
     /**
      * The `sum` method returns the sum of all items in the collection. If the collection includes other than number items an error will be thrown.
-     * @throws {TypeError} {@link TypeError}
-     * @throws {EmptyCollectionError} {@link EmptyCollectionError}
+     * @throws {TypeError}
+     * @throws {EmptyCollectionError}
      * @example
      * ```ts
      * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
@@ -395,8 +396,8 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
 
     /**
      * The `average` method returns the average of all items in the collection. If the collection includes other than number items an error will be thrown.
-     * @throws {TypeError} {@link TypeError}
-     * @throws {EmptyCollectionError} {@link EmptyCollectionError}
+     * @throws {TypeError}
+     * @throws {EmptyCollectionError}
      * @example
      * ```ts
      * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
@@ -414,8 +415,8 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
 
     /**
      * The `median` method returns the median of all items in the collection. If the collection includes other than number items an error will be thrown.
-     * @throws {TypeError} {@link TypeError}
-     * @throws {EmptyCollectionError} {@link EmptyCollectionError}
+     * @throws {TypeError}
+     * @throws {EmptyCollectionError}
      * @example
      * ```ts
      * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
@@ -433,8 +434,8 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
 
     /**
      * The `min` method returns the min of all items in the collection. If the collection includes other than number items an error will be thrown.
-     * @throws {TypeError} {@link TypeError}
-     * @throws {EmptyCollectionError} {@link EmptyCollectionError}
+     * @throws {TypeError}
+     * @throws {EmptyCollectionError}
      * @example
      * ```ts
      * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
@@ -452,8 +453,8 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
 
     /**
      * The `max` method returns the max of all items in the collection. If the collection includes other than number items an error will be thrown.
-     * @throws {TypeError} {@link TypeError}
-     * @throws {EmptyCollectionError} {@link EmptyCollectionError}
+     * @throws {TypeError}
+     * @throws {EmptyCollectionError}
      * @example
      * ```ts
      * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
@@ -471,7 +472,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
 
     /**
      * The `percentage` method may be used to quickly determine the percentage of items in the collection that pass `predicateFn`.
-     * @throws {EmptyCollectionError} {@link EmptyCollectionError}
+     * @throws {EmptyCollectionError}
      * @example
      * ```ts
      * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
@@ -1725,7 +1726,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
     /**
      * The `firstOrFail` method returns the first item in the collection that passes ` predicateFn `.
      * By default it will get the first item. If the collection is empty or no items passes ` predicateFn ` than error is thrown.
-     * @throws {ItemNotFoundCollectionError} {@link ItemNotFoundCollectionError}
+     * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
      * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
@@ -1873,7 +1874,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
     /**
      * The `lastOrFail` method returns the last item in the collection that passes ` predicateFn `.
      * By default it will get the last item. If the collection is empty or no items passes ` predicateFn ` than error is thrown.
-     * @throws {ItemNotFoundCollectionError} {@link ItemNotFoundCollectionError}
+     * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
      * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
@@ -1997,7 +1998,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
     /**
      * The `beforeOrFail` method returns the item that comes before the first item that matches `predicateFn`.
      * If the collection is empty or the `predicateFn` does not match or matches the first item then an error is thrown.
-     * @throws {ItemNotFoundCollectionError} {@link ItemNotFoundCollectionError}
+     * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
      * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
@@ -2109,7 +2110,7 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
     /**
      * The `afterOrFail` method returns the item that comes after the first item that matches `predicateFn`.
      * If the collection is empty or the `predicateFn` does not match or matches the last item then an error is thrown.
-     * @throws {ItemNotFoundCollectionError} {@link ItemNotFoundCollectionError}
+     * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
      * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
@@ -2142,8 +2143,8 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
     /**
      * The `sole` method returns the first item in the collection that passes `predicateFn`, but only if `predicateFn` matches exactly one item.
      * If no items matches or multiple items are found an error will be thrown.
-     * @throws {ItemNotFoundCollectionError} {@link ItemNotFoundCollectionError}
-     * @throws {MultipleItemsFoundCollectionError} {@link MultipleItemsFoundCollectionError}
+     * @throws {ItemNotFoundCollectionError}
+     * @throws {MultipleItemsFoundCollectionError}
      * @example
      * ```ts
      * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
@@ -2289,14 +2290,14 @@ export type IAsyncCollection<TInput = unknown> = AsyncIterable<TInput> & {
     /**
      * The `toRecord` method converts the collection to a new {@link Record | `Record`}.
      * An error will be thrown if item is not a tuple of size 2 where the first element is a string or a number.
-     * @throws {TypeError} {@link TypeError}
+     * @throws {TypeError}
      */
     toRecord(): Promise<EnsureRecord<TInput>>;
 
     /**
      * The `toMap` method converts the collection to a new {@link Map | `Map`}.
      * An error will be thrown if item is not a tuple of size 2.
-     * @throws {TypeError} {@link TypeError}
+     * @throws {TypeError}
      */
     toMap(): Promise<EnsureMap<TInput>>;
-};
+}

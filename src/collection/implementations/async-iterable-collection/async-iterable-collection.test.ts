@@ -971,12 +971,12 @@ describe("class: AsyncIterableCollection", () => {
     });
     describe("method: when", () => {
         test("Should append items when statement is true", async () => {
-            const arr1 = ["a", "b", "c"],
-                collection = new AsyncIterableCollection(arr1),
-                arr2 = [1, 2, 3],
-                newCollection = collection.when(true, (collection) =>
-                    collection.append(arr2),
-                );
+            const arr1 = ["a", "b", "c"];
+            const collection = new AsyncIterableCollection(arr1);
+            const arr2 = [1, 2, 3];
+            const newCollection = collection.when(true, (collection) =>
+                collection.append(arr2),
+            );
             expect(await newCollection.toArray()).toEqual([...arr1, ...arr2]);
         });
         test("Should not append items when statement is false", async () => {
