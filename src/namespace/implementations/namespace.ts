@@ -56,15 +56,19 @@ class Key implements IKey {
 }
 
 /**
+ * Configuration for the `Namespace` class.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/namespace"`
  */
 export type NamespaceSettings = {
     /**
+     * The separator character inserted between each namespace segment.
      * @default ":"
      */
     delimeter?: string;
 
     /**
+     * The string appended to the root namespace segment to distinguish it.
      * @default "_rt"
      */
     rootIdentifier?: string;
