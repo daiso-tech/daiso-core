@@ -52,11 +52,6 @@ await eventBus.dispatch("add", {
 });
 ```
 
-:::danger
-Note `EventBus` class instance uses `Task` instead of a regular `Promise`. This means you must either await the `Task` or call its `detach` method to run it.
-Refer to the [`@daiso-tech/core/task`](../task.md) documentation for further information.
-:::
-
 ### Listener management
 
 To properly remove a listener, you must use a named function:
@@ -222,18 +217,18 @@ await eventBus.dispatch("add", {
 });
 ```
 
-### Task-based event handling
+### Promise-based event handling
 
-Wait for events using [tasks](../task.md):
+Wait for events using promises:
 
 ```ts
-import { Task } from "@daiso-tech/core/task";
+import { delay } from "@daiso-tech/core/utilities";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 // This code block will run concurrently
 (async () => {
     // We wait on second and thereafter dispatch the event.
-    await Task.delay(TimeSpan.fromSeconds(1));
+    await delay(TimeSpan.fromSeconds(1));
     await eventBus.dispatch("add", {
         a: 30,
         b: 20,
@@ -241,7 +236,7 @@ import { TimeSpan } from "@daiso-tech/core/time-span";
 })();
 
 // The promise will resolve after one second, when the event is dispatched.
-const event = await eventBus.asTask("add");
+const event = await eventBus.asPromise("add");
 console.log(event);
 ```
 
