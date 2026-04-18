@@ -71,7 +71,7 @@ export type EventBusSettingsBase<
     namespace?: INamespace;
 
     /**
-     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context aware adapters.
+     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
@@ -140,7 +140,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         const {
             __onUncaughtRejection = (error) => {
                 console.error(
-                    `An error of type "${String(error)}" occured in event listener`,
+                    `An error of type "${String(error)}" occurred in event listener`,
                 );
             },
             shouldValidateOutput = true,

@@ -86,11 +86,11 @@ export type RateLimiterFactorySettingsBase = {
     enableAsyncTracking?: boolean;
 
     /**
-     * You pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link RateLimiterFactory | `RateLimiterFactory`} to register the rate limiter's serialization and deserialization logic for the provided adapter.
+     * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link RateLimiterFactory | `RateLimiterFactory`} to register the rate limiter's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
-     * import { Serde } from "@daiso-tech/serde";
-     * import { NoOpSerdeAdapter } from "@daiso-tech/serde/no-op-serde-adapter";
+     * import { Serde } from "@daiso-tech/core/serde";
+     * import { NoOpSerdeAdapter } from "@daiso-tech/core/serde/no-op-serde-adapter";
      *
      * new Serde(new NoOpSerdeAdapter())
      * ```
@@ -114,7 +114,7 @@ export type RateLimiterFactorySettingsBase = {
     waitUntil?: WaitUntil;
 
     /**
-     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context aware adapters.
+     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"

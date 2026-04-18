@@ -99,7 +99,7 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
                         });
                     } catch (error: unknown) {
                         console.error(
-                            "Error occured in onFallback callback:",
+                            "Error occurred in onFallback callback:",
                             error,
                         );
                     }
@@ -127,7 +127,7 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
                         });
                     } catch (error: unknown) {
                         console.error(
-                            "Error occured in onFallback callback:",
+                            "Error occurred in onFallback callback:",
                             error,
                         );
                     }

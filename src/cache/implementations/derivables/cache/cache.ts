@@ -109,7 +109,7 @@ export type CacheSettingsBase<TType = unknown> = {
     waitUntil?: WaitUntil;
 
     /**
-     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context aware adapters.
+     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"

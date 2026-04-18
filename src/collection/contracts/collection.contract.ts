@@ -17,6 +17,14 @@ import {
     type EnsureMap,
     type EnsureRecord,
 } from "@/collection/contracts/_shared/_module.js";
+import {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ItemNotFoundCollectionError,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type MultipleItemsFoundCollectionError,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type EmptyCollectionError,
+} from "@/collection/contracts/collection.errors.js";
 import { type ISerializable } from "@/serde/contracts/_module.js";
 import { type IterableValue, type Lazyable } from "@/utilities/_module.js";
 

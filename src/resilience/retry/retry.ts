@@ -108,7 +108,7 @@ export type RetrySettings<TParameters extends Array<unknown> = Array<unknown>> =
              * ```ts
              * import { exponentialBackoff } from "@daiso-tech/core/backoff-policies";
              *
-             * exponentialBackof();
+             * exponentialBackoff();
              * ```
              */
             backoffPolicy?: BackoffPolicy;
@@ -157,7 +157,7 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                         });
                     } catch (error: unknown) {
                         console.log(
-                            "Error occured in onExecutionAttempt callback:",
+                            "Error occurred in onExecutionAttempt callback:",
                             error,
                         );
                     }
@@ -188,7 +188,7 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                             });
                         } catch (error: unknown) {
                             console.log(
-                                "Error occured in onRetryDelay callback:",
+                                "Error occurred in onRetryDelay callback:",
                                 error,
                             );
                         }
@@ -223,7 +223,7 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                             });
                         } catch (error: unknown) {
                             console.log(
-                                "Error occured in onRetryDelay callback:",
+                                "Error occurred in onRetryDelay callback:",
                                 error,
                             );
                         }

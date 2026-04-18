@@ -17,7 +17,7 @@ import {
 type KeySettings = {
     prefixArr: Array<string>;
     key: string;
-    delimeter: string;
+    delimiter: string;
 };
 
 /**
@@ -26,17 +26,17 @@ type KeySettings = {
 class Key implements IKey {
     private readonly prefixArr: Array<string>;
     private readonly key: string;
-    private readonly delimeter: string;
+    private readonly delimiter: string;
 
     /**
      *
      * @internal
      */
     constructor(settings: KeySettings) {
-        const { prefixArr, key, delimeter } = settings;
+        const { prefixArr, key, delimiter } = settings;
         this.prefixArr = prefixArr;
         this.key = key;
-        this.delimeter = delimeter;
+        this.delimiter = delimiter;
     }
 
     get(): string {
@@ -46,7 +46,7 @@ class Key implements IKey {
     toString(): string {
         return resolveOneOrMoreStr(
             [...this.prefixArr, this.key],
-            this.delimeter,
+            this.delimiter,
         );
     }
 
@@ -65,7 +65,7 @@ export type NamespaceSettings = {
      * The separator character inserted between each namespace segment.
      * @default ":"
      */
-    delimeter?: string;
+    delimiter?: string;
 
     /**
      * The string appended to the root namespace segment to distinguish it.
@@ -117,43 +117,43 @@ export class Namespace
 {
     static deserialize(serialized: SerializedNamespace): Namespace {
         return new Namespace(serialized.root, {
-            delimeter: serialized.delimiter,
+            delimiter: serialized.delimiter,
             rootIdentifier: serialized.rootIdentifier,
         });
     }
 
-    private readonly delimeter: string;
+    private readonly delimiter: string;
     private readonly rootIdentifier: string;
 
     constructor(
         private readonly root: OneOrMore<string>,
         settings: NamespaceSettings = {},
     ) {
-        const { delimeter = ":", rootIdentifier = "_rt" } = settings;
-        this.delimeter = delimeter;
+        const { delimiter = ":", rootIdentifier = "_rt" } = settings;
+        this.delimiter = delimiter;
         this.rootIdentifier = rootIdentifier;
     }
 
     serialize(): SerializedNamespace {
         return {
             root: typeof this.root === "string" ? this.root : [...this.root],
-            delimiter: this.delimeter,
+            delimiter: this.delimiter,
             rootIdentifier: this.rootIdentifier,
             version: "1",
         };
     }
 
-    setDelimeter(delimeter: string): INamespace {
+    setdelimiter(delimiter: string): INamespace {
         return new Namespace(this.root, {
             rootIdentifier: this.rootIdentifier,
-            delimeter,
+            delimiter,
         });
     }
 
     setRootIdentifier(identifier: string): INamespace {
         return new Namespace(this.root, {
             rootIdentifier: identifier,
-            delimeter: this.delimeter,
+            delimiter: this.delimiter,
         });
     }
 
@@ -162,7 +162,7 @@ export class Namespace
             [...resolveOneOrMore(this.root), ...resolveOneOrMore(str)],
             {
                 rootIdentifier: this.rootIdentifier,
-                delimeter: this.delimeter,
+                delimiter: this.delimiter,
             },
         );
     }
@@ -172,7 +172,7 @@ export class Namespace
             [...resolveOneOrMore(str), ...resolveOneOrMore(this.root)],
             {
                 rootIdentifier: this.rootIdentifier,
-                delimeter: this.delimeter,
+                delimiter: this.delimiter,
             },
         );
     }
@@ -187,20 +187,20 @@ export class Namespace
 
     private getKeyPrefixArray(): Array<string> {
         return [
-            resolveOneOrMoreStr(this.root, this.delimeter),
+            resolveOneOrMoreStr(this.root, this.delimiter),
             this.rootIdentifier,
         ];
     }
 
     toString(): string {
-        return resolveOneOrMoreStr(this.getKeyPrefixArray(), this.delimeter);
+        return resolveOneOrMoreStr(this.getKeyPrefixArray(), this.delimiter);
     }
 
     create(key: string): IKey {
         this.validate(key);
         return new Key({
             key,
-            delimeter: this.delimeter,
+            delimiter: this.delimiter,
             prefixArr: this.getKeyPrefixArray(),
         });
     }

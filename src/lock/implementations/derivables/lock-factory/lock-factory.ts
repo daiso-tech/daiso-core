@@ -61,11 +61,11 @@ export type LockFactorySettingsBase = {
     namespace?: INamespace;
 
     /**
-     * You pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link LockFactory | `LockFactory`} to register the lock's serialization and deserialization logic for the provided adapter.
+     * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link LockFactory | `LockFactory`} to register the lock's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
-     * import { Serde } from "@daiso-tech/serde";
-     * import { NoOpSerdeAdapter } from "@daiso-tech/serde/no-op-serde-adapter";
+     * import { Serde } from "@daiso-tech/core/serde";
+     * import { NoOpSerdeAdapter } from "@daiso-tech/core/serde/no-op-serde-adapter";
      *
      * new Serde(new NoOpSerdeAdapter())
      * ```
@@ -79,12 +79,12 @@ export type LockFactorySettingsBase = {
     serdeTransformerName?: string;
 
     /**
-     * You can pass your lock id id generator function.
+     * You can pass your own lock id generator function.
      * @default
      * ```ts
      * import { v4 } from "uuid";
      *
-     * () => v4
+     * () => v4()
      */
     createLockId?: Invokable<[], string>;
 
@@ -133,7 +133,7 @@ export type LockFactorySettingsBase = {
     waitUntil?: WaitUntil;
 
     /**
-     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context aware adapters.
+     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"

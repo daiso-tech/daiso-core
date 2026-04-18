@@ -27,7 +27,6 @@ import {
     type FailedReleaseReaderSemaphoreEvent,
     type FailedReleaseWriterLockEvent,
     type ForceReleasedWriterLockEvent,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type ISharedLock,
     type ISharedLockExpiredState,
     type ISharedLockFactory,

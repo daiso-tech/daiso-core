@@ -216,7 +216,7 @@ export function consecutiveBreakerTestSuite(
             });
         });
         describe("method: updateState / trackFailure / trackSuccess", () => {
-            test("Should transition ClosedState -> ClosedState when 1 failure has occured", async () => {
+            test("Should transition ClosedState -> ClosedState when 1 failure has occurred", async () => {
                 await adapter.trackFailure(context, KEY);
                 const transition = await adapter.updateState(context, KEY);
 
@@ -225,7 +225,7 @@ export function consecutiveBreakerTestSuite(
                     to: CIRCUIT_BREAKER_STATE.CLOSED,
                 } satisfies CircuitBreakerStateTransition);
             });
-            test("Should transition ClosedState -> ClosedState when 4 consecutive failures has occured", async () => {
+            test("Should transition ClosedState -> ClosedState when 4 consecutive failures has occurred", async () => {
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
@@ -243,7 +243,7 @@ export function consecutiveBreakerTestSuite(
                     to: CIRCUIT_BREAKER_STATE.CLOSED,
                 } satisfies CircuitBreakerStateTransition);
             });
-            test("Should transition ClosedState -> OpenState when 5 consecutive failures has occured", async () => {
+            test("Should transition ClosedState -> OpenState when 5 consecutive failures has occurred", async () => {
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
@@ -264,7 +264,7 @@ export function consecutiveBreakerTestSuite(
                     to: CIRCUIT_BREAKER_STATE.OPEN,
                 } satisfies CircuitBreakerStateTransition);
             });
-            test("Should transition ClosedState -> ClosedState when 4 consecutive failures, 1 success and 1 failure has occured", async () => {
+            test("Should transition ClosedState -> ClosedState when 4 consecutive failures, 1 success and 1 failure has occurred", async () => {
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
@@ -288,7 +288,7 @@ export function consecutiveBreakerTestSuite(
                     to: CIRCUIT_BREAKER_STATE.CLOSED,
                 } satisfies CircuitBreakerStateTransition);
             });
-            test("Should transition ClosedState -> OpenState -> OpenState when 5 consecutive failures has occured and wait time is not reached", async () => {
+            test("Should transition ClosedState -> OpenState -> OpenState when 5 consecutive failures has occurred and wait time is not reached", async () => {
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
@@ -312,7 +312,7 @@ export function consecutiveBreakerTestSuite(
                     to: CIRCUIT_BREAKER_STATE.OPEN,
                 } satisfies CircuitBreakerStateTransition);
             });
-            test("Should transition ClosedState -> OpenState -> HalfOpenState when 5 consecutive failures has occured and wait time is reached", async () => {
+            test("Should transition ClosedState -> OpenState -> HalfOpenState when 5 consecutive failures has occurred and wait time is reached", async () => {
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
@@ -336,7 +336,7 @@ export function consecutiveBreakerTestSuite(
                     to: CIRCUIT_BREAKER_STATE.HALF_OPEN,
                 } satisfies CircuitBreakerStateTransition);
             });
-            test("Should transition ClosedState -> OpenState -> HalfOpenState -> HalfOpenState when 5 consecutive failures, wait time is reached and 1 consecutive successes has occured", async () => {
+            test("Should transition ClosedState -> OpenState -> HalfOpenState -> HalfOpenState when 5 consecutive failures, wait time is reached and 1 consecutive successes has occurred", async () => {
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
@@ -363,7 +363,7 @@ export function consecutiveBreakerTestSuite(
                     to: CIRCUIT_BREAKER_STATE.HALF_OPEN,
                 } satisfies CircuitBreakerStateTransition);
             });
-            test("Should transition ClosedState -> OpenState -> HalfOpenState -> HalfOpenState when 5 consecutive failures, wait time is reached and 4 consecutive successes has occured", async () => {
+            test("Should transition ClosedState -> OpenState -> HalfOpenState -> HalfOpenState when 5 consecutive failures, wait time is reached and 4 consecutive successes has occurred", async () => {
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
@@ -399,7 +399,7 @@ export function consecutiveBreakerTestSuite(
                     to: CIRCUIT_BREAKER_STATE.HALF_OPEN,
                 } satisfies CircuitBreakerStateTransition);
             });
-            test("Should transition ClosedState -> OpenState -> HalfOpenState -> ClosedState when 5 consecutive failures, wait time is reached and 5 consecutive successes has occured", async () => {
+            test("Should transition ClosedState -> OpenState -> HalfOpenState -> ClosedState when 5 consecutive failures, wait time is reached and 5 consecutive successes has occurred", async () => {
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
@@ -438,7 +438,7 @@ export function consecutiveBreakerTestSuite(
                     to: CIRCUIT_BREAKER_STATE.CLOSED,
                 } satisfies CircuitBreakerStateTransition);
             });
-            test("Should transition ClosedState -> OpenState -> HalfOpenState -> OpenState when 5 consecutive failures, wait time is reached and 1 failure has occured", async () => {
+            test("Should transition ClosedState -> OpenState -> HalfOpenState -> OpenState when 5 consecutive failures, wait time is reached and 1 failure has occurred", async () => {
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 
@@ -465,7 +465,7 @@ export function consecutiveBreakerTestSuite(
                     to: CIRCUIT_BREAKER_STATE.OPEN,
                 } satisfies CircuitBreakerStateTransition);
             });
-            test("Should transition ClosedState -> OpenState -> HalfOpenState -> OpenState when 5 consecutive failures, wait time is reached, 4 consecutive successes and 1 failure has occured", async () => {
+            test("Should transition ClosedState -> OpenState -> HalfOpenState -> OpenState when 5 consecutive failures, wait time is reached, 4 consecutive successes and 1 failure has occurred", async () => {
                 await adapter.trackFailure(context, KEY);
                 await adapter.updateState(context, KEY);
 

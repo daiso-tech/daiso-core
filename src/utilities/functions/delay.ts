@@ -33,8 +33,5 @@ export async function delay(
         signal.addEventListener("abort", onAbort, {
             once: true,
         });
-        setTimeout(() => {
-            resolve();
-        }, TimeSpan.fromTimeSpan(time).toMilliseconds());
     });
 }

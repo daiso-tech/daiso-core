@@ -13,7 +13,7 @@ import { type InferInstance } from "@/utilities/_module.js";
 export class EncodingError extends Error {
     static create(error: unknown): EncodingError {
         return new EncodingError(
-            `Encoding error "${String(error)}" occured`,
+            `Encoding error "${String(error)}" occurred`,
             error,
         );
     }
@@ -38,7 +38,7 @@ export class EncodingError extends Error {
 export class DecodingError extends Error {
     static create(error: unknown): DecodingError {
         return new DecodingError(
-            `Decoding error "${String(error)}" occured`,
+            `Decoding error "${String(error)}" occurred`,
             error,
         );
     }

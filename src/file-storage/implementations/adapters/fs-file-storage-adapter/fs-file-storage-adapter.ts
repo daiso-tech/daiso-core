@@ -52,7 +52,7 @@ export type FsFileStorageAdapterSettings = {
 };
 
 /**
- * The `FsFileStorageAdapter` is used for local development when persistence is need when restarting the dev server.
+ * The `FsFileStorageAdapter` is used for local development when persistence is needed when restarting the dev server.
  * Note `FsFileStorageAdapter` lacks nested folder support. A flat hierarchy is used, requiring filename encoding/decoding.
  *
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/fs-file-storage-adapter"`

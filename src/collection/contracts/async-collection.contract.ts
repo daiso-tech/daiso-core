@@ -18,6 +18,14 @@ import {
     type EnsureMap,
 } from "@/collection/contracts/_shared/_module.js";
 import {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ItemNotFoundCollectionError,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type MultipleItemsFoundCollectionError,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type EmptyCollectionError,
+} from "@/collection/contracts/collection.errors.js";
+import {
     type AsyncLazyable,
     type AsyncIterableValue,
 } from "@/utilities/_module.js";

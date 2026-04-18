@@ -75,7 +75,7 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                         });
                     } catch (error: unknown) {
                         console.log(
-                            "Error occured in onExecutionAttempt callback:",
+                            "Error occurred in onExecutionAttempt callback:",
                             error,
                         );
                     }
@@ -99,7 +99,7 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                         });
                     } catch (error: unknown) {
                         console.log(
-                            "Error occured in onRetryDelay callback:",
+                            "Error occurred in onRetryDelay callback:",
                             error,
                         );
                     }
@@ -128,7 +128,7 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                         });
                     } catch (error: unknown) {
                         console.log(
-                            "Error occured in onRetryDelay callback:",
+                            "Error occurred in onRetryDelay callback:",
                             error,
                         );
                     }

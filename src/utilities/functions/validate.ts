@@ -8,7 +8,7 @@ export class ValidationError extends Error {
     constructor(issues: ReadonlyArray<StandardSchemaV1.Issue>) {
         const jsonMessage = JSON.stringify(issues, null, 2);
         super(
-            `A validation error occured with the following issues:\n${jsonMessage}`,
+            `A validation error occurred with the following issues:\n${jsonMessage}`,
         );
         this.name = ValidationError.name;
     }

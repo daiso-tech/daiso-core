@@ -71,10 +71,10 @@ export type IFlexibleSerdeAdapter<TSerializedValue = unknown> =
          * @param transformer - Transformer implementing ISerdeTransformerAdapter interface
          * @returns Void (adapter is mutated with new transformer registered)
          */
-        registerCustom<TCustomSerialized, TCustomDeserialized>(
+        registerCustom<TCustomDeserialized, TCustomSerialized>(
             transformer: ISerdeTransformerAdapter<
-                TCustomSerialized,
-                TCustomDeserialized
+                TCustomDeserialized,
+                TCustomSerialized
             >,
         ): void;
     };
