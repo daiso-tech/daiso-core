@@ -39,7 +39,7 @@ export type ExponentialBackoffSettings = {
      * ```ts
      * import { TimeSpan } from "@daiso-tech/core/time-span";
      *
-     * TimeSpan.fromSeconds(1)
+     * TimeSpan.fromMilliseconds(500)
      * ```
      */
     minDelay?: ITimeSpan;
@@ -73,7 +73,7 @@ export function resolveExponentialBackoffSettings(
 ): Required<ExponentialBackoffSettings> {
     const {
         maxDelay = TimeSpan.fromSeconds(60),
-        minDelay = TimeSpan.fromSeconds(1),
+        minDelay = TimeSpan.fromMilliseconds(500),
         multiplier = 2,
         jitter = 0.5,
         _mathRandom = Math.random,

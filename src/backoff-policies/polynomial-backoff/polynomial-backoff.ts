@@ -38,7 +38,7 @@ export type PolynomialBackoffSettings = {
      * ```ts
      * import { TimeSpan } from "@daiso-tech/core/time-span";
      *
-     * TimeSpan.fromSeconds(1)
+     * TimeSpan.fromMilliseconds(500)
      * ```
      */
     minDelay?: ITimeSpan;
@@ -71,8 +71,8 @@ export function resolvePolynomialBackoffSettings(
     settings: PolynomialBackoffSettings,
 ): Required<PolynomialBackoffSettings> {
     const {
-        maxDelay = TimeSpan.fromSeconds(6),
-        minDelay = TimeSpan.fromSeconds(1),
+        maxDelay = TimeSpan.fromSeconds(60),
+        minDelay = TimeSpan.fromMilliseconds(500),
         degree = 2,
         jitter = 0.5,
         _mathRandom = Math.random,

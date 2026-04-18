@@ -28,7 +28,7 @@ export type LinearBackoffSettings = {
      * ```ts
      * import { TimeSpan } from "@daiso-tech/core/time-span";
      *
-     * TimeSpan.fromSeconds(6)
+     * TimeSpan.fromSeconds(60)
      * ```
      */
     maxDelay?: ITimeSpan;
@@ -39,7 +39,7 @@ export type LinearBackoffSettings = {
      * ```ts
      * import { TimeSpan } from "@daiso-tech/core/time-span";
      *
-     * TimeSpan.fromSeconds(1)
+     * TimeSpan.fromMilliseconds(500)
      * ```
      */
     minDelay?: ITimeSpan;
@@ -65,8 +65,8 @@ export function resolveLinearBackoffSettings(
     settings: LinearBackoffSettings,
 ): Required<LinearBackoffSettings> {
     const {
-        maxDelay = TimeSpan.fromSeconds(6),
-        minDelay = TimeSpan.fromSeconds(1),
+        maxDelay = TimeSpan.fromSeconds(60),
+        minDelay = TimeSpan.fromMilliseconds(500),
         jitter = 0.5,
         _mathRandom = Math.random,
     } = settings;

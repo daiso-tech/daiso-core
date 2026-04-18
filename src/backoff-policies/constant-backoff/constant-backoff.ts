@@ -53,7 +53,7 @@ export function resolveConstantBackoffSettings(
     settings: ConstantBackoffSettings,
 ): Required<ConstantBackoffSettings> {
     const {
-        delay = TimeSpan.fromMilliseconds(100),
+        delay = TimeSpan.fromSeconds(1),
         jitter = 0.5,
         _mathRandom = Math.random,
     } = settings;
