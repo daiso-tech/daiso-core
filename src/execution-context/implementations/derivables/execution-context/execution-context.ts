@@ -24,8 +24,25 @@ import {
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/execution-context"`
+ *
+ * Manages execution context values and provides a way to execute functions within a context.
+ *
+ * The ExecutionContext class serves as the main entry point for context management.
+ * It delegates all operations to an underlying context adapter that handles the actual
+ * storage and lifecycle of context values. This allows different adapter implementations
+ * (e.g., AsyncLocalStorage for Node.js) to manage context differently.
+ *
+ * Provides methods to:
+ * - Get, set, update, and remove context values using context tokens
+ * - Execute functions within a specific context
+ * - Bind functions to capture and preserve context across async boundaries
  */
 export class ExecutionContext implements IExecutionContext {
+    /**
+     * Creates a new ExecutionContext instance.
+     *
+     * @param executionContextStorage - The adapter responsible for storing and managing context values
+     */
     constructor(
         private readonly executionContextStorage: IExecutionContextAdapter<ICopyableContext>,
     ) {}
