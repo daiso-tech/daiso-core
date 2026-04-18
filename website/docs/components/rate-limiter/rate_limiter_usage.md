@@ -61,15 +61,8 @@ Note the method throws an error when the rate-limiter is in open state or isolat
 :::
 
 :::info
-You can provide [`Task<TValue>`](../task.md), synchronous and asynchronous [`Invokable<[], TValue>`](../../utilities/invokable.md) as values for `runOrFail` method.
+You can provide synchronous and asynchronous [`Invokable<[], Promiseable<TValue>>`](../../utilities/invokable.md) as values for `runOrFail` method.
 :::
-
-:::danger
-Note `RateLimiter` class instance uses `Task` instead of a regular `Promise`. This means you must either await the `Task` or call its `detach` method to run it.
-Refer to the [`@daiso-tech/core/task`](../task.md) documentation for further information.
-:::
-
-
 
 ### Applying rate-limiter on only erros
 
