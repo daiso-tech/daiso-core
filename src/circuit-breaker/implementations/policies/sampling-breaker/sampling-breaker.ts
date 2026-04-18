@@ -317,9 +317,9 @@ export class SamplingBreaker
         }
 
         if (success) {
-            currentSample.failures++;
-        } else {
             currentSample.successes++;
+        } else {
+            currentSample.failures++;
         }
 
         return {

@@ -1,12 +1,12 @@
 ---
 pagination_label: Middleware usage
 tags:
- - Middleware
- - Utilities
+    - Middleware
+    - Utilities
 keywords:
- - Middleware
- - Function Interception
- - Middleware Pipeline
+    - Middleware
+    - Function Interception
+    - Middleware Pipeline
 ---
 
 # Middleware
@@ -44,9 +44,14 @@ const use = useFactory();
 A middleware is a function that receives middleware arguments (containing the original arguments, a next function, and the execution context) and returns the result:
 
 ```ts
-import { type MiddlewareFn, type MiddlewareArgs } from "@daiso-tech/core/middleware";
+import {
+    type MiddlewareFn,
+    type MiddlewareArgs,
+} from "@daiso-tech/core/middleware";
 
-const createLoggingMiddleware = (prefix: string = "LOG"): MiddlewareFn<unknown[], unknown> => {
+const createLoggingMiddleware = (
+    prefix: string = "LOG",
+): MiddlewareFn<unknown[], unknown> => {
     return ({ args, next, context }: MiddlewareArgs<unknown[], unknown>) => {
         console.log(`${prefix} - Before invocation with args:`, args);
         const result = next(args);
@@ -80,8 +85,15 @@ const result = wrappedFn("Alice", 30);
 You can apply multiple middlewares, which are executed in order of their priority:
 
 ```ts
-const createValidationMiddleware = (): MiddlewareFn<[string, number], string> => {
-    return ({ args, next, context }: MiddlewareArgs<[string, number], string>) => {
+const createValidationMiddleware = (): MiddlewareFn<
+    [string, number],
+    string
+> => {
+    return ({
+        args,
+        next,
+        context,
+    }: MiddlewareArgs<[string, number], string>) => {
         const [name, age] = args;
         if (age < 0) throw new Error("Age cannot be negative");
         return next(args);
@@ -89,7 +101,11 @@ const createValidationMiddleware = (): MiddlewareFn<[string, number], string> =>
 };
 
 const createAuthMiddleware = (): MiddlewareFn<[string, number], string> => {
-    return ({ args, next, context }: MiddlewareArgs<[string, number], string>) => {
+    return ({
+        args,
+        next,
+        context,
+    }: MiddlewareArgs<[string, number], string>) => {
         console.log("Checking authorization...");
         return next(args);
     };
@@ -113,7 +129,7 @@ A function that receives middleware arguments and returns a result:
 
 ```ts
 type MiddlewareFn<TParameters, TReturn> = (
-    args: MiddlewareArgs<TParameters, TReturn>
+    args: MiddlewareArgs<TParameters, TReturn>,
 ) => TReturn;
 ```
 
@@ -125,7 +141,11 @@ A middleware object with an optional priority property:
 class AuthMiddleware implements IMiddlewareObject<[string, number], string> {
     constructor(public readonly priority: number = 100) {}
 
-    invoke({ args, next, context }: MiddlewareArgs<[string, number], string>): string {
+    invoke({
+        args,
+        next,
+        context,
+    }: MiddlewareArgs<[string, number], string>): string {
         // Authentication logic
         return next(args);
     }
@@ -142,7 +162,7 @@ The argument passed to each middleware:
 ```ts
 type MiddlewareArgs<TParameters, TReturn> = {
     // Original function arguments
-    args: TParameters;           
+    args: TParameters;
     // Function to invoke next middleware or original function
     next: NextFn<TParameters, TReturn>;
     // Execution context for storing request-scoped data
@@ -157,7 +177,10 @@ type MiddlewareArgs<TParameters, TReturn> = {
 Set priority on middleware objects to control execution order (lower numbers execute first):
 
 ```ts
-const createPriorityMiddleware = (name: string, priority: number): IMiddlewareObject<[string], string> => ({
+const createPriorityMiddleware = (
+    name: string,
+    priority: number,
+): IMiddlewareObject<[string], string> => ({
     priority,
     invoke: ({ args, next }: MiddlewareArgs<[string], string>): string => {
         console.log(`${priority}. ${name}`);
@@ -169,11 +192,10 @@ const authMiddleware = createPriorityMiddleware("Auth", 10);
 const validationMiddleware = createPriorityMiddleware("Validation", 20);
 const loggingMiddleware = createPriorityMiddleware("Logging", 30);
 
-const wrappedFn = use((value: string): string => value.toUpperCase(), [
-    loggingMiddleware,
-    validationMiddleware,
-    authMiddleware,
-]);
+const wrappedFn = use(
+    (value: string): string => value.toUpperCase(),
+    [loggingMiddleware, validationMiddleware, authMiddleware],
+);
 
 // Executes in order: Auth -> Validation -> Logging -> Original function
 ```
@@ -190,15 +212,24 @@ const namespace = new Namespace("myapp");
 type UserData = { id: string; name: string };
 const userToken = contextToken<UserData>(namespace.create("user").toString());
 
-const createContextAwareMiddleware = (defaultUser: UserData): MiddlewareFn<[string, number], string> => {
-    return ({ args, next, context }: MiddlewareArgs<[string, number], string>) => {
+const createContextAwareMiddleware = (
+    defaultUser: UserData,
+): MiddlewareFn<[string, number], string> => {
+    return ({
+        args,
+        next,
+        context,
+    }: MiddlewareArgs<[string, number], string>) => {
         const user = context.getOr(userToken, defaultUser);
         console.log("Executing as:", user.name);
         return next(args);
     };
 };
 
-const contextAwareMiddleware = createContextAwareMiddleware({ id: "anonymous", name: "Guest" });
+const contextAwareMiddleware = createContextAwareMiddleware({
+    id: "anonymous",
+    name: "Guest",
+});
 const wrappedFn = use(originalFn, contextAwareMiddleware);
 ```
 
@@ -207,8 +238,14 @@ const wrappedFn = use(originalFn, contextAwareMiddleware);
 Middleware can be asynchronous:
 
 ```ts
-const createAsyncValidationMiddleware = (validator: (args: [string, number]) => Promise<boolean>): MiddlewareFn<[string, number], Promise<string>> => {
-    return async ({ args, next, context }: MiddlewareArgs<[string, number], Promise<string>>): Promise<string> => {
+const createAsyncValidationMiddleware = (
+    validator: (args: [string, number]) => Promise<boolean>,
+): MiddlewareFn<[string, number], Promise<string>> => {
+    return async ({
+        args,
+        next,
+        context,
+    }: MiddlewareArgs<[string, number], Promise<string>>): Promise<string> => {
         // Perform async validation
         const isValid = await validator(args);
         if (!isValid) throw new Error("Validation failed");
@@ -216,7 +253,8 @@ const createAsyncValidationMiddleware = (validator: (args: [string, number]) => 
     };
 };
 
-const asyncValidationMiddleware = createAsyncValidationMiddleware(validateAsync);
+const asyncValidationMiddleware =
+    createAsyncValidationMiddleware(validateAsync);
 const wrappedFn = use(originalFn, asyncValidationMiddleware);
 ```
 
@@ -225,7 +263,9 @@ const wrappedFn = use(originalFn, asyncValidationMiddleware);
 Skip calling `next()` to bypass subsequent middleware and the original function:
 
 ```ts
-const createCachingMiddleware = <T extends unknown[]>(cacheStore: Map<string, unknown> = new Map()): MiddlewareFn<T, unknown> => {
+const createCachingMiddleware = <T extends unknown[]>(
+    cacheStore: Map<string, unknown> = new Map(),
+): MiddlewareFn<T, unknown> => {
     return ({ args, next, context }: MiddlewareArgs<T, unknown>) => {
         const cacheKey: string = JSON.stringify(args);
 
@@ -249,12 +289,19 @@ const cachingMiddleware = createCachingMiddleware(cache);
 Catch and handle errors in middleware:
 
 ```ts
-const createErrorHandlingMiddleware = (errorHandler?: (error: unknown) => void): MiddlewareFn<[string, number], Promise<string>> => {
-    return async ({ args, next, context }: MiddlewareArgs<[string, number], Promise<string>>): Promise<string> => {
+const createErrorHandlingMiddleware = (
+    errorHandler?: (error: unknown) => void,
+): MiddlewareFn<[string, number], Promise<string>> => {
+    return async ({
+        args,
+        next,
+        context,
+    }: MiddlewareArgs<[string, number], Promise<string>>): Promise<string> => {
         try {
             return await next(args);
         } catch (error) {
-            const message = error instanceof Error ? error.message : String(error);
+            const message =
+                error instanceof Error ? error.message : String(error);
             console.error("Error occurred:", message);
             if (errorHandler) errorHandler(error);
             throw error;
@@ -262,8 +309,8 @@ const createErrorHandlingMiddleware = (errorHandler?: (error: unknown) => void):
     };
 };
 
-const errorHandlingMiddleware = createErrorHandlingMiddleware(
-    (error) => console.log("Error handled gracefully")
+const errorHandlingMiddleware = createErrorHandlingMiddleware((error) =>
+    console.log("Error handled gracefully"),
 );
 ```
 

@@ -25,8 +25,6 @@ export type IRateLimiterData<TType = unknown> = {
      * The expiration date and time for this rate limiter state.
      * Data with past expiration dates should be considered stale and can be cleaned up.
      * Determined by the policy's getExpiration() method.
-     *
-     * @note Unlike locks, this expiration is always required and should not be null
      */
     expiration: Date;
 };

@@ -321,7 +321,7 @@ Note the method throws an error when a semaphore cannot be acquired.
 :::
 
 :::info
-You can provide synchronous and asynchronous [`Invokable<[], Promiseable<TValue>>`](../../utilities/invokable.md) as values for `runOrFail` method.
+You can provide synchronous and asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as values for `runOrFail` method.
 :::
 
 
@@ -428,7 +428,7 @@ console.log(await semaphoreA.getState());
 console.log(await semaphoreB.getState());
 ```
 
-### Retrying acquiring semaphore
+### Retrying acquiring semaphore by attempts
 
 To retry acquiring semaphore you can use the [`retry`](../resilience.md) middleware.
 

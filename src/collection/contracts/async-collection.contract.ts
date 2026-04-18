@@ -23,8 +23,8 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * Collapses 1 layer of nested array, iterable, or async-collection types into their element type.
- * If `TValue` is an `Array`, `Iterable`, or `IAsyncCollection`, the result is
+ * Collapses 1 layer of nested array, iterable, async iterable, or async-collection types into their element type.
+ * If `TValue` is an `Array`, `ArrayLike`, `Iterable`, `AsyncIterable`, or `IAsyncCollection`, the result is
  * the inner item type. Otherwise `TValue` is returned as-is.
  *
  * @template TValue - The value type to collapse.

@@ -348,19 +348,18 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
         key: string,
     ): Promise<boolean> {
         return await this.adapter.transaction<boolean>(context, async (trx) => {
-            const [hasForceReleasedWriter, hasForceReleasedAllReaders] =
-                await Promise.all([
-                    await DatabaseSharedLockAdapter._forceReleaseWriter(
-                        context,
-                        trx,
-                        key,
-                    ),
-                    await DatabaseSharedLockAdapter._forceReleaseAllReaders(
-                        context,
-                        trx,
-                        key,
-                    ),
-                ]);
+            const hasForceReleasedWriter =
+                await DatabaseSharedLockAdapter._forceReleaseWriter(
+                    context,
+                    trx,
+                    key,
+                );
+            const hasForceReleasedAllReaders =
+                await DatabaseSharedLockAdapter._forceReleaseAllReaders(
+                    context,
+                    trx,
+                    key,
+                );
             return hasForceReleasedWriter || hasForceReleasedAllReaders;
         });
     }
@@ -372,10 +371,18 @@ export class DatabaseSharedLockAdapter implements ISharedLockAdapter {
         return await this.adapter.transaction<ISharedLockAdapterState | null>(
             context,
             async (trx) => {
-                const [writerState, readerState] = await Promise.all([
-                    DatabaseSharedLockAdapter.getWriterState(context, trx, key),
-                    DatabaseSharedLockAdapter.getReaderState(context, trx, key),
-                ]);
+                const writerState =
+                    await DatabaseSharedLockAdapter.getWriterState(
+                        context,
+                        trx,
+                        key,
+                    );
+                const readerState =
+                    await DatabaseSharedLockAdapter.getReaderState(
+                        context,
+                        trx,
+                        key,
+                    );
                 if (writerState === null && readerState === null) {
                     return null;
                 }

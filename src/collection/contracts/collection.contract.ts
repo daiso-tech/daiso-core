@@ -21,8 +21,8 @@ import { type ISerializable } from "@/serde/contracts/_module.js";
 import { type IterableValue, type Lazyable } from "@/utilities/_module.js";
 
 /**
- * Collapses 1 layer of nested array or iterable types into their element type.
- * If `TValue` is an `Array`, `IterableValue`, or `ICollection`, the result is
+ * Collapses 1 layer of nested array, iterable, or collection types into their element type.
+ * If `TValue` is an `Array`, `ArrayLike`, `Iterable`, or `ICollection`, the result is
  * the inner item type. Otherwise `TValue` is returned as-is.
  *
  * @template TValue - The value type to collapse.

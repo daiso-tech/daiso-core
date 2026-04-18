@@ -260,7 +260,7 @@ Note the method throws an error when the lock cannot be acquired.
 :::
 
 :::info
-You can provide synchronous and asynchronous [`Invokable<[], Promiseable<TValue>>`](../../utilities/invokable.md) as values for `runOrFail`, and `runBlockingOrFail` methods.
+You can provide synchronous and asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as values for `runOrFail`, and `runBlockingOrFail` methods.
 :::
 
 ### Lock instance variables
@@ -357,7 +357,7 @@ console.log(await lockA.getState());
 console.log(await lockB.getState());
 ```
 
-### Retrying acquiring lock
+### Retrying acquiring lock by attempts
 
 To retry acquiring lock you can use the [`retry`](../resilience.md) middleware.
 

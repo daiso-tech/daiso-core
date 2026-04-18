@@ -116,13 +116,16 @@ export type IMiddlewareObject<
  *
  * @example
  * ```ts
- * const cacheMiddleware: MiddlewareFn = ({ args, next, context }) => {
- *   const cacheKey = JSON.stringify(args);
- *   const cache = context.get('cache');
- *   if (cache?.has(cacheKey)) return cache.get(cacheKey);
+ * const cacheToken = contextToken<Map<string, unknown>>("cache");
  *
- *   const result = next(args);
- *   context.put('cache', (cache) => new Map(cache).set(cacheKey, result));
+ * const cacheMiddleware: MiddlewareFn = async ({ args, next, context }) => {
+ *   const cacheKey = JSON.stringify(args);
+ *   const cache = context.getOr(cacheToken, () => new Map());
+ *   if (cache.has(cacheKey)) return cache.get(cacheKey);
+ *
+ *   const result = await next(args);
+ *   cache.set(cacheKey, result);
+ *   context.put(cacheToken, cache);
  *   return result;
  * };
  * ```

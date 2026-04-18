@@ -22,8 +22,8 @@ export type RateLimiterFactoryCreateSettings = ErrorPolicySettings & {
     onlyError?: boolean;
 
     /**
-     * Maximum number of allowed function invocations within a fixed time window.
-     * Once this limit is reached, further invocations will be blocked ({@link BlockedRateLimiterError | `BlockedRateLimiterError`}) until the window resets.
+     * Maximum number of allowed function invocations within the configured rate-limiter policy window.
+     * Once this limit is reached, further invocations will be blocked ({@link BlockedRateLimiterError | `BlockedRateLimiterError`}) until the policy permits attempts again.
      */
     limit: number;
 };

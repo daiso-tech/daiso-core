@@ -21,10 +21,9 @@
 export type IPrunable = {
     /**
      * Removes all expired entries from storage.
-     * Operation may run asynchronously without blocking normal operations.
      *
-     * @returns Void promise (resolves when pruning complete)
-     * @throws Error if pruning fails (e.g., database connection error)
+     * @returns {Promise<void>} Promise that resolves when pruning is complete
+     * @throws {Error} If pruning fails due to I/O errors, permission issues, or resource constraints
      */
     removeAllExpired(): Promise<void>;
 };

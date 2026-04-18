@@ -56,7 +56,7 @@ export type FallbackCallbacks<
 
 /**
  * Configuration for the `fallback` resilience middleware.
- * Returns a default value when the wrapped function throws.
+ * Returns a default value when the wrapped function throws or returns a value matching the error policy.
  * Supports error-policy filtering to only catch specific errors.
  *
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`

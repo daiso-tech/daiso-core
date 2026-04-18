@@ -38,6 +38,7 @@ await func();
 You can directly pass an class to match if errors are instance of the class:
 
 ```ts
+import { fallback } from "@daiso-tech/core/resilience";
 import { useFactory } from "@daiso-tech/core/middleware";
 
 const use = useFactory();
@@ -56,6 +57,7 @@ await func();
 You can also pass multiple error classes:
 
 ```ts
+import { fallback } from "@daiso-tech/core/resilience";
 import { useFactory } from "@daiso-tech/core/middleware";
 
 const use = useFactory();
@@ -77,6 +79,7 @@ You can use any [standard schema](https://standardschema.dev/) as error policy:
 
 ```ts
 import { z } from "zod";
+import { fallback } from "@daiso-tech/core/resilience";
 import { useFactory } from "@daiso-tech/core/middleware";
 
 const use = useFactory();
@@ -100,11 +103,11 @@ await func();
 You can treat false return values as errors. This useful when you want to retry functions that return boolean.
 
 ```ts
-import { useFactory } from "@daiso-tech/core/middleware";
 import { retry } from "@daiso-tech/core/resilience";
+import { useFactory } from "@daiso-tech/core/middleware";
 
 const use = useFactory();
-const func = use((): Promise<boolean> => {
+const func = use(async (): Promise<boolean> => {
     // Will be
     console.log("EXECUTING");
     return false;

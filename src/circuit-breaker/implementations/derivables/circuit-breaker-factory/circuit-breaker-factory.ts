@@ -119,7 +119,7 @@ export type CircuitBreakerFactorySettingsBase = {
     serde?: OneOrMore<ISerderRegister>;
 
     /**
-     * The serde transformer name used to identify circuit-breaker serializer's and deserializer's when there are adapters with same name.
+     * The serde transformer name used to identify circuit-breaker serializers and deserializers when there are adapters with the same name.
      * @default ""
      */
     serdeTransformerName?: string;

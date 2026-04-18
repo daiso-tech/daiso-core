@@ -114,7 +114,7 @@ export type SharedLockAcquireSettings = {
 export type ISharedLockAdapter = {
     /**
      * Attempts to acquire a writer lock for the specified key.
-     * Succeeds only if the writer lock is currently expired or doesn't exist.
+     * Succeeds only if no non-expired writer lock exists and no non-expired reader slots are held.
      *
      * @param context - Readable execution context for the operation
      * @param key - Unique identifier for the shared lock
@@ -177,7 +177,7 @@ export type ISharedLockAdapter = {
 
     /**
      * Attempts to acquire a reader slot in the shared lock.
-     * Succeeds only if the current number of acquired reader slots has not reached the limit.
+     * Succeeds only if no non-expired writer lock is held and the current number of acquired reader slots has not reached the limit.
      *
      * @param settings - Settings containing the context, key, lockId, limit, and ttl for the acquisition
      * @returns Promise resolving to true if the reader slot was successfully acquired, false if the slot limit has been reached

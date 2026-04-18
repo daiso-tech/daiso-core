@@ -225,19 +225,16 @@ Wait for events using promises:
 import { delay } from "@daiso-tech/core/utilities";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
-// This code block will run concurrently
-(async () => {
-    // We wait on second and thereafter dispatch the event.
-    await delay(TimeSpan.fromSeconds(1));
-    await eventBus.dispatch("add", {
-        a: 30,
-        b: 20,
-    });
-})();
+// Register the promise before dispatching the event.
+const eventPromise = eventBus.asPromise("add");
 
-// The promise will resolve after one second, when the event is dispatched.
-const event = await eventBus.asPromise("add");
-console.log(event);
+await delay(TimeSpan.fromSeconds(1));
+await eventBus.dispatch("add", {
+    a: 30,
+    b: 20,
+});
+
+const event = await eventPromise;
 ```
 
 ### Separating dispatching and listening

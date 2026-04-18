@@ -98,7 +98,7 @@ export type RateLimiterFactorySettingsBase = {
     serde?: OneOrMore<ISerderRegister>;
 
     /**
-     * The serde transformer name used to identify rate-limiter serializer's and deserializer's when there are adapters with same name.
+     * The serde transformer name used to identify rate-limiter serializers and deserializers when there are adapters with the same name.
      * @default ""
      */
     serdeTransformerName?: string;

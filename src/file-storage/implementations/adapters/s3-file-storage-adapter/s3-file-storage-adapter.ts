@@ -83,28 +83,28 @@ export type S3FileStorageAdapterSettings = {
 
     /**
      * If false the `put` method of {@link ISignedFileStorageAdapter | `ISignedFileStorageAdapter`} will perform one database call and thereby always return true even when the file doesnt exists.
-     * Note the fewer database calls the cheaper it will be when using aws s3.
+     * Note the fewer S3 API calls the cheaper it will be when using AWS S3.
      * @default true
      */
     enableAccuratePut?: boolean;
 
     /**
      * If false the `getSignedDownloadUrl` method of {@link ISignedFileStorageAdapter | `ISignedFileStorageAdapter`} will perfom one database call and therby always return string even when the file doesnt exists.
-     * Note the fewer database calls the cheaper it will be when using aws s3.
+     * Note the fewer S3 API calls the cheaper it will be when using AWS S3.
      * @default true
      */
     enableAccurateGetSignedDownloadUrl?: boolean;
 
     /**
      * If false the `getPublicUrl` method of {@link ISignedFileStorageAdapter | `ISignedFileStorageAdapter`} will perfom one database call and therby always return string even when the file doesnt exists.
-     * Note the fewer database calls the cheaper it will be when using aws s3.
+     * Note the fewer S3 API calls the cheaper it will be when using AWS S3.
      * @default true
      */
     enableAccurateGetPublicUrl?: boolean;
 
     /**
      * When `false`, `removeMany` will skip verifying whether each key exists before deletion, reducing API calls at the cost of accuracy.
-     * Note the fewer database calls the cheaper it will be when using aws s3.
+     * Note the fewer S3 API calls the cheaper it will be when using AWS S3.
      * @default true
      */
     enableAccurateRemoveMany?: boolean;

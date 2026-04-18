@@ -172,7 +172,7 @@ export type FileStorageSettingsBase = {
     serde?: OneOrMore<ISerderRegister>;
 
     /**
-     * The serde transformer name used to identify file storage serializer's and deserializer's when there are adapters with same name.
+     * The serde transformer name used to identify file storage serializers and deserializers when there are adapters with the same name.
      * @default ""
      */
     serdeTransformerName?: string;

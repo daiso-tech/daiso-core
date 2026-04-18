@@ -427,10 +427,11 @@ export class MemorySharedLockAdapter
         context: IReadableContext,
         key: string,
     ): Promise<boolean> {
-        const [hasReleasedAllReaders, hasReleasedWriter] = await Promise.all([
-            this.forceReleaseAllReaders(context, key),
-            this.forceReleaseWriter(context, key),
-        ]);
+        const hasReleasedAllReaders = await this.forceReleaseAllReaders(
+            context,
+            key,
+        );
+        const hasReleasedWriter = await this.forceReleaseWriter(context, key);
         return hasReleasedAllReaders || hasReleasedWriter;
     }
 

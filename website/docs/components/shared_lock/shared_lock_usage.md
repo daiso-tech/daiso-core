@@ -625,7 +625,7 @@ console.log(await sharedLockA.getState());
 console.log(await sharedLockB.getState());
 ```
 
-### Retrying acquiring shared-lock as writer
+### Retrying acquiring shared-lock as writer by attempts
 
 To retry acquiring shared-lock you can use the [`retry`](../resilience.md) middleware.
 
@@ -711,7 +711,7 @@ await use(async () => {
 ])();
 ```
 
-### Retrying acquiring shared-lock as reader
+### Retrying acquiring shared-lock as reader by attempts
 
 Retrying acquiring shared-lock with `acquireReaderOrFail` method:
 

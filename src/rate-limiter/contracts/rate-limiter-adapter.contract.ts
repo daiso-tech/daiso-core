@@ -38,7 +38,7 @@ export type IRateLimiterAdapterState = {
 
 /**
  * Low-level adapter contract for rate limiter implementations.
- * Provides core operations for tracking attempts and enforcing limits without algorithm logic.
+ * Provides core operations for tracking attempts and enforcing limits according to the adapter's configured policy.
  * This contract is not meant to be used directly; instead use {@link IRateLimiterFactory | `IRateLimiterFactory`}.
  *
  * The adapter works with a policy interface that determines the blocking algorithm (e.g., fixed-window, sliding-window).

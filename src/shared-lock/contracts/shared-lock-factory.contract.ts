@@ -36,8 +36,8 @@ export type SharedLockFactoryCreateSettings = {
     ttl?: ITimeSpan | null;
 
     /**
-     * Custom identifier for the writer lock instance.
-     * Used to uniquely identify the lock holder and prevent conflicts with other writers.
+     * Custom identifier for this shared-lock holder.
+     * Used to uniquely identify writer ownership and reader slot ownership.
      * If not specified, a unique identifier will be automatically generated.
      */
     lockId?: string;

@@ -43,7 +43,7 @@ console.log(await fn());
 ```
 
 :::info
-You can provide synchronous and asynchronous [`Invokable<[], Promiseable<TValue>>`](../utilities/invokable.md) as fallback value.
+You can provide synchronous and asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../utilities/invokable.md) as fallback value.
 :::
 
 ### Custom ErrorPolicy

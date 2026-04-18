@@ -35,14 +35,15 @@ export type KyselyCircuitBreakerStorageTables = {
 
 /**
  * Configuration for `KyselyCircuitBreakerStorageAdapter`.
- * Requires a Kysely database instance with the circuit-breaker schema applied.
+ * Requires a Kysely database instance typed with the circuit-breaker storage schema.
+ * Call `init()` to create the storage table when it has not already been provisioned.
  *
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export type KyselyCircuitBreakerStorageAdapterSettings = {
     /**
-     * The Kysely database instance with the required circuit-breaker schema tables applied.
+     * The Kysely database instance typed with the required circuit-breaker storage tables.
      */
     kysely: Kysely<KyselyCircuitBreakerStorageTables>;
     /**
