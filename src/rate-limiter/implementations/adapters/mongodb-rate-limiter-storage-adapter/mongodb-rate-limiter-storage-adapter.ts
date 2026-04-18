@@ -24,20 +24,38 @@ import {
 } from "@/utilities/_module.js";
 
 /**
+ * Configuration for `MongodbRateLimiterStorageAdapter`.
+ * Requires a MongoDB `Db` instance.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/mongodb-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export type MongodbRateLimiterStorageAdapterSettings = {
+    /**
+     * The MongoDB `MongoClient` instance, required for transaction support.
+     */
     client: MongoClient;
+    /**
+     * The MongoDB `Db` instance to store rate-limiter state in.
+     */
     database: Db;
     /**
+     * Name of the MongoDB collection used to store rate-limiter state records.
      * @default "rateLimiter"
      */
     collectionName?: string;
+    /**
+     * Additional options passed when creating or accessing the MongoDB collection.
+     */
     collectionSettings?: CollectionOptions;
+    /**
+     * Serde instance for serializing and deserializing rate-limiter state to and from strings.
+     */
     serde: ISerde<string>;
 
     /**
+     * When `true`, operations are wrapped in MongoDB transactions for atomicity.
+     * Requires a Replica Set or sharded cluster that supports transactions.
      * @default true
      */
     enableTransactions?: boolean;
@@ -180,11 +198,11 @@ export class MongodbRateLimiterStorageAdapter<TType>
         trxFn: InvokableFn<[], Promise<TValue>>,
     ): Promise<TValue> {
         if (this.enableTransactions) {
-            return await this.client
-                .startSession()
-                .withTransaction(async () => {
+            return await this.client.withSession(async (session) => {
+                return await session.withTransaction(async () => {
                     return await trxFn();
                 });
+            });
         }
         return trxFn();
     }

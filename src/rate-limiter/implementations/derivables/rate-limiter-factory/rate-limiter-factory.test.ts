@@ -386,7 +386,7 @@ describe("class: RateLimiterFactory", () => {
                 expect(state).toEqual({
                     type: RATE_LIMITER_STATE.ALLOWED,
                     usedAttempts: attempt,
-                    reaminingAttemps: limit - attempt,
+                    remainingAttempts: limit - attempt,
                     limit,
                     resetAfter: resetTime,
                 } satisfies RateLimiterAllowedState);

@@ -8,16 +8,23 @@ import { type RateLimiterEventMap } from "@/rate-limiter/contracts/rate-limiter.
 import { type ErrorPolicySettings } from "@/utilities/_module.js";
 
 /**
+ * Configuration settings for creating a rate limiter instance through the factory.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
  * @group Contracts
  */
 export type RateLimiterFactoryCreateSettings = ErrorPolicySettings & {
     /**
-     * If true will only apply rate limiting when function errors and not when function is called.
-     * @default false
+     * If true, the rate limiter will only count function invocations that result in errors.
+     * Successful executions will not consume from the rate limit quota.
+     * If false, all invocations (successful or failed) are counted against the limit.
      */
     onlyError?: boolean;
 
+    /**
+     * Maximum number of allowed function invocations within a fixed time window.
+     * Once this limit is reached, further invocations will be blocked ({@link BlockedRateLimiterError | `BlockedRateLimiterError`}) until the window resets.
+     */
     limit: number;
 };
 

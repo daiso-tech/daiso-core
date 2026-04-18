@@ -23,10 +23,16 @@ import { FixedWindowLimiter } from "@/rate-limiter/implementations/policies/_mod
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
+ * Configuration for `DatabaseRateLimiterAdapter`.
+ * Wraps a {@link IRateLimiterStorageAdapter | `IRateLimiterStorageAdapter`} with rate-limiter logic.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/database-rate-limiter-adapter"`
  * @group Adapters
  */
 export type DatabaseRateLimiterAdapterSettings = {
+    /**
+     * The underlying storage adapter used to persist and retrieve rate-limiter state.
+     */
     adapter: IRateLimiterStorageAdapter;
 
     /**
