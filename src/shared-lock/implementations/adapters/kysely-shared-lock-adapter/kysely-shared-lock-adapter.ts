@@ -70,10 +70,16 @@ export type KyselySharedLockTables = {
 };
 
 /**
+ * Configuration for `KyselySharedLockAdapter`.
+ * Requires a Kysely database instance with the shared-lock schema applied.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/kysely-shared-lock-adapter"`
  * @group Adapters
  */
 export type KyselySharedLockAdapterSettings = {
+    /**
+     * The Kysely database instance with the required shared-lock schema tables applied.
+     */
     kysely: Kysely<KyselySharedLockTables>;
 
     /**
@@ -87,6 +93,8 @@ export type KyselySharedLockAdapterSettings = {
     expiredKeysRemovalInterval?: ITimeSpan;
 
     /**
+     * When `true`, a background task periodically removes expired shared-lock records.
+     * Set to `false` to disable automatic cleanup.
      * @default true
      */
     shouldRemoveExpiredKeys?: boolean;

@@ -24,15 +24,25 @@ import {
 } from "@/utilities/_module.js";
 
 /**
+ * Configuration for `MongodbSharedLockAdapter`.
+ * Requires a MongoDB `Db` instance.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/mongodb-shared-lock-adapter"`
  * @group Adapters
  */
 export type MongodbSharedLockAdapterSettings = {
+    /**
+     * The MongoDB `Db` instance to store shared-lock state in.
+     */
     database: Db;
     /**
+     * Name of the MongoDB collection used to store shared-lock records.
      * @default "sharedLock"
      */
     collectionName?: string;
+    /**
+     * Additional options passed when creating or accessing the MongoDB collection.
+     */
     collectionSettings?: CollectionOptions;
 };
 
