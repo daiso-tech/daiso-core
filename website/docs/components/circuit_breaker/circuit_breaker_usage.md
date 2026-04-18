@@ -61,7 +61,7 @@ Note the method throws an error when the circuit-breaker is in open state or iso
 :::
 
 :::info
-You can provide synchronous and asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as values for `runOrFail` method.
+You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as values for the `runOrFail` method.
 :::
 
 ### Applying circuit-breaker on certiain errors
@@ -414,7 +414,7 @@ import {
 
 async function circuitBreakerFunc(circuitBreaker: ICircuitBreaker): Promise<void> {
     await circuitBreaker.runOrFail(async () => {
-        await doWork();
+        // ... cascading failures section
     });
 }
 

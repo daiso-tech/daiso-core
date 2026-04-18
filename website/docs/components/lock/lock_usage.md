@@ -125,6 +125,10 @@ const lock = lockFactory.create("resource", {
     ttl: TimeSpan.fromMinutes(1),
 });
 
+async function doWork(): Promise<boolean> {
+    // ... critical section
+}
+
 const hasAcquired = await lock.acquire();
 if (hasAcquired) {
     try {
@@ -193,7 +197,7 @@ It calls `acquireOrFail` before invoking the function and calls `release` in a f
 const lock = lockFactory.create("resource");
 
 await lock.runOrFail(async () => {
-    await doWork();
+    // ... critical section
 });
 ```
 
@@ -202,7 +206,7 @@ Note the method throws an error when the lock cannot be acquired.
 :::
 
 :::info
-You can provide synchronous and asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as values for `runOrFail` method.
+You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as values for the `runOrFail` method.
 :::
 
 ### Lock instance variables
@@ -407,8 +411,7 @@ try {
             errorPolicy: FailedAcquireLockError,
         }),
     ])();
-    // The critical section
-    await doWork();
+    // ... critical section
 } finally {
     await lock.release();
 }
@@ -438,7 +441,7 @@ const hasAcquired = await use(async () => {
 
 if (hasAcquired) {
     try {
-        await doWork();
+        // ... critical section
     } finally {
         await lock.release();
     }
@@ -459,8 +462,7 @@ const use = useFactory();
 
 await use(async () => {
     await lock.runOrFail(async () => {
-        // The critical section
-        await doWork();
+        // ... critical section
     });
 }, [
     retryInterval({
@@ -656,7 +658,7 @@ import {
 
 async function lockFunc(lock: ILock): Promise<void> {
     await lock.runOrFail(async () => {
-        await doWork();
+        // ... critical section
     });
 }
 

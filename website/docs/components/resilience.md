@@ -43,7 +43,7 @@ console.log(await fn());
 ```
 
 :::info
-You can provide synchronous and asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../utilities/invokable.md) as fallback value.
+You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../utilities/invokable.md) as fallback value.
 :::
 
 ### Custom ErrorPolicy
@@ -221,14 +221,6 @@ const fn = use(
             onTimeout: (data) => console.log(data),
         }),
     ],
-    {
-        signalBinder: {
-            getSignal: (args) => args[0],
-            forwardSignal: (args, signal) => {
-                args[0] = signal;
-            },
-        },
-    },
 );
 
 await fn();

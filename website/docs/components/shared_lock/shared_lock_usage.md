@@ -216,6 +216,10 @@ const sharedLock = sharedLockFactory.create("resource", {
     ttl: TimeSpan.fromMinutes(1),
 });
 
+async function doWork(): Promise<boolean> {
+    // ... critical section
+}
+
 const hasAcquired = await sharedLock.acquireWriter();
 if (hasAcquired) {
     try {
@@ -240,6 +244,10 @@ const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
     ttl: TimeSpan.fromMinutes(1),
 });
+
+async function doWork(): Promise<boolean> {
+    // ... critical section
+}
 
 const hasAcquired = await sharedLock.acquireWriter();
 if (hasAcquired) {
@@ -324,7 +332,7 @@ const sharedLock = sharedLockFactory.create("resource", {
 });
 
 await sharedLock.runWriterOrFail(async () => {
-    await doWork();
+    // ... critical section
 });
 ```
 
@@ -333,7 +341,7 @@ Note the method throws an error when the shared-lock cannot be acquired as write
 :::
 
 :::info
-You can provide synchronous Invokable or async/promisable invokable as values for `runWriterOrFail` method.
+You can provide synchronous Invokable or async/promisable invokable as values for the `runWriterOrFail` method.
 :::
 
 ### Additional reader methods
@@ -377,7 +385,7 @@ const sharedLock = sharedLockFactory.create("resource", {
 });
 
 await sharedLock.runReaderOrFail(async () => {
-    await doWork();
+    // ... critical section
 });
 ```
 
@@ -386,7 +394,7 @@ Note the method throws an error when the shared-lock cannot be acquired as reade
 :::
 
 :::info
-You can provide synchronous Invokable or async/promisable invokable as values for `runReaderOrFail` method.
+You can provide synchronous Invokable or async/promisable invokable as values for the `runReaderOrFail` method.
 :::
 
 ### Additional methods
@@ -702,8 +710,7 @@ try {
             errorPolicy: LimitReachedReaderSemaphoreError,
         }),
     ])();
-    // The concurrent section
-    await doWork();
+    // ... critical section
 } finally {
     await sharedLock.releaseReader();
 }
@@ -735,7 +742,7 @@ const hasAcquired = await use(async () => {
 
 if (hasAcquired) {
     try {
-        await doWork();
+        // ... critical section
     } finally {
         await sharedLock.releaseReader();
     }
@@ -758,8 +765,7 @@ const use = useFactory();
 
 await use(async () => {
     await sharedLock.runReaderOrFail(async () => {
-        // The concurrent section
-        await doWork();
+        // ... critical section
     });
 }, [
     retryInterval({
@@ -797,8 +803,7 @@ try {
             errorPolicy: FailedAcquireWriterLockError,
         }),
     ])();
-    // The critical section
-    await doWork();
+    // ... critical section
 } finally {
     await sharedLock.releaseWriter();
 }
@@ -830,7 +835,7 @@ const hasAcquired = await use(async () => {
 
 if (hasAcquired) {
     try {
-        await doWork();
+        // ... critical section
     } finally {
         await sharedLock.releaseWriter();
     }
@@ -853,8 +858,7 @@ const use = useFactory();
 
 await use(async () => {
     await sharedLock.runWriterOrFail(async () => {
-        // The critical section
-        await doWork();
+        // ... critical section
     });
 }, [
     retryInterval({
@@ -1072,7 +1076,7 @@ async function writerLockFunc(writerLock: IWriterLock): Promise<void> {
     // You will get typescript error if you try
 
     await writerLock.runWriterOrFail(async () => {
-        await doWork();
+        // ... critical section
     });
 }
 
@@ -1083,7 +1087,7 @@ async function readerSemaphoreFunc(
     // You will get typescript error if you try
 
     await readerSemaphore.runReaderOrFail(async () => {
-        await doWork();
+        // ... critical section
     });
 }
 

@@ -250,7 +250,7 @@ await cache.getOrAdd("ab", 1);
 ```
 
 :::info
-You can provide synchronous and asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as default values for both `getOr` and `getOrAdd` methods.
+You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as default values for both `getOr` and `getOrAdd` methods.
 :::
 
 You can retrieve the key and afterwards remove it and will return true if the value was found:

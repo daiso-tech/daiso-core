@@ -173,6 +173,10 @@ const semaphore = semaphoreFactory.create("resource", {
     ttl: TimeSpan.fromMinutes(1),
 });
 
+async function doWork(): Promise<boolean> {
+    // ... critical section
+}
+
 const hasAcquired = await semaphore.acquire();
 if (hasAcquired) {
     try {
@@ -248,7 +252,7 @@ const semaphore = semaphoreFactory.create("resource", {
 });
 
 await semaphore.runOrFail(async () => {
-    await doWork();
+    // ... critical section
 });
 ```
 
@@ -257,7 +261,7 @@ Note the method throws an error when the semaphore cannot be acquired.
 :::
 
 :::info
-You can provide synchronous and asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as values for `runOrFail` method.
+You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as values for the `runOrFail` method.
 :::
 
 
@@ -480,8 +484,7 @@ try {
             errorPolicy: FailedAcquireSemaphoreError,
         }),
     ])();
-    // The concurrent section
-    await doWork();
+    // ... critical section
 } finally {
     await semaphore.release();
 }
@@ -513,7 +516,7 @@ const hasAcquired = await use(async () => {
 
 if (hasAcquired) {
     try {
-        await doWork();
+        // ... critical section
     } finally {
         await semaphore.release();
     }
@@ -536,8 +539,7 @@ const use = useFactory();
 
 await use(async () => {
     await semaphore.runOrFail(async () => {
-        // The concurrent section
-        await doWork();
+        // ... critical section
     });
 }, [
     retryInterval({
@@ -738,7 +740,7 @@ import {
 
 async function semaphoreFunc(semaphore: ISemaphore): Promise<void> {
     await semaphore.runOrFail(async () => {
-        await doWork();
+        // ... critical section
     });
 }
 

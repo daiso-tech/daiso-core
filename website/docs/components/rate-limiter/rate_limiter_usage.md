@@ -50,18 +50,18 @@ const rateLimiter = rateLimiterFactory.create("resource");
 ### Using the rate-limiter
 
 ```ts
-// The function will only be called when the rate-limiter is in closed state or half open state.
+// The function will only be called when the rate-limiter allows the attempt.
 await rateLimiter.runOrFail(async () => {
     // The code / function to rate limit, called it here
 })
 ```
 
 :::info
-Note the method throws an error when the rate-limiter is in open state or isolated state.
+Note the method throws an error when the rate-limiter is blocked.
 :::
 
 :::info
-You can provide synchronous and asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as values for `runOrFail` method.
+You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as values for the `runOrFail` method.
 :::
 
 ### Applying rate-limiter on only erros
@@ -96,7 +96,7 @@ await rateLimiter.runOrFail(async () => {
 
 ### Reseting the rate-limiter
 
-You can reset rate-limiter state to the closed state manually.
+You can reset rate-limiter state to the allowed state manually.
 
 ```ts
 await rateLimiter.reset();
@@ -164,16 +164,18 @@ const rateLimiterFactoryB = new RateLimiterFactory({
     adapter: new RedisRateLimiterAdapter({ database }),
 });
 
-const rateLimiterA = await rateLimiterFactoryA.create("key", { ttl: null });
-const rateLimiterB = await rateLimiterFactoryB.create("key", { ttl: null });
+const rateLimiterA = rateLimiterFactoryA.create("key");
+const rateLimiterB = rateLimiterFactoryB.create("key");
 
-await rateLimiterA.isolate();
+await rateLimiterA.runOrFail(async () => {
+    // some operation
+});
 
-// Will log ISOLATED
-console.log(await rateLimiterA.getState())
+// Will log "ALLOWED"
+console.log((await rateLimiterA.getState()).type)
 
-// Will log CLOSED
-console.log(await rateLimiterB.getState())
+// Will log "EXPIRED" because rateLimiterB is in a different namespace
+console.log((await rateLimiterB.getState()).type)
 ```
 
 ### Serialization and deserialization of rate-limiters
@@ -361,7 +363,7 @@ import {
 
 async function rateLimiterFunc(rateLimiter: IRateLimiter): Promise<void> {
     await rateLimiter.runOrFail(async () => {
-        await doWork();
+        // ... rate limited section
     });
 }
 

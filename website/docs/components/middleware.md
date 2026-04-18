@@ -49,9 +49,9 @@ import {
     type MiddlewareArgs,
 } from "@daiso-tech/core/middleware";
 
-const createLoggingMiddleware = (
+const createLoggingMiddleware = <TParameters extends Array<unknown>, TReturn>(
     prefix: string = "LOG",
-): MiddlewareFn<unknown[], unknown> => {
+): MiddlewareFn<TParameters, TReturn> => {
     return ({ args, next, context }: MiddlewareArgs<unknown[], unknown>) => {
         console.log(`${prefix} - Before invocation with args:`, args);
         const result = next(args);
