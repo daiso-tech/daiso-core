@@ -17,7 +17,7 @@ export class ValidationError extends Error {
 /**
  * @internal
  *
- * @throws {ValidationError} {@link ValidationError}
+ * @throws {ValidationError}
  */
 export async function validate(
     schema: StandardSchemaV1 | undefined,
