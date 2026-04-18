@@ -48,7 +48,7 @@ declare module "ioredis" {
         ): Result<1 | 0, Context>;
 
         /**
-         * @returns {string} {@link IRedisJsonLockState | `IRedisJsonLockState | null`} as json string.
+         * @returns {string} {@link IRedisJsonLockState | `IRedisJsonLockState`} or `null` as json string.
          */
         daiso_lock_get_state(key: string): Result<string, Context>;
     }

@@ -44,6 +44,8 @@ import {
 } from "@/utilities/_module.js";
 
 /**
+ * Base configuration shared by all `LockFactory` variants.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/lock"`
  * @group Derivables
  */
@@ -59,6 +61,7 @@ export type LockFactorySettingsBase = {
     namespace?: INamespace;
 
     /**
+     * You pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link LockFactory | `LockFactory`} to register the lock's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
      * import { Serde } from "@daiso-tech/serde";
@@ -70,6 +73,7 @@ export type LockFactorySettingsBase = {
     serde?: OneOrMore<ISerderRegister>;
 
     /**
+     * The registered serde transformer name used to identify lock serializer and deserializer adapters when there are adapters with the same name.
      * @default ""
      */
     serdeTransformerName?: string;
@@ -129,6 +133,7 @@ export type LockFactorySettingsBase = {
     waitUntil?: WaitUntil;
 
     /**
+     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
@@ -141,10 +146,16 @@ export type LockFactorySettingsBase = {
 };
 
 /**
+ * Configuration for `LockFactory`.
+ * Extends {@link LockFactorySettingsBase | `LockFactorySettingsBase`} with a required adapter.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/lock"`
  * @group Derivables
  */
 export type LockFactorySettings = LockFactorySettingsBase & {
+    /**
+     * The underlying lock adapter that handles the actual locking operations.
+     */
     adapter: LockAdapterVariants;
 };
 
@@ -217,7 +228,7 @@ export class LockFactory implements ILockFactory {
             ),
         } = settings;
 
-        this.use = useFactory(executionContext);
+        this.use = useFactory({ executionContext });
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.serde = serde;

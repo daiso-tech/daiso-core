@@ -30,13 +30,22 @@ export type LockAdapters<TAdapters extends string> = Partial<
 >;
 
 /**
+ * Configuration for `LockFactoryResolver`.
+ * Registers named lock adapters and optionally designates a default.
+ *
  * IMPORT_PATH: `"@daiso-tech/core/lock"`
  * @group Derivables
  */
 export type LockFactoryResolverSettings<TAdapters extends string> =
     LockFactorySettingsBase & {
+        /**
+         * Named registry of lock adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
+         */
         adapters: LockAdapters<TAdapters>;
 
+        /**
+         * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
+         */
         defaultAdapter?: NoInfer<TAdapters>;
     };
 
