@@ -40,9 +40,14 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
         a: number;
         b: number;
     };
+    type SubtractEvent = {
+        c: number;
+        d: number;
+    };
 
     let eventBus: IEventBus<{
         add: AddEvent;
+        subtract: SubtractEvent;
     }>;
     describe("IEventBus tests:", () => {
         beforeEach(async () => {
@@ -71,7 +76,10 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
                 await delay(TTL);
 
                 expect(listener).toHaveBeenCalledTimes(2);
-                expect(listener).toHaveBeenCalledWith(event);
+                expect(listener).toHaveBeenCalledWith({
+                    type: "add",
+                    ...event,
+                });
                 await eventBus.removeListener("add", listener);
             });
             test("Should not call listener when listener is removed and event is triggered", async () => {
@@ -88,7 +96,40 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
 
                 expect(listener).toHaveBeenCalledTimes(0);
             });
-            test.todo("Write test for multiple events.");
+            test("Should call listener for each dispatched event when subscribed to multiple events", async () => {
+                const listener = vi.fn(() => {});
+                await eventBus.addListener(["add", "subtract"], listener);
+
+                const addEvent: AddEvent = { a: 1, b: 2 };
+                const subtractEvent: SubtractEvent = { c: 3, d: 4 };
+                await eventBus.dispatch("add", addEvent);
+                await eventBus.dispatch("subtract", subtractEvent);
+                await delay(TTL);
+
+                expect(listener).toHaveBeenCalledTimes(2);
+                expect(listener).toHaveBeenNthCalledWith(1, {
+                    type: "add",
+                    ...addEvent,
+                });
+                expect(listener).toHaveBeenNthCalledWith(2, {
+                    type: "subtract",
+                    ...subtractEvent,
+                });
+                await eventBus.removeListener(["add", "subtract"], listener);
+            });
+            test("Should not call listener for any event when removed from multiple events", async () => {
+                const listener = vi.fn(() => {});
+                await eventBus.addListener(["add", "subtract"], listener);
+                await eventBus.removeListener(["add", "subtract"], listener);
+
+                const addEvent: AddEvent = { a: 1, b: 2 };
+                const subtractEvent: SubtractEvent = { c: 3, d: 4 };
+                await eventBus.dispatch("add", addEvent);
+                await eventBus.dispatch("subtract", subtractEvent);
+                await delay(TTL);
+
+                expect(listener).toHaveBeenCalledTimes(0);
+            });
         });
         describe("method: subscribe, dispatch", () => {
             test("Should not call listener when listener is added and event is not triggered", async () => {
@@ -112,7 +153,10 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
                 await delay(TTL);
 
                 expect(listener).toHaveBeenCalledTimes(2);
-                expect(listener).toHaveBeenCalledWith(event);
+                expect(listener).toHaveBeenCalledWith({
+                    type: "add",
+                    ...event,
+                });
                 await unsubscribe();
             });
             test("Should not call listener when listener is removed by unsubscribe and event is triggered", async () => {
@@ -143,7 +187,59 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
 
                 expect(listener).toHaveBeenCalledTimes(0);
             });
-            test.todo("Write test for multiple events.");
+            test("Should call listener for each dispatched event when subscribed to multiple events", async () => {
+                const listener = vi.fn(() => {});
+                const unsubscribe = await eventBus.subscribe(
+                    ["add", "subtract"],
+                    listener,
+                );
+
+                const addEvent: AddEvent = { a: 1, b: 2 };
+                const subtractEvent: SubtractEvent = { c: 3, d: 4 };
+                await eventBus.dispatch("add", addEvent);
+                await eventBus.dispatch("subtract", subtractEvent);
+                await delay(TTL);
+
+                expect(listener).toHaveBeenCalledTimes(2);
+                expect(listener).toHaveBeenNthCalledWith(1, {
+                    type: "add",
+                    ...addEvent,
+                });
+                expect(listener).toHaveBeenNthCalledWith(2, {
+                    type: "subtract",
+                    ...subtractEvent,
+                });
+                await unsubscribe();
+            });
+            test("Should not call listener for any event when unsubscribed from multiple events", async () => {
+                const listener = vi.fn(() => {});
+                const unsubscribe = await eventBus.subscribe(
+                    ["add", "subtract"],
+                    listener,
+                );
+                await unsubscribe();
+
+                const addEvent: AddEvent = { a: 1, b: 2 };
+                const subtractEvent: SubtractEvent = { c: 3, d: 4 };
+                await eventBus.dispatch("add", addEvent);
+                await eventBus.dispatch("subtract", subtractEvent);
+                await delay(TTL);
+
+                expect(listener).toHaveBeenCalledTimes(0);
+            });
+            test("Should not call listener for any event when removed via removeListener from multiple events", async () => {
+                const listener = vi.fn(() => {});
+                await eventBus.subscribe(["add", "subtract"], listener);
+                await eventBus.removeListener(["add", "subtract"], listener);
+
+                const addEvent: AddEvent = { a: 1, b: 2 };
+                const subtractEvent: SubtractEvent = { c: 3, d: 4 };
+                await eventBus.dispatch("add", addEvent);
+                await eventBus.dispatch("subtract", subtractEvent);
+                await delay(TTL);
+
+                expect(listener).toHaveBeenCalledTimes(0);
+            });
         });
         describe("method: subscribeOnce", () => {
             test("Should not call listener when listener is added and event is not triggered", async () => {

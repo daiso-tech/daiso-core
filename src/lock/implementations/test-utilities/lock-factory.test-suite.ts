@@ -9,6 +9,7 @@ import {
     vi,
 } from "vitest";
 
+import { type EventWithType } from "@/event-bus/contracts/_module.js";
 import {
     FailedAcquireLockError,
     FailedReleaseLockError,
@@ -1403,7 +1404,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies AcquiredLockEvent),
+                                type: LOCK_EVENTS.ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredLockEvent,
+                                typeof LOCK_EVENTS.ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1433,7 +1438,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies AcquiredLockEvent),
+                                type: LOCK_EVENTS.ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredLockEvent,
+                                typeof LOCK_EVENTS.ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1461,7 +1470,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies AcquiredLockEvent),
+                                type: LOCK_EVENTS.ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredLockEvent,
+                                typeof LOCK_EVENTS.ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1491,7 +1504,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies AcquiredLockEvent),
+                                type: LOCK_EVENTS.ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredLockEvent,
+                                typeof LOCK_EVENTS.ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1523,7 +1540,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies UnavailableLockEvent),
+                                type: LOCK_EVENTS.UNAVAILABLE,
+                            } satisfies EventWithType<
+                                UnavailableLockEvent,
+                                typeof LOCK_EVENTS.UNAVAILABLE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1553,7 +1574,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies UnavailableLockEvent),
+                                type: LOCK_EVENTS.UNAVAILABLE,
+                            } satisfies EventWithType<
+                                UnavailableLockEvent,
+                                typeof LOCK_EVENTS.UNAVAILABLE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1584,7 +1609,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies AcquiredLockEvent),
+                                type: LOCK_EVENTS.ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredLockEvent,
+                                typeof LOCK_EVENTS.ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1614,7 +1643,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies AcquiredLockEvent),
+                                type: LOCK_EVENTS.ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredLockEvent,
+                                typeof LOCK_EVENTS.ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1642,7 +1675,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies AcquiredLockEvent),
+                                type: LOCK_EVENTS.ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredLockEvent,
+                                typeof LOCK_EVENTS.ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1672,7 +1709,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies AcquiredLockEvent),
+                                type: LOCK_EVENTS.ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredLockEvent,
+                                typeof LOCK_EVENTS.ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1708,7 +1749,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies UnavailableLockEvent),
+                                type: LOCK_EVENTS.UNAVAILABLE,
+                            } satisfies EventWithType<
+                                UnavailableLockEvent,
+                                typeof LOCK_EVENTS.UNAVAILABLE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1742,7 +1787,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies UnavailableLockEvent),
+                                type: LOCK_EVENTS.UNAVAILABLE,
+                            } satisfies EventWithType<
+                                UnavailableLockEvent,
+                                typeof LOCK_EVENTS.UNAVAILABLE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1776,7 +1825,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies ForceReleasedLockEvent),
+                                type: LOCK_EVENTS.FORCE_RELEASED,
+                            } satisfies EventWithType<
+                                ForceReleasedLockEvent,
+                                typeof LOCK_EVENTS.FORCE_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1809,7 +1862,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies ForceReleasedLockEvent),
+                                type: LOCK_EVENTS.FORCE_RELEASED,
+                            } satisfies EventWithType<
+                                ForceReleasedLockEvent,
+                                typeof LOCK_EVENTS.FORCE_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1840,7 +1897,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies ForceReleasedLockEvent),
+                                type: LOCK_EVENTS.FORCE_RELEASED,
+                            } satisfies EventWithType<
+                                ForceReleasedLockEvent,
+                                typeof LOCK_EVENTS.FORCE_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1873,7 +1934,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedReleaseLockEvent),
+                                type: LOCK_EVENTS.FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseLockEvent,
+                                typeof LOCK_EVENTS.FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1903,7 +1968,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedReleaseLockEvent),
+                                type: LOCK_EVENTS.FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseLockEvent,
+                                typeof LOCK_EVENTS.FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1933,7 +2002,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedReleaseLockEvent),
+                                type: LOCK_EVENTS.FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseLockEvent,
+                                typeof LOCK_EVENTS.FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1964,7 +2037,11 @@ export function lockFactoryTestSuite(
                                 id: lock.id,
                                 ttl: lock.ttl,
                             } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedReleaseLockEvent),
+                            type: LOCK_EVENTS.FAILED_RELEASE,
+                        } satisfies EventWithType<
+                            FailedReleaseLockEvent,
+                            typeof LOCK_EVENTS.FAILED_RELEASE
+                        >),
                     );
                 });
                 test("Should dispatch FailedReleaseLockEvent when key is expired and released by same lock-id", async () => {
@@ -1994,7 +2071,11 @@ export function lockFactoryTestSuite(
                                 id: lock.id,
                                 ttl: lock.ttl,
                             } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedReleaseLockEvent),
+                            type: LOCK_EVENTS.FAILED_RELEASE,
+                        } satisfies EventWithType<
+                            FailedReleaseLockEvent,
+                            typeof LOCK_EVENTS.FAILED_RELEASE
+                        >),
                     );
                 });
                 test("Should dispatch ReleasedLockEvent when key is unexpireable and released by same lock-id", async () => {
@@ -2021,7 +2102,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies ReleasedLockEvent),
+                                type: LOCK_EVENTS.RELEASED,
+                            } satisfies EventWithType<
+                                ReleasedLockEvent,
+                                typeof LOCK_EVENTS.RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2049,7 +2134,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies ReleasedLockEvent),
+                                type: LOCK_EVENTS.RELEASED,
+                            } satisfies EventWithType<
+                                ReleasedLockEvent,
+                                typeof LOCK_EVENTS.RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2086,7 +2175,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedReleaseLockEvent),
+                                type: LOCK_EVENTS.FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseLockEvent,
+                                typeof LOCK_EVENTS.FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2120,7 +2213,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedReleaseLockEvent),
+                                type: LOCK_EVENTS.FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseLockEvent,
+                                typeof LOCK_EVENTS.FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2154,7 +2251,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedReleaseLockEvent),
+                                type: LOCK_EVENTS.FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseLockEvent,
+                                typeof LOCK_EVENTS.FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2189,7 +2290,11 @@ export function lockFactoryTestSuite(
                                 id: lock.id,
                                 ttl: lock.ttl,
                             } satisfies ILockStateMethods) as ILockStateMethods,
-                        } satisfies FailedReleaseLockEvent),
+                            type: LOCK_EVENTS.FAILED_RELEASE,
+                        } satisfies EventWithType<
+                            FailedReleaseLockEvent,
+                            typeof LOCK_EVENTS.FAILED_RELEASE
+                        >),
                     );
                 });
                 test("Should dispatch FailedReleaseLockEvent when key is expired and released by same lock-id", async () => {
@@ -2223,7 +2328,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedReleaseLockEvent),
+                                type: LOCK_EVENTS.FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseLockEvent,
+                                typeof LOCK_EVENTS.FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2251,7 +2360,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies ReleasedLockEvent),
+                                type: LOCK_EVENTS.RELEASED,
+                            } satisfies EventWithType<
+                                ReleasedLockEvent,
+                                typeof LOCK_EVENTS.RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2279,7 +2392,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies ReleasedLockEvent),
+                                type: LOCK_EVENTS.RELEASED,
+                            } satisfies EventWithType<
+                                ReleasedLockEvent,
+                                typeof LOCK_EVENTS.RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2313,7 +2430,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedRefreshLockEvent),
+                                type: LOCK_EVENTS.FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshLockEvent,
+                                typeof LOCK_EVENTS.FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2345,7 +2466,11 @@ export function lockFactoryTestSuite(
                                     id: lock2.id,
                                     ttl: lock2.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedRefreshLockEvent),
+                                type: LOCK_EVENTS.FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshLockEvent,
+                                typeof LOCK_EVENTS.FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2377,7 +2502,11 @@ export function lockFactoryTestSuite(
                                     id: lock2.id,
                                     ttl: lock2.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedRefreshLockEvent),
+                                type: LOCK_EVENTS.FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshLockEvent,
+                                typeof LOCK_EVENTS.FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2410,7 +2539,11 @@ export function lockFactoryTestSuite(
                                     id: lock2.id,
                                     ttl: lock2.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedRefreshLockEvent),
+                                type: LOCK_EVENTS.FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshLockEvent,
+                                typeof LOCK_EVENTS.FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2444,7 +2577,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedRefreshLockEvent),
+                                type: LOCK_EVENTS.FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshLockEvent,
+                                typeof LOCK_EVENTS.FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2475,7 +2612,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedRefreshLockEvent),
+                                type: LOCK_EVENTS.FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshLockEvent,
+                                typeof LOCK_EVENTS.FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2504,7 +2645,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: newTtl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies RefreshedLockEvent),
+                                type: LOCK_EVENTS.REFRESHED,
+                            } satisfies EventWithType<
+                                RefreshedLockEvent,
+                                typeof LOCK_EVENTS.REFRESHED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2542,7 +2687,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedRefreshLockEvent),
+                                type: LOCK_EVENTS.FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshLockEvent,
+                                typeof LOCK_EVENTS.FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2578,7 +2727,11 @@ export function lockFactoryTestSuite(
                                     id: lock2.id,
                                     ttl: lock2.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedRefreshLockEvent),
+                                type: LOCK_EVENTS.FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshLockEvent,
+                                typeof LOCK_EVENTS.FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2614,7 +2767,11 @@ export function lockFactoryTestSuite(
                                     id: lock2.id,
                                     ttl: lock2.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedRefreshLockEvent),
+                                type: LOCK_EVENTS.FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshLockEvent,
+                                typeof LOCK_EVENTS.FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2651,7 +2808,11 @@ export function lockFactoryTestSuite(
                                     id: lock2.id,
                                     ttl: lock2.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedRefreshLockEvent),
+                                type: LOCK_EVENTS.FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshLockEvent,
+                                typeof LOCK_EVENTS.FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2689,7 +2850,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedRefreshLockEvent),
+                                type: LOCK_EVENTS.FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshLockEvent,
+                                typeof LOCK_EVENTS.FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2724,7 +2889,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: lock.ttl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies FailedRefreshLockEvent),
+                                type: LOCK_EVENTS.FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshLockEvent,
+                                typeof LOCK_EVENTS.FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -2753,7 +2922,11 @@ export function lockFactoryTestSuite(
                                     id: lock.id,
                                     ttl: newTtl,
                                 } satisfies ILockStateMethods) as ILockStateMethods,
-                            } satisfies RefreshedLockEvent),
+                                type: LOCK_EVENTS.REFRESHED,
+                            } satisfies EventWithType<
+                                RefreshedLockEvent,
+                                typeof LOCK_EVENTS.REFRESHED
+                            >),
                         );
                     }, waitForSettings);
                 });

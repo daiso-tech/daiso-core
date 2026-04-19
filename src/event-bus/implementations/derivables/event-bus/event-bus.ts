@@ -169,7 +169,10 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
                 if (this.shouldValidateOutput) {
                     await validate(this.eventMapSchema?.[eventName], event);
                 }
-                await resolveInvokable(listener)(event);
+                await resolveInvokable(listener)({
+                    ...event,
+                    type: eventName,
+                });
             } catch (error: unknown) {
                 this.__onUncaughtRejection(error);
             }

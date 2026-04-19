@@ -9,6 +9,7 @@ import {
     vi,
 } from "vitest";
 
+import { type EventWithType } from "@/event-bus/contracts/_module.js";
 import {
     type ISemaphoreFactory,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -2101,7 +2102,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies AcquiredSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.ACQUIRED,
+                                } satisfies EventWithType<
+                                    AcquiredSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.ACQUIRED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2137,7 +2142,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies AcquiredSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.ACQUIRED,
+                                } satisfies EventWithType<
+                                    AcquiredSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.ACQUIRED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2175,7 +2184,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies AcquiredSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.ACQUIRED,
+                                } satisfies EventWithType<
+                                    AcquiredSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.ACQUIRED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2219,7 +2232,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies LimitReachedSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.LIMIT_REACHED,
+                                } satisfies EventWithType<
+                                    LimitReachedSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.LIMIT_REACHED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2266,7 +2283,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies AcquiredSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.ACQUIRED,
+                                } satisfies EventWithType<
+                                    AcquiredSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.ACQUIRED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2300,7 +2321,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies AcquiredSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.ACQUIRED,
+                                } satisfies EventWithType<
+                                    AcquiredSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.ACQUIRED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2334,7 +2359,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies AcquiredSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.ACQUIRED,
+                                } satisfies EventWithType<
+                                    AcquiredSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.ACQUIRED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2370,7 +2399,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies AcquiredSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.ACQUIRED,
+                                } satisfies EventWithType<
+                                    AcquiredSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.ACQUIRED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2406,7 +2439,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies AcquiredSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.ACQUIRED,
+                                } satisfies EventWithType<
+                                    AcquiredSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.ACQUIRED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2444,7 +2481,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies AcquiredSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.ACQUIRED,
+                                } satisfies EventWithType<
+                                    AcquiredSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.ACQUIRED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2492,7 +2533,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies LimitReachedSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.LIMIT_REACHED,
+                                } satisfies EventWithType<
+                                    LimitReachedSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.LIMIT_REACHED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2539,7 +2584,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies AcquiredSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.ACQUIRED,
+                                } satisfies EventWithType<
+                                    AcquiredSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.ACQUIRED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2573,7 +2622,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies AcquiredSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.ACQUIRED,
+                                } satisfies EventWithType<
+                                    AcquiredSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.ACQUIRED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2607,7 +2660,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies AcquiredSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.ACQUIRED,
+                                } satisfies EventWithType<
+                                    AcquiredSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.ACQUIRED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2653,7 +2710,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedReleaseSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_RELEASE,
+                                } satisfies EventWithType<
+                                    FailedReleaseSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_RELEASE
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2695,7 +2756,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedReleaseSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_RELEASE,
+                                } satisfies EventWithType<
+                                    FailedReleaseSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_RELEASE
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2735,7 +2800,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedReleaseSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_RELEASE,
+                                } satisfies EventWithType<
+                                    FailedReleaseSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_RELEASE
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2771,7 +2840,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedReleaseSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_RELEASE,
+                                } satisfies EventWithType<
+                                    FailedReleaseSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_RELEASE
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2806,7 +2879,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies ReleasedSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.RELEASED,
+                                } satisfies EventWithType<
+                                    ReleasedSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.RELEASED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2841,7 +2918,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies ReleasedSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.RELEASED,
+                                } satisfies EventWithType<
+                                    ReleasedSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.RELEASED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2891,7 +2972,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedReleaseSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_RELEASE,
+                                } satisfies EventWithType<
+                                    FailedReleaseSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_RELEASE
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2937,7 +3022,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedReleaseSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_RELEASE,
+                                } satisfies EventWithType<
+                                    FailedReleaseSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_RELEASE
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -2981,7 +3070,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedReleaseSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_RELEASE,
+                                } satisfies EventWithType<
+                                    FailedReleaseSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_RELEASE
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3021,7 +3114,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedReleaseSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_RELEASE,
+                                } satisfies EventWithType<
+                                    FailedReleaseSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_RELEASE
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3056,7 +3153,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies ReleasedSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.RELEASED,
+                                } satisfies EventWithType<
+                                    ReleasedSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.RELEASED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3091,7 +3192,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies ReleasedSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.RELEASED,
+                                } satisfies EventWithType<
+                                    ReleasedSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.RELEASED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3146,7 +3251,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies AllForceReleasedSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.ALL_FORCE_RELEASED,
+                                } satisfies EventWithType<
+                                    AllForceReleasedSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.ALL_FORCE_RELEASED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3190,7 +3299,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies AllForceReleasedSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.ALL_FORCE_RELEASED,
+                                } satisfies EventWithType<
+                                    AllForceReleasedSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.ALL_FORCE_RELEASED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3236,7 +3349,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedRefreshSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_REFRESH,
+                                } satisfies EventWithType<
+                                    FailedRefreshSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_REFRESH
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3278,7 +3395,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedRefreshSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_REFRESH,
+                                } satisfies EventWithType<
+                                    FailedRefreshSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_REFRESH
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3314,7 +3435,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedRefreshSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_REFRESH,
+                                } satisfies EventWithType<
+                                    FailedRefreshSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_REFRESH
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3351,7 +3476,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedRefreshSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_REFRESH,
+                                } satisfies EventWithType<
+                                    FailedRefreshSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_REFRESH
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3387,7 +3516,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedRefreshSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_REFRESH,
+                                } satisfies EventWithType<
+                                    FailedRefreshSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_REFRESH
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3423,7 +3556,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies RefreshedSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.REFRESHED,
+                                } satisfies EventWithType<
+                                    RefreshedSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.REFRESHED
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3473,7 +3610,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedRefreshSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_REFRESH,
+                                } satisfies EventWithType<
+                                    FailedRefreshSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_REFRESH
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3519,7 +3660,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedRefreshSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_REFRESH,
+                                } satisfies EventWithType<
+                                    FailedRefreshSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_REFRESH
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3559,7 +3704,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedRefreshSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_REFRESH,
+                                } satisfies EventWithType<
+                                    FailedRefreshSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_REFRESH
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3600,7 +3749,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedRefreshSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_REFRESH,
+                                } satisfies EventWithType<
+                                    FailedRefreshSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_REFRESH
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3640,7 +3793,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies FailedRefreshSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.FAILED_REFRESH,
+                                } satisfies EventWithType<
+                                    FailedRefreshSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.FAILED_REFRESH
+                                >),
                             );
                         }, waitForSettings);
                     });
@@ -3676,7 +3833,11 @@ export function semaphoreFactoryTestSuite(
                                             Function,
                                         ) as ISemaphoreStateMethods["getState"],
                                     }) as ISemaphoreStateMethods,
-                                } satisfies RefreshedSemaphoreEvent),
+                                    type: SEMAPHORE_EVENTS.REFRESHED,
+                                } satisfies EventWithType<
+                                    RefreshedSemaphoreEvent,
+                                    typeof SEMAPHORE_EVENTS.REFRESHED
+                                >),
                             );
                         }, waitForSettings);
                     });

@@ -24,6 +24,7 @@ import {
     CACHE_EVENTS,
     KeyExistsCacheError,
 } from "@/cache/contracts/_module.js";
+import { type EventWithType } from "@/event-bus/contracts/_module.js";
 import { type IKey } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -1547,7 +1548,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1575,7 +1580,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
                             value,
-                        } satisfies FoundCacheEvent);
+                            type: CACHE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundCacheEvent,
+                            typeof CACHE_EVENTS.FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1602,7 +1611,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1630,7 +1643,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
                             value,
-                        } satisfies FoundCacheEvent);
+                            type: CACHE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundCacheEvent,
+                            typeof CACHE_EVENTS.FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1657,7 +1674,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1685,7 +1706,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
                             value,
-                        } satisfies FoundCacheEvent);
+                            type: CACHE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundCacheEvent,
+                            typeof CACHE_EVENTS.FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1712,7 +1737,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1740,7 +1769,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
                             value,
-                        } satisfies FoundCacheEvent);
+                            type: CACHE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundCacheEvent,
+                            typeof CACHE_EVENTS.FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1771,7 +1804,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1799,7 +1836,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
                             value,
-                        } satisfies FoundCacheEvent);
+                            type: CACHE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundCacheEvent,
+                            typeof CACHE_EVENTS.FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1829,7 +1870,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                             } satisfies IKey) as IKey,
                             value,
                             ttl: expect.any(TimeSpan) as TimeSpan,
-                        } satisfies AddedCacheEvent);
+                            type: CACHE_EVENTS.ADDED,
+                        } satisfies EventWithType<
+                            AddedCacheEvent,
+                            typeof CACHE_EVENTS.ADDED
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1862,7 +1907,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1891,7 +1940,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
                             value: value2,
-                        } satisfies UpdatedCacheEvent);
+                            type: CACHE_EVENTS.UPDATED,
+                        } satisfies EventWithType<
+                            UpdatedCacheEvent,
+                            typeof CACHE_EVENTS.UPDATED
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1923,7 +1976,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1952,7 +2009,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
                             value: value2,
-                        } satisfies UpdatedCacheEvent);
+                            type: CACHE_EVENTS.UPDATED,
+                        } satisfies EventWithType<
+                            UpdatedCacheEvent,
+                            typeof CACHE_EVENTS.UPDATED
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -1982,7 +2043,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                             } satisfies IKey) as IKey,
                             value,
                             ttl: expect.any(TimeSpan) as TimeSpan,
-                        } satisfies AddedCacheEvent);
+                            type: CACHE_EVENTS.ADDED,
+                        } satisfies EventWithType<
+                            AddedCacheEvent,
+                            typeof CACHE_EVENTS.ADDED
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2015,7 +2080,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
                             value,
-                        } satisfies UpdatedCacheEvent);
+                            type: CACHE_EVENTS.UPDATED,
+                        } satisfies EventWithType<
+                            UpdatedCacheEvent,
+                            typeof CACHE_EVENTS.UPDATED
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2042,7 +2111,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
                     }, waitForSettings);
 
                     const keyObj = handlerFn.mock.calls[0]?.[0].key;
@@ -2069,7 +2142,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies RemovedCacheEvent);
+                            type: CACHE_EVENTS.REMOVED,
+                        } satisfies EventWithType<
+                            RemovedCacheEvent,
+                            typeof CACHE_EVENTS.REMOVED
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2100,7 +2177,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2127,7 +2208,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies RemovedCacheEvent);
+                            type: CACHE_EVENTS.REMOVED,
+                        } satisfies EventWithType<
+                            RemovedCacheEvent,
+                            typeof CACHE_EVENTS.REMOVED
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2158,7 +2243,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies RemovedCacheEvent);
+                            type: CACHE_EVENTS.REMOVED,
+                        } satisfies EventWithType<
+                            RemovedCacheEvent,
+                            typeof CACHE_EVENTS.REMOVED
+                        >);
 
                         const keyObj1 = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj1?.get()).toBe("a");
@@ -2187,7 +2276,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
 
                         const keyObj1 = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj1?.get()).toBe("a");
@@ -2217,7 +2310,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2259,7 +2356,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies RemovedCacheEvent);
+                            type: CACHE_EVENTS.REMOVED,
+                        } satisfies EventWithType<
+                            RemovedCacheEvent,
+                            typeof CACHE_EVENTS.REMOVED
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2303,7 +2404,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
                             value,
-                        } satisfies FoundCacheEvent);
+                            type: CACHE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundCacheEvent,
+                            typeof CACHE_EVENTS.FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2331,7 +2436,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                             } satisfies IKey) as IKey,
                             value,
                             ttl: expect.any(TimeSpan) as TimeSpan,
-                        } satisfies AddedCacheEvent);
+                            type: CACHE_EVENTS.ADDED,
+                        } satisfies EventWithType<
+                            AddedCacheEvent,
+                            typeof CACHE_EVENTS.ADDED
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2364,7 +2473,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2395,7 +2508,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
                             value: value2,
-                        } satisfies IncrementedCacheEvent);
+                            type: CACHE_EVENTS.INCREMENTED,
+                        } satisfies EventWithType<
+                            IncrementedCacheEvent,
+                            typeof CACHE_EVENTS.INCREMENTED
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2427,7 +2544,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2458,7 +2579,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
                             value: value2,
-                        } satisfies IncrementedCacheEvent);
+                            type: CACHE_EVENTS.INCREMENTED,
+                        } satisfies EventWithType<
+                            IncrementedCacheEvent,
+                            typeof CACHE_EVENTS.INCREMENTED
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2486,7 +2611,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2517,7 +2646,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
                             value: value2,
-                        } satisfies DecrementedCacheEvent);
+                            type: CACHE_EVENTS.DECREMENTED,
+                        } satisfies EventWithType<
+                            DecrementedCacheEvent,
+                            typeof CACHE_EVENTS.DECREMENTED
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2549,7 +2682,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 ) as IKey["toString"],
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
-                        } satisfies NotFoundCacheEvent);
+                            type: CACHE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundCacheEvent,
+                            typeof CACHE_EVENTS.NOT_FOUND
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2580,7 +2717,11 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                                 equals: expect.any(Function) as IKey["equals"],
                             } satisfies IKey) as IKey,
                             value: value2,
-                        } satisfies DecrementedCacheEvent);
+                            type: CACHE_EVENTS.DECREMENTED,
+                        } satisfies EventWithType<
+                            DecrementedCacheEvent,
+                            typeof CACHE_EVENTS.DECREMENTED
+                        >);
 
                         const keyObj = handlerFn.mock.calls[0]?.[0].key;
                         expect(keyObj?.get()).toBe(key);
@@ -2601,7 +2742,9 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.clear();
                     await vi.waitFor(() => {
                         expect(handler).toHaveBeenCalledOnce();
-                        expect(handler).toHaveBeenCalledWith({});
+                        expect(handler).toHaveBeenCalledWith({
+                            type: CACHE_EVENTS.CLEARED,
+                        });
                     }, waitForSettings);
                 });
             });
