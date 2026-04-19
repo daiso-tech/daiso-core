@@ -10,6 +10,7 @@ import {
     type TestAPI,
 } from "vitest";
 
+import { type EventWithType } from "@/event-bus/contracts/_module.js";
 import { FileSize } from "@/file-size/implementations/_module.js";
 import {
     FILE_EVENTS,
@@ -24,12 +25,14 @@ import {
     type FoundFileEvent,
     type IFile,
     type IFileStorage,
+    type IReadableFile,
     type KeyExistsFileEvent,
     type MovedFileEvent,
     type NotFoundFileEvent,
     type RemovedFileEvent,
     type UpdatedFileEvent,
 } from "@/file-storage/contracts/_module.js";
+import { type IKey } from "@/namespace/contracts/_module.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
 import {
     isBytesArrayEqualityTester,
@@ -2685,6 +2688,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -2700,6 +2723,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -2720,6 +2763,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -2739,6 +2802,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -2759,6 +2842,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -2774,6 +2877,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -2794,6 +2917,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -2813,6 +2956,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -2833,6 +2996,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -2848,6 +3031,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -2868,6 +3071,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -2887,6 +3110,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -2907,6 +3150,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -2922,6 +3185,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -2942,6 +3225,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -2961,6 +3264,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -2981,6 +3304,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -2996,6 +3339,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3016,6 +3379,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -3035,6 +3418,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3055,6 +3458,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -3070,6 +3493,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3090,6 +3533,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -3109,6 +3572,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3129,6 +3612,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -3144,6 +3647,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3164,6 +3687,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -3183,6 +3726,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3203,6 +3766,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -3218,6 +3801,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3238,6 +3841,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.FOUND,
+                        } satisfies EventWithType<
+                            FoundFileEvent,
+                            typeof FILE_EVENTS.FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -3253,6 +3876,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3277,6 +3920,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.KEY_EXISTS,
+                        } satisfies EventWithType<
+                            KeyExistsFileEvent,
+                            typeof FILE_EVENTS.KEY_EXISTS
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch AddedFileEvent when key does not exists", async () => {
@@ -3296,6 +3959,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.ADDED,
+                        } satisfies EventWithType<
+                            AddedFileEvent,
+                            typeof FILE_EVENTS.ADDED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3324,6 +4007,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.KEY_EXISTS,
+                        } satisfies EventWithType<
+                            KeyExistsFileEvent,
+                            typeof FILE_EVENTS.KEY_EXISTS
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch AddedFileEvent when key does not exists", async () => {
@@ -3343,6 +4046,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.ADDED,
+                        } satisfies EventWithType<
+                            AddedFileEvent,
+                            typeof FILE_EVENTS.ADDED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3373,6 +4096,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.KEY_EXISTS,
+                        } satisfies EventWithType<
+                            KeyExistsFileEvent,
+                            typeof FILE_EVENTS.KEY_EXISTS
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch AddedFileEvent when key does not exists", async () => {
@@ -3398,6 +4141,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.ADDED,
+                        } satisfies EventWithType<
+                            AddedFileEvent,
+                            typeof FILE_EVENTS.ADDED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3432,6 +4195,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.KEY_EXISTS,
+                        } satisfies EventWithType<
+                            KeyExistsFileEvent,
+                            typeof FILE_EVENTS.KEY_EXISTS
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch AddedFileEvent when key does not exists", async () => {
@@ -3457,6 +4240,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.ADDED,
+                        } satisfies EventWithType<
+                            AddedFileEvent,
+                            typeof FILE_EVENTS.ADDED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3481,6 +4284,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.UPDATED,
+                        } satisfies EventWithType<
+                            UpdatedFileEvent,
+                            typeof FILE_EVENTS.UPDATED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -3500,6 +4323,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3524,6 +4367,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.UPDATED,
+                        } satisfies EventWithType<
+                            UpdatedFileEvent,
+                            typeof FILE_EVENTS.UPDATED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -3547,6 +4410,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3577,6 +4460,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.UPDATED,
+                        } satisfies EventWithType<
+                            UpdatedFileEvent,
+                            typeof FILE_EVENTS.UPDATED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -3602,6 +4505,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3632,6 +4555,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.UPDATED,
+                        } satisfies EventWithType<
+                            UpdatedFileEvent,
+                            typeof FILE_EVENTS.UPDATED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -3661,6 +4604,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3685,6 +4648,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.UPDATED,
+                        } satisfies EventWithType<
+                            UpdatedFileEvent,
+                            typeof FILE_EVENTS.UPDATED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch AddedFileEvent when key doesnt exists", async () => {
@@ -3702,6 +4685,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.ADDED,
+                        } satisfies EventWithType<
+                            AddedFileEvent,
+                            typeof FILE_EVENTS.ADDED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3732,6 +4735,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.UPDATED,
+                        } satisfies EventWithType<
+                            UpdatedFileEvent,
+                            typeof FILE_EVENTS.UPDATED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch AddedFileEvent when key doesnt exists", async () => {
@@ -3757,6 +4780,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.ADDED,
+                        } satisfies EventWithType<
+                            AddedFileEvent,
+                            typeof FILE_EVENTS.ADDED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3777,6 +4820,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.REMOVED,
+                        } satisfies EventWithType<
+                            RemovedFileEvent,
+                            typeof FILE_EVENTS.REMOVED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -3792,6 +4855,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3812,6 +4895,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.REMOVED,
+                        } satisfies EventWithType<
+                            RemovedFileEvent,
+                            typeof FILE_EVENTS.REMOVED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should distpatch NotFoundFileEvent when key does not exists", async () => {
@@ -3831,6 +4934,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -3845,6 +4968,23 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
                     }, waitForSettings);
                 });
                 test("Should dispatch DestinationExistsFileEvent when source exists and destination exists", async () => {
@@ -3867,6 +5007,37 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            type: FILE_EVENTS.DESTINATION_EXISTS,
+                        } satisfies EventWithType<
+                            DestinationExistsFileEvent,
+                            typeof FILE_EVENTS.DESTINATION_EXISTS
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
                 test("Should dispatch CopiedFileEvent when source exists and destination doesnt exists", async () => {
@@ -3884,6 +5055,38 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            replaced: false,
+                            type: FILE_EVENTS.COPIED,
+                        } satisfies EventWithType<
+                            CopiedFileEvent,
+                            typeof FILE_EVENTS.COPIED
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
             });
@@ -3902,6 +5105,23 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
                     }, waitForSettings);
                 });
                 test("Should dispatch DestinationExistsFileEvent when source exists and destination exists", async () => {
@@ -3928,6 +5148,37 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            type: FILE_EVENTS.DESTINATION_EXISTS,
+                        } satisfies EventWithType<
+                            DestinationExistsFileEvent,
+                            typeof FILE_EVENTS.DESTINATION_EXISTS
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
                 test("Should dispatch CopiedFileEvent when source exists and destination doesnt exists", async () => {
@@ -3945,6 +5196,38 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            replaced: false,
+                            type: FILE_EVENTS.COPIED,
+                        } satisfies EventWithType<
+                            CopiedFileEvent,
+                            typeof FILE_EVENTS.COPIED
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
             });
@@ -3959,6 +5242,23 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
                     }, waitForSettings);
                 });
                 test("Should dispatch CopiedFileEvent when source exists and destination exists", async () => {
@@ -3979,6 +5279,38 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            replaced: true,
+                            type: FILE_EVENTS.COPIED,
+                        } satisfies EventWithType<
+                            CopiedFileEvent,
+                            typeof FILE_EVENTS.COPIED
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
                 test("Should dispatch CopiedFileEvent when source exists and destination doesnt exists", async () => {
@@ -3996,6 +5328,38 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            replaced: true,
+                            type: FILE_EVENTS.COPIED,
+                        } satisfies EventWithType<
+                            CopiedFileEvent,
+                            typeof FILE_EVENTS.COPIED
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
             });
@@ -4014,6 +5378,23 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
                     }, waitForSettings);
                 });
                 test("Should dispatch CopiedFileEvent when source exists and destination exists", async () => {
@@ -4034,6 +5415,38 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            replaced: true,
+                            type: FILE_EVENTS.COPIED,
+                        } satisfies EventWithType<
+                            CopiedFileEvent,
+                            typeof FILE_EVENTS.COPIED
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
                 test("Should dispatch CopiedFileEvent when source exists and destination doesnt exists", async () => {
@@ -4051,6 +5464,38 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            replaced: true,
+                            type: FILE_EVENTS.COPIED,
+                        } satisfies EventWithType<
+                            CopiedFileEvent,
+                            typeof FILE_EVENTS.COPIED
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
             });
@@ -4065,6 +5510,23 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
                     }, waitForSettings);
                 });
                 test("Should dispatch DestinationExistsFileEvent when source exists and destination exists", async () => {
@@ -4087,6 +5549,37 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            type: FILE_EVENTS.DESTINATION_EXISTS,
+                        } satisfies EventWithType<
+                            DestinationExistsFileEvent,
+                            typeof FILE_EVENTS.DESTINATION_EXISTS
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
                 test("Should dispatch MovedFileEvent when source exists and destination doesnt exists", async () => {
@@ -4104,6 +5597,38 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            replaced: false,
+                            type: FILE_EVENTS.MOVED,
+                        } satisfies EventWithType<
+                            MovedFileEvent,
+                            typeof FILE_EVENTS.MOVED
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
             });
@@ -4122,6 +5647,23 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
                     }, waitForSettings);
                 });
                 test("Should dispatch DestinationExistsFileEvent when source exists and destination exists", async () => {
@@ -4148,6 +5690,37 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            type: FILE_EVENTS.DESTINATION_EXISTS,
+                        } satisfies EventWithType<
+                            DestinationExistsFileEvent,
+                            typeof FILE_EVENTS.DESTINATION_EXISTS
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
                 test("Should dispatch MovedFileEvent when source exists and destination doesnt exists", async () => {
@@ -4165,6 +5738,38 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            replaced: false,
+                            type: FILE_EVENTS.MOVED,
+                        } satisfies EventWithType<
+                            MovedFileEvent,
+                            typeof FILE_EVENTS.MOVED
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
             });
@@ -4179,6 +5784,23 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
                     }, waitForSettings);
                 });
                 test("Should dispatch MovedFileEvent when source exists and destination exists", async () => {
@@ -4199,6 +5821,38 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            replaced: true,
+                            type: FILE_EVENTS.MOVED,
+                        } satisfies EventWithType<
+                            MovedFileEvent,
+                            typeof FILE_EVENTS.MOVED
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
                 test("Should dispatch MovedFileEvent when source exists and destination doesnt exists", async () => {
@@ -4216,6 +5870,38 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            replaced: true,
+                            type: FILE_EVENTS.MOVED,
+                        } satisfies EventWithType<
+                            MovedFileEvent,
+                            typeof FILE_EVENTS.MOVED
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
             });
@@ -4234,6 +5920,23 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
                     }, waitForSettings);
                 });
                 test("Should dispatch MovedFileEvent when source exists and destination exists", async () => {
@@ -4254,6 +5957,38 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            replaced: true,
+                            type: FILE_EVENTS.MOVED,
+                        } satisfies EventWithType<
+                            MovedFileEvent,
+                            typeof FILE_EVENTS.MOVED
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
                 test("Should dispatch MovedFileEvent when source exists and destination doesnt exists", async () => {
@@ -4271,6 +6006,38 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            source: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            destination: expect.objectContaining({
+                                get: expect.any(Function) as IKey["get"],
+                                toString: expect.any(
+                                    Function,
+                                ) as IKey["toString"],
+                                equals: expect.any(Function) as IKey["equals"],
+                            } satisfies IKey) as IKey,
+                            replaced: true,
+                            type: FILE_EVENTS.MOVED,
+                        } satisfies EventWithType<
+                            MovedFileEvent,
+                            typeof FILE_EVENTS.MOVED
+                        >);
+
+                        const sourceKeyObj =
+                            listener.mock.calls[0]?.[0].source.key;
+                        expect(sourceKeyObj?.get()).toBe("a");
+                        const destKeyObj =
+                            listener.mock.calls[0]?.[0].destination;
+                        expect(destKeyObj?.get()).toBe("b");
                     }, waitForSettings);
                 });
             });
@@ -4296,6 +6063,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledTimes(2);
+                        expect(listener).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.REMOVED,
+                        } satisfies EventWithType<
+                            RemovedFileEvent,
+                            typeof FILE_EVENTS.REMOVED
+                        >);
+
+                        const keyObj = listener.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
                 test("Should dispatch NotFoundFileEvent when all keys doesnt exists", async () => {
@@ -4311,6 +6098,26 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listeners).toHaveBeenCalledTimes(2);
+                        expect(listeners).toHaveBeenCalledWith({
+                            file: expect.objectContaining({
+                                key: expect.objectContaining({
+                                    get: expect.any(Function) as IKey["get"],
+                                    toString: expect.any(
+                                        Function,
+                                    ) as IKey["toString"],
+                                    equals: expect.any(
+                                        Function,
+                                    ) as IKey["equals"],
+                                } satisfies IKey) as IKey,
+                            }) as IReadableFile,
+                            type: FILE_EVENTS.NOT_FOUND,
+                        } satisfies EventWithType<
+                            NotFoundFileEvent,
+                            typeof FILE_EVENTS.NOT_FOUND
+                        >);
+
+                        const keyObj = listeners.mock.calls[0]?.[0].file.key;
+                        expect(keyObj?.get()).toBe("a");
                     }, waitForSettings);
                 });
             });
@@ -4335,6 +6142,9 @@ export function fileStorageTestSuite(
 
                     await vi.waitFor(() => {
                         expect(listener).toHaveBeenCalledOnce();
+                        expect(listener).toHaveBeenCalledWith({
+                            type: FILE_EVENTS.CLEARED,
+                        });
                     }, waitForSettings);
                 });
             });

@@ -9,6 +9,7 @@ import {
     vi,
 } from "vitest";
 
+import { type EventWithType } from "@/event-bus/contracts/_module.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
 import {
     FailedAcquireWriterLockError,
@@ -4572,7 +4573,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies AcquiredWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -4610,7 +4615,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies AcquiredWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -4644,7 +4653,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies AcquiredWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -4678,7 +4691,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies AcquiredWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -4714,7 +4731,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies UnavailableSharedLockEvent),
+                                type: SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            } satisfies EventWithType<
+                                UnavailableSharedLockEvent,
+                                typeof SHARED_LOCK_EVENTS.UNAVAILABLE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -4750,7 +4771,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies UnavailableSharedLockEvent),
+                                type: SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            } satisfies EventWithType<
+                                UnavailableSharedLockEvent,
+                                typeof SHARED_LOCK_EVENTS.UNAVAILABLE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -4785,7 +4810,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies AcquiredWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -4823,7 +4852,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies AcquiredWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -4857,7 +4890,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies AcquiredWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -4891,7 +4928,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies AcquiredWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -4931,7 +4972,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies UnavailableSharedLockEvent),
+                                type: SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            } satisfies EventWithType<
+                                UnavailableSharedLockEvent,
+                                typeof SHARED_LOCK_EVENTS.UNAVAILABLE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -4971,7 +5016,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies UnavailableSharedLockEvent),
+                                type: SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            } satisfies EventWithType<
+                                UnavailableSharedLockEvent,
+                                typeof SHARED_LOCK_EVENTS.UNAVAILABLE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5006,7 +5055,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5043,7 +5096,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5080,7 +5137,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5118,7 +5179,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE
+                            >),
                         );
                     });
                 });
@@ -5154,7 +5219,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5189,7 +5258,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies ReleasedWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_RELEASED,
+                            } satisfies EventWithType<
+                                ReleasedWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5224,7 +5297,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies ReleasedWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_RELEASED,
+                            } satisfies EventWithType<
+                                ReleasedWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5263,7 +5340,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5304,7 +5385,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5345,7 +5430,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5387,7 +5476,11 @@ export function sharedLockFactoryTestSuite(
                                 id: sharedLock.id,
                                 ttl: sharedLock.ttl,
                             } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                        } satisfies FailedReleaseWriterLockEvent),
+                            type: SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
+                        } satisfies EventWithType<
+                            FailedReleaseWriterLockEvent,
+                            typeof SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE
+                        >),
                     );
                 });
                 test("Should dispatch FailedReleaseWriterLockEvent when key is expired and released by same shared-lock-id", async () => {
@@ -5427,7 +5520,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5462,7 +5559,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies ReleasedWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_RELEASED,
+                            } satisfies EventWithType<
+                                ReleasedWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5497,7 +5598,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies ReleasedWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_RELEASED,
+                            } satisfies EventWithType<
+                                ReleasedWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5533,7 +5638,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5573,7 +5682,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock2.id,
                                     ttl: sharedLock2.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5613,7 +5726,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock2.id,
                                     ttl: sharedLock2.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5654,7 +5771,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock2.id,
                                     ttl: sharedLock2.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5691,7 +5812,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5727,7 +5852,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5763,7 +5892,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: newTtl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies RefreshedWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_REFRESHED,
+                            } satisfies EventWithType<
+                                RefreshedWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_REFRESHED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5803,7 +5936,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5847,7 +5984,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock2.id,
                                     ttl: sharedLock2.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5891,7 +6032,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock2.id,
                                     ttl: sharedLock2.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5936,7 +6081,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock2.id,
                                     ttl: sharedLock2.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -5977,7 +6126,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6017,7 +6170,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6053,7 +6210,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: newTtl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies RefreshedWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_REFRESHED,
+                            } satisfies EventWithType<
+                                RefreshedWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_REFRESHED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6089,7 +6250,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies ForceReleasedWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FORCE_RELEASED,
+                            } satisfies EventWithType<
+                                ForceReleasedWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FORCE_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6125,7 +6290,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies ForceReleasedWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FORCE_RELEASED,
+                            } satisfies EventWithType<
+                                ForceReleasedWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FORCE_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6160,7 +6329,11 @@ export function sharedLockFactoryTestSuite(
                                     id: sharedLock.id,
                                     ttl: sharedLock.ttl,
                                 } satisfies ISharedLockStateMethods) as ISharedLockStateMethods,
-                            } satisfies ForceReleasedWriterLockEvent),
+                                type: SHARED_LOCK_EVENTS.WRITER_FORCE_RELEASED,
+                            } satisfies EventWithType<
+                                ForceReleasedWriterLockEvent,
+                                typeof SHARED_LOCK_EVENTS.WRITER_FORCE_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6196,7 +6369,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6232,7 +6409,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6270,7 +6451,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6314,7 +6499,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies UnavailableSharedLockEvent),
+                                type: SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            } satisfies EventWithType<
+                                UnavailableSharedLockEvent,
+                                typeof SHARED_LOCK_EVENTS.UNAVAILABLE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6361,7 +6550,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6395,7 +6588,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6429,7 +6626,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6465,7 +6666,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6501,7 +6706,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6539,7 +6748,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6587,7 +6800,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies UnavailableSharedLockEvent),
+                                type: SHARED_LOCK_EVENTS.UNAVAILABLE,
+                            } satisfies EventWithType<
+                                UnavailableSharedLockEvent,
+                                typeof SHARED_LOCK_EVENTS.UNAVAILABLE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6634,7 +6851,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6668,7 +6889,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6702,7 +6927,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies AcquiredReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_ACQUIRED,
+                            } satisfies EventWithType<
+                                AcquiredReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_ACQUIRED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6748,7 +6977,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6790,7 +7023,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6830,7 +7067,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6866,7 +7107,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6901,7 +7146,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies ReleasedReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_RELEASED,
+                            } satisfies EventWithType<
+                                ReleasedReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6936,7 +7185,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies ReleasedReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_RELEASED,
+                            } satisfies EventWithType<
+                                ReleasedReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -6986,7 +7239,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7032,7 +7289,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7076,7 +7337,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7116,7 +7381,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedReleaseReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_RELEASE,
+                            } satisfies EventWithType<
+                                FailedReleaseReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_RELEASE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7151,7 +7420,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies ReleasedReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_RELEASED,
+                            } satisfies EventWithType<
+                                ReleasedReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7186,7 +7459,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies ReleasedReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_RELEASED,
+                            } satisfies EventWithType<
+                                ReleasedReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7232,7 +7509,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7274,7 +7555,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7310,7 +7595,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7347,7 +7636,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7383,7 +7676,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7419,7 +7716,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies RefreshedReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_REFRESHED,
+                            } satisfies EventWithType<
+                                RefreshedReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_REFRESHED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7469,7 +7770,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7515,7 +7820,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7555,7 +7864,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7596,7 +7909,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7636,7 +7953,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies FailedRefreshReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_FAILED_REFRESH,
+                            } satisfies EventWithType<
+                                FailedRefreshReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_FAILED_REFRESH
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7672,7 +7993,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies RefreshedReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_REFRESHED,
+                            } satisfies EventWithType<
+                                RefreshedReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_REFRESHED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7727,7 +8052,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies AllForceReleasedReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_ALL_FORCE_RELEASED,
+                            } satisfies EventWithType<
+                                AllForceReleasedReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_ALL_FORCE_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -7771,7 +8100,11 @@ export function sharedLockFactoryTestSuite(
                                         Function,
                                     ) as ISharedLockStateMethods["getState"],
                                 }) as ISharedLockStateMethods,
-                            } satisfies AllForceReleasedReaderSemaphoreEvent),
+                                type: SHARED_LOCK_EVENTS.READER_ALL_FORCE_RELEASED,
+                            } satisfies EventWithType<
+                                AllForceReleasedReaderSemaphoreEvent,
+                                typeof SHARED_LOCK_EVENTS.READER_ALL_FORCE_RELEASED
+                            >),
                         );
                     }, waitForSettings);
                 });
