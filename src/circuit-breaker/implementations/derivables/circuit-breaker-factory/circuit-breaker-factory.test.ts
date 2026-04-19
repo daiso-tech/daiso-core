@@ -28,6 +28,7 @@ import {
     type UntrackedFailureCircuitBreakerEvent,
 } from "@/circuit-breaker/contracts/circuit-breaker.events.js";
 import { CircuitBreakerFactory } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker-factory.js";
+import { type EventWithType } from "@/event-bus/contracts/_module.js";
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
@@ -608,7 +609,11 @@ describe("class: CircuitBreakerFactory", () => {
                                     key: circuitBreaker.key,
                                 } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
                                 error: expect.any(Error),
-                            } satisfies TrackedFailureCircuitBreakerEvent),
+                                type: CIRCUIT_BREAKER_EVENTS.TRACKED_FAILURE,
+                            } satisfies EventWithType<
+                                TrackedFailureCircuitBreakerEvent,
+                                typeof CIRCUIT_BREAKER_EVENTS.TRACKED_FAILURE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -650,7 +655,11 @@ describe("class: CircuitBreakerFactory", () => {
                                     ) as ICircuitBreakerStateMethods["getState"],
                                     key: circuitBreaker.key,
                                 } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                            } satisfies TrackedSlowCallCircuitBreakerEvent),
+                                type: CIRCUIT_BREAKER_EVENTS.TRACKED_SLOW_CALL,
+                            } satisfies EventWithType<
+                                TrackedSlowCallCircuitBreakerEvent,
+                                typeof CIRCUIT_BREAKER_EVENTS.TRACKED_SLOW_CALL
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -690,7 +699,11 @@ describe("class: CircuitBreakerFactory", () => {
                                     ) as ICircuitBreakerStateMethods["getState"],
                                     key: circuitBreaker.key,
                                 } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                            } satisfies TrackedSuccessCircuitBreakerEvent),
+                                type: CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS,
+                            } satisfies EventWithType<
+                                TrackedSuccessCircuitBreakerEvent,
+                                typeof CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -807,7 +820,11 @@ describe("class: CircuitBreakerFactory", () => {
                                     key: circuitBreaker.key,
                                 } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
                                 error: expect.any(Error),
-                            } satisfies TrackedFailureCircuitBreakerEvent),
+                                type: CIRCUIT_BREAKER_EVENTS.TRACKED_FAILURE,
+                            } satisfies EventWithType<
+                                TrackedFailureCircuitBreakerEvent,
+                                typeof CIRCUIT_BREAKER_EVENTS.TRACKED_FAILURE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -879,7 +896,11 @@ describe("class: CircuitBreakerFactory", () => {
                                     ) as ICircuitBreakerStateMethods["getState"],
                                     key: circuitBreaker.key,
                                 } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                            } satisfies TrackedSuccessCircuitBreakerEvent),
+                                type: CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS,
+                            } satisfies EventWithType<
+                                TrackedSuccessCircuitBreakerEvent,
+                                typeof CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -921,7 +942,11 @@ describe("class: CircuitBreakerFactory", () => {
                                     ) as ICircuitBreakerStateMethods["getState"],
                                     key: circuitBreaker.key,
                                 } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                            } satisfies TrackedSuccessCircuitBreakerEvent),
+                                type: CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS,
+                            } satisfies EventWithType<
+                                TrackedSuccessCircuitBreakerEvent,
+                                typeof CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1065,7 +1090,11 @@ describe("class: CircuitBreakerFactory", () => {
                                     ) as ICircuitBreakerStateMethods["getState"],
                                     key: circuitBreaker.key,
                                 } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                            } satisfies TrackedSlowCallCircuitBreakerEvent),
+                                type: CIRCUIT_BREAKER_EVENTS.TRACKED_SLOW_CALL,
+                            } satisfies EventWithType<
+                                TrackedSlowCallCircuitBreakerEvent,
+                                typeof CIRCUIT_BREAKER_EVENTS.TRACKED_SLOW_CALL
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1101,7 +1130,11 @@ describe("class: CircuitBreakerFactory", () => {
                                     ) as ICircuitBreakerStateMethods["getState"],
                                     key: circuitBreaker.key,
                                 } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                            } satisfies TrackedSuccessCircuitBreakerEvent),
+                                type: CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS,
+                            } satisfies EventWithType<
+                                TrackedSuccessCircuitBreakerEvent,
+                                typeof CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -1250,7 +1283,11 @@ describe("class: CircuitBreakerFactory", () => {
                             } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
                             from: CIRCUIT_BREAKER_STATE.CLOSED,
                             to: CIRCUIT_BREAKER_STATE.OPEN,
-                        } satisfies StateTransitionCircuitBreakerEvent),
+                            type: CIRCUIT_BREAKER_EVENTS.STATE_TRANSITIONED,
+                        } satisfies EventWithType<
+                            StateTransitionCircuitBreakerEvent,
+                            typeof CIRCUIT_BREAKER_EVENTS.STATE_TRANSITIONED
+                        >),
                     );
                 }, waitForSettings);
             });
@@ -1278,7 +1315,11 @@ describe("class: CircuitBreakerFactory", () => {
                                 ) as ICircuitBreakerStateMethods["getState"],
                                 key: circuitBreaker.key,
                             } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                        } satisfies IsolatedCircuitBreakerEvent),
+                            type: CIRCUIT_BREAKER_EVENTS.ISOLATED,
+                        } satisfies EventWithType<
+                            IsolatedCircuitBreakerEvent,
+                            typeof CIRCUIT_BREAKER_EVENTS.ISOLATED
+                        >),
                     );
                 }, waitForSettings);
             });
@@ -1306,7 +1347,11 @@ describe("class: CircuitBreakerFactory", () => {
                                 ) as ICircuitBreakerStateMethods["getState"],
                                 key: circuitBreaker.key,
                             } satisfies ICircuitBreakerStateMethods) as ICircuitBreakerStateMethods,
-                        } satisfies ResetedCircuitBreakerEvent),
+                            type: CIRCUIT_BREAKER_EVENTS.RESETED,
+                        } satisfies EventWithType<
+                            ResetedCircuitBreakerEvent,
+                            typeof CIRCUIT_BREAKER_EVENTS.RESETED
+                        >),
                     );
                 }, waitForSettings);
             });
