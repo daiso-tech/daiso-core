@@ -154,14 +154,14 @@ describe("function: useFactory", () => {
                 return executionContext.get(token);
             },
             ({ args, next, context }) => {
-                context.put(token, 42);
+                context.put(token, (context.get(token) ?? 0) + 1);
                 return next(args);
             },
         );
         const result1 = fn();
         const result2 = fn();
-        expect(result1).toBe(42);
-        expect(result2).toBe(42);
+        expect(result1).toBe(1);
+        expect(result2).toBe(1);
         expect(executionContext.get(token)).toBeNull();
     });
 });
