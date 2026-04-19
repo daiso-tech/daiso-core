@@ -77,6 +77,22 @@ export function resolvePolynomialBackoffSettings(
         jitter = 0.5,
         _mathRandom = Math.random,
     } = settings;
+
+    if (!(minDelay[TO_MILLISECONDS]() > 0)) {
+        throw new TypeError("'minDelay' must be positive");
+    }
+    if (!(maxDelay[TO_MILLISECONDS]() >= minDelay[TO_MILLISECONDS]())) {
+        throw new TypeError(
+            "'maxDelay' must be greater than or equal to 'minDelay'",
+        );
+    }
+    if (!(degree > 0)) {
+        throw new TypeError("'degree' must be positive");
+    }
+    if (jitter !== null && !(jitter >= 0 && jitter <= 1)) {
+        throw new TypeError("'jitter' must be between 0 and 1 or null");
+    }
+
     return {
         maxDelay,
         minDelay,

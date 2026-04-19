@@ -58,6 +58,13 @@ export function resolveConstantBackoffSettings(
         _mathRandom = Math.random,
     } = settings;
 
+    if (!(delay[TO_MILLISECONDS]() > 0)) {
+        throw new TypeError("'delay' must be positive");
+    }
+    if (jitter !== null && !(jitter >= 0 && jitter <= 1)) {
+        throw new TypeError("'jitter' must be between 0 and 1 or null");
+    }
+
     return {
         delay,
         jitter,
