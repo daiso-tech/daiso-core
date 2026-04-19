@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
 import { MemoryCacheAdapter } from "@/cache/implementations/adapters/_module.js";
@@ -8,6 +8,9 @@ import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_mod
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
+import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
+import { LockFactory } from "@/lock/implementations/derivables/_module.js";
+import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
 import { Namespace } from "@/namespace/implementations/_module.js";
 import { ValidationError } from "@/utilities/_module.js";
 
@@ -134,7 +137,45 @@ describe("class: Cache", () => {
             });
         });
         describe("Locking:", () => {
-            test.todo("Write tests");
+            test("should call lockFactory.create().runOrFail() when enableLocking is true", async () => {
+                const lockFactory = new LockFactory({
+                    adapter: new NoOpLockAdapter(),
+                });
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+                const lockingCache = new Cache<string>({
+                    namespace,
+                    adapter: new MemoryCacheAdapter(),
+                    lockFactory,
+                });
+
+                await lockingCache.getOrAdd("a", "value", {
+                    enableLocking: true,
+                });
+
+                expect(createSpy).toHaveBeenCalledWith("a");
+                expect(runOrFailSpy).toHaveBeenCalledOnce();
+            });
+
+            test("should not call lockFactory.create().runOrFail() when enableLocking is false", async () => {
+                const lockFactory = new LockFactory({
+                    adapter: new NoOpLockAdapter(),
+                });
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+                const lockingCache = new Cache<string>({
+                    namespace,
+                    adapter: new MemoryCacheAdapter(),
+                    lockFactory,
+                });
+
+                await lockingCache.getOrAdd("a", "value", {
+                    enableLocking: false,
+                });
+
+                expect(createSpy).not.toHaveBeenCalled();
+                expect(runOrFailSpy).not.toHaveBeenCalled();
+            });
         });
     });
 });
