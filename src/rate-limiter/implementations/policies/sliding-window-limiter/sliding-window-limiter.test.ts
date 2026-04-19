@@ -417,8 +417,4 @@ describe("class: SlidingWindowLimiter", () => {
             expect(newMetrics).not.toBe(metrics);
         });
     });
-
-    describe("method: isEqual", () => {
-        test.todo("Write tests!!!");
-    });
 });
