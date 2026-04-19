@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import { type EventWithType } from "@/event-bus/contracts/_module.js";
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
@@ -468,7 +469,11 @@ describe("class: RateLimiterFactory", () => {
                                     limit,
                                 } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
                                 error: expect.any(ErrorA),
-                            } satisfies TrackedFailureRateLimiterEvent),
+                                type: RATE_LIMITER_EVENTS.TRACKED_FAILURE,
+                            } satisfies EventWithType<
+                                TrackedFailureRateLimiterEvent,
+                                typeof RATE_LIMITER_EVENTS.TRACKED_FAILURE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -560,7 +565,11 @@ describe("class: RateLimiterFactory", () => {
                                     limit,
                                 } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
                                 error: expect.any(ErrorB),
-                            } satisfies UntrackedFailureRateLimiterEvent),
+                                type: RATE_LIMITER_EVENTS.UNTRACKED_FAILURE,
+                            } satisfies EventWithType<
+                                UntrackedFailureRateLimiterEvent,
+                                typeof RATE_LIMITER_EVENTS.UNTRACKED_FAILURE
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -609,7 +618,11 @@ describe("class: RateLimiterFactory", () => {
                                     key: rateLimiter.key,
                                     limit,
                                 } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                            } satisfies AllowedRateLimiterEvent),
+                                type: RATE_LIMITER_EVENTS.ALLOWED,
+                            } satisfies EventWithType<
+                                AllowedRateLimiterEvent,
+                                typeof RATE_LIMITER_EVENTS.ALLOWED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -658,7 +671,11 @@ describe("class: RateLimiterFactory", () => {
                                     key: rateLimiter.key,
                                     limit,
                                 } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                            } satisfies BlockedRateLimiterEvent),
+                                type: RATE_LIMITER_EVENTS.BLOCKED,
+                            } satisfies EventWithType<
+                                BlockedRateLimiterEvent,
+                                typeof RATE_LIMITER_EVENTS.BLOCKED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -700,7 +717,11 @@ describe("class: RateLimiterFactory", () => {
                                     key: rateLimiter.key,
                                     limit,
                                 } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                            } satisfies AllowedRateLimiterEvent),
+                                type: RATE_LIMITER_EVENTS.ALLOWED,
+                            } satisfies EventWithType<
+                                AllowedRateLimiterEvent,
+                                typeof RATE_LIMITER_EVENTS.ALLOWED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -751,7 +772,11 @@ describe("class: RateLimiterFactory", () => {
                                     key: rateLimiter.key,
                                     limit,
                                 } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                            } satisfies AllowedRateLimiterEvent),
+                                type: RATE_LIMITER_EVENTS.ALLOWED,
+                            } satisfies EventWithType<
+                                AllowedRateLimiterEvent,
+                                typeof RATE_LIMITER_EVENTS.ALLOWED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -800,7 +825,11 @@ describe("class: RateLimiterFactory", () => {
                                     key: rateLimiter.key,
                                     limit,
                                 } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                            } satisfies BlockedRateLimiterEvent),
+                                type: RATE_LIMITER_EVENTS.BLOCKED,
+                            } satisfies EventWithType<
+                                BlockedRateLimiterEvent,
+                                typeof RATE_LIMITER_EVENTS.BLOCKED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -842,7 +871,11 @@ describe("class: RateLimiterFactory", () => {
                                     key: rateLimiter.key,
                                     limit,
                                 } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                            } satisfies AllowedRateLimiterEvent),
+                                type: RATE_LIMITER_EVENTS.ALLOWED,
+                            } satisfies EventWithType<
+                                AllowedRateLimiterEvent,
+                                typeof RATE_LIMITER_EVENTS.ALLOWED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -888,7 +921,11 @@ describe("class: RateLimiterFactory", () => {
                                     key: rateLimiter.key,
                                     limit,
                                 } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                            } satisfies BlockedRateLimiterEvent),
+                                type: RATE_LIMITER_EVENTS.BLOCKED,
+                            } satisfies EventWithType<
+                                BlockedRateLimiterEvent,
+                                typeof RATE_LIMITER_EVENTS.BLOCKED
+                            >),
                         );
                     }, waitForSettings);
                 });
@@ -920,7 +957,11 @@ describe("class: RateLimiterFactory", () => {
                                 key: rateLimiter.key,
                                 limit: 10,
                             } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                        } satisfies ResetedRateLimiterEvent),
+                            type: RATE_LIMITER_EVENTS.RESETED,
+                        } satisfies EventWithType<
+                            ResetedRateLimiterEvent,
+                            typeof RATE_LIMITER_EVENTS.RESETED
+                        >),
                     );
                 }, waitForSettings);
             });
