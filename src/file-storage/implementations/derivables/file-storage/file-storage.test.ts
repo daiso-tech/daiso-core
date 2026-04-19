@@ -17,6 +17,7 @@ import {
     type FileWriteEnum,
     type FoundFileEvent,
     type IFile,
+    type IFileStorage,
     type IFileStorageAdapter,
     type IFileUrlAdapter,
     type ISignedFileStorageAdapter,
@@ -26,8 +27,13 @@ import {
 } from "@/file-storage/contracts/_module.js";
 import { FsFileStorageAdapter } from "@/file-storage/implementations/adapters/fs-file-storage-adapter/_module.js";
 import { MemoryFileStorageAdapter } from "@/file-storage/implementations/adapters/memory-file-storage-adapter/_module.js";
+import { NoOpFileStorageAdapter } from "@/file-storage/implementations/adapters/no-op-file-storage-adapter/_module.js";
 import { FileStorage } from "@/file-storage/implementations/derivables/file-storage/file-storage.js";
 import { fileStorageTestSuite } from "@/file-storage/implementations/test-utilities/_module.js";
+import { type ILockFactoryBase } from "@/lock/contracts/lock-factory.contract.js";
+import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
+import { LockFactory } from "@/lock/implementations/derivables/_module.js";
+import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
 import { Namespace } from "@/namespace/implementations/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
@@ -737,6 +743,185 @@ describe("class: FileStorage", () => {
         });
     });
     describe("Locking:", () => {
-        test.todo("Write tests");
+        let fileStorage: IFileStorage;
+        let lockFactory: ILockFactoryBase;
+        beforeEach(() => {
+            lockFactory = new LockFactory({
+                adapter: new NoOpLockAdapter(),
+            });
+            fileStorage = new FileStorage({
+                adapter: new NoOpFileStorageAdapter(),
+                lockFactory,
+            });
+        });
+
+        const data = new Uint8Array(Buffer.from("CONTENT"));
+
+        describe("IFile write methods:", () => {
+            test("Should call runOrFail with correct key when calling add", async () => {
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+                const file = fileStorage.create("a");
+
+                await file.add({ data });
+
+                expect(createSpy).toHaveBeenCalledOnce();
+                expect(createSpy).toHaveBeenCalledWith("a");
+                expect(runOrFailSpy).toHaveBeenCalledOnce();
+            });
+            test("Should call runOrFail with correct key when calling addStream", async () => {
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+                const file = fileStorage.create("a");
+
+                await file.addStream({
+                    data: {
+                        async *[Symbol.asyncIterator](): AsyncIterator<Uint8Array> {
+                            yield Promise.resolve(data);
+                        },
+                    },
+                });
+
+                expect(createSpy).toHaveBeenCalledOnce();
+                expect(createSpy).toHaveBeenCalledWith("a");
+                expect(runOrFailSpy).toHaveBeenCalledOnce();
+            });
+            test("Should call runOrFail with correct key when calling update", async () => {
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+                const file = fileStorage.create("a");
+
+                await file.update({ data });
+
+                expect(createSpy).toHaveBeenCalledOnce();
+                expect(createSpy).toHaveBeenCalledWith("a");
+                expect(runOrFailSpy).toHaveBeenCalledOnce();
+            });
+            test("Should call runOrFail with correct key when calling updateStream", async () => {
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+                const file = fileStorage.create("a");
+
+                await file.updateStream({
+                    data: {
+                        async *[Symbol.asyncIterator](): AsyncIterator<Uint8Array> {
+                            yield Promise.resolve(data);
+                        },
+                    },
+                });
+
+                expect(createSpy).toHaveBeenCalledOnce();
+                expect(createSpy).toHaveBeenCalledWith("a");
+                expect(runOrFailSpy).toHaveBeenCalledOnce();
+            });
+            test("Should call runOrFail with correct key when calling put", async () => {
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+                const file = fileStorage.create("a");
+
+                await file.put({ data });
+
+                expect(createSpy).toHaveBeenCalledOnce();
+                expect(createSpy).toHaveBeenCalledWith("a");
+                expect(runOrFailSpy).toHaveBeenCalledOnce();
+            });
+            test("Should call runOrFail with correct key when calling putStream", async () => {
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+                const file = fileStorage.create("a");
+
+                await file.putStream({
+                    data: {
+                        async *[Symbol.asyncIterator](): AsyncIterator<Uint8Array> {
+                            yield Promise.resolve(data);
+                        },
+                    },
+                });
+
+                expect(createSpy).toHaveBeenCalledOnce();
+                expect(createSpy).toHaveBeenCalledWith("a");
+                expect(runOrFailSpy).toHaveBeenCalledOnce();
+            });
+            test("Should call runOrFail with correct key when calling remove", async () => {
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+                const file = fileStorage.create("a");
+
+                await file.remove();
+
+                expect(createSpy).toHaveBeenCalledOnce();
+                expect(createSpy).toHaveBeenCalledWith("a");
+                expect(runOrFailSpy).toHaveBeenCalledOnce();
+            });
+            test("Should call runOrFail with correct key when calling copy", async () => {
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+                const file = fileStorage.create("a");
+
+                await file.copy("b");
+
+                expect(createSpy).toHaveBeenCalledOnce();
+                expect(createSpy).toHaveBeenCalledWith("a");
+                expect(runOrFailSpy).toHaveBeenCalledOnce();
+            });
+            test("Should call runOrFail with correct key when calling copyAndReplace", async () => {
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+                const file = fileStorage.create("a");
+
+                await file.copyAndReplace("b");
+
+                expect(createSpy).toHaveBeenCalledOnce();
+                expect(createSpy).toHaveBeenCalledWith("a");
+                expect(runOrFailSpy).toHaveBeenCalledOnce();
+            });
+            test("Should call runOrFail with correct key when calling move", async () => {
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+                const file = fileStorage.create("a");
+
+                await file.move("b");
+
+                expect(createSpy).toHaveBeenCalledOnce();
+                expect(createSpy).toHaveBeenCalledWith("a");
+                expect(runOrFailSpy).toHaveBeenCalledOnce();
+            });
+            test("Should call runOrFail with correct key when calling moveAndReplace", async () => {
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+                const file = fileStorage.create("a");
+
+                await file.moveAndReplace("b");
+
+                expect(createSpy).toHaveBeenCalledOnce();
+                expect(createSpy).toHaveBeenCalledWith("a");
+                expect(runOrFailSpy).toHaveBeenCalledOnce();
+            });
+        });
+        describe("IFileStorageBase methods:", () => {
+            test("Should not call lockFactory.create when calling clear", async () => {
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+
+                await fileStorage.clear();
+
+                expect(createSpy).not.toHaveBeenCalled();
+                expect(runOrFailSpy).not.toHaveBeenCalled();
+            });
+            test("Should call lockFactory.create with correct keys when calling removeMany", async () => {
+                const createSpy = vi.spyOn(lockFactory, "create");
+                const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
+                const fileA = fileStorage.create("a");
+                const fileB = fileStorage.create("b");
+                createSpy.mockClear();
+
+                await fileStorage.removeMany([fileA, fileB]);
+
+                expect(createSpy).toHaveBeenCalledTimes(2);
+                expect(createSpy).toHaveBeenNthCalledWith(1, "a");
+                expect(createSpy).toHaveBeenNthCalledWith(2, "b");
+                expect(runOrFailSpy).toHaveBeenCalledTimes(2);
+            });
+        });
     });
 });
