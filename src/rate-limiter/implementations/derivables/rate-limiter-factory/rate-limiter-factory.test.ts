@@ -4,6 +4,7 @@ import { type EventWithType } from "@/event-bus/contracts/_module.js";
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import { Namespace } from "@/namespace/implementations/_module.js";
 import {
     BlockedRateLimiterError,
     RATE_LIMITER_EVENTS,
@@ -20,8 +21,16 @@ import {
     type IRateLimiterAdapterState,
     type RateLimiterAllowedState,
     type RateLimiterBlockedState,
+    type IRateLimiter,
 } from "@/rate-limiter/contracts/_module.js";
+import {
+    DatabaseRateLimiterAdapter,
+    MemoryRateLimiterStorageAdapter,
+} from "@/rate-limiter/implementations/adapters/_module.js";
 import { RateLimiterFactory } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter-factory.js";
+import { FixedWindowLimiter } from "@/rate-limiter/implementations/policies/_module.js";
+import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
+import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay } from "@/utilities/_module.js";
 
@@ -968,6 +977,195 @@ describe("class: RateLimiterFactory", () => {
         });
     });
     describe("Serde tests:", () => {
-        test.todo("Write tests!!!");
+        test("Should differentiate between different namespaces", async () => {
+            const serde = new Serde(new SuperJsonSerdeAdapter());
+            const key = "a";
+            const rateLimiterPolicy = new FixedWindowLimiter({
+                window: TimeSpan.fromMinutes(1),
+            });
+
+            const rateLimiterFactory1 = new RateLimiterFactory({
+                adapter: new DatabaseRateLimiterAdapter({
+                    adapter: new MemoryRateLimiterStorageAdapter(),
+                    rateLimiterPolicy,
+                }),
+                namespace: new Namespace("@circuit-breaker-1"),
+                eventBus: new EventBus({
+                    adapter: new MemoryEventBusAdapter(),
+                    namespace: new Namespace("@event-bus/circuit-breaker-1"),
+                }),
+                serde,
+            });
+            const rateLimiter1 = rateLimiterFactory1.create(key, {
+                limit: 1,
+            });
+            try {
+                await rateLimiter1.runOrFail(() => {
+                    return Promise.reject(new Error("Unexpected error"));
+                });
+            } catch {
+                /* EMPTY */
+            }
+
+            const rateLimiterFactory2 = new RateLimiterFactory({
+                adapter: new DatabaseRateLimiterAdapter({
+                    adapter: new MemoryRateLimiterStorageAdapter(),
+                    rateLimiterPolicy,
+                }),
+                namespace: new Namespace("@circuit-breaker-2"),
+                eventBus: new EventBus({
+                    adapter: new MemoryEventBusAdapter(),
+                    namespace: new Namespace("@event-bus/circuit-breaker-2"),
+                }),
+                serde,
+            });
+            const rateLimiter2 = rateLimiterFactory2.create(key, {
+                limit: 1,
+            });
+
+            const deserializedRateLimiter2 = serde.deserialize<IRateLimiter>(
+                serde.serialize(rateLimiter2),
+            );
+            const handler = vi.fn();
+            await deserializedRateLimiter2.runOrFail(handler);
+            expect(handler).toHaveBeenCalledOnce();
+        });
+        test("Should differentiate between different adapters that have same namespace", async () => {
+            class WrapperRateLimiterAdapter implements IRateLimiterAdapter {
+                constructor(private readonly adapter: IRateLimiterAdapter) {}
+
+                getState(
+                    context: IReadableContext,
+                    key: string,
+                ): Promise<IRateLimiterAdapterState | null> {
+                    return this.adapter.getState(context, key);
+                }
+
+                updateState(
+                    context: IReadableContext,
+                    key: string,
+                    limit: number,
+                ): Promise<IRateLimiterAdapterState> {
+                    return this.adapter.updateState(context, key, limit);
+                }
+
+                reset(context: IReadableContext, key: string): Promise<void> {
+                    return this.adapter.reset(context, key);
+                }
+            }
+
+            const serde = new Serde(new SuperJsonSerdeAdapter());
+            const rateLimiterNamespace = new Namespace("@circuit-breaker");
+            const eventNamespace = new Namespace("@event-bus/circuit-breaker");
+            const key = "a";
+            const rateLimiterPolicy = new FixedWindowLimiter({
+                window: TimeSpan.fromMinutes(1),
+            });
+
+            const rateLimiterFactory1 = new RateLimiterFactory({
+                adapter: new WrapperRateLimiterAdapter(
+                    new DatabaseRateLimiterAdapter({
+                        adapter: new MemoryRateLimiterStorageAdapter(),
+                        rateLimiterPolicy,
+                    }),
+                ),
+                namespace: rateLimiterNamespace,
+                eventBus: new EventBus({
+                    adapter: new MemoryEventBusAdapter(),
+                    namespace: eventNamespace,
+                }),
+                serde,
+            });
+            const rateLimiter1 = rateLimiterFactory1.create(key, {
+                limit: 1,
+            });
+            try {
+                await rateLimiter1.runOrFail(() => {
+                    return Promise.reject(new Error("Unexpected error"));
+                });
+            } catch {
+                /* EMPTY */
+            }
+
+            const rateLimiterFactory2 = new RateLimiterFactory({
+                adapter: new DatabaseRateLimiterAdapter({
+                    adapter: new MemoryRateLimiterStorageAdapter(),
+                    rateLimiterPolicy,
+                }),
+                namespace: rateLimiterNamespace,
+                eventBus: new EventBus({
+                    adapter: new MemoryEventBusAdapter(),
+                    namespace: eventNamespace,
+                }),
+                serde,
+            });
+            const rateLimiter2 = rateLimiterFactory2.create(key, {
+                limit: 1,
+            });
+
+            const deserializedRateLimiter2 = serde.deserialize<IRateLimiter>(
+                serde.serialize(rateLimiter2),
+            );
+            const handler = vi.fn();
+            await deserializedRateLimiter2.runOrFail(handler);
+            expect(handler).toHaveBeenCalledOnce();
+        });
+        test("Should differentiate between different serdeTransformerNames", async () => {
+            const serde = new Serde(new SuperJsonSerdeAdapter());
+            const rateLimiterNamespace = new Namespace("@circuit-breaker");
+            const eventNamespace = new Namespace("@event-bus/circuit-breaker");
+            const key = "a";
+            const rateLimiterPolicy = new FixedWindowLimiter({
+                window: TimeSpan.fromMinutes(1),
+            });
+
+            const rateLimiterFactory1 = new RateLimiterFactory({
+                adapter: new DatabaseRateLimiterAdapter({
+                    adapter: new MemoryRateLimiterStorageAdapter(),
+                    rateLimiterPolicy,
+                }),
+                namespace: rateLimiterNamespace,
+                eventBus: new EventBus({
+                    adapter: new MemoryEventBusAdapter(),
+                    namespace: eventNamespace,
+                }),
+                serdeTransformerName: "adapter1",
+                serde,
+            });
+            const rateLimiter1 = rateLimiterFactory1.create(key, {
+                limit: 1,
+            });
+            try {
+                await rateLimiter1.runOrFail(() => {
+                    return Promise.reject(new Error("Unexpected error"));
+                });
+            } catch {
+                /* EMPTY */
+            }
+
+            const rateLimiterFactory2 = new RateLimiterFactory({
+                adapter: new DatabaseRateLimiterAdapter({
+                    adapter: new MemoryRateLimiterStorageAdapter(),
+                    rateLimiterPolicy,
+                }),
+                namespace: rateLimiterNamespace,
+                eventBus: new EventBus({
+                    adapter: new MemoryEventBusAdapter(),
+                    namespace: eventNamespace,
+                }),
+                serdeTransformerName: "adapter2",
+                serde,
+            });
+            const rateLimiter2 = rateLimiterFactory2.create(key, {
+                limit: 1,
+            });
+
+            const deserializedRateLimiter2 = serde.deserialize<IRateLimiter>(
+                serde.serialize(rateLimiter2),
+            );
+            const handler = vi.fn();
+            await deserializedRateLimiter2.runOrFail(handler);
+            expect(handler).toHaveBeenCalledOnce();
+        });
     });
 });
