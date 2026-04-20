@@ -6,19 +6,14 @@ import {
     type ICircuitBreakerStateMethods,
     type IsolatedCircuitBreakerEvent,
     type ResetedCircuitBreakerEvent,
-} from "@/circuit-breaker/contracts/_module.js";
-import {
     type CircuitBreakerStateTransition,
     type ICircuitBreakerAdapter,
-} from "@/circuit-breaker/contracts/circuit-breaker-adapter.contract.js";
-import {
     CIRCUIT_BREAKER_TRIGGER,
     type ICircuitBreakerFactory,
-} from "@/circuit-breaker/contracts/circuit-breaker-factory.contract.js";
-import {
     CIRCUIT_BREAKER_STATE,
     type CircuitBreakerState,
-} from "@/circuit-breaker/contracts/circuit-breaker-state.contract.js";
+    type ICircuitBreaker,
+} from "@/circuit-breaker/contracts/_module.js";
 import {
     CIRCUIT_BREAKER_EVENTS,
     type StateTransitionCircuitBreakerEvent,
@@ -27,11 +22,17 @@ import {
     type TrackedSuccessCircuitBreakerEvent,
     type UntrackedFailureCircuitBreakerEvent,
 } from "@/circuit-breaker/contracts/circuit-breaker.events.js";
+import {
+    DatabaseCircuitBreakerAdapter,
+    MemoryCircuitBreakerStorageAdapter,
+} from "@/circuit-breaker/implementations/adapters/_module.js";
 import { CircuitBreakerFactory } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker-factory.js";
+import { ConsecutiveBreaker } from "@/circuit-breaker/implementations/policies/_module.js";
 import { type EventWithType } from "@/event-bus/contracts/_module.js";
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import { Namespace } from "@/namespace/implementations/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/serde.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -1358,6 +1359,209 @@ describe("class: CircuitBreakerFactory", () => {
         });
     });
     describe("Serde tests:", () => {
-        test.todo("Write tests!!!");
+        test("Should differentiate between different namespaces", async () => {
+            const serde = new Serde(new SuperJsonSerdeAdapter());
+            const key = "a";
+            const circuitBreakerPolicy = new ConsecutiveBreaker({
+                failureThreshold: 1,
+                successThreshold: 1,
+            });
+
+            const circuitBreakerFactory1 = new CircuitBreakerFactory({
+                adapter: new DatabaseCircuitBreakerAdapter({
+                    adapter: new MemoryCircuitBreakerStorageAdapter(),
+                    circuitBreakerPolicy,
+                }),
+                enableAsyncTracking: false,
+                namespace: new Namespace("@circuit-breaker-1"),
+                eventBus: new EventBus({
+                    adapter: new MemoryEventBusAdapter(),
+                    namespace: new Namespace("@event-bus/circuit-breaker-1"),
+                }),
+                serde,
+            });
+            const circuitBreaker1 = circuitBreakerFactory1.create(key);
+            try {
+                await circuitBreaker1.runOrFail(() => {
+                    return Promise.reject(new Error("Unexpected error"));
+                });
+            } catch {
+                /* EMPTY */
+            }
+
+            const circuitBreakerFactory2 = new CircuitBreakerFactory({
+                adapter: new DatabaseCircuitBreakerAdapter({
+                    adapter: new MemoryCircuitBreakerStorageAdapter(),
+                    circuitBreakerPolicy,
+                }),
+                enableAsyncTracking: false,
+                namespace: new Namespace("@circuit-breaker-2"),
+                eventBus: new EventBus({
+                    adapter: new MemoryEventBusAdapter(),
+                    namespace: new Namespace("@event-bus/circuit-breaker-2"),
+                }),
+                serde,
+            });
+            const circuitBreaker2 = circuitBreakerFactory2.create(key);
+
+            const deserializedCircuitBreaker2 =
+                serde.deserialize<ICircuitBreaker>(
+                    serde.serialize(circuitBreaker2),
+                );
+            const handler = vi.fn();
+            await deserializedCircuitBreaker2.runOrFail(handler);
+            expect(handler).toHaveBeenCalledOnce();
+        });
+        test("Should differentiate between different adapters that have same namespace", async () => {
+            class WrapperCircuitBreakerAdapter
+                implements ICircuitBreakerAdapter
+            {
+                constructor(private readonly adapter: ICircuitBreakerAdapter) {}
+
+                getState(
+                    context: IReadableContext,
+                    key: string,
+                ): Promise<CircuitBreakerState> {
+                    return this.adapter.getState(context, key);
+                }
+                updateState(
+                    context: IReadableContext,
+                    key: string,
+                ): Promise<CircuitBreakerStateTransition> {
+                    return this.adapter.updateState(context, key);
+                }
+                isolate(context: IReadableContext, key: string): Promise<void> {
+                    return this.adapter.isolate(context, key);
+                }
+                trackFailure(
+                    context: IReadableContext,
+                    key: string,
+                ): Promise<void> {
+                    return this.adapter.trackFailure(context, key);
+                }
+                trackSuccess(
+                    context: IReadableContext,
+                    key: string,
+                ): Promise<void> {
+                    return this.adapter.trackSuccess(context, key);
+                }
+                reset(context: IReadableContext, key: string): Promise<void> {
+                    return this.adapter.reset(context, key);
+                }
+            }
+
+            const serde = new Serde(new SuperJsonSerdeAdapter());
+            const circuitBreakerNamespace = new Namespace("@circuit-breaker");
+            const eventNamespace = new Namespace("@event-bus/circuit-breaker");
+            const key = "a";
+            const circuitBreakerPolicy = new ConsecutiveBreaker({
+                failureThreshold: 1,
+                successThreshold: 1,
+            });
+
+            const circuitBreakerFactory1 = new CircuitBreakerFactory({
+                adapter: new WrapperCircuitBreakerAdapter(
+                    new DatabaseCircuitBreakerAdapter({
+                        adapter: new MemoryCircuitBreakerStorageAdapter(),
+                        circuitBreakerPolicy,
+                    }),
+                ),
+                enableAsyncTracking: false,
+                namespace: circuitBreakerNamespace,
+                eventBus: new EventBus({
+                    adapter: new MemoryEventBusAdapter(),
+                    namespace: eventNamespace,
+                }),
+                serde,
+            });
+            const circuitBreaker1 = circuitBreakerFactory1.create(key);
+            try {
+                await circuitBreaker1.runOrFail(() => {
+                    return Promise.reject(new Error("Unexpected error"));
+                });
+            } catch {
+                /* EMPTY */
+            }
+
+            const circuitBreakerFactory2 = new CircuitBreakerFactory({
+                adapter: new DatabaseCircuitBreakerAdapter({
+                    adapter: new MemoryCircuitBreakerStorageAdapter(),
+                    circuitBreakerPolicy,
+                }),
+                enableAsyncTracking: false,
+                namespace: circuitBreakerNamespace,
+                eventBus: new EventBus({
+                    adapter: new MemoryEventBusAdapter(),
+                    namespace: eventNamespace,
+                }),
+                serde,
+            });
+            const circuitBreaker2 = circuitBreakerFactory2.create(key);
+
+            const deserializedCircuitBreaker2 =
+                serde.deserialize<ICircuitBreaker>(
+                    serde.serialize(circuitBreaker2),
+                );
+            const handler = vi.fn();
+            await deserializedCircuitBreaker2.runOrFail(handler);
+            expect(handler).toHaveBeenCalledOnce();
+        });
+        test("Should differentiate between different serdeTransformerNames", async () => {
+            const serde = new Serde(new SuperJsonSerdeAdapter());
+            const circuitBreakerNamespace = new Namespace("@circuit-breaker");
+            const eventNamespace = new Namespace("@event-bus/circuit-breaker");
+            const key = "a";
+            const circuitBreakerPolicy = new ConsecutiveBreaker({
+                failureThreshold: 1,
+                successThreshold: 1,
+            });
+
+            const circuitBreakerFactory1 = new CircuitBreakerFactory({
+                adapter: new DatabaseCircuitBreakerAdapter({
+                    adapter: new MemoryCircuitBreakerStorageAdapter(),
+                    circuitBreakerPolicy,
+                }),
+                enableAsyncTracking: false,
+                namespace: circuitBreakerNamespace,
+                eventBus: new EventBus({
+                    adapter: new MemoryEventBusAdapter(),
+                    namespace: eventNamespace,
+                }),
+                serdeTransformerName: "adapter1",
+                serde,
+            });
+            const circuitBreaker1 = circuitBreakerFactory1.create(key);
+            try {
+                await circuitBreaker1.runOrFail(() => {
+                    return Promise.reject(new Error("Unexpected error"));
+                });
+            } catch {
+                /* EMPTY */
+            }
+
+            const circuitBreakerFactory2 = new CircuitBreakerFactory({
+                adapter: new DatabaseCircuitBreakerAdapter({
+                    adapter: new MemoryCircuitBreakerStorageAdapter(),
+                    circuitBreakerPolicy,
+                }),
+                enableAsyncTracking: false,
+                namespace: circuitBreakerNamespace,
+                eventBus: new EventBus({
+                    adapter: new MemoryEventBusAdapter(),
+                    namespace: eventNamespace,
+                }),
+                serdeTransformerName: "adapter2",
+                serde,
+            });
+            const circuitBreaker2 = circuitBreakerFactory2.create(key);
+
+            const deserializedCircuitBreaker2 =
+                serde.deserialize<ICircuitBreaker>(
+                    serde.serialize(circuitBreaker2),
+                );
+            const handler = vi.fn();
+            await deserializedCircuitBreaker2.runOrFail(handler);
+            expect(handler).toHaveBeenCalledOnce();
+        });
     });
 });
