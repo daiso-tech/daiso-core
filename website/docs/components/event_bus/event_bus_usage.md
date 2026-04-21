@@ -237,6 +237,51 @@ await eventBus.dispatch("add", {
 const event = await eventPromise;
 ```
 
+### Listening to multiple events
+
+The `addListener`, `removeListener`, and `subscribe` methods all accept either a single event name or an array of event names, allowing you to register one listener for multiple events at once:
+
+```ts
+type AddEvent = {
+    a: number;
+    b: number;
+};
+type RemoveEvent = {
+    id: number;
+};
+type EventMap = {
+    add: AddEvent;
+    remove: RemoveEvent;
+};
+
+const eventBus = new EventBus<EventMap>({
+    adapter: new MemoryEventBusAdapter(),
+});
+
+// The same listener handles both "add" and "remove" events
+await eventBus.addListener(["add", "remove"], (event) => {
+    console.log("EVENT:", event);
+    // event.type will be "add" or "remove" depending on which was dispatched
+});
+
+await eventBus.dispatch("add", { a: 1, b: 2 });
+await eventBus.dispatch("remove", { id: 42 });
+```
+
+You can also use `subscribe` to get a single cleanup function that unsubscribes from all listed events at once:
+
+```ts
+const unsubscribe = await eventBus.subscribe(["add", "remove"], (event) => {
+    console.log("EVENT:", event);
+});
+
+await eventBus.dispatch("add", { a: 1, b: 2 });
+await eventBus.dispatch("remove", { id: 42 });
+
+// Unsubscribes from both "add" and "remove" in one call
+await unsubscribe();
+```
+
 ### Separating dispatching and listening
 
 The library includes two additional contracts:
