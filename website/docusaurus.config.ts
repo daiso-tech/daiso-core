@@ -16,7 +16,7 @@ import { ogGenerator } from "./utilities/og-generator";
 const config: Config = {
     title: "@daiso-tech/core",
     tagline:
-        "@daiso-tech/core is a library of backend server components designed for maximum flexibility.",
+        "@daiso-tech/core is a SDK of backend server components designed for maximum flexibility.",
     favicon: "img/favicon.ico",
 
     // Set the production url of your site here

@@ -342,7 +342,7 @@ const value = await cache.getOrAdd(
 For further information about `LockFactory` and its adapters refer to the [`@daiso-tech/core/lock`](../lock/lock_usage.md) documentation.
 :::
 
-:::note
+:::warning
 The `lockFactory` defaults to a no-op implementation, so `enableLocking: true` has no effect unless you provide a real lock adapter.
 :::
 
