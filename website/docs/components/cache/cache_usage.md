@@ -291,7 +291,7 @@ await cache.removeOrFail("ab");
 
 ### Adding jitter to ttl
 
-You can enable TTL jitter (adding a small random offset) is beneficial because it prevents keys from expiring simultaneously. This avoids 'thundering herd' issues by spreading out the load on your data source over time.
+TTL jitter adds a small random offset to expiration times, which resolves the [cache stampede](https://en.wikipedia.org/wiki/Cache_stampede). When many cache keys expire at the same time, every client simultaneously misses the cache and floods the data source with requests. By spreading out expiration times, jitter ensures cache misses are staggered, distributing the load on your data source evenly over time.
 
 ```ts
 await cache.add("a", 1, { 
@@ -302,6 +302,48 @@ await cache.add("a", 1, {
 
 :::info
 You can enable jitter in the following methods: `addOrFail`, `put` and `getOrAdd`.
+:::
+
+### Cache locking
+
+The `getOrAdd` method supports distributed locking via the `enableLocking` setting. When multiple clients simultaneously request a key that is missing, without locking they all compute the value and write it to the cache — this is known as a [cache stampede](https://en.wikipedia.org/wiki/Cache_stampede). Enabling locking ensures that only one client computes and stores the value while the others wait and then read the cached result.
+
+To use locking, pass a `lockFactory` to the `Cache` constructor:
+
+```ts
+import { Cache } from "@daiso-tech/core/cache";
+import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
+import { LockFactory } from "@daiso-tech/core/lock";
+import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
+import Redis from "ioredis";
+
+const cache = new Cache({
+    adapter: new MemoryCacheAdapter(),
+    lockFactory: new LockFactory({
+        adapter: new RedisLockAdapter(new Redis("YOUR_REDIS_CONNECTION_STRING")),
+    }),
+});
+```
+
+Then pass `enableLocking: true` to `getOrAdd`:
+
+```ts
+const value = await cache.getOrAdd(
+    "user:1",
+    async () => {
+        // This expensive computation runs only once even under concurrent requests
+        return await fetchUserFromDatabase(1);
+    },
+    { enableLocking: true },
+);
+```
+
+:::info
+For further information about `LockFactory` and its adapters refer to the [`@daiso-tech/core/lock`](../lock/lock_usage.md) documentation.
+:::
+
+:::note
+The `lockFactory` defaults to a no-op implementation, so `enableLocking: true` has no effect unless you provide a real lock adapter.
 :::
 
 ### Namespacing
