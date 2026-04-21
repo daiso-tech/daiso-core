@@ -3,6 +3,7 @@
  */
 
 import {
+    type ClientSession,
     type Collection,
     type CollectionOptions,
     type Db,
@@ -168,6 +169,7 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
         _context: IReadableContext,
         key: string,
         state: TType,
+        session?: ClientSession,
     ): Promise<void> {
         await this.collection.updateOne(
             {
@@ -180,17 +182,18 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
             },
             {
                 upsert: true,
+                session,
             },
         );
     }
 
     private async _transaction<TValue>(
-        trxFn: InvokableFn<[], Promise<TValue>>,
+        trxFn: InvokableFn<[session?: ClientSession], Promise<TValue>>,
     ): Promise<TValue> {
         if (this.enableTransactions) {
             return await this.client.withSession(async (session) => {
                 return await session.withTransaction(async () => {
-                    return await trxFn();
+                    return await trxFn(session);
                 });
             });
         }
@@ -204,26 +207,42 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
             Promise<TValue>
         >,
     ): Promise<TValue> {
-        return await this._transaction(async () => {
+        return await this._transaction(async (session) => {
             return await fn({
                 upsert: (context, key, state) =>
-                    this.upsert(context, key, state),
-                find: (context, key) => this.find(context, key),
+                    this.upsert(context, key, state, session),
+                find: (context, key) => this.find(context, key, session),
             });
         });
     }
 
-    async find(_context: IReadableContext, key: string): Promise<TType | null> {
-        const doc = await this.collection.findOne({ key });
+    async find(
+        _context: IReadableContext,
+        key: string,
+        session?: ClientSession,
+    ): Promise<TType | null> {
+        const doc = await this.collection.findOne(
+            { key },
+            {
+                session,
+            },
+        );
         if (doc === null) {
             return null;
         }
         return this.serde.deserialize<TType>(doc.state);
     }
 
-    async remove(_context: IReadableContext, key: string): Promise<void> {
-        await this.collection.deleteOne({
-            key,
-        });
+    async remove(
+        _context: IReadableContext,
+        key: string,
+        session?: ClientSession,
+    ): Promise<void> {
+        await this.collection.deleteOne(
+            {
+                key,
+            },
+            { session },
+        );
     }
 }

@@ -1,7 +1,4 @@
-import {
-    MongoDBContainer,
-    type StartedMongoDBContainer,
-} from "@testcontainers/mongodb";
+import { type StartedMongoDBContainer } from "@testcontainers/mongodb";
 import { MongoClient } from "mongodb";
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
 
@@ -9,6 +6,7 @@ import { MongodbCircuitBreakerStorageAdapter } from "@/circuit-breaker/implement
 import { circuitBreakerStorageAdapterTestSuite } from "@/circuit-breaker/implementations/test-utilities/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/super-json-serde-adapter/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
+import { startMongoReplicaSet } from "@/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 const timeout = TimeSpan.fromMinutes(2);
@@ -16,8 +14,9 @@ describe("class: MongodbCircuitBreakerStorageAdapter", () => {
     let client: MongoClient;
     let startedContainer: StartedMongoDBContainer;
     beforeEach(async () => {
-        startedContainer = await new MongoDBContainer("mongo:5.0.0").start();
-        client = new MongoClient(startedContainer.getConnectionString(), {
+        const { container, uri } = await startMongoReplicaSet();
+        startedContainer = container;
+        client = new MongoClient(uri, {
             directConnection: true,
         });
     }, timeout.toMilliseconds());

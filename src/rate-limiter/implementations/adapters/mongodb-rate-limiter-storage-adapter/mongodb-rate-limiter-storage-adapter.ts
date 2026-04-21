@@ -3,6 +3,7 @@
  */
 
 import {
+    type ClientSession,
     type Collection,
     type CollectionOptions,
     type Db,
@@ -176,6 +177,7 @@ export class MongodbRateLimiterStorageAdapter<TType>
         key: string,
         state: TType,
         expiration: Date,
+        session?: ClientSession,
     ): Promise<void> {
         await this.collection.updateOne(
             {
@@ -187,20 +189,17 @@ export class MongodbRateLimiterStorageAdapter<TType>
                     expiration,
                 },
             },
-            {
-                upsert: true,
-            },
+            { session, upsert: true },
         );
     }
 
     private async _transaction<TValue>(
-        _context: IReadableContext,
-        trxFn: InvokableFn<[], Promise<TValue>>,
+        trxFn: InvokableFn<[session?: ClientSession], Promise<TValue>>,
     ): Promise<TValue> {
         if (this.enableTransactions) {
             return await this.client.withSession(async (session) => {
                 return await session.withTransaction(async () => {
-                    return await trxFn();
+                    return await trxFn(session);
                 });
             });
         }
@@ -208,17 +207,17 @@ export class MongodbRateLimiterStorageAdapter<TType>
     }
 
     async transaction<TValue>(
-        context: IReadableContext,
+        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
     ): Promise<TValue> {
-        return await this._transaction(context, async () => {
+        return await this._transaction(async (session) => {
             return await fn({
                 upsert: (context, key, state, exiration) =>
-                    this.upsert(context, key, state, exiration),
-                find: (context, key) => this.find(context, key),
+                    this.upsert(context, key, state, exiration, session),
+                find: (context, key) => this.find(context, key, session),
             });
         });
     }
@@ -226,10 +225,16 @@ export class MongodbRateLimiterStorageAdapter<TType>
     async find(
         _context: IReadableContext,
         key: string,
+        session?: ClientSession,
     ): Promise<IRateLimiterData<TType> | null> {
-        const doc = await this.collection.findOne({
-            key,
-        });
+        const doc = await this.collection.findOne(
+            {
+                key,
+            },
+            {
+                session,
+            },
+        );
         if (doc === null) {
             return null;
         }
@@ -239,9 +244,18 @@ export class MongodbRateLimiterStorageAdapter<TType>
         };
     }
 
-    async remove(_context: IReadableContext, key: string): Promise<void> {
-        await this.collection.deleteOne({
-            key,
-        });
+    async remove(
+        _context: IReadableContext,
+        key: string,
+        session?: ClientSession,
+    ): Promise<void> {
+        await this.collection.deleteOne(
+            {
+                key,
+            },
+            {
+                session,
+            },
+        );
     }
 }
