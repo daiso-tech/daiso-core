@@ -647,6 +647,33 @@ const fsFileStorage = new FileStorage({
 
 :::
 
+### File locking on write operations
+
+By default, no locking is applied to write operations. You can provide an [`ILockFactoryBase`](https://daiso-tech.github.io/daiso-core/types/Lock.ILockFactoryBase.html) instance via the `lockFactory` setting to enable distributed locking, ensuring that concurrent write operations on the same file are serialized and safe.
+
+```ts
+import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
+import { FileStorage } from "@daiso-tech/core/file-storage";
+import { LockFactory } from "@daiso-tech/core/lock";
+import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
+
+const lockFactory = new LockFactory({
+    adapter: new MemoryLockAdapter(),
+});
+
+const fileStorage = new FileStorage({
+    adapter: new MemoryFileStorageAdapter(),
+    lockFactory,
+});
+
+// Write operations on the same file key will now be protected by a lock
+await fileStorage.create("file.txt").add({ data: "CONTENT" });
+```
+
+:::info
+This is especially useful in distributed or concurrent environments where multiple processes or servers may write to the same file simultaneously. Use a distributed lock adapter (e.g., Redis-based) for cross-process locking.
+:::
+
 ### Separating creating, listening to and manipulating files
 
 The library includes 3 additional contracts:
