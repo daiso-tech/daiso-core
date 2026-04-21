@@ -511,9 +511,9 @@ console.log(await sharedLockB.getState());
 
 ### Retrying acquiring shared-lock as writer by attempts
 
-To retry acquiring shared-lock you can use the [`retry`](../resilience.md) middleware.
+To retry acquiring shared-lock as writer you can use the [`retry`](../resilience.md) middleware.
 
-Retrying acquiring shared-lock with `acquireWriterOrFail` method:
+Retrying acquiring shared-lock as writer with `acquireWriterOrFail` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
@@ -540,7 +540,7 @@ try {
 }
 ```
 
-Retrying acquiring sharedLock with `acquireWriter` method:
+Retrying acquiring sharedLock as writer with `acquireWriter` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
@@ -571,7 +571,7 @@ if (hasAquired) {
 }
 ```
 
-Retrying acquiring shared-lock with `runWriterOrFail` method:
+Retrying acquiring shared-lock as writer with `runWriterOrFail` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
@@ -597,7 +597,9 @@ await use(async () => {
 
 ### Retrying acquiring shared-lock as reader by attempts
 
-Retrying acquiring shared-lock with `acquireReaderOrFail` method:
+To retry acquiring shared-lock as reader you can use the [`retry`](../resilience.md) middleware.
+
+Retrying acquiring shared-lock as reader with `acquireReaderOrFail` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
@@ -624,7 +626,7 @@ try {
 }
 ```
 
-Retrying acquiring sharedLock with `acquireReader` method:
+Retrying acquiring sharedLock as reader with `acquireReader` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
@@ -655,7 +657,7 @@ if (hasAquired) {
 }
 ```
 
-Retrying acquiring shared-lock with `runReaderOrFail` method:
+Retrying acquiring shared-lock as reader with `runReaderOrFail` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
@@ -679,104 +681,9 @@ await use(async () => {
 ])();
 ```
 
-### Retrying acquiring shared-lock by interval
+### Retrying acquiring shared-lock as writer by interval
 
-To retry acquiring shared-lock at regular intervals you can use the [`retryInterval`](../resilience.md) middleware:
-
-#### As reader
-
-Retrying acquiring shared-lock with `acquireReaderOrFail` method:
-
-```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
-const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2,
-});
-
-const use = useFactory();
-try {
-    await use(async () => {
-        await sharedLock.acquireReaderOrFail();
-    }, [
-        retryInterval({
-            // Time to wait 1 minute
-            time: TimeSpan.fromMinutes(1),
-            // Interval to try acquire the shared-lock
-            interval: TimeSpan.fromSeconds(1),
-            errorPolicy: LimitReachedReaderSemaphoreError,
-        }),
-    ])();
-    // ... critical section
-} finally {
-    await sharedLock.releaseReader();
-}
-```
-
-Retrying acquiring shared-lock with `acquireReader` method:
-
-```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
-const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2,
-});
-
-const use = useFactory();
-const hasAcquired = await use(async () => {
-    return await sharedLock.acquireReader();
-}, [
-    retryInterval({
-        time: TimeSpan.fromMinutes(1),
-        interval: TimeSpan.fromSeconds(1),
-        errorPolicy: {
-            treatFalseAsError: true,
-        },
-    }),
-])();
-
-if (hasAcquired) {
-    try {
-        // ... critical section
-    } finally {
-        await sharedLock.releaseReader();
-    }
-}
-```
-
-Retrying acquiring shared-lock with `runReaderOrFail` method:
-
-```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
-const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2,
-});
-
-const use = useFactory();
-
-await use(async () => {
-    await sharedLock.runReaderOrFail(async () => {
-        // ... critical section
-    });
-}, [
-    retryInterval({
-        time: TimeSpan.fromMinutes(1),
-        interval: TimeSpan.fromSeconds(1),
-        errorPolicy: LimitReachedReaderSemaphoreError,
-    }),
-])();
-```
-
-#### As writer
+To retry acquiring shared-lockas as writer at regular intervals you can use the [`retryInterval`](../resilience.md) middleware.
 
 Retrying acquiring shared-lock with `acquireWriterOrFail` method:
 
@@ -865,6 +772,105 @@ await use(async () => {
         time: TimeSpan.fromMinutes(1),
         interval: TimeSpan.fromSeconds(1),
         errorPolicy: FailedAcquireWriterLockError,
+    }),
+])();
+```
+
+:::warning
+Note using `retryInterval` middleware with shared-lock acquiring in a HTTP request handler is discouraged because it blocks the HTTP request handler causing the handler wait until the shared-lock becomes available or the timeout is reached. This will delay HTTP request handler to generate response and will make frontend app slow because of HTTP request handler.
+:::
+
+### Retrying acquiring shared-lock as reader by interval
+
+To retry acquiring shared-lockas as reader at regular intervals you can use the [`retryInterval`](../resilience.md) middleware.
+
+Retrying acquiring shared-lock with `acquireReaderOrFail` method:
+
+```ts
+import { retryInterval } from "@daiso-tech/core/resilience";
+import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+const sharedLock = sharedLockFactory.create("resource", {
+    limit: 2,
+});
+
+const use = useFactory();
+try {
+    await use(async () => {
+        await sharedLock.acquireReaderOrFail();
+    }, [
+        retryInterval({
+            // Time to wait 1 minute
+            time: TimeSpan.fromMinutes(1),
+            // Interval to try acquire the shared-lock
+            interval: TimeSpan.fromSeconds(1),
+            errorPolicy: LimitReachedReaderSemaphoreError,
+        }),
+    ])();
+    // ... critical section
+} finally {
+    await sharedLock.releaseReader();
+}
+```
+
+Retrying acquiring shared-lock with `acquireReader` method:
+
+```ts
+import { retryInterval } from "@daiso-tech/core/resilience";
+import { useFactory } from "@daiso-tech/core/middleware";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+const sharedLock = sharedLockFactory.create("resource", {
+    limit: 2,
+});
+
+const use = useFactory();
+const hasAcquired = await use(async () => {
+    return await sharedLock.acquireReader();
+}, [
+    retryInterval({
+        time: TimeSpan.fromMinutes(1),
+        interval: TimeSpan.fromSeconds(1),
+        errorPolicy: {
+            treatFalseAsError: true,
+        },
+    }),
+])();
+
+if (hasAcquired) {
+    try {
+        // ... critical section
+    } finally {
+        await sharedLock.releaseReader();
+    }
+}
+```
+
+Retrying acquiring shared-lock with `runReaderOrFail` method:
+
+```ts
+import { retryInterval } from "@daiso-tech/core/resilience";
+import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
+import { useFactory } from "@daiso-tech/core/middleware";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+const sharedLock = sharedLockFactory.create("resource", {
+    limit: 2,
+});
+
+const use = useFactory();
+
+await use(async () => {
+    await sharedLock.runReaderOrFail(async () => {
+        // ... critical section
+    });
+}, [
+    retryInterval({
+        time: TimeSpan.fromMinutes(1),
+        interval: TimeSpan.fromSeconds(1),
+        errorPolicy: LimitReachedReaderSemaphoreError,
     }),
 ])();
 ```
