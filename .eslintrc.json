@@ -123,7 +123,13 @@
             }
         },
         {
-            "files": ["*.config.ts","*.config.mts","*.config.js", "*.config.cjs","*.config.mjs"],
+            "files": [
+                "*.config.ts",
+                "*.config.mts",
+                "*.config.js",
+                "*.config.cjs",
+                "*.config.mjs"
+            ],
             "rules": {
                 "import/no-default-export": "off"
             }

@@ -28,6 +28,6 @@
         "skipLibCheck": true,
         "verbatimModuleSyntax": true,
         "module": "NodeNext",
-        "moduleResolution": "nodenext",
+        "moduleResolution": "nodenext"
     }
 }

@@ -35,29 +35,33 @@ npm install @daiso-tech/core
 
 ---
 
-
 ## 🧩 Components
 
 A growing collection of officially maintained, production-ready components. Every component ships with multiple built-in adapters — swap infrastructure without changing a single line of business logic.
 
 ### 🛡️ Resilience
+
 - **Circuit-breaker**: Prevent cascading failures with an automatic circuit-breaker primitive that stops calls to a consistently failing service.
 - **Rate limiter**: Control traffic flow to protect services from overload.
 - **Hooks / Middleware**: Retry, fallback, and timeout logic for robust async flows.
 
 ### 🚦 Concurrency
+
 - **Lock**: Guarantee mutual exclusion across multiple processes with a distributed lock, eliminating race conditions on shared resources.
 - **Semaphore**: Limit concurrent access to a resource or code section across processes with a configurable distributed semaphore.
 - **Shared lock**: Coordinate readers and writers efficiently — allow concurrent reads while ensuring exclusive, safe writes across processes.
 
 ### 💾 Storage
+
 - **Cache**: Speed up your application by storing frequently accessed data in a pluggable cache store — Memory, Redis, Kysely, and MongoDB adapters included.
 - **File storage**: Manage files with a unified API across local filesystem, in-memory, and cloud providers like AWS S3.
 
 ### 📥 Messaging
+
 - **EventBus**: Publish and subscribe to events across distributed server instances or entirely in-memory for local testing.
 
 ### 🧰 Utilities
+
 - **Serde**: Add custom serialization and deserialization logic that integrates transparently with every other component in the library.
 - **Collection**: Effortlessly work with Arrays, Iterables, and AsyncIterables using a rich, composable, and lazy collection API.
 - **Execution context**: Propagate request-scoped data — user info, trace IDs, tenant context — across async boundaries. Integrates transparently with all components and adapters.
