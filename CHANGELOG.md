@@ -1,5 +1,109 @@
 # @daiso-tech/core
 
+## 0.51.0
+
+### Minor Changes
+
+- 07f2b2a: #### Added ExecutionContext support for managing execution state and context propagation. Includes:
+
+    - `IExecutionContext` contract defining the execution context interface
+    - `ExecutionContext` class for managing execution state
+    - `AlsExecutionContextAdapter` for AsyncLocalStorage-based context tracking
+    - `NoOpExecutionContextAdapter` for environments without context support
+    - Context management utilities for tracking execution flow across async operations
+
+- bc1abbe: Now you can listen to multiple events when using event-bus component
+- c989553: You can now pass `ILockFactory` to the `FileStorage` class constructor to ensure concurrency safety and data integrity.
+- 6ba746b: #### Integrated execution-context with the following adapters:
+
+    - `ICacheAdapter`
+    - `IDatabaseCacheAdapter`
+    - `ICircuitBreakerAdapter`
+    - `ICircuitBreakerStorageAdapter`
+    - `IEventBusAdapter`
+    - `IFileStorageAdapter`
+    - `ISignedFileStorageAdapter`
+    - `ILockAdapter`
+    - `IDatabaseLockAdapter`
+    - `IRateLimiterAdapter`
+    - `IRateLimiterStorageAdapter`
+    - `ISemaphoreAdapter`
+    - `IDatabaseSemaphoreAdapter`
+    - `ISharedLockAdapter`
+    - `IDatabaseSharedLockAdapter`
+
+    Now all these adapters take instance of `IReadableExecutionContext` as first argument.
+
+    #### Integrated execution-context with following classes:
+
+    - `Cache`
+    - `CircuitBreakerFactory`
+    - `EventBus`
+    - `FileStorage`
+    - `LockFactory`
+    - `RateLimiterFactory`
+    - `SemaphoreFactory`
+    - `SharedLockFactory`
+
+    Now you can pass `IExecutionContext` contract via the constructor.
+
+- 3a3df7c: - **Unified Middleware System**: Introduced a new middleware component that replaces the legacy Hooks system. - **Hybrid Support**: Natively handles both synchronous and asynchronous functions within a single interface. - **Execution Context**: Added full support for passing execution context through the middleware chain. - **Priority Management**: Built-in support for defining execution order via priority levels.
+
+    ### Changed
+
+    - **Removed Hooks Component**: The legacy Hooks system has been removed to reduce architectural complexity.
+        - **Simplified API**: Removed the need for separate classes for sync and async hooks, significantly reducing boilerplate.
+        - **Refined DX**: Replaced the verbose and complex Hooks API with a more ergonomic and streamlined middleware pattern.
+
+- 8ecb340: #### Breaking Changes
+
+    The `Task` class and `ITask` contract have been removed completely. Now native `Promise` is used across following components:
+
+    - cache
+    - collection
+    - event-bus
+    - file-storage
+    - rate-limiter
+    - circuit-breaker
+    - lock
+    - semaphore
+    - shared-lock
+
+    #### New Features
+
+    - Added a reusable delay utility
+    - The following classes support `waitUntil` configuration, facilitating seamless integration with serverless environments like `Vercel`, `Cloudflare`, and `Netlify`:
+        - `Cache`
+        - `LockFactory`
+        - `SemaphoreFactory`
+        - `SharedLockFactory`
+        - `CircuitBreakerFactory`
+        - `RateLimiterFactory`
+        - `FileStorage`
+        - `EventBus`
+
+### Patch Changes
+
+- 068bdc6: # Summary
+
+    Introduced the `retryInterval` middleware and streamlined the concurrency API by removing legacy blocking methods.
+
+    ## Breaking Changes
+
+    Removed several "blocking" methods across the locking and semaphore contracts. These methods are now redundant, as their behavior can be more flexibly achieved using the new `retryInterval` middleware.
+
+    **Affected Methods:**
+
+    - `ILock`: `acquireBlocking`, `acquireBlockingOrFail`, `runBlockingOrFail`
+    - `ISemaphore`: `acquireBlocking`, `acquireBlockingOrFail`, `runBlockingOrFail`
+    - `ISharedLock`:
+        - Writer: `acquireWriterBlocking`, `acquireWriterBlockingOrFail`, `runWriterBlockingOrFail`
+        - Reader: `acquireReaderBlocking`, `acquireReaderBlockingOrFail`, `runReaderBlockingOrFail`
+
+    ## New Features
+
+    - **`retryInterval` Middleware**: A new utility that retries a function call at a specified interval until a defined timeout is reached. This provides a unified way to handle retries across the framework without needing specialized "blocking" variants of every method.
+
 ## 0.50.0
 
 ### Minor Changes
@@ -827,8 +931,8 @@
 - 3ca9190: Renamed `FallbackSettings.fallbackPolicy` to `FallbackSettings.errorPolicy`
 - 3ca9190: - Removed the following types:
 
-                                                            - `AsyncFactoryable`
-                                                            - `Factoryable`
+                                                              - `AsyncFactoryable`
+                                                              - `Factoryable`
 
     - Updated remaining factory types to use the new `InvokableFn` and `InvokableObject` contracts:
         - Synchronous factories:
