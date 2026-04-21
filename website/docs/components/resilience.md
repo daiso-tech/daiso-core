@@ -126,6 +126,21 @@ const fn = use(unstableFn, [
 await fn();
 ```
 
+### Throw last error
+
+By default, a `RetryResilienceError` is thrown when the time window expires. This error aggregates all errors encountered during the retry process. You can instead rethrow the last encountered error:
+
+```ts
+const fn = use(unstableFn, [
+    retry({
+        maxAttempts: 4,
+        throwLastError: true
+    }),
+]);
+
+await fn();
+```
+
 ### Custom BackoffPolicy
 
 You can use custom [`BackoffPolicy`](./backoff_policies.md):
@@ -170,6 +185,109 @@ For more details about `onExecutionAttempt` callback data, see the `OnRetryAttem
 const fn = use(unstableFn, [
     retry({
         maxAttempts: 4,
+        onRetryDelay: (data) => console.log(data),
+    }),
+]);
+
+await fn();
+```
+
+:::info
+For more details about `onRetryDelay` callback data, see the `OnRetryDelayData` type.
+:::
+
+## Retry by interval
+
+The `retryInterval` middleware retries a function repeatedly within a given time window, waiting a fixed interval between each attempt. A `RetryIntervalResilienceError` is thrown when the time window expires and all attempts have failed.
+
+### Usage
+
+```ts
+import { retryInterval } from "@daiso-tech/core/resilience";
+import { useFactory } from "@daiso-tech/core/middleware";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+const use = useFactory();
+
+function unstableFn(): number {
+    // We simulate a function that can throw unexpected errors
+    if (Math.round(Math.random() * 1.5) === 0) {
+        throw new Error("Unexpected error occurred");
+    }
+    return Math.round((Math.random() + 1) * 99);
+}
+const fn = use(unstableFn, [
+    retryInterval({
+        // Retry for up to 10 seconds
+        time: TimeSpan.fromSeconds(10),
+        // Wait 500ms between each attempt
+        interval: TimeSpan.fromMilliseconds(500),
+    }),
+]);
+
+await fn();
+```
+
+### Custom ErrorPolicy
+
+You can define an [`ErrorPolicy`](../utilities/error_policy_type.md) to retry only specific error cases:
+
+```ts
+const fn = use(unstableFn, [
+    retryInterval({
+        time: TimeSpan.fromSeconds(10),
+        interval: TimeSpan.fromMilliseconds(500),
+        // Will only retry errors that are not a TypeError
+        errorPolicy: (error) => !(error instanceof TypeError),
+    }),
+]);
+
+await fn();
+```
+
+### Throw last error
+
+By default, a `RetryIntervalResilienceError` is thrown when the time window expires. This error aggregates all errors encountered during the retry process. You can instead rethrow the last encountered error:
+
+```ts
+const fn = use(unstableFn, [
+    retryInterval({
+        time: TimeSpan.fromSeconds(10),
+        interval: TimeSpan.fromMilliseconds(500),
+        throwLastError: true,
+    }),
+]);
+
+await fn();
+```
+
+### Callbacks
+
+You can add callback [`Invokable`](../utilities/invokable.md) that will be called before each execution attempt:
+
+```ts
+const fn = use(unstableFn, [
+    retryInterval({
+        time: TimeSpan.fromSeconds(10),
+        interval: TimeSpan.fromMilliseconds(500),
+        onExecutionAttempt: (data) => console.log(data),
+    }),
+]);
+
+await fn();
+```
+
+:::info
+For more details about `onExecutionAttempt` callback data, see the `OnRetryAttemptData` type.
+:::
+
+You can add callback [`Invokable`](../utilities/invokable.md) that will be called before the retry delay starts:
+
+```ts
+const fn = use(unstableFn, [
+    retryInterval({
+        time: TimeSpan.fromSeconds(10),
+        interval: TimeSpan.fromMilliseconds(500),
         onRetryDelay: (data) => console.log(data),
     }),
 ]);
