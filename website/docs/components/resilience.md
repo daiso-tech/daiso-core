@@ -348,49 +348,6 @@ await fn();
 For more details about `onTimeout` callback data, see the `OnTimeoutData` type.
 :::
 
-## Observe
-
-The `observe` middleware tracks an async function's state and runs callbacks when it fails with an error or succeeds:
-
-### Usage
-
-```ts
-import { observe } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
-
-const use = useFactory();
-
-function unstableFn(): Promise<number> {
-    // We simulate a function that can throw unexpected errors
-    if (Math.round(Math.random() * 1.5) === 0) {
-        throw new Error("Unexpected error occurred");
-    }
-    return Math.round((Math.random() + 1) * 99);
-}
-const fn = use(unstableFn, [
-    observe({
-        onStart: (data) => console.log("START:", data),
-        onSuccess: (data) => console.log("SUCCESS:", data),
-        onError: (data) => console.error("ERROR:", data),
-        onFinally: (data) => console.log("END:", data),
-    }),
-]);
-
-await fn();
-```
-
-:::info
-
-- For more details about `onStart` callback data, see the `OnObserveStartData` type.
-
-- For more details about `onSuccess` callback data, see the `OnObserveSuccessData` type.
-
-- For more details about `onError` callback data, see the `OnObserveErrorData` type.
-
-- For more details about `onFinally` callback data, see the `OnObserveFinallyData` type.
-
-:::
-
 ## Further information
 
 For further information refer to [`@daiso-tech/core/resilience`](https://daiso-tech.github.io/daiso-core/modules/Resilience.html) API docs.
