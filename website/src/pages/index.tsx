@@ -379,6 +379,13 @@ const componentItems: ComponentItemProps[] = [
             "Propagate request-scoped data — user info, trace IDs, tenant context — across async boundaries. Integrates transparently with all components and adapters.",
         href: "/docs/components/execution-context",
     },
+    {
+        icon: <Zap size="1.5rem" strokeWidth={1.5} />,
+        title: "Resilience",
+        description:
+            "Robust async flows with built-in middlewares: retry, fallback, and timeout for reliability and fault tolerance.",
+        href: "/docs/components/resilience",
+    },
 ];
 
 // --- Page ---
