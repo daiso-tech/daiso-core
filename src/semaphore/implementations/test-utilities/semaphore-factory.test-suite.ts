@@ -261,12 +261,15 @@ export function semaphoreFactoryTestSuite(
 
                     const releaseSpy = vi.spyOn(semaphore, "release");
 
+                    class UnexpectedError extends Error {}
                     try {
                         await semaphore.runOrFail(() => {
-                            return Promise.reject(new Error());
+                            return Promise.reject(new UnexpectedError());
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedError)) {
+                            throw error;
+                        }
                     }
 
                     expect(releaseSpy).toHaveBeenCalledTimes(1);
@@ -280,13 +283,15 @@ export function semaphoreFactoryTestSuite(
                         limit,
                     });
 
-                    class CustomError extends Error {}
+                    class UnexpectedErrorA extends Error {}
 
                     const error = semaphore.runOrFail(() => {
-                        return Promise.reject(new CustomError());
+                        return Promise.reject(new UnexpectedErrorA());
                     });
 
-                    await expect(error).rejects.toBeInstanceOf(CustomError);
+                    await expect(error).rejects.toBeInstanceOf(
+                        UnexpectedErrorA,
+                    );
                 });
                 test("Should call handler function when key doesnt exists", async () => {
                     const key = "a";
@@ -345,8 +350,10 @@ export function semaphoreFactoryTestSuite(
                     });
                     try {
                         await semaphore.runOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof LimitReachedSemaphoreError)) {
+                            throw error;
+                        }
                     }
 
                     await delay(delayBuffer);
@@ -367,8 +374,10 @@ export function semaphoreFactoryTestSuite(
                     });
                     try {
                         await semaphore.runOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof LimitReachedSemaphoreError)) {
+                            throw error;
+                        }
                     }
 
                     await delay(delayBuffer);
@@ -395,8 +404,10 @@ export function semaphoreFactoryTestSuite(
                                 limit,
                             })
                             .runOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof LimitReachedSemaphoreError)) {
+                            throw error;
+                        }
                     }
 
                     await delay(delayBuffer);
@@ -423,8 +434,10 @@ export function semaphoreFactoryTestSuite(
                                 limit,
                             })
                             .runOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof LimitReachedSemaphoreError)) {
+                            throw error;
+                        }
                     }
 
                     await delay(delayBuffer);
@@ -1764,8 +1777,10 @@ export function semaphoreFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     try {
                         await semaphore2.refreshOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshSemaphoreError)) {
+                            throw error;
+                        }
                     }
                     await delayWithBuffer(newTtl);
 
@@ -2518,8 +2533,12 @@ export function semaphoreFactoryTestSuite(
                         });
                         try {
                             await semaphore3.acquireOrFail();
-                        } catch {
-                            /* EMPTY */
+                        } catch (error: unknown) {
+                            if (
+                                !(error instanceof LimitReachedSemaphoreError)
+                            ) {
+                                throw error;
+                            }
                         }
                         await vi.waitFor(() => {
                             expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -2957,8 +2976,12 @@ export function semaphoreFactoryTestSuite(
                         );
                         try {
                             await semaphore.releaseOrFail();
-                        } catch {
-                            /* EMPTY */
+                        } catch (error: unknown) {
+                            if (
+                                !(error instanceof FailedReleaseSemaphoreError)
+                            ) {
+                                throw error;
+                            }
                         }
                         await vi.waitFor(() => {
                             expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -3007,8 +3030,12 @@ export function semaphoreFactoryTestSuite(
                         );
                         try {
                             await semaphore.releaseOrFail();
-                        } catch {
-                            /* EMPTY */
+                        } catch (error: unknown) {
+                            if (
+                                !(error instanceof FailedReleaseSemaphoreError)
+                            ) {
+                                throw error;
+                            }
                         }
                         await vi.waitFor(() => {
                             expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -3055,8 +3082,12 @@ export function semaphoreFactoryTestSuite(
                         );
                         try {
                             await semaphore.releaseOrFail();
-                        } catch {
-                            /* EMPTY */
+                        } catch (error: unknown) {
+                            if (
+                                !(error instanceof FailedReleaseSemaphoreError)
+                            ) {
+                                throw error;
+                            }
                         }
                         await vi.waitFor(() => {
                             expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -3099,8 +3130,12 @@ export function semaphoreFactoryTestSuite(
                         );
                         try {
                             await semaphore.releaseOrFail();
-                        } catch {
-                            /* EMPTY */
+                        } catch (error: unknown) {
+                            if (
+                                !(error instanceof FailedReleaseSemaphoreError)
+                            ) {
+                                throw error;
+                            }
                         }
                         await vi.waitFor(() => {
                             expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -3595,8 +3630,12 @@ export function semaphoreFactoryTestSuite(
                         );
                         try {
                             await semaphore2.refreshOrFail(newTtl);
-                        } catch {
-                            /* EMPTY */
+                        } catch (error: unknown) {
+                            if (
+                                !(error instanceof FailedRefreshSemaphoreError)
+                            ) {
+                                throw error;
+                            }
                         }
                         await vi.waitFor(() => {
                             expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -3645,8 +3684,12 @@ export function semaphoreFactoryTestSuite(
                         );
                         try {
                             await semaphore2.refreshOrFail(newTtl);
-                        } catch {
-                            /* EMPTY */
+                        } catch (error: unknown) {
+                            if (
+                                !(error instanceof FailedRefreshSemaphoreError)
+                            ) {
+                                throw error;
+                            }
                         }
                         await vi.waitFor(() => {
                             expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -3689,8 +3732,12 @@ export function semaphoreFactoryTestSuite(
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         try {
                             await semaphore.refreshOrFail(newTtl);
-                        } catch {
-                            /* EMPTY */
+                        } catch (error: unknown) {
+                            if (
+                                !(error instanceof FailedRefreshSemaphoreError)
+                            ) {
+                                throw error;
+                            }
                         }
                         await vi.waitFor(() => {
                             expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -3734,8 +3781,12 @@ export function semaphoreFactoryTestSuite(
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         try {
                             await semaphore.refreshOrFail(newTtl);
-                        } catch {
-                            /* EMPTY */
+                        } catch (error: unknown) {
+                            if (
+                                !(error instanceof FailedRefreshSemaphoreError)
+                            ) {
+                                throw error;
+                            }
                         }
                         await vi.waitFor(() => {
                             expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -3778,8 +3829,12 @@ export function semaphoreFactoryTestSuite(
                         const newTtl = TimeSpan.fromMilliseconds(100);
                         try {
                             await semaphore.refreshOrFail(newTtl);
-                        } catch {
-                            /* EMPTY */
+                        } catch (error: unknown) {
+                            if (
+                                !(error instanceof FailedRefreshSemaphoreError)
+                            ) {
+                                throw error;
+                            }
                         }
                         await vi.waitFor(() => {
                             expect(handlerFn).toHaveBeenCalledTimes(1);
