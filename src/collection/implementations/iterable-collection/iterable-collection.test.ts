@@ -1799,8 +1799,10 @@ describe("class: IterableCollection", () => {
                     indexes.push(index);
                     return item === 6;
                 });
-            } catch {
-                /* Empty */
+            } catch (error: unknown) {
+                if (!(error instanceof ItemNotFoundCollectionError)) {
+                    throw error;
+                }
             }
             expect(indexes).toEqual([0, 1, 2, 3, 4]);
         });
@@ -1983,8 +1985,10 @@ describe("class: IterableCollection", () => {
                     indexes.push(index);
                     return item === 6;
                 });
-            } catch {
-                /* Empty */
+            } catch (error: unknown) {
+                if (!(error instanceof ItemNotFoundCollectionError)) {
+                    throw error;
+                }
             }
             expect(indexes).toEqual([0, 1, 2, 3, 4]);
         });
@@ -2111,8 +2115,10 @@ describe("class: IterableCollection", () => {
                     indexes.push(index);
                     return item === "c";
                 });
-            } catch {
-                /* Empty */
+            } catch (error: unknown) {
+                if (!(error instanceof ItemNotFoundCollectionError)) {
+                    throw error;
+                }
             }
             expect(indexes).toEqual([0, 1, 2]);
         });
@@ -2239,8 +2245,10 @@ describe("class: IterableCollection", () => {
                     indexes.push(index);
                     return item === "c";
                 });
-            } catch {
-                /* Empty */
+            } catch (error: unknown) {
+                if (!(error instanceof ItemNotFoundCollectionError)) {
+                    throw error;
+                }
             }
             expect(indexes).toEqual([0, 1, 2]);
         });
