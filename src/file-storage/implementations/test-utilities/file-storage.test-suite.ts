@@ -1010,8 +1010,10 @@ export function fileStorageTestSuite(
                     );
                     try {
                         await file.addOrFail({ data: newData });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyExistsFileError)) {
+                            throw error;
+                        }
                     }
 
                     const result = await file.getBytes();
@@ -1186,8 +1188,10 @@ export function fileStorageTestSuite(
                                 },
                             },
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyExistsFileError)) {
+                            throw error;
+                        }
                     }
 
                     const result = await file.getBytes();
@@ -1265,8 +1269,10 @@ export function fileStorageTestSuite(
                     const file = fileStorage.create(key);
                     try {
                         await file.updateOrFail({ data });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     const result = await file.getBytes();
@@ -1405,8 +1411,10 @@ export function fileStorageTestSuite(
                                 },
                             },
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     const result = await file.getBytes();
@@ -1823,8 +1831,10 @@ export function fileStorageTestSuite(
 
                     try {
                         await sourceFile.copyOrFail(destination);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyExistsFileError)) {
+                            throw error;
+                        }
                     }
 
                     const result = await destinationFile.getBytes();
@@ -2277,8 +2287,10 @@ export function fileStorageTestSuite(
 
                     try {
                         await sourceFile.moveOrFail(destination);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyExistsFileError)) {
+                            throw error;
+                        }
                     }
 
                     const result = await destinationFile.getBytes();
@@ -2796,8 +2808,10 @@ export function fileStorageTestSuite(
 
                     try {
                         await file.getTextOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -2950,8 +2964,10 @@ export function fileStorageTestSuite(
 
                     try {
                         await file.getBytesOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -3104,8 +3120,10 @@ export function fileStorageTestSuite(
 
                     try {
                         await file.getBufferOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -3258,8 +3276,10 @@ export function fileStorageTestSuite(
 
                     try {
                         await file.getArrayBufferOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -3412,8 +3432,10 @@ export function fileStorageTestSuite(
 
                     try {
                         await file.getReadableOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -3566,8 +3588,10 @@ export function fileStorageTestSuite(
 
                     try {
                         await file.getReadableStreamOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -3720,8 +3744,10 @@ export function fileStorageTestSuite(
 
                     try {
                         await file.getMetadataOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -4001,8 +4027,10 @@ export function fileStorageTestSuite(
                                 Buffer.from("NEW_CONTENT", "utf8"),
                             ),
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyExistsFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -4189,8 +4217,10 @@ export function fileStorageTestSuite(
                                 },
                             },
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyExistsFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -4404,8 +4434,10 @@ export function fileStorageTestSuite(
                                 Buffer.from("NEW_CONTENT", "utf8"),
                             ),
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -4598,8 +4630,10 @@ export function fileStorageTestSuite(
                                 },
                             },
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -4928,8 +4962,10 @@ export function fileStorageTestSuite(
 
                     try {
                         await file.removeOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -5099,8 +5135,10 @@ export function fileStorageTestSuite(
                     );
                     try {
                         await fileStorage.create("a").copyOrFail("b");
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -5142,8 +5180,10 @@ export function fileStorageTestSuite(
                     });
                     try {
                         await file.copyOrFail("b");
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyExistsFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -5372,8 +5412,10 @@ export function fileStorageTestSuite(
                     );
                     try {
                         await fileStorage.create("a").copyAndReplaceOrFail("b");
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -5641,8 +5683,10 @@ export function fileStorageTestSuite(
                     );
                     try {
                         await fileStorage.create("a").moveOrFail("b");
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -5684,8 +5728,10 @@ export function fileStorageTestSuite(
                     });
                     try {
                         await file.moveOrFail("b");
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyExistsFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -5914,8 +5960,10 @@ export function fileStorageTestSuite(
                     );
                     try {
                         await fileStorage.create("a").moveAndReplaceOrFail("b");
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundFileError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {

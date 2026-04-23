@@ -310,8 +310,10 @@ describe("class: FileStorage", () => {
 
             try {
                 await fileStorage.create("a").getPublicUrlOrFail();
-            } catch {
-                /* EMPTY */
+            } catch (error: unknown) {
+                if (!(error instanceof KeyNotFoundFileError)) {
+                    throw error;
+                }
             }
             await delay(TTL);
 
@@ -326,8 +328,10 @@ describe("class: FileStorage", () => {
 
             try {
                 await fileStorage.create("a").getPublicUrlOrFail();
-            } catch {
-                /* EMPTY */
+            } catch (error: unknown) {
+                if (!(error instanceof KeyNotFoundFileError)) {
+                    throw error;
+                }
             }
             await delay(TTL);
 
@@ -355,8 +359,10 @@ describe("class: FileStorage", () => {
 
             try {
                 await fileStorage.create("a").getPublicUrlOrFail();
-            } catch {
-                /* EMPTY */
+            } catch (error: unknown) {
+                if (!(error instanceof KeyNotFoundFileError)) {
+                    throw error;
+                }
             }
             await delay(TTL);
 
@@ -534,8 +540,10 @@ describe("class: FileStorage", () => {
 
             try {
                 await fileStorage.create("a").getSignedDownloadUrlOrFail();
-            } catch {
-                /* EMPTY */
+            } catch (error: unknown) {
+                if (!(error instanceof KeyNotFoundFileError)) {
+                    throw error;
+                }
             }
 
             await delay(TTL);
@@ -553,8 +561,10 @@ describe("class: FileStorage", () => {
 
             try {
                 await fileStorage.create("a").getSignedDownloadUrlOrFail();
-            } catch {
-                /* EMPTY */
+            } catch (error: unknown) {
+                if (!(error instanceof KeyNotFoundFileError)) {
+                    throw error;
+                }
             }
             await delay(TTL);
 
@@ -582,8 +592,10 @@ describe("class: FileStorage", () => {
 
             try {
                 await fileStorage.create("a").getSignedDownloadUrlOrFail();
-            } catch {
-                /* EMPTY */
+            } catch (error: unknown) {
+                if (!(error instanceof KeyNotFoundFileError)) {
+                    throw error;
+                }
             }
             await delay(TTL);
 
