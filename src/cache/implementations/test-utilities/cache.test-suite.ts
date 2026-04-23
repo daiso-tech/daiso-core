@@ -655,8 +655,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     try {
                         await cache.addOrFail(key, value2);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyExistsCacheError)) {
+                            throw error;
+                        }
                     }
 
                     const result = await cache.get(key);
@@ -673,8 +675,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     try {
                         await cache.addOrFail(key, value2);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyExistsCacheError)) {
+                            throw error;
+                        }
                     }
 
                     const result = await cache.get(key);
@@ -885,8 +889,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     try {
                         await cache.updateOrFail(key, value);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundCacheError)) {
+                            throw error;
+                        }
                     }
 
                     const result = await cache.get(key);
@@ -918,8 +924,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     try {
                         await cache.updateOrFail(key, value2);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundCacheError)) {
+                            throw error;
+                        }
                     }
 
                     const result = await cache.get(key);
@@ -1081,8 +1089,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     try {
                         await cache.incrementOrFail(key, value);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundCacheError)) {
+                            throw error;
+                        }
                     }
 
                     const result = await cache.get(key);
@@ -1114,8 +1124,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     try {
                         await cache.incrementOrFail(key, value2);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundCacheError)) {
+                            throw error;
+                        }
                     }
 
                     const result = await cache.get(key);
@@ -1277,8 +1289,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     try {
                         await cache.decrementOrFail(key, value);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundCacheError)) {
+                            throw error;
+                        }
                     }
 
                     const result = await cache.get(key);
@@ -1310,8 +1324,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     try {
                         await cache.decrementOrFail(key, value2);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundCacheError)) {
+                            throw error;
+                        }
                     }
 
                     const result = await cache.get(key);
@@ -1791,8 +1807,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     try {
                         await cache.getOrFail(key);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundCacheError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
@@ -1963,8 +1981,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     try {
                         await cache.updateOrFail(key, value);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundCacheError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
@@ -2164,8 +2184,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
                     try {
                         await cache.removeOrFail(key);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundCacheError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
@@ -2531,8 +2553,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     try {
                         await cache.incrementOrFail(key, value);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundCacheError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
@@ -2669,8 +2693,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     try {
                         await cache.decrementOrFail(key, value);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof KeyNotFoundCacheError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
