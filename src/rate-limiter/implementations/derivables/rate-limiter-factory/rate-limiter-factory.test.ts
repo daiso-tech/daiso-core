@@ -40,20 +40,20 @@ describe("class: RateLimiterFactory", () => {
             _context: IReadableContext,
             _key: string,
         ): Promise<IRateLimiterAdapterState | null> {
-            throw new Error("Function not implemented.");
+            throw new UnexpectedErrorA("Function not implemented.");
         },
         updateState: function (
             _context: IReadableContext,
             _key: string,
             _limit: number,
         ): Promise<IRateLimiterAdapterState> {
-            throw new Error("Function not implemented.");
+            throw new UnexpectedErrorA("Function not implemented.");
         },
         reset: function (
             _context: IReadableContext,
             _key: string,
         ): Promise<void> {
-            throw new Error("Function not implemented.");
+            throw new UnexpectedErrorA("Function not implemented.");
         },
     };
     const KEY = "a";
@@ -65,6 +65,8 @@ describe("class: RateLimiterFactory", () => {
             .multiply(3)
             .toMilliseconds(),
     };
+    class UnexpectedErrorA extends Error {}
+    class UnexpectedErrorB extends Error {}
 
     let rateLimiterFactory: IRateLimiterFactory;
     beforeEach(() => {
@@ -102,10 +104,12 @@ describe("class: RateLimiterFactory", () => {
                                 onlyError: true,
                             })
                             .runOrFail(() => {
-                                throw new Error("Unexpected error");
+                                throw new UnexpectedErrorA("Unexpected error");
                             });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
 
                     expect(updateStateSpy).toHaveBeenCalledOnce();
@@ -152,10 +156,12 @@ describe("class: RateLimiterFactory", () => {
                                 onlyError: true,
                             })
                             .runOrFail(() => {
-                                throw new Error("Unexpected error");
+                                throw new UnexpectedErrorA("Unexpected error");
                             });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
 
                     expect(getStateSpy).toHaveBeenCalledOnce();
@@ -200,7 +206,9 @@ describe("class: RateLimiterFactory", () => {
                         onlyError: true,
                     });
                     const promise = rateLimiter.runOrFail(() => {
-                        return Promise.reject(new Error("UNEXPECTED ERROR"));
+                        return Promise.reject(
+                            new UnexpectedErrorA("UNEXPECTED ERROR"),
+                        );
                     });
                     await expect(promise).rejects.toBeInstanceOf(
                         BlockedRateLimiterError,
@@ -228,10 +236,12 @@ describe("class: RateLimiterFactory", () => {
                                 onlyError: false,
                             })
                             .runOrFail(() => {
-                                throw new Error("Unexpected error");
+                                throw new UnexpectedErrorA("Unexpected error");
                             });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
 
                     expect(updateStateSpy).toHaveBeenCalledOnce();
@@ -278,10 +288,12 @@ describe("class: RateLimiterFactory", () => {
                                 onlyError: false,
                             })
                             .runOrFail(() => {
-                                throw new Error("Unexpected error");
+                                throw new UnexpectedErrorA("Unexpected error");
                             });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
 
                     expect(getStateSpy).not.toHaveBeenCalled();
@@ -323,7 +335,9 @@ describe("class: RateLimiterFactory", () => {
                         onlyError: false,
                     });
                     const promise = rateLimiter.runOrFail(() => {
-                        return Promise.reject(new Error("UNEXPECTED ERROR"));
+                        return Promise.reject(
+                            new UnexpectedErrorA("UNEXPECTED ERROR"),
+                        );
                     });
                     await expect(promise).rejects.toBeInstanceOf(
                         BlockedRateLimiterError,
@@ -454,17 +468,18 @@ describe("class: RateLimiterFactory", () => {
                     );
 
                     const limit = 5;
-                    class ErrorA extends Error {}
                     const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: true,
                     });
                     try {
                         await rateLimiter.runOrFail(() => {
-                            throw new ErrorA("Unexpected error");
+                            throw new UnexpectedErrorA("Unexpected error");
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
@@ -477,7 +492,7 @@ describe("class: RateLimiterFactory", () => {
                                     key: rateLimiter.key,
                                     limit,
                                 } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                                error: expect.any(ErrorA),
+                                error: expect.any(UnexpectedErrorA),
                                 type: RATE_LIMITER_EVENTS.TRACKED_FAILURE,
                             } satisfies EventWithType<
                                 TrackedFailureRateLimiterEvent,
@@ -507,20 +522,20 @@ describe("class: RateLimiterFactory", () => {
                         handlerFn,
                     );
 
-                    class ErrorA extends Error {}
-                    class ErrorB extends Error {}
                     try {
                         await rateLimiterFactory
                             .create(KEY, {
                                 limit: 5,
                                 onlyError: true,
-                                errorPolicy: ErrorA,
+                                errorPolicy: UnexpectedErrorA,
                             })
                             .runOrFail(() => {
-                                throw new ErrorB("Unexpected error");
+                                throw new UnexpectedErrorB("Unexpected error");
                             });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorB)) {
+                            throw error;
+                        }
                     }
 
                     await delay(eventDispatchWaitTime);
@@ -547,20 +562,20 @@ describe("class: RateLimiterFactory", () => {
                         handlerFn,
                     );
 
-                    class ErrorA extends Error {}
-                    class ErrorB extends Error {}
                     const limit = 5;
                     const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: true,
-                        errorPolicy: ErrorA,
+                        errorPolicy: UnexpectedErrorA,
                     });
                     try {
                         await rateLimiter.runOrFail(() => {
-                            throw new ErrorB("Unexpected error");
+                            throw new UnexpectedErrorB("Unexpected error");
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorB)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
@@ -573,7 +588,7 @@ describe("class: RateLimiterFactory", () => {
                                     key: rateLimiter.key,
                                     limit,
                                 } satisfies IRateLimiterStateMethods) as IRateLimiterStateMethods,
-                                error: expect.any(ErrorB),
+                                error: expect.any(UnexpectedErrorB),
                                 type: RATE_LIMITER_EVENTS.UNTRACKED_FAILURE,
                             } satisfies EventWithType<
                                 UntrackedFailureRateLimiterEvent,
@@ -604,17 +619,18 @@ describe("class: RateLimiterFactory", () => {
                         handlerFn,
                     );
 
-                    class ErrorA extends Error {}
                     const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: true,
                     });
                     try {
                         await rateLimiter.runOrFail(() => {
-                            throw new ErrorA("Unexpected error");
+                            throw new UnexpectedErrorA("Unexpected error");
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
@@ -657,17 +673,18 @@ describe("class: RateLimiterFactory", () => {
                         handlerFn,
                     );
 
-                    class ErrorA extends Error {}
                     const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: true,
                     });
                     try {
                         await rateLimiter.runOrFail(() => {
-                            throw new ErrorA("Unexpected error");
+                            throw new UnexpectedErrorA("Unexpected error");
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
@@ -758,17 +775,18 @@ describe("class: RateLimiterFactory", () => {
                         handlerFn,
                     );
 
-                    class ErrorA extends Error {}
                     const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: false,
                     });
                     try {
                         await rateLimiter.runOrFail(() => {
-                            throw new ErrorA("Unexpected error");
+                            throw new UnexpectedErrorA("Unexpected error");
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
@@ -811,17 +829,18 @@ describe("class: RateLimiterFactory", () => {
                         handlerFn,
                     );
 
-                    class ErrorA extends Error {}
                     const rateLimiter = rateLimiterFactory.create(KEY, {
                         limit,
                         onlyError: false,
                     });
                     try {
                         await rateLimiter.runOrFail(() => {
-                            throw new ErrorA("Unexpected error");
+                            throw new UnexpectedErrorA("Unexpected error");
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
@@ -914,11 +933,8 @@ describe("class: RateLimiterFactory", () => {
                         limit,
                         onlyError: false,
                     });
-                    try {
-                        await rateLimiter.runOrFail(() => {});
-                    } catch {
-                        /* EMPTY */
-                    }
+                    await rateLimiter.runOrFail(() => {});
+
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -1001,10 +1017,14 @@ describe("class: RateLimiterFactory", () => {
             });
             try {
                 await rateLimiter1.runOrFail(() => {
-                    return Promise.reject(new Error("Unexpected error"));
+                    return Promise.reject(
+                        new UnexpectedErrorA("Unexpected error"),
+                    );
                 });
-            } catch {
-                /* EMPTY */
+            } catch (error: unknown) {
+                if (!(error instanceof UnexpectedErrorA)) {
+                    throw error;
+                }
             }
 
             const rateLimiterFactory2 = new RateLimiterFactory({
@@ -1081,10 +1101,14 @@ describe("class: RateLimiterFactory", () => {
             });
             try {
                 await rateLimiter1.runOrFail(() => {
-                    return Promise.reject(new Error("Unexpected error"));
+                    return Promise.reject(
+                        new UnexpectedErrorA("Unexpected error"),
+                    );
                 });
-            } catch {
-                /* EMPTY */
+            } catch (error: unknown) {
+                if (!(error instanceof UnexpectedErrorA)) {
+                    throw error;
+                }
             }
 
             const rateLimiterFactory2 = new RateLimiterFactory({
@@ -1137,10 +1161,14 @@ describe("class: RateLimiterFactory", () => {
             });
             try {
                 await rateLimiter1.runOrFail(() => {
-                    return Promise.reject(new Error("Unexpected error"));
+                    return Promise.reject(
+                        new UnexpectedErrorA("Unexpected error"),
+                    );
                 });
-            } catch {
-                /* EMPTY */
+            } catch (error: unknown) {
+                if (!(error instanceof UnexpectedErrorA)) {
+                    throw error;
+                }
             }
 
             const rateLimiterFactory2 = new RateLimiterFactory({

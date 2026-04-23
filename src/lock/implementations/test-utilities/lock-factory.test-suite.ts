@@ -241,12 +241,15 @@ export function lockFactoryTestSuite(
 
                     const releaseSpy = vi.spyOn(lock, "release");
 
+                    class UnexpectedError extends Error {}
                     try {
                         await lock.runOrFail(() => {
-                            return Promise.reject(new Error());
+                            return Promise.reject(new UnexpectedError());
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedError)) {
+                            throw error;
+                        }
                     }
 
                     expect(releaseSpy).toHaveBeenCalledTimes(1);
@@ -258,13 +261,15 @@ export function lockFactoryTestSuite(
                         ttl,
                     });
 
-                    class CustomError extends Error {}
+                    class UnexpectedErrorA extends Error {}
 
                     const error = lock.runOrFail(() => {
-                        return Promise.reject(new CustomError());
+                        return Promise.reject(new UnexpectedErrorA());
                     });
 
-                    await expect(error).rejects.toBeInstanceOf(CustomError);
+                    await expect(error).rejects.toBeInstanceOf(
+                        UnexpectedErrorA,
+                    );
                 });
                 test("Should call handler function when key doesnt exists", async () => {
                     const key = "a";
@@ -304,11 +309,7 @@ export function lockFactoryTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    try {
-                        await lock.runOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
-                    }
+                    await lock.runOrFail(handlerFn);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                 });
@@ -323,11 +324,7 @@ export function lockFactoryTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    try {
-                        await lock.runOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
-                    }
+                    await lock.runOrFail(handlerFn);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                 });
@@ -343,8 +340,10 @@ export function lockFactoryTestSuite(
                         await lockFactory
                             .create(key, { ttl })
                             .runOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedAcquireLockError)) {
+                            throw error;
+                        }
                     }
 
                     await delay(delayBuffer);
@@ -362,8 +361,10 @@ export function lockFactoryTestSuite(
                         await lockFactory
                             .create(key, { ttl })
                             .runOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedAcquireLockError)) {
+                            throw error;
+                        }
                     }
 
                     await delay(delayBuffer);
@@ -824,8 +825,10 @@ export function lockFactoryTestSuite(
                     const lock2 = lockFactory.create(key, { ttl });
                     try {
                         await lock2.releaseOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseLockError)) {
+                            throw error;
+                        }
                     }
                     const result = await lock2.acquire();
 
@@ -840,8 +843,10 @@ export function lockFactoryTestSuite(
                     const lock2 = lockFactory.create(key, { ttl });
                     try {
                         await lock2.releaseOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseLockError)) {
+                            throw error;
+                        }
                     }
                     const result = await lock2.acquire();
 
@@ -1169,8 +1174,10 @@ export function lockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(50);
                     try {
                         await lock1.refreshOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshLockError)) {
+                            throw error;
+                        }
                     }
                     await delayWithBuffer(newTtl);
                     const lock2 = lockFactory.create(key, { ttl });
@@ -1734,8 +1741,10 @@ export function lockFactoryTestSuite(
                     );
                     try {
                         await lock.acquireOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedAcquireLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -1772,8 +1781,10 @@ export function lockFactoryTestSuite(
                     );
                     try {
                         await lock.acquireOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedAcquireLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -2160,8 +2171,10 @@ export function lockFactoryTestSuite(
                     );
                     try {
                         await lock.releaseOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -2198,8 +2211,10 @@ export function lockFactoryTestSuite(
                     );
                     try {
                         await lock.releaseOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -2236,8 +2251,10 @@ export function lockFactoryTestSuite(
                     );
                     try {
                         await lock.releaseOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -2273,9 +2290,11 @@ export function lockFactoryTestSuite(
                         handlerFn,
                     );
                     try {
-                        await lock.release();
-                    } catch {
-                        /* EMPTY */
+                        await lock.releaseOrFail();
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseLockError)) {
+                            throw error;
+                        }
                     }
                     await delayWithBuffer(ttl);
 
@@ -2312,9 +2331,11 @@ export function lockFactoryTestSuite(
                     await delayWithBuffer(ttl);
 
                     try {
-                        await lock.release();
-                    } catch {
-                        /* EMPTY */
+                        await lock.releaseOrFail();
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -2672,8 +2693,10 @@ export function lockFactoryTestSuite(
                     );
                     try {
                         await lock.refreshOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -2712,8 +2735,10 @@ export function lockFactoryTestSuite(
                     );
                     try {
                         await lock2.refreshOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -2752,8 +2777,10 @@ export function lockFactoryTestSuite(
                     );
                     try {
                         await lock2.refreshOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -2793,8 +2820,10 @@ export function lockFactoryTestSuite(
                     );
                     try {
                         await lock2.refreshOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -2835,8 +2864,10 @@ export function lockFactoryTestSuite(
                     );
                     try {
                         await lock.refreshOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -2874,8 +2905,10 @@ export function lockFactoryTestSuite(
                     );
                     try {
                         await lock.refreshOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);

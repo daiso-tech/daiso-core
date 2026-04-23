@@ -168,6 +168,8 @@ export function sharedLockFactoryTestSuite(
         await delay(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
     }
 
+    class UnexpectedErrorA extends Error {}
+
     const waitForSettings = {
         interval: TimeSpan.fromTimeSpan(eventDispatchWaitTime).toMilliseconds(),
         timeout: TimeSpan.fromTimeSpan(eventDispatchWaitTime)
@@ -278,10 +280,12 @@ export function sharedLockFactoryTestSuite(
 
                     try {
                         await sharedLock.runWriterOrFail(() => {
-                            return Promise.reject(new Error());
+                            return Promise.reject(new UnexpectedErrorA());
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
 
                     expect(releaseSpy).toHaveBeenCalledTimes(1);
@@ -295,13 +299,13 @@ export function sharedLockFactoryTestSuite(
                         limit,
                     });
 
-                    class CustomError extends Error {}
-
                     const error = sharedLock.runWriterOrFail(() => {
-                        return Promise.reject(new CustomError());
+                        return Promise.reject(new UnexpectedErrorA());
                     });
 
-                    await expect(error).rejects.toBeInstanceOf(CustomError);
+                    await expect(error).rejects.toBeInstanceOf(
+                        UnexpectedErrorA,
+                    );
                 });
                 test("Should call handler function when key doesnt exists", async () => {
                     const key = "a";
@@ -358,11 +362,7 @@ export function sharedLockFactoryTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    try {
-                        await sharedLock.runWriterOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
-                    }
+                    await sharedLock.runWriterOrFail(handlerFn);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                 });
@@ -379,11 +379,7 @@ export function sharedLockFactoryTestSuite(
                     const handlerFn = vi.fn(() => {
                         return Promise.resolve(RETURN_VALUE);
                     });
-                    try {
-                        await sharedLock.runWriterOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
-                    }
+                    await sharedLock.runWriterOrFail(handlerFn);
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
                 });
@@ -408,8 +404,10 @@ export function sharedLockFactoryTestSuite(
                                 limit,
                             })
                             .runWriterOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedAcquireWriterLockError)) {
+                            throw error;
+                        }
                     }
 
                     await delay(delayBuffer);
@@ -436,8 +434,10 @@ export function sharedLockFactoryTestSuite(
                                 limit,
                             })
                             .runWriterOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedAcquireWriterLockError)) {
+                            throw error;
+                        }
                     }
 
                     await delay(delayBuffer);
@@ -828,8 +828,10 @@ export function sharedLockFactoryTestSuite(
 
                     try {
                         await sharedLock.acquireWriterOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedAcquireWriterLockError)) {
+                            throw error;
+                        }
                     }
 
                     const state = await sharedLock.getState();
@@ -1223,8 +1225,10 @@ export function sharedLockFactoryTestSuite(
                     });
                     try {
                         await sharedLock2.releaseWriterOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseWriterLockError)) {
+                            throw error;
+                        }
                     }
                     const result = await sharedLock2.acquireWriter();
 
@@ -1247,8 +1251,10 @@ export function sharedLockFactoryTestSuite(
                     });
                     try {
                         await sharedLock2.releaseWriterOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseWriterLockError)) {
+                            throw error;
+                        }
                     }
                     const result = await sharedLock2.acquireWriter();
 
@@ -1324,8 +1330,10 @@ export function sharedLockFactoryTestSuite(
 
                     try {
                         await sharedLock.releaseWriterOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseWriterLockError)) {
+                            throw error;
+                        }
                     }
 
                     const state = await sharedLock.getState();
@@ -1707,8 +1715,10 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(50);
                     try {
                         await sharedLock1.refreshWriterOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshWriterLockError)) {
+                            throw error;
+                        }
                     }
                     await delayWithBuffer(newTtl);
 
@@ -1734,8 +1744,10 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     try {
                         await sharedLock1.refreshWriterOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshWriterLockError)) {
+                            throw error;
+                        }
                     }
                     await delay(newTtl.divide(2));
 
@@ -1782,8 +1794,10 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromSeconds(20);
                     try {
                         await sharedLock.refreshWriterOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshWriterLockError)) {
+                            throw error;
+                        }
                     }
 
                     const state = await sharedLock.getState();
@@ -2015,10 +2029,12 @@ export function sharedLockFactoryTestSuite(
 
                     try {
                         await sharedLock.runReaderOrFail(() => {
-                            return Promise.reject(new Error());
+                            return Promise.reject(new UnexpectedErrorA());
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
 
                     expect(releaseSpy).toHaveBeenCalledTimes(1);
@@ -2032,13 +2048,13 @@ export function sharedLockFactoryTestSuite(
                         limit,
                     });
 
-                    class CustomError extends Error {}
-
                     const error = sharedLock.runReaderOrFail(() => {
-                        return Promise.reject(new CustomError());
+                        return Promise.reject(new UnexpectedErrorA());
                     });
 
-                    await expect(error).rejects.toBeInstanceOf(CustomError);
+                    await expect(error).rejects.toBeInstanceOf(
+                        UnexpectedErrorA,
+                    );
                 });
                 test("Should call handler function when key doesnt exists", async () => {
                     const key = "a";
@@ -2097,8 +2113,12 @@ export function sharedLockFactoryTestSuite(
                     });
                     try {
                         await sharedLock.runReaderOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(error instanceof LimitReachedReaderSemaphoreError)
+                        ) {
+                            throw error;
+                        }
                     }
 
                     await delay(delayBuffer);
@@ -2119,8 +2139,12 @@ export function sharedLockFactoryTestSuite(
                     });
                     try {
                         await sharedLock.runReaderOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(error instanceof LimitReachedReaderSemaphoreError)
+                        ) {
+                            throw error;
+                        }
                     }
 
                     await delay(delayBuffer);
@@ -2147,8 +2171,12 @@ export function sharedLockFactoryTestSuite(
                                 limit,
                             })
                             .runReaderOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(error instanceof LimitReachedReaderSemaphoreError)
+                        ) {
+                            throw error;
+                        }
                     }
 
                     await delay(delayBuffer);
@@ -2175,8 +2203,12 @@ export function sharedLockFactoryTestSuite(
                                 limit,
                             })
                             .runReaderOrFail(handlerFn);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(error instanceof LimitReachedReaderSemaphoreError)
+                        ) {
+                            throw error;
+                        }
                     }
 
                     await delay(delayBuffer);
@@ -2787,8 +2819,12 @@ export function sharedLockFactoryTestSuite(
 
                     try {
                         await sharedLock.acquireReaderOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(error instanceof LimitReachedReaderSemaphoreError)
+                        ) {
+                            throw error;
+                        }
                     }
 
                     const state = await sharedLock.getState();
@@ -3276,8 +3312,15 @@ export function sharedLockFactoryTestSuite(
 
                     try {
                         await sharedLock.releaseReaderOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(
+                                error instanceof
+                                FailedReleaseReaderSemaphoreError
+                            )
+                        ) {
+                            throw error;
+                        }
                     }
                     const state = await sharedLock.getState();
 
@@ -3628,8 +3671,15 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     try {
                         await sharedLock2.refreshReaderOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(
+                                error instanceof
+                                FailedRefreshReaderSemaphoreError
+                            )
+                        ) {
+                            throw error;
+                        }
                     }
                     await delayWithBuffer(newTtl);
 
@@ -3706,8 +3756,15 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromSeconds(20);
                     try {
                         await sharedLock.refreshReaderOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(
+                                error instanceof
+                                FailedRefreshReaderSemaphoreError
+                            )
+                        ) {
+                            throw error;
+                        }
                     }
 
                     const state = await sharedLock.getState();
@@ -4957,8 +5014,10 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock.acquireWriterOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedAcquireWriterLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -5001,8 +5060,10 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock.acquireWriterOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedAcquireWriterLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -5325,8 +5386,10 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock.releaseWriterOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseWriterLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -5370,8 +5433,10 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock.releaseWriterOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseWriterLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -5415,8 +5480,10 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock.releaseWriterOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseWriterLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -5461,8 +5528,10 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock.releaseWriterOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseWriterLockError)) {
+                            throw error;
+                        }
                     }
 
                     expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -5504,8 +5573,10 @@ export function sharedLockFactoryTestSuite(
 
                     try {
                         await sharedLock.releaseWriterOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedReleaseWriterLockError)) {
+                            throw error;
+                        }
                     }
 
                     await vi.waitFor(() => {
@@ -5921,8 +5992,10 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock.refreshWriterOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshWriterLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -5969,8 +6042,10 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock2.refreshWriterOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshWriterLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -6017,8 +6092,10 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock2.refreshWriterOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshWriterLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -6066,8 +6143,10 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock2.refreshWriterOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshWriterLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -6111,8 +6190,10 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock.refreshWriterOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshWriterLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -6155,8 +6236,10 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock.refreshWriterOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof FailedRefreshWriterLockError)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -6785,8 +6868,12 @@ export function sharedLockFactoryTestSuite(
                     });
                     try {
                         await sharedLock3.acquireReaderOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(error instanceof LimitReachedReaderSemaphoreError)
+                        ) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -7224,8 +7311,15 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock.releaseReaderOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(
+                                error instanceof
+                                FailedReleaseReaderSemaphoreError
+                            )
+                        ) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -7274,8 +7368,15 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock.releaseReaderOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(
+                                error instanceof
+                                FailedReleaseReaderSemaphoreError
+                            )
+                        ) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -7322,8 +7423,15 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock.releaseReaderOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(
+                                error instanceof
+                                FailedReleaseReaderSemaphoreError
+                            )
+                        ) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -7366,8 +7474,15 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock.releaseReaderOrFail();
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(
+                                error instanceof
+                                FailedReleaseReaderSemaphoreError
+                            )
+                        ) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -7755,8 +7870,15 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock2.refreshReaderOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(
+                                error instanceof
+                                FailedRefreshReaderSemaphoreError
+                            )
+                        ) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -7805,8 +7927,15 @@ export function sharedLockFactoryTestSuite(
                     );
                     try {
                         await sharedLock2.refreshReaderOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(
+                                error instanceof
+                                FailedRefreshReaderSemaphoreError
+                            )
+                        ) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -7849,8 +7978,15 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     try {
                         await sharedLock.refreshReaderOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(
+                                error instanceof
+                                FailedRefreshReaderSemaphoreError
+                            )
+                        ) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -7894,8 +8030,15 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     try {
                         await sharedLock.refreshReaderOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(
+                                error instanceof
+                                FailedRefreshReaderSemaphoreError
+                            )
+                        ) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -7938,8 +8081,15 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     try {
                         await sharedLock.refreshReaderOrFail(newTtl);
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (
+                            !(
+                                error instanceof
+                                FailedRefreshReaderSemaphoreError
+                            )
+                        ) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledTimes(1);

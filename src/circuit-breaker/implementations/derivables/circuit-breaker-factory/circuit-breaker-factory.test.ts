@@ -44,37 +44,37 @@ describe("class: CircuitBreakerFactory", () => {
             _context: IReadableContext,
             _key: string,
         ): Promise<CircuitBreakerState> {
-            throw new Error("Function not implemented.");
+            throw new UnexpectedErrorA("Function not implemented.");
         },
         updateState: function (
             _context: IReadableContext,
             _key: string,
         ): Promise<CircuitBreakerStateTransition> {
-            throw new Error("Function not implemented.");
+            throw new UnexpectedErrorA("Function not implemented.");
         },
         isolate: function (
             _context: IReadableContext,
             _key: string,
         ): Promise<void> {
-            throw new Error("Function not implemented.");
+            throw new UnexpectedErrorA("Function not implemented.");
         },
         trackFailure: function (
             _context: IReadableContext,
             _key: string,
         ): Promise<void> {
-            throw new Error("Function not implemented.");
+            throw new UnexpectedErrorA("Function not implemented.");
         },
         trackSuccess: function (
             _context: IReadableContext,
             _key: string,
         ): Promise<void> {
-            throw new Error("Function not implemented.");
+            throw new UnexpectedErrorA("Function not implemented.");
         },
         reset: function (
             _context: IReadableContext,
             _key: string,
         ): Promise<void> {
-            throw new Error("Function not implemented.");
+            throw new UnexpectedErrorA("Function not implemented.");
         },
     };
     const KEY = "A";
@@ -102,6 +102,9 @@ describe("class: CircuitBreakerFactory", () => {
             .toMilliseconds(),
     };
 
+    class UnexpectedErrorA extends Error {}
+    class UnexpectedErrorB extends Error {}
+
     describe("API tests:", () => {
         describe("method: runOrFail", () => {
             describe("CIRCUIT_BREAKER_TRIGGER.BOTH:", () => {
@@ -122,11 +125,13 @@ describe("class: CircuitBreakerFactory", () => {
                     try {
                         await circuitBreaker.runOrFail(() => {
                             return Promise.reject(
-                                new Error("UNEXPECTED ERROR"),
+                                new UnexpectedErrorA("UNEXPECTED ERROR"),
                             );
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
 
                     expect(trackFailureSpy).toHaveBeenCalledOnce();
@@ -181,18 +186,18 @@ describe("class: CircuitBreakerFactory", () => {
                         .spyOn(adapter, "trackFailure")
                         .mockImplementation(() => Promise.resolve());
 
-                    class ErrorA extends Error {}
-                    class ErrorB extends Error {}
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
-                        errorPolicy: ErrorA,
+                        errorPolicy: UnexpectedErrorA,
                     });
                     try {
                         await circuitBreaker.runOrFail(() => {
-                            return Promise.reject(new ErrorB());
+                            return Promise.reject(new UnexpectedErrorB());
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorB)) {
+                            throw error;
+                        }
                     }
 
                     expect(trackFailureSpy).not.toHaveBeenCalled();
@@ -212,7 +217,9 @@ describe("class: CircuitBreakerFactory", () => {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                     });
                     const promise = circuitBreaker.runOrFail(() => {
-                        return Promise.reject(new Error("UNEXPECTED ERROR"));
+                        return Promise.reject(
+                            new UnexpectedErrorA("UNEXPECTED ERROR"),
+                        );
                     });
                     await expect(promise).rejects.toBeInstanceOf(
                         OpenCircuitBreakerError,
@@ -233,7 +240,9 @@ describe("class: CircuitBreakerFactory", () => {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                     });
                     const promise = circuitBreaker.runOrFail(() => {
-                        return Promise.reject(new Error("UNEXPECTED ERROR"));
+                        return Promise.reject(
+                            new UnexpectedErrorA("UNEXPECTED ERROR"),
+                        );
                     });
                     await expect(promise).rejects.toBeInstanceOf(
                         IsolatedCircuitBreakerError,
@@ -258,11 +267,13 @@ describe("class: CircuitBreakerFactory", () => {
                     try {
                         await circuitBreaker.runOrFail(() => {
                             return Promise.reject(
-                                new Error("UNEXPECTED ERROR"),
+                                new UnexpectedErrorA("UNEXPECTED ERROR"),
                             );
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
 
                     expect(trackFailureSpy).toHaveBeenCalledOnce();
@@ -343,18 +354,18 @@ describe("class: CircuitBreakerFactory", () => {
                         .spyOn(adapter, "trackFailure")
                         .mockImplementation(() => Promise.resolve());
 
-                    class ErrorA extends Error {}
-                    class ErrorB extends Error {}
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
-                        errorPolicy: ErrorA,
+                        errorPolicy: UnexpectedErrorA,
                     });
                     try {
                         await circuitBreaker.runOrFail(() => {
-                            return Promise.reject(new ErrorB());
+                            return Promise.reject(new UnexpectedErrorB());
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorB)) {
+                            throw error;
+                        }
                     }
 
                     expect(trackFailureSpy).not.toHaveBeenCalled();
@@ -374,7 +385,9 @@ describe("class: CircuitBreakerFactory", () => {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
                     const promise = circuitBreaker.runOrFail(() => {
-                        return Promise.reject(new Error("UNEXPECTED ERROR"));
+                        return Promise.reject(
+                            new UnexpectedErrorA("UNEXPECTED ERROR"),
+                        );
                     });
                     await expect(promise).rejects.toBeInstanceOf(
                         OpenCircuitBreakerError,
@@ -395,7 +408,9 @@ describe("class: CircuitBreakerFactory", () => {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
                     const promise = circuitBreaker.runOrFail(() => {
-                        return Promise.reject(new Error("UNEXPECTED ERROR"));
+                        return Promise.reject(
+                            new UnexpectedErrorA("UNEXPECTED ERROR"),
+                        );
                     });
                     await expect(promise).rejects.toBeInstanceOf(
                         IsolatedCircuitBreakerError,
@@ -420,11 +435,13 @@ describe("class: CircuitBreakerFactory", () => {
                     try {
                         await circuitBreaker.runOrFail(() => {
                             return Promise.reject(
-                                new Error("UNEXPECTED ERROR"),
+                                new UnexpectedErrorA("UNEXPECTED ERROR"),
                             );
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
 
                     expect(trackFailureSpy).not.toHaveBeenCalled();
@@ -479,18 +496,18 @@ describe("class: CircuitBreakerFactory", () => {
                         .spyOn(adapter, "trackFailure")
                         .mockImplementation(() => Promise.resolve());
 
-                    class ErrorA extends Error {}
-                    class ErrorB extends Error {}
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
-                        errorPolicy: ErrorA,
+                        errorPolicy: UnexpectedErrorA,
                     });
                     try {
                         await circuitBreaker.runOrFail(() => {
-                            return Promise.reject(new ErrorB());
+                            return Promise.reject(new UnexpectedErrorB());
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorB)) {
+                            throw error;
+                        }
                     }
 
                     expect(trackFailureSpy).not.toHaveBeenCalled();
@@ -510,7 +527,9 @@ describe("class: CircuitBreakerFactory", () => {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                     });
                     const promise = circuitBreaker.runOrFail(() => {
-                        return Promise.reject(new Error("UNEXPECTED ERROR"));
+                        return Promise.reject(
+                            new UnexpectedErrorA("UNEXPECTED ERROR"),
+                        );
                     });
                     await expect(promise).rejects.toBeInstanceOf(
                         OpenCircuitBreakerError,
@@ -531,7 +550,9 @@ describe("class: CircuitBreakerFactory", () => {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
                     });
                     const promise = circuitBreaker.runOrFail(() => {
-                        return Promise.reject(new Error("UNEXPECTED ERROR"));
+                        return Promise.reject(
+                            new UnexpectedErrorA("UNEXPECTED ERROR"),
+                        );
                     });
                     await expect(promise).rejects.toBeInstanceOf(
                         IsolatedCircuitBreakerError,
@@ -593,11 +614,13 @@ describe("class: CircuitBreakerFactory", () => {
                     try {
                         await circuitBreaker.runOrFail(() => {
                             return Promise.reject(
-                                new Error("UNEXPECTED ERROR"),
+                                new UnexpectedErrorA("UNEXPECTED ERROR"),
                             );
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
@@ -639,13 +662,10 @@ describe("class: CircuitBreakerFactory", () => {
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                     });
-                    try {
-                        await circuitBreaker.runOrFail(async () => {
-                            await delay(slowCallTime.addMilliseconds(25));
-                        });
-                    } catch {
-                        /* EMPTY */
-                    }
+                    await circuitBreaker.runOrFail(async () => {
+                        await delay(slowCallTime.addMilliseconds(25));
+                    });
+
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -685,11 +705,8 @@ describe("class: CircuitBreakerFactory", () => {
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
                     });
-                    try {
-                        await circuitBreaker.runOrFail(() => {});
-                    } catch {
-                        /* EMPTY */
-                    }
+                    await circuitBreaker.runOrFail(() => {});
+
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -726,18 +743,18 @@ describe("class: CircuitBreakerFactory", () => {
                         CIRCUIT_BREAKER_EVENTS.TRACKED_FAILURE,
                         handlerFn,
                     );
-                    class ErrorA extends Error {}
-                    class ErrorB extends Error {}
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
-                        errorPolicy: ErrorA,
+                        errorPolicy: UnexpectedErrorA,
                     });
                     try {
                         await circuitBreaker.runOrFail(() => {
-                            throw new ErrorB();
+                            throw new UnexpectedErrorB();
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorB)) {
+                            throw error;
+                        }
                     }
 
                     await delay(eventDispatchWaitTime);
@@ -761,18 +778,18 @@ describe("class: CircuitBreakerFactory", () => {
                         CIRCUIT_BREAKER_EVENTS.UNTRACKED_FAILURE,
                         handlerFn,
                     );
-                    class ErrorA extends Error {}
-                    class ErrorB extends Error {}
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
-                        errorPolicy: ErrorA,
+                        errorPolicy: UnexpectedErrorA,
                     });
                     try {
                         await circuitBreaker.runOrFail(() => {
-                            throw new ErrorB();
+                            throw new UnexpectedErrorB();
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorB)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalled();
@@ -804,11 +821,13 @@ describe("class: CircuitBreakerFactory", () => {
                     try {
                         await circuitBreaker.runOrFail(() => {
                             return Promise.reject(
-                                new Error("UNEXPECTED ERROR"),
+                                new UnexpectedErrorA("UNEXPECTED ERROR"),
                             );
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
@@ -836,6 +855,9 @@ describe("class: CircuitBreakerFactory", () => {
                             to: CIRCUIT_BREAKER_STATE.CLOSED,
                         }),
                     );
+                    vi.spyOn(adapter, "trackSuccess").mockImplementation(() =>
+                        Promise.resolve(),
+                    );
                     vi.spyOn(adapter, "trackFailure").mockImplementation(() =>
                         Promise.resolve(),
                     );
@@ -850,13 +872,9 @@ describe("class: CircuitBreakerFactory", () => {
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
-                    try {
-                        await circuitBreaker.runOrFail(async () => {
-                            await delay(slowCallTime.addMilliseconds(25));
-                        });
-                    } catch {
-                        /* EMPTY */
-                    }
+                    await circuitBreaker.runOrFail(async () => {
+                        await delay(slowCallTime.addMilliseconds(25));
+                    });
 
                     await delay(eventDispatchWaitTime);
                     expect(handlerFn).not.toHaveBeenCalled();
@@ -882,11 +900,8 @@ describe("class: CircuitBreakerFactory", () => {
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
-                    try {
-                        await circuitBreaker.runOrFail(() => {});
-                    } catch {
-                        /* EMPTY */
-                    }
+                    await circuitBreaker.runOrFail(() => {});
+
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -926,13 +941,10 @@ describe("class: CircuitBreakerFactory", () => {
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
                     });
-                    try {
-                        await circuitBreaker.runOrFail(async () => {
-                            await delay(slowCallTime.addMilliseconds(25));
-                        });
-                    } catch {
-                        /* EMPTY */
-                    }
+                    await circuitBreaker.runOrFail(async () => {
+                        await delay(slowCallTime.addMilliseconds(25));
+                    });
+
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
                         expect(handlerFn).toHaveBeenCalledWith(
@@ -969,18 +981,18 @@ describe("class: CircuitBreakerFactory", () => {
                         CIRCUIT_BREAKER_EVENTS.TRACKED_FAILURE,
                         handlerFn,
                     );
-                    class ErrorA extends Error {}
-                    class ErrorB extends Error {}
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
-                        errorPolicy: ErrorA,
+                        errorPolicy: UnexpectedErrorA,
                     });
                     try {
                         await circuitBreaker.runOrFail(() => {
-                            throw new ErrorB();
+                            throw new UnexpectedErrorB();
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorB)) {
+                            throw error;
+                        }
                     }
 
                     await delay(eventDispatchWaitTime);
@@ -1004,18 +1016,18 @@ describe("class: CircuitBreakerFactory", () => {
                         CIRCUIT_BREAKER_EVENTS.UNTRACKED_FAILURE,
                         handlerFn,
                     );
-                    class ErrorA extends Error {}
-                    class ErrorB extends Error {}
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
-                        errorPolicy: ErrorA,
+                        errorPolicy: UnexpectedErrorA,
                     });
                     try {
                         await circuitBreaker.runOrFail(() => {
-                            throw new ErrorB();
+                            throw new UnexpectedErrorB();
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorB)) {
+                            throw error;
+                        }
                     }
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalled();
@@ -1047,11 +1059,13 @@ describe("class: CircuitBreakerFactory", () => {
                     try {
                         await circuitBreaker.runOrFail(() => {
                             return Promise.reject(
-                                new Error("UNEXPECTED ERROR"),
+                                new UnexpectedErrorA("UNEXPECTED ERROR"),
                             );
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorA)) {
+                            throw error;
+                        }
                     }
 
                     await delay(eventDispatchWaitTime);
@@ -1150,8 +1164,6 @@ describe("class: CircuitBreakerFactory", () => {
                         Promise.resolve(),
                     );
 
-                    class ErrorA extends Error {}
-                    class ErrorB extends Error {}
                     const handlerFn = vi.fn(
                         (_event: TrackedFailureCircuitBreakerEvent) => {},
                     );
@@ -1161,14 +1173,16 @@ describe("class: CircuitBreakerFactory", () => {
                     );
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
-                        errorPolicy: ErrorA,
+                        errorPolicy: UnexpectedErrorA,
                     });
                     try {
                         await circuitBreaker.runOrFail(() => {
-                            return Promise.reject(new ErrorB());
+                            return Promise.reject(new UnexpectedErrorB());
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorB)) {
+                            throw error;
+                        }
                     }
 
                     await delay(eventDispatchWaitTime);
@@ -1185,8 +1199,6 @@ describe("class: CircuitBreakerFactory", () => {
                         Promise.resolve(),
                     );
 
-                    class ErrorA extends Error {}
-                    class ErrorB extends Error {}
                     const handlerFn = vi.fn(
                         (_event: TrackedSuccessCircuitBreakerEvent) => {},
                     );
@@ -1196,14 +1208,16 @@ describe("class: CircuitBreakerFactory", () => {
                     );
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
-                        errorPolicy: ErrorA,
+                        errorPolicy: UnexpectedErrorA,
                     });
                     try {
                         await circuitBreaker.runOrFail(() => {
-                            return Promise.reject(new ErrorB());
+                            return Promise.reject(new UnexpectedErrorB());
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorB)) {
+                            throw error;
+                        }
                     }
 
                     await delay(eventDispatchWaitTime);
@@ -1220,8 +1234,6 @@ describe("class: CircuitBreakerFactory", () => {
                         Promise.resolve(),
                     );
 
-                    class ErrorA extends Error {}
-                    class ErrorB extends Error {}
                     const handlerFn = vi.fn(
                         (_event: UntrackedFailureCircuitBreakerEvent) => {},
                     );
@@ -1231,14 +1243,16 @@ describe("class: CircuitBreakerFactory", () => {
                     );
                     const circuitBreaker = circuitBreakerFactory.create(KEY, {
                         trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
-                        errorPolicy: ErrorA,
+                        errorPolicy: UnexpectedErrorA,
                     });
                     try {
                         await circuitBreaker.runOrFail(() => {
-                            return Promise.reject(new ErrorB());
+                            return Promise.reject(new UnexpectedErrorB());
                         });
-                    } catch {
-                        /* EMPTY */
+                    } catch (error: unknown) {
+                        if (!(error instanceof UnexpectedErrorB)) {
+                            throw error;
+                        }
                     }
 
                     await delay(eventDispatchWaitTime);
@@ -1269,9 +1283,12 @@ describe("class: CircuitBreakerFactory", () => {
                 const circuitBreaker = circuitBreakerFactory.create(KEY);
                 try {
                     await circuitBreaker.runOrFail(() => {});
-                } catch {
-                    /* EMPTY */
+                } catch (error: unknown) {
+                    if (!(error instanceof OpenCircuitBreakerError)) {
+                        throw error;
+                    }
                 }
+
                 await vi.waitFor(() => {
                     expect(handlerFn).toHaveBeenCalledOnce();
                     expect(handlerFn).toHaveBeenCalledWith(
@@ -1383,10 +1400,14 @@ describe("class: CircuitBreakerFactory", () => {
             const circuitBreaker1 = circuitBreakerFactory1.create(key);
             try {
                 await circuitBreaker1.runOrFail(() => {
-                    return Promise.reject(new Error("Unexpected error"));
+                    return Promise.reject(
+                        new UnexpectedErrorA("Unexpected error"),
+                    );
                 });
-            } catch {
-                /* EMPTY */
+            } catch (error: unknown) {
+                if (!(error instanceof UnexpectedErrorA)) {
+                    throw error;
+                }
             }
 
             const circuitBreakerFactory2 = new CircuitBreakerFactory({
@@ -1477,10 +1498,14 @@ describe("class: CircuitBreakerFactory", () => {
             const circuitBreaker1 = circuitBreakerFactory1.create(key);
             try {
                 await circuitBreaker1.runOrFail(() => {
-                    return Promise.reject(new Error("Unexpected error"));
+                    return Promise.reject(
+                        new UnexpectedErrorA("Unexpected error"),
+                    );
                 });
-            } catch {
-                /* EMPTY */
+            } catch (error: unknown) {
+                if (!(error instanceof UnexpectedErrorA)) {
+                    throw error;
+                }
             }
 
             const circuitBreakerFactory2 = new CircuitBreakerFactory({
@@ -1533,10 +1558,14 @@ describe("class: CircuitBreakerFactory", () => {
             const circuitBreaker1 = circuitBreakerFactory1.create(key);
             try {
                 await circuitBreaker1.runOrFail(() => {
-                    return Promise.reject(new Error("Unexpected error"));
+                    return Promise.reject(
+                        new UnexpectedErrorA("Unexpected error"),
+                    );
                 });
-            } catch {
-                /* EMPTY */
+            } catch (error: unknown) {
+                if (!(error instanceof UnexpectedErrorA)) {
+                    throw error;
+                }
             }
 
             const circuitBreakerFactory2 = new CircuitBreakerFactory({
