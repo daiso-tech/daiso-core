@@ -22,6 +22,8 @@ import { resolveCacheAdapter } from "@/cache/implementations/derivables/cache/re
 import {
     type EventBusInput,
     type IEventBus,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type IEventBusAdapter,
 } from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { resolveEventBusInput } from "@/event-bus/implementations/derivables/_module.js";
@@ -31,9 +33,17 @@ import { ExecutionContext } from "@/execution-context/implementations/derivables
 import {
     type ILockFactoryBase,
     type LockFactoryInput,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ILockAdapter,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type IDatabaseLockAdapter,
 } from "@/lock/contracts/_module.js";
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
-import { resolveLockFactoryInput } from "@/lock/implementations/derivables/_module.js";
+import {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type LockFactory,
+    resolveLockFactoryInput,
+} from "@/lock/implementations/derivables/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -79,8 +89,8 @@ export type CacheSettingsBase<TType = unknown> = {
     namespace?: INamespace;
 
     /**
-     * You can provide an `IEventBus` or an `IEventBusAdapter` instance to handle the components events.
-     * If you provide an adapter, it will be automatically wrapped in an `IEventBus` instance.
+     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the components events.
+     * If you provide an adapter, it will be automatically wrapped in an {@link IEventBus | `IEventBus`} instance.
      *
      * @default
      * ```ts
@@ -127,8 +137,8 @@ export type CacheSettingsBase<TType = unknown> = {
     executionContext?: IExecutionContext;
 
     /**
-     * You can provide an `ILockFactoryBase`, an `ILockAdapter` or an `IDatabaseLockAdapter` instance to handle locking when `GetOrAddSettings.enableLocking` is set to true during a `getOrAdd` call.
-     * If you provide an adapter, it will be automatically wrapped in an `LockFactory` instance.
+     * You can provide an {@link ILockFactoryBase | `ILockFactoryBase`}, an {@link ILockAdapter | `ILockAdapter`} or an {@link IDatabaseLockAdapter | `IDatabaseLockAdapter`} instance to handle locking when {@link GetOrAddSettings | `GetOrAddSettings.enableLocking`} is set to true during a `getOrAdd` call.
+     * If you provide an adapter, it will be automatically wrapped in an {@link LockFactory | `LockFactory`} instance.
      * @default
      * ```ts
      * import { NoOpLockAdapter } from "@daiso-tech/core/lock/no-op-lock-adapter";

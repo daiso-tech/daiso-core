@@ -7,6 +7,8 @@ import { v4 } from "uuid";
 import {
     type EventBusInput,
     type IEventBus,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type IEventBusAdapter,
 } from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { resolveEventBusInput } from "@/event-bus/implementations/derivables/_module.js";
@@ -89,8 +91,8 @@ export type SharedLockFactorySettingsBase = {
     createLockId?: Invokable<[], string>;
 
     /**
-     * You can provide an `IEventBus` or an `IEventBusAdapter` instance to handle the components events.
-     * If you provide an adapter, it will be automatically wrapped in an `IEventBus` instance.
+     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the components events.
+     * If you provide an adapter, it will be automatically wrapped in an {@link IEventBus | `IEventBus`} instance.
      *
      * @default
      * ```ts

@@ -4,6 +4,8 @@
 import {
     type EventBusInput,
     type IEventBus,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type IEventBusAdapter,
 } from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { resolveEventBusInput } from "@/event-bus/implementations/derivables/_module.js";
@@ -30,9 +32,18 @@ import { resolveFileStorageAdapter } from "@/file-storage/implementations/deriva
 import {
     type ILockFactoryBase,
     type LockFactoryInput,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type IDatabaseLockAdapter,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ILockAdapter,
 } from "@/lock/contracts/_module.js";
+// eslint-disable-next-line import/order
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
-import { resolveLockFactoryInput } from "@/lock/implementations/derivables/_module.js";
+import {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type LockFactory,
+    resolveLockFactoryInput,
+} from "@/lock/implementations/derivables/_module.js";
 import {
     useFactory,
     type MiddlewareFn,
@@ -153,8 +164,8 @@ export type FileStorageSettingsBase = {
     urlAdapter?: Partial<IFileUrlAdapter>;
 
     /**
-     * You can provide an `IEventBus` or an `IEventBusAdapter` instance to handle the components events.
-     * If you provide an adapter, it will be automatically wrapped in an `IEventBus` instance.
+     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the components events.
+     * If you provide an adapter, it will be automatically wrapped in an {@link IEventBus | `IEventBus`} instance.
      *
      * @default
      * ```ts
@@ -206,8 +217,8 @@ export type FileStorageSettingsBase = {
     executionContext?: IExecutionContext;
 
     /**
-     * You can provide an `ILockFactoryBase`, an `ILockAdapter` or an `IDatabaseLockAdapter` instance to handle locking when write methods are called.
-     * If you provide an adapter, it will be automatically wrapped in an `LockFactory` instance.
+     * You can provide an {@link ILockFactoryBase | `ILockFactoryBase`}, an {@link ILockAdapter | `ILockAdapter`} or an {@link IDatabaseLockAdapter | `IDatabaseLockAdapter`} instance to handle locking when write methods are called.
+     * If you provide an adapter, it will be automatically wrapped in an {@link LockFactory | `LockFactory`} instance.
      * @default
      * ```ts
      * import { NoOpLockAdapter } from "@daiso-tech/core/lock/no-op-lock-adapter";
