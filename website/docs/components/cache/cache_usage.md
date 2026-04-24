@@ -313,15 +313,12 @@ To use locking, pass a `lockFactory` to the `Cache` constructor:
 ```ts
 import { Cache } from "@daiso-tech/core/cache";
 import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { LockFactory } from "@daiso-tech/core/lock";
 import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
 import Redis from "ioredis";
 
 const cache = new Cache({
     adapter: new MemoryCacheAdapter(),
-    lockFactory: new LockFactory({
-        adapter: new RedisLockAdapter(new Redis("YOUR_REDIS_CONNECTION_STRING")),
-    }),
+    lockFactory: new RedisLockAdapter(new Redis("YOUR_REDIS_CONNECTION_STRING")),
 });
 ```
 
@@ -339,11 +336,12 @@ const value = await cache.getOrAdd(
 ```
 
 :::info
-For further information about `LockFactory` and its adapters refer to the [`@daiso-tech/core/lock`](../lock/lock_usage.md) documentation.
+You can pass `ILockFactoryBase`, `ILockAdapter`, and `IDatabaseLockAdapter` to `lockFactory` setting.
+For further information about `LockFactory` refer to the [`@daiso-tech/core/lock`](../lock/lock_usage.md) documentation.
 :::
 
 :::warning
-The `lockFactory` defaults to a no-op implementation, so `enableLocking: true` has no effect unless you provide a real lock adapter.
+The `lockFactory` defaults to a `NoOpLockAdapter` implementation, so `enableLocking: true` has no effect unless you provide a real lock adapter.
 :::
 
 ### Namespacing

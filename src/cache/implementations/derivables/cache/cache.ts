@@ -25,9 +25,12 @@ import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
+import {
+    type ILockFactoryBase,
+    type LockFactoryInput,
+} from "@/lock/contracts/_module.js";
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
-import { LockFactory } from "@/lock/implementations/derivables/_module-exports.js";
+import { resolveLockFactoryInput } from "@/lock/implementations/derivables/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -121,15 +124,16 @@ export type CacheSettingsBase<TType = unknown> = {
     executionContext?: IExecutionContext;
 
     /**
-     * You can provide an `ILockFactoryBase` instance to handle locking when `GetOrAddSettings.enableLocking` is set to true during a `getOrAdd` call.
+     * You can provide an `ILockFactoryBase`, an `ILockAdapter` or an `IDatabaseLockAdapter` instance to handle locking when `GetOrAddSettings.enableLocking` is set to true during a `getOrAdd` call.
+     * If you provide an adapter, it will be automatically wrapped in an `LockFactory` instance.
      * @default
      * ```ts
-     * lockFactory = new LockFactory({
-     *   adapter: new NoOpLockAdapter(),
-     * })
+     * import { NoOpLockAdapter } from "@daiso-tech/core/lock/no-op-lock-adapter";
+     *
+     * new NoOpLockAdapter()
      * ```
      */
-    lockFactory?: ILockFactoryBase;
+    lockFactory?: LockFactoryInput;
 };
 
 /**
@@ -206,12 +210,10 @@ export class Cache<TType = unknown> implements ICache<TType> {
             executionContext = new ExecutionContext(
                 new NoOpExecutionContextAdapter(),
             ),
-            lockFactory = new LockFactory({
-                adapter: new NoOpLockAdapter(),
-            }),
+            lockFactory = new NoOpLockAdapter(),
         } = settings;
 
-        this.lockFactory = lockFactory;
+        this.lockFactory = resolveLockFactoryInput(namespace, lockFactory);
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.shouldValidateOutput = shouldValidateOutput;

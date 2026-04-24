@@ -24,9 +24,12 @@ import {
 import { FileSerdeTransformer } from "@/file-storage/implementations/derivables/file-storage/file-serde-transformer.js";
 import { File } from "@/file-storage/implementations/derivables/file-storage/file.js";
 import { resolveFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/resolve-file-storage-adapter.js";
-import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
+import {
+    type ILockFactoryBase,
+    type LockFactoryInput,
+} from "@/lock/contracts/_module.js";
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
-import { LockFactory } from "@/lock/implementations/derivables/_module-exports.js";
+import { resolveLockFactoryInput } from "@/lock/implementations/derivables/_module.js";
 import {
     useFactory,
     type MiddlewareFn,
@@ -200,15 +203,16 @@ export type FileStorageSettingsBase = {
     executionContext?: IExecutionContext;
 
     /**
-     * You can provide an `ILockFactoryBase` instance to handle locking when write methods are called.
+     * You can provide an `ILockFactoryBase`, an `ILockAdapter` or an `IDatabaseLockAdapter` instance to handle locking when write methods are called.
+     * If you provide an adapter, it will be automatically wrapped in an `LockFactory` instance.
      * @default
      * ```ts
-     * lockFactory = new LockFactory({
-     *   adapter: new NoOpLockAdapter(),
-     * })
+     * import { NoOpLockAdapter } from "@daiso-tech/core/lock/no-op-lock-adapter";
+     *
+     * new NoOpLockAdapter()
      * ```
      */
-    lockFactory?: ILockFactoryBase;
+    lockFactory?: LockFactoryInput;
 };
 
 /**
@@ -288,12 +292,10 @@ export class FileStorage implements IFileStorage {
             executionContext = new ExecutionContext(
                 new NoOpExecutionContextAdapter(),
             ),
-            lockFactory = new LockFactory({
-                adapter: new NoOpLockAdapter(),
-            }),
+            lockFactory = new NoOpLockAdapter(),
         } = settings;
 
-        this.lockFactory = lockFactory;
+        this.lockFactory = resolveLockFactoryInput(namespace, lockFactory);
         this.use = useFactory({ executionContext });
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;

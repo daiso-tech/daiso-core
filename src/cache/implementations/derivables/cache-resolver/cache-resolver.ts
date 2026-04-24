@@ -15,7 +15,7 @@ import {
 } from "@/cache/implementations/derivables/cache/_module.js";
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
+import { type LockFactoryInput } from "@/lock/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
@@ -150,7 +150,7 @@ export class CacheResolver<TAdapters extends string = string, TType = unknown>
     }
 
     setLockFactory(
-        lockFactory: ILockFactoryBase,
+        lockFactory: LockFactoryInput,
     ): CacheResolver<TAdapters, TType> {
         return new CacheResolver({
             ...this.settings,
