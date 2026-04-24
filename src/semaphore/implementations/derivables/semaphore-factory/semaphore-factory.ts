@@ -11,7 +11,11 @@ import {
     type IEventBusAdapter,
 } from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import { resolveEventBusInput } from "@/event-bus/implementations/derivables/_module.js";
+import {
+    resolveEventBusInput,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type EventBus,
+} from "@/event-bus/implementations/derivables/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
@@ -94,8 +98,8 @@ export type SemaphoreFactorySettingsBase = {
     createSlotId?: Invokable<[], string>;
 
     /**
-     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the components events.
-     * If you provide an adapter, it will be automatically wrapped in an {@link IEventBus | `IEventBus`} instance.
+     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
+     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
      *
      * @default
      * ```ts

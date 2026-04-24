@@ -641,7 +641,7 @@ const fsFileStorage = new FileStorage({
 
 ### File locking on write operations
 
-The `FileStorage` instance methods supports distributed locking via the `lockFactory` settings passed into `FileStorage` constructor. Data races will occur when multiple clients simultaneously perform write operation to same file and file will be corrupted.
+The `FileStorage` instance method supports distributed locking via the `lockFactory` settings passed into `FileStorage` constructor. Data races will occur when multiple clients simultaneously perform write operation to same file and file will be corrupted.
 
 ```ts
 import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
