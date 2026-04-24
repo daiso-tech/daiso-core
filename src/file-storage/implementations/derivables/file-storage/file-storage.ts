@@ -1,9 +1,12 @@
 /**
  * @module FileStorage
  */
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import {
+    type EventBusInput,
+    type IEventBus,
+} from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import { resolveEventBusInput } from "@/event-bus/implementations/derivables/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
@@ -152,15 +155,12 @@ export type FileStorageSettingsBase = {
     /**
      * @default
      * ```ts
-     * import { EventBus } from "@daiso-tech/core/event-bus";
      * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
      *
-     * new EventBus({
-     *   adapter: new NoOpEventBusAdapter()
-     * })
+     * new NoOpEventBusAdapter()
      * ```
      */
-    eventBus?: IEventBus;
+    eventBus?: EventBusInput;
 
     /**
      * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link FileStorage | `FileStorage`} to register the file's serialization and deserialization logic for the provided adapter.
@@ -275,9 +275,7 @@ export class FileStorage implements IFileStorage {
         const {
             adapter,
             namespace = new NoOpNamespace(),
-            eventBus = new EventBus({
-                adapter: new NoOpEventBusAdapter(),
-            }),
+            eventBus = new NoOpEventBusAdapter(),
             onlyLowercase = false,
             keyValidator = defaultKeyValidator,
             serde = new Serde(new NoOpSerdeAdapter()),
@@ -309,7 +307,7 @@ export class FileStorage implements IFileStorage {
         this.defaultContentLanguage = defaultContentLanguage;
         this.adapter = resolveFileStorageAdapter(adapter, urlAdapter);
         this.namespace = namespace;
-        this.eventBus = eventBus;
+        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.serde = serde;
         this.serdeTransformerName = serdeTransformerName;
         this.registerToSerde();

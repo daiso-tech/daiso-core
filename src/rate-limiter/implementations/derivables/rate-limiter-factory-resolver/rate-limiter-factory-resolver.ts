@@ -2,7 +2,7 @@
  * @module RateLimiter
  */
 
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import { type EventBusInput } from "@/event-bus/contracts/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
@@ -97,7 +97,9 @@ export class RateLimiterFactoryResolver<TAdapters extends string>
         });
     }
 
-    setEventBus(eventBus: IEventBus): RateLimiterFactoryResolver<TAdapters> {
+    setEventBus(
+        eventBus: EventBusInput,
+    ): RateLimiterFactoryResolver<TAdapters> {
         return new RateLimiterFactoryResolver({
             ...this.settings,
             eventBus,

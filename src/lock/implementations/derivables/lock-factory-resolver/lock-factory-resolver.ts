@@ -1,7 +1,7 @@
 /**
  * @module Lock
  */
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import { type EventBusInput } from "@/event-bus/contracts/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import {
     type ILockFactoryResolver,
@@ -99,7 +99,7 @@ export class LockFactoryResolver<TAdapters extends string>
         });
     }
 
-    setEventBus(eventBus: IEventBus): LockFactoryResolver<TAdapters> {
+    setEventBus(eventBus: EventBusInput): LockFactoryResolver<TAdapters> {
         return new LockFactoryResolver({
             ...this.settings,
             eventBus,

@@ -14,9 +14,12 @@ import {
 } from "@/circuit-breaker/contracts/_module.js";
 import { CircuitBreakerSerdeTransformer } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker-serde-transformer.js";
 import { CircuitBreaker } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import {
+    type EventBusInput,
+    type IEventBus,
+} from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import { resolveEventBusInput } from "@/event-bus/implementations/derivables/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
@@ -56,15 +59,12 @@ export type CircuitBreakerFactorySettingsBase = {
     /**
      * @default
      * ```ts
-     * import { EventBus } from "@daiso-tech/core/event-bus";
      * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
      *
-     * new EventBus({
-     *   adapter: new NoOpEventBusAdapter()
-     * })
+     * new NoOpEventBusAdapter()
      * ```
      */
-    eventBus?: IEventBus;
+    eventBus?: EventBusInput;
 
     /**
      * You can set the default `ErrorPolicy`
@@ -220,9 +220,7 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
         const {
             enableAsyncTracking = true,
             namespace = new NoOpNamespace(),
-            eventBus = new EventBus({
-                adapter: new NoOpEventBusAdapter(),
-            }),
+            eventBus = new NoOpEventBusAdapter(),
             adapter,
             defaultSlowCallTime = TimeSpan.fromSeconds(10),
             defaultTrigger = CIRCUIT_BREAKER_TRIGGER.BOTH,
@@ -239,7 +237,7 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
         this.waitUntil = waitUntil;
         this.enableAsyncTracking = enableAsyncTracking;
         this.namespace = namespace;
-        this.eventBus = eventBus;
+        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.adapter = adapter;
         this.defaultSlowCallTime = TimeSpan.fromTimeSpan(defaultSlowCallTime);
         this.defaultTrigger = defaultTrigger;

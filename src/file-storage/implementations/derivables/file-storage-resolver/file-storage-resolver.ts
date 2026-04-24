@@ -2,7 +2,7 @@
  * @module FileStorage
  */
 
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import { type EventBusInput } from "@/event-bus/contracts/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import {
     type IFileStorage,
@@ -89,7 +89,7 @@ export class FileStorageResolver<TAdapters extends string = string>
         });
     }
 
-    setEventBus(eventBus: IEventBus): FileStorageResolver<TAdapters> {
+    setEventBus(eventBus: EventBusInput): FileStorageResolver<TAdapters> {
         return new FileStorageResolver({
             ...this.settings,
             eventBus,

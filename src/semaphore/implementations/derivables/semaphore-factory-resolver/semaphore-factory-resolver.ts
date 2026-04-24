@@ -1,7 +1,7 @@
 /**
  * @module Semaphore
  */
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import { type EventBusInput } from "@/event-bus/contracts/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
@@ -89,7 +89,7 @@ export class SemaphoreFactoryResolver<TAdapters extends string>
         });
     }
 
-    setEventBus(eventBus: IEventBus): SemaphoreFactoryResolver<TAdapters> {
+    setEventBus(eventBus: EventBusInput): SemaphoreFactoryResolver<TAdapters> {
         return new SemaphoreFactoryResolver({
             ...this.settings,
             eventBus,

@@ -19,9 +19,12 @@ import {
 } from "@/cache/contracts/_module.js";
 import { type CacheAdapterVariants } from "@/cache/contracts/types.js";
 import { resolveCacheAdapter } from "@/cache/implementations/derivables/cache/resolve-cache-adapter.js";
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import {
+    type EventBusInput,
+    type IEventBus,
+} from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import { resolveEventBusInput } from "@/event-bus/implementations/derivables/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
@@ -78,15 +81,12 @@ export type CacheSettingsBase<TType = unknown> = {
     /**
      * @default
      * ```ts
-     * import { EventBus } from "@daiso-tech/core/event-bus";
      * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
      *
-     * new EventBus({
-     *   adapter: new NoOpEventBusAdapter()
-     * })
+     * new NoOpEventBusAdapter()
      * ```
      */
-    eventBus?: IEventBus;
+    eventBus?: EventBusInput;
 
     /**
      * You can decide the default ttl value. If null is passed then no ttl will be used by default.
@@ -201,9 +201,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
             schema,
             namespace = new NoOpNamespace(),
             adapter,
-            eventBus = new EventBus<any>({
-                adapter: new NoOpEventBusAdapter(),
-            }),
+            eventBus = new NoOpEventBusAdapter(),
             defaultTtl = null,
             defaultJitter = 0.2,
             waitUntil = defaultWaitUntil,
@@ -221,7 +219,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         this.namespace = namespace;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
-        this.eventBus = eventBus;
+        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.adapter = resolveCacheAdapter(adapter);
         this.defaultJitter = defaultJitter;
     }
