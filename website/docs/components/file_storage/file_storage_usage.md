@@ -583,19 +583,16 @@ await eventBus.addListener("sending-file-over-network", ({ file }) => {
 
 You can listen to different [file events](https://daiso-tech.github.io/daiso-core/modules/File.html) that are triggered by the `File` instance.
 
-Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` contract.
+Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` or `IEventBusAdapter` contract.
 
 ```ts
 import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
 import { FileStorage, FILE_EVENTS } from "@daiso-tech/core/file-storage";
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 
 const fileStorage = new FileStorage({
     adapter: new MemoryFileStorageAdapter(),
-    eventBus: new EventBus({
-        adapter: new MemoryEventBusAdapter(),
-    }),
+    eventBus: new MemoryEventBusAdapter(),
 });
 
 await fileStorage.events.addListener(FILE_EVENTS.ADDED, () => {
@@ -611,7 +608,6 @@ If multiple file-storage adapters (e.g., `FsFileStorageAdapter` and `MemoryFileS
 ```ts
 import { FsFileStorageAdapter } from "@daiso-tech/core/file-storage/fs-file-storage-adapter";
 import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
@@ -627,21 +623,17 @@ const redisPubSubEventBusAdapter = new RedisPubSubEventBusAdapter({
 const memoryFileStorageAdapter = new MemoryFileStorageAdapter();
 const memoryFileStorage = new FileStorage({
     adapter: memoryFileStorageAdapter,
-    eventBus: new EventBus({
-        // We assign distinct namespaces to MemoryFileStorageAdapter and FsFileStorageAdapter to isolate their events.
-        namespace: new Namespace(["memory", "event-bus"]),
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    // We assign distinct namespaces to MemoryFileStorageAdapter and FsFileStorageAdapter to isolate their events.
+    namespace: new Namespace(["memory", "event-bus"]),
+    eventBus: redisPubSubEventBusAdapter
 });
 
 const fsFileStorageAdapter = new FsFileStorageAdapter();
 const fsFileStorage = new FileStorage({
     adapter: fsFileStorageAdapter,
-    eventBus: new EventBus({
-        // We assign distinct namespaces to MemoryFileStorageAdapter and FsFileStorageAdapter to isolate their events.
-        namespace: new Namespace(["fs", "event-bus"]),
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    // We assign distinct namespaces to MemoryFileStorageAdapter and FsFileStorageAdapter to isolate their events.
+    namespace: new Namespace(["fs", "event-bus"]),
+    eventBus: redisPubSubEventBusAdapter
 });
 ```
 

@@ -971,7 +971,7 @@ await eventBus.addListener(
 ### Shared-lock events
 
 You can listen to different [shared-lock events](https://daiso-tech.github.io/daiso-core/modules/SharedLock.html) that are triggered by the `Shared-lock` instance.
-Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` contract.
+Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` or `IEventBusAdapter` contract.
 
 ```ts
 import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
@@ -980,15 +980,12 @@ import {
     SHARED_LOCK_EVENTS,
 } from "@daiso-tech/core/shared-lock";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
 
 const redisPubSubEventBusAdapter = new MemoryEventBusAdapter();
 
 const sharedLock = new SharedLockFactory({
     adapter: new MemorySharedLockAdapter(),
-    eventBus: new EventBus({
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    eventBus: redisPubSubEventBusAdapter
 });
 
 await sharedLockFactory.events.addListener(
@@ -1007,7 +1004,6 @@ If multiple shared-lock adapters (e.g., `RedisSharedLockAdapter` and `MemoryShar
 ```ts
 import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
 import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
@@ -1024,11 +1020,9 @@ const redisPubSubEventBusAdapter = new RedisPubSubEventBusAdapter({
 const memorySharedLockAdapter = new MemorySharedLockAdapter();
 const memorySharedLockFactory = new SharedLockFactory({
     adapter: memorySharedLockAdapter,
-    eventBus: new EventBus({
-        // We assign distinct namespaces to MemorySharedLockAdapter and RedisSharedLockAdapter to isolate their events.
-        namespace: new Namespace(["memory", "event-bus"]),
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    // We assign distinct namespaces to MemorySharedLockAdapter and RedisSharedLockAdapter to isolate their events.
+    namespace: new Namespace(["memory", "event-bus"]),
+    eventBus: redisPubSubEventBusAdapter
 });
 
 const redisSharedLockAdapter = new RedisSharedLockAdapter({
@@ -1037,11 +1031,9 @@ const redisSharedLockAdapter = new RedisSharedLockAdapter({
 });
 const redisSharedLockFactory = new SharedLockFactory({
     adapter: redisSharedLockAdapter,
-    eventBus: new EventBus({
-        // We assign distinct namespaces to MemorySharedLockAdapter and RedisSharedLockAdapter to isolate their events.
-        namespace: new Namespace(["redis", "event-bus"]),
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    // We assign distinct namespaces to MemorySharedLockAdapter and RedisSharedLockAdapter to isolate their events.
+    namespace: new Namespace(["redis", "event-bus"]),
+    eventBus: redisPubSubEventBusAdapter
 });
 ```
 
@@ -1064,7 +1056,6 @@ The library includes 3 additional contracts:
 This seperation makes it easy to visually distinguish the 3 contracts, making it immediately obvious that they serve different purposes.
 
 ```ts
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
 import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
@@ -1152,9 +1143,7 @@ async function sharedLockListenableFunc(
 
 const sharedLockFactory = new SharedLockFactory({
     adapter: new MemorySharedLockAdapter(),
-    eventBus: new EventBus({
-        adapter: new MemoryEventBusAdapter(),
-    }),
+    eventBus: new MemoryEventBusAdapter(),
 });
 await sharedLockListenableFunc(sharedLockFactory.events);
 await sharedLockFactoryFunc(sharedLockFactory);

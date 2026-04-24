@@ -564,19 +564,16 @@ await eventBus.addListener("sending-lock-over-network", ({ lock }) => {
 ### Lock events
 
 You can listen to different [lock events](https://daiso-tech.github.io/daiso-core/modules/Lock.html) that are triggered by the `Lock` instance.
-Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` contract.
+Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` or `IEventBusAdapter` contract.
 
 ```ts
 import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
 import { LockFactory, LOCK_EVENTS } from "@daiso-tech/core/lock";
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 
 const lockFactory = new LockFactory({
     adapter: new MemoryLockAdapter(),
-    eventBus: new EventBus({
-        adapter: new MemoryEventBusAdapter(),
-    }),
+    eventBus: new MemoryEventBusAdapter(),
 });
 
 await lockFactory.events.addListener(LOCK_EVENTS.ACQUIRED, () => {
@@ -592,7 +589,6 @@ If multiple lock adapters (e.g., `RedisLockAdapter` and `MemoryLockAdapter`) are
 ```ts
 import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
 import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
@@ -609,11 +605,9 @@ const redisPubSubEventBusAdapter = new RedisPubSubEventBusAdapter({
 const memoryLockAdapter = new MemoryLockAdapter();
 const memoryLockFactory = new LockFactory({
     adapter: memoryLockAdapter,
-    eventBus: new EventBus({
-        // We assign distinct namespaces to MemoryLockAdapter and RedisLockAdapter to isolate their events.
-        namespace: new Namespace(["memory", "event-bus"]),
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    // We assign distinct namespaces to MemoryLockAdapter and RedisLockAdapter to isolate their events.
+    namespace: new Namespace(["memory", "event-bus"]),
+    eventBus: redisPubSubEventBusAdapter
 });
 
 const redisLockAdapter = new RedisLockAdapter({
@@ -622,11 +616,9 @@ const redisLockAdapter = new RedisLockAdapter({
 });
 const redisLockFactory = new LockFactory({
     adapter: redisLockAdapter,
-    eventBus: new EventBus({
-        // We assign distinct namespaces to MemoryLockAdapter and RedisLockAdapter to isolate their events.
-        namespace: new Namespace(["redis", "event-bus"]),
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    // We assign distinct namespaces to MemoryLockAdapter and RedisLockAdapter to isolate their events.
+    namespace: new Namespace(["redis", "event-bus"]),
+    eventBus: redisPubSubEventBusAdapter
 });
 ```
 
@@ -645,7 +637,6 @@ The library includes 3 additional contracts:
 This seperation makes it easy to visually distinguish the 3 contracts, making it immediately obvious that they serve different purposes.
 
 ```ts
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 import { LockFactory } from "@daiso-tech/core/lock";
 import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
@@ -686,9 +677,7 @@ async function lockListenableFunc(
 
 const lockFactory = new LockFactory({
     adapter: new MemoryLockAdapter(),
-    eventBus: new EventBus({
-        adapter: new MemoryEventBusAdapter(),
-    }),
+    eventBus: new MemoryEventBusAdapter(),
 });
 await lockListenableFunc(lockFactory.events);
 await lockFactoryFunc(lockFactory);
