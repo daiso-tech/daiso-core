@@ -89,6 +89,9 @@ export type SharedLockFactorySettingsBase = {
     createLockId?: Invokable<[], string>;
 
     /**
+     * You can provide an `IEventBus` or an `IEventBusAdapter` instance to handle the components events.
+     * If you provide an adapter, it will be automatically wrapped in an `IEventBus` instance.
+     *
      * @default
      * ```ts
      * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
