@@ -1,5 +1,168 @@
 # @daiso-tech/core
 
+## 0.52.0
+
+### Minor Changes
+
+- e0f63c8: Added new middlewares factories:
+
+    - `cacheMiddlewareFactory`
+    - `circuitBreakerMiddlewareFactory`
+    - `lockMiddlewareFactory`
+    - `rateLimiterMiddlewareFactory`
+    - `semaphoreMiddlewareFactory`
+    - `sharedLockMiddlewareFactory`
+
+- e0f63c8: Added new middleware utility `enhanceFactory` that allows apply middlewares to methods.
+
+    Works with object literal methods:
+
+    ```ts
+    import {
+        enhanceFactory,
+        type MiddlewareFn,
+    } from "@daiso-tech/core/middleware";
+
+    const enhance = enhanceFactory();
+    function log<TReturn>(): MiddlewareFn<TParameters, Promise<TReturn>> {
+        return async ({ next, args }) => {
+            const argsAsStr = args.map((arg) => String(arg)).join(", ");
+            console.log(`args: ${argsAsStr}`);
+            return await next();
+        };
+    }
+
+    const obj = {
+        async hello(name: string): Promise<string> {
+            return `Hello world, ${name}`;
+        },
+    };
+    enhance(obj, "hello", [log()]);
+
+    // Will log "args: Jhon"
+    await obj.hello("Jhon");
+    ```
+
+    Works with instance methods:
+
+    ```ts
+    import {
+        enhanceFactory,
+        type MiddlewareFn,
+    } from "@daiso-tech/core/middleware";
+
+    const enhance = enhanceFactory();
+    function log<TReturn>(): MiddlewareFn<TParameters, Promise<TReturn>> {
+        return async ({ next, args }) => {
+            const argsAsStr = args.map((arg) => String(arg)).join(", ");
+            console.log(`args: ${argsAsStr}`);
+            return await next();
+        };
+    }
+
+    class Obj {
+        async hello(name: string): Promise<string> {
+            return `Hello world, ${name}`;
+        }
+    }
+    const obj = new Obj();
+    enhance(obj, "hello", [log()]);
+
+    // Will log "args: Jhon"
+    await obj.hello("Jhon");
+    ```
+
+    Works with static methods:
+
+    ```ts
+    import {
+        enhanceFactory,
+        type MiddlewareFn,
+    } from "@daiso-tech/core/middleware";
+
+    const enhance = enhanceFactory();
+    function log<TReturn>(): MiddlewareFn<TParameters, Promise<TReturn>> {
+        return async ({ next, args }) => {
+            const argsAsStr = args.map((arg) => String(arg)).join(", ");
+            console.log(`args: ${argsAsStr}`);
+            return await next();
+        };
+    }
+
+    class Obj {
+        static async hello(name: string): Promise<string> {
+            return `Hello world, ${name}`;
+        }
+    }
+    enhance(Obj, "hello", [log()]);
+
+    // Will log "args: Jhon"
+    await Obj.hello("Jhon");
+    ```
+
+    Works with prototypes methods:
+
+    ```ts
+    import {
+        enhanceFactory,
+        type MiddlewareFn,
+    } from "@daiso-tech/core/middleware";
+
+    const enhance = enhanceFactory();
+    function log<TReturn>(): MiddlewareFn<TParameters, Promise<TReturn>> {
+        return async ({ next, args }) => {
+            const argsAsStr = args.map((arg) => String(arg)).join(", ");
+            console.log(`args: ${argsAsStr}`);
+            return await next();
+        };
+    }
+
+    class Obj {
+        async hello(name: string): Promise<string> {
+            return `Hello world, ${name}`;
+        }
+    }
+    enhance(Obj.prototype, "hello", [log()]);
+
+    const obj = new Obj();
+
+    // Will log "args: Jhon"
+    await obj.hello("Jhon");
+    ```
+
+- e064850: Now you can passs both `IEventBus` or `IEventBusAdapter` to:
+
+    - `CacheSettingsBase.eventBus`
+    - `EventBusSettingsBase.eventBus`
+    - `FileStorageSettingsBase.eventBus`
+    - `CircuitBreakerFactorySettingsBase.eventBus`
+    - `RateLimiterBreakerFactorySettingsBase.eventBus`
+    - `LockFactorySettingsBase.eventBus`
+    - `SemaphoreFactorySettingsBase.eventBus`
+    - `SharedLockFactorySettingsBase.eventBus`
+
+    Reduces boilerplate by eliminating the need to manually initialize an `EventBus` instance.
+
+    Now you also can passs both `ILockFactoryBase`, `ILockAdapter` or `IDatabaseLockAdapter` to:
+
+    - `CacheSettingsBase.lockFactory`
+    - `FileStorageSettingsBase.lockFactory`
+
+    Reduces boilerplate by eliminating the need to manually initialize an `LockFactory` instance.
+
+### Patch Changes
+
+- e0f63c8: Added missing package json exports:
+
+    - `"@daiso-tech/core/file-size"`
+    - `"@daiso-tech/core/file-storage"`
+    - `"@daiso-tech/core/file-storage/contracts"`
+    - `"@daiso-tech/core/file-storage/fs-file-storage-adapter"`
+    - `"@daiso-tech/core/file-storage/memory-file-storage-adapter"`
+    - `"@daiso-tech/core/file-storage/no-op-file-storage-adapter"`
+    - `"@daiso-tech/core/file-storage/s3-file-storage-adapter"`
+    - `"@daiso-tech/core/shared-lock"`
+
 ## 0.51.1
 
 ### Patch Changes
@@ -937,8 +1100,8 @@
 - 3ca9190: Renamed `FallbackSettings.fallbackPolicy` to `FallbackSettings.errorPolicy`
 - 3ca9190: - Removed the following types:
 
-                                                                  - `AsyncFactoryable`
-                                                                  - `Factoryable`
+                                                                    - `AsyncFactoryable`
+                                                                    - `Factoryable`
 
     - Updated remaining factory types to use the new `InvokableFn` and `InvokableObject` contracts:
         - Synchronous factories:
