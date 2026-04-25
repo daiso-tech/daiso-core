@@ -68,6 +68,10 @@
             "types": "./dist/cache/implementations/derivables/_module-exports.d.ts",
             "import": "./dist/cache/implementations/derivables/_module-exports.js"
         },
+        "./cache/middlewares": {
+            "types": "./dist/cache/implementations/middlewares/_module-exports.d.ts",
+            "import": "./dist/cache/implementations/middlewares/_module-exports.js"
+        },
         "./cache/contracts": {
             "types": "./dist/cache/contracts/_module-exports.d.ts",
             "import": "./dist/cache/contracts/_module-exports.js"
@@ -188,9 +192,45 @@
             "types": "./dist/execution-context/implementations/adapters/no-op-execution-context-adapter/_module-exports.d.ts",
             "import": "./dist/execution-context/implementations/adapters/no-op-execution-context-adapter/_module-exports.js"
         },
+        "./file-size": {
+            "types": "./dist/file-size/implementations/_module-exports.d.ts",
+            "import": "./dist/file-size/implementations/_module-exports.js"
+        },
+        "./file-size/contracts": {
+            "types": "./dist/file-size/contracts/_module-exports.d.ts",
+            "import": "./dist/file-size/contracts/_module-exports.js"
+        },
+        "./file-storage": {
+            "types": "./dist/file-storage/implementations/derivables/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/derivables/_module-exports.js"
+        },
+        "./file-storage/contracts": {
+            "types": "./dist/file-storage/contracts/_module-exports.d.ts",
+            "import": "./dist/file-storage/contracts/_module-exports.js"
+        },
+        "./file-storage/fs-file-storage-adapter": {
+            "types": "./dist/file-storage/implementations/adapters/fs-file-storage-adapter/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/adapters/fs-file-storage-adapter/_module-exports.js"
+        },
+        "./file-storage/memory-file-storage-adapter": {
+            "types": "./dist/file-storage/implementations/adapters/memory-file-storage-adapter/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/adapters/memory-file-storage-adapter/_module-exports.js"
+        },
+        "./file-storage/no-op-file-storage-adapter": {
+            "types": "./dist/file-storage/implementations/adapters/no-op-file-storage-adapter/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/adapters/no-op-file-storage-adapter/_module-exports.js"
+        },
+        "./file-storage/s3-file-storage-adapter": {
+            "types": "./dist/file-storage/implementations/adapters/s3-file-storage-adapter/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/adapters/s3-file-storage-adapter/_module-exports.js"
+        },
         "./lock": {
             "types": "./dist/lock/implementations/derivables/_module-exports.d.ts",
             "import": "./dist/lock/implementations/derivables/_module-exports.js"
+        },
+        "./lock/middlewares": {
+            "types": "./dist/lock/implementations/middlewares/_module-exports.d.ts",
+            "import": "./dist/lock/implementations/middlewares/_module-exports.js"
         },
         "./lock/contracts": {
             "types": "./dist/lock/contracts/_module-exports.d.ts",
@@ -235,6 +275,10 @@
         "./rate-limiter": {
             "types": "./dist/rate-limiter/implementations/derivables/_module-exports.d.ts",
             "import": "./dist/rate-limiter/implementations/derivables/_module-exports.js"
+        },
+        "./rate-limiter/middlewares": {
+            "types": "./dist/rate-limiter/implementations/middleware/_module-exports.d.ts",
+            "import": "./dist/rate-limiter/implementations/middleware/_module-exports.js"
         },
         "./rate-limiter/contracts": {
             "types": "./dist/rate-limiter/contracts/_module-exports.d.ts",
@@ -283,6 +327,10 @@
         "./semaphore": {
             "types": "./dist/semaphore/implementations/derivables/_module-exports.d.ts",
             "import": "./dist/semaphore/implementations/derivables/_module-exports.js"
+        },
+        "./semaphore/middlewares": {
+            "types": "./dist/semaphore/implementations/middlewares/_module-exports.d.ts",
+            "import": "./dist/semaphore/implementations/middlewares/_module-exports.js"
         },
         "./semaphore/contracts": {
             "types": "./dist/semaphore/contracts/_module-exports.d.ts",
@@ -335,6 +383,14 @@
         "./serde/test-utilities": {
             "types": "./dist/serde/implementations/test-utilities/_module-exports.d.ts",
             "import": "./dist/serde/implementations/test-utilities/_module-exports.js"
+        },
+        "./shared-lock": {
+            "types": "./dist/shared-lock/implementations/derivables/_module-exports.d.ts",
+            "import": "./dist/shared-lock/implementations/derivables/_module-exports.js"
+        },
+        "./shared-lock/middlewares": {
+            "types": "./dist/shared-lock/implementations/middlewares/_module-exports.d.ts",
+            "import": "./dist/shared-lock/implementations/middlewares/_module-exports.js"
         },
         "./shared-lock/contracts": {
             "types": "./dist/shared-lock/contracts/_module-exports.d.ts",
