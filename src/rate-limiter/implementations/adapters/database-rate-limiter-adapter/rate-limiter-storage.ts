@@ -63,9 +63,9 @@ export class RateLimiterStorage<TMetrics = unknown> {
         this.backoffPolicy = backoffPolicy;
     }
 
-    private static resolveStorageData<TMetrics>(
-        data: IRateLimiterData<AllRateLimiterState<TMetrics>> | null,
-    ): AllRateLimiterState<TMetrics> | null {
+    private static resolveStorageData<TMetrics_>(
+        data: IRateLimiterData<AllRateLimiterState<TMetrics_>> | null,
+    ): AllRateLimiterState<TMetrics_> | null {
         if (data === null) {
             return null;
         }

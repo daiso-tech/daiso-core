@@ -12,9 +12,9 @@ export class SplitIterable<TInput> implements Iterable<ICollection<TInput>> {
         private collection: ICollection<TInput>,
         private chunkAmount: number,
 
-        private makeCollection: <TInput>(
-            iterable: Iterable<TInput>,
-        ) => ICollection<TInput>,
+        private makeCollection: <TInput_>(
+            iterable: Iterable<TInput_>,
+        ) => ICollection<TInput_>,
     ) {}
 
     *[Symbol.iterator](): Iterator<ICollection<TInput>> {

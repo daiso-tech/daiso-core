@@ -125,10 +125,10 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
                             args,
                             context,
                         });
-                    } catch (error: unknown) {
+                    } catch (error_: unknown) {
                         console.error(
                             "Error occurred in onFallback callback:",
-                            error,
+                            error_,
                         );
                     }
                 })();

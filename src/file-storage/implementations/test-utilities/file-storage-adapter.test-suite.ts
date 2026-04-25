@@ -64,12 +64,12 @@ export function fileStorageAdapterTestSuite(
         test,
         createAdapter,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         enableGetMetaData = true,
         context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
     let adapter: IFileStorageAdapter;
-    beforeEach(async () => {
+    beforeEach_(async () => {
         adapter = await createAdapter();
     });
 

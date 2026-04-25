@@ -99,11 +99,11 @@ export function databaseCacheAdapterTestSuite(
         test,
         createAdapter,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
     let adapter: IDatabaseCacheAdapter<string>;
-    beforeEach(async () => {
+    beforeEach_(async () => {
         adapter = (await createAdapter()) as IDatabaseCacheAdapter<string>;
     });
     const KEY = "a";

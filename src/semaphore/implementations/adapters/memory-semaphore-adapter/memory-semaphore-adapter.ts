@@ -219,7 +219,7 @@ export class MemorySemaphoreAdapter
             limit: semaphore.limit,
             acquiredSlots: new Map(
                 [...semaphore.slots.entries()].map(
-                    ([key, value]) => [key, value.expiration] as const,
+                    ([key_, value]) => [key_, value.expiration] as const,
                 ),
             ),
         });

@@ -71,7 +71,7 @@ describe("class: MongodbSharedLockAdapter", () => {
                 .toArray();
 
             const collection = collections.find(
-                (collection) => collection.name === "semaphores",
+                (collection_) => collection_.name === "semaphores",
             );
 
             expect(collection).toBeUndefined();

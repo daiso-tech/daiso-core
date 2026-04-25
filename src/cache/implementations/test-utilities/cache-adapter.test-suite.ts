@@ -103,12 +103,12 @@ export function cacheAdapterTestSuite(
         test,
         createAdapter,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         delayBuffer = TimeSpan.fromMilliseconds(10),
         context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
     let adapter: ICacheAdapter<string | number>;
-    beforeEach(async () => {
+    beforeEach_(async () => {
         adapter = (await createAdapter()) as ICacheAdapter<string | number>;
     });
 

@@ -126,10 +126,10 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                             args,
                             context,
                         });
-                    } catch (error: unknown) {
+                    } catch (error_: unknown) {
                         console.log(
                             "Error occurred in onRetryDelay callback:",
-                            error,
+                            error_,
                         );
                     }
                 })();

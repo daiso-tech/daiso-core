@@ -76,13 +76,13 @@ export function rateLimiterStorageAdapterTestSuite(
         test,
         createAdapter,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
     let adapter: IRateLimiterStorageAdapter<string>;
 
     describe("IRateLimiterStorageAdapter tests:", () => {
-        beforeEach(async () => {
+        beforeEach_(async () => {
             adapter =
                 (await createAdapter()) as IRateLimiterStorageAdapter<string>;
         });

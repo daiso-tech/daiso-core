@@ -17,9 +17,9 @@ export class CrossJoinIterable<TInput, TExtended = TInput>
     constructor(
         private readonly collection: ICollection<TInput>,
         private readonly iterable: Iterable<TExtended>,
-        private readonly makeCollection: <TInput>(
-            iterable: Iterable<TInput>,
-        ) => ICollection<TInput>,
+        private readonly makeCollection: <TInput_>(
+            iterable_: Iterable<TInput_>,
+        ) => ICollection<TInput_>,
     ) {}
 
     *[Symbol.iterator](): Iterator<CrossJoinResult<TInput, TExtended>> {

@@ -77,7 +77,7 @@ describe("class: MongodbCircuitBreakerStorageAdapter", () => {
                 .toArray();
 
             const collection = collections.find(
-                (collection) => collection.name === "circuitBreakers",
+                (collection_) => collection_.name === "circuitBreakers",
             );
 
             expect(collection).toBeUndefined();

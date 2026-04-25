@@ -23,6 +23,15 @@
             ],
             "rules": {
                 "object-shorthand": ["error", "always"],
+                "no-shadow": [
+                    "error",
+                    {
+                        "builtinGlobals": false,
+                        "hoist": "functions",
+                        "allow": [],
+                        "ignoreOnInitialization": false
+                    }
+                ],
                 "import/order": [
                     "error",
                     {

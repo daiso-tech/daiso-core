@@ -22,9 +22,9 @@ export class AsyncCrossJoinIterable<TInput, TExtended>
     constructor(
         private collection: IAsyncCollection<TInput>,
         private iterable: AsyncIterableValue<TExtended>,
-        private makeCollection: <TInput>(
-            iterable: AsyncIterableValue<TInput>,
-        ) => IAsyncCollection<TInput>,
+        private makeCollection: <TInput_>(
+            iterable_: AsyncIterableValue<TInput_>,
+        ) => IAsyncCollection<TInput_>,
     ) {}
 
     async *[Symbol.asyncIterator](): AsyncIterator<

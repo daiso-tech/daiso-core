@@ -99,13 +99,13 @@ export function databaseSharedLockAdapterTestSuite(
         test,
         createAdapter,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
 
     describe("IDatabaseSharedLockAdapter tests:", () => {
         let adapter: IDatabaseSharedLockAdapter;
-        beforeEach(async () => {
+        beforeEach_(async () => {
             adapter = await createAdapter();
         });
         describe("method: transaction writer.find", () => {
@@ -869,7 +869,7 @@ export function databaseSharedLockAdapterTestSuite(
 
                 const slot = await adapter.transaction(context, async (trx) => {
                     const slots = await trx.reader.findSlots(context, key);
-                    return slots.find((slot) => slot.id === slotId);
+                    return slots.find((slot_) => slot_.id === slotId);
                 });
                 expect(slot).toEqual({
                     expiration,
@@ -907,7 +907,7 @@ export function databaseSharedLockAdapterTestSuite(
 
                 const slot = await adapter.transaction(context, async (trx) => {
                     const slots = await trx.reader.findSlots(context, key);
-                    return slots.find((slot) => slot.id === slotId2);
+                    return slots.find((slot_) => slot_.id === slotId2);
                 });
                 expect(slot).toEqual({
                     expiration: expiration2,
@@ -1065,7 +1065,7 @@ export function databaseSharedLockAdapterTestSuite(
 
                 const slot = await adapter.transaction(context, async (trx) => {
                     const slots = await trx.reader.findSlots(context, key);
-                    return slots.find((slot) => slot.id === slotId);
+                    return slots.find((slot_) => slot_.id === slotId);
                 });
                 expect(slot).toBeUndefined();
             });
@@ -1097,7 +1097,7 @@ export function databaseSharedLockAdapterTestSuite(
 
                 const slot = await adapter.transaction(context, async (trx) => {
                     const slots = await trx.reader.findSlots(context, key);
-                    return slots.find((slot) => slot.id === slotId);
+                    return slots.find((slot_) => slot_.id === slotId);
                 });
                 expect(slot).toEqual({
                     id: slotId,
@@ -1438,7 +1438,7 @@ export function databaseSharedLockAdapterTestSuite(
 
                 const slot = await adapter.transaction(context, async (trx) => {
                     const slots = await trx.reader.findSlots(context, key);
-                    return slots.find((slot) => slot.id === slotId1);
+                    return slots.find((slot_) => slot_.id === slotId1);
                 });
                 expect(slot).toEqual({
                     id: slotId1,
@@ -1476,7 +1476,7 @@ export function databaseSharedLockAdapterTestSuite(
 
                 const slot = await adapter.transaction(context, async (trx) => {
                     const slots = await trx.reader.findSlots(context, key);
-                    return slots.find((slot) => slot.id === slotId1);
+                    return slots.find((slot_) => slot_.id === slotId1);
                 });
                 expect(slot).toEqual({
                     id: slotId1,
@@ -1514,7 +1514,7 @@ export function databaseSharedLockAdapterTestSuite(
 
                 const slot = await adapter.transaction(context, async (trx) => {
                     const slots = await trx.reader.findSlots(context, key);
-                    return slots.find((slot) => slot.id === slotId1);
+                    return slots.find((slot_) => slot_.id === slotId1);
                 });
                 expect(slot).toEqual({
                     id: slotId1,

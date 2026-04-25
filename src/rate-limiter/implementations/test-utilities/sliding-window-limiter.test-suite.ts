@@ -17,7 +17,6 @@ import {
 import { type IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
 import {
     LIMITER_POLICIES,
-    type SlidingWindowLimiterSettings,
     type SlidingWindowLimiterSettingsEnum,
 } from "@/rate-limiter/implementations/policies/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -107,13 +106,13 @@ export function slidingWindowLimiterTestSuite(
         test,
         createAdapter,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         delayBuffer = TimeSpan.fromMilliseconds(10),
     } = settings;
     let adapter: IRateLimiterAdapter;
     const waitTime = TimeSpan.fromTimeSpan(backoffPolicySettings.delay);
     describe("sliding-window-limiter IRateLimiterAdapter tests:", () => {
-        beforeEach(async () => {
+        beforeEach_(async () => {
             adapter = await createAdapter();
         });
 

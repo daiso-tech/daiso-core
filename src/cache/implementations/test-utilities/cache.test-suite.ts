@@ -99,13 +99,13 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
         test,
         createCache,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         excludeEventTests = false,
         delayBuffer = TimeSpan.fromMilliseconds(10),
         eventDispatchWaitTime = TimeSpan.fromMilliseconds(10),
     } = settings;
     let cache: ICache<number>;
-    beforeEach(async () => {
+    beforeEach_(async () => {
         cache = (await createCache()) as ICache<number>;
     });
 

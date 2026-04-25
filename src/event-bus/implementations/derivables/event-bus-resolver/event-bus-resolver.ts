@@ -105,18 +105,18 @@ export class EventBusResolver<
         });
     }
 
-    setEventMapType<TEventMap extends BaseEventMap>(): EventBusResolver<
+    setEventMapType<TEventMap_ extends BaseEventMap>(): EventBusResolver<
         TAdapters,
-        TEventMap
+        TEventMap_
     > {
         return new EventBusResolver({
             ...this.settings,
-        } as EventBusResolverSettings<TAdapters, TEventMap>);
+        } as EventBusResolverSettings<TAdapters, TEventMap_>);
     }
 
-    setEventMapSchema<TEventMap extends BaseEventMap>(
-        eventMapSchema: EventMapSchema<TEventMap>,
-    ): EventBusResolver<TAdapters, TEventMap> {
+    setEventMapSchema<TEventMap_ extends BaseEventMap>(
+        eventMapSchema: EventMapSchema<TEventMap_>,
+    ): EventBusResolver<TAdapters, TEventMap_> {
         return new EventBusResolver({
             ...this.settings,
             eventMapSchema,

@@ -1055,13 +1055,13 @@ describe("class: RateLimiterFactory", () => {
         });
         test("Should differentiate between different adapters that have same namespace", async () => {
             class WrapperRateLimiterAdapter implements IRateLimiterAdapter {
-                constructor(private readonly adapter: IRateLimiterAdapter) {}
+                constructor(private readonly adapter_: IRateLimiterAdapter) {}
 
                 getState(
                     context: IReadableContext,
                     key: string,
                 ): Promise<IRateLimiterAdapterState | null> {
-                    return this.adapter.getState(context, key);
+                    return this.adapter_.getState(context, key);
                 }
 
                 updateState(
@@ -1069,11 +1069,11 @@ describe("class: RateLimiterFactory", () => {
                     key: string,
                     limit: number,
                 ): Promise<IRateLimiterAdapterState> {
-                    return this.adapter.updateState(context, key, limit);
+                    return this.adapter_.updateState(context, key, limit);
                 }
 
                 reset(context: IReadableContext, key: string): Promise<void> {
-                    return this.adapter.reset(context, key);
+                    return this.adapter_.reset(context, key);
                 }
             }
 

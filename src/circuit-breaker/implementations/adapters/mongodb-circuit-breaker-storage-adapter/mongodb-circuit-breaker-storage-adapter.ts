@@ -165,10 +165,10 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
         }
     }
 
-    private async upsert<TType>(
+    private async upsert<TType_>(
         _context: IReadableContext,
         key: string,
-        state: TType,
+        state: TType_,
         session?: ClientSession,
     ): Promise<void> {
         await this.collection.updateOne(

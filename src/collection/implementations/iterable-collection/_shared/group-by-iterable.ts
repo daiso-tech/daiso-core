@@ -16,9 +16,9 @@ export class GroupByIterable<TInput, TOutput = TInput>
         private selectFn: Map<TInput, ICollection<TInput>, TOutput> = (item) =>
             item as unknown as TOutput,
 
-        private makeCollection: <TInput>(
-            iterable: Iterable<TInput>,
-        ) => ICollection<TInput>,
+        private makeCollection: <TInput_>(
+            iterable: Iterable<TInput_>,
+        ) => ICollection<TInput_>,
     ) {}
 
     *[Symbol.iterator](): Iterator<[TOutput, ICollection<TInput>]> {

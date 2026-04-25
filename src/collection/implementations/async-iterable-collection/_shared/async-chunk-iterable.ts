@@ -14,9 +14,9 @@ export class AsyncChunkIterable<TInput>
     constructor(
         private collection: IAsyncCollection<TInput>,
         private chunkSize: number,
-        private makeCollection: <TInput>(
-            iterable: AsyncIterableValue<TInput>,
-        ) => IAsyncCollection<TInput>,
+        private makeCollection: <TInput_>(
+            iterable: AsyncIterableValue<TInput_>,
+        ) => IAsyncCollection<TInput_>,
     ) {}
 
     async *[Symbol.asyncIterator](): AsyncIterator<IAsyncCollection<TInput>> {

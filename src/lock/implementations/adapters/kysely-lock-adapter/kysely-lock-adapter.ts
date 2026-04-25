@@ -139,8 +139,8 @@ class DatabaseLockTransaction implements IDatabaseLockTransaction {
                 expiration: expirationAsMs,
             })
             .$if(!this.isMysql, (eb) =>
-                eb.onConflict((eb) =>
-                    eb.column("key").doUpdateSet({
+                eb.onConflict((eb_) =>
+                    eb_.column("key").doUpdateSet({
                         key,
                         owner: lockId,
                         expiration: expirationAsMs,
@@ -356,7 +356,7 @@ export class KyselyLockAdapter
         let row: Pick<KyselyLockTable, "owner" | "expiration"> | undefined;
         if (this.isMysql) {
             row = await this._transaction(async (trx) => {
-                const row = await trx
+                const row_ = await trx
                     .selectFrom("lock")
                     .where("lock.key", "=", key)
                     .where("lock.owner", "=", lockId)
@@ -367,7 +367,7 @@ export class KyselyLockAdapter
                     .where("lock.key", "=", key)
                     .where("lock.owner", "=", lockId)
                     .execute();
-                return row;
+                return row_;
             });
         } else {
             row = await this.kysely

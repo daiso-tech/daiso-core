@@ -57,7 +57,7 @@ export function eventBusAdapterTestSuite(
         expect,
         test,
         createAdapter,
-        beforeEach,
+        beforeEach: beforeEach_,
         context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
 
@@ -66,7 +66,7 @@ export function eventBusAdapterTestSuite(
     const TTL = TimeSpan.fromMilliseconds(50);
 
     describe("IEventBusAdapter tests:", () => {
-        beforeEach(async () => {
+        beforeEach_(async () => {
             adapter = await createAdapter();
         });
         describe("method: addListener, removeListener, dispatch", () => {

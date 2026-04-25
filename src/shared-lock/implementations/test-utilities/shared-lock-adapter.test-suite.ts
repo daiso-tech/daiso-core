@@ -101,7 +101,7 @@ export function sharedLockAdapterTestSuite(
         test,
         createAdapter,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         delayBuffer = TimeSpan.fromMilliseconds(10),
         context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
@@ -112,7 +112,7 @@ export function sharedLockAdapterTestSuite(
     }
 
     describe("ISharedLockAdapter tests:", () => {
-        beforeEach(async () => {
+        beforeEach_(async () => {
             adapter = await createAdapter();
         });
         describe("method: acquireWriter", () => {

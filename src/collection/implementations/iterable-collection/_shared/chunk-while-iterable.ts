@@ -17,9 +17,9 @@ export class ChunkWhileIterable<TInput>
     constructor(
         private collection: ICollection<TInput>,
         private predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
-        private makeCollection: <TInput>(
-            iterable: Iterable<TInput>,
-        ) => ICollection<TInput>,
+        private makeCollection: <TInput_>(
+            iterable: Iterable<TInput_>,
+        ) => ICollection<TInput_>,
     ) {}
 
     *[Symbol.iterator](): Iterator<ICollection<TInput>> {

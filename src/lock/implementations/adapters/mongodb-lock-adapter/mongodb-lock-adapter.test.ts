@@ -72,7 +72,7 @@ describe("class: MongodbLockAdapter", () => {
                 .toArray();
 
             const collection = collections.find(
-                (collection) => collection.name === "locks",
+                (collection_) => collection_.name === "locks",
             );
 
             expect(collection).toBeUndefined();

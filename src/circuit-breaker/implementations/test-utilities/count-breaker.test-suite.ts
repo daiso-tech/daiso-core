@@ -125,7 +125,7 @@ export function countBreakerTestSuite(
         test,
         createAdapter,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         delayBuffer = TimeSpan.fromMilliseconds(10),
         context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
@@ -133,7 +133,7 @@ export function countBreakerTestSuite(
     const waitTime = TimeSpan.fromTimeSpan(backoffPolicySettings.delay);
 
     describe("count-breaker ICircuitBreakerAdapter tests:", () => {
-        beforeEach(async () => {
+        beforeEach_(async () => {
             adapter = await createAdapter();
         });
 

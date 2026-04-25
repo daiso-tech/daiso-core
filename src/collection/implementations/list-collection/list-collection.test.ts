@@ -95,8 +95,8 @@ describe("class: ListCollection", () => {
             const arr = ["a", "b", "c", "d"],
                 collection = new ListCollection(arr),
                 initialValue = "!",
-                result = collection.reduce((initialValue, item) => {
-                    return initialValue + item;
+                result = collection.reduce((initialValue_, item) => {
+                    return initialValue_ + item;
                 }, initialValue);
             expect(result).toBe(initialValue + arr.join(""));
         });
@@ -105,9 +105,9 @@ describe("class: ListCollection", () => {
                 collection = new ListCollection(arr),
                 initialValue = "!",
                 indexes: Array<number> = [];
-            collection.reduce((initialValue, item, index) => {
+            collection.reduce((initialValue_, item, index) => {
                 indexes.push(index);
-                return initialValue + item;
+                return initialValue_ + item;
             }, initialValue);
             expect(indexes).toEqual([0, 1, 2, 3]);
         });
@@ -694,8 +694,8 @@ describe("class: ListCollection", () => {
             const arr1 = ["a", "b", "c"],
                 collection = new ListCollection(arr1),
                 arr2 = [1, 2, 3],
-                newCollection = collection.when(true, (collection) =>
-                    collection.append(arr2),
+                newCollection = collection.when(true, (collection_) =>
+                    collection_.append(arr2),
                 );
             expect(newCollection.toArray()).toEqual([...arr1, ...arr2]);
         });
@@ -703,8 +703,8 @@ describe("class: ListCollection", () => {
             const arr1 = ["a", "b", "c"],
                 collection = new ListCollection(arr1),
                 arr2 = [1, 2, 3],
-                newCollection = collection.when(false, (collection) =>
-                    collection.append(arr2),
+                newCollection = collection.when(false, (collection_) =>
+                    collection_.append(arr2),
                 );
             expect(newCollection.toArray()).toEqual(arr1);
         });
@@ -713,8 +713,8 @@ describe("class: ListCollection", () => {
         test("Should append items when empty", () => {
             const collection = new ListCollection<string>([]),
                 arr2 = [1, 2, 3],
-                newCollection = collection.whenEmpty((collection) =>
-                    collection.append(arr2),
+                newCollection = collection.whenEmpty((collection_) =>
+                    collection_.append(arr2),
                 );
             expect(newCollection.toArray()).toEqual(arr2);
         });
@@ -722,8 +722,8 @@ describe("class: ListCollection", () => {
             const arr1 = ["a", "b", "c"],
                 collection = new ListCollection(arr1),
                 arr2 = [1, 2, 3],
-                newCollection = collection.whenEmpty((collection) =>
-                    collection.append(arr2),
+                newCollection = collection.whenEmpty((collection_) =>
+                    collection_.append(arr2),
                 );
             expect(newCollection.toArray()).toEqual(arr1);
         });
@@ -733,8 +733,8 @@ describe("class: ListCollection", () => {
             const arr1 = ["a", "b", "c"],
                 collection = new ListCollection(arr1),
                 arr2 = [1, 2, 3],
-                newCollection = collection.whenNot(false, (collection) =>
-                    collection.append(arr2),
+                newCollection = collection.whenNot(false, (collection_) =>
+                    collection_.append(arr2),
                 );
             expect(newCollection.toArray()).toEqual([...arr1, ...arr2]);
         });
@@ -742,8 +742,8 @@ describe("class: ListCollection", () => {
             const arr1 = ["a", "b", "c"],
                 collection = new ListCollection(arr1),
                 arr2 = [1, 2, 3],
-                newCollection = collection.whenNot(true, (collection) =>
-                    collection.append(arr2),
+                newCollection = collection.whenNot(true, (collection_) =>
+                    collection_.append(arr2),
                 );
             expect(newCollection.toArray()).toEqual(arr1);
         });
@@ -753,16 +753,16 @@ describe("class: ListCollection", () => {
             const arr1 = ["a", "b", "c"],
                 collection = new ListCollection(arr1),
                 arr2 = [1, 2, 3],
-                newCollection = collection.whenNotEmpty((collection) =>
-                    collection.append(arr2),
+                newCollection = collection.whenNotEmpty((collection_) =>
+                    collection_.append(arr2),
                 );
             expect(newCollection.toArray()).toEqual([...arr1, ...arr2]);
         });
         test("Should not append items when empty", () => {
             const collection = new ListCollection([]),
                 arr2 = [1, 2, 3],
-                newCollection = collection.whenNotEmpty((collection) =>
-                    collection.append(arr2),
+                newCollection = collection.whenNotEmpty((collection_) =>
+                    collection_.append(arr2),
                 );
             expect(newCollection.toArray()).toEqual([]);
         });
@@ -771,25 +771,25 @@ describe("class: ListCollection", () => {
         test("Should pipe multiple functions", () => {
             const collection = new ListCollection(["a", "ab", "abc", "abcd"]),
                 result = collection
-                    .pipe((collection) =>
-                        collection.map((item) =>
+                    .pipe((collection_) =>
+                        collection_.map((item) =>
                             new ListCollection(item).map((char) =>
                                 char.charCodeAt(0),
                             ),
                         ),
                     )
-                    .pipe((collection) =>
-                        collection.map((collection) => collection.sum()),
+                    .pipe((collection_) =>
+                        collection_.map((collection__) => collection__.sum()),
                     )
-                    .pipe((collection) => collection.sum());
+                    .pipe((collection_) => collection_.sum());
             expect(result).toBeTypeOf("number");
         });
     });
     describe("method: tap", () => {
         test("Should change the original collection", () => {
             const arr = ["a", "ab", "abc"],
-                collection = new ListCollection(arr).tap((collection) =>
-                    collection.map((item) => item.length),
+                collection = new ListCollection(arr).tap((collection_) =>
+                    collection_.map((item) => item.length),
                 );
             expect(collection.toArray()).toEqual(arr);
         });
@@ -1597,7 +1597,7 @@ describe("class: ListCollection", () => {
         });
         test("Should return null when item not found", () => {
             const collection = new ListCollection([1, 2, 3, 4, 5]),
-                item = collection.first((item) => item === 6);
+                item = collection.first((item_) => item_ === 6);
             expect(item).toBe(null);
         });
         test("Should input correct indexes to predicate function", () => {
@@ -1656,14 +1656,14 @@ describe("class: ListCollection", () => {
         describe("Should return default value when item not found", () => {
             test("Value", () => {
                 const collection = new ListCollection([1, 2, 3, 4, 5]),
-                    item = collection.firstOr("a", (item) => item === 6);
+                    item = collection.firstOr("a", (item_) => item_ === 6);
                 expect(item).toBe("a");
             });
             test("Function", () => {
                 const collection = new ListCollection([1, 2, 3, 4, 5]),
                     item = collection.firstOr(
                         () => "a",
-                        (item) => item === 6,
+                        (item_) => item_ === 6,
                     );
                 expect(item).toBe("a");
             });
@@ -1788,7 +1788,7 @@ describe("class: ListCollection", () => {
         });
         test("Should return null when item not found", () => {
             const collection = new ListCollection([1, 2, 3, 4, 5]),
-                item = collection.last((item) => item === 6);
+                item = collection.last((item_) => item_ === 6);
             expect(item).toBe(null);
         });
         test("Should input correct indexes to predicate function", () => {
@@ -1847,14 +1847,14 @@ describe("class: ListCollection", () => {
         describe("Should return default value when item not found", () => {
             test("Value", () => {
                 const collection = new ListCollection([1, 2, 3, 4, 5]),
-                    item = collection.lastOr("a", (item) => item === 6);
+                    item = collection.lastOr("a", (item_) => item_ === 6);
                 expect(item).toBe("a");
             });
             test("Function", () => {
                 const collection = new ListCollection([1, 2, 3, 4, 5]),
                     item = collection.lastOr(
                         () => "a",
-                        (item) => item === 6,
+                        (item_) => item_ === 6,
                     );
                 expect(item).toBe("a");
             });
@@ -1945,22 +1945,22 @@ describe("class: ListCollection", () => {
     describe("method: before", () => {
         test(`Should return "a" when searching for string "b" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.before((item) => item === "b");
+                item = collection.before((item_) => item_ === "b");
             expect(item).toBe("a");
         });
         test(`Should return "b" when searching for string "c" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.before((item) => item === "c");
+                item = collection.before((item_) => item_ === "c");
             expect(item).toBe("b");
         });
         test(`Should return null when searching for string "a" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.before((item) => item === "a");
+                item = collection.before((item_) => item_ === "a");
             expect(item).toBe(null);
         });
         test(`Should return null when searching for string "d" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.before((item) => item === "d");
+                item = collection.before((item_) => item_ === "d");
             expect(item).toBe(null);
         });
         test("Should input correct indexes to predicate function", () => {
@@ -1981,25 +1981,25 @@ describe("class: ListCollection", () => {
     describe("method: beforeOr", () => {
         test(`Should return "a" when searching for string "b" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.beforeOr(-1, (item) => item === "b");
+                item = collection.beforeOr(-1, (item_) => item_ === "b");
             expect(item).toBe("a");
         });
         test(`Should return "b" when searching for string "c" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.beforeOr(-1, (item) => item === "c");
+                item = collection.beforeOr(-1, (item_) => item_ === "c");
             expect(item).toBe("b");
         });
         describe(`Should return default value when searching for string "a" of ["a", "b", "c"]`, () => {
             test("Value", () => {
                 const collection = new ListCollection(["a", "b", "c"]),
-                    item = collection.beforeOr(-1, (item) => item === "a");
+                    item = collection.beforeOr(-1, (item_) => item_ === "a");
                 expect(item).toBe(-1);
             });
             test("Fucntion", () => {
                 const collection = new ListCollection(["a", "b", "c"]),
                     item = collection.beforeOr(
                         () => -1,
-                        (item) => item === "a",
+                        (item_) => item_ === "a",
                     );
                 expect(item).toBe(-1);
             });
@@ -2007,14 +2007,14 @@ describe("class: ListCollection", () => {
         describe(`Should return default value when searching for string "d" of ["a", "b", "c"]`, () => {
             test("Value", () => {
                 const collection = new ListCollection(["a", "b", "c"]),
-                    item = collection.beforeOr(-1, (item) => item === "d");
+                    item = collection.beforeOr(-1, (item_) => item_ === "d");
                 expect(item).toBe(-1);
             });
             test("Function", () => {
                 const collection = new ListCollection(["a", "b", "c"]),
                     item = collection.beforeOr(
                         () => -1,
-                        (item) => item === "d",
+                        (item_) => item_ === "d",
                     );
                 expect(item).toBe(-1);
             });
@@ -2037,12 +2037,12 @@ describe("class: ListCollection", () => {
     describe("method: beforeOrFail", () => {
         test(`Should return "a" when searching for string "b" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.beforeOrFail((item) => item === "b");
+                item = collection.beforeOrFail((item_) => item_ === "b");
             expect(item).toBe("a");
         });
         test(`Should return "b" when searching for string "c" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.beforeOrFail((item) => item === "c");
+                item = collection.beforeOrFail((item_) => item_ === "c");
             expect(item).toBe("b");
         });
         test(`Should throw ItemNotFoundError when searching for string "d" of ["a", "b", "c"]`, () => {
@@ -2075,22 +2075,22 @@ describe("class: ListCollection", () => {
     describe("method: after", () => {
         test(`Should return "c" when searching for string "b" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.after((item) => item === "b");
+                item = collection.after((item_) => item_ === "b");
             expect(item).toBe("c");
         });
         test(`Should return "b" when searching for string "a" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.after((item) => item === "a");
+                item = collection.after((item_) => item_ === "a");
             expect(item).toBe("b");
         });
         test(`Should return null when searching for string "c" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.after((item) => item === "c");
+                item = collection.after((item_) => item_ === "c");
             expect(item).toBe(null);
         });
         test(`Should return null when searching for string "d" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.after((item) => item === "d");
+                item = collection.after((item_) => item_ === "d");
             expect(item).toBe(null);
         });
         test("Should input correct indexes to predicate function", () => {
@@ -2111,25 +2111,25 @@ describe("class: ListCollection", () => {
     describe("method: afterOr", () => {
         test(`Should return "c" when searching for string "b" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.afterOr(-1, (item) => item === "b");
+                item = collection.afterOr(-1, (item_) => item_ === "b");
             expect(item).toBe("c");
         });
         test(`Should return "b" when searching for string "a" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.afterOr(-1, (item) => item === "a");
+                item = collection.afterOr(-1, (item_) => item_ === "a");
             expect(item).toBe("b");
         });
         describe(`Should return default value when searching for string "c" of ["a", "b", "c"]`, () => {
             test("Value", () => {
                 const collection = new ListCollection(["a", "b", "c"]),
-                    item = collection.afterOr(-1, (item) => item === "c");
+                    item = collection.afterOr(-1, (item_) => item_ === "c");
                 expect(item).toBe(-1);
             });
             test("Function", () => {
                 const collection = new ListCollection(["a", "b", "c"]),
                     item = collection.afterOr(
                         () => -1,
-                        (item) => item === "c",
+                        (item_) => item_ === "c",
                     );
                 expect(item).toBe(-1);
             });
@@ -2137,14 +2137,14 @@ describe("class: ListCollection", () => {
         describe(`Should return default value when searching for string "d" of ["a", "b", "c"]`, () => {
             test("Value", () => {
                 const collection = new ListCollection(["a", "b", "c"]),
-                    item = collection.afterOr(-1, (item) => item === "d");
+                    item = collection.afterOr(-1, (item_) => item_ === "d");
                 expect(item).toBe(-1);
             });
             test("Function", () => {
                 const collection = new ListCollection(["a", "b", "c"]),
                     item = collection.afterOr(
                         () => -1,
-                        (item) => item === "d",
+                        (item_) => item_ === "d",
                     );
                 expect(item).toBe(-1);
             });
@@ -2167,12 +2167,12 @@ describe("class: ListCollection", () => {
     describe("method: afterOrFail", () => {
         test(`Should return "c" when searching for string "b" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.afterOrFail((item) => item === "b");
+                item = collection.afterOrFail((item_) => item_ === "b");
             expect(item).toBe("c");
         });
         test(`Should return "b" when searching for string "a" of ["a", "b", "c"]`, () => {
             const collection = new ListCollection(["a", "b", "c"]),
-                item = collection.afterOrFail((item) => item === "a");
+                item = collection.afterOrFail((item_) => item_ === "a");
             expect(item).toBe("b");
         });
         test(`Should throw ItemNotFoundError when searching for string "d" of ["a", "b", "c"]`, () => {

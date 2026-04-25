@@ -198,18 +198,18 @@ export class IterableCollection<TInput = unknown>
         return new IterableCollection(iterableA).zip(iterableB);
     }
 
-    static deserialize<TInput>(
-        serializedValue: SerializedCollection<TInput>,
-    ): ICollection<TInput> {
+    static deserialize<TInput_>(
+        serializedValue: SerializedCollection<TInput_>,
+    ): ICollection<TInput_> {
         return new IterableCollection(serializedValue.items);
     }
 
     private static DEFAULT_CHUNK_SIZE = 1024;
 
-    private static makeCollection = <TInput>(
-        iterable: IterableValue<TInput> = [],
-    ): ICollection<TInput> => {
-        return new IterableCollection<TInput>(iterable);
+    private static makeCollection = <TInput_>(
+        iterable: IterableValue<TInput_> = [],
+    ): ICollection<TInput_> => {
+        return new IterableCollection<TInput_>(iterable);
     };
 
     private readonly iterable: Iterable<TInput>;

@@ -121,13 +121,13 @@ export function fixedWindowLimiterTestSuite(
         test,
         createAdapter,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         delayBuffer = TimeSpan.fromMilliseconds(10),
         context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
     let adapter: IRateLimiterAdapter;
     describe("fixed-window-limiter IRateLimiterAdapter tests:", () => {
-        beforeEach(async () => {
+        beforeEach_(async () => {
             adapter = await createAdapter();
         });
 

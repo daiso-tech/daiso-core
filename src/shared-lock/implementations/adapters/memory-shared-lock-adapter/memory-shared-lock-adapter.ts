@@ -465,7 +465,8 @@ export class MemorySharedLockAdapter
                     limit: readerSemaphore.limit,
                     acquiredSlots: new Map(
                         [...readerSemaphore.slots.entries()].map(
-                            ([key, value]) => [key, value.expiration] as const,
+                            ([key_, value]) =>
+                                [key_, value.expiration] as const,
                         ),
                     ),
                 },

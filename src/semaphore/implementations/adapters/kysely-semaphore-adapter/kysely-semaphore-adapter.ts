@@ -151,8 +151,8 @@ class DatabaseSemaphoreTransaction implements IDatabaseSemaphoreTransaction {
             .insertInto("semaphore")
             .values({ key, limit })
             .$if(!this.isMysql, (eb) =>
-                eb.onConflict((eb) =>
-                    eb.column("key").doUpdateSet({
+                eb.onConflict((eb_) =>
+                    eb_.column("key").doUpdateSet({
                         key,
                         limit,
                     }),
@@ -182,8 +182,8 @@ class DatabaseSemaphoreTransaction implements IDatabaseSemaphoreTransaction {
                 expiration: expirationAsMs,
             })
             .$if(!this.isMysql, (eb) =>
-                eb.onConflict((eb) =>
-                    eb.column("id").doUpdateSet({
+                eb.onConflict((eb_) =>
+                    eb_.column("id").doUpdateSet({
                         key,
                         id: slotId,
                         expiration: expirationAsMs,
@@ -368,10 +368,10 @@ export class KyselySemaphoreAdapter
                     .selectFrom("semaphoreSlot")
                     .select(eb.val(1).as("value"))
                     .where("semaphoreSlot.key", "=", eb.ref("semaphore.key"))
-                    .where((eb) =>
-                        eb.and([
-                            eb("semaphoreSlot.expiration", "is not", null),
-                            eb("semaphoreSlot.expiration", ">", Date.now()),
+                    .where((eb_) =>
+                        eb_.and([
+                            eb_("semaphoreSlot.expiration", "is not", null),
+                            eb_("semaphoreSlot.expiration", ">", Date.now()),
                         ]),
                     );
                 return eb.not(eb.exists(hasUnexpiredSlots));
@@ -400,7 +400,7 @@ export class KyselySemaphoreAdapter
 
         if (this.isMysql) {
             row = await this._transaction(async (trx) => {
-                const row = await trx
+                const row_ = await trx
                     .selectFrom("semaphoreSlot")
                     .select("semaphoreSlot.expiration")
                     .where("semaphoreSlot.key", "=", key)
@@ -411,7 +411,7 @@ export class KyselySemaphoreAdapter
                     .where("semaphoreSlot.key", "=", key)
                     .where("semaphoreSlot.id", "=", slotId)
                     .executeTakeFirst();
-                return row;
+                return row_;
             });
         } else {
             row = await this.kysely
@@ -443,7 +443,7 @@ export class KyselySemaphoreAdapter
 
         if (this.isMysql) {
             rows = await this._transaction(async (trx) => {
-                const rows = trx
+                const rows_ = trx
                     .selectFrom("semaphoreSlot")
                     .where("semaphoreSlot.key", "=", key)
                     .select("semaphoreSlot.expiration")
@@ -452,7 +452,7 @@ export class KyselySemaphoreAdapter
                     .deleteFrom("semaphoreSlot")
                     .where("semaphoreSlot.key", "=", key)
                     .execute();
-                return rows;
+                return rows_;
             });
         } else {
             rows = await this.kysely

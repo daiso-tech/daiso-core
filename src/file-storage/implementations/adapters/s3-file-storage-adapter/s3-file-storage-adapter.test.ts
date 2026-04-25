@@ -20,7 +20,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 const timeout = TimeSpan.fromMinutes(2);
 describe("class: S3FileStorageAdapter", () => {
     let client: S3Client;
-    let adapter: S3FileStorageAdapter;
+    let adapter_: S3FileStorageAdapter;
     let startedContainer: StartedMinioContainer;
     const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
     beforeEach(async () => {
@@ -38,7 +38,7 @@ describe("class: S3FileStorageAdapter", () => {
             },
             forcePathStyle: true,
         });
-        adapter = new S3FileStorageAdapter({
+        adapter_ = new S3FileStorageAdapter({
             client,
             bucket: "files",
             serverSideEncryption: null,
@@ -50,8 +50,8 @@ describe("class: S3FileStorageAdapter", () => {
     }, timeout.toMilliseconds());
     fileStorageAdapterTestSuite({
         createAdapter: async () => {
-            await adapter.init();
-            return adapter;
+            await adapter_.init();
+            return adapter_;
         },
         test,
         beforeEach,

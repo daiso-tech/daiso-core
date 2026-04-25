@@ -140,7 +140,7 @@ export function semaphoreFactoryTestSuite(
         test,
         createSemaphoreFactory,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         includeEventTests = true,
         includeSerdeTests = true,
         delayBuffer = TimeSpan.fromMilliseconds(10),
@@ -163,7 +163,7 @@ export function semaphoreFactoryTestSuite(
 
     const RETURN_VALUE = "RETURN_VALUE";
     describe("ISemaphoreFactory tests:", () => {
-        beforeEach(async () => {
+        beforeEach_(async () => {
             const { semaphoreFactory: semaphoreFactory_, serde: serde_ } =
                 await createSemaphoreFactory();
             semaphoreFactory = semaphoreFactory_;
