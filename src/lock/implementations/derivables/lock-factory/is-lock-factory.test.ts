@@ -19,10 +19,7 @@ import { type InvokableFn } from "@/utilities/_module.js";
 describe("function: isLockFactory", () => {
     test("Should return true when given ILockFactoryBase", () => {
         const lockFactory: ILockFactoryBase = {
-            create: function (
-                _key: string,
-                _settings?: LockFactoryCreateSettings,
-            ): ILock {
+            create(_key: string, _settings?: LockFactoryCreateSettings): ILock {
                 throw new Error("Function not implemented.");
             },
         };
@@ -31,7 +28,7 @@ describe("function: isLockFactory", () => {
     });
     test("Should return false when given ILockAdapter", () => {
         const lockAdapter: ILockAdapter = {
-            acquire: function (
+            acquire(
                 _context: IReadableContext,
                 _key: string,
                 _lockId: string,
@@ -39,20 +36,20 @@ describe("function: isLockFactory", () => {
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            release: function (
+            release(
                 _context: IReadableContext,
                 _key: string,
                 _lockId: string,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            forceRelease: function (
+            forceRelease(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            refresh: function (
+            refresh(
                 _context: IReadableContext,
                 _key: string,
                 _lockId: string,
@@ -60,7 +57,7 @@ describe("function: isLockFactory", () => {
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            getState: function (
+            getState(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<ILockAdapterState | null> {
@@ -72,7 +69,7 @@ describe("function: isLockFactory", () => {
     });
     test("Should return false when given IDatabaseLockAdapter", () => {
         const databaseLockAdapter: IDatabaseLockAdapter = {
-            transaction: function <TReturn>(
+            transaction<TReturn>(
                 _context: IReadableContext,
                 _fn: InvokableFn<
                     [transaction: IDatabaseLockTransaction],
@@ -81,20 +78,20 @@ describe("function: isLockFactory", () => {
             ): Promise<TReturn> {
                 throw new Error("Function not implemented.");
             },
-            remove: function (
+            remove(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<ILockExpirationData | null> {
                 throw new Error("Function not implemented.");
             },
-            removeIfOwner: function (
+            removeIfOwner(
                 _context: IReadableContext,
                 _key: string,
                 _lockId: string,
             ): Promise<ILockData | null> {
                 throw new Error("Function not implemented.");
             },
-            updateExpiration: function (
+            updateExpiration(
                 _context: IReadableContext,
                 _key: string,
                 _lockId: string,
@@ -102,7 +99,7 @@ describe("function: isLockFactory", () => {
             ): Promise<number> {
                 throw new Error("Function not implemented.");
             },
-            find: function (
+            find(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<ILockData | null> {

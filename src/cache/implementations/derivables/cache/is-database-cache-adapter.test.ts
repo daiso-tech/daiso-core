@@ -15,13 +15,13 @@ import { type InvokableFn } from "@/utilities/_module.js";
 describe("function: isDatabaseCacheAdapter", () => {
     test("Should return true when is IDatabaseCacheAdapter", () => {
         const adapter: IDatabaseCacheAdapter = {
-            find: function (
+            find(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<ICacheData | null> {
                 throw new Error("Function not implemented.");
             },
-            transaction: function <TValue>(
+            transaction<TValue>(
                 _context: IReadableContext,
                 _trxFn: InvokableFn<
                     [trx: IDatabaseCacheTransaction],
@@ -30,23 +30,23 @@ describe("function: isDatabaseCacheAdapter", () => {
             ): Promise<TValue> {
                 throw new Error("Function not implemented.");
             },
-            update: function (
+            update(
                 _context: IReadableContext,
                 _key: string,
                 _value: unknown,
             ): Promise<ICacheDataExpiration | null> {
                 throw new Error("Function not implemented.");
             },
-            removeMany: function (
+            removeMany(
                 _context: IReadableContext,
                 _keys: Array<string>,
             ): Promise<Array<ICacheDataExpiration>> {
                 throw new Error("Function not implemented.");
             },
-            removeAll: function (_context: IReadableContext): Promise<void> {
+            removeAll(_context: IReadableContext): Promise<void> {
                 throw new Error("Function not implemented.");
             },
-            removeByKeyPrefix: function (
+            removeByKeyPrefix(
                 _context: IReadableContext,
                 _prefix: string,
             ): Promise<void> {
@@ -57,19 +57,16 @@ describe("function: isDatabaseCacheAdapter", () => {
     });
     test("Should return false when is ICacheAdapter", () => {
         const adapter: ICacheAdapter = {
-            get: function (
+            get(_context: IReadableContext, _key: string): Promise<unknown> {
+                throw new Error("Function not implemented.");
+            },
+            getAndRemove(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<unknown> {
                 throw new Error("Function not implemented.");
             },
-            getAndRemove: function (
-                _context: IReadableContext,
-                _key: string,
-            ): Promise<unknown> {
-                throw new Error("Function not implemented.");
-            },
-            add: function (
+            add(
                 _context: IReadableContext,
                 _key: string,
                 _value: unknown,
@@ -77,7 +74,7 @@ describe("function: isDatabaseCacheAdapter", () => {
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            put: function (
+            put(
                 _context: IReadableContext,
                 _key: string,
                 _value: unknown,
@@ -85,30 +82,30 @@ describe("function: isDatabaseCacheAdapter", () => {
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            update: function (
+            update(
                 _context: IReadableContext,
                 _key: string,
                 _value: unknown,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            increment: function (
+            increment(
                 _context: IReadableContext,
                 _key: string,
                 _value: number,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            removeMany: function (
+            removeMany(
                 _context: IReadableContext,
                 _keys: Array<string>,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            removeAll: function (_context: IReadableContext): Promise<void> {
+            removeAll(_context: IReadableContext): Promise<void> {
                 throw new Error("Function not implemented.");
             },
-            removeByKeyPrefix: function (
+            removeByKeyPrefix(
                 _context: IReadableContext,
                 _prefix: string,
             ): Promise<void> {

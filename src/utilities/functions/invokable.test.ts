@@ -19,7 +19,7 @@ describe("file: invokable.ts", () => {
         });
         test("Should return true when given IInvokableObject", () => {
             const invokable: IInvokableObject<[], string> = {
-                invoke: function (): string {
+                invoke(): string {
                     return "";
                 },
             };
@@ -36,7 +36,7 @@ describe("file: invokable.ts", () => {
         });
         test("Should return false when given IInvokableObject", () => {
             const invokable: IInvokableObject<[], string> = {
-                invoke: function (): string {
+                invoke(): string {
                     return "";
                 },
             };
@@ -53,7 +53,7 @@ describe("file: invokable.ts", () => {
         });
         test("Should return true when given IInvokableObject", () => {
             const invokable: IInvokableObject<[], string> = {
-                invoke: function (): string {
+                invoke(): string {
                     return "";
                 },
             };
@@ -70,7 +70,7 @@ describe("file: invokable.ts", () => {
         });
         test("Should return InvokableFn when given IInvokableObject", () => {
             const invokable: IInvokableObject<[], string> = {
-                invoke: function (): string {
+                invoke(): string {
                     return "";
                 },
             };

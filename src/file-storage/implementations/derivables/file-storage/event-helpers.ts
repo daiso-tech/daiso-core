@@ -243,7 +243,7 @@ export function handleCopyEvent(
             callInvokable(
                 waitUntil,
                 eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
-                    file: file,
+                    file,
                 }),
             );
         }
@@ -285,7 +285,7 @@ export function handleCopyAndReplaceEvent(
             callInvokable(
                 waitUntil,
                 eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
-                    file: file,
+                    file,
                 }),
             );
         }
@@ -317,7 +317,7 @@ export function handleMoveEvent(
             callInvokable(
                 waitUntil,
                 eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
-                    file: file,
+                    file,
                 }),
             );
         }
@@ -359,7 +359,7 @@ export function handleMoveAndReplaceEvent(
             callInvokable(
                 waitUntil,
                 eventDispatcher.dispatch(FILE_EVENTS.NOT_FOUND, {
-                    file: file,
+                    file,
                 }),
             );
         }

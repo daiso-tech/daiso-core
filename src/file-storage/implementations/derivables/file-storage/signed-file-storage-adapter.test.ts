@@ -20,107 +20,104 @@ import { SignedFileStorageAdapter } from "@/file-storage/implementations/derivab
 describe("class: SignedFileStorageAdapter", () => {
     let signedFileStorageAdapter: SignedFileStorageAdapter;
     const fileStorageAdapter: IFileStorageAdapter = {
-        exists: function (
-            _context: IReadableContext,
-            _key: string,
-        ): Promise<boolean> {
+        exists(_context: IReadableContext, _key: string): Promise<boolean> {
             return Promise.resolve(false);
         },
-        getStream: function (
+        getStream(
             _context: IReadableContext,
             _key: string,
         ): Promise<FileAdapterStream | null> {
             return Promise.resolve(null);
         },
-        getBytes: function (
+        getBytes(
             _context: IReadableContext,
             _key: string,
         ): Promise<Uint8Array | null> {
             return Promise.resolve(null);
         },
-        getMetaData: function (
+        getMetaData(
             _context: IReadableContext,
             _key: string,
         ): Promise<FileAdapterMetadata | null> {
             return Promise.resolve(null);
         },
-        add: function (
+        add(
             _context: IReadableContext,
             _key: string,
             _content: WritableFileAdapterContent,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
-        addStream: function (
+        addStream(
             _context: IReadableContext,
             _key: string,
             _stream: WritableFileAdapterStream,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
-        update: function (
+        update(
             _context: IReadableContext,
             _key: string,
             _content: WritableFileAdapterContent,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
-        updateStream: function (
+        updateStream(
             _context: IReadableContext,
             _key: string,
             _stream: WritableFileAdapterStream,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
-        put: function (
+        put(
             _context: IReadableContext,
             _key: string,
             _content: WritableFileAdapterContent,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
-        putStream: function (
+        putStream(
             _context: IReadableContext,
             _key: string,
             _stream: WritableFileAdapterStream,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
-        copy: function (
+        copy(
             _context: IReadableContext,
             _source: string,
             _destination: string,
         ): Promise<FileWriteEnum> {
             return Promise.resolve(FILE_WRITE_ENUM.NOT_FOUND);
         },
-        copyAndReplace: function (
+        copyAndReplace(
             _context: IReadableContext,
             _source: string,
             _destination: string,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
-        move: function (
+        move(
             _context: IReadableContext,
             _source: string,
             _destination: string,
         ): Promise<FileWriteEnum> {
             return Promise.resolve(FILE_WRITE_ENUM.NOT_FOUND);
         },
-        moveAndReplace: function (
+        moveAndReplace(
             _context: IReadableContext,
             _source: string,
             _destination: string,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
-        removeMany: function (
+        removeMany(
             _context: IReadableContext,
             _keys: Array<string>,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
-        removeByPrefix: function (
+        removeByPrefix(
             _context: IReadableContext,
             _prefix: string,
         ): Promise<void> {
@@ -128,20 +125,20 @@ describe("class: SignedFileStorageAdapter", () => {
         },
     };
     const fileUrlAdapter: IFileUrlAdapter = {
-        getPublicUrl: function (
+        getPublicUrl(
             _context: IReadableContext,
             _key: string,
         ): Promise<string | null> {
             return Promise.resolve(null);
         },
-        getSignedDownloadUrl: function (
+        getSignedDownloadUrl(
             _context: IReadableContext,
             _key: string,
             _settings: FileAdapterSignedDownloadUrlSettings,
         ): Promise<string | null> {
             return Promise.resolve(null);
         },
-        getSignedUploadUrl: function (
+        getSignedUploadUrl(
             _context: IReadableContext,
             _key: string,
             _settings: FileAdapterSignedUploadUrlSettings,

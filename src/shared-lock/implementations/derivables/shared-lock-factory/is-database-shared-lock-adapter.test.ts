@@ -15,7 +15,7 @@ import { type InvokableFn } from "@/utilities/_module.js";
 describe("function: isDatabaseSharedLockAdapter", () => {
     test("Should return true when given IDatabaseSharedLockAdapter", () => {
         const adapter: IDatabaseSharedLockAdapter = {
-            transaction: function <TReturn>(
+            transaction<TReturn>(
                 _context: IReadableContext,
                 _fn: InvokableFn<
                     [transaction: IDatabaseSharedLockTransaction],
@@ -29,7 +29,7 @@ describe("function: isDatabaseSharedLockAdapter", () => {
     });
     test("Should return false when given ISharedLockAdapter", () => {
         const adapter: ISharedLockAdapter = {
-            acquireWriter: function (
+            acquireWriter(
                 _context: IReadableContext,
                 _key: string,
                 _lockId: string,
@@ -37,20 +37,20 @@ describe("function: isDatabaseSharedLockAdapter", () => {
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            releaseWriter: function (
+            releaseWriter(
                 _context: IReadableContext,
                 _key: string,
                 _lockId: string,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            forceReleaseWriter: function (
+            forceReleaseWriter(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            refreshWriter: function (
+            refreshWriter(
                 _context: IReadableContext,
                 _key: string,
                 _lockId: string,
@@ -58,25 +58,25 @@ describe("function: isDatabaseSharedLockAdapter", () => {
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            acquireReader: function (
+            acquireReader(
                 _settings: SharedLockAcquireSettings,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            releaseReader: function (
+            releaseReader(
                 _context: IReadableContext,
                 _key: string,
                 _slotId: string,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            forceReleaseAllReaders: function (
+            forceReleaseAllReaders(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            refreshReader: function (
+            refreshReader(
                 _context: IReadableContext,
                 _key: string,
                 _slotId: string,
@@ -84,13 +84,13 @@ describe("function: isDatabaseSharedLockAdapter", () => {
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            forceRelease: function (
+            forceRelease(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            getState: function (
+            getState(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<ISharedLockAdapterState | null> {

@@ -36,23 +36,20 @@ import { delay } from "@/utilities/_module.js";
 
 describe("class: RateLimiterFactory", () => {
     const adapter: IRateLimiterAdapter = {
-        getState: function (
+        getState(
             _context: IReadableContext,
             _key: string,
         ): Promise<IRateLimiterAdapterState | null> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        updateState: function (
+        updateState(
             _context: IReadableContext,
             _key: string,
             _limit: number,
         ): Promise<IRateLimiterAdapterState> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        reset: function (
-            _context: IReadableContext,
-            _key: string,
-        ): Promise<void> {
+        reset(_context: IReadableContext, _key: string): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
     };

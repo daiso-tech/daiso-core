@@ -120,7 +120,7 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                 void (async () => {
                     try {
                         await callInvokable(onRetryDelay, {
-                            error: error,
+                            error,
                             waitTime: intervalAsTimeSpan,
                             attempt,
                             args,

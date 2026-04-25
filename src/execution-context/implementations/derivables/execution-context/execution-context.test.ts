@@ -1619,7 +1619,7 @@ describe("class: ExecutionContext", () => {
                             });
 
                             return {
-                                l4: l4,
+                                l4,
                                 l3: context.get(token),
                             };
                         });

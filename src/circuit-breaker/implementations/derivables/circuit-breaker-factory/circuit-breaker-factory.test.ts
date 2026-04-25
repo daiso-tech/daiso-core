@@ -40,40 +40,28 @@ import { delay } from "@/utilities/_module.js";
 
 describe("class: CircuitBreakerFactory", () => {
     const adapter: ICircuitBreakerAdapter = {
-        getState: function (
+        getState(
             _context: IReadableContext,
             _key: string,
         ): Promise<CircuitBreakerState> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        updateState: function (
+        updateState(
             _context: IReadableContext,
             _key: string,
         ): Promise<CircuitBreakerStateTransition> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        isolate: function (
-            _context: IReadableContext,
-            _key: string,
-        ): Promise<void> {
+        isolate(_context: IReadableContext, _key: string): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        trackFailure: function (
-            _context: IReadableContext,
-            _key: string,
-        ): Promise<void> {
+        trackFailure(_context: IReadableContext, _key: string): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        trackSuccess: function (
-            _context: IReadableContext,
-            _key: string,
-        ): Promise<void> {
+        trackSuccess(_context: IReadableContext, _key: string): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        reset: function (
-            _context: IReadableContext,
-            _key: string,
-        ): Promise<void> {
+        reset(_context: IReadableContext, _key: string): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
     };
