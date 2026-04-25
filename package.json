@@ -277,8 +277,8 @@
             "import": "./dist/rate-limiter/implementations/derivables/_module-exports.js"
         },
         "./rate-limiter/middlewares": {
-            "types": "./dist/rate-limiter/implementations/middleware/_module-exports.d.ts",
-            "import": "./dist/rate-limiter/implementations/middleware/_module-exports.js"
+            "types": "./dist/rate-limiter/implementations/middlewares/_module-exports.d.ts",
+            "import": "./dist/rate-limiter/implementations/middlewares/_module-exports.js"
         },
         "./rate-limiter/contracts": {
             "types": "./dist/rate-limiter/contracts/_module-exports.d.ts",
