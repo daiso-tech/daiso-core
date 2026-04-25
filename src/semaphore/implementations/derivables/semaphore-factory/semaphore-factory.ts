@@ -4,9 +4,18 @@
 
 import { v4 } from "uuid";
 
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import {
+    type EventBusInput,
+    type IEventBus,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type IEventBusAdapter,
+} from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import {
+    resolveEventBusInput,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type EventBus,
+} from "@/event-bus/implementations/derivables/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
@@ -89,17 +98,17 @@ export type SemaphoreFactorySettingsBase = {
     createSlotId?: Invokable<[], string>;
 
     /**
+     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
+     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
+     *
      * @default
      * ```ts
-     * import { EventBus } from "@daiso-tech/core/event-bus";
      * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
      *
-     * new EventBus({
-     *   adapter: new NoOpEventBusAdapter()
-     * })
+     * new NoOpEventBusAdapter()
      * ```
      */
-    eventBus?: IEventBus;
+    eventBus?: EventBusInput;
 
     /**
      * You can decide the default ttl value for {@link ISemaphore | `ISemaphore`} expiration. If null is passed then no ttl will be used by default.
@@ -218,9 +227,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
             serde = new Serde(new NoOpSerdeAdapter()),
             namespace = new NoOpNamespace(),
             adapter,
-            eventBus = new EventBus<any>({
-                adapter: new NoOpEventBusAdapter(),
-            }),
+            eventBus = new NoOpEventBusAdapter(),
             serdeTransformerName = "",
             waitUntil = defaultWaitUntil,
             executionContext = new ExecutionContext(
@@ -237,7 +244,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
         this.namespace = namespace;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
-        this.eventBus = eventBus;
+        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.serdeTransformerName = serdeTransformerName;
 
         this.originalAdapter = adapter;

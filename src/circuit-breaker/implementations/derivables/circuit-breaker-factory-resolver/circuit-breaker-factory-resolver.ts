@@ -12,7 +12,7 @@ import {
     CircuitBreakerFactory,
     type CircuitBreakerFactorySettingsBase,
 } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/_module.js";
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import { type EventBusInput } from "@/event-bus/contracts/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -101,7 +101,9 @@ export class CircuitBreakerFactoryResolver<TAdapters extends string>
         });
     }
 
-    setEventBus(eventBus: IEventBus): CircuitBreakerFactoryResolver<TAdapters> {
+    setEventBus(
+        eventBus: EventBusInput,
+    ): CircuitBreakerFactoryResolver<TAdapters> {
         return new CircuitBreakerFactoryResolver({
             ...this.settings,
             eventBus,

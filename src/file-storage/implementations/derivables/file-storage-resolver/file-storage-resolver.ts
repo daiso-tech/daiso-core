@@ -2,7 +2,7 @@
  * @module FileStorage
  */
 
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import { type EventBusInput } from "@/event-bus/contracts/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import {
     type IFileStorage,
@@ -15,7 +15,7 @@ import {
     type FileKeyValidator,
     type FileStorageSettingsBase,
 } from "@/file-storage/implementations/derivables/file-storage/_module.js";
-import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
+import { type LockFactoryInput } from "@/lock/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
@@ -89,7 +89,7 @@ export class FileStorageResolver<TAdapters extends string = string>
         });
     }
 
-    setEventBus(eventBus: IEventBus): FileStorageResolver<TAdapters> {
+    setEventBus(eventBus: EventBusInput): FileStorageResolver<TAdapters> {
         return new FileStorageResolver({
             ...this.settings,
             eventBus,
@@ -181,7 +181,7 @@ export class FileStorageResolver<TAdapters extends string = string>
     }
 
     setLockFactory(
-        lockFactory: ILockFactoryBase,
+        lockFactory: LockFactoryInput,
     ): FileStorageResolver<TAdapters> {
         return new FileStorageResolver({
             ...this.settings,

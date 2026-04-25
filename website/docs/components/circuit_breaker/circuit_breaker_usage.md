@@ -314,22 +314,19 @@ await eventBus.addListener("sending-circuit-breaker-over-network", ({ circuitBre
 ### Circuit-breaker events
 
 You can listen to different [circuit-breaker events](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) that are triggered by the `CircuitBreaker` instance.
-Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` contract.
+Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` or `IEventBusAdapter` contract.
 
 ```ts
 import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
 import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
 import { CircuitBreakerFactory, CIRCUIT_BREAKER_EVENTS } from "@daiso-tech/core/circuit-breaker";
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 
 const circuitBreakerFactory = new CircuitBreakerFactory({
     adapter: new DatabaseCircuitBreakerAdapter({ 
         adapter: new MemoryCircuitBreakerStorageAdapter()
     }),
-    eventBus: new EventBus({
-        adapter: new MemoryEventBusAdapter(),
-    }),
+    eventBus: new MemoryEventBusAdapter()
 });
 
 await circuitBreakerFactory.events.addListener(CIRCUIT_BREAKER_EVENTS.STATE_TRANSITIONED, (event) => {
@@ -346,7 +343,6 @@ If multiple circuit-breaker adapters (e.g., `RedisCircuitBreakerAdapter` and `Da
 import { RedisCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter";
 import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
 import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
@@ -364,11 +360,9 @@ const memoryCircuitBreakerFactory = new CircuitBreakerFactory({
     adapter: new DatabaseCircuitBreakerAdapter({ 
         adapter: new MemoryCircuitBreakerStorageAdapter()
     }),
-    eventBus: new EventBus({
-        // We assign distinct namespaces to DatabaseCircuitBreakerAdapter and RedisCircuitBreakerAdapter to isolate their events.
-        namespace: new Namespace(["memory", "event-bus"]),
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    // We assign distinct namespaces to DatabaseCircuitBreakerAdapter and RedisCircuitBreakerAdapter to isolate their events.
+    namespace: new Namespace(["memory", "event-bus"]),
+    eventBus: redisPubSubEventBusAdapter
 });
 
 const redisCircuitBreakerAdapter = new RedisCircuitBreakerAdapter({
@@ -377,11 +371,9 @@ const redisCircuitBreakerAdapter = new RedisCircuitBreakerAdapter({
 });
 const redisCircuitBreakerFactory = new CircuitBreakerFactory({
     adapter: redisCircuitBreakerAdapter,
-    eventBus: new EventBus({
-        // We assign distinct namespaces to DatabaseCircuitBreakerAdapter and RedisCircuitBreakerAdapter to isolate their events.
-        namespace: new Namespace(["redis", "event-bus"]),
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    // We assign distinct namespaces to DatabaseCircuitBreakerAdapter and RedisCircuitBreakerAdapter to isolate their events.
+    namespace: new Namespace(["redis", "event-bus"]),
+    eventBus: redisPubSubEventBusAdapter
 });
 ```
 
@@ -400,7 +392,6 @@ The library includes 3 additional contracts:
 This seperation makes it easy to visually distinguish the 3 contracts, making it immediately obvious that they serve different purposes.
 
 ```ts
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 import { CircuitBreakerFactory } from "@daiso-tech/core/circuit-breaker";
 import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
@@ -441,9 +432,7 @@ const circuitBreakerFactory = new CircuitBreakerFactory({
     adapter: new DatabaseCircuitBreakerAdapter({
         adapter: new MemoryCircuitBreakerStorageAdapter(),
     }),
-    eventBus: new EventBus({
-        adapter: new MemoryEventBusAdapter()
-    })
+    eventBus: new MemoryEventBusAdapter()
 })
 await circuitBreakerListenableFunc(circuitBreakerFactory.events);
 await circuitBreakerFactoryFunc(circuitBreakerFactory);

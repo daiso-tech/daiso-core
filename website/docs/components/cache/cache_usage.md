@@ -313,15 +313,12 @@ To use locking, pass a `lockFactory` to the `Cache` constructor:
 ```ts
 import { Cache } from "@daiso-tech/core/cache";
 import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { LockFactory } from "@daiso-tech/core/lock";
 import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
 import Redis from "ioredis";
 
 const cache = new Cache({
     adapter: new MemoryCacheAdapter(),
-    lockFactory: new LockFactory({
-        adapter: new RedisLockAdapter(new Redis("YOUR_REDIS_CONNECTION_STRING")),
-    }),
+    lockFactory: new RedisLockAdapter(new Redis("YOUR_REDIS_CONNECTION_STRING")),
 });
 ```
 
@@ -339,11 +336,12 @@ const value = await cache.getOrAdd(
 ```
 
 :::info
-For further information about `LockFactory` and its adapters refer to the [`@daiso-tech/core/lock`](../lock/lock_usage.md) documentation.
+You can pass `ILockFactoryBase`, `ILockAdapter`, and `IDatabaseLockAdapter` to `lockFactory` setting.
+For further information about `LockFactory` refer to the [`@daiso-tech/core/lock`](../lock/lock_usage.md) documentation.
 :::
 
 :::warning
-The `lockFactory` defaults to a no-op implementation, so `enableLocking: true` has no effect unless you provide a real lock adapter.
+The `lockFactory` defaults to a `NoOpLockAdapter` implementation, so `enableLocking: true` has no effect unless you provide a real lock adapter.
 :::
 
 ### Namespacing
@@ -400,7 +398,7 @@ console.log(await cacheA.get("key"));
 ### Cache events
 
 You can listen to different [cache events](https://daiso-tech.github.io/daiso-core/modules/Cache.html) that are triggered by the `Cache` instance.
-Refer to the [`@daiso-tech/core/event-bus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements IEventBus contract.
+Refer to the [`@daiso-tech/core/event-bus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` or `IEventBusAdapter` contract.
 
 
 ```ts
@@ -421,7 +419,6 @@ If multiple cache adapters (e.g., `RedisCacheAdapter` and `MemoryCacheAdapter`) 
 import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
 import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
 import { Cache } from "@daiso-tech/core/cache";
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { Namespace } from "@daiso-tech/core/namespace";
 import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
 import { Serde } from "@daiso-tech/core/serde";
@@ -438,11 +435,9 @@ const redisPubSubEventBusAdapter = new RedisPubSubEventBusAdapter({
 const memoryCacheAdapter = new MemoryCacheAdapter();
 const memoryCache = new Cache({
     adapter: memoryCacheAdapter,
-    eventBus: new EventBus({
-        // We assign distinct namespaces to MemoryCacheAdapter and RedisCacheAdapter to isolate their events.
-        namespace: new Namespace(["memory", "event-bus"]),
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    // We assign distinct namespaces to MemoryCacheAdapter and RedisCacheAdapter to isolate their events.
+    namespace: new Namespace(["memory", "event-bus"]),
+    eventBus: redisPubSubEventBusAdapter
 });
 
 const redisCacheAdapter = new RedisCacheAdapter({
@@ -451,11 +446,9 @@ const redisCacheAdapter = new RedisCacheAdapter({
 });
 const redisCache = new Cache({
     adapter: redisCacheAdapter,
-    eventBus: new EventBus({
-        // We assign distinct namespaces to MemoryCacheAdapter and RedisCacheAdapter to isolate their events.
-        namespace: new Namespace(["redis", "event-bus"]),
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    // We assign distinct namespaces to MemoryCacheAdapter and RedisCacheAdapter to isolate their events.
+    namespace: new Namespace(["redis", "event-bus"]),
+    eventBus: redisPubSubEventBusAdapter
 });
 ```
 
@@ -483,7 +476,6 @@ import type {
 } from "@daiso-tech/core/cache/contracts";
 import { Cache } from "@daiso-tech/core/cache";
 import { MemoryCacheAdapter } from "@daiso-tech/core/cache/adapter/memory-cache-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBus } from "@daiso-tech/core/event-bus/memory-event-bus";
 
 async function readingFunc(cache: IReadableCache): Promise<void> {
@@ -511,9 +503,7 @@ async function listenerFunc(cacheListenable: ICacheListenable): Promise<void> {
 
 const cache = new Cache({
     adapter: new MemoryCacheAdapter(),
-    eventBus: new EventBus({
-        adapter: new MemoryEventBus()
-    })
+    eventBus: new MemoryEventBus()
 })
 await listenerFunc(cache.events);
 await manipulatingFunc(cache);

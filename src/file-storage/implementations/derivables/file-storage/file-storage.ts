@@ -1,9 +1,18 @@
 /**
  * @module FileStorage
  */
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import {
+    type EventBusInput,
+    type IEventBus,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type IEventBusAdapter,
+} from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import {
+    resolveEventBusInput,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type EventBus,
+} from "@/event-bus/implementations/derivables/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
@@ -24,9 +33,21 @@ import {
 import { FileSerdeTransformer } from "@/file-storage/implementations/derivables/file-storage/file-serde-transformer.js";
 import { File } from "@/file-storage/implementations/derivables/file-storage/file.js";
 import { resolveFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/resolve-file-storage-adapter.js";
-import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
+import {
+    type ILockFactoryBase,
+    type LockFactoryInput,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type IDatabaseLockAdapter,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ILockAdapter,
+} from "@/lock/contracts/_module.js";
+// eslint-disable-next-line import/order
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
-import { LockFactory } from "@/lock/implementations/derivables/_module-exports.js";
+import {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type LockFactory,
+    resolveLockFactoryInput,
+} from "@/lock/implementations/derivables/_module.js";
 import {
     useFactory,
     type MiddlewareFn,
@@ -147,17 +168,17 @@ export type FileStorageSettingsBase = {
     urlAdapter?: Partial<IFileUrlAdapter>;
 
     /**
+     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
+     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
+     *
      * @default
      * ```ts
-     * import { EventBus } from "@daiso-tech/core/event-bus";
      * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
      *
-     * new EventBus({
-     *   adapter: new NoOpEventBusAdapter()
-     * })
+     * new NoOpEventBusAdapter()
      * ```
      */
-    eventBus?: IEventBus;
+    eventBus?: EventBusInput;
 
     /**
      * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link FileStorage | `FileStorage`} to register the file's serialization and deserialization logic for the provided adapter.
@@ -200,15 +221,16 @@ export type FileStorageSettingsBase = {
     executionContext?: IExecutionContext;
 
     /**
-     * You can provide an `ILockFactoryBase` instance to handle locking when write methods are called.
+     * You can provide an {@link ILockFactoryBase | `ILockFactoryBase`}, an {@link ILockAdapter | `ILockAdapter`} or an {@link IDatabaseLockAdapter | `IDatabaseLockAdapter`} instance to handle locking when write methods are called.
+     * If you provide an adapter, it will be automatically wrapped in an {@link LockFactory | `LockFactory`} instance.
      * @default
      * ```ts
-     * lockFactory = new LockFactory({
-     *   adapter: new NoOpLockAdapter(),
-     * })
+     * import { NoOpLockAdapter } from "@daiso-tech/core/lock/no-op-lock-adapter";
+     *
+     * new NoOpLockAdapter()
      * ```
      */
-    lockFactory?: ILockFactoryBase;
+    lockFactory?: LockFactoryInput;
 };
 
 /**
@@ -271,9 +293,7 @@ export class FileStorage implements IFileStorage {
         const {
             adapter,
             namespace = new NoOpNamespace(),
-            eventBus = new EventBus({
-                adapter: new NoOpEventBusAdapter(),
-            }),
+            eventBus = new NoOpEventBusAdapter(),
             onlyLowercase = false,
             keyValidator = defaultKeyValidator,
             serde = new Serde(new NoOpSerdeAdapter()),
@@ -288,12 +308,10 @@ export class FileStorage implements IFileStorage {
             executionContext = new ExecutionContext(
                 new NoOpExecutionContextAdapter(),
             ),
-            lockFactory = new LockFactory({
-                adapter: new NoOpLockAdapter(),
-            }),
+            lockFactory = new NoOpLockAdapter(),
         } = settings;
 
-        this.lockFactory = lockFactory;
+        this.lockFactory = resolveLockFactoryInput(namespace, lockFactory);
         this.use = useFactory({ executionContext });
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
@@ -307,7 +325,7 @@ export class FileStorage implements IFileStorage {
         this.defaultContentLanguage = defaultContentLanguage;
         this.adapter = resolveFileStorageAdapter(adapter, urlAdapter);
         this.namespace = namespace;
-        this.eventBus = eventBus;
+        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.serde = serde;
         this.serdeTransformerName = serdeTransformerName;
         this.registerToSerde();

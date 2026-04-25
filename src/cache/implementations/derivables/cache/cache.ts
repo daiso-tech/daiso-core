@@ -19,15 +19,35 @@ import {
 } from "@/cache/contracts/_module.js";
 import { type CacheAdapterVariants } from "@/cache/contracts/types.js";
 import { resolveCacheAdapter } from "@/cache/implementations/derivables/cache/resolve-cache-adapter.js";
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import {
+    type EventBusInput,
+    type IEventBus,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type IEventBusAdapter,
+} from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import {
+    resolveEventBusInput,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type EventBus,
+} from "@/event-bus/implementations/derivables/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
+import {
+    type ILockFactoryBase,
+    type LockFactoryInput,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ILockAdapter,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type IDatabaseLockAdapter,
+} from "@/lock/contracts/_module.js";
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
-import { LockFactory } from "@/lock/implementations/derivables/_module-exports.js";
+import {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type LockFactory,
+    resolveLockFactoryInput,
+} from "@/lock/implementations/derivables/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -73,17 +93,17 @@ export type CacheSettingsBase<TType = unknown> = {
     namespace?: INamespace;
 
     /**
+     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
+     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
+     *
      * @default
      * ```ts
-     * import { EventBus } from "@daiso-tech/core/event-bus";
      * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
      *
-     * new EventBus({
-     *   adapter: new NoOpEventBusAdapter()
-     * })
+     * new NoOpEventBusAdapter()
      * ```
      */
-    eventBus?: IEventBus;
+    eventBus?: EventBusInput;
 
     /**
      * You can decide the default ttl value. If null is passed then no ttl will be used by default.
@@ -121,15 +141,16 @@ export type CacheSettingsBase<TType = unknown> = {
     executionContext?: IExecutionContext;
 
     /**
-     * You can provide an `ILockFactoryBase` instance to handle locking when `GetOrAddSettings.enableLocking` is set to true during a `getOrAdd` call.
+     * You can provide an {@link ILockFactoryBase | `ILockFactoryBase`}, an {@link ILockAdapter | `ILockAdapter`} or an {@link IDatabaseLockAdapter | `IDatabaseLockAdapter`} instance to handle locking when {@link GetOrAddSettings | `GetOrAddSettings.enableLocking`} is set to true during a `getOrAdd` call.
+     * If you provide an adapter, it will be automatically wrapped in an {@link LockFactory | `LockFactory`} instance.
      * @default
      * ```ts
-     * lockFactory = new LockFactory({
-     *   adapter: new NoOpLockAdapter(),
-     * })
+     * import { NoOpLockAdapter } from "@daiso-tech/core/lock/no-op-lock-adapter";
+     *
+     * new NoOpLockAdapter()
      * ```
      */
-    lockFactory?: ILockFactoryBase;
+    lockFactory?: LockFactoryInput;
 };
 
 /**
@@ -197,21 +218,17 @@ export class Cache<TType = unknown> implements ICache<TType> {
             schema,
             namespace = new NoOpNamespace(),
             adapter,
-            eventBus = new EventBus<any>({
-                adapter: new NoOpEventBusAdapter(),
-            }),
+            eventBus = new NoOpEventBusAdapter(),
             defaultTtl = null,
             defaultJitter = 0.2,
             waitUntil = defaultWaitUntil,
             executionContext = new ExecutionContext(
                 new NoOpExecutionContextAdapter(),
             ),
-            lockFactory = new LockFactory({
-                adapter: new NoOpLockAdapter(),
-            }),
+            lockFactory = new NoOpLockAdapter(),
         } = settings;
 
-        this.lockFactory = lockFactory;
+        this.lockFactory = resolveLockFactoryInput(namespace, lockFactory);
         this.executionContext = executionContext;
         this.waitUntil = waitUntil;
         this.shouldValidateOutput = shouldValidateOutput;
@@ -219,7 +236,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         this.namespace = namespace;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
-        this.eventBus = eventBus;
+        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.adapter = resolveCacheAdapter(adapter);
         this.defaultJitter = defaultJitter;
     }

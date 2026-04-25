@@ -263,22 +263,19 @@ await eventBus.addListener("sending-rate-limiter-over-network", ({ rateLimiter }
 ### Rate-limiter events
 
 You can listen to different [rate-limiter events](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) that are triggered by the `RateLimiter` instance.
-Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` contract.
+Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` or `IEventBusAdapter` contract.
 
 ```ts
 import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
 import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
 import { RateLimiterFactory, RATE_LIMITER_EVENTS } from "@daiso-tech/core/rate-limiter";
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 
 const rateLimiterFactory = new RateLimiterFactory({
     adapter: new DatabaseRateLimiterAdapter({ 
         adapter: new MemoryRateLimiterStorageAdapter()
     }),
-    eventBus: new EventBus({
-        adapter: new MemoryEventBusAdapter(),
-    }),
+    eventBus: new MemoryEventBusAdapter(),
 });
 
 await rateLimiterFactory.events.addListener(RATE_LIMITER_EVENTS.BLOCKED, (_event) => {
@@ -295,7 +292,6 @@ If multiple rate-limiter adapters (e.g., `RedisRateLimiterAdapter` and `Database
 import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
 import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
 import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
@@ -313,11 +309,9 @@ const memoryRateLimiterFactory = new RateLimiterFactory({
     adapter: new DatabaseRateLimiterAdapter({ 
         adapter: new MemoryRateLimiterStorageAdapter()
     }),
-    eventBus: new EventBus({
-        // We assign distinct namespaces to DatabaseRateLimiterAdapter and RedisRateLimiterAdapter to isolate their events.
-        namespace: new Namespace(["memory", "event-bus"]),
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    // We assign distinct namespaces to DatabaseRateLimiterAdapter and RedisRateLimiterAdapter to isolate their events.
+    namespace: new Namespace(["memory", "event-bus"]),
+    eventBus: redisPubSubEventBusAdapter
 });
 
 const redisRateLimiterAdapter = new RedisRateLimiterAdapter({
@@ -326,11 +320,9 @@ const redisRateLimiterAdapter = new RedisRateLimiterAdapter({
 });
 const redisRateLimiterFactory = new RateLimiterFactory({
     adapter: redisRateLimiterAdapter,
-    eventBus: new EventBus({
-        // We assign distinct namespaces to DatabaseRateLimiterAdapter and RedisRateLimiterAdapter to isolate their events.
-        namespace: new Namespace(["redis", "event-bus"]),
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    // We assign distinct namespaces to DatabaseRateLimiterAdapter and RedisRateLimiterAdapter to isolate their events.
+    namespace: new Namespace(["redis", "event-bus"]),
+    eventBus: redisPubSubEventBusAdapter
 });
 ```
 
@@ -349,7 +341,6 @@ The library includes 3 additional contracts:
 This seperation makes it easy to visually distinguish the 3 contracts, making it immediately obvious that they serve different purposes.
 
 ```ts
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 import { RateLimiterFactory } from "@daiso-tech/core/rate-limiter";
 import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
@@ -390,9 +381,7 @@ const rateLimiterFactory = new RateLimiterFactory({
     adapter: new DatabaseRateLimiterAdapter({
         adapter: new MemoryRateLimiterStorageAdapter(),
     }),
-    eventBus: new EventBus({
-        adapter: new MemoryEventBusAdapter()
-    })
+    eventBus: new MemoryEventBusAdapter()
 })
 await rateLimiterListenableFunc(rateLimiterFactory.events);
 await rateLimiterFactoryFunc(rateLimiterFactory);

@@ -6,7 +6,11 @@ import { type IExecutionContext } from "@/execution-context/contracts/_module.js
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/no-op-execution-context-adapter.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { applyMiddlewares } from "@/middleware/helpers.js";
-import { type Middleware } from "@/middleware/types.js";
+import {
+    type Middleware,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type MiddlewareArgs,
+} from "@/middleware/types.js";
 import {
     type Invokable,
     type InvokableFn,
@@ -140,7 +144,6 @@ export type UseFactorySettings = {
  * @see {@link Use | `Use`}
  * @see {@link UseFactorySettings | `UseFactorySettings`}
  * @see {@link Middleware | `Middleware`}
- * @see {@link applyMiddlewares | `applyMiddlewares`}
  *
  * IMPORT_PATH: `@daiso-tech/core/middleware`
  */

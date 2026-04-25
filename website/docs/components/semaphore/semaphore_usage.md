@@ -646,19 +646,16 @@ await eventBus.addListener(
 ### Semaphore events
 
 You can listen to different [semaphore events](https://daiso-tech.github.io/daiso-core/modules/Semaphore.html) that are triggered by the `Semaphore` instance.
-Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` contract.
+Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` or `IEventBusAdapter` contract.
 
 ```ts
 import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
 import { SemaphoreFactory, SEMAPHORE_EVENTS } from "@daiso-tech/core/semaphore";
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 
 const semaphoreFactory = new SemaphoreFactory({
     adapter: new MemorySemaphoreAdapter(),
-    eventBus: new EventBus({
-        adapter: new MemoryEventBusAdapter(),
-    }),
+    eventBus: new MemoryEventBusAdapter(),
 });
 
 await semaphoreFactory.events.addListener(SEMAPHORE_EVENTS.ACQUIRED, () => {
@@ -674,7 +671,6 @@ If multiple semaphore adapters (e.g., `RedisSemaphoreAdapter` and `MemorySemapho
 ```ts
 import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
 import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
@@ -691,11 +687,9 @@ const redisPubSubEventBusAdapter = new RedisPubSubEventBusAdapter({
 const memorySemaphoreAdapter = new MemorySemaphoreAdapter();
 const memorySemaphoreFactory = new SemaphoreFactory({
     adapter: memorySemaphoreAdapter,
-    eventBus: new EventBus({
-        // We assign distinct namespaces to MemorySemaphoreAdapter and RedisSemaphoreAdapter to isolate their events.
-        namespace: new Namespace(["memory", "event-bus"]),
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    // We assign distinct namespaces to MemorySemaphoreAdapter and RedisSemaphoreAdapter to isolate their events.
+    namespace: new Namespace(["memory", "event-bus"]),
+    eventBus: redisPubSubEventBusAdapter
 });
 
 const redisSemaphoreAdapter = new RedisSemaphoreAdapter({
@@ -704,11 +698,9 @@ const redisSemaphoreAdapter = new RedisSemaphoreAdapter({
 });
 const redisSemaphoreFactory = new SemaphoreFactory({
     adapter: redisSemaphoreAdapter,
-    eventBus: new EventBus({
-        // We assign distinct namespaces to MemorySemaphoreAdapter and RedisSemaphoreAdapter to isolate their events.
-        namespace: new Namespace(["redis", "event-bus"]),
-        adapter: redisPubSubEventBusAdapter,
-    }),
+    // We assign distinct namespaces to MemorySemaphoreAdapter and RedisSemaphoreAdapter to isolate their events.
+    namespace: new Namespace(["redis", "event-bus"]),
+    eventBus: redisPubSubEventBusAdapter
 });
 ```
 
@@ -727,7 +719,6 @@ The library includes 3 additional contracts:
 This seperation makes it easy to visually distinguish the 3 contracts, making it immediately obvious that they serve different purposes.
 
 ```ts
-import { EventBus } from "@daiso-tech/core/event-bus";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
 import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
@@ -778,9 +769,7 @@ async function semaphoreListenableFunc(
 
 const semaphoreFactory = new SemaphoreFactory({
     adapter: new MemorySemaphoreAdapter(),
-    eventBus: new EventBus({
-        adapter: new MemoryEventBusAdapter(),
-    }),
+    eventBus: new MemoryEventBusAdapter(),
 });
 await semaphoreListenableFunc(semaphoreFactory.events);
 await semaphoreFactoryFunc(semaphoreFactory);

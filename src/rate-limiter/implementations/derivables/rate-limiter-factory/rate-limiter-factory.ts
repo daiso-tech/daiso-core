@@ -2,9 +2,18 @@
  * @module RateLimiter
  */
 
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
+import {
+    type EventBusInput,
+    type IEventBus,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type IEventBusAdapter,
+} from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
+import {
+    resolveEventBusInput,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type EventBus,
+} from "@/event-bus/implementations/derivables/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
@@ -50,17 +59,17 @@ export type RateLimiterFactorySettingsBase = {
     namespace?: INamespace;
 
     /**
+     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
+     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
+     *
      * @default
      * ```ts
-     * import { EventBus } from "@daiso-tech/core/event-bus";
      * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
      *
-     * new EventBus({
-     *   adapter: new NoOpEventBusAdapter()
-     * })
+     * new NoOpEventBusAdapter()
      * ```
      */
-    eventBus?: IEventBus;
+    eventBus?: EventBusInput;
 
     /**
      * You can set the default `ErrorPolicy`
@@ -193,9 +202,7 @@ export class RateLimiterFactory implements IRateLimiterFactory {
         const {
             enableAsyncTracking = true,
             namespace = new NoOpNamespace(),
-            eventBus = new EventBus({
-                adapter: new NoOpEventBusAdapter(),
-            }),
+            eventBus = new NoOpEventBusAdapter(),
             adapter,
             onlyError = false,
             defaultErrorPolicy = () => true,
@@ -212,7 +219,7 @@ export class RateLimiterFactory implements IRateLimiterFactory {
         this.serdeTransformerName = serdeTransformerName;
         this.enableAsyncTracking = enableAsyncTracking;
         this.namespace = namespace;
-        this.eventBus = eventBus;
+        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.adapter = adapter;
         this.onlyError = onlyError;
         this.defaultErrorPolicy = defaultErrorPolicy;

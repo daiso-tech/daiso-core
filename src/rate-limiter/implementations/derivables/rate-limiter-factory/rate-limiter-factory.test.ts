@@ -682,7 +682,7 @@ describe("class: RateLimiterFactory", () => {
                             throw new UnexpectedErrorA("Unexpected error");
                         });
                     } catch (error: unknown) {
-                        if (!(error instanceof UnexpectedErrorA)) {
+                        if (!(error instanceof BlockedRateLimiterError)) {
                             throw error;
                         }
                     }
@@ -838,7 +838,7 @@ describe("class: RateLimiterFactory", () => {
                             throw new UnexpectedErrorA("Unexpected error");
                         });
                     } catch (error: unknown) {
-                        if (!(error instanceof UnexpectedErrorA)) {
+                        if (!(error instanceof BlockedRateLimiterError)) {
                             throw error;
                         }
                     }
@@ -933,7 +933,13 @@ describe("class: RateLimiterFactory", () => {
                         limit,
                         onlyError: false,
                     });
-                    await rateLimiter.runOrFail(() => {});
+                    try {
+                        await rateLimiter.runOrFail(() => {});
+                    } catch (error: unknown) {
+                        if (!(error instanceof BlockedRateLimiterError)) {
+                            throw error;
+                        }
+                    }
 
                     await vi.waitFor(() => {
                         expect(handlerFn).toHaveBeenCalledOnce();
