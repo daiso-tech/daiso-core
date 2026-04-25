@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { AsyncIterableCollection } from "@/collection/implementations/_module-exports.js";
+import { AsyncIterableCollection } from "@/collection/implementations/_module.js";
 import { ResolveFileStream } from "@/file-storage/implementations/derivables/file-storage/resolve-file-stream.js";
 
 describe("class: ResolveFileStream", () => {
