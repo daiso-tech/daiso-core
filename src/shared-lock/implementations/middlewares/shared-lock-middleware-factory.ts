@@ -2,6 +2,8 @@
  * @module SharedLock
  */
 
+import { v4 } from "uuid";
+
 import { type MiddlewareFn } from "@/middleware/types.js";
 import { type ISharedLockFactoryBase } from "@/shared-lock/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
@@ -31,8 +33,21 @@ export type SharedLockMiddlewareSettings<
      * ```
      */
     key?: Invokable<TParameters, string>;
+
+    /**
+     * @default
+     * ```ts
+     * import { v4 } from "uuid";
+     *
+     * () => v4()
+     * ```
+     */
+    lockId?: Invokable<TParameters, string>;
+
     ttl?: ITimeSpan | null;
+
     limit: number;
+
     when: SharedLockWhenSetting;
 };
 
@@ -46,15 +61,25 @@ export function sharedLockMiddlewareFactory(
     return <TParameters extends Array<unknown>, TReturn>(
         settings: SharedLockMiddlewareSettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
-        const { key = (...args) => JSON.stringify(args), ...rest } = settings;
+        const {
+            key = (...args) => JSON.stringify(args),
+            lockId = () => v4(),
+            ...rest
+        } = settings;
         return ({ next, args }) => {
             if (settings.when === SHARED_LOCK_WHEN.READER) {
                 return sharedLockFactory
-                    .create(callInvokable(key, ...args), rest)
+                    .create(callInvokable(key, ...args), {
+                        ...rest,
+                        lockId: callInvokable(lockId, ...args),
+                    })
                     .runReaderOrFail(next);
             }
             return sharedLockFactory
-                .create(callInvokable(key, ...args), rest)
+                .create(callInvokable(key, ...args), {
+                    ...rest,
+                    lockId: callInvokable(lockId, ...args),
+                })
                 .runWriterOrFail(next);
         };
     };
