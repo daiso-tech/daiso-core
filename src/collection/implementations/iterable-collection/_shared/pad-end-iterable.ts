@@ -14,9 +14,9 @@ export class PadEndIterable<TInput, TExtended>
         private collection: ICollection<TInput>,
         private maxLength: number,
         private fillItems: Iterable<TExtended>,
-        private makeCollection: <TInput>(
-            iterable: Iterable<TInput | TExtended>,
-        ) => ICollection<TInput | TExtended>,
+        private makeCollection: <TInput_>(
+            iterable: Iterable<TInput_ | TExtended>,
+        ) => ICollection<TInput_ | TExtended>,
     ) {}
 
     *[Symbol.iterator](): Iterator<TInput | TExtended> {

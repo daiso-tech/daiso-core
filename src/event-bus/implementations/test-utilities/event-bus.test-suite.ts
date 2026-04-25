@@ -33,7 +33,13 @@ export type EventBusTestSuiteSettings = {
  * @group TestUtilities
  */
 export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
-    const { expect, test, describe, createEventBus, beforeEach } = settings;
+    const {
+        expect,
+        test,
+        describe,
+        createEventBus,
+        beforeEach: beforeEach_,
+    } = settings;
 
     const TTL = TimeSpan.fromMilliseconds(50);
     type AddEvent = {
@@ -50,7 +56,7 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
         subtract: SubtractEvent;
     }>;
     describe("IEventBus tests:", () => {
-        beforeEach(async () => {
+        beforeEach_(async () => {
             eventBus = await createEventBus();
         });
 

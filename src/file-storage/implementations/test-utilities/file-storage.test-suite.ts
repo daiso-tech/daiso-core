@@ -91,14 +91,14 @@ export function fileStorageTestSuite(
         test,
         createFileStorage,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         excludeEventTests = false,
         excludeSerdeTests = false,
         eventDispatchWaitTime = TimeSpan.fromMilliseconds(10),
     } = settings;
     let fileStorage: IFileStorage;
     let serde: ISerde;
-    beforeEach(async () => {
+    beforeEach_(async () => {
         const { fileStorage: fileStorage_, serde: serde_ } =
             await createFileStorage();
         fileStorage = fileStorage_;

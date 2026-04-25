@@ -19,9 +19,9 @@ export class DatabaseCacheAdapter<TType = unknown>
 {
     constructor(private readonly adapter: IDatabaseCacheAdapter<TType>) {}
 
-    private static handleData<TType>(
-        data: ICacheData<TType> | null,
-    ): TType | null {
+    private static handleData<TType_>(
+        data: ICacheData<TType_> | null,
+    ): TType_ | null {
         if (data === null) {
             return null;
         }

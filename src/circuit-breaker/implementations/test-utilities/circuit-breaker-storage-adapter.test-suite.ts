@@ -72,13 +72,13 @@ export function circuitBreakerStorageAdapterTestSuite(
         test,
         createAdapter,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
     let adapter: ICircuitBreakerStorageAdapter<string>;
 
     describe("ICircuitBreakerStorageAdapter tests:", () => {
-        beforeEach(async () => {
+        beforeEach_(async () => {
             adapter =
                 (await createAdapter()) as ICircuitBreakerStorageAdapter<string>;
         });

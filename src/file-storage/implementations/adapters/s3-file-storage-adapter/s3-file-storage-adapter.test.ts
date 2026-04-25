@@ -20,7 +20,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 const timeout = TimeSpan.fromMinutes(2);
 describe("class: S3FileStorageAdapter", () => {
     let client: S3Client;
-    let adapter: S3FileStorageAdapter;
+    let adapter_: S3FileStorageAdapter;
     let startedContainer: StartedMinioContainer;
     const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
     beforeEach(async () => {
@@ -38,7 +38,7 @@ describe("class: S3FileStorageAdapter", () => {
             },
             forcePathStyle: true,
         });
-        adapter = new S3FileStorageAdapter({
+        adapter_ = new S3FileStorageAdapter({
             client,
             bucket: "files",
             serverSideEncryption: null,
@@ -50,8 +50,8 @@ describe("class: S3FileStorageAdapter", () => {
     }, timeout.toMilliseconds());
     fileStorageAdapterTestSuite({
         createAdapter: async () => {
-            await adapter.init();
-            return adapter;
+            await adapter_.init();
+            return adapter_;
         },
         test,
         beforeEach,
@@ -63,7 +63,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
             });
             await adapter.init();
             await client.send(
@@ -93,7 +93,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
                 enableAccurateGetPublicUrl: false,
             });
             await adapter.init();
@@ -124,7 +124,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
             });
             await adapter.init();
             await client.send(
@@ -171,7 +171,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
             });
             await adapter.init();
 
@@ -194,7 +194,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
                 enableAccurateGetSignedDownloadUrl: false,
             });
             await adapter.init();
@@ -218,7 +218,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
             });
             await adapter.init();
 
@@ -258,7 +258,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
             });
             await adapter.init();
 
@@ -282,7 +282,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
             });
             await adapter.init();
 
@@ -318,7 +318,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
                 enableAccuratePut: false,
             });
             await adapter.init();
@@ -343,7 +343,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
                 enableAccuratePut: false,
             });
             await adapter.init();
@@ -353,7 +353,7 @@ describe("class: S3FileStorageAdapter", () => {
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
             const contentType = "application/octet-stream";
             await adapter.put(noOpContext, key, {
-                data: data,
+                data,
                 cacheControl: null,
                 contentDisposition: null,
                 contentEncoding: null,
@@ -369,7 +369,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
                 enableAccuratePut: false,
             });
             await adapter.init();
@@ -405,7 +405,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
                 enableAccuratePut: false,
             });
             await adapter.init();
@@ -444,7 +444,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
                 enableAccurateRemoveMany: false,
             });
             await adapter.init();
@@ -461,7 +461,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
                 enableAccurateRemoveMany: false,
             });
             await adapter.init();
@@ -492,7 +492,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
                 enableAccurateRemoveMany: false,
             });
             await adapter.init();
@@ -546,7 +546,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
             });
             await adapter.init();
 
@@ -561,7 +561,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
             });
             await adapter.init();
 
@@ -575,7 +575,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
             });
             await adapter.init();
 
@@ -592,7 +592,7 @@ describe("class: S3FileStorageAdapter", () => {
             const bucket = "files";
             const adapter = new S3FileStorageAdapter({
                 client,
-                bucket: bucket,
+                bucket,
             });
             await adapter.init();
 

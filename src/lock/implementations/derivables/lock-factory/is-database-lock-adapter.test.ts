@@ -16,7 +16,7 @@ import { type InvokableFn } from "@/utilities/_module.js";
 describe("function: isDatabaseLockAdapter", () => {
     test("Should return true when given IDatabaseLockAdapter", () => {
         const adapter: IDatabaseLockAdapter = {
-            transaction: function <TReturn>(
+            transaction<TReturn>(
                 _context: IReadableContext,
                 _fn: InvokableFn<
                     [transaction: IDatabaseLockTransaction],
@@ -25,20 +25,20 @@ describe("function: isDatabaseLockAdapter", () => {
             ): Promise<TReturn> {
                 throw new Error("Function not implemented.");
             },
-            remove: function (
+            remove(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<ILockExpirationData | null> {
                 throw new Error("Function not implemented.");
             },
-            removeIfOwner: function (
+            removeIfOwner(
                 _context: IReadableContext,
                 _key: string,
                 _lockId: string,
             ): Promise<ILockData | null> {
                 throw new Error("Function not implemented.");
             },
-            updateExpiration: function (
+            updateExpiration(
                 _context: IReadableContext,
                 _key: string,
                 _lockId: string,
@@ -46,7 +46,7 @@ describe("function: isDatabaseLockAdapter", () => {
             ): Promise<number> {
                 throw new Error("Function not implemented.");
             },
-            find: function (
+            find(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<ILockData | null> {
@@ -57,7 +57,7 @@ describe("function: isDatabaseLockAdapter", () => {
     });
     test("Should return false when given ILockAdapter", () => {
         const adapter: ILockAdapter = {
-            acquire: function (
+            acquire(
                 _context: IReadableContext,
                 _key: string,
                 _lockId: string,
@@ -65,20 +65,20 @@ describe("function: isDatabaseLockAdapter", () => {
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            release: function (
+            release(
                 _context: IReadableContext,
                 _key: string,
                 _lockId: string,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            forceRelease: function (
+            forceRelease(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            refresh: function (
+            refresh(
                 _context: IReadableContext,
                 _key: string,
                 _lockId: string,
@@ -86,7 +86,7 @@ describe("function: isDatabaseLockAdapter", () => {
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            getState: function (
+            getState(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<ILockAdapterState | null> {

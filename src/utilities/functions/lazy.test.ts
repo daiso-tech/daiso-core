@@ -20,7 +20,7 @@ describe("file: lazy.ts", () => {
         });
         test("Should return true when given a IInvokableObject", () => {
             const invokableObject: IInvokableObject<[], string> = {
-                invoke: function (): string {
+                invoke(): string {
                     return "";
                 },
             };
@@ -37,7 +37,7 @@ describe("file: lazy.ts", () => {
         });
         test("Should return true when given a IInvokableObject", () => {
             const invokableObject: IInvokableObject<[], Promisable<string>> = {
-                invoke: function (): Promisable<string> {
+                invoke(): Promisable<string> {
                     return "";
                 },
             };
@@ -51,7 +51,7 @@ describe("file: lazy.ts", () => {
         test("Should return value when given IInvokableObject", () => {
             const str = "TEXT";
             const factory: IInvokableObject<[], string> = {
-                invoke: function (): string {
+                invoke(): string {
                     return str;
                 },
             };
@@ -73,7 +73,7 @@ describe("file: lazy.ts", () => {
         test("Should return value when given IInvokableObject", async () => {
             const str = "TEXT";
             const factory: IInvokableObject<[], Promisable<string>> = {
-                invoke: function (): Promisable<string> {
+                invoke(): Promisable<string> {
                     return str;
                 },
             };

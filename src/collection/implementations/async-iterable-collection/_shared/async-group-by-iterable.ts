@@ -25,9 +25,9 @@ export class AsyncGroupByIterable<TInput, TOutput = TInput>
             TOutput
         > = (item) => item as unknown as TOutput,
 
-        private makeCollection: <TInput>(
-            iterable: AsyncIterableValue<TInput>,
-        ) => IAsyncCollection<TInput>,
+        private makeCollection: <TInput_>(
+            iterable: AsyncIterableValue<TInput_>,
+        ) => IAsyncCollection<TInput_>,
     ) {}
 
     async *[Symbol.asyncIterator](): AsyncIterator<

@@ -11,9 +11,9 @@ export class RepeatIterable<TInput> implements Iterable<TInput> {
     constructor(
         private collection: ICollection<TInput>,
         private amount: number,
-        private makeCollection: <TInput>(
-            iterable: Iterable<TInput>,
-        ) => ICollection<TInput>,
+        private makeCollection: <TInput_>(
+            iterable: Iterable<TInput_>,
+        ) => ICollection<TInput_>,
     ) {}
 
     *[Symbol.iterator](): Iterator<TInput> {

@@ -29,7 +29,7 @@ export class CircuitBreakerStateManager<TMetrics = unknown> {
 
         if (currentState.type === CIRCUIT_BREAKER_STATE.OPEN) {
             return this.circuitBreakerPolicy.whenOpened(currentState, {
-                currentDate: currentDate,
+                currentDate,
                 backoffPolicy: this.backoffPolicy,
             });
         }

@@ -153,7 +153,7 @@ export function sharedLockFactoryTestSuite(
         test,
         createSharedLockFactory,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         excludeEventTests = false,
         excludeSerdeTests = false,
         retry = 0,
@@ -180,7 +180,7 @@ export function sharedLockFactoryTestSuite(
     const RETURN_VALUE = "RETURN_VALUE";
 
     describe("ISharedLockFactory tests:", () => {
-        beforeEach(async () => {
+        beforeEach_(async () => {
             const { sharedLockFactory: sharedLockFactory_, serde: serde_ } =
                 await createSharedLockFactory();
             sharedLockFactory = sharedLockFactory_;

@@ -64,12 +64,12 @@ export function fileStorageAdapterTestSuite(
         test,
         createAdapter,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         enableGetMetaData = true,
         context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
     let adapter: IFileStorageAdapter;
-    beforeEach(async () => {
+    beforeEach_(async () => {
         adapter = await createAdapter();
     });
 
@@ -956,7 +956,7 @@ export function fileStorageAdapterTestSuite(
                 const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
                 const contentType = "application/octet-stream";
                 await adapter.put(context, key, {
-                    data: data,
+                    data,
                     cacheControl: null,
                     contentDisposition: null,
                     contentEncoding: null,

@@ -452,11 +452,11 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
         return {
             limit: json.limit,
             acquiredSlots: new Map(
-                Object.entries(json.acquiredSlots).map(([key, expiration]) => {
+                Object.entries(json.acquiredSlots).map(([key_, expiration]) => {
                     if (expiration === 0) {
-                        return [key, null] as const;
+                        return [key_, null] as const;
                     }
-                    return [key, new Date(expiration)];
+                    return [key_, new Date(expiration)];
                 }),
             ),
         };

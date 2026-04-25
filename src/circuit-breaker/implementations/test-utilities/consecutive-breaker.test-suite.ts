@@ -123,7 +123,7 @@ export function consecutiveBreakerTestSuite(
         test,
         createAdapter,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         delayBuffer = TimeSpan.fromMilliseconds(10),
         context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
@@ -131,7 +131,7 @@ export function consecutiveBreakerTestSuite(
     const waitTime = TimeSpan.fromTimeSpan(backoffPolicySettings.delay);
 
     describe("consecutive-breaker ICircuitBreakerAdapter tests:", () => {
-        beforeEach(async () => {
+        beforeEach_(async () => {
             adapter = await createAdapter();
         });
 

@@ -215,16 +215,16 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                     void (async () => {
                         try {
                             await callInvokable(onRetryDelay, {
-                                error: error,
+                                error,
                                 waitTime: TimeSpan.fromTimeSpan(waitTime),
                                 attempt,
                                 args,
                                 context,
                             });
-                        } catch (error: unknown) {
+                        } catch (error_: unknown) {
                             console.log(
                                 "Error occurred in onRetryDelay callback:",
-                                error,
+                                error_,
                             );
                         }
                     })();

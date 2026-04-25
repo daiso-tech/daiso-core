@@ -15,9 +15,9 @@ export class AsyncSplitIterable<TInput>
         private collection: IAsyncCollection<TInput>,
         private chunkAmount: number,
 
-        private makeCollection: <TInput>(
-            iterable: AsyncIterableValue<TInput>,
-        ) => IAsyncCollection<TInput>,
+        private makeCollection: <TInput_>(
+            iterable: AsyncIterableValue<TInput_>,
+        ) => IAsyncCollection<TInput_>,
     ) {}
 
     async *[Symbol.asyncIterator](): AsyncIterator<IAsyncCollection<TInput>> {

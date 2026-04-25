@@ -95,13 +95,13 @@ export function databaseLockAdapterTestSuite(
         test,
         createAdapter,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
 
     describe("IDatabaseLockAdapter tests:", () => {
         let adapter: IDatabaseLockAdapter;
-        beforeEach(async () => {
+        beforeEach_(async () => {
             adapter = await createAdapter();
         });
         describe("method: transaction find", () => {

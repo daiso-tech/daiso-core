@@ -12,9 +12,9 @@ export class AsyncRepeatIterable<TInput> implements AsyncIterable<TInput> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private amount: number,
-        private makeAsyncCollection: <TInput>(
-            iterable: AsyncIterableValue<TInput>,
-        ) => IAsyncCollection<TInput>,
+        private makeAsyncCollection: <TInput_>(
+            iterable: AsyncIterableValue<TInput_>,
+        ) => IAsyncCollection<TInput_>,
     ) {}
 
     async *[Symbol.asyncIterator](): AsyncIterator<TInput> {

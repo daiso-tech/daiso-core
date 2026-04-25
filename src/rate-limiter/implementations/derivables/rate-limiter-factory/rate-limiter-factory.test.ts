@@ -36,23 +36,20 @@ import { delay } from "@/utilities/_module.js";
 
 describe("class: RateLimiterFactory", () => {
     const adapter: IRateLimiterAdapter = {
-        getState: function (
+        getState(
             _context: IReadableContext,
             _key: string,
         ): Promise<IRateLimiterAdapterState | null> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        updateState: function (
+        updateState(
             _context: IReadableContext,
             _key: string,
             _limit: number,
         ): Promise<IRateLimiterAdapterState> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        reset: function (
-            _context: IReadableContext,
-            _key: string,
-        ): Promise<void> {
+        reset(_context: IReadableContext, _key: string): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
     };
@@ -1058,13 +1055,13 @@ describe("class: RateLimiterFactory", () => {
         });
         test("Should differentiate between different adapters that have same namespace", async () => {
             class WrapperRateLimiterAdapter implements IRateLimiterAdapter {
-                constructor(private readonly adapter: IRateLimiterAdapter) {}
+                constructor(private readonly adapter_: IRateLimiterAdapter) {}
 
                 getState(
                     context: IReadableContext,
                     key: string,
                 ): Promise<IRateLimiterAdapterState | null> {
-                    return this.adapter.getState(context, key);
+                    return this.adapter_.getState(context, key);
                 }
 
                 updateState(
@@ -1072,11 +1069,11 @@ describe("class: RateLimiterFactory", () => {
                     key: string,
                     limit: number,
                 ): Promise<IRateLimiterAdapterState> {
-                    return this.adapter.updateState(context, key, limit);
+                    return this.adapter_.updateState(context, key, limit);
                 }
 
                 reset(context: IReadableContext, key: string): Promise<void> {
-                    return this.adapter.reset(context, key);
+                    return this.adapter_.reset(context, key);
                 }
             }
 

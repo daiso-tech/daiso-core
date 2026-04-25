@@ -206,10 +206,10 @@ export class AsyncIterableCollection<TInput = unknown>
 
     private static DEFAULT_CHUNK_SIZE = 1024;
 
-    private static makeCollection = <TInput>(
-        iterable: AsyncIterableValue<TInput>,
-    ): IAsyncCollection<TInput> => {
-        return new AsyncIterableCollection<TInput>(iterable);
+    private static makeCollection = <TInput_>(
+        iterable: AsyncIterableValue<TInput_>,
+    ): IAsyncCollection<TInput_> => {
+        return new AsyncIterableCollection<TInput_>(iterable);
     };
 
     private readonly iterable: AsyncIterable<TInput>;

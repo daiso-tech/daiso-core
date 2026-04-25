@@ -40,40 +40,28 @@ import { delay } from "@/utilities/_module.js";
 
 describe("class: CircuitBreakerFactory", () => {
     const adapter: ICircuitBreakerAdapter = {
-        getState: function (
+        getState(
             _context: IReadableContext,
             _key: string,
         ): Promise<CircuitBreakerState> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        updateState: function (
+        updateState(
             _context: IReadableContext,
             _key: string,
         ): Promise<CircuitBreakerStateTransition> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        isolate: function (
-            _context: IReadableContext,
-            _key: string,
-        ): Promise<void> {
+        isolate(_context: IReadableContext, _key: string): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        trackFailure: function (
-            _context: IReadableContext,
-            _key: string,
-        ): Promise<void> {
+        trackFailure(_context: IReadableContext, _key: string): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        trackSuccess: function (
-            _context: IReadableContext,
-            _key: string,
-        ): Promise<void> {
+        trackSuccess(_context: IReadableContext, _key: string): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        reset: function (
-            _context: IReadableContext,
-            _key: string,
-        ): Promise<void> {
+        reset(_context: IReadableContext, _key: string): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
     };
@@ -1437,37 +1425,39 @@ describe("class: CircuitBreakerFactory", () => {
             class WrapperCircuitBreakerAdapter
                 implements ICircuitBreakerAdapter
             {
-                constructor(private readonly adapter: ICircuitBreakerAdapter) {}
+                constructor(
+                    private readonly adapter_: ICircuitBreakerAdapter,
+                ) {}
 
                 getState(
                     context: IReadableContext,
                     key: string,
                 ): Promise<CircuitBreakerState> {
-                    return this.adapter.getState(context, key);
+                    return this.adapter_.getState(context, key);
                 }
                 updateState(
                     context: IReadableContext,
                     key: string,
                 ): Promise<CircuitBreakerStateTransition> {
-                    return this.adapter.updateState(context, key);
+                    return this.adapter_.updateState(context, key);
                 }
                 isolate(context: IReadableContext, key: string): Promise<void> {
-                    return this.adapter.isolate(context, key);
+                    return this.adapter_.isolate(context, key);
                 }
                 trackFailure(
                     context: IReadableContext,
                     key: string,
                 ): Promise<void> {
-                    return this.adapter.trackFailure(context, key);
+                    return this.adapter_.trackFailure(context, key);
                 }
                 trackSuccess(
                     context: IReadableContext,
                     key: string,
                 ): Promise<void> {
-                    return this.adapter.trackSuccess(context, key);
+                    return this.adapter_.trackSuccess(context, key);
                 }
                 reset(context: IReadableContext, key: string): Promise<void> {
-                    return this.adapter.reset(context, key);
+                    return this.adapter_.reset(context, key);
                 }
             }
 

@@ -181,8 +181,8 @@ class DatabaseReaderSemaphoreTransaction
             .insertInto("readerSemaphore")
             .values({ key, limit })
             .$if(!this.isMysql, (eb) =>
-                eb.onConflict((eb) =>
-                    eb.column("key").doUpdateSet({
+                eb.onConflict((eb_) =>
+                    eb_.column("key").doUpdateSet({
                         key,
                         limit,
                     }),
@@ -212,8 +212,8 @@ class DatabaseReaderSemaphoreTransaction
                 expiration: expirationAsMs,
             })
             .$if(!this.isMysql, (eb) =>
-                eb.onConflict((eb) =>
-                    eb.column("id").doUpdateSet({
+                eb.onConflict((eb_) =>
+                    eb_.column("id").doUpdateSet({
                         key,
                         id: lockId,
                         expiration: expirationAsMs,
@@ -381,8 +381,8 @@ class DatabaseWriterLockTransaction implements IDatabaseWriterLockTransaction {
                 expiration: expirationAsMs,
             })
             .$if(!this.isMysql, (eb) =>
-                eb.onConflict((eb) =>
-                    eb.column("key").doUpdateSet({
+                eb.onConflict((eb_) =>
+                    eb_.column("key").doUpdateSet({
                         key,
                         owner: lockId,
                         expiration: expirationAsMs,
@@ -718,14 +718,14 @@ export class KyselySharedLockAdapter
                         "=",
                         eb.ref("readerSemaphore.key"),
                     )
-                    .where((eb) =>
-                        eb.and([
-                            eb(
+                    .where((eb_) =>
+                        eb_.and([
+                            eb_(
                                 "readerSemaphoreSlot.expiration",
                                 "is not",
                                 null,
                             ),
-                            eb(
+                            eb_(
                                 "readerSemaphoreSlot.expiration",
                                 ">",
                                 Date.now(),

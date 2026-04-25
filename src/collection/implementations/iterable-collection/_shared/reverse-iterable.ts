@@ -12,9 +12,9 @@ export class ReverseIterable<TInput> implements Iterable<TInput> {
         private collection: ICollection<TInput>,
         private chunkSize: number,
 
-        private makeCollection: <TInput>(
-            iterable: Iterable<TInput>,
-        ) => ICollection<TInput>,
+        private makeCollection: <TInput_>(
+            iterable: Iterable<TInput_>,
+        ) => ICollection<TInput_>,
     ) {}
 
     *[Symbol.iterator](): Iterator<TInput> {

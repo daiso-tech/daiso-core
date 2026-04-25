@@ -16,7 +16,7 @@ import { type InvokableFn } from "@/utilities/_module.js";
 describe("function: isDatabaseSemaphoreAdapter", () => {
     test("Should return true when given IDatabaseSemaphoreAdapter", () => {
         const adapter: IDatabaseSemaphoreAdapter = {
-            transaction: function <TValue>(
+            transaction<TValue>(
                 _context: IReadableContext,
                 _fn: InvokableFn<
                     [transaction: IDatabaseSemaphoreTransaction],
@@ -25,20 +25,20 @@ describe("function: isDatabaseSemaphoreAdapter", () => {
             ): Promise<TValue> {
                 throw new Error("Function not implemented.");
             },
-            removeSlot: function (
+            removeSlot(
                 _context: IReadableContext,
                 _key: string,
                 _slotId: string,
             ): Promise<ISemaphoreSlotExpirationData | null> {
                 throw new Error("Function not implemented.");
             },
-            removeAllSlots: function (
+            removeAllSlots(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<Array<ISemaphoreSlotExpirationData>> {
                 throw new Error("Function not implemented.");
             },
-            updateExpiration: function (
+            updateExpiration(
                 _context: IReadableContext,
                 _key: string,
                 _slotId: string,
@@ -51,25 +51,23 @@ describe("function: isDatabaseSemaphoreAdapter", () => {
     });
     test("Should return false when given ISemaphoreAdapter", () => {
         const adapter: ISemaphoreAdapter = {
-            acquire: function (
-                _settings: SemaphoreAcquireSettings,
-            ): Promise<boolean> {
+            acquire(_settings: SemaphoreAcquireSettings): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            release: function (
+            release(
                 _context: IReadableContext,
                 _key: string,
                 _slotId: string,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            forceReleaseAll: function (
+            forceReleaseAll(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            refresh: function (
+            refresh(
                 _context: IReadableContext,
                 _key: string,
                 _slotId: string,
@@ -77,7 +75,7 @@ describe("function: isDatabaseSemaphoreAdapter", () => {
             ): Promise<boolean> {
                 throw new Error("Function not implemented.");
             },
-            getState: function (
+            getState(
                 _context: IReadableContext,
                 _key: string,
             ): Promise<ISemaphoreAdapterState | null> {

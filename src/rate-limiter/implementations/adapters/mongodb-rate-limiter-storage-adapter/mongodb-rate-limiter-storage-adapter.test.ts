@@ -79,7 +79,7 @@ describe("class: MongodbRateLimiterStorageAdapter", () => {
                 .toArray();
 
             const collection = collections.find(
-                (collection) => collection.name === "rateLimiter",
+                (collection_) => collection_.name === "rateLimiter",
             );
 
             expect(collection).toBeUndefined();

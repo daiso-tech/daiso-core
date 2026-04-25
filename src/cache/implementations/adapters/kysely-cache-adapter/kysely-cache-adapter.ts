@@ -146,8 +146,8 @@ export class DatabaseCacheTransaction<TType>
                 expiration: expirationAsMs,
             })
             .$if(!this.isMysql, (eb) =>
-                eb.onConflict((eb) =>
-                    eb.column("key").doUpdateSet({
+                eb.onConflict((eb_) =>
+                    eb_.column("key").doUpdateSet({
                         key,
                         value: serializedValue,
                         expiration: expirationAsMs,
@@ -393,7 +393,7 @@ export class KyselyCacheAdapter<TType = unknown>
         }
         if (this.isMysql) {
             rows = await this._transaction(context, async (trx) => {
-                const rows = await trx
+                const rows_ = await trx
                     .selectFrom("cache")
                     .where("cache.key", "in", keys)
                     .select("cache.expiration")
@@ -402,7 +402,7 @@ export class KyselyCacheAdapter<TType = unknown>
                     .deleteFrom("cache")
                     .where("cache.key", "in", keys)
                     .execute();
-                return rows;
+                return rows_;
             });
         } else {
             rows = await this.kysely

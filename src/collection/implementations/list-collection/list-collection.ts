@@ -162,9 +162,9 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
         return new ListCollection(iterableA).zip(iterableB);
     }
 
-    static deserialize<TInput>(
-        serializedValue: SerializedCollection<TInput>,
-    ): ICollection<TInput> {
+    static deserialize<TInput_>(
+        serializedValue: SerializedCollection<TInput_>,
+    ): ICollection<TInput_> {
         return new ListCollection(serializedValue.items);
     }
 
@@ -319,17 +319,22 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
         }
         if (initialValue !== undefined) {
             return this.array.reduce<TOutput>(
-                (initialValue, item, index) =>
-                    resolveInvokable(reduceFn)(initialValue, item, index, this),
+                (initialValue_, item, index) =>
+                    resolveInvokable(reduceFn)(
+                        initialValue_,
+                        item,
+                        index,
+                        this,
+                    ),
                 initialValue,
             );
         }
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return this.array.reduce((initialValue, item, index) => {
+        return this.array.reduce((initialValue_, item, index) => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
             const reduce = reduceFn as any;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-            return reduce(initialValue, item, index, this);
+            return reduce(initialValue_, item, index, this);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         }) as any;
     }
@@ -887,8 +892,8 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
         predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
         iterable: IterableValue<TInput | TExtended>,
     ): ICollection<TInput | TExtended> {
-        const index = this.array.findIndex((item, index) =>
-            resolveInvokable(predicateFn)(item, index, this),
+        const index = this.array.findIndex((item, index_) =>
+            resolveInvokable(predicateFn)(item, index_, this),
         );
         if (index === -1) {
             return new ListCollection<TInput | TExtended>(this.array);
@@ -902,8 +907,8 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
         predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
         iterable: IterableValue<TInput | TExtended>,
     ): ICollection<TInput | TExtended> {
-        const index = this.array.findIndex((item, index) =>
-            resolveInvokable(predicateFn)(item, index, this),
+        const index = this.array.findIndex((item, index_) =>
+            resolveInvokable(predicateFn)(item, index_, this),
         );
         if (index === -1) {
             return new ListCollection(this.array) as ICollection<

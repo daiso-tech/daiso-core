@@ -112,8 +112,8 @@ class KyselyCircuitBreakerStorageAdapterTransaction<TType = unknown>
                 state: serializedState,
             })
             .$if(!this.isMysql, (eb) =>
-                eb.onConflict((eb) =>
-                    eb.column("key").doUpdateSet({
+                eb.onConflict((eb_) =>
+                    eb_.column("key").doUpdateSet({
                         state: serializedState,
                     }),
                 ),

@@ -109,13 +109,13 @@ export function samplingBreakerTestSuite(
         test,
         createAdapter,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         delayBuffer = TimeSpan.fromMilliseconds(10),
     } = settings;
     let adapter: ICircuitBreakerAdapter;
     const waitTime = TimeSpan.fromTimeSpan(backoffPolicySettings.delay);
     describe("sampling-breaker ICircuitBreakerAdapter tests:", () => {
-        beforeEach(async () => {
+        beforeEach_(async () => {
             adapter = await createAdapter();
         });
 

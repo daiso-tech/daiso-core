@@ -11,9 +11,9 @@ export class ChunkIterable<TInput> implements Iterable<ICollection<TInput>> {
     constructor(
         private collection: ICollection<TInput>,
         private chunkSize: number,
-        private readonly makeCollection: <TInput>(
-            iterable: Iterable<TInput>,
-        ) => ICollection<TInput>,
+        private readonly makeCollection: <TInput_>(
+            iterable: Iterable<TInput_>,
+        ) => ICollection<TInput_>,
     ) {}
 
     *[Symbol.iterator](): Iterator<ICollection<TInput>> {

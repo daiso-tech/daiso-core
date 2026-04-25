@@ -138,7 +138,7 @@ export function lockFactoryTestSuite(
         test,
         createLockFactory,
         describe,
-        beforeEach,
+        beforeEach: beforeEach_,
         excludeEventTests = false,
         excludeSerdeTests = false,
         delayBuffer = TimeSpan.fromMilliseconds(10),
@@ -162,7 +162,7 @@ export function lockFactoryTestSuite(
 
     const RETURN_VALUE = "RETURN_VALUE";
     describe("ILockFactory tests:", () => {
-        beforeEach(async () => {
+        beforeEach_(async () => {
             const { lockFactory: lockFactory_, serde: serde_ } =
                 await createLockFactory();
             lockFactory = lockFactory_;
