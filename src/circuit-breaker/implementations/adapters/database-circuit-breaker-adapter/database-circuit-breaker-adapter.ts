@@ -2,10 +2,8 @@
  * @module CircuitBreaker
  */
 
-import {
-    exponentialBackoff,
-    type BackoffPolicy,
-} from "@/backoff-policies/implementations/_module.js";
+import { type BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
+import { exponentialBackoff } from "@/backoff-policies/implementations/_module.js";
 import {
     type ICircuitBreakerAdapter,
     type ICircuitBreakerStorageAdapter,
