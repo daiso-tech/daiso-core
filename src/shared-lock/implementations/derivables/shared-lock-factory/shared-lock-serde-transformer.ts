@@ -4,7 +4,7 @@
 
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { type Use } from "@/middleware/_module.js";
+import { type Use } from "@/middleware/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import {

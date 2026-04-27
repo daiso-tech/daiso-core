@@ -3,7 +3,7 @@
  */
 
 import { type IEventDispatcher } from "@/event-bus/contracts/event-bus.contract.js";
-import { type Middleware } from "@/middleware/_module.js";
+import { type Middleware } from "@/middleware/contracts/_module.js";
 import {
     isSharedLockError,
     SHARED_LOCK_EVENTS,

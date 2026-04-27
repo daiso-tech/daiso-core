@@ -4,7 +4,7 @@
 
 import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { type Use } from "@/middleware/_module.js";
+import { type Use } from "@/middleware/contracts/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import {
     FailedAcquireWriterLockError,

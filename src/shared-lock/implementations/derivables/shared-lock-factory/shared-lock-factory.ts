@@ -19,7 +19,8 @@ import {
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { useFactory, type Use } from "@/middleware/_module.js";
+import { type Use } from "@/middleware/contracts/_module.js";
+import { useFactory } from "@/middleware/implementations/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
