@@ -3,8 +3,8 @@ import { describe, expect, test } from "vitest";
 import { contextToken } from "@/execution-context/contracts/execution-context.contract.js";
 import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/als-execution-context-adapter.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type MiddlewareFn } from "@/middleware/types.js";
-import { useFactory } from "@/middleware/use-factory.js";
+import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
+import { useFactory } from "@/middleware/implementations/use-factory/use-factory.js";
 
 describe("function: useFactory", () => {
     test("should call middleware before next function", () => {
