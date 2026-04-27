@@ -5,7 +5,7 @@
 import {
     type BackoffPolicy,
     type DynamicBackoffPolicy,
-} from "@/backoff-policies/implementations/_shared.js";
+} from "@/backoff-policies/contracts/_module.js";
 import {
     TO_MILLISECONDS,
     type ITimeSpan,
@@ -20,6 +20,7 @@ import { callInvokable, isInvokable, withJitter } from "@/utilities/_module.js";
  * avoid thundering-herd effects when multiple clients retry simultaneously.
  *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * @group Implementations
  */
 export type ExponentialBackoffSettings = {
     /**
@@ -107,6 +108,7 @@ export function resolveExponentialBackoffSettings(
  * Exponential backoff policy with jitter
  *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * @group Implementations
  */
 export function exponentialBackoff(
     settings: DynamicBackoffPolicy<ExponentialBackoffSettings> = {},
