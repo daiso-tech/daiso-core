@@ -9,7 +9,7 @@ import {
     resolveBackoffSettingsEnum,
     serializeBackoffSettingsEnum,
     type BackoffSettingsEnum,
-} from "@/backoff-policies/_module.js";
+} from "@/backoff-policies/implementations/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type IRateLimiterAdapter,
