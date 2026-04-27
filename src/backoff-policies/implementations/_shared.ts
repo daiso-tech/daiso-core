@@ -23,23 +23,6 @@ import {
     type BackoffSettingsEnum,
     type SerializedBackoffSettingsEnum,
 } from "@/backoff-policies/implementations/types.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import { type Invokable } from "@/utilities/_module.js";
-
-/**
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
- */
-export type BackoffPolicy = Invokable<
-    [attempt: number, error: unknown],
-    ITimeSpan
->;
-
-/**
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
- */
-export type DynamicBackoffPolicy<TSettings> =
-    | TSettings
-    | Invokable<[error: unknown], TSettings | undefined>;
 
 /**
  * @internal

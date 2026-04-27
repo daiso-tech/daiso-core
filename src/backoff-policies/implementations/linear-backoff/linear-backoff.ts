@@ -5,7 +5,7 @@
 import {
     type BackoffPolicy,
     type DynamicBackoffPolicy,
-} from "@/backoff-policies/implementations/_shared.js";
+} from "@/backoff-policies/contracts/_module.js";
 import {
     TO_MILLISECONDS,
     type ITimeSpan,
@@ -20,6 +20,7 @@ import { callInvokable, isInvokable, withJitter } from "@/utilities/_module.js";
  * to spread out concurrent retries.
  *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * @group Implementations
  */
 export type LinearBackoffSettings = {
     /**
@@ -95,6 +96,7 @@ export function resolveLinearBackoffSettings(
  * Linear backoff policy with jitter
  *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * @group Implementations
  */
 export function linearBackoff(
     settings: DynamicBackoffPolicy<LinearBackoffSettings> = {},

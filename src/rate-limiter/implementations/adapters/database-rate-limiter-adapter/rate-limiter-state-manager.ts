@@ -2,7 +2,7 @@
  * @module RateLimiter
  */
 
-import { type BackoffPolicy } from "@/backoff-policies/implementations/_module.js";
+import { type BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
 import { RATE_LIMITER_STATE } from "@/rate-limiter/contracts/_module.js";
 import {
     type AllRateLimiterState,

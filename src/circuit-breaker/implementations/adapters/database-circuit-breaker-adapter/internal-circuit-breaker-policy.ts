@@ -2,7 +2,7 @@
  * @module CircuitBreaker
  */
 
-import { type BackoffPolicy } from "@/backoff-policies/implementations/_module.js";
+import { type BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
 import {
     CIRCUIT_BREAKER_STATE,
     CLOSED_TRANSITIONS,
