@@ -11,7 +11,10 @@ keywords:
 
 # Middleware
 
+
 The `@daiso-tech/core/middleware` module provides a flexible middleware system for intercepting and composing function calls. It enables you to wrap functions with pre-processing and post-processing logic, similar to middleware patterns found in web frameworks like Express.js.
+
+## UseFactory configuration
 
 ## Initial configuration
 
@@ -37,6 +40,29 @@ import { useFactory } from "@daiso-tech/core/middleware";
 const use = useFactory();
 ```
 
+Configure the middleware factory with custom settings:
+
+```ts
+type UseFactorySettings = {
+    /**
+     * The execution context to use for all middleware invocations.
+     * Defaults to a new ExecutionContext with NoOpExecutionContextAdapter
+     */
+    executionContext?: IExecutionContext;
+
+    /**
+     * Default priority for middleware without an explicit priority.
+     * Defaults to 0
+     */
+    defaultPriority?: number;
+};
+
+const use = useFactory({
+    executionContext: customContext,
+    defaultPriority: 50,
+});
+```
+
 ## Middleware basics
 
 ### Creating a simple middleware
@@ -44,10 +70,8 @@ const use = useFactory();
 A middleware is a function that receives middleware arguments (containing the original arguments, a next function, and the execution context) and returns the result:
 
 ```ts
-import {
-    type MiddlewareFn,
-    type MiddlewareArgs,
-} from "@daiso-tech/core/middleware";
+import { type MiddlewareArgs } from "@daiso-tech/core/middleware";
+import { type MiddlewareFn } from "@daiso-tech/core/middleware/contracts";
 
 const createLoggingMiddleware = <TParameters extends Array<unknown>, TReturn>(
     prefix: string = "LOG",
@@ -207,6 +231,7 @@ Access and modify the execution context within middleware. For more details abou
 ```ts
 import { contextToken } from "@daiso-tech/core/execution-context";
 import { Namespace } from "@daiso-tech/core/namespace";
+import { type MiddlewareFn } from "@daiso-tech/core/middleware/contracts";
 
 const namespace = new Namespace("myapp");
 type UserData = { id: string; name: string };
@@ -314,31 +339,124 @@ const errorHandlingMiddleware = createErrorHandlingMiddleware((error) =>
 );
 ```
 
-## UseFactory configuration
 
-Configure the middleware factory with custom settings:
+### Enhancing Methods with `enhanceFactory`
+
+The `enhanceFactory` function provides a convenient way to apply middleware to methods of class instances, enabling interception and augmentation of method calls without manually wrapping each function.
+
+#### Purpose
+
+`enhanceFactory` is a higher-order factory that, given a `use` function (created by `useFactory`), returns an `enhance` function. This `enhance` function can be used to dynamically enhance (wrap) a method of an object with one or more middlewares.
+
+#### Signature
 
 ```ts
-type UseFactorySettings = {
-    /**
-     * The execution context to use for all middleware invocations.
-     * Defaults to a new ExecutionContext with NoOpExecutionContextAdapter
-     */
-    executionContext?: IExecutionContext;
-
-    /**
-     * Default priority for middleware without an explicit priority.
-     * Defaults to 0
-     */
-    defaultPriority?: number;
-};
-
-const use = useFactory({
-    executionContext: customContext,
-    defaultPriority: 50,
-});
+function enhanceFactory(use: Use): Enhance
 ```
 
+#### Usage Example
+
+```ts
+import { useFactory, enhanceFactory } from "@daiso-tech/core/middleware";
+
+// Create a middleware application function
+const use = useFactory();
+const enhance = enhanceFactory(use);
+
+class Greeter {
+    greet(name: string): string {
+        return `Hello, ${name}!`;
+    }
+}
+
+const greeter = new Greeter();
+
+// Example middleware that logs calls
+function loggingMiddleware<TParameters extends Array<unknown>, TReturn>(): MiddlewareFn<TParameters, TReturn> {
+    return ({ args, next }) => {
+        console.log("Calling greet with:", args);
+        const result = next(args);
+        console.log("Result:", result);
+        return result;
+    };
+}
+
+// Enhance the 'greet' method with middleware
+enhance(greeter, "greet", loggingMiddleware());
+
+greeter.greet("Alice");
+// Logs:
+// Calling greet with: ["Alice"]
+// Result: Hello, Alice!
+```
+
+#### Enhancing Object Literal Methods
+
+You can enhance methods on plain object literals as well:
+
+```ts
+const obj = {
+    add(a: number, b: number) {
+        return a + b;
+    },
+};
+
+enhance(obj, "add", loggingMiddleware());
+obj.add(2, 3);
+// Logs:
+// Calling greet with: [2, 3]
+// Result: 5
+```
+
+#### Enhancing Static Methods
+
+Static methods on classes can also be enhanced:
+
+```ts
+class MathUtils {
+    static multiply(a: number, b: number) {
+        return a * b;
+    }
+}
+
+enhance(MathUtils, "multiply", loggingMiddleware());
+MathUtils.multiply(4, 5);
+// Logs:
+// Calling greet with: [4, 5]
+// Result: 20
+```
+
+#### Enhancing Class Prototype Methods
+
+You can enhance all instances of a class by enhancing its prototype:
+
+```ts
+class Person {
+    say(message: string) {
+        return `Person says: ${message}`;
+    }
+}
+
+enhance(Person.prototype, "say", loggingMiddleware());
+
+const alice = new Person();
+alice.say("Hello!");
+// Logs:
+// Calling greet with: ["Hello!"]
+// Result: Person says: Hello!
+```
+
+#### How it Works
+
+- The `enhance` function replaces the specified method on the object with a wrapped version that runs the provided middleware pipeline.
+- If the target property is not a function, a `TypeError` is thrown.
+- Multiple middlewares can be provided (as an array or single value).
+
+This pattern is useful for adding cross-cutting concerns (logging, validation, authorization, etc.) to class methods in a reusable and declarative way.
+
+---
+
+## UseFactory configuration
 ## Further information
 
 For further information refer to [`@daiso-tech/core/middleware`](https://daiso-tech.github.io/daiso-core/modules/Middleware.html) API docs.

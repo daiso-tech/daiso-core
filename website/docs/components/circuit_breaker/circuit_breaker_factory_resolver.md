@@ -83,8 +83,8 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 ```ts
 await circuitBreakerFactoryResolver
   .use("redis")
-  .create("a")
   .setNamespace(new Namespace(["@", "test"]))
+  .create("a")
   .runOrFail(async () => {
     // ... code to apply circuit-breaker logic
   });
@@ -187,10 +187,10 @@ import { CountBreaker } from "@daiso-tech/core/circuit-breaker/policies"
 import { constantBackoff } from "@daiso-tech/core/backoff-policies"
 
 await circuitBreakerFactoryResolver
+  .setBackoffPolicy(constantBackoff())
+  .setDefaultCircuitBreakerPolicy(new CountBreaker())
   .use("redis")
   .create("a")
-  .setBackoffPolicy(constantBackoff())
-  .setCircuitBreakerPolicy(new CountBreaker())
   .runOrFail(async () => {
     // ... code to apply circuit-breaker logic
   });

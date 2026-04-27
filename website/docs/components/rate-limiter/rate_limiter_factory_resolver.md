@@ -82,9 +82,9 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 
 ```ts
 await rateLimiterFactoryResolver
+  .setNamespace(new Namespace(["@", "test"]))
   .use("redis")
   .create("a")
-  .setNamespace(new Namespace(["@", "test"]))
   .runOrFail(async () => {
     // ... code to apply rate-limiter logic
   });
@@ -187,10 +187,10 @@ import { SlidingWindowLimiter } from "@daiso-tech/core/rate-limiter/policies"
 import { constantBackoff } from "@daiso-tech/core/backoff-policies"
 
 await rateLimiterFactoryResolver
-  .use("redis")
-  .create("a")
   .setBackoffPolicy(constantBackoff())
   .setRateLimiterPolicy(new SlidingWindowLimiter())
+  .use("redis")
+  .create("a")
   .runOrFail(async () => {
     // ... code to apply rate-limiter logic
   });
