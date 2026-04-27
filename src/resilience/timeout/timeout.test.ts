@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { useFactory, type Use } from "@/middleware/use-factory.js";
+import { type Use } from "@/middleware/contracts/_module.js";
+import { useFactory } from "@/middleware/implementations/_module.js";
 import { TimeoutResilienceError } from "@/resilience/resilience.errors.js";
 import { timeout } from "@/resilience/timeout/timeout.js";
 import {
