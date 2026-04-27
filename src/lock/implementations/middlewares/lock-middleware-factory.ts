@@ -5,7 +5,7 @@
 import { v4 } from "uuid";
 
 import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
-import { type MiddlewareFn } from "@/middleware/types.js";
+import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 import { callInvokable, type Invokable } from "@/utilities/_module.js";
 

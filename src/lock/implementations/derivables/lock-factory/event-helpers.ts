@@ -9,7 +9,7 @@ import {
     type ILock,
     type LockEventMap,
 } from "@/lock/contracts/_module.js";
-import { type MiddlewareFn } from "@/middleware/_module.js";
+import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { callInvokable, type WaitUntil } from "@/utilities/_module.js";
 
 /**
