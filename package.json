@@ -261,8 +261,12 @@
             "import": "./dist/lock/implementations/test-utilities/_module-exports.js"
         },
         "./middleware": {
-            "types": "./dist/middleware/_module-exports.d.ts",
-            "import": "./dist/middleware/_module-exports.js"
+            "types": "./dist/middleware/implementations/_module-exports.d.ts",
+            "import": "./dist/middleware/implementations/_module-exports.js"
+        },
+        "./middleware/contracts": {
+            "types": "./dist/middleware/contracts/_module-exports.d.ts",
+            "import": "./dist/middleware/contracts/_module-exports.js"
         },
         "./namespace": {
             "types": "./dist/namespace/implementations/_module-exports.d.ts",
