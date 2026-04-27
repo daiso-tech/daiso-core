@@ -2,7 +2,7 @@
  * @module Semaphore
  */
 import { type IEventDispatcher } from "@/event-bus/contracts/event-bus.contract.js";
-import { type MiddlewareFn } from "@/middleware/_module.js";
+import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import {
     isSemaphoreError,
     SEMAPHORE_EVENTS,
