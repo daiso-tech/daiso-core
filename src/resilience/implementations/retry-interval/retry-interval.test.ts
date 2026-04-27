@@ -3,87 +3,27 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { type IContext } from "@/execution-context/contracts/_module.js";
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
 import { type NextFn } from "@/middleware/contracts/_module.js";
-import { RetryResilienceError } from "@/resilience/resilience.errors.js";
-import { retry } from "@/resilience/retry/retry.js";
-import {
-    TO_MILLISECONDS,
-    type ITimeSpan,
-} from "@/time-span/contracts/time-span.contract.js";
+import { RetryIntervalResilienceError } from "@/resilience/implementations/resilience.errors.js";
+import { retryInterval } from "@/resilience/implementations/retry-interval/retry-interval.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type InvokableFn } from "@/utilities/_module.js";
 
-describe("function: retry", () => {
+describe("function: retryInterval", () => {
     let context: IContext;
 
     beforeEach(() => {
         context = new Context(new Map());
     });
 
-    describe("setting: maxAttempts", () => {
-        test("Should throw TypeError when maxAttempts is less than 1", () => {
-            expect(() => retry({ maxAttempts: 0 })).toThrow(TypeError);
-            expect(() => retry({ maxAttempts: -1 })).toThrow(TypeError);
-        });
-
-        test("Should use default maxAttempts of 4", async () => {
-            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
-                .fn()
-                .mockRejectedValue(new Error("fail"));
-            const middleware = retry({
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
-            });
-
-            await expect(
-                middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow(RetryResilienceError);
-
-            expect(nextFn).toHaveBeenCalledTimes(4);
-        });
-
-        test("Should retry the specified number of times", async () => {
-            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
-                .fn()
-                .mockRejectedValue(new Error("fail"));
-            const middleware = retry({
-                maxAttempts: 2,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
-            });
-
-            await expect(
-                middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow(RetryResilienceError);
-
-            expect(nextFn).toHaveBeenCalledTimes(2);
-        });
-
-        test("Should succeed on first attempt without retrying", async () => {
-            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
-                .fn()
-                .mockResolvedValue("success");
-            const middleware = retry({
-                maxAttempts: 3,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
-            });
-
-            const result = await middleware({
-                args: [],
-                next: nextFn,
-                context,
-            });
-
-            expect(result).toBe("success");
-            expect(nextFn).toHaveBeenCalledTimes(1);
-        });
-
-        test("Should succeed if attempt succeeds before maxAttempts", async () => {
+    describe("setting: time and interval", () => {
+        test("Should retry within the time window until success", async () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockRejectedValueOnce(new Error("fail 1"))
                 .mockRejectedValueOnce(new Error("fail 2"))
                 .mockResolvedValue("success");
-            const middleware = retry({
-                maxAttempts: 5,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
             });
 
             const result = await middleware({
@@ -96,132 +36,129 @@ describe("function: retry", () => {
             expect(nextFn).toHaveBeenCalledTimes(3);
         });
 
-        test("Should retry exactly maxAttempts of 1 (no retries)", async () => {
+        test("Should throw RetryIntervalResilienceError when time expires", async () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockRejectedValue(new Error("fail"));
-            const middleware = retry({
-                maxAttempts: 1,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(50),
+                interval: TimeSpan.fromMilliseconds(20),
             });
 
             await expect(
                 middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow(RetryResilienceError);
-
-            expect(nextFn).toHaveBeenCalledTimes(1);
-        });
-    });
-
-    describe("setting: backoffPolicy", () => {
-        test("Should call backoffPolicy with attempt number and error", async () => {
-            const error = new Error("fail");
-            const backoffPolicy = vi
-                .fn()
-                .mockReturnValue(TimeSpan.fromMilliseconds(0));
-            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
-                .fn()
-                .mockRejectedValue(error);
-            const middleware = retry({
-                maxAttempts: 3,
-                backoffPolicy,
-            });
-
-            await expect(
-                middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow(RetryResilienceError);
-
-            expect(backoffPolicy).toHaveBeenCalledTimes(2);
-            expect(backoffPolicy).toHaveBeenNthCalledWith(1, 1, error);
-            expect(backoffPolicy).toHaveBeenNthCalledWith(2, 2, error);
+            ).rejects.toThrow(RetryIntervalResilienceError);
         });
 
-        test("Should not call backoffPolicy on last attempt", async () => {
-            const backoffPolicy = vi
-                .fn()
-                .mockReturnValue(TimeSpan.fromMilliseconds(0));
+        test("Should include time and interval in RetryIntervalResilienceError", async () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockRejectedValue(new Error("fail"));
-            const middleware = retry({
-                maxAttempts: 2,
-                backoffPolicy,
-            });
+            const time = TimeSpan.fromMilliseconds(50);
+            const interval = TimeSpan.fromMilliseconds(20);
+            const middleware = retryInterval({ time, interval });
 
-            await expect(
-                middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow(RetryResilienceError);
-
-            expect(backoffPolicy).toHaveBeenCalledTimes(1);
-            expect(backoffPolicy).toHaveBeenCalledWith(1, expect.any(Error));
+            try {
+                await middleware({ args: [], next: nextFn, context });
+                expect.unreachable();
+            } catch (error: unknown) {
+                expect(error).toBeInstanceOf(RetryIntervalResilienceError);
+                const retryError = error as RetryIntervalResilienceError;
+                expect(retryError.time.toMilliseconds()).toBe(
+                    time.toMilliseconds(),
+                );
+                expect(retryError.interval.toMilliseconds()).toBe(
+                    interval.toMilliseconds(),
+                );
+            }
         });
 
-        test("Should not call backoffPolicy when first attempt succeeds", async () => {
-            const backoffPolicy = vi
-                .fn()
-                .mockReturnValue(TimeSpan.fromMilliseconds(0));
+        test("Should succeed on first attempt without waiting", async () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockResolvedValue("ok");
-            const middleware = retry({
-                maxAttempts: 3,
-                backoffPolicy,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
             });
 
-            await middleware({ args: [], next: nextFn, context });
+            const result = await middleware({
+                args: [],
+                next: nextFn,
+                context,
+            });
 
-            expect(backoffPolicy).not.toHaveBeenCalled();
+            expect(result).toBe("ok");
+            expect(nextFn).toHaveBeenCalledTimes(1);
         });
 
-        test("Should call backoffPolicy with value as error when errorPolicy treats value as error", async () => {
-            const backoffPolicy = vi
-                .fn()
-                .mockReturnValue(TimeSpan.fromMilliseconds(0));
+        test("Should wait the interval duration between retries", async () => {
+            const startTime = Date.now();
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
-                .mockResolvedValueOnce(false)
-                .mockResolvedValue(true);
-            const middleware = retry({
-                maxAttempts: 3,
-                backoffPolicy,
-                errorPolicy: { treatFalseAsError: true },
+                .mockRejectedValueOnce(new Error("fail"))
+                .mockResolvedValue("ok");
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(50),
             });
 
             await middleware({ args: [], next: nextFn, context });
 
-            expect(backoffPolicy).toHaveBeenCalledTimes(1);
-            expect(backoffPolicy).toHaveBeenCalledWith(1, false);
+            const elapsed = Date.now() - startTime;
+            expect(elapsed).toBeGreaterThanOrEqual(40);
+        });
+
+        test("Should include errors and attempts in RetryIntervalResilienceError", async () => {
+            const error1 = new Error("fail 1");
+            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
+                .fn()
+                .mockRejectedValue(error1);
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(50),
+                interval: TimeSpan.fromMilliseconds(15),
+            });
+
+            try {
+                await middleware({ args: [], next: nextFn, context });
+                expect.unreachable();
+            } catch (error: unknown) {
+                expect(error).toBeInstanceOf(RetryIntervalResilienceError);
+                const retryError = error as RetryIntervalResilienceError;
+                expect(retryError.errors.length).toBeGreaterThanOrEqual(1);
+                expect(retryError.attempts).toBeGreaterThanOrEqual(1);
+            }
         });
     });
 
     describe("setting: throwLastError", () => {
-        test("Should throw RetryResilienceError by default", async () => {
+        test("Should throw RetryIntervalResilienceError by default", async () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockRejectedValue(new Error("fail"));
-            const middleware = retry({
-                maxAttempts: 2,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(50),
+                interval: TimeSpan.fromMilliseconds(15),
             });
 
             await expect(
                 middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow(RetryResilienceError);
+            ).rejects.toThrow(RetryIntervalResilienceError);
         });
 
-        test("Should throw RetryResilienceError when throwLastError is false", async () => {
+        test("Should throw RetryIntervalResilienceError when throwLastError is false", async () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockRejectedValue(new Error("fail"));
-            const middleware = retry({
-                maxAttempts: 2,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(50),
+                interval: TimeSpan.fromMilliseconds(15),
                 throwLastError: false,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             await expect(
                 middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow(RetryResilienceError);
+            ).rejects.toThrow(RetryIntervalResilienceError);
         });
 
         test("Should throw the last error when throwLastError is true", async () => {
@@ -230,10 +167,10 @@ describe("function: retry", () => {
                 .fn()
                 .mockRejectedValueOnce(new Error("first failure"))
                 .mockRejectedValue(lastError);
-            const middleware = retry({
-                maxAttempts: 3,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(50),
+                interval: TimeSpan.fromMilliseconds(15),
                 throwLastError: true,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             await expect(
@@ -241,29 +178,26 @@ describe("function: retry", () => {
             ).rejects.toBe(lastError);
         });
 
-        test("Should include all errors in RetryResilienceError", async () => {
-            const error1 = new Error("fail 1");
-            const error2 = new Error("fail 2");
+        test("Should include all collected errors in RetryIntervalResilienceError", async () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
-                .mockRejectedValueOnce(error1)
-                .mockRejectedValue(error2);
-            const middleware = retry({
-                maxAttempts: 2,
+                .mockRejectedValue(new Error("fail"));
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(60),
+                interval: TimeSpan.fromMilliseconds(15),
                 throwLastError: false,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             try {
                 await middleware({ args: [], next: nextFn, context });
                 expect.unreachable();
             } catch (error: unknown) {
-                expect(error).toBeInstanceOf(RetryResilienceError);
-                const retryError = error as RetryResilienceError;
-                expect(retryError.errors).toHaveLength(2);
-                expect(retryError.errors[0]).toBe(error1);
-                expect(retryError.errors[1]).toBe(error2);
-                expect(retryError.maxAttempts).toBe(2);
+                expect(error).toBeInstanceOf(RetryIntervalResilienceError);
+                const retryError = error as RetryIntervalResilienceError;
+                expect(retryError.errors.length).toBeGreaterThanOrEqual(1);
+                for (const err of retryError.errors) {
+                    expect(err).toBeInstanceOf(Error);
+                }
             }
         });
     });
@@ -273,16 +207,18 @@ describe("function: retry", () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockRejectedValue(new Error("any error"));
-            const middleware = retry({
-                maxAttempts: 2,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(50),
+                interval: TimeSpan.fromMilliseconds(15),
             });
 
             await expect(
                 middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow(RetryResilienceError);
+            ).rejects.toThrow(RetryIntervalResilienceError);
 
-            expect(nextFn).toHaveBeenCalledTimes(2);
+            expect(vi.mocked(nextFn).mock.calls.length).toBeGreaterThanOrEqual(
+                2,
+            );
         });
 
         test("Should only retry errors matching the errorPolicy class", async () => {
@@ -293,10 +229,10 @@ describe("function: retry", () => {
                 .fn()
                 .mockRejectedValueOnce(new RetryableError("retry me"))
                 .mockRejectedValue(new NonRetryableError("do not retry"));
-            const middleware = retry({
-                maxAttempts: 5,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 errorPolicy: RetryableError,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             await expect(
@@ -311,11 +247,11 @@ describe("function: retry", () => {
                 .fn()
                 .mockRejectedValueOnce(new Error("retryable"))
                 .mockRejectedValue(new Error("not retryable"));
-            const middleware = retry({
-                maxAttempts: 5,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 errorPolicy: (error: unknown) =>
                     error instanceof Error && error.message === "retryable",
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             await expect(
@@ -330,10 +266,10 @@ describe("function: retry", () => {
                 .fn()
                 .mockResolvedValueOnce(false)
                 .mockResolvedValue(true);
-            const middleware = retry({
-                maxAttempts: 3,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 errorPolicy: { treatFalseAsError: true },
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             const result = await middleware({
@@ -350,10 +286,10 @@ describe("function: retry", () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockResolvedValue(false);
-            const middleware = retry({
-                maxAttempts: 3,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 errorPolicy: { treatFalseAsError: false },
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             const result = await middleware({
@@ -376,10 +312,10 @@ describe("function: retry", () => {
                 .mockRejectedValueOnce(new ErrorA("a"))
                 .mockRejectedValueOnce(new ErrorB("b"))
                 .mockRejectedValue(new ErrorC("c"));
-            const middleware = retry({
-                maxAttempts: 5,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 errorPolicy: [ErrorA, ErrorB],
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             await expect(
@@ -389,36 +325,57 @@ describe("function: retry", () => {
             expect(nextFn).toHaveBeenCalledTimes(3);
         });
 
-        test("Should support errorPolicy as an invokable object", async () => {
+        test("Should retry false return values until true when treatFalseAsError is true", async () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
-                .mockRejectedValueOnce(new Error("retryable"))
-                .mockRejectedValue(new Error("not retryable"));
-            const middleware = retry({
-                maxAttempts: 5,
-                errorPolicy: {
-                    invoke: (error: unknown) =>
-                        error instanceof Error && error.message === "retryable",
-                },
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(false)
+                .mockResolvedValue(true);
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
+                errorPolicy: { treatFalseAsError: true },
             });
 
-            await expect(
-                middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow("not retryable");
+            const result = await middleware({
+                args: [],
+                next: nextFn,
+                context,
+            });
 
-            expect(nextFn).toHaveBeenCalledTimes(2);
+            expect(result).toBe(true);
+            expect(nextFn).toHaveBeenCalledTimes(3);
         });
 
-        test("Should not retry any error when errorPolicy always returns false", async () => {
-            const error = new Error("fail");
+        test("Should not retry truthy return values when treatFalseAsError is true", async () => {
+            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
+                .fn()
+                .mockResolvedValue("truthy");
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
+                errorPolicy: { treatFalseAsError: true },
+            });
+
+            const result = await middleware({
+                args: [],
+                next: nextFn,
+                context,
+            });
+
+            expect(result).toBe("truthy");
+            expect(nextFn).toHaveBeenCalledTimes(1);
+        });
+
+        test("Should not retry thrown errors when treatFalseAsError is true", async () => {
+            const error = new Error("thrown");
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockRejectedValue(error);
-            const middleware = retry({
-                maxAttempts: 5,
-                errorPolicy: () => false,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
+                errorPolicy: { treatFalseAsError: true },
             });
 
             await expect(
@@ -428,50 +385,51 @@ describe("function: retry", () => {
             expect(nextFn).toHaveBeenCalledTimes(1);
         });
 
-        test("Should exhaust all attempts when treatFalseAsError is true and all return false", async () => {
+        test("Should not retry thrown errors when treatFalseAsError is false", async () => {
+            const error = new Error("thrown");
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
-                .mockResolvedValue(false);
-            const middleware = retry({
-                maxAttempts: 3,
-                errorPolicy: { treatFalseAsError: true },
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
+                .mockRejectedValue(error);
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
+                errorPolicy: { treatFalseAsError: false },
             });
 
             await expect(
                 middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow();
-
-            expect(nextFn).toHaveBeenCalledTimes(3);
-        });
-
-        test("Should not retry false when treatFalseAsError is true and maxAttempts is 1", async () => {
-            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
-                .fn()
-                .mockResolvedValue(false);
-            const middleware = retry({
-                maxAttempts: 1,
-                errorPolicy: { treatFalseAsError: true },
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
-            });
-
-            await expect(
-                middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow();
+            ).rejects.toBe(error);
 
             expect(nextFn).toHaveBeenCalledTimes(1);
         });
 
-        test("Should retry thrown errors but not false values when errorPolicy is a class", async () => {
-            class RetryableError extends Error {}
-
+        test("Should timeout with RetryIntervalResilienceError when false is always returned and treatFalseAsError is true", async () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockResolvedValue(false);
-            const middleware = retry({
-                maxAttempts: 3,
-                errorPolicy: RetryableError,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(50),
+                interval: TimeSpan.fromMilliseconds(10),
+                errorPolicy: { treatFalseAsError: true },
+            });
+
+            await expect(
+                middleware({ args: [], next: nextFn, context }),
+            ).rejects.toThrow();
+
+            expect(vi.mocked(nextFn).mock.calls.length).toBeGreaterThanOrEqual(
+                2,
+            );
+        });
+
+        test("Should not treat non-boolean falsy values as errors when treatFalseAsError is true", async () => {
+            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
+                .fn()
+                .mockResolvedValue(0);
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
+                errorPolicy: { treatFalseAsError: true },
             });
 
             const result = await middleware({
@@ -480,54 +438,89 @@ describe("function: retry", () => {
                 context,
             });
 
-            expect(result).toBe(false);
+            expect(result).toBe(0);
             expect(nextFn).toHaveBeenCalledTimes(1);
         });
 
-        test("Should rethrow error immediately when treatFalseAsError is combined with thrown errors", async () => {
-            const thrownError = new Error("fail");
+        test("Should not treat null as error when treatFalseAsError is true", async () => {
+            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
+                .fn()
+                .mockResolvedValue(null);
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
+                errorPolicy: { treatFalseAsError: true },
+            });
+
+            const result = await middleware({
+                args: [],
+                next: nextFn,
+                context,
+            });
+
+            expect(result).toBe(null);
+            expect(nextFn).toHaveBeenCalledTimes(1);
+        });
+
+        test("Should not treat undefined as error when treatFalseAsError is true", async () => {
+            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
+                .fn()
+                .mockResolvedValue(undefined);
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
+                errorPolicy: { treatFalseAsError: true },
+            });
+
+            const result = await middleware({
+                args: [],
+                next: nextFn,
+                context,
+            });
+
+            expect(result).toBe(undefined);
+            expect(nextFn).toHaveBeenCalledTimes(1);
+        });
+
+        test("Should not treat empty string as error when treatFalseAsError is true", async () => {
+            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
+                .fn()
+                .mockResolvedValue("");
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
+                errorPolicy: { treatFalseAsError: true },
+            });
+
+            const result = await middleware({
+                args: [],
+                next: nextFn,
+                context,
+            });
+
+            expect(result).toBe("");
+            expect(nextFn).toHaveBeenCalledTimes(1);
+        });
+
+        test("Should retry false then succeed with non-boolean value when treatFalseAsError is true", async () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockResolvedValueOnce(false)
-                .mockRejectedValueOnce(thrownError)
-                .mockResolvedValue("ok");
-            const middleware = retry({
-                maxAttempts: 5,
+                .mockResolvedValue("success");
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 errorPolicy: { treatFalseAsError: true },
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
-            await expect(
-                middleware({ args: [], next: nextFn, context }),
-            ).rejects.toBe(thrownError);
+            const result = await middleware({
+                args: [],
+                next: nextFn,
+                context,
+            });
 
+            expect(result).toBe("success");
             expect(nextFn).toHaveBeenCalledTimes(2);
-        });
-
-        test("Should pass the actual thrown error to the errorPolicy predicate", async () => {
-            const errorPolicy = vi
-                .fn()
-                .mockReturnValueOnce(true)
-                .mockReturnValue(false);
-            const error1 = new Error("first");
-            const error2 = new Error("second");
-            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
-                .fn()
-                .mockRejectedValueOnce(error1)
-                .mockRejectedValue(error2);
-            const middleware = retry({
-                maxAttempts: 5,
-                errorPolicy,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
-            });
-
-            await expect(
-                middleware({ args: [], next: nextFn, context }),
-            ).rejects.toBe(error2);
-
-            expect(errorPolicy).toHaveBeenCalledTimes(2);
-            expect(errorPolicy).toHaveBeenNthCalledWith(1, error1);
-            expect(errorPolicy).toHaveBeenNthCalledWith(2, error2);
         });
     });
 
@@ -538,10 +531,10 @@ describe("function: retry", () => {
                 .fn()
                 .mockRejectedValueOnce(new Error("fail"))
                 .mockResolvedValue("ok");
-            const middleware = retry({
-                maxAttempts: 3,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 onExecutionAttempt,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             await middleware({ args: [], next: nextFn, context });
@@ -549,20 +542,20 @@ describe("function: retry", () => {
             expect(onExecutionAttempt).toHaveBeenCalledTimes(2);
         });
 
-        test("Should be called with correct attempt number", async () => {
+        test("Should be called with correct attempt numbers", async () => {
             const onExecutionAttempt = vi.fn();
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
-                .mockRejectedValue(new Error("fail"));
-            const middleware = retry({
-                maxAttempts: 3,
+                .mockRejectedValueOnce(new Error("fail 1"))
+                .mockRejectedValueOnce(new Error("fail 2"))
+                .mockResolvedValue("ok");
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 onExecutionAttempt,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
-            await expect(
-                middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow();
+            await middleware({ args: [], next: nextFn, context });
 
             expect(onExecutionAttempt).toHaveBeenCalledTimes(3);
             expect(onExecutionAttempt).toHaveBeenNthCalledWith(
@@ -585,10 +578,10 @@ describe("function: retry", () => {
             const nextFn: NextFn<[string, number], Promise<string>> = vi
                 .fn()
                 .mockResolvedValue("ok");
-            const middleware = retry<[string, number], string>({
-                maxAttempts: 2,
+            const middleware = retryInterval<[string, number], string>({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 onExecutionAttempt,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             await middleware({ args, next: nextFn, context });
@@ -603,10 +596,10 @@ describe("function: retry", () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockResolvedValue("ok");
-            const middleware = retry({
-                maxAttempts: 2,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 onExecutionAttempt,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             await middleware({ args: [], next: nextFn, context });
@@ -623,10 +616,10 @@ describe("function: retry", () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockResolvedValue("ok");
-            const middleware = retry({
-                maxAttempts: 2,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 onExecutionAttempt,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             const result = await middleware({
@@ -641,40 +634,22 @@ describe("function: retry", () => {
     });
 
     describe("callback: onRetryDelay", () => {
-        test("Should be called before each retry delay", async () => {
+        test("Should be called before each retry delay on thrown errors", async () => {
             const onRetryDelay = vi.fn();
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
-                .mockRejectedValue(new Error("fail"));
-            const middleware = retry({
-                maxAttempts: 3,
+                .mockRejectedValueOnce(new Error("fail 1"))
+                .mockRejectedValueOnce(new Error("fail 2"))
+                .mockResolvedValue("ok");
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 onRetryDelay,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
-            await expect(
-                middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow();
+            await middleware({ args: [], next: nextFn, context });
 
             expect(onRetryDelay).toHaveBeenCalledTimes(2);
-        });
-
-        test("Should not be called on the last attempt", async () => {
-            const onRetryDelay = vi.fn();
-            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
-                .fn()
-                .mockRejectedValue(new Error("fail"));
-            const middleware = retry({
-                maxAttempts: 2,
-                onRetryDelay,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
-            });
-
-            await expect(
-                middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow();
-
-            expect(onRetryDelay).toHaveBeenCalledTimes(1);
         });
 
         test("Should not be called when first attempt succeeds", async () => {
@@ -682,10 +657,10 @@ describe("function: retry", () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockResolvedValue("ok");
-            const middleware = retry({
-                maxAttempts: 3,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 onRetryDelay,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             await middleware({ args: [], next: nextFn, context });
@@ -702,10 +677,10 @@ describe("function: retry", () => {
                 .mockRejectedValueOnce(error1)
                 .mockRejectedValueOnce(error2)
                 .mockResolvedValue("ok");
-            const middleware = retry({
-                maxAttempts: 4,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 onRetryDelay,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             await middleware({ args: [], next: nextFn, context });
@@ -724,16 +699,16 @@ describe("function: retry", () => {
             const onRetryDelay = vi.fn();
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
-                .mockRejectedValue(new Error("fail"));
-            const middleware = retry({
-                maxAttempts: 4,
+                .mockRejectedValueOnce(new Error("fail 1"))
+                .mockRejectedValueOnce(new Error("fail 2"))
+                .mockResolvedValue("ok");
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 onRetryDelay,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
-            await expect(
-                middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow();
+            await middleware({ args: [], next: nextFn, context });
 
             expect(onRetryDelay).toHaveBeenNthCalledWith(
                 1,
@@ -743,47 +718,29 @@ describe("function: retry", () => {
                 2,
                 expect.objectContaining({ attempt: 2 }),
             );
-            expect(onRetryDelay).toHaveBeenNthCalledWith(
-                3,
-                expect.objectContaining({ attempt: 3 }),
-            );
         });
 
-        test("Should be called with correct waitTime from backoffPolicy", async () => {
+        test("Should be called with waitTime equal to interval", async () => {
             const onRetryDelay = vi.fn();
+            const interval = TimeSpan.fromMilliseconds(10);
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
-                .mockRejectedValue(new Error("fail"));
-            const middleware = retry({
-                maxAttempts: 3,
+                .mockRejectedValueOnce(new Error("fail"))
+                .mockResolvedValue("ok");
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval,
                 onRetryDelay,
-                backoffPolicy: (attempt: number) =>
-                    TimeSpan.fromMilliseconds(attempt * 100),
             });
 
-            await expect(
-                middleware({ args: [], next: nextFn, context }),
-            ).rejects.toThrow();
+            await middleware({ args: [], next: nextFn, context });
 
-            expect(onRetryDelay).toHaveBeenNthCalledWith(
-                1,
-                expect.objectContaining({
-                    waitTime: expect.objectContaining({
-                        [TO_MILLISECONDS]: expect.any(Function) as InvokableFn<
-                            [],
-                            number
-                        >,
-                    }) as ITimeSpan,
-                }),
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const callData = onRetryDelay.mock.calls[0]?.[0];
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+            expect(callData.waitTime.toMilliseconds()).toBe(
+                interval.toMilliseconds(),
             );
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const firstCall = onRetryDelay.mock.calls[0]?.[0];
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-            expect(firstCall.waitTime.toMilliseconds()).toBe(100);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const secondCall = onRetryDelay.mock.calls[1]?.[0];
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-            expect(secondCall.waitTime.toMilliseconds()).toBe(200);
         });
 
         test("Should be called with correct args", async () => {
@@ -793,10 +750,10 @@ describe("function: retry", () => {
                 .fn()
                 .mockRejectedValueOnce(new Error("fail"))
                 .mockResolvedValue("ok");
-            const middleware = retry<[string], string>({
-                maxAttempts: 3,
+            const middleware = retryInterval<[string], string>({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 onRetryDelay,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             await middleware({ args, next: nextFn, context });
@@ -812,10 +769,10 @@ describe("function: retry", () => {
                 .fn()
                 .mockRejectedValueOnce(new Error("fail"))
                 .mockResolvedValue("ok");
-            const middleware = retry({
-                maxAttempts: 3,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 onRetryDelay,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             await middleware({ args: [], next: nextFn, context });
@@ -833,10 +790,10 @@ describe("function: retry", () => {
                 .fn()
                 .mockRejectedValueOnce(new Error("fail"))
                 .mockResolvedValue("ok");
-            const middleware = retry({
-                maxAttempts: 3,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 onRetryDelay,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             const result = await middleware({
@@ -854,11 +811,11 @@ describe("function: retry", () => {
                 .fn()
                 .mockResolvedValueOnce(false)
                 .mockResolvedValue(true);
-            const middleware = retry({
-                maxAttempts: 3,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 onRetryDelay,
                 errorPolicy: { treatFalseAsError: true },
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             await middleware({ args: [], next: nextFn, context });
@@ -874,9 +831,9 @@ describe("function: retry", () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockResolvedValue(42);
-            const middleware = retry({
-                maxAttempts: 3,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
             });
 
             const result = await middleware({
@@ -893,9 +850,9 @@ describe("function: retry", () => {
                 .fn()
                 .mockRejectedValueOnce(new Error("fail"))
                 .mockResolvedValue("recovered");
-            const middleware = retry({
-                maxAttempts: 3,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
             });
 
             const result = await middleware({
@@ -913,10 +870,10 @@ describe("function: retry", () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockRejectedValue(error);
-            const middleware = retry({
-                maxAttempts: 5,
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
                 errorPolicy: () => false,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
             await expect(
@@ -926,22 +883,38 @@ describe("function: retry", () => {
             expect(nextFn).toHaveBeenCalledTimes(1);
         });
 
-        test("Should pass args through to next function", async () => {
-            const nextFn: NextFn<[string, number], Promise<string>> = vi
+        test("Should increment attempt counter across retries", async () => {
+            const onExecutionAttempt = vi.fn();
+            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
+                .mockRejectedValueOnce(new Error("fail 1"))
+                .mockRejectedValueOnce(new Error("fail 2"))
+                .mockRejectedValueOnce(new Error("fail 3"))
                 .mockResolvedValue("ok");
-            const middleware = retry<[string, number], string>({
-                maxAttempts: 2,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(500),
+                interval: TimeSpan.fromMilliseconds(10),
+                onExecutionAttempt,
             });
 
-            await middleware({
-                args: ["hello", 123],
-                next: nextFn,
-                context,
-            });
+            await middleware({ args: [], next: nextFn, context });
 
-            expect(nextFn).toHaveBeenCalledTimes(1);
+            expect(onExecutionAttempt).toHaveBeenNthCalledWith(
+                1,
+                expect.objectContaining({ attempt: 1 }),
+            );
+            expect(onExecutionAttempt).toHaveBeenNthCalledWith(
+                2,
+                expect.objectContaining({ attempt: 2 }),
+            );
+            expect(onExecutionAttempt).toHaveBeenNthCalledWith(
+                3,
+                expect.objectContaining({ attempt: 3 }),
+            );
+            expect(onExecutionAttempt).toHaveBeenNthCalledWith(
+                4,
+                expect.objectContaining({ attempt: 4 }),
+            );
         });
     });
 });

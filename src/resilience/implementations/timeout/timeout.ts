@@ -4,7 +4,7 @@
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
-import { TimeoutResilienceError } from "@/resilience/resilience.errors.js";
+import { TimeoutResilienceError } from "@/resilience/implementations/resilience.errors.js";
 import {
     TO_MILLISECONDS,
     type ITimeSpan,

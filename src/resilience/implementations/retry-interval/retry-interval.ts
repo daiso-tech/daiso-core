@@ -3,8 +3,8 @@
  */
 
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
-import { RetryIntervalResilienceError } from "@/resilience/resilience.errors.js";
-import { type RetryCallbacks } from "@/resilience/retry/_module.js";
+import { RetryIntervalResilienceError } from "@/resilience/implementations/resilience.errors.js";
+import { type RetryCallbacks } from "@/resilience/implementations/retry/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {

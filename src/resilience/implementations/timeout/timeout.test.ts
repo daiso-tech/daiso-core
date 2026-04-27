@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { type Use } from "@/middleware/contracts/_module.js";
 import { useFactory } from "@/middleware/implementations/_module.js";
-import { TimeoutResilienceError } from "@/resilience/resilience.errors.js";
-import { timeout } from "@/resilience/timeout/timeout.js";
+import { TimeoutResilienceError } from "@/resilience/implementations/resilience.errors.js";
+import { timeout } from "@/resilience/implementations/timeout/timeout.js";
 import {
     TO_MILLISECONDS,
     type ITimeSpan,

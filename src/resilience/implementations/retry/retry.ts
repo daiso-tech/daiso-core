@@ -8,7 +8,7 @@ import {
 } from "@/backoff-policies/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
-import { RetryResilienceError } from "@/resilience/resilience.errors.js";
+import { RetryResilienceError } from "@/resilience/implementations/resilience.errors.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type Invokable,
