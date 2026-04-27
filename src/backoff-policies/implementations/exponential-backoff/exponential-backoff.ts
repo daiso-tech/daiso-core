@@ -5,7 +5,7 @@
 import {
     type BackoffPolicy,
     type DynamicBackoffPolicy,
-} from "@/backoff-policies/_shared.js";
+} from "@/backoff-policies/implementations/_shared.js";
 import {
     TO_MILLISECONDS,
     type ITimeSpan,

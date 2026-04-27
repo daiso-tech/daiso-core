@@ -5,24 +5,24 @@
 import {
     resolveConstantBackoffSettings,
     serializeConstantBackoffSettings,
-} from "@/backoff-policies/constant-backoff/_module.js";
+} from "@/backoff-policies/implementations/constant-backoff/_module.js";
 import {
     resolveExponentialBackoffSettings,
     serializeExponentialBackoffSettings,
-} from "@/backoff-policies/exponential-backoff/_module.js";
+} from "@/backoff-policies/implementations/exponential-backoff/_module.js";
 import {
     resolveLinearBackoffSettings,
     serializeLinearBackoffSettings,
-} from "@/backoff-policies/linear-backoff/_module.js";
+} from "@/backoff-policies/implementations/linear-backoff/_module.js";
 import {
     resolvePolynomialBackoffSettings,
     serializePolynomialBackoffSettings,
-} from "@/backoff-policies/polynomial-backoff/_module.js";
+} from "@/backoff-policies/implementations/polynomial-backoff/_module.js";
 import {
     BACKOFFS,
     type BackoffSettingsEnum,
     type SerializedBackoffSettingsEnum,
-} from "@/backoff-policies/types.js";
+} from "@/backoff-policies/implementations/types.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { type Invokable } from "@/utilities/_module.js";
 

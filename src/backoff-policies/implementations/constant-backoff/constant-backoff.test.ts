@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import {
     constantBackoff,
     resolveConstantBackoffSettings,
-} from "@/backoff-policies/constant-backoff/constant-backoff.js";
+} from "@/backoff-policies/implementations/constant-backoff/constant-backoff.js";
 import { TO_MILLISECONDS } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { callInvokable } from "@/utilities/_module.js";

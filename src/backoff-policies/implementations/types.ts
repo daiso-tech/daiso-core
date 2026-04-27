@@ -5,19 +5,19 @@
 import {
     type ConstantBackoffSettings,
     type SerializedConstantBackoffSettings,
-} from "@/backoff-policies/constant-backoff/_module.js";
+} from "@/backoff-policies/implementations/constant-backoff/_module.js";
 import {
     type ExponentialBackoffSettings,
     type SerializedExponentialBackoffSettings,
-} from "@/backoff-policies/exponential-backoff/_module.js";
+} from "@/backoff-policies/implementations/exponential-backoff/_module.js";
 import {
     type LinearBackoffSettings,
     type SerializedLinearBackoffSettings,
-} from "@/backoff-policies/linear-backoff/_module.js";
+} from "@/backoff-policies/implementations/linear-backoff/_module.js";
 import {
     type PolynomialBackoffSettings,
     type SerializedPolynomialBackoffSettings,
-} from "@/backoff-policies/polynomial-backoff/_module.js";
+} from "@/backoff-policies/implementations/polynomial-backoff/_module.js";
 
 /**
  * Discriminant constants that identify the type of backoff algorithm.
