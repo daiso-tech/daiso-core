@@ -5,61 +5,20 @@
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/no-op-execution-context-adapter.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { applyMiddlewares } from "@/middleware/helpers.js";
 import {
+    type IMiddlewareObject,
     type Middleware,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type MiddlewareArgs,
-} from "@/middleware/types.js";
+    type NextFn,
+    type Use,
+} from "@/middleware/contracts/_module.js";
 import {
-    type Invokable,
     type InvokableFn,
     type OneOrMore,
+    type Invokable,
+    resolveOneOrMore,
+    isInvokableObject,
+    resolveInvokable,
 } from "@/utilities/_module.js";
-
-/**
- * Function that applies a middleware chain to an invokable function or object.
- *
- * Wraps the provided invokable with the specified middlewares, creating a new function
- * that executes all middlewares in priority order before delegating to the original
- * invokable. The execution happens within the provided execution context.
- *
- * @typeParam TParameters - Type of arguments passed to the invokable
- * @typeParam TReturn - Type of value returned from the invokable
- *
- * @param invokable - The function or object to wrap with middleware
- * @param middlewares - One or more middleware to apply, executed in priority order
- *
- * @returns A new invokable function that applies the middleware chain
- *
- * @example
- * ```ts
- * const use = useFactory();
- *
- * // Apply a single middleware
- * const logged = use(fetchData, loggingMiddleware);
- *
- * // Apply multiple middlewares (executed in priority order)
- * const enhanced = use(fetchData, [
- *   { priority: 0, invoke: authMiddleware },
- *   { priority: 10, invoke: cacheMiddleware },
- *   { priority: 20, invoke: loggingMiddleware }
- * ]);
- *
- * // Call the wrapped function
- * const result = logged(arg1, arg2);
- * ```
- *
- * @see {@link UseFactorySettings | `UseFactorySettings`}
- * @see {@link Middleware | `Middleware`}
- * @see {@link Invokable | `Invokable`}
- *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
- */
-export type Use = <TParameters extends Array<unknown>, TReturn>(
-    invokable: Invokable<TParameters, TReturn>,
-    middlewares: OneOrMore<Middleware<TParameters, TReturn>>,
-) => InvokableFn<TParameters, TReturn>;
 
 /**
  * Configuration options for creating a middleware application function.
@@ -80,6 +39,7 @@ export type Use = <TParameters extends Array<unknown>, TReturn>(
  * @see {@link IExecutionContext | `IExecutionContext`}
  *
  * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * @group Implementations
  */
 export type UseFactorySettings = {
     /**
@@ -110,6 +70,50 @@ export type UseFactorySettings = {
      */
     defaultPriority?: number;
 };
+
+/**
+ * @internal
+ */
+function isMiddlewareObject<TParameters extends Array<unknown>, TReturn>(
+    middleware: Middleware<TParameters, TReturn>,
+): middleware is IMiddlewareObject<TParameters, TReturn> {
+    return isInvokableObject(middleware);
+}
+
+/**
+ * @internal
+ */
+function resolveMiddleware<TParameters extends Array<unknown>, TReturn>(
+    middleware: Middleware<TParameters, TReturn>,
+    defaultPriority: number,
+): Required<IMiddlewareObject<TParameters, TReturn>> {
+    if (isMiddlewareObject(middleware)) {
+        const { priority = defaultPriority } = middleware;
+        return {
+            priority,
+            invoke: middleware.invoke.bind(middleware),
+        };
+    } else {
+        return {
+            priority: defaultPriority,
+            invoke: middleware,
+        };
+    }
+}
+
+/**
+ * @internal
+ */
+function resolveMiddlewares<TParameters extends Array<unknown>, TReturn>(
+    middlewares: OneOrMore<Middleware<TParameters, TReturn>>,
+    defaultPriority: number,
+): Array<IMiddlewareObject<TParameters, TReturn>> {
+    return [
+        ...resolveOneOrMore(middlewares).map((middleware) =>
+            resolveMiddleware(middleware, defaultPriority),
+        ),
+    ].sort((a, b) => a.priority - b.priority);
+}
 
 /**
  * Creates a middleware application function with optional custom settings.
@@ -146,6 +150,7 @@ export type UseFactorySettings = {
  * @see {@link Middleware | `Middleware`}
  *
  * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * @group Implementations
  */
 export function useFactory(settings: UseFactorySettings = {}): Use {
     const {
@@ -159,11 +164,30 @@ export function useFactory(settings: UseFactorySettings = {}): Use {
         invokable: Invokable<TParameters, TReturn>,
         middlewares: OneOrMore<Middleware<TParameters, TReturn>>,
     ): InvokableFn<TParameters, TReturn> => {
-        return applyMiddlewares({
-            defaultPriority,
-            executionContext,
-            invokable,
+        const resolvedMiddlewares = resolveMiddlewares(
             middlewares,
-        });
+            defaultPriority,
+        );
+        let func = resolveInvokable(invokable);
+        for (const middleware of [...resolvedMiddlewares].reverse()) {
+            const prevFunc = func;
+            func = (...args_: TParameters): TReturn => {
+                const next: NextFn<TParameters, TReturn> = (args = args_) => {
+                    return prevFunc(...args);
+                };
+                return middleware.invoke({
+                    args: args_,
+                    next,
+                    context: executionContext,
+                });
+            };
+        }
+        const prevFunc = func;
+        func = (...args_: TParameters): TReturn => {
+            return executionContext.run(() => {
+                return prevFunc(...args_);
+            });
+        };
+        return func;
     };
 }

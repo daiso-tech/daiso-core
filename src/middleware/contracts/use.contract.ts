@@ -6,6 +6,8 @@ import { type IContext } from "@/execution-context/contracts/_module.js";
 import {
     type InvokableFn,
     type IInvokableObject,
+    type OneOrMore,
+    type Invokable,
 } from "@/utilities/_module.js";
 
 /**
@@ -28,6 +30,7 @@ import {
  * @see {@link MiddlewareFn | `MiddlewareFn`}
  *
  * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * @group Contracts
  */
 export type NextFn<
     TParameters extends Array<unknown> = Array<unknown>,
@@ -58,6 +61,7 @@ export type NextFn<
  * @see {@link IContext | `IContext`}
  *
  * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * @group Contracts
  */
 export type MiddlewareArgs<
     TParameters extends Array<unknown> = Array<unknown>,
@@ -96,6 +100,7 @@ export type MiddlewareArgs<
  * @see {@link Middleware | `Middleware`}
  *
  * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * @group Contracts
  */
 export type IMiddlewareObject<
     TParameters extends Array<unknown> = Array<unknown>,
@@ -134,6 +139,7 @@ export type IMiddlewareObject<
  * @see {@link Middleware | `Middleware`}
  *
  * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * @group Contracts
  */
 export type MiddlewareFn<
     TParameters extends Array<unknown> = Array<unknown>,
@@ -163,6 +169,7 @@ export type MiddlewareFn<
  * @see {@link MiddlewareArgs | `MiddlewareArgs`}
  *
  * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * @group Contracts
  */
 export type Middleware<
     TParameters extends Array<unknown> = Array<unknown>,
@@ -170,3 +177,48 @@ export type Middleware<
 > =
     | MiddlewareFn<TParameters, TReturn>
     | IMiddlewareObject<TParameters, TReturn>;
+
+/**
+ * Function that applies a middleware chain to an invokable function or object.
+ *
+ * Wraps the provided invokable with the specified middlewares, creating a new function
+ * that executes all middlewares in priority order before delegating to the original
+ * invokable. The execution happens within the provided execution context.
+ *
+ * @typeParam TParameters - Type of arguments passed to the invokable
+ * @typeParam TReturn - Type of value returned from the invokable
+ *
+ * @param invokable - The function or object to wrap with middleware
+ * @param middlewares - One or more middleware to apply, executed in priority order
+ *
+ * @returns A new invokable function that applies the middleware chain
+ *
+ * @example
+ * ```ts
+ * const use = useFactory();
+ *
+ * // Apply a single middleware
+ * const logged = use(fetchData, loggingMiddleware);
+ *
+ * // Apply multiple middlewares (executed in priority order)
+ * const enhanced = use(fetchData, [
+ *   { priority: 0, invoke: authMiddleware },
+ *   { priority: 10, invoke: cacheMiddleware },
+ *   { priority: 20, invoke: loggingMiddleware }
+ * ]);
+ *
+ * // Call the wrapped function
+ * const result = logged(arg1, arg2);
+ * ```
+ *
+ * @see {@link UseFactorySettings | `UseFactorySettings`}
+ * @see {@link Middleware | `Middleware`}
+ * @see {@link Invokable | `Invokable`}
+ *
+ * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * @group Contracts
+ */
+export type Use = <TParameters extends Array<unknown>, TReturn>(
+    invokable: Invokable<TParameters, TReturn>,
+    middlewares: OneOrMore<Middleware<TParameters, TReturn>>,
+) => InvokableFn<TParameters, TReturn>;

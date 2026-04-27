@@ -6,7 +6,7 @@ import {
     type CircuitBreakerTrigger,
     type ICircuitBreakerFactoryBase,
 } from "@/circuit-breaker/contracts/_module.js";
-import { type MiddlewareFn } from "@/middleware/types.js";
+import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
     callInvokable,

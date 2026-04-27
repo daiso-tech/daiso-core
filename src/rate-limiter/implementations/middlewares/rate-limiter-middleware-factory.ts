@@ -2,7 +2,7 @@
  * @module RateLimiter
  */
 
-import { type MiddlewareFn } from "@/middleware/types.js";
+import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { type IRateLimiterFactoryBase } from "@/rate-limiter/contracts/_module.js";
 import {
     callInvokable,

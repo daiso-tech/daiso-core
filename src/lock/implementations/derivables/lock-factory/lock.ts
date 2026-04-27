@@ -23,7 +23,7 @@ import {
     handleDispatch,
     handleUnexpectedError,
 } from "@/lock/implementations/derivables/lock-factory/event-helpers.js";
-import { type Use } from "@/middleware/_module.js";
+import { type Use } from "@/middleware/contracts/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";

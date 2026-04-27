@@ -6,7 +6,7 @@ import {
     type CacheWriteSettings,
     type ICacheBase,
 } from "@/cache/contracts/_module.js";
-import { type MiddlewareFn } from "@/middleware/types.js";
+import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { callInvokable, type Invokable } from "@/utilities/_module.js";
 
 /**

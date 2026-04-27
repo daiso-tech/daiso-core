@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { type IContext } from "@/execution-context/contracts/_module.js";
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
-import { type NextFn } from "@/middleware/_module.js";
+import { type NextFn } from "@/middleware/contracts/_module.js";
 import { RetryIntervalResilienceError } from "@/resilience/resilience.errors.js";
 import { retryInterval } from "@/resilience/retry-interval/retry-interval.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";

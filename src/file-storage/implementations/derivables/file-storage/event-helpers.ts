@@ -12,7 +12,7 @@ import {
     type IFile,
     type IReadableFile,
 } from "@/file-storage/contracts/_module.js";
-import { type MiddlewareFn } from "@/middleware/_module.js";
+import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { type IKey } from "@/namespace/contracts/_module.js";
 import { callInvokable, type WaitUntil } from "@/utilities/_module.js";
 

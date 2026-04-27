@@ -43,7 +43,7 @@ import {
 import { resolveFileContent } from "@/file-storage/implementations/derivables/file-storage/resolve-file-content.js";
 import { ResolveFileStream } from "@/file-storage/implementations/derivables/file-storage/resolve-file-stream.js";
 import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
-import { type MiddlewareFn, type Use } from "@/middleware/_module.js";
+import { type MiddlewareFn, type Use } from "@/middleware/contracts/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type InvokableFn, type WaitUntil } from "@/utilities/_module.js";

@@ -14,7 +14,7 @@ import {
     type ISerializedFile,
 } from "@/file-storage/implementations/derivables/file-storage/file.js";
 import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
-import { type Use } from "@/middleware/_module.js";
+import { type Use } from "@/middleware/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import {
