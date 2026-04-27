@@ -1,7 +1,7 @@
 {
     "name": "@daiso-tech/core",
     "private": false,
-    "version": "0.52.0",
+    "version": "0.52.1",
     "author": "Yousif Abdulkarim",
     "license": "Apache-2.0",
     "type": "module",
