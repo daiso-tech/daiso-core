@@ -29,7 +29,9 @@ export function enhanceFactory(use: Use): Enhance {
     ): void => {
         const fn = obj[field] as InvokableFn<any, any>;
         if (typeof fn !== "function") {
-            throw new TypeError("!!__MESSAGE__!!");
+            throw new TypeError(
+                `Cannot enhance ${String(field)} because it is not a function`,
+            );
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
