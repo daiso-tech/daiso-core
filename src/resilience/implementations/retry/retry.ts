@@ -5,7 +5,7 @@
 import {
     exponentialBackoff,
     type BackoffPolicy,
-} from "@/backoff-policies/_module.js";
+} from "@/backoff-policies/implementations/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { RetryResilienceError } from "@/resilience/implementations/resilience.errors.js";
