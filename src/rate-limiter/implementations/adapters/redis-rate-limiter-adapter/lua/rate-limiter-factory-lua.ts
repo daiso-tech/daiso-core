@@ -1,8 +1,8 @@
 /**
  * @module RateLimiter
  */
-import { BACKOFFS } from "@/backoff-policies/_module.js";
-import { backoffsLua } from "@/backoff-policies/backoffs-lua.js";
+import { BACKOFFS } from "@/backoff-policies/implementations/_module.js";
+import { backoffsLua } from "@/backoff-policies/implementations/backoffs-lua.js";
 import { fixedWindowLimiterLua } from "@/rate-limiter/implementations/adapters/redis-rate-limiter-adapter/lua/fixed-window-limiter-lua.js";
 import { rateLimiterPolicyLua } from "@/rate-limiter/implementations/adapters/redis-rate-limiter-adapter/lua/internal-rate-limiter-policy-lua.js";
 import { rateLimiterLua } from "@/rate-limiter/implementations/adapters/redis-rate-limiter-adapter/lua/rate-limiter-lua.js";

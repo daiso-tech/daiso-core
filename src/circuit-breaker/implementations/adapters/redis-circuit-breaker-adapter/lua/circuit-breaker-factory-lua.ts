@@ -1,7 +1,10 @@
 /**
  * @module CircuitBreaker
  */
-import { BACKOFFS, backoffsLua } from "@/backoff-policies/_module.js";
+import {
+    BACKOFFS,
+    backoffsLua,
+} from "@/backoff-policies/implementations/_module.js";
 import { circuitBreakerLua } from "@/circuit-breaker/implementations/adapters/redis-circuit-breaker-adapter/lua/circuit-breaker-lua.js";
 import { circuitBreakerStateManagerLua } from "@/circuit-breaker/implementations/adapters/redis-circuit-breaker-adapter/lua/circuit-breaker-state-manager-lua.js";
 import { circuitBreakerStorageLua } from "@/circuit-breaker/implementations/adapters/redis-circuit-breaker-adapter/lua/circuit-breaker-storage-lua.js";

@@ -61,8 +61,8 @@
     ],
     "exports": {
         "./backoff-policies": {
-            "types": "./dist/backoff-policies/_module-exports.d.ts",
-            "import": "./dist/backoff-policies/_module-exports.js"
+            "types": "./dist/backoff-policies/implementations/_module-exports.d.ts",
+            "import": "./dist/backoff-policies/implementations/_module-exports.js"
         },
         "./cache": {
             "types": "./dist/cache/implementations/derivables/_module-exports.d.ts",
@@ -325,8 +325,8 @@
             "import": "./dist/rate-limiter/implementations/test-utilities/_module-exports.js"
         },
         "./resilience": {
-            "types": "./dist/resilience/_module-exports.d.ts",
-            "import": "./dist/resilience/_module-exports.js"
+            "types": "./dist/resilience/implementations/_module-exports.d.ts",
+            "import": "./dist/resilience/implementations/_module-exports.js"
         },
         "./semaphore": {
             "types": "./dist/semaphore/implementations/derivables/_module-exports.d.ts",

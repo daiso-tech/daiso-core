@@ -9,7 +9,7 @@ import {
     resolveBackoffSettingsEnum,
     serializeBackoffSettingsEnum,
     type BackoffSettingsEnum,
-} from "@/backoff-policies/_module.js";
+} from "@/backoff-policies/implementations/_module.js";
 import {
     type CircuitBreakerStateTransition,
     type ICircuitBreakerAdapter,
