@@ -5,7 +5,7 @@
 import {
     exponentialBackoff,
     type BackoffPolicy,
-} from "@/backoff-policies/_module.js";
+} from "@/backoff-policies/implementations/_module.js";
 import {
     type ICircuitBreakerAdapter,
     type ICircuitBreakerStorageAdapter,

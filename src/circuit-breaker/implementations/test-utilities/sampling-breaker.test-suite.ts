@@ -13,7 +13,7 @@ import {
 import {
     BACKOFFS,
     type ConstantBackoffSettingsEnum,
-} from "@/backoff-policies/_module.js";
+} from "@/backoff-policies/implementations/_module.js";
 import { type ICircuitBreakerAdapter } from "@/circuit-breaker/contracts/_module.js";
 import {
     BREAKER_POLICIES,
