@@ -19,8 +19,12 @@ import {
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type Use } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { type Plugin, type Use } from "@/middleware/contracts/_module.js";
+import {
+    applyPlugins,
+    enhanceFactory,
+    useFactory,
+} from "@/middleware/implementations/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
@@ -57,6 +61,11 @@ import {
  * @group Derivables
  */
 export type SharedLockFactorySettingsBase = {
+    /**
+     * @default []
+     */
+    plugins?: OneOrMore<Plugin<ISharedLockAdapter>>;
+
     /**
      * @default
      * ```ts
@@ -219,6 +228,7 @@ export class SharedLockFactory implements ISharedLockFactory {
      */
     constructor(settings: SharedLockFactorySettings) {
         const {
+            plugins = [],
             defaultTtl = TimeSpan.fromMinutes(5),
             defaultRefreshTime = TimeSpan.fromMinutes(5),
             createLockId = () => v4(),
@@ -246,7 +256,11 @@ export class SharedLockFactory implements ISharedLockFactory {
         this.serdeTransformerName = serdeTransformerName;
 
         this.originalAdapter = adapter;
-        this.adapter = resolveSharedLockAdapter(adapter);
+        this.adapter = applyPlugins(
+            enhanceFactory(this.use),
+            plugins,
+            resolveSharedLockAdapter(adapter),
+        );
         this.registerToSerde();
     }
 
