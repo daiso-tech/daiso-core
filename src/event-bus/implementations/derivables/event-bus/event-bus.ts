@@ -18,6 +18,12 @@ import { ListenerStore } from "@/event-bus/implementations/derivables/event-bus/
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
+import { type Plugin } from "@/middleware/contracts/_module.js";
+import {
+    applyPlugins,
+    enhanceFactory,
+    useFactory,
+} from "@/middleware/implementations/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import {
@@ -26,6 +32,7 @@ import {
     type OneOrArray,
     type InvokableFn,
     resolveOneOrMore,
+    type OneOrMore,
 } from "@/utilities/_module.js";
 
 /**
@@ -49,6 +56,11 @@ export type EventMapSchema<TEventMap extends BaseEventMap = BaseEventMap> = {
 export type EventBusSettingsBase<
     TEventMap extends BaseEventMap = BaseEventMap,
 > = {
+    /**
+     * @default []
+     */
+    plugins?: OneOrMore<Plugin<IEventBusAdapter>>;
+
     /**
      * You can provide any [standard schema](https://standardschema.dev/) compliant object to validate all input and output data to ensure runtime type safety.
      */
@@ -138,6 +150,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
      */
     constructor(settings: EventBusSettings<TEventMap>) {
         const {
+            plugins = [],
             __onUncaughtRejection = (error) => {
                 console.error(
                     `An error of type "${String(error)}" occurred in event listener`,
@@ -155,7 +168,11 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         this.executionContext = executionContext;
         this.shouldValidateOutput = shouldValidateOutput;
         this.eventMapSchema = eventMapSchema;
-        this.adapter = adapter;
+        this.adapter = applyPlugins(
+            enhanceFactory(useFactory({ executionContext })),
+            plugins,
+            adapter,
+        );
         this.namespace = namespace;
         this.__onUncaughtRejection = __onUncaughtRejection;
     }
