@@ -17,6 +17,12 @@ import {
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
+import { type Plugin } from "@/middleware/contracts/_module.js";
+import {
+    applyPlugins,
+    enhanceFactory,
+    useFactory,
+} from "@/middleware/implementations/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import {
@@ -48,6 +54,11 @@ import {
  * @group Derivables
  */
 export type RateLimiterFactorySettingsBase = {
+    /**
+     * @default []
+     */
+    plugins?: OneOrMore<Plugin<IRateLimiterAdapter>>;
+
     /**
      * @default
      * ```ts
@@ -200,6 +211,7 @@ export class RateLimiterFactory implements IRateLimiterFactory {
      */
     constructor(settings: RateLimiterFactorySettings) {
         const {
+            plugins = [],
             enableAsyncTracking = true,
             namespace = new NoOpNamespace(),
             eventBus = new NoOpEventBusAdapter(),
@@ -220,7 +232,11 @@ export class RateLimiterFactory implements IRateLimiterFactory {
         this.enableAsyncTracking = enableAsyncTracking;
         this.namespace = namespace;
         this.eventBus = resolveEventBusInput(namespace, eventBus);
-        this.adapter = adapter;
+        this.adapter = applyPlugins(
+            enhanceFactory(useFactory({ executionContext })),
+            plugins,
+            adapter,
+        );
         this.onlyError = onlyError;
         this.defaultErrorPolicy = defaultErrorPolicy;
         this.serde = serde;
