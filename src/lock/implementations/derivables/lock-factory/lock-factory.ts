@@ -34,8 +34,12 @@ import {
 import { LockSerdeTransformer } from "@/lock/implementations/derivables/lock-factory/lock-serde-transformer.js";
 import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
 import { resolveLockAdapter } from "@/lock/implementations/derivables/lock-factory/resolve-lock-adapter.js";
-import { type Use } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { type Plugin, type Use } from "@/middleware/contracts/_module.js";
+import {
+    applyPlugins,
+    enhanceFactory,
+    useFactory,
+} from "@/middleware/implementations/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
@@ -60,6 +64,11 @@ import {
  * @group Derivables
  */
 export type LockFactorySettingsBase = {
+    /**
+     * @default []
+     */
+    plugins?: OneOrMore<Plugin<ILockAdapter>>;
+
     /**
      * @default
      * ```ts
@@ -222,6 +231,7 @@ export class LockFactory implements ILockFactory {
      */
     constructor(settings: LockFactorySettings) {
         const {
+            plugins = [],
             defaultTtl = TimeSpan.fromMinutes(5),
             defaultRefreshTime = TimeSpan.fromMinutes(5),
             createLockId = () => v4(),
@@ -249,7 +259,11 @@ export class LockFactory implements ILockFactory {
         this.serdeTransformerName = serdeTransformerName;
 
         this.originalAdapter = adapter;
-        this.adapter = resolveLockAdapter(adapter);
+        this.adapter = applyPlugins(
+            enhanceFactory(this.use),
+            plugins,
+            resolveLockAdapter(adapter),
+        );
         this.registerToSerde();
     }
 
