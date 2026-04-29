@@ -19,8 +19,12 @@ import {
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type Use } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { type Plugin, type Use } from "@/middleware/contracts/_module.js";
+import {
+    applyPlugins,
+    enhanceFactory,
+    useFactory,
+} from "@/middleware/implementations/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import {
@@ -60,6 +64,11 @@ import {
  * @group Derivables
  */
 export type SemaphoreFactorySettingsBase = {
+    /**
+     * @default []
+     */
+    plugins?: OneOrMore<Plugin<ISemaphoreAdapter>>;
+
     /**
      * @default
      * ```ts
@@ -222,6 +231,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
      */
     constructor(settings: SemaphoreFactorySettings) {
         const {
+            plugins = [],
             createSlotId = () => v4(),
             defaultTtl = TimeSpan.fromMinutes(5),
             defaultRefreshTime = TimeSpan.fromMinutes(5),
@@ -249,7 +259,11 @@ export class SemaphoreFactory implements ISemaphoreFactory {
         this.serdeTransformerName = serdeTransformerName;
 
         this.originalAdapter = adapter;
-        this.adapter = resolveSemaphoreAdapter(adapter);
+        this.adapter = applyPlugins(
+            enhanceFactory(this.use),
+            plugins,
+            resolveSemaphoreAdapter(adapter),
+        );
 
         this.registerToSerde();
     }
