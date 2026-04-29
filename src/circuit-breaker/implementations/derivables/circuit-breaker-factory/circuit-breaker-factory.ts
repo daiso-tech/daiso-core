@@ -29,6 +29,12 @@ import {
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
+import { type Plugin } from "@/middleware/contracts/_module.js";
+import {
+    applyPlugins,
+    enhanceFactory,
+    useFactory,
+} from "@/middleware/implementations/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
@@ -41,6 +47,7 @@ import {
     defaultWaitUntil,
     resolveOneOrMore,
     type ErrorPolicy,
+    type OneOrArray,
     type OneOrMore,
     type WaitUntil,
 } from "@/utilities/_module.js";
@@ -52,6 +59,8 @@ import {
  * @group Derivables
  */
 export type CircuitBreakerFactorySettingsBase = {
+    plugins?: OneOrArray<Plugin<ICircuitBreakerAdapter>>;
+
     /**
      * @default
      * ```ts
@@ -227,6 +236,7 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
      */
     constructor(settings: CircuitBreakerFactorySettings) {
         const {
+            plugins = [],
             enableAsyncTracking = true,
             namespace = new NoOpNamespace(),
             eventBus = new NoOpEventBusAdapter(),
@@ -247,7 +257,11 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
         this.enableAsyncTracking = enableAsyncTracking;
         this.namespace = namespace;
         this.eventBus = resolveEventBusInput(namespace, eventBus);
-        this.adapter = adapter;
+        this.adapter = applyPlugins(
+            enhanceFactory(useFactory({ executionContext })),
+            plugins,
+            adapter,
+        );
         this.defaultSlowCallTime = TimeSpan.fromTimeSpan(defaultSlowCallTime);
         this.defaultTrigger = defaultTrigger;
         this.defaultErrorPolicy = defaultErrorPolicy;
