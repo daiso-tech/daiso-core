@@ -48,6 +48,12 @@ import {
     type LockFactory,
     resolveLockFactoryInput,
 } from "@/lock/implementations/derivables/_module.js";
+import { type Plugin } from "@/middleware/contracts/_module.js";
+import {
+    applyPlugins,
+    enhanceFactory,
+    useFactory,
+} from "@/middleware/implementations/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -60,6 +66,7 @@ import {
     withJitter,
     type AsyncLazyable,
     type NoneFunc,
+    type OneOrMore,
     type WaitUntil,
 } from "@/utilities/_module.js";
 
@@ -71,6 +78,11 @@ import {
  * @group Derivables
  */
 export type CacheSettingsBase<TType = unknown> = {
+    /**
+     * @default []
+     */
+    plugins?: OneOrMore<Plugin<ICacheAdapter>>;
+
     /**
      * You can provide any [standard schema](https://standardschema.dev/) compliant object to validate all input and output data to ensure runtime type safety.
      */
@@ -226,6 +238,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
                 new NoOpExecutionContextAdapter(),
             ),
             lockFactory = new NoOpLockAdapter(),
+            plugins = [],
         } = settings;
 
         this.lockFactory = resolveLockFactoryInput(namespace, lockFactory);
@@ -237,7 +250,11 @@ export class Cache<TType = unknown> implements ICache<TType> {
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
         this.eventBus = resolveEventBusInput(namespace, eventBus);
-        this.adapter = resolveCacheAdapter(adapter);
+        this.adapter = applyPlugins(
+            enhanceFactory(useFactory({ executionContext })),
+            plugins,
+            resolveCacheAdapter(adapter),
+        );
         this.defaultJitter = defaultJitter;
     }
 
