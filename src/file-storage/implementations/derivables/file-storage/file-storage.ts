@@ -48,8 +48,16 @@ import {
     type LockFactory,
     resolveLockFactoryInput,
 } from "@/lock/implementations/derivables/_module.js";
-import { type MiddlewareFn, type Use } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
+import {
+    type MiddlewareFn,
+    type Plugin,
+    type Use,
+} from "@/middleware/contracts/_module.js";
+import {
+    applyPlugins,
+    enhanceFactory,
+    useFactory,
+} from "@/middleware/implementations/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
@@ -96,6 +104,11 @@ export type FileKeyValidator = InvokableFn<[key: string], string | null>;
  * @group Derivables
  */
 export type FileStorageSettingsBase = {
+    /**
+     * @default []
+     */
+    plugins?: OneOrMore<Plugin<ISignedFileStorageAdapter>>;
+
     /**
      * The default content type to be used when it cannot be infered by file extension.
      *
@@ -288,6 +301,7 @@ export class FileStorage implements IFileStorage {
      */
     constructor(settings: FileStorageSettings) {
         const {
+            plugins = [],
             adapter,
             namespace = new NoOpNamespace(),
             eventBus = new NoOpEventBusAdapter(),
@@ -320,7 +334,11 @@ export class FileStorage implements IFileStorage {
         this.defaultContentEncoding = defaultContentEncoding;
         this.defaultCacheControl = defaultCacheControl;
         this.defaultContentLanguage = defaultContentLanguage;
-        this.adapter = resolveFileStorageAdapter(adapter, urlAdapter);
+        this.adapter = applyPlugins(
+            enhanceFactory(this.use),
+            plugins,
+            resolveFileStorageAdapter(adapter, urlAdapter),
+        );
         this.namespace = namespace;
         this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.serde = serde;
