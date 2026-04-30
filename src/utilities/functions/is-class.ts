@@ -6,12 +6,12 @@
  * @module Utilities
  */
 
-import  { type AnyClass } from "@/utilities/types/_module.js";
+import  { type Class } from "@/utilities/types/_module.js";
 
 /**
  * 
  * @internal
  */
-export function isClass(value: unknown): value is AnyClass {
+export function isClass(value: unknown): value is Class {
     return (value as any)?.prototype?.constructor?.toString().startsWith("class");
 }

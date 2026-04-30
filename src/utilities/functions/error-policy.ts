@@ -14,7 +14,7 @@ import {
     resolveOneOrMore,
     type OneOrMore,
 } from "@/utilities/functions/resolve-one-or-more.js";
-import { type AnyClass } from "@/utilities/types/_module.js";
+import { type Class } from "@/utilities/types/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
@@ -51,7 +51,7 @@ export function isErrorPolicyBoolSetting(
 export type ErrorPolicy<TError = unknown> =
     | Invokable<[error: TError], boolean>
     | StandardSchemaV1<TError>
-    | OneOrMore<AnyClass>
+    | OneOrMore<Class>
     | ErrorPolicyBoolSetting;
 
 /**
