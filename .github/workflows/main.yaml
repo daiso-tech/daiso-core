@@ -116,4 +116,4 @@ jobs:
               run: npm ci
 
             - name: Testing
-              run: npx vitest --run --changed ${{ github.base_ref }} --passWithNoTests
+              npx tsx --tsconfig ./tsconfig.json scripts/run-changed-tests.ts --branch ${{ github.base_ref }}
