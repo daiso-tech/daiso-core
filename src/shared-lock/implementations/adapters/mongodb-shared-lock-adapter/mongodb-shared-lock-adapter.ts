@@ -18,9 +18,13 @@ import {
 } from "@/shared-lock/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
+    OPTION,
+    optionNone,
+    optionSome,
     UnexpectedError,
     type IDeinitizable,
     type IInitizable,
+    type Option,
 } from "@/utilities/_module.js";
 
 /**
@@ -973,6 +977,74 @@ export class MongodbSharedLockAdapter
         );
     }
 
+    private static extractWriterState(
+        reader: MongodbReaderSemaphoreDocument | null,
+        writer: MongodbWriterLockSubDocument | null,
+    ): Option<ISharedLockAdapterState | null> {
+        if (reader === null && writer !== null && writer.expiration === null) {
+            return optionSome({
+                reader: null,
+                writer: {
+                    owner: writer.owner,
+                    expiration: writer.expiration,
+                },
+            });
+        }
+        if (
+            reader === null &&
+            writer !== null &&
+            writer.expiration !== null &&
+            writer.expiration <= new Date()
+        ) {
+            return optionSome(null);
+        }
+        if (writer !== null) {
+            return optionSome({
+                reader: null,
+                writer: {
+                    owner: writer.owner,
+                    expiration: writer.expiration,
+                },
+            });
+        }
+        return optionNone();
+    }
+
+    private static extractReaderState(
+        reader: MongodbReaderSemaphoreDocument | null,
+        writer: MongodbWriterLockSubDocument | null,
+    ): Option<ISharedLockAdapterState | null> {
+        const unexpiredSlots = reader?.slots.filter((slot) => {
+            return slot.expiration === null || slot.expiration > new Date();
+        });
+        if (
+            writer === null &&
+            reader !== null &&
+            unexpiredSlots !== undefined &&
+            unexpiredSlots.length === 0
+        ) {
+            return optionSome(null);
+        }
+        if (
+            writer === null &&
+            reader !== null &&
+            unexpiredSlots !== undefined
+        ) {
+            return optionSome({
+                writer: null,
+                reader: {
+                    limit: reader.limit,
+                    acquiredSlots: new Map(
+                        unexpiredSlots.map(
+                            (slot) => [slot.id, slot.expiration] as const,
+                        ),
+                    ),
+                },
+            });
+        }
+        return optionNone();
+    }
+
     async getState(
         _context: IReadableContext,
         key: string,
@@ -993,60 +1065,20 @@ export class MongodbSharedLockAdapter
 
         const { writer, reader } = sharedLock;
 
-        const unexpiredSlots = reader?.slots.filter((slot) => {
-            return slot.expiration === null || slot.expiration > new Date();
-        });
-        if (
-            writer === null &&
-            reader !== null &&
-            unexpiredSlots !== undefined &&
-            unexpiredSlots.length === 0
-        ) {
-            return null;
-        }
-        if (
-            writer === null &&
-            reader !== null &&
-            unexpiredSlots !== undefined
-        ) {
-            return {
-                writer: null,
-                reader: {
-                    limit: reader.limit,
-                    acquiredSlots: new Map(
-                        unexpiredSlots.map(
-                            (slot) => [slot.id, slot.expiration] as const,
-                        ),
-                    ),
-                },
-            };
+        const writerState = MongodbSharedLockAdapter.extractWriterState(
+            reader,
+            writer,
+        );
+        if (writerState.type === OPTION.SOME) {
+            return writerState.value;
         }
 
-        if (reader === null && writer !== null && writer.expiration === null) {
-            return {
-                reader: null,
-                writer: {
-                    owner: writer.owner,
-                    expiration: writer.expiration,
-                },
-            };
-        }
-        if (
-            reader === null &&
-            writer !== null &&
-            writer.expiration !== null &&
-            writer.expiration <= new Date()
-        ) {
-            return null;
-        }
-        if (writer !== null) {
-            return {
-                reader: null,
-                writer: {
-                    owner: writer.owner,
-                    expiration: writer.expiration,
-                },
-            };
+        const ReaderState = MongodbSharedLockAdapter.extractReaderState(
+            reader,
+            writer,
+        );
+        if (ReaderState.type === OPTION.SOME) {
+            return ReaderState.value;
         }
 
         throw new UnexpectedError(

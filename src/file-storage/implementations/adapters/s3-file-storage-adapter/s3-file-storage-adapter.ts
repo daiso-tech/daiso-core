@@ -15,7 +15,6 @@ import {
     type S3Client,
     S3ServiceException,
     type ServerSideEncryption,
-    NotFound,
     CreateBucketCommand,
     DeleteBucketCommand,
 } from "@aws-sdk/client-s3";
@@ -237,6 +236,18 @@ export class S3FileStorageAdapter
         }
     }
 
+    private static throwUnlessS3StatusError(
+        error: unknown,
+        statusCode: number,
+    ): void {
+        if (!(error instanceof S3ServiceException)) {
+            throw error;
+        }
+        if (error.$metadata.httpStatusCode !== statusCode) {
+            throw error;
+        }
+    }
+
     async getPublicUrl(
         context: IReadableContext,
         key: string,
@@ -313,9 +324,7 @@ export class S3FileStorageAdapter
             );
             return response.$metadata.httpStatusCode === 200;
         } catch (error: unknown) {
-            if (!(error instanceof NotFound)) {
-                throw error;
-            }
+            S3FileStorageAdapter.throwUnlessS3StatusError(error, 404);
             return false;
         }
     }
@@ -336,12 +345,7 @@ export class S3FileStorageAdapter
             }
             return response.Body.transformToWebStream();
         } catch (error: unknown) {
-            if (!(error instanceof S3ServiceException)) {
-                throw error;
-            }
-            if (error.$metadata.httpStatusCode !== 404) {
-                throw error;
-            }
+            S3FileStorageAdapter.throwUnlessS3StatusError(error, 404);
             return null;
         }
     }
@@ -362,12 +366,7 @@ export class S3FileStorageAdapter
             }
             return await response.Body.transformToByteArray();
         } catch (error: unknown) {
-            if (!(error instanceof S3ServiceException)) {
-                throw error;
-            }
-            if (error.$metadata.httpStatusCode !== 404) {
-                throw error;
-            }
+            S3FileStorageAdapter.throwUnlessS3StatusError(error, 404);
             return null;
         }
     }
@@ -404,12 +403,7 @@ export class S3FileStorageAdapter
                 updatedAt: response.LastModified,
             } satisfies FileAdapterMetadata;
         } catch (error: unknown) {
-            if (!(error instanceof S3ServiceException)) {
-                throw error;
-            }
-            if (error.$metadata.httpStatusCode !== 404) {
-                throw error;
-            }
+            S3FileStorageAdapter.throwUnlessS3StatusError(error, 404);
             return null;
         }
     }
@@ -436,12 +430,7 @@ export class S3FileStorageAdapter
             );
             return true;
         } catch (error: unknown) {
-            if (!(error instanceof S3ServiceException)) {
-                throw error;
-            }
-            if (error.$metadata.httpStatusCode !== 412) {
-                throw error;
-            }
+            S3FileStorageAdapter.throwUnlessS3StatusError(error, 412);
             return false;
         }
     }
@@ -472,12 +461,7 @@ export class S3FileStorageAdapter
             );
             return true;
         } catch (error: unknown) {
-            if (!(error instanceof S3ServiceException)) {
-                throw error;
-            }
-            if (error.$metadata.httpStatusCode !== 412) {
-                throw error;
-            }
+            S3FileStorageAdapter.throwUnlessS3StatusError(error, 412);
             return false;
         }
     }
@@ -504,12 +488,7 @@ export class S3FileStorageAdapter
             );
             return true;
         } catch (error: unknown) {
-            if (!(error instanceof S3ServiceException)) {
-                throw error;
-            }
-            if (error.$metadata.httpStatusCode !== 404) {
-                throw error;
-            }
+            S3FileStorageAdapter.throwUnlessS3StatusError(error, 404);
             return false;
         }
     }
@@ -540,38 +519,15 @@ export class S3FileStorageAdapter
             );
             return true;
         } catch (error: unknown) {
-            if (!(error instanceof S3ServiceException)) {
-                throw error;
-            }
-            if (error.$metadata.httpStatusCode !== 404) {
-                throw error;
-            }
+            S3FileStorageAdapter.throwUnlessS3StatusError(error, 404);
             return false;
         }
     }
 
-    async put(
-        _context: IReadableContext,
+    private async accuratePut(
         key: string,
         content: WritableFileAdapterContent,
     ): Promise<boolean> {
-        if (!this.enableAccuratePut) {
-            await this.client.send(
-                new PutObjectCommand({
-                    ServerSideEncryption: this.serverSideEncryption,
-                    Bucket: this.bucket,
-                    Key: key,
-                    Body: content.data,
-                    ContentType: content.contentType,
-                    CacheControl: content.cacheControl ?? undefined,
-                    ContentDisposition: content.contentDisposition ?? undefined,
-                    ContentEncoding: content.contentEncoding ?? undefined,
-                    ContentLanguage: content.contentLanguage ?? undefined,
-                }),
-            );
-            return true;
-        }
-
         try {
             await this.client.send(
                 new PutObjectCommand({
@@ -589,12 +545,7 @@ export class S3FileStorageAdapter
             );
             return false;
         } catch (error: unknown) {
-            if (!(error instanceof S3ServiceException)) {
-                throw error;
-            }
-            if (error.$metadata.httpStatusCode !== 412) {
-                throw error;
-            }
+            S3FileStorageAdapter.throwUnlessS3StatusError(error, 412);
 
             await this.client.send(
                 new PutObjectCommand({
@@ -613,28 +564,43 @@ export class S3FileStorageAdapter
         }
     }
 
-    async putStream(
+    private async unaccuratePut(
+        key: string,
+        content: WritableFileAdapterContent,
+    ): Promise<boolean> {
+        await this.client.send(
+            new PutObjectCommand({
+                ServerSideEncryption: this.serverSideEncryption,
+                Bucket: this.bucket,
+                Key: key,
+                Body: content.data,
+                ContentType: content.contentType,
+                CacheControl: content.cacheControl ?? undefined,
+                ContentDisposition: content.contentDisposition ?? undefined,
+                ContentEncoding: content.contentEncoding ?? undefined,
+                ContentLanguage: content.contentLanguage ?? undefined,
+            }),
+        );
+        return true;
+    }
+
+    async put(
+        _context: IReadableContext,
+        key: string,
+        content: WritableFileAdapterContent,
+    ): Promise<boolean> {
+        if (!this.enableAccuratePut) {
+            return await this.unaccuratePut(key, content);
+        }
+
+        return await this.accuratePut(key, content);
+    }
+
+    private async accuratePutStream(
         context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
     ): Promise<boolean> {
-        if (!this.enableAccuratePut) {
-            await this.client.send(
-                new PutObjectCommand({
-                    ServerSideEncryption: this.serverSideEncryption,
-                    Bucket: this.bucket,
-                    Key: key,
-                    Body: Readable.from(stream.data),
-                    ContentType: stream.contentType,
-                    CacheControl: stream.cacheControl ?? undefined,
-                    ContentDisposition: stream.contentDisposition ?? undefined,
-                    ContentEncoding: stream.contentEncoding ?? undefined,
-                    ContentLanguage: stream.contentLanguage ?? undefined,
-                }),
-            );
-            return true;
-        }
-
         const exists = await this.exists(context, key);
         await this.client.send(
             new PutObjectCommand({
@@ -654,6 +620,38 @@ export class S3FileStorageAdapter
             }),
         );
         return exists;
+    }
+
+    private async unaccuratePutStream(
+        key: string,
+        stream: WritableFileAdapterStream,
+    ): Promise<boolean> {
+        await this.client.send(
+            new PutObjectCommand({
+                ServerSideEncryption: this.serverSideEncryption,
+                Bucket: this.bucket,
+                Key: key,
+                Body: Readable.from(stream.data),
+                ContentType: stream.contentType,
+                CacheControl: stream.cacheControl ?? undefined,
+                ContentDisposition: stream.contentDisposition ?? undefined,
+                ContentEncoding: stream.contentEncoding ?? undefined,
+                ContentLanguage: stream.contentLanguage ?? undefined,
+            }),
+        );
+        return true;
+    }
+
+    async putStream(
+        context: IReadableContext,
+        key: string,
+        stream: WritableFileAdapterStream,
+    ): Promise<boolean> {
+        if (!this.enableAccuratePut) {
+            return await this.unaccuratePutStream(key, stream);
+        }
+
+        return await this.accuratePutStream(context, key, stream);
     }
 
     async copy(
@@ -682,13 +680,8 @@ export class S3FileStorageAdapter
             );
             return FILE_WRITE_ENUM.SUCCESS;
         } catch (error: unknown) {
-            if (!(error instanceof S3ServiceException)) {
-                throw error;
-            }
-            if (error.$metadata.httpStatusCode === 404) {
-                return FILE_WRITE_ENUM.NOT_FOUND;
-            }
-            throw error;
+            S3FileStorageAdapter.throwUnlessS3StatusError(error, 404);
+            return FILE_WRITE_ENUM.NOT_FOUND;
         }
     }
 
@@ -708,12 +701,7 @@ export class S3FileStorageAdapter
             );
             return true;
         } catch (error: unknown) {
-            if (!(error instanceof S3ServiceException)) {
-                throw error;
-            }
-            if (error.$metadata.httpStatusCode !== 404) {
-                throw error;
-            }
+            S3FileStorageAdapter.throwUnlessS3StatusError(error, 404);
             return false;
         }
     }

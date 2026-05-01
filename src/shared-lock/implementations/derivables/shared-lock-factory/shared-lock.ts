@@ -17,13 +17,9 @@ import {
     SHARED_LOCK_STATE,
     type ISharedLock,
     type ISharedLockAdapter,
+    type ISharedLockAdapterState,
     type ISharedLockExpiredState,
-    type ISharedLockReaderAcquiredState,
-    type ISharedLockReaderLimitReachedState,
-    type ISharedLockReaderUnacquiredState,
     type ISharedLockState,
-    type ISharedLockWriterAcquiredState,
-    type ISharedLockWriterUnavailableState,
     type SharedLockAdapterVariants,
     type SharedLockEventMap,
 } from "@/shared-lock/contracts/_module.js";
@@ -35,9 +31,13 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callInvokable,
+    OPTION,
+    optionNone,
+    optionSome,
     resolveLazyable,
     UnexpectedError,
     type AsyncLazy,
+    type Option,
     type WaitUntil,
 } from "@/utilities/_module.js";
 
@@ -490,6 +490,79 @@ export class SharedLock implements ISharedLock {
         ])();
     }
 
+    private extractWriterState(
+        state: ISharedLockAdapterState,
+    ): Option<ISharedLockState> {
+        if (state.writer && state.writer.owner === this.lockId) {
+            return optionSome({
+                type: SHARED_LOCK_STATE.WRITER_ACQUIRED,
+                remainingTime:
+                    state.writer.expiration === null
+                        ? null
+                        : TimeSpan.fromDateRange({
+                              start: new Date(),
+                              end: state.writer.expiration,
+                          }),
+            });
+        }
+
+        if (state.writer && state.writer.owner !== this.lockId) {
+            return optionSome({
+                type: SHARED_LOCK_STATE.WRITER_UNAVAILABLE,
+                owner: state.writer.owner,
+            });
+        }
+
+        return optionNone();
+    }
+
+    private extractReaderState(
+        state: ISharedLockAdapterState,
+    ): Option<ISharedLockState> {
+        if (
+            state.reader !== null &&
+            state.reader.acquiredSlots.size >= state.reader.limit
+        ) {
+            return optionSome({
+                type: SHARED_LOCK_STATE.READER_LIMIT_REACHED,
+                limit: state.reader.limit,
+                acquiredSlots: [...state.reader.acquiredSlots.keys()],
+            });
+        }
+
+        const slotExpiration = state.reader?.acquiredSlots.get(this.lockId);
+        if (state.reader !== null && slotExpiration === undefined) {
+            return optionSome({
+                type: SHARED_LOCK_STATE.READER_UNACQUIRED,
+                limit: state.reader.limit,
+                freeSlotsCount:
+                    state.reader.limit - state.reader.acquiredSlots.size,
+                acquiredSlotsCount: state.reader.acquiredSlots.size,
+                acquiredSlots: [...state.reader.acquiredSlots.keys()],
+            });
+        }
+
+        if (state.reader !== null && slotExpiration !== undefined) {
+            return optionSome({
+                type: SHARED_LOCK_STATE.READER_ACQUIRED,
+                acquiredSlots: [...state.reader.acquiredSlots.keys()],
+                acquiredSlotsCount: state.reader.acquiredSlots.size,
+                freeSlotsCount:
+                    state.reader.limit - state.reader.acquiredSlots.size,
+                limit: state.reader.limit,
+                remainingTime:
+                    slotExpiration === null
+                        ? null
+                        : TimeSpan.fromDateRange({
+                              start: new Date(),
+                              end: slotExpiration,
+                          }),
+            });
+        }
+
+        return optionNone();
+    }
+
     getState(): Promise<ISharedLockState> {
         return this.use<[], Promise<ISharedLockState>>(async () => {
             const state = await this.adapter.getState(
@@ -502,65 +575,14 @@ export class SharedLock implements ISharedLock {
                 } satisfies ISharedLockExpiredState;
             }
 
-            if (state.writer && state.writer.owner === this.lockId) {
-                return {
-                    type: SHARED_LOCK_STATE.WRITER_ACQUIRED,
-                    remainingTime:
-                        state.writer.expiration === null
-                            ? null
-                            : TimeSpan.fromDateRange({
-                                  start: new Date(),
-                                  end: state.writer.expiration,
-                              }),
-                } satisfies ISharedLockWriterAcquiredState;
+            const writerState = this.extractWriterState(state);
+            if (writerState.type === OPTION.SOME) {
+                return writerState.value;
             }
 
-            if (state.writer && state.writer.owner !== this.lockId) {
-                return {
-                    type: SHARED_LOCK_STATE.WRITER_UNAVAILABLE,
-                    owner: state.writer.owner,
-                } satisfies ISharedLockWriterUnavailableState;
-            }
-
-            if (
-                state.reader !== null &&
-                state.reader.acquiredSlots.size >= state.reader.limit
-            ) {
-                return {
-                    type: SHARED_LOCK_STATE.READER_LIMIT_REACHED,
-                    limit: state.reader.limit,
-                    acquiredSlots: [...state.reader.acquiredSlots.keys()],
-                } satisfies ISharedLockReaderLimitReachedState;
-            }
-
-            const slotExpiration = state.reader?.acquiredSlots.get(this.lockId);
-            if (state.reader !== null && slotExpiration === undefined) {
-                return {
-                    type: SHARED_LOCK_STATE.READER_UNACQUIRED,
-                    limit: state.reader.limit,
-                    freeSlotsCount:
-                        state.reader.limit - state.reader.acquiredSlots.size,
-                    acquiredSlotsCount: state.reader.acquiredSlots.size,
-                    acquiredSlots: [...state.reader.acquiredSlots.keys()],
-                } satisfies ISharedLockReaderUnacquiredState;
-            }
-
-            if (state.reader !== null && slotExpiration !== undefined) {
-                return {
-                    type: SHARED_LOCK_STATE.READER_ACQUIRED,
-                    acquiredSlots: [...state.reader.acquiredSlots.keys()],
-                    acquiredSlotsCount: state.reader.acquiredSlots.size,
-                    freeSlotsCount:
-                        state.reader.limit - state.reader.acquiredSlots.size,
-                    limit: state.reader.limit,
-                    remainingTime:
-                        slotExpiration === null
-                            ? null
-                            : TimeSpan.fromDateRange({
-                                  start: new Date(),
-                                  end: slotExpiration,
-                              }),
-                } satisfies ISharedLockReaderAcquiredState;
+            const readerState = this.extractReaderState(state);
+            if (readerState.type === OPTION.SOME) {
+                return readerState.value;
             }
 
             throw new UnexpectedError(

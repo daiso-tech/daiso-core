@@ -32,6 +32,7 @@ export type PackageType = {
     exports?: PackageExportsType;
 };
 
+// eslint-disable-next-line sonarjs/cyclomatic-complexity
 async function main() {
     try {
         // Use import.meta.url to get the directory of this script (ESM compatible, cross-platform)

@@ -78,6 +78,38 @@ export type SamplingBreakerSettings = {
 /**
  * @internal
  */
+function validateFailureThreshold(failureThreshold: number): void {
+    if (Number.isInteger(failureThreshold)) {
+        throw new TypeError(
+            `"SamplingBreakerSettings.failureThreshold" should be a float, got integer instead`,
+        );
+    }
+    if (failureThreshold <= 0 || failureThreshold >= 1) {
+        throw new RangeError(
+            `"SamplingBreakerSettings.failureThreshold" should be between 0 and 1, got ${String(failureThreshold)}`,
+        );
+    }
+}
+
+/**
+ * @internal
+ */
+function validateSuccessThreshold(successThreshold: number): void {
+    if (Number.isInteger(successThreshold)) {
+        throw new TypeError(
+            `"SamplingBreakerSettings.successThreshold" should be a float, got integer instead`,
+        );
+    }
+    if (successThreshold <= 0 || successThreshold >= 1) {
+        throw new RangeError(
+            `"SamplingBreakerSettings.successThreshold" should be between 0 and 1, got ${String(successThreshold)}`,
+        );
+    }
+}
+
+/**
+ * @internal
+ */
 export function resolveSamplingBreakerSettings(
     settings: SamplingBreakerSettings,
 ): Required<SamplingBreakerSettings> {
@@ -89,27 +121,8 @@ export function resolveSamplingBreakerSettings(
         minimumRps = 10,
     } = settings;
 
-    if (Number.isInteger(failureThreshold)) {
-        throw new TypeError(
-            `"SamplingBreakerSettings.failureThreshold" should be a float, got integer instead`,
-        );
-    }
-    if (failureThreshold <= 0 || failureThreshold >= 1) {
-        throw new RangeError(
-            `"SamplingBreakerSettings.failureThreshold" should be between 0 and 1, got ${String(failureThreshold)}`,
-        );
-    }
-
-    if (Number.isInteger(successThreshold)) {
-        throw new TypeError(
-            `"SamplingBreakerSettings.successThreshold" should be a float, got integer instead`,
-        );
-    }
-    if (successThreshold <= 0 || successThreshold >= 1) {
-        throw new RangeError(
-            `"SamplingBreakerSettings.successThreshold" should be between 0 and 1, got ${String(successThreshold)}`,
-        );
-    }
+    validateFailureThreshold(failureThreshold);
+    validateSuccessThreshold(failureThreshold);
 
     return {
         failureThreshold,
