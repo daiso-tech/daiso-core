@@ -105,10 +105,6 @@
             "types": "./dist/cache/implementations/test-utilities/_module-exports.d.ts",
             "import": "./dist/cache/implementations/test-utilities/_module-exports.js"
         },
-        "./codec": {
-            "types": "./dist/codec/implementations/derivables/_module-exports.d.ts",
-            "import": "./dist/codec/implementations/derivables/_module-exports.js"
-        },
         "./codec/contracts": {
             "types": "./dist/codec/contracts/_module-exports.d.ts",
             "import": "./dist/codec/contracts/_module-exports.js"
