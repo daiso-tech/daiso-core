@@ -6,3 +6,4 @@ docs
 website/.docusaurus
 website/.build
 !website/docs
+tsconfig.tsbuildinfo
