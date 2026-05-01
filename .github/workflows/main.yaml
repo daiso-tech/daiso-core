@@ -1,6 +1,6 @@
 on: pull_request
 
-concurrency: 
+concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 
@@ -11,6 +11,11 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Fetch Base Branch
+              run: git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
 
             - name: Install Node js
               uses: actions/setup-node@v4
@@ -21,14 +26,19 @@ jobs:
               run: npm ci
 
             - name: Linting
-              run: npx tsx --tsconfig ./tsconfig.json scripts/run-changed.ts --script \"npx eslint\" --extension \"js,jsx,ts,tsx\" --branch ${{ github.base_ref }}
+              run: npx tsx --tsconfig ./tsconfig.json ./scripts/run-changed.ts --script "npx eslint" --extension "js,jsx,ts,tsx" --branch ${{ github.base_ref }}
 
     format:
-        name: Formating
+        name: Formatting
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Fetch Base Branch
+              run: git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
 
             - name: Install Node js
               uses: actions/setup-node@v4
@@ -38,8 +48,8 @@ jobs:
             - name: Install Dependencies
               run: npm ci
 
-            - name: Formating
-              run: npx tsx --tsconfig ./tsconfig.json scripts/run-changed.ts --script \"npx prettier --check\" --extension \"json,md,mdx\" --branch ${{ github.base_ref }}
+            - name: Formatting
+              run: npx tsx --tsconfig ./tsconfig.json ./scripts/run-changed.ts --script "npx prettier --check" --extension "json,md,mdx" --branch ${{ github.base_ref }}
 
     package_json_exports_check:
         name: Package json exports check
@@ -116,4 +126,4 @@ jobs:
               run: npm ci
 
             - name: Testing
-              npx tsx --tsconfig ./tsconfig.json scripts/run-changed-tests.ts --branch ${{ github.base_ref }}
+              run: npx tsx --tsconfig ./tsconfig.json ./scripts/run-changed-tests.ts --branch ${{ github.base_ref }}
