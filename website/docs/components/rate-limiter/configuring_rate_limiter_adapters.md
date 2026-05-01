@@ -3,31 +3,31 @@ sidebar_position: 3
 sidebar_label: Configuring adapters
 pagination_label: Configuring rate-limiter adapters
 tags:
- - Rate-limiter
- - Configuring adapters
- - In-memory
- - Mongodb
- - Redis
- - Kysely
- - Sqlite
- - Mysql
- - Postgres
- - Sqlite
- - Libsql
- - NoOp
+    - Rate-limiter
+    - Configuring adapters
+    - In-memory
+    - Mongodb
+    - Redis
+    - Kysely
+    - Sqlite
+    - Mysql
+    - Postgres
+    - Sqlite
+    - Libsql
+    - NoOp
 keywords:
- - Rate-limiter
- - Configuring adapters
- - In-memory
- - Mongodb
- - Redis
- - Kysely
- - Sqlite
- - Mysql
- - Postgres
- - Sqlite
- - Libsql
- - NoOp
+    - Rate-limiter
+    - Configuring adapters
+    - In-memory
+    - Mongodb
+    - Redis
+    - Kysely
+    - Sqlite
+    - Mysql
+    - Postgres
+    - Sqlite
+    - Libsql
+    - NoOp
 ---
 
 # Configuring rate-limiter adapters
@@ -44,7 +44,7 @@ import Redis from "ioredis";
 
 const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
 const redisRateLimiterAdapter = new RedisRateLimiterAdapter({
-    database
+    database,
 });
 ```
 
@@ -62,11 +62,11 @@ const redisRateLimiterAdapter = new RedisRateLimiterAdapter({
         type: BACKOFFS.CONSTANT,
         delay: TimeSpan.fromSeconds(1),
         jitter: 0.5,
-    }
+    },
 });
 ```
 
-The settings are the same as [backoff policies](../backoff_policies.md) settings. 
+The settings are the same as [backoff policies](../backoff_policies.md) settings.
 
 ### Configuring rate-limiter policy
 
@@ -82,11 +82,11 @@ const redisRateLimiterAdapter = new RedisRateLimiterAdapter({
         type: POLICIES.SLIDING_WINDOW,
         failureThreshold: 5,
         successThreshold: 5,
-    }
+    },
 });
 ```
 
-The settings are the same as [rate-limiter policies](./configuring_rate_limiter_policies.md) settings. 
+The settings are the same as [rate-limiter policies](./configuring_rate_limiter_policies.md) settings.
 
 ## DatabaseRateLimiterAdapter
 
@@ -106,7 +106,7 @@ const rateLimiterStorageAdapter = new MemoryRateLimiterStorageAdapter();
 import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
 
 const rateLimiterAdapter = new DatabaseRateLimiterAdapter({
-  adapter: rateLimiterStorageAdapter
+    adapter: rateLimiterStorageAdapter,
 });
 ```
 
@@ -116,11 +116,11 @@ You can use any of defined [backoff policies](../backoff_policies.md).
 
 ```ts
 import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-import { constantBackoff } from "@daiso-tech/core/backoff-policies"
+import { constantBackoff } from "@daiso-tech/core/backoff-policies";
 
 const rateLimiterAdapter = new DatabaseRateLimiterAdapter({
-  adapter: rateLimiterStorageAdapter,
-  backoffPolicy: constantBackoff()
+    adapter: rateLimiterStorageAdapter,
+    backoffPolicy: constantBackoff(),
 });
 ```
 
@@ -130,11 +130,11 @@ You can use any of defined [rate-limiter policies](./configuring_rate_limiter_po
 
 ```ts
 import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-import { SlidingWindowLimiter } from "@daiso-tech/core/rate-limiter/policies"
+import { SlidingWindowLimiter } from "@daiso-tech/core/rate-limiter/policies";
 
 const rateLimiterAdapter = new DatabaseRateLimiterAdapter({
-  adapter: rateLimiterStorageAdapter,
-  rateLimiterPolicy: new SlidingWindowLimiter()
+    adapter: rateLimiterStorageAdapter,
+    rateLimiterPolicy: new SlidingWindowLimiter(),
 });
 ```
 
@@ -162,7 +162,7 @@ To use the `KyselyRateLimiterStorageAdapter`, you'll need to:
 
 3. Provide a string serializer ([`ISerde`](../serde.md)):
 
--   We recommend using `SuperJsonSerdeAdapter` for this purpose
+- We recommend using `SuperJsonSerdeAdapter` for this purpose
 
 ```ts
 import { Serde } from "@daiso-tech/core/serde";
@@ -189,7 +189,7 @@ const kysely = new Kysely({
 });
 const kyselyRateLimiterStorageAdapter = new KyselyRateLimiterStorageAdapter({
     kysely,
-    serde
+    serde,
 });
 
 // You need initialize the adapter once before using it.
@@ -223,7 +223,7 @@ const kysely = new Kysely({
 });
 const kyselyRateLimiterStorageAdapter = new KyselyRateLimiterStorageAdapter({
     kysely,
-    serde
+    serde,
 });
 
 // You need initialize the adapter once before using it.
@@ -257,7 +257,7 @@ const kysely = new Kysely({
 });
 const kyselyRateLimiterStorageAdapter = new KyselyRateLimiterStorageAdapter({
     kysely,
-    serde
+    serde,
 });
 
 // You need initialize the adapter once before using it.
@@ -282,7 +282,7 @@ const kysely = new Kysely({
 });
 const kyselyRateLimiterStorageAdapter = new KyselyRateLimiterStorageAdapter({
     kysely,
-    serde
+    serde,
 });
 
 // You need initialize the adapter once before using it.
@@ -291,6 +291,7 @@ await kyselyRateLimiterStorageAdapter.init();
 ```
 
 ## MemoryRateLimiterStorageAdapter
+
 To use the `MemoryRateLimiterStorageAdapter` you only need to create instance of it:
 
 ```ts
@@ -305,7 +306,9 @@ You can also provide an `Map` that will be used for storing the data in memory:
 import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
 
 const map = new Map<any, any>();
-const memoryRateLimiterStorageAdapter = new MemoryRateLimiterStorageAdapter(map);
+const memoryRateLimiterStorageAdapter = new MemoryRateLimiterStorageAdapter(
+    map,
+);
 ```
 
 :::info
@@ -322,7 +325,7 @@ To use the `MongodbRateLimiterStorageAdapter`, you'll need to:
 
 3. Provide a string serializer ([`ISerde`](../serde.md)):
 
--   We recommend using `SuperJsonSerdeAdapter` for this purpose
+- We recommend using `SuperJsonSerdeAdapter` for this purpose
 
 ```ts
 import { MongodbRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/mongodb-rate-limiter-storage-adapter";
@@ -333,7 +336,7 @@ const database = client.db("database");
 const mongodbRateLimiterStorageAdapter = new MongodbRateLimiterStorageAdapter({
     client,
     database,
-    serde
+    serde,
 });
 
 // You need initialize the adapter once before using it.

@@ -3,7 +3,9 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
     test: {
+        forceRerunTriggers: ["./src/**/*"],
         exclude: [
+            "./package.json",
             "./.changeset/**",
             "./.github/**",
             "./.vscode/**",

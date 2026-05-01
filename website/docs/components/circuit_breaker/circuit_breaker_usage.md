@@ -3,13 +3,13 @@ sidebar_position: 1
 sidebar_label: Usage
 pagination_label: Circuit-breaker Usage
 tags:
- - Circuit-breaker
- - Usage
- - Namespace
+    - Circuit-breaker
+    - Usage
+    - Namespace
 keywords:
- - Circuit-breaker
- - Usage
- - Namespace
+    - Circuit-breaker
+    - Usage
+    - Namespace
 ---
 
 # Circuit-breaker usage
@@ -30,13 +30,13 @@ const circuitBreakerFactory = new CircuitBreakerFactory({
     // You can provide default settings
     // You can choose the adapter to use
     adapter: new DatabaseCircuitBreakerAdapter({
-        adapter: new MemoryCircuitBreakerStorageAdapter()
+        adapter: new MemoryCircuitBreakerStorageAdapter(),
     }),
 });
 ```
 
 :::info
-Here is a complete list of settings for the [`CircuitBreakerFactory`](https://daiso-tech.github.io/daiso-core/types/CircuitBreaker.CircuitBreakerFactorySettingsBase.html) class. 
+Here is a complete list of settings for the [`CircuitBreakerFactory`](https://daiso-tech.github.io/daiso-core/types/CircuitBreaker.CircuitBreakerFactorySettingsBase.html) class.
 :::
 
 ## Circuit-breaker basics
@@ -53,7 +53,7 @@ const circuitBreaker = circuitBreakerFactory.create("resource");
 // The function will only be called when the circuit-breaker is in closed state or half open state.
 await circuitBreaker.runOrFail(async () => {
     // Call the external service
-})
+});
 ```
 
 :::info
@@ -70,11 +70,11 @@ You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TVa
 class ErrorA extends Error {}
 
 const circuitBreaker = circuitBreakerFactory.create("resource", {
-    errorPolicy: ErrorA
+    errorPolicy: ErrorA,
 });
 await circuitBreaker.runOrFail(async () => {
     // Call the external service
-})
+});
 ```
 
 ### Setting circuit-breaker triggers
@@ -87,11 +87,11 @@ The `CIRCUIT_BREAKER_TRIGGER.BOTH` will treat error and slow calls as failures.
 import { CIRCUIT_BREAKER_TRIGGER } from "@daiso-tech/core/circuit-breaker/contracts";
 
 const circuitBreaker = circuitBreakerFactory.create("resource", {
-    trigger: CIRCUIT_BREAKER_TRIGGER.BOTH
+    trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
 });
 await circuitBreaker.runOrFail(async () => {
     // Call the external service
-})
+});
 ```
 
 The `CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR` will treat only errors as failures.
@@ -100,11 +100,11 @@ The `CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR` will treat only errors as failures.
 import { CIRCUIT_BREAKER_TRIGGER } from "@daiso-tech/core/circuit-breaker/contracts";
 
 const circuitBreaker = circuitBreakerFactory.create("resource", {
-    trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR
+    trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
 });
 await circuitBreaker.runOrFail(async () => {
     // Call the external service
-})
+});
 ```
 
 The `CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL` will treat slow calls as failures.
@@ -113,11 +113,11 @@ The `CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL` will treat slow calls as failures.
 import { CIRCUIT_BREAKER_TRIGGER } from "@daiso-tech/core/circuit-breaker/contracts";
 
 const circuitBreaker = circuitBreakerFactory.create("resource", {
-    trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL
+    trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
 });
 await circuitBreaker.runOrFail(async () => {
     // Call the external service
-})
+});
 ```
 
 ### Setting the slow call threshold
@@ -128,11 +128,11 @@ You can set custom slow call threshold that will be used when treating slow call
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const circuitBreaker = circuitBreakerFactory.create("resource", {
-    trigger: TimeSpan.fromSeconds(1)
+    trigger: TimeSpan.fromSeconds(1),
 });
 await circuitBreaker.runOrFail(async () => {
     // Call the external service
-})
+});
 ```
 
 ### Reseting the circuit-breaker
@@ -161,16 +161,18 @@ import { CIRCUIT_BREAKER_STATE } from "@daiso-tech/core/circuit-breaker/contract
 const state = await circuitBreaker.getState();
 
 if (state === CIRCUIT_BREAKER_STATE.CLOSED) {
-    console.log("The service is up and running without problems")
+    console.log("The service is up and running without problems");
 }
 if (state === CIRCUIT_BREAKER_STATE.OPEN) {
-    console.log("The service is down or degraded and you need to wait")
+    console.log("The service is down or degraded and you need to wait");
 }
 if (state === CIRCUIT_BREAKER_STATE.HALF_OPEN) {
-    console.log("Proping to check if the server is up and running or down / degraded")
+    console.log(
+        "Proping to check if the server is up and running or down / degraded",
+    );
 }
 if (state === CIRCUIT_BREAKER_STATE.ISOLATED) {
-    console.log("The service is held in open state manually until reseted")
+    console.log("The service is held in open state manually until reseted");
 }
 ```
 
@@ -216,23 +218,27 @@ const circuitBreakerFactoryB = new CircuitBreakerFactory({
     adapter: new RedisCircuitBreakerAdapter({ database }),
 });
 
-const circuitBreakerA = await circuitBreakerFactoryA.create("key", { ttl: null });
-const circuitBreakerB = await circuitBreakerFactoryB.create("key", { ttl: null });
+const circuitBreakerA = await circuitBreakerFactoryA.create("key", {
+    ttl: null,
+});
+const circuitBreakerB = await circuitBreakerFactoryB.create("key", {
+    ttl: null,
+});
 
 await circuitBreakerA.isolate();
 
 // Will log ISOLATED
-console.log(await circuitBreakerA.getState())
+console.log(await circuitBreakerA.getState());
 
 // Will log CLOSED
-console.log(await circuitBreakerB.getState())
+console.log(await circuitBreakerB.getState());
 ```
 
 ### Serialization and deserialization of circuit-breakers
 
 circuit-breakers can be serialized, allowing them to be transmitted over the network to another server and later deserialized for reuse.
 This means you can, for example, acquire the circuit-breaker on the main server, transfer it to a queue worker server, and release it there.
-In order to serialize or deserialize a circuit-breaker you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `CircuitBreakerFactory`. 
+In order to serialize or deserialize a circuit-breaker you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `CircuitBreakerFactory`.
 
 Manually serializing and deserializing the circuit-breaker:
 
@@ -304,12 +310,14 @@ await eventBus.dispatch("sending-circuit-breaker-over-network", {
 });
 
 // The other servers will recieve the serialized circuitBreaker and automattically deserialize it.
-await eventBus.addListener("sending-circuit-breaker-over-network", ({ circuitBreaker }) => {
-    // The circuitBreaker is deserialized and can be used
-    console.log("CIRCUIT_BREAKER:", circuitBreaker);
-});
+await eventBus.addListener(
+    "sending-circuit-breaker-over-network",
+    ({ circuitBreaker }) => {
+        // The circuitBreaker is deserialized and can be used
+        console.log("CIRCUIT_BREAKER:", circuitBreaker);
+    },
+);
 ```
-
 
 ### Circuit-breaker events
 
@@ -319,19 +327,27 @@ Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to lear
 ```ts
 import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
 import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
-import { CircuitBreakerFactory, CIRCUIT_BREAKER_EVENTS } from "@daiso-tech/core/circuit-breaker";
+import {
+    CircuitBreakerFactory,
+    CIRCUIT_BREAKER_EVENTS,
+} from "@daiso-tech/core/circuit-breaker";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 
 const circuitBreakerFactory = new CircuitBreakerFactory({
-    adapter: new DatabaseCircuitBreakerAdapter({ 
-        adapter: new MemoryCircuitBreakerStorageAdapter()
+    adapter: new DatabaseCircuitBreakerAdapter({
+        adapter: new MemoryCircuitBreakerStorageAdapter(),
     }),
-    eventBus: new MemoryEventBusAdapter()
+    eventBus: new MemoryEventBusAdapter(),
 });
 
-await circuitBreakerFactory.events.addListener(CIRCUIT_BREAKER_EVENTS.STATE_TRANSITIONED, (event) => {
-    console.log(`State transitioned occurred. from ${event.from} to ${event.to}`);
-});
+await circuitBreakerFactory.events.addListener(
+    CIRCUIT_BREAKER_EVENTS.STATE_TRANSITIONED,
+    (event) => {
+        console.log(
+            `State transitioned occurred. from ${event.from} to ${event.to}`,
+        );
+    },
+);
 
 await circuitBreakerFactory.create("a").isolate();
 ```
@@ -357,12 +373,12 @@ const redisPubSubEventBusAdapter = new RedisPubSubEventBusAdapter({
 });
 
 const memoryCircuitBreakerFactory = new CircuitBreakerFactory({
-    adapter: new DatabaseCircuitBreakerAdapter({ 
-        adapter: new MemoryCircuitBreakerStorageAdapter()
+    adapter: new DatabaseCircuitBreakerAdapter({
+        adapter: new MemoryCircuitBreakerStorageAdapter(),
     }),
     // We assign distinct namespaces to DatabaseCircuitBreakerAdapter and RedisCircuitBreakerAdapter to isolate their events.
     namespace: new Namespace(["memory", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 
 const redisCircuitBreakerAdapter = new RedisCircuitBreakerAdapter({
@@ -373,7 +389,7 @@ const redisCircuitBreakerFactory = new CircuitBreakerFactory({
     adapter: redisCircuitBreakerAdapter,
     // We assign distinct namespaces to DatabaseCircuitBreakerAdapter and RedisCircuitBreakerAdapter to isolate their events.
     namespace: new Namespace(["redis", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 ```
 
@@ -403,13 +419,17 @@ import {
     CIRCUIT_BREAKER_EVENTS,
 } from "@daiso-tech/core/circuit-breaker/contracts";
 
-async function circuitBreakerFunc(circuitBreaker: ICircuitBreaker): Promise<void> {
+async function circuitBreakerFunc(
+    circuitBreaker: ICircuitBreaker,
+): Promise<void> {
     await circuitBreaker.runOrFail(async () => {
         // ... cascading failures section
     });
 }
 
-async function circuitBreakerFactoryFunc(circuitBreakerFactory: ICircuitBreakerFactoryBase): Promise<void> {
+async function circuitBreakerFactoryFunc(
+    circuitBreakerFactory: ICircuitBreakerFactoryBase,
+): Promise<void> {
     // You cannot access the listener methods
     // You will get typescript error if you try
 
@@ -423,21 +443,25 @@ async function circuitBreakerListenableFunc(
     // You cannot access the circuitBreakerFactory methods
     // You will get typescript error if you try
 
-    await circuitBreakerListenable.addListener(CIRCUIT_BREAKER_EVENTS.STATE_TRANSITIONED, (event) => {
-        console.log(`State transitioned occurred. from ${event.from} to ${event.to}`);
-    });
+    await circuitBreakerListenable.addListener(
+        CIRCUIT_BREAKER_EVENTS.STATE_TRANSITIONED,
+        (event) => {
+            console.log(
+                `State transitioned occurred. from ${event.from} to ${event.to}`,
+            );
+        },
+    );
 }
 
 const circuitBreakerFactory = new CircuitBreakerFactory({
     adapter: new DatabaseCircuitBreakerAdapter({
         adapter: new MemoryCircuitBreakerStorageAdapter(),
     }),
-    eventBus: new MemoryEventBusAdapter()
-})
+    eventBus: new MemoryEventBusAdapter(),
+});
 await circuitBreakerListenableFunc(circuitBreakerFactory.events);
 await circuitBreakerFactoryFunc(circuitBreakerFactory);
 ```
-
 
 ## Further information
 

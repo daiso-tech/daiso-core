@@ -11,7 +11,6 @@ keywords:
 
 # Middleware
 
-
 The `@daiso-tech/core/middleware` module provides a flexible middleware system for intercepting and composing function calls. It enables you to wrap functions with pre-processing and post-processing logic, similar to middleware patterns found in web frameworks like Express.js.
 
 ## UseFactory configuration
@@ -339,7 +338,6 @@ const errorHandlingMiddleware = createErrorHandlingMiddleware((error) =>
 );
 ```
 
-
 ### Enhancing Methods with `enhanceFactory`
 
 The `enhanceFactory` function provides a convenient way to apply middleware to methods of class instances, enabling interception and augmentation of method calls without manually wrapping each function.
@@ -351,7 +349,7 @@ The `enhanceFactory` function provides a convenient way to apply middleware to m
 #### Signature
 
 ```ts
-function enhanceFactory(use: Use): Enhance
+function enhanceFactory(use: Use): Enhance;
 ```
 
 #### Usage Example
@@ -372,7 +370,10 @@ class Greeter {
 const greeter = new Greeter();
 
 // Example middleware that logs calls
-function loggingMiddleware<TParameters extends Array<unknown>, TReturn>(): MiddlewareFn<TParameters, TReturn> {
+function loggingMiddleware<
+    TParameters extends Array<unknown>,
+    TReturn,
+>(): MiddlewareFn<TParameters, TReturn> {
     return ({ args, next }) => {
         console.log("Calling greet with:", args);
         const result = next(args);
@@ -457,6 +458,7 @@ This pattern is useful for adding cross-cutting concerns (logging, validation, a
 ---
 
 ## UseFactory configuration
+
 ## Further information
 
 For further information refer to [`@daiso-tech/core/middleware`](https://daiso-tech.github.io/daiso-core/modules/Middleware.html) API docs.

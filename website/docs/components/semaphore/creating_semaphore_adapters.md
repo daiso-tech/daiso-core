@@ -3,13 +3,13 @@ sidebar_position: 4
 sidebar_label: Creating adapters
 pagination_label: Creating semaphore adapters
 tags:
- - Semaphore
- - Creating adapters
- - Creating database adapters
+    - Semaphore
+    - Creating adapters
+    - Creating database adapters
 keywords:
- - Semaphore
- - Creating adapters
- - Creating database adapters
+    - Semaphore
+    - Creating adapters
+    - Creating database adapters
 ---
 
 # Creating semaphore adapters

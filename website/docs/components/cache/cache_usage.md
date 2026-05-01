@@ -3,13 +3,13 @@ sidebar_position: 1
 sidebar_label: Usage
 pagination_label: Cache usage
 tags:
- - Cache
- - Usage
- - Namespace
+    - Cache
+    - Usage
+    - Namespace
 keywords:
- - Cache
- - Usage
- - Namespace
+    - Cache
+    - Usage
+    - Namespace
 ---
 
 # Cache usage
@@ -48,6 +48,7 @@ You can add a key with a optional TTL to overide the default:
 ```ts
 await cache.add("a", "value", { ttl: TimeSpan.fromSeconds("1") });
 ```
+
 The method returns true if the key does not exists.
 
 ### Retrieving keys
@@ -98,7 +99,6 @@ You can perform an upsert that replaces the ttl when updated. True will be retur
 await cache.put("a", 2);
 await cache.put("a", 4, { ttl: TimeSpan.fromSeconds(3) });
 ```
-
 
 ### Removing keys
 
@@ -222,11 +222,11 @@ const userSchema = z.object({
 // The type will be infered
 const cache = new Cache({
     adapter: new MemoryCacheAdapter(),
-    schema: userSchema
+    schema: userSchema,
 });
 
 // A typescript and runtime error will occur because the type is not matching.
-await cache.add("a", "asd")
+await cache.add("a", "asd");
 ```
 
 ### Additional methods
@@ -294,10 +294,10 @@ await cache.removeOrFail("ab");
 TTL jitter adds a small random offset to expiration times, which resolves the [cache stampede](https://en.wikipedia.org/wiki/Cache_stampede). When many cache keys expire at the same time, every client simultaneously misses the cache and floods the data source with requests. By spreading out expiration times, jitter ensures cache misses are staggered, distributing the load on your data source evenly over time.
 
 ```ts
-await cache.add("a", 1, { 
+await cache.add("a", 1, {
     ttl: TimeSpan.fromMinutes(1),
-    jitter: 0.2
-})
+    jitter: 0.2,
+});
 ```
 
 :::info
@@ -318,7 +318,9 @@ import Redis from "ioredis";
 
 const cache = new Cache({
     adapter: new MemoryCacheAdapter(),
-    lockFactory: new RedisLockAdapter(new Redis("YOUR_REDIS_CONNECTION_STRING")),
+    lockFactory: new RedisLockAdapter(
+        new Redis("YOUR_REDIS_CONNECTION_STRING"),
+    ),
 });
 ```
 
@@ -400,7 +402,6 @@ console.log(await cacheA.get("key"));
 You can listen to different [cache events](https://daiso-tech.github.io/daiso-core/modules/Cache.html) that are triggered by the `Cache` instance.
 Refer to the [`@daiso-tech/core/event-bus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` or `IEventBusAdapter` contract.
 
-
 ```ts
 import { CACHE_EVENTS } from "@daiso-tech/core/cache/contracts";
 
@@ -437,7 +438,7 @@ const memoryCache = new Cache({
     adapter: memoryCacheAdapter,
     // We assign distinct namespaces to MemoryCacheAdapter and RedisCacheAdapter to isolate their events.
     namespace: new Namespace(["memory", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 
 const redisCacheAdapter = new RedisCacheAdapter({
@@ -448,7 +449,7 @@ const redisCache = new Cache({
     adapter: redisCacheAdapter,
     // We assign distinct namespaces to MemoryCacheAdapter and RedisCacheAdapter to isolate their events.
     namespace: new Namespace(["redis", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 ```
 
@@ -483,14 +484,14 @@ async function readingFunc(cache: IReadableCache): Promise<void> {
     // You cannot access write methods like put, add and update
     // You will get typescript error if you try
 
-    console.lolg("reading only:", await cache.get("a"))
+    console.lolg("reading only:", await cache.get("a"));
 }
 async function manipulatingFunc(cache: ICacheBase): Promise<void> {
     // You cannot access the listener methods
     // You will get typescript error if you try
 
     await cache.add("a", 1);
-    console.lolg("writing and reading:", await cache.get("a"))
+    console.lolg("writing and reading:", await cache.get("a"));
 }
 async function listenerFunc(cacheListenable: ICacheListenable): Promise<void> {
     // You cannot access the cache methods
@@ -503,8 +504,8 @@ async function listenerFunc(cacheListenable: ICacheListenable): Promise<void> {
 
 const cache = new Cache({
     adapter: new MemoryCacheAdapter(),
-    eventBus: new MemoryEventBus()
-})
+    eventBus: new MemoryEventBus(),
+});
 await listenerFunc(cache.events);
 await manipulatingFunc(cache);
 ```

@@ -6,8 +6,8 @@ sidebar_position: 1
 
 ## Prerequisites
 
--   Node.js installed (version 20.0.0)
--   npm/yarn/pnpm package manager
+- Node.js installed (version 20.0.0)
+- npm/yarn/pnpm package manager
 
 ## Install the Package
 

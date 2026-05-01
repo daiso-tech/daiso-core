@@ -3,12 +3,13 @@ sidebar_position: 2
 sidebar_label: Resolver classes
 pagination_label: Semaphore resolver classes
 tags:
- - Semaphore
- - Resolvers
+    - Semaphore
+    - Resolvers
 keywords:
- - Semaphore
- - Resolvers
+    - Semaphore
+    - Resolvers
 ---
+
 # SemaphoreFactoryResolver
 
 The `SemaphoreFactoryResolver` class provides a flexible way to configure and switch between different semaphore adapters at runtime.

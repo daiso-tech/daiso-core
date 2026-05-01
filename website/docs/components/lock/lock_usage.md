@@ -607,7 +607,7 @@ const memoryLockFactory = new LockFactory({
     adapter: memoryLockAdapter,
     // We assign distinct namespaces to MemoryLockAdapter and RedisLockAdapter to isolate their events.
     namespace: new Namespace(["memory", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 
 const redisLockAdapter = new RedisLockAdapter({
@@ -618,7 +618,7 @@ const redisLockFactory = new LockFactory({
     adapter: redisLockAdapter,
     // We assign distinct namespaces to MemoryLockAdapter and RedisLockAdapter to isolate their events.
     namespace: new Namespace(["redis", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 ```
 
