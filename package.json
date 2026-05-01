@@ -443,7 +443,7 @@
     },
     "scripts": {
         "test": "npx vitest run",
-        "check": "npx tsc --project \"./tsconfig.json\" --branch origin/main",
+        "check": "npx tsc --project \"./tsconfig.json\"",
         "_test:changed": "npx vitest --run --changed origin/main",
         "test:changed": "npx tsx scripts/run-changed-tests.ts --branch origin/main",
         "lint": "npx eslint \"**/*.{js,jsx,ts,tsx}\"",
