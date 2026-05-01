@@ -3,11 +3,11 @@ sidebar_position: 2
 sidebar_label: Resolver classes
 pagination_label: Lock resolver classes
 tags:
- - Lock
- - Resolver
+    - Lock
+    - Resolver
 keywords:
- - Lock
- - Resolver
+    - Lock
+    - Resolver
 ---
 
 # LockFactoryResolver
@@ -69,7 +69,7 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 ### 3. Overriding default settings
 
 ```ts
-import { Namespace } from "@daiso-tech/core/namespace"
+import { Namespace } from "@daiso-tech/core/namespace";
 
 await lockFactoryResolver
     .setNamespace(new Namespace("@my-namespace"))

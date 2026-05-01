@@ -1,8 +1,8 @@
 ---
 tags:
- - Utilities
+    - Utilities
 keywords:
- - Utilities
+    - Utilities
 ---
 
 # Resilience
@@ -134,7 +134,7 @@ By default, a `RetryResilienceError` is thrown when the time window expires. Thi
 const fn = use(unstableFn, [
     retry({
         maxAttempts: 4,
-        throwLastError: true
+        throwLastError: true,
     }),
 ]);
 
@@ -331,15 +331,12 @@ await fn();
 You can add callback [`Invokable`](../utilities/invokable.md) that will be called before the timeout occurs.
 
 ```ts
-const fn = use(
-    fetchData,
-    [
-        timeout({
-            waitTime: TimeSpan.fromSeconds(2),
-            onTimeout: (data) => console.log(data),
-        }),
-    ],
-);
+const fn = use(fetchData, [
+    timeout({
+        waitTime: TimeSpan.fromSeconds(2),
+        onTimeout: (data) => console.log(data),
+    }),
+]);
 
 await fn();
 ```

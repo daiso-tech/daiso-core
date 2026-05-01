@@ -264,7 +264,6 @@ Note the method throws an error when the semaphore cannot be acquired.
 You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as values for the `runOrFail` method.
 :::
 
-
 ### Semaphore instance variables
 
 The `Semaphore` class exposes instance variables such as:
@@ -689,7 +688,7 @@ const memorySemaphoreFactory = new SemaphoreFactory({
     adapter: memorySemaphoreAdapter,
     // We assign distinct namespaces to MemorySemaphoreAdapter and RedisSemaphoreAdapter to isolate their events.
     namespace: new Namespace(["memory", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 
 const redisSemaphoreAdapter = new RedisSemaphoreAdapter({
@@ -700,7 +699,7 @@ const redisSemaphoreFactory = new SemaphoreFactory({
     adapter: redisSemaphoreAdapter,
     // We assign distinct namespaces to MemorySemaphoreAdapter and RedisSemaphoreAdapter to isolate their events.
     namespace: new Namespace(["redis", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 ```
 

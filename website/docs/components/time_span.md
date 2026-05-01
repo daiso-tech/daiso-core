@@ -1,8 +1,8 @@
 ---
 tags:
- - Utilities
+    - Utilities
 keywords:
- - Utilities
+    - Utilities
 ---
 
 # TimeSpan
@@ -63,7 +63,7 @@ const timeSpan = TimeSpan.fromDateRange({
 Creating `TimeSpan` from `string`:
 
 ```ts
-const timeSpan = TimeSpan.fromStr("5s")
+const timeSpan = TimeSpan.fromStr("5s");
 ```
 
 :::info
@@ -283,7 +283,10 @@ Note `TimeSpan` class implements `ITimeSpan` contract.
 The `ITimeSpan` contract requires you to implement the `TO_MILLISECONDS` method on the duration object, which must return the duration in milliseconds.
 
 ```ts
-import { ITimeSpan, TO_MILLISECONDS } from "@daiso-tech/core/time-span/contracts";
+import {
+    ITimeSpan,
+    TO_MILLISECONDS,
+} from "@daiso-tech/core/time-span/contracts";
 
 export class Duration implements ITimeSpan {
     constructor(private readonly timeInMs: number) {}

@@ -6,7 +6,7 @@
     },
     "overrides": [
         {
-            "files": ["src/**/*.ts", "vite.config.ts"],
+            "files": ["src/**/*.ts", "vite.config.ts", "scripts/**/*.ts"],
             "plugins": [
                 "@typescript-eslint",
                 "typescript-enum",

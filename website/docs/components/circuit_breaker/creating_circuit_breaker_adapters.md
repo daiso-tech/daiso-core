@@ -3,13 +3,13 @@ sidebar_position: 5
 sidebar_label: Creating adapters
 pagination_label: Creating circuit-breaker adapters
 tags:
- - Circuit-breaker
- - Creating adapters
- - Creating database adapters
+    - Circuit-breaker
+    - Creating adapters
+    - Creating database adapters
 keywords:
- - Circuit-breaker
- - Creating adapters
- - Creating database adapters
+    - Circuit-breaker
+    - Creating adapters
+    - Creating database adapters
 ---
 
 # Creating circuit-breaker adapters
@@ -17,7 +17,6 @@ keywords:
 ## Implementing your custom ICircuitBreakerAdapter
 
 In order to create an adapter you need to implement the [`ICircuitBreakerAdapter`](https://daiso-tech.github.io/daiso-core/types/CircuitBreaker.ICircuitBreakerAdapter.html) contract.
-
 
 ## Implementing your custom ICircuitBreakerStorageAdapter
 

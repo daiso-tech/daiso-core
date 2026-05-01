@@ -1,8 +1,8 @@
 ---
 tags:
- - Utilities
+    - Utilities
 keywords:
- - Utilities
+    - Utilities
 ---
 
 # Serde
@@ -133,6 +133,7 @@ To ensure correct serialization and deserialization, class names must be unique.
 ```ts
 serde.registerClass(User, "my-library");
 ```
+
 :::
 
 ## Patterns
@@ -178,15 +179,15 @@ Note you should use one `Serde` class instance accross all components and regist
 
 The library includes 4 additional contracts:
 
--   `ISerializer` - Allows only for serialization.
+- `ISerializer` - Allows only for serialization.
 
--   `IDeserializer` - Allows only for deserialization.
+- `IDeserializer` - Allows only for deserialization.
 
--   `ISerde` - Allows for both serialization and deserialization.
+- `ISerde` - Allows for both serialization and deserialization.
 
--   `ISerderRegister` - Allows only for registering custom serialization/deserialization logic.
+- `ISerderRegister` - Allows only for registering custom serialization/deserialization logic.
 
--   `IFlexibleSerde` – Allows for both serialization, deserialization and for registering custom serialization/deserialization and deserialization logic.
+- `IFlexibleSerde` – Allows for both serialization, deserialization and for registering custom serialization/deserialization and deserialization logic.
 
 This seperation makes it easy to visually distinguish the 4 contracts, making it immediately obvious that they serve different purposes.
 

@@ -3,11 +3,11 @@ sidebar_position: 4
 sidebar_label: Creating adapters
 pagination_label: Creating event-bus adapters
 tags:
- - Event-bus
- - Creating adapters
+    - Event-bus
+    - Creating adapters
 keywords:
- - Event-bus
- - Creating adapters
+    - Event-bus
+    - Creating adapters
 ---
 
 # Creating EventBus adapters

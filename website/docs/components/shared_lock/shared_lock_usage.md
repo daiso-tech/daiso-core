@@ -985,7 +985,7 @@ const redisPubSubEventBusAdapter = new MemoryEventBusAdapter();
 
 const sharedLock = new SharedLockFactory({
     adapter: new MemorySharedLockAdapter(),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 
 await sharedLockFactory.events.addListener(
@@ -1022,7 +1022,7 @@ const memorySharedLockFactory = new SharedLockFactory({
     adapter: memorySharedLockAdapter,
     // We assign distinct namespaces to MemorySharedLockAdapter and RedisSharedLockAdapter to isolate their events.
     namespace: new Namespace(["memory", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 
 const redisSharedLockAdapter = new RedisSharedLockAdapter({
@@ -1033,7 +1033,7 @@ const redisSharedLockFactory = new SharedLockFactory({
     adapter: redisSharedLockAdapter,
     // We assign distinct namespaces to MemorySharedLockAdapter and RedisSharedLockAdapter to isolate their events.
     namespace: new Namespace(["redis", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 ```
 

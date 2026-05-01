@@ -3,11 +3,11 @@ sidebar_position: 2
 sidebar_label: Resolver classes
 pagination_label: Cache resolver classes
 tags:
- - Cache
- - Resolvers
+    - Cache
+    - Resolvers
 keywords:
- - Cache
- - Resolvers
+    - Cache
+    - Resolvers
 ---
 
 # CacheResolver
