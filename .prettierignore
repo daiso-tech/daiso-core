@@ -2,7 +2,7 @@ node_modules
 dist
 package-lock.json
 CHANGELOG.md
-docs
+./docs
 website/.docusaurus
 website/.build
 !website/docs

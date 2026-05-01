@@ -1,4 +1,5 @@
 node_modules
 dist
 docs
+!website/docs
 tsconfig.tsbuildinfo
