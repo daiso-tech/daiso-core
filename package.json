@@ -105,9 +105,25 @@
             "types": "./dist/cache/implementations/test-utilities/_module-exports.d.ts",
             "import": "./dist/cache/implementations/test-utilities/_module-exports.js"
         },
+        "./codec": {
+            "types": "./dist/codec/implementations/derivables/_module-exports.d.ts",
+            "import": "./dist/codec/implementations/derivables/_module-exports.js"
+        },
+        "./codec/contracts": {
+            "types": "./dist/codec/contracts/_module-exports.d.ts",
+            "import": "./dist/codec/contracts/_module-exports.js"
+        },
+        "./codec/base-64-codec": {
+            "types": "./dist/codec/implementations/base-64-codec/_module-exports.d.ts",
+            "import": "./dist/codec/implementations/base-64-codec/_module-exports.js"
+        },
         "./circuit-breaker": {
             "types": "./dist/circuit-breaker/implementations/derivables/_module-exports.d.ts",
             "import": "./dist/circuit-breaker/implementations/derivables/_module-exports.js"
+        },
+        "./circuit-breaker/middlewares": {
+            "types": "./dist/circuit-breaker/implementations/middlewares/_module-exports.d.ts",
+            "import": "./dist/circuit-breaker/implementations/middlewares/_module-exports.js"
         },
         "./circuit-breaker/contracts": {
             "types": "./dist/circuit-breaker/contracts/_module-exports.d.ts",
@@ -228,6 +244,10 @@
         "./file-storage/s3-file-storage-adapter": {
             "types": "./dist/file-storage/implementations/adapters/s3-file-storage-adapter/_module-exports.d.ts",
             "import": "./dist/file-storage/implementations/adapters/s3-file-storage-adapter/_module-exports.js"
+        },
+        "./file-storage/test-utilities": {
+            "types": "./dist/file-storage/implementations/test-utilities/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/test-utilities/_module-exports.js"
         },
         "./lock": {
             "types": "./dist/lock/implementations/derivables/_module-exports.d.ts",
@@ -447,24 +467,25 @@
         "provenance": true
     },
     "scripts": {
+        "check-module-exports-files": "npx tsx --tsconfig ./tsconfig.json scripts/check-module-exports-files.ts",
         "test": "npx vitest run",
         "check": "npx tsc --project \"./tsconfig.json\"",
         "_test:changed": "npx vitest --run --changed origin/main",
-        "test:changed": "npx tsx scripts/run-changed-tests.ts --branch origin/main",
+        "test:changed": "npx tsx --tsconfig ./tsconfig.json scripts/run-changed-tests.ts --branch origin/main",
         "lint": "npx eslint \"**/*.{js,jsx,ts,tsx}\"",
-        "lint:changed": "npx tsx scripts/run-changed.ts --script \"npx eslint\" --extension \"js,jsx,ts,tsx\" --branch origin/main",
+        "lint:changed": "npx tsx --tsconfig ./tsconfig.json scripts/run-changed.ts --script \"npx eslint\" --extension \"js,jsx,ts,tsx\" --branch origin/main",
         "lint:fix": "npx eslint \"**/*.{js,jsx,ts,tsx}\" --fix",
-        "lint:fix:changed": "npx tsx scripts/run-changed.ts --script \"npx eslint --fix\" --extension \"js,jsx,ts,tsx\" --branch origin/main",
+        "lint:fix:changed": "npx tsx --tsconfig ./tsconfig.json scripts/run-changed.ts --script \"npx eslint --fix\" --extension \"js,jsx,ts,tsx\" --branch origin/main",
         "format": "npx prettier --check \"**/*.{json,md}\"",
-        "format:changed": "npx tsx scripts/run-changed.ts --script \"npx prettier --check\" --extension \"json,md\" --branch origin/main",
+        "format:changed": "npx tsx --tsconfig ./tsconfig.json scripts/run-changed.ts --script \"npx prettier --check\" --extension \"json,md\" --branch origin/main",
         "format:fix": "npx prettier --write \"**/*.{json,md}\"",
-        "format:fix:changed": "npx tsx scripts/run-changed.ts --script \"npx prettier --write\" --extension \"json,md\" --branch origin/main",
+        "format:fix:changed": "npx tsx --tsconfig ./tsconfig.json scripts/run-changed.ts --script \"npx prettier --write\" --extension \"json,md\" --branch origin/main",
         "build": "npx rimraf dist && npx tsc --project \"./tsconfig.build.json\" && npx tsc-alias -p \"./tsconfig.build.json\"",
         "publint": "npm run build && npx publint",
-        "check:all": "npm run check && npm run lint && npm run format && npm run test && npm run publint",
+        "check:all": "npm run check && npm run lint && npm run format && npm run test && npm run check-module-exports-files && npm run publint",
         "check:all:fix": "npm run check && npm run lint:fix && npm run format:fix && npm run test && npm run publint",
-        "check:all:changed": "npm run check && npm run lint:changed && npm run format:changed && npm run test:changed && npm run publint",
-        "check:all:fix:changed": "npm run check && npm run lint:fix:changed && npm run format:fix:changed && npm run test:changed && npm run publint",
+        "check:all:changed": "npm run check && npm run lint:changed && npm run format:changed && npm run test:changed && npm run check-module-exports-files && npm run publint",
+        "check:all:fix:changed": "npm run check && npm run lint:fix:changed && npm run format:fix:changed && npm run test:changed && npm run check-module-exports-files && npm run publint",
         "docs": "npx typedoc",
         "release": "npm run build && npx changeset publish"
     },
