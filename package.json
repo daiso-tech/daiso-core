@@ -57,7 +57,12 @@
         "multitenant",
         "duration",
         "time-span",
-        "typescript"
+        "typescript",
+        "file-storage",
+        "s3",
+        "aws-s3",
+        "local",
+        "file-system"
     ],
     "exports": {
         "./backoff-policies": {
@@ -457,7 +462,9 @@
         "build": "npx rimraf dist && npx tsc --project \"./tsconfig.build.json\" && npx tsc-alias -p \"./tsconfig.build.json\"",
         "publint": "npm run build && npx publint",
         "check:all": "npm run check && npm run lint && npm run format && npm run test && npm run publint",
+        "check:all:fix": "npm run check && npm run lint:fix && npm run format:fix && npm run test && npm run publint",
         "check:all:changed": "npm run check && npm run lint:changed && npm run format:changed && npm run test:changed && npm run publint",
+        "check:all:fix:changed": "npm run check && npm run lint:fix:changed && npm run format:fix:changed && npm run test:changed && npm run publint",
         "docs": "npx typedoc",
         "release": "npm run build && npx changeset publish"
     },
