@@ -3,13 +3,13 @@ sidebar_position: 1
 sidebar_label: Usage
 pagination_label: FileStorage usage
 tags:
- - FileStorage
- - Usage
- - Namespace
+    - FileStorage
+    - Usage
+    - Namespace
 keywords:
- - FileStorage
- - Usage
- - Namespace
+    - FileStorage
+    - Usage
+    - Namespace
 ---
 
 # FileStorage usage
@@ -33,6 +33,7 @@ const fileStorage = new FileStorage({
     adapter: new MemoryFileStorageAdapter(),
 });
 ```
+
 :::info
 Here is a complete list of settings for the [`FileStorage`](https://daiso-tech.github.io/daiso-core/types/FileStorage.FileStorage.html) class.
 :::
@@ -49,20 +50,24 @@ const file = fileStorage.create("file.txt");
 Note the file object represents a reference to a file and doesnt create the real underlying file.
 :::
 
-
 ### Writing buffered files
 
 You can add a file and true is returned if the file does not exists:
+
 ```ts
 const hasAdded = await fileStorage.create("file.txt").add({ data: "CONTENT" });
 ```
 
 You can update a file and true will be returned if the file exists and was updated:
+
 ```ts
-const hasUpdated = await fileStorage.create("file.txt").update({ data: "TEXT 1" });
+const hasUpdated = await fileStorage
+    .create("file.txt")
+    .update({ data: "TEXT 1" });
 ```
 
 You can upsert a file and true will be returned if the file was updated otherwise false is returned:
+
 ```ts
 const hasUpdated = await fileStorage.create("file.txt").put({ data: "TEXT 1" });
 const hasUpdated = await fileStorage.create("file.txt").put({ data: "TEXT 2" });
@@ -70,6 +75,7 @@ const hasUpdated = await fileStorage.create("file.txt").put({ data: "TEXT 2" });
 
 :::info
 Note you can pass the following types to `add`, `update`, `put` method:
+
 - `Buffer`
 - `ArrayBuffer`
 - `SharedArrayBuffer`
@@ -126,35 +132,47 @@ const hasAdded = await fileStorage.create("file.txt").add({
 ### Writing streamed files
 
 You can add a file stream and true is returned if the file does not exists:
+
 ```ts
-import { createReadStream } from "node:fs"
+import { createReadStream } from "node:fs";
 
-const fileStream = createReadStream("./file.txt")
+const fileStream = createReadStream("./file.txt");
 
-const hasAdded = await fileStorage.create("file.txt").addStream({ data: fileStream });
+const hasAdded = await fileStorage
+    .create("file.txt")
+    .addStream({ data: fileStream });
 ```
 
 You can update a file stream and true will be returned if the file exists and was updated:
+
 ```ts
-import { createReadStream } from "node:fs"
+import { createReadStream } from "node:fs";
 
-const fileStream = createReadStream("./file.txt")
+const fileStream = createReadStream("./file.txt");
 
-const hasUpdated = await fileStorage.create("file.txt").updateStream({ data: fileStream });
+const hasUpdated = await fileStorage
+    .create("file.txt")
+    .updateStream({ data: fileStream });
 ```
 
 You can upsert a file stream and true will be returned if the file was updated otherwise false is returned:
+
 ```ts
-import { createReadStream } from "node:fs"
+import { createReadStream } from "node:fs";
 
-const fileStream = createReadStream("./file.txt")
+const fileStream = createReadStream("./file.txt");
 
-const hasUpdated = await fileStorage.create("file.txt").putStream({ data: fileStream });
-const hasUpdated = await fileStorage.create("file.txt").putStream({ data: fileStream });
+const hasUpdated = await fileStorage
+    .create("file.txt")
+    .putStream({ data: fileStream });
+const hasUpdated = await fileStorage
+    .create("file.txt")
+    .putStream({ data: fileStream });
 ```
 
 :::info
 Note you can pass the following types to `addStream`, `updateStream`, `putStream` method:
+
 - `AsyncIteralbe<Buffer>`
 - `AsyncIteralbe<ArrayBuffer>`
 - `AsyncIteralbe<SharedArrayBuffer>`
@@ -211,6 +229,7 @@ const hasAdded = await fileStorage.create("file.txt").addStream({
 ```
 
 You can also pass the file size of the stream which used for optimizations by some adapters:
+
 ```ts
 import { createReadStream } from "node:fs"
 import { stat } from "node:fs/promises";
@@ -232,6 +251,7 @@ It is best practice to pass file size whenever possible because of the optimizat
 ### Retrieving files
 
 The file can be read as utf8 text:
+
 ```ts
 const content = await fileStorage.create("file.txt").getText();
 
@@ -239,6 +259,7 @@ console.log(content);
 ```
 
 The file can be read as `Uint8Array`:
+
 ```ts
 const content = await fileStorage.create("file.txt").getBytes();
 
@@ -246,6 +267,7 @@ console.log(content);
 ```
 
 The file can be read as node js `Buffer`:
+
 ```ts
 const content = await fileStorage.create("file.txt").getBuffer();
 
@@ -253,6 +275,7 @@ console.log(content);
 ```
 
 The file can be read as web `ArrayBuffer`:
+
 ```ts
 const content = await fileStorage.create("file.txt").getArrayBuffer();
 
@@ -260,6 +283,7 @@ console.log(content);
 ```
 
 The file can be read as node js stream:
+
 ```ts
 const content = await fileStorage.create("file.txt").getReadable();
 
@@ -267,6 +291,7 @@ console.log(content);
 ```
 
 The file can be read as web stream:
+
 ```ts
 const content = await fileStorage.create("file.txt").getReadableStream();
 
@@ -294,33 +319,38 @@ const missing = await fileStorage.create("file.txt").missing();
 ### Removing files
 
 You can remove a file and true will be returned if the file exists and was removed:
+
 ```ts
 const hasRemoved = await fileStorage.create("file.txt").remove();
-console.log(hasRemoved)
+console.log(hasRemoved);
 ```
 
 You can remove multiple files and true will be returned when at least one file exists and was removed:
+
 ```ts
 const hasRemovedAtLeastOne = await fileStorage.removeMany([
     fileStorage.create("file-1.txt"),
     fileStorage.create("file-2.txt"),
-    fileStorage.create("file-3.txt")
-])
-console.log(hasRemovedAtLeastOne)
+    fileStorage.create("file-3.txt"),
+]);
+console.log(hasRemovedAtLeastOne);
 ```
 
 ### Retrieving file metadata
 
 You can retrieve the file metadata. Null is returned if the file doesnt exists:
+
 ```ts
 const metadata = await fileStorage.create("file.txt").getMetadata();
 console.log(metadata);
 ```
+
 The `getMetadata` returns [FileMetadata](https://daiso-tech.github.io/daiso-core/types/FileStorage.FileMetadata.html) type.
 
 ## Patterns
 
 ### Additional methods
+
 These variants are equivalent to the standard methods but throw an error if the file does not exist and in case of `addOrFail` it throws error if the file exists.
 
 - `getTextOfFail`
@@ -337,29 +367,39 @@ These variants are equivalent to the standard methods but throw an error if the 
 - `getMetadataOrFail`
 
 ### Copying files
+
 You can copy a file. True is returned if the source exists and destination doesnt exists:
+
 ```ts
-await fileStorage.create("source.txt").copy("destination.txt")
+await fileStorage.create("source.txt").copy("destination.txt");
 ```
+
 Use `copyOrFail` method to perform the same operations as the `copy` method but it throws an error if the source file is missing or destination exists.
 
 You can copy a file and repalce the destination. True is returned if the source exists:
+
 ```ts
-await fileStorage.create("source.txt").copyAndReplace("destination.txt")
+await fileStorage.create("source.txt").copyAndReplace("destination.txt");
 ```
+
 Use `copyAndReplaceOrFail` method to perform the same operations as the `copyAndReplace` method but it throws an error if the source file is missing.
 
 ### Moving files
+
 You can move a file. True is returned if the source exists and destination doesnt exists:
+
 ```ts
-await fileStorage.create("source.txt").move("destination.txt")
+await fileStorage.create("source.txt").move("destination.txt");
 ```
+
 Use `moveOrFail` method to perform the same operations as the `move` method but it throws an error if the source file is missing or destination exists.
 
 You can move a file and repalce the destination. True is returned if the source exists:
+
 ```ts
-await fileStorage.create("source.txt").moveAndReplace("destination.txt")
+await fileStorage.create("source.txt").moveAndReplace("destination.txt");
 ```
+
 Use `moveAndReplaceOrFail` method to perform the same operations as the `moveAndReplace` method but it throws an error if the source file is missing.
 
 ### Signed urls and public urls.
@@ -367,6 +407,7 @@ Use `moveAndReplaceOrFail` method to perform the same operations as the `moveAnd
 Create signed urls to allow clients to upload files directly to file-storage.
 
 Upload url methods:
+
 - getSignedUploadUrl: Returns the signed upload url string.
 
 ```ts
@@ -382,8 +423,10 @@ console.log(uploadUrl)
 Create signed urls to allow clients to download files directly from file-storage.
 
 Download url methods:
+
 - getSignedDownloadUrl: Returns the signed download url string, or null if the file does not exist.
 - getSignedDownloadUrlOrFail: Returns the signed download url string, but throws an error if the file is missing.
+
 ```ts
 const file = fileStorage.create("source.txt")
 await file.add("CONTENT")
@@ -399,12 +442,13 @@ console.log(donwloadUrl)
 ```
 
 Use these methods to retrieve a permanent link to a file that is publicly accessible within your storage provider.
+
 - `getPublicUrl`: Returns the public url as a string, or null if the file does not exist.
 - `getPublicUrlOrFail`: Returns the public url, but throws an error if the file is missing.
 
 ```ts
-const file = fileStorage.create("source.txt")
-await file.add("CONTENT")
+const file = fileStorage.create("source.txt");
+await file.add("CONTENT");
 
 const publicUrl = await file.getPublicUrl();
 
@@ -417,7 +461,10 @@ Note since not all file-storage adapters support signed or public URLs, you can 
 ```ts
 import { TimeSpan } from "@daiso-tech/core/time-span";
 import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
-import { FildeAdapterDownloadUrlSettings, FildeAdapterUploadUrlSettings } from "@daiso-tech/core/file-storage/contracts";
+import {
+    FildeAdapterDownloadUrlSettings,
+    FildeAdapterUploadUrlSettings,
+} from "@daiso-tech/core/file-storage/contracts";
 import { FileStorage } from "@daiso-tech/core/file-storage";
 
 const fileStorage = new FileStorage({
@@ -429,23 +476,24 @@ const fileStorage = new FileStorage({
 
     urlAdapter: {
         getPublicUrl(key: string): Promise<string | null> {
-            return null
+            return null;
         },
         getSignedDownloadUrl(
             key: string,
             settings: FildeAdapterDownloadUrlSettings,
         ): Promise<string | null> {
-            return null
+            return null;
         },
         getSignedUploadUrl(
             key: string,
             settings: FildeAdapterUploadUrlSettings,
         ): Promise<string> {
-            return ""
-        }
-    }
+            return "";
+        },
+    },
 });
 ```
+
 :::
 
 ### File instance variables
@@ -484,14 +532,14 @@ const fileStorageB = new FileStorage({
 const fileA = await fileStorageA.create("file.txt");
 const fileB = await fileStorageB.create("file.txt");
 
-await fileA.add({ data: "CONTENT_A"});
-await fileB.add({ data: "CONTENT_B"});
+await fileA.add({ data: "CONTENT_A" });
+await fileB.add({ data: "CONTENT_B" });
 
 // Will log "CONTENT_A"
-console.log(fileA.getText())
+console.log(fileA.getText());
 
 // Will log "CONTENT_B"
-console.log(fileB.getText())
+console.log(fileB.getText());
 ```
 
 ### Serialization and deserialization of file
@@ -503,7 +551,7 @@ Note when only file name will be saved when serialized and not it' content.
 Which makes it efficient to send file over the network.
 :::
 
-In order to serialize or deserialize a file object you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `FileStorage`. 
+In order to serialize or deserialize a file object you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `FileStorage`.
 
 Manually serializing and deserializing the file object:
 
@@ -625,7 +673,7 @@ const memoryFileStorage = new FileStorage({
     adapter: memoryFileStorageAdapter,
     // We assign distinct namespaces to MemoryFileStorageAdapter and FsFileStorageAdapter to isolate their events.
     namespace: new Namespace(["memory", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 
 const fsFileStorageAdapter = new FsFileStorageAdapter();
@@ -633,7 +681,7 @@ const fsFileStorage = new FileStorage({
     adapter: fsFileStorageAdapter,
     // We assign distinct namespaces to MemoryFileStorageAdapter and FsFileStorageAdapter to isolate their events.
     namespace: new Namespace(["fs", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 ```
 

@@ -3,13 +3,13 @@ sidebar_position: 1
 sidebar_label: Usage
 pagination_label: Rate-limiter Usage
 tags:
- - Rate-limiter
- - Usage
- - Namespace
+    - Rate-limiter
+    - Usage
+    - Namespace
 keywords:
- - Rate-limiter
- - Usage
- - Namespace
+    - Rate-limiter
+    - Usage
+    - Namespace
 ---
 
 # Rate-limiter usage
@@ -30,7 +30,7 @@ const rateLimiterFactory = new RateLimiterFactory({
     // You can provide default settings
     // You can choose the adapter to use
     adapter: new DatabaseRateLimiterAdapter({
-        adapter: new MemoryRateLimiterStorageAdapter()
+        adapter: new MemoryRateLimiterStorageAdapter(),
     }),
 });
 ```
@@ -53,7 +53,7 @@ const rateLimiter = rateLimiterFactory.create("resource");
 // The function will only be called when the rate-limiter allows the attempt.
 await rateLimiter.runOrFail(async () => {
     // The code / function to rate limit, called it here
-})
+});
 ```
 
 :::info
@@ -76,7 +76,7 @@ const rateLimiter = rateLimiterFactory.create("resource", {
 });
 await rateLimiter.runOrFail(async () => {
     // The code / function to rate limit, called it here
-})
+});
 ```
 
 ### Applying rate-limiter on certiain errors
@@ -87,11 +87,11 @@ class ErrorA extends Error {}
 const rateLimiter = rateLimiterFactory.create("resource", {
     onlyError: true,
     // Error policy will only work "onlyError" is set to true
-    errorPolicy: ErrorA
+    errorPolicy: ErrorA,
 });
 await rateLimiter.runOrFail(async () => {
     // The code / function to rate limit, called it here
-})
+});
 ```
 
 ### Reseting the rate-limiter
@@ -112,13 +112,13 @@ import { RATE_LIMITER_STATE } from "@daiso-tech/core/rate-limiter/contracts";
 const state = await rateLimiter.getState();
 
 if (state === RATE_LIMITER_STATE.EXPIRED) {
-    console.log("The rate limiter key doesnt exists")
+    console.log("The rate limiter key doesnt exists");
 }
 if (state === RATE_LIMITER_STATE.ALLOWED) {
-    console.log("The rate limiter is allowing calls")
+    console.log("The rate limiter is allowing calls");
 }
 if (state === RATE_LIMITER_STATE.BLOCKED) {
-    console.log("The rate limiter is blocking calls")
+    console.log("The rate limiter is blocking calls");
 }
 ```
 
@@ -172,17 +172,17 @@ await rateLimiterA.runOrFail(async () => {
 });
 
 // Will log "ALLOWED"
-console.log((await rateLimiterA.getState()).type)
+console.log((await rateLimiterA.getState()).type);
 
 // Will log "EXPIRED" because rateLimiterB is in a different namespace
-console.log((await rateLimiterB.getState()).type)
+console.log((await rateLimiterB.getState()).type);
 ```
 
 ### Serialization and deserialization of rate-limiters
 
 rate-limiters can be serialized, allowing them to be transmitted over the network to another server and later deserialized for reuse.
 This means you can, for example, acquire the rate-limiter on the main server, transfer it to a queue worker server, and release it there.
-In order to serialize or deserialize a rate-limiter you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `RateLimiterFactory`. 
+In order to serialize or deserialize a rate-limiter you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `RateLimiterFactory`.
 
 Manually serializing and deserializing the rate-limiter:
 
@@ -254,10 +254,13 @@ await eventBus.dispatch("sending-rate-limiter-over-network", {
 });
 
 // The other servers will recieve the serialized rateLimiter and automattically deserialize it.
-await eventBus.addListener("sending-rate-limiter-over-network", ({ rateLimiter }) => {
-    // The rateLimiter is deserialized and can be used
-    console.log("RATE_LIMITER:", rateLimiter);
-});
+await eventBus.addListener(
+    "sending-rate-limiter-over-network",
+    ({ rateLimiter }) => {
+        // The rateLimiter is deserialized and can be used
+        console.log("RATE_LIMITER:", rateLimiter);
+    },
+);
 ```
 
 ### Rate-limiter events
@@ -268,19 +271,25 @@ Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to lear
 ```ts
 import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
 import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-import { RateLimiterFactory, RATE_LIMITER_EVENTS } from "@daiso-tech/core/rate-limiter";
+import {
+    RateLimiterFactory,
+    RATE_LIMITER_EVENTS,
+} from "@daiso-tech/core/rate-limiter";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 
 const rateLimiterFactory = new RateLimiterFactory({
-    adapter: new DatabaseRateLimiterAdapter({ 
-        adapter: new MemoryRateLimiterStorageAdapter()
+    adapter: new DatabaseRateLimiterAdapter({
+        adapter: new MemoryRateLimiterStorageAdapter(),
     }),
     eventBus: new MemoryEventBusAdapter(),
 });
 
-await rateLimiterFactory.events.addListener(RATE_LIMITER_EVENTS.BLOCKED, (_event) => {
-    console.log("Got blocked:", event);
-});
+await rateLimiterFactory.events.addListener(
+    RATE_LIMITER_EVENTS.BLOCKED,
+    (_event) => {
+        console.log("Got blocked:", event);
+    },
+);
 
 await rateLimiterFactory.create("a").isolate();
 ```
@@ -306,12 +315,12 @@ const redisPubSubEventBusAdapter = new RedisPubSubEventBusAdapter({
 });
 
 const memoryRateLimiterFactory = new RateLimiterFactory({
-    adapter: new DatabaseRateLimiterAdapter({ 
-        adapter: new MemoryRateLimiterStorageAdapter()
+    adapter: new DatabaseRateLimiterAdapter({
+        adapter: new MemoryRateLimiterStorageAdapter(),
     }),
     // We assign distinct namespaces to DatabaseRateLimiterAdapter and RedisRateLimiterAdapter to isolate their events.
     namespace: new Namespace(["memory", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 
 const redisRateLimiterAdapter = new RedisRateLimiterAdapter({
@@ -322,7 +331,7 @@ const redisRateLimiterFactory = new RateLimiterFactory({
     adapter: redisRateLimiterAdapter,
     // We assign distinct namespaces to DatabaseRateLimiterAdapter and RedisRateLimiterAdapter to isolate their events.
     namespace: new Namespace(["redis", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter
+    eventBus: redisPubSubEventBusAdapter,
 });
 ```
 
@@ -358,7 +367,9 @@ async function rateLimiterFunc(rateLimiter: IRateLimiter): Promise<void> {
     });
 }
 
-async function rateLimiterFactoryFunc(rateLimiterFactory: IRateLimiterFactoryBase): Promise<void> {
+async function rateLimiterFactoryFunc(
+    rateLimiterFactory: IRateLimiterFactoryBase,
+): Promise<void> {
     // You cannot access the listener methods
     // You will get typescript error if you try
 
@@ -372,21 +383,23 @@ async function rateLimiterListenableFunc(
     // You cannot access the rateLimiterFactory methods
     // You will get typescript error if you try
 
-    await rateLimiterListenable.addListener(RATE_LIMITER_EVENTS.BLOCKED, (event) => {
-        console.log("Blocked:", event);
-    });
+    await rateLimiterListenable.addListener(
+        RATE_LIMITER_EVENTS.BLOCKED,
+        (event) => {
+            console.log("Blocked:", event);
+        },
+    );
 }
 
 const rateLimiterFactory = new RateLimiterFactory({
     adapter: new DatabaseRateLimiterAdapter({
         adapter: new MemoryRateLimiterStorageAdapter(),
     }),
-    eventBus: new MemoryEventBusAdapter()
-})
+    eventBus: new MemoryEventBusAdapter(),
+});
 await rateLimiterListenableFunc(rateLimiterFactory.events);
 await rateLimiterFactoryFunc(rateLimiterFactory);
 ```
-
 
 ## Further information
 

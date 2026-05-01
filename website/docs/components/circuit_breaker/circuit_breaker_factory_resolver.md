@@ -3,11 +3,11 @@ sidebar_position: 2
 sidebar_label: Resolver classes
 pagination_label: Circuit-breaker resolver classes
 tags:
- - Circuit-breaker
- - Resolvers
+    - Circuit-breaker
+    - Resolvers
 keywords:
- - Circuit-breaker
- - Resolvers
+    - Circuit-breaker
+    - Resolvers
 ---
 
 # Circuit-breaker provider resolver classes
@@ -27,17 +27,17 @@ import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/
 import { RedisCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter";
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import Redis from "ioredis"
-  
+import Redis from "ioredis";
+
 const serde = new Serde(new SuperJsonSerdeAdapter());
 const circuitBreakerFactoryResolver = new CircuitBreakerFactoryResolver({
     serde,
     adapters: {
         memory: new DatabaseCircuitBreakerAdapter({
-            adapter: new MemoryCircuitBreakerStorageAdapter()
+            adapter: new MemoryCircuitBreakerStorageAdapter(),
         }),
         redis: new RedisCircuitBreakerAdapter({
-            database: new Redis("YOUR_REDIS_CONNECTION")
+            database: new Redis("YOUR_REDIS_CONNECTION"),
         }),
     },
     defaultAdapter: "memory",
@@ -51,11 +51,11 @@ const circuitBreakerFactoryResolver = new CircuitBreakerFactoryResolver({
 ```ts
 // Will apply circuit-breaker logic the default adapter which is MemoryCircuitBreakerStorageAdapter
 await circuitBreakerFactoryResolver
-  .use()
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply circuit-breaker logic
-  });
+    .use()
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply circuit-breaker logic
+    });
 ```
 
 :::danger
@@ -67,11 +67,11 @@ Note that if you dont set a default adapter, an error will be thrown.
 ```ts
 // Will apply circuit-breaker logic using the redis adapter
 await circuitBreakerFactoryResolver
-  .use("redis")
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply circuit-breaker logic
-  });
+    .use("redis")
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply circuit-breaker logic
+    });
 ```
 
 :::danger
@@ -82,12 +82,12 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 
 ```ts
 await circuitBreakerFactoryResolver
-  .use("redis")
-  .setNamespace(new Namespace(["@", "test"]))
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply circuit-breaker logic
-  });
+    .use("redis")
+    .setNamespace(new Namespace(["@", "test"]))
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply circuit-breaker logic
+    });
 ```
 
 :::info
@@ -113,37 +113,39 @@ import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
-const circuitBreakerFactoryResolver = new DatabaseCircuitBreakerFactoryResolver({
-  serde,
-  adapters: {
-    memory: new MemoryCircuitBreakerStorageAdapter(),
-    sqlite: new KyselyCircuitBreakerStorageAdapter({
-      kysely: new Kysely({
-        dialect: new SqliteDialect({
-          database: new Sqlite("local.db"),
-        }),
-      }),
-      serde,
-    }),
-  },
-  defaultAdapter: "memory",
-});
+const circuitBreakerFactoryResolver = new DatabaseCircuitBreakerFactoryResolver(
+    {
+        serde,
+        adapters: {
+            memory: new MemoryCircuitBreakerStorageAdapter(),
+            sqlite: new KyselyCircuitBreakerStorageAdapter({
+                kysely: new Kysely({
+                    dialect: new SqliteDialect({
+                        database: new Sqlite("local.db"),
+                    }),
+                }),
+                serde,
+            }),
+        },
+        defaultAdapter: "memory",
+    },
+);
 
 // Will apply circuit-breaker logic the default adapter which is MemoryCircuitBreakerStorageAdapter
 await circuitBreakerFactoryResolver
-  .use()
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply circuit-breaker logic
-  });
+    .use()
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply circuit-breaker logic
+    });
 
 // Will apply circuit-breaker logic using the KyselyCircuitBreakerStorageAdapter
 await circuitBreakerFactoryResolver
-  .use("sqlite")
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply circuit-breaker logic
-  });
+    .use("sqlite")
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply circuit-breaker logic
+    });
 ```
 
 ### Usage
@@ -153,11 +155,11 @@ await circuitBreakerFactoryResolver
 ```ts
 // Will apply circuit-breaker logic the default adapter which is MemoryCircuitBreakerStorageAdapter
 await circuitBreakerFactoryResolver
-  .use()
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply circuit-breaker logic
-  });
+    .use()
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply circuit-breaker logic
+    });
 ```
 
 :::danger
@@ -169,11 +171,11 @@ Note that if you dont set a default adapter, an error will be thrown.
 ```ts
 // Will apply circuit-breaker logic using the sqlite adapter
 await circuitBreakerFactoryResolver
-  .use("sqlite")
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply circuit-breaker logic
-  });
+    .use("sqlite")
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply circuit-breaker logic
+    });
 ```
 
 :::danger
@@ -183,17 +185,17 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 #### 3. Overriding default settings
 
 ```ts
-import { CountBreaker } from "@daiso-tech/core/circuit-breaker/policies"
-import { constantBackoff } from "@daiso-tech/core/backoff-policies"
+import { CountBreaker } from "@daiso-tech/core/circuit-breaker/policies";
+import { constantBackoff } from "@daiso-tech/core/backoff-policies";
 
 await circuitBreakerFactoryResolver
-  .setBackoffPolicy(constantBackoff())
-  .setDefaultCircuitBreakerPolicy(new CountBreaker())
-  .use("redis")
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply circuit-breaker logic
-  });
+    .setBackoffPolicy(constantBackoff())
+    .setDefaultCircuitBreakerPolicy(new CountBreaker())
+    .use("redis")
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply circuit-breaker logic
+    });
 ```
 
 :::info
@@ -203,4 +205,3 @@ Note that the `DatabaseCircuitBreakerFactoryResolver` is immutable, meaning any 
 ## Further information
 
 For further information refer to [`@daiso-tech/core/circuit-breaker`](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) API docs.
-

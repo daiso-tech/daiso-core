@@ -6,6 +6,7 @@
         "paths": {
             "@/*": ["./src/*"]
         },
+        "incremental": true,
         "isolatedModules": true,
         "useDefineForClassFields": true,
         "allowSyntheticDefaultImports": true,

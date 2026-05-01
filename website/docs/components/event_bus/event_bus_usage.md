@@ -3,13 +3,13 @@ sidebar_position: 1
 sidebar_label: Usage
 pagination_label: Event-bus usage
 tags:
- - Event-bus
- - Usage
- - Namespace
+    - Event-bus
+    - Usage
+    - Namespace
 keywords:
- - Event-bus
- - Usage
- - Namespace
+    - Event-bus
+    - Usage
+    - Namespace
 ---
 
 # EventBus usage

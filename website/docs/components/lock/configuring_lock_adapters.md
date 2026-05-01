@@ -3,31 +3,31 @@ sidebar_position: 3
 sidebar_label: Configuring adapters
 pagination_label: Configuring lock adapters
 tags:
- - Lock
- - Configuring adapters
- - In-memory
- - Mongodb
- - Redis
- - Kysely
- - Sqlite
- - Mysql
- - Postgres
- - Sqlite
- - Libsql
- - NoOp
+    - Lock
+    - Configuring adapters
+    - In-memory
+    - Mongodb
+    - Redis
+    - Kysely
+    - Sqlite
+    - Mysql
+    - Postgres
+    - Sqlite
+    - Libsql
+    - NoOp
 keywords:
- - Lock
- - Configuring adapters
- - In-memory
- - Mongodb
- - Redis
- - Kysely
- - Sqlite
- - Mysql
- - Postgres
- - Sqlite
- - Libsql
- - NoOp
+    - Lock
+    - Configuring adapters
+    - In-memory
+    - Mongodb
+    - Redis
+    - Kysely
+    - Sqlite
+    - Mysql
+    - Postgres
+    - Sqlite
+    - Libsql
+    - NoOp
 ---
 
 # Configuring lock adapters

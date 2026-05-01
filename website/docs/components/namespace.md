@@ -1,8 +1,8 @@
 ---
 tags:
- - Utilities
+    - Utilities
 keywords:
- - Utilities
+    - Utilities
 ---
 
 # Namespace
@@ -39,7 +39,7 @@ console.log(newNamespace.toString());
 console.log(newNamespace.create("my-key").toString());
 
 // Logs false because they use different namespaces
-console.log(newNamspace.create("my-key").equals(namespace.create("my-key")))
+console.log(newNamspace.create("my-key").equals(namespace.create("my-key")));
 ```
 
 :::info
@@ -77,14 +77,13 @@ export interface IKey extends IEquals<IKey> {
     get(): string;
 
     toString(): string;
-};
+}
 
 export type INamespace = {
     toString(): string;
 
     create(key: string): IKey;
 };
-
 ```
 
 ## Further information

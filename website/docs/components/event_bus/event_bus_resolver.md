@@ -3,11 +3,11 @@ sidebar_position: 2
 sidebar_label: Resolver classes
 pagination_label: Event-bus resolver classes
 tags:
- - Event-bus
- - Resolvers
+    - Event-bus
+    - Resolvers
 keywords:
- - Event-bus
- - Resolvers
+    - Event-bus
+    - Resolvers
 ---
 
 # EventBusResolver

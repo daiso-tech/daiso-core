@@ -3,13 +3,13 @@ sidebar_position: 4
 sidebar_label: Creating adapters
 pagination_label: Creating cache adapters
 tags:
- - Cache
- - Creating adapters
- - Creating database adapters
+    - Cache
+    - Creating adapters
+    - Creating database adapters
 keywords:
- - Cache
- - Creating adapters
- - Creating database adapters
+    - Cache
+    - Creating adapters
+    - Creating database adapters
 ---
 
 # Creating cache adapters
@@ -22,8 +22,8 @@ In order to create an adapter you need to implement the [`ICacheAdapter`](https:
 
 We provide a complete test suite to test your cache adapter implementation. Simply use the [`cacheAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Cache.cacheAdapterTestSuite.html) function:
 
--   Preconfigured Vitest test cases
--   Common edge case coverage
+- Preconfigured Vitest test cases
+- Common edge case coverage
 
 Usage example:
 
@@ -53,8 +53,8 @@ We provide an additional contract [`IDatabaseCacheAdapter`](https://daiso-tech.g
 
 We provide a complete test suite to test your database cache adapter implementation. Simply use the [`databaseCacheAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Cache.databaseCacheAdapterTestSuite.html) function:
 
--   Preconfigured Vitest test cases
--   Common edge case coverage
+- Preconfigured Vitest test cases
+- Common edge case coverage
 
 Usage example:
 
@@ -84,9 +84,9 @@ In some cases, you may need to implement a custom [`Cache`](https://daiso-tech.g
 
 We provide a complete test suite to verify your custom event bus class implementation. Simply use the [`cacheTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Cache.cacheTestSuite.html) function:
 
--   Preconfigured Vitest test cases
--   Standardized event bus behavior validation
--   Common edge case coverage
+- Preconfigured Vitest test cases
+- Standardized event bus behavior validation
+- Common edge case coverage
 
 Usage example:
 

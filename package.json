@@ -1,7 +1,7 @@
 {
     "name": "@daiso-tech/core",
     "private": false,
-    "version": "0.52.0",
+    "version": "0.52.1",
     "author": "Yousif Abdulkarim",
     "license": "Apache-2.0",
     "type": "module",
@@ -57,7 +57,12 @@
         "multitenant",
         "duration",
         "time-span",
-        "typescript"
+        "typescript",
+        "file-storage",
+        "s3",
+        "aws-s3",
+        "local",
+        "file-system"
     ],
     "exports": {
         "./backoff-policies": {
@@ -100,9 +105,21 @@
             "types": "./dist/cache/implementations/test-utilities/_module-exports.d.ts",
             "import": "./dist/cache/implementations/test-utilities/_module-exports.js"
         },
+        "./codec/contracts": {
+            "types": "./dist/codec/contracts/_module-exports.d.ts",
+            "import": "./dist/codec/contracts/_module-exports.js"
+        },
+        "./codec/base-64-codec": {
+            "types": "./dist/codec/implementations/base-64-codec/_module-exports.d.ts",
+            "import": "./dist/codec/implementations/base-64-codec/_module-exports.js"
+        },
         "./circuit-breaker": {
             "types": "./dist/circuit-breaker/implementations/derivables/_module-exports.d.ts",
             "import": "./dist/circuit-breaker/implementations/derivables/_module-exports.js"
+        },
+        "./circuit-breaker/middlewares": {
+            "types": "./dist/circuit-breaker/implementations/middlewares/_module-exports.d.ts",
+            "import": "./dist/circuit-breaker/implementations/middlewares/_module-exports.js"
         },
         "./circuit-breaker/contracts": {
             "types": "./dist/circuit-breaker/contracts/_module-exports.d.ts",
@@ -223,6 +240,10 @@
         "./file-storage/s3-file-storage-adapter": {
             "types": "./dist/file-storage/implementations/adapters/s3-file-storage-adapter/_module-exports.d.ts",
             "import": "./dist/file-storage/implementations/adapters/s3-file-storage-adapter/_module-exports.js"
+        },
+        "./file-storage/test-utilities": {
+            "types": "./dist/file-storage/implementations/test-utilities/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/test-utilities/_module-exports.js"
         },
         "./lock": {
             "types": "./dist/lock/implementations/derivables/_module-exports.d.ts",
@@ -442,16 +463,25 @@
         "provenance": true
     },
     "scripts": {
+        "module-exports-files-check": "npx tsx --tsconfig ./tsconfig.json scripts/module-exports-files-check.ts",
         "test": "npx vitest run",
-        "test:changed": "npx vitest --run --changed origin/main",
         "check": "npx tsc --project \"./tsconfig.json\"",
+        "_test:changed": "npx vitest --run --changed origin/main",
+        "test:changed": "npx tsx --tsconfig ./tsconfig.json ./scripts/run-changed-tests.ts --branch origin/main",
         "lint": "npx eslint \"**/*.{js,jsx,ts,tsx}\"",
+        "lint:changed": "npx tsx --tsconfig ./tsconfig.json ./scripts/run-changed.ts --script \"npx eslint\" --extension \"js,jsx,ts,tsx\" --branch origin/main",
         "lint:fix": "npx eslint \"**/*.{js,jsx,ts,tsx}\" --fix",
-        "format": "npx prettier \"**/*.{json,md}\"",
-        "format:fix": "npx prettier --write \"**/*.{json,md}\"",
+        "lint:fix:changed": "npx tsx --tsconfig ./tsconfig.json ./scripts/run-changed.ts --script \"npx eslint --fix\" --extension \"js,jsx,ts,tsx\" --branch origin/main",
+        "format": "npx prettier --check \"**/*.{json,md,mdx}\"",
+        "format:changed": "npx tsx --tsconfig ./tsconfig.json ./scripts/run-changed.ts --script \"npx prettier --check\" --extension \"json,md,mdx\" --branch origin/main",
+        "format:fix": "npx prettier --write \"**/*.{json,md,mdx}\"",
+        "format:fix:changed": "npx tsx --tsconfig ./tsconfig.json ./scripts/run-changed.ts --script \"npx prettier --write\" --extension \"json,md,mdx\" --branch origin/main",
         "build": "npx rimraf dist && npx tsc --project \"./tsconfig.build.json\" && npx tsc-alias -p \"./tsconfig.build.json\"",
-        "publint": "npm run build && npx publint",
-        "check:all": "npm run check && npm run lint && npm run test && npm run publint",
+        "package-json-exports-check": "npm run build && npx publint",
+        "check:all": "npm run check && npm run lint && npm run format && npm run test && npm run module-exports-files-check && npm run package-json-exports-check",
+        "check:all:fix": "npm run check && npm run lint:fix && npm run format:fix && npm run test && npm run package-json-exports-check",
+        "check:all:changed": "npm run check && npm run lint:changed && npm run format:changed && npm run test:changed && npm run module-exports-files-check && npm run package-json-exports-check",
+        "check:all:fix:changed": "npm run check && npm run lint:fix:changed && npm run format:fix:changed && npm run test:changed && npm run module-exports-files-check && npm run package-json-exports-check",
         "docs": "npx typedoc",
         "release": "npm run build && npx changeset publish"
     },
@@ -493,6 +523,7 @@
         "rimraf": "^6.0.1",
         "testcontainers": "^11.13.0",
         "tsc-alias": "^1.8.10",
+        "tsx": "^4.21.0",
         "typedoc": "^0.27.1",
         "typedoc-plugin-merge-modules": "^6.1.0",
         "typescript": "^5.5.4",

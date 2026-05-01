@@ -3,31 +3,31 @@ sidebar_position: 3
 sidebar_label: Configuring adapters
 pagination_label: Configuring circuit-breaker adapters
 tags:
- - Circuit-breaker
- - Configuring adapters
- - In-memory
- - Mongodb
- - Redis
- - Kysely
- - Sqlite
- - Mysql
- - Postgres
- - Sqlite
- - Libsql
- - NoOp
+    - Circuit-breaker
+    - Configuring adapters
+    - In-memory
+    - Mongodb
+    - Redis
+    - Kysely
+    - Sqlite
+    - Mysql
+    - Postgres
+    - Sqlite
+    - Libsql
+    - NoOp
 keywords:
- - Circuit-breaker
- - Configuring adapters
- - In-memory
- - Mongodb
- - Redis
- - Kysely
- - Sqlite
- - Mysql
- - Postgres
- - Sqlite
- - Libsql
- - NoOp
+    - Circuit-breaker
+    - Configuring adapters
+    - In-memory
+    - Mongodb
+    - Redis
+    - Kysely
+    - Sqlite
+    - Mysql
+    - Postgres
+    - Sqlite
+    - Libsql
+    - NoOp
 ---
 
 # Configuring circuit-breaker adapters
@@ -44,7 +44,7 @@ import Redis from "ioredis";
 
 const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
 const redisCircuitBreakerAdapter = new RedisCircuitBreakerAdapter({
-    database
+    database,
 });
 ```
 
@@ -62,11 +62,11 @@ const redisCircuitBreakerAdapter = new RedisCircuitBreakerAdapter({
         type: BACKOFFS.CONSTANT,
         delay: TimeSpan.fromSeconds(1),
         jitter: 0.5,
-    }
+    },
 });
 ```
 
-The settings are the same as [backoff policies](../backoff_policies.md) settings. 
+The settings are the same as [backoff policies](../backoff_policies.md) settings.
 
 ### Configuring circuit-breaker policy
 
@@ -82,11 +82,11 @@ const redisCircuitBreakerAdapter = new RedisCircuitBreakerAdapter({
         type: POLICIES.CONSECUTIVE,
         failureThreshold: 5,
         successThreshold: 5,
-    }
+    },
 });
 ```
 
-The settings are the same as [circuit-breaker policies](./configuring_circuit_breaker_policies.md) settings. 
+The settings are the same as [circuit-breaker policies](./configuring_circuit_breaker_policies.md) settings.
 
 ## DatabaseCircuitBreakerAdapter
 
@@ -106,7 +106,7 @@ const circuitBreakerStorageAdapter = new MemoryCircuitBreakerStorageAdapter();
 import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
 
 const circuitBreakerAdapter = new DatabaseCircuitBreakerAdapter({
-  adapter: circuitBreakerStorageAdapter
+    adapter: circuitBreakerStorageAdapter,
 });
 ```
 
@@ -116,11 +116,11 @@ You can use any of defined [backoff policies](../backoff_policies.md).
 
 ```ts
 import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
-import { constantBackoff } from "@daiso-tech/core/backoff-policies"
+import { constantBackoff } from "@daiso-tech/core/backoff-policies";
 
 const circuitBreakerAdapter = new DatabaseCircuitBreakerAdapter({
-  adapter: circuitBreakerStorageAdapter,
-  backoffPolicy: constantBackoff()
+    adapter: circuitBreakerStorageAdapter,
+    backoffPolicy: constantBackoff(),
 });
 ```
 
@@ -130,11 +130,11 @@ You can use any of defined [circuit-breaker policies](./configuring_circuit_brea
 
 ```ts
 import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
-import { SamplingBreaker } from "@daiso-tech/core/circuit-breaker/policies"
+import { SamplingBreaker } from "@daiso-tech/core/circuit-breaker/policies";
 
 const circuitBreakerAdapter = new DatabaseCircuitBreakerAdapter({
-  adapter: circuitBreakerStorageAdapter,
-  circuitBreakerPolicy: new SamplingBreaker()
+    adapter: circuitBreakerStorageAdapter,
+    circuitBreakerPolicy: new SamplingBreaker(),
 });
 ```
 
@@ -162,7 +162,7 @@ To use the `KyselyCircuitBreakerStorageAdapter`, you'll need to:
 
 3. Provide a string serializer ([`ISerde`](../serde.md)):
 
--   We recommend using `SuperJsonSerdeAdapter` for this purpose
+- We recommend using `SuperJsonSerdeAdapter` for this purpose
 
 ```ts
 import { Serde } from "@daiso-tech/core/serde";
@@ -187,10 +187,11 @@ const kysely = new Kysely({
         database,
     }),
 });
-const kyselyCircuitBreakerStorageAdapter = new KyselyCircuitBreakerStorageAdapter({
-    kysely,
-    serde
-});
+const kyselyCircuitBreakerStorageAdapter =
+    new KyselyCircuitBreakerStorageAdapter({
+        kysely,
+        serde,
+    });
 
 // You need initialize the adapter once before using it.
 // During the initialization the schema will be created
@@ -221,10 +222,11 @@ const kysely = new Kysely({
         pool: database,
     }),
 });
-const kyselyCircuitBreakerStorageAdapter = new KyselyCircuitBreakerStorageAdapter({
-    kysely,
-    serde
-});
+const kyselyCircuitBreakerStorageAdapter =
+    new KyselyCircuitBreakerStorageAdapter({
+        kysely,
+        serde,
+    });
 
 // You need initialize the adapter once before using it.
 // During the initialization the schema will be created
@@ -255,10 +257,11 @@ const kysely = new Kysely({
         pool: database,
     }),
 });
-const kyselyCircuitBreakerStorageAdapter = new KyselyCircuitBreakerStorageAdapter({
-    kysely,
-    serde
-});
+const kyselyCircuitBreakerStorageAdapter =
+    new KyselyCircuitBreakerStorageAdapter({
+        kysely,
+        serde,
+    });
 
 // You need initialize the adapter once before using it.
 // During the initialization the schema will be created
@@ -280,10 +283,11 @@ const kysely = new Kysely({
         url: "DATABASE_URL",
     }),
 });
-const kyselyCircuitBreakerStorageAdapter = new KyselyCircuitBreakerStorageAdapter({
-    kysely,
-    serde
-});
+const kyselyCircuitBreakerStorageAdapter =
+    new KyselyCircuitBreakerStorageAdapter({
+        kysely,
+        serde,
+    });
 
 // You need initialize the adapter once before using it.
 // During the initialization the schema will be created
@@ -291,12 +295,14 @@ await kyselyCircuitBreakerStorageAdapter.init();
 ```
 
 ## MemoryCircuitBreakerStorageAdapter
+
 To use the `MemoryCircuitBreakerStorageAdapter` you only need to create instance of it:
 
 ```ts
 import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
 
-const memoryCircuitBreakerStorageAdapter = new MemoryCircuitBreakerStorageAdapter();
+const memoryCircuitBreakerStorageAdapter =
+    new MemoryCircuitBreakerStorageAdapter();
 ```
 
 You can also provide an `Map` that will be used for storing the data in memory:
@@ -305,7 +311,8 @@ You can also provide an `Map` that will be used for storing the data in memory:
 import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
 
 const map = new Map<any, any>();
-const memoryCircuitBreakerStorageAdapter = new MemoryCircuitBreakerStorageAdapter(map);
+const memoryCircuitBreakerStorageAdapter =
+    new MemoryCircuitBreakerStorageAdapter(map);
 ```
 
 :::info
@@ -322,7 +329,7 @@ To use the `MongodbCircuitBreakerStorageAdapter`, you'll need to:
 
 3. Provide a string serializer ([`ISerde`](../serde.md)):
 
--   We recommend using `SuperJsonSerdeAdapter` for this purpose
+- We recommend using `SuperJsonSerdeAdapter` for this purpose
 
 ```ts
 import { MongodbCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/mongodb-circuit-breaker-storage-adapter";
@@ -330,11 +337,12 @@ import { MongoClient } from "mongodb";
 
 const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
 const database = client.db("database");
-const mongodbCircuitBreakerStorageAdapter = new MongodbCircuitBreakerStorageAdapter({
-    client,
-    database,
-    serde
-});
+const mongodbCircuitBreakerStorageAdapter =
+    new MongodbCircuitBreakerStorageAdapter({
+        client,
+        database,
+        serde,
+    });
 
 // You need initialize the adapter once before using it.
 // During the initialization the indexes will be created

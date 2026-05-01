@@ -1,25 +1,26 @@
 ---
 pagination_label: Execution context usage
 tags:
- - Execution Context
- - Usage
+    - Execution Context
+    - Usage
 keywords:
- - Execution Context
- - Usage
+    - Execution Context
+    - Usage
 ---
-
 
 # Execution Context
 
 The `@daiso-tech/core/execution-context` module provides a type-safe, composable, and environment-agnostic way to store and propagate contextual data (such as request IDs, user info, or tracing metadata) across async boundaries and function calls. It is inspired by thread-local storage and context propagation in distributed systems, but is designed for modern TypeScript/JavaScript applications.
-
 
 ## Initial configuration
 
 To begin using the execution context, you'll need to create and configure an instance:
 
 ```ts
-import { ExecutionContext, contextToken } from "@daiso-tech/core/execution-context";
+import {
+    ExecutionContext,
+    contextToken,
+} from "@daiso-tech/core/execution-context";
 import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter";
 
 // Create an execution context instance with an adapter
@@ -37,14 +38,16 @@ import { Namespace } from "@daiso-tech/core/namespace";
 
 // Define context tokens using namespaced IDs to avoid collisions
 const namespace = new Namespace("myapp");
-const userToken = contextToken<{ id: string; name: string }>(namespace.id("user"));
+const userToken = contextToken<{ id: string; name: string }>(
+    namespace.id("user"),
+);
 const requestIdToken = contextToken<string>(namespace.id("requestId"));
 
 function logData(): void {
     // Access context values later in the call chain
-    
+
     // { id: "123", name: "Alice" }
-    const user = executionContext.get(userToken); 
+    const user = executionContext.get(userToken);
     // "req-456"
     const reqId = executionContext.get(requestIdToken);
 
@@ -65,17 +68,17 @@ You can bind a function to the current context, so it always executes with the c
 
 ```ts
 executionContext.run(() => {
-	executionContext.put(userToken, { id: "123", name: "Alice" });
-	executionContext.put(requestIdToken, "req-456");
+    executionContext.put(userToken, { id: "123", name: "Alice" });
+    executionContext.put(requestIdToken, "req-456");
 
-	const logData = executionContext.bind((msg: string): void => {
-	    // Access context values later in the call chain
-	    const user = executionContext.get(userToken); // { id: "123", name: "Alice" }
-	    const reqId = executionContext.get(requestIdToken); // "req-456"
-	    console.log("message:", msg)
-	    console.log("user:", user);
-	    console.log("reqId:", reqId);
-	});
+    const logData = executionContext.bind((msg: string): void => {
+        // Access context values later in the call chain
+        const user = executionContext.get(userToken); // { id: "123", name: "Alice" }
+        const reqId = executionContext.get(requestIdToken); // "req-456"
+        console.log("message:", msg);
+        console.log("user:", user);
+        console.log("reqId:", reqId);
+    });
 
     logData("hello");
 });
@@ -99,8 +102,8 @@ All context mutation methods return the context instance, allowing for method ch
 
 ```ts
 executionContext
-	.put(userToken, { id: "123", name: "Alice" })
-	.put(requestIdToken, "req-456");
+    .put(userToken, { id: "123", name: "Alice" })
+    .put(requestIdToken, "req-456");
 ```
 
 ### Conditional context updates
@@ -108,9 +111,8 @@ executionContext
 You can conditionally update the context:
 
 ```ts
-executionContext.when(
-	true,
-	(ctx) => ctx.put(userToken, { id: "conditional", name: "Bob" })
+executionContext.when(true, (ctx) =>
+    ctx.put(userToken, { id: "conditional", name: "Bob" }),
 );
 ```
 

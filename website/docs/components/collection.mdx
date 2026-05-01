@@ -1,9 +1,9 @@
 ---
 sidebar_label: Collection
 tags:
- - Utilities
+    - Utilities
 keywords:
- - Utilities
+    - Utilities
 ---
 
 # Collection
@@ -80,12 +80,10 @@ const myArrayLike: ArrayLike<number> = {
     1: 2,
     2: -3,
     3: -1,
-    length: 4
-}
+    length: 4,
+};
 
-const fromArrayLike: ListCollection<number> = new ListCollection(
-    myArrayLike,
-);
+const fromArrayLike: ListCollection<number> = new ListCollection(myArrayLike);
 // Logs [1, 2, 3]
 console.log(fromArrayLike.toArray());
 ```
@@ -250,6 +248,7 @@ The library includes 3 types of collections:
 The `ListCollection` and `IterableCollection` classes supports serialization and deserialization, allowing you to easily convert instances to and from serialized formats. However, registration is required first:
 
 Serializing and deserializing `ListCollection`:
+
 ```ts
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
@@ -274,6 +273,7 @@ console.log(listCollection.toArray(), deserializedListCollection.toArray());
 ```
 
 Serializing and deserializing `IterableCollection`:
+
 ```ts
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
