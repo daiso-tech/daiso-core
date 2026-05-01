@@ -3,13 +3,13 @@ sidebar_position: 5
 sidebar_label: Creating adapters
 pagination_label: Creating rate-limiter adapters
 tags:
- - Rate-limiter
- - Creating adapters
- - Creating database adapters
+    - Rate-limiter
+    - Creating adapters
+    - Creating database adapters
 keywords:
- - Rate-limiter
- - Creating adapters
- - Creating database adapters
+    - Rate-limiter
+    - Creating adapters
+    - Creating database adapters
 ---
 
 # Creating rate-limiter adapters
@@ -17,7 +17,6 @@ keywords:
 ## Implementing your custom IRateLimiterAdapter
 
 In order to create an adapter you need to implement the [`IRateLimiterAdapter`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiterAdapter.html) contract.
-
 
 ## Implementing your custom IRateLimiterStorageAdapter
 

@@ -3,13 +3,13 @@ sidebar_position: 4
 sidebar_label: Creating adapters
 pagination_label: Creating file-storage adapters
 tags:
- - FileStorage
- - Creating adapters
- - Creating database adapters
+    - FileStorage
+    - Creating adapters
+    - Creating database adapters
 keywords:
- - FileStorage
- - Creating adapters
- - Creating database adapters
+    - FileStorage
+    - Creating adapters
+    - Creating database adapters
 ---
 
 # Creating lock adapters

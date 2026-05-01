@@ -3,31 +3,31 @@ sidebar_position: 3
 sidebar_label: Configuring adapters
 pagination_label: Configuring cache adapters
 tags:
- - Cache
- - Configuring adapters
- - In-memory
- - Mongodb
- - Redis
- - Kysely
- - Sqlite
- - Mysql
- - Postgres
- - Sqlite
- - Libsql
- - NoOp
+    - Cache
+    - Configuring adapters
+    - In-memory
+    - Mongodb
+    - Redis
+    - Kysely
+    - Sqlite
+    - Mysql
+    - Postgres
+    - Sqlite
+    - Libsql
+    - NoOp
 keywords:
- - Cache
- - Configuring adapters
- - In-memory
- - Mongodb
- - Redis
- - Kysely
- - Sqlite
- - Mysql
- - Postgres
- - Sqlite
- - Libsql
- - NoOp
+    - Cache
+    - Configuring adapters
+    - In-memory
+    - Mongodb
+    - Redis
+    - Kysely
+    - Sqlite
+    - Mysql
+    - Postgres
+    - Sqlite
+    - Libsql
+    - NoOp
 ---
 
 # Configuring Cache adapters
@@ -126,7 +126,7 @@ To use the `RedisCacheAdapter`, you'll need to:
 1. Install the required dependency: [`ioredis`](https://www.npmjs.com/package/ioredis) package:
 2. Provide a string serializer ([`ISerde`](../serde.md)):
 
--   We recommend using `SuperJsonSerdeAdapter` for this purpose
+- We recommend using `SuperJsonSerdeAdapter` for this purpose
 
 ```ts
 import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
@@ -149,7 +149,7 @@ To use the `KyselyCacheAdapter`, you'll need to:
 1. Install the required dependency: [`kysely`](https://www.npmjs.com/package/kysely) package:
 2. Provide a string serializer ([`ISerde`](../serde.md)):
 
--   We recommend using `SuperJsonSerdeAdapter` for this purpose
+- We recommend using `SuperJsonSerdeAdapter` for this purpose
 
 ### Usage with Sqlite
 
@@ -200,7 +200,7 @@ const database = new Pool({
     port: 5432,
     password: "DATABASE_PASSWORD",
     max: 10,
-})
+});
 const kysely = new Kysely({
     dialect: new PostgresDialect({
         pool: database,
@@ -263,7 +263,7 @@ import { TimeSpan } from "@daiso-tech/core/time-span";
 import { KyselyCacheAdapter } from "@daiso-tech/core/cache/kysely-cache-adapter";
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import { LibsqlDialect }  from "@libsql/kysely-libsql";
+import { LibsqlDialect } from "@libsql/kysely-libsql";
 import { Kysely } from "kysely";
 
 const kysely = new Kysely({
@@ -351,7 +351,6 @@ The `NoOpCacheAdapter` is useful when you want to mock out or disable your [`Cac
 :::info
 Note `NoOpCacheAdapter` returns always null when retrieving items and return true when adding, updating, and removing items.
 :::
-
 
 ## Further information
 

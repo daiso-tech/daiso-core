@@ -3,11 +3,11 @@ sidebar_position: 2
 sidebar_label: Resolver classes
 pagination_label: Rate-limiter resolver classes
 tags:
- - Rate-limiter
- - Resolvers
+    - Rate-limiter
+    - Resolvers
 keywords:
- - Rate-limiter
- - Resolvers
+    - Rate-limiter
+    - Resolvers
 ---
 
 # Rate-limiter resolver factory classes
@@ -27,17 +27,17 @@ import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/databa
 import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import Redis from "ioredis"
-  
+import Redis from "ioredis";
+
 const serde = new Serde(new SuperJsonSerdeAdapter());
 const rateLimiterFactoryResolver = new RateLimiterFactoryResolver({
     serde,
     adapters: {
         memory: new DatabaseRateLimiterAdapter({
-            adapter: new MemoryRateLimiterStorageAdapter()
+            adapter: new MemoryRateLimiterStorageAdapter(),
         }),
         redis: new RedisRateLimiterAdapter({
-            database: new Redis("YOUR_REDIS_CONNECTION")
+            database: new Redis("YOUR_REDIS_CONNECTION"),
         }),
     },
     defaultAdapter: "memory",
@@ -51,11 +51,11 @@ const rateLimiterFactoryResolver = new RateLimiterFactoryResolver({
 ```ts
 // Will apply rate-limiter logic the default adapter which is MemoryRateLimiterStorageAdapter
 await rateLimiterFactoryResolver
-  .use()
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply rate-limiter logic
-  });
+    .use()
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply rate-limiter logic
+    });
 ```
 
 :::danger
@@ -67,11 +67,11 @@ Note that if you dont set a default adapter, an error will be thrown.
 ```ts
 // Will apply rate-limiter logic using the redis adapter
 await rateLimiterFactoryResolver
-  .use("redis")
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply rate-limiter logic
-  });
+    .use("redis")
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply rate-limiter logic
+    });
 ```
 
 :::danger
@@ -82,12 +82,12 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 
 ```ts
 await rateLimiterFactoryResolver
-  .setNamespace(new Namespace(["@", "test"]))
-  .use("redis")
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply rate-limiter logic
-  });
+    .setNamespace(new Namespace(["@", "test"]))
+    .use("redis")
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply rate-limiter logic
+    });
 ```
 
 :::info
@@ -114,36 +114,36 @@ import { Kysely, SqliteDialect } from "kysely";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 const rateLimiterFactoryResolver = new DatabaseRateLimiterFactoryResolver({
-  serde,
-  adapters: {
-    memory: new MemoryRateLimiterStorageAdapter(),
-    sqlite: new KyselyRateLimiterStorageAdapter({
-      kysely: new Kysely({
-        dialect: new SqliteDialect({
-          database: new Sqlite("local.db"),
+    serde,
+    adapters: {
+        memory: new MemoryRateLimiterStorageAdapter(),
+        sqlite: new KyselyRateLimiterStorageAdapter({
+            kysely: new Kysely({
+                dialect: new SqliteDialect({
+                    database: new Sqlite("local.db"),
+                }),
+            }),
+            serde,
         }),
-      }),
-      serde,
-    }),
-  },
-  defaultAdapter: "memory",
+    },
+    defaultAdapter: "memory",
 });
 
 // Will apply rate-limiter logic the default adapter which is MemoryRateLimiterStorageAdapter
 await rateLimiterFactoryResolver
-  .use()
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply rate-limiter logic
-  });
+    .use()
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply rate-limiter logic
+    });
 
 // Will apply rate-limiter logic using the KyselyRateLimiterStorageAdapter
 await rateLimiterFactoryResolver
-  .use("sqlite")
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply rate-limiter logic
-  });
+    .use("sqlite")
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply rate-limiter logic
+    });
 ```
 
 ### Usage
@@ -153,11 +153,11 @@ await rateLimiterFactoryResolver
 ```ts
 // Will apply rate-limiter logic the default adapter which is MemoryRateLimiterStorageAdapter
 await rateLimiterFactoryResolver
-  .use()
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply rate-limiter logic
-  });
+    .use()
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply rate-limiter logic
+    });
 ```
 
 :::danger
@@ -169,11 +169,11 @@ Note that if you dont set a default adapter, an error will be thrown.
 ```ts
 // Will apply rate-limiter logic using the sqlite adapter
 await rateLimiterFactoryResolver
-  .use("sqlite")
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply rate-limiter logic
-  });
+    .use("sqlite")
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply rate-limiter logic
+    });
 ```
 
 :::danger
@@ -183,17 +183,17 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 #### 3. Overriding default settings
 
 ```ts
-import { SlidingWindowLimiter } from "@daiso-tech/core/rate-limiter/policies"
-import { constantBackoff } from "@daiso-tech/core/backoff-policies"
+import { SlidingWindowLimiter } from "@daiso-tech/core/rate-limiter/policies";
+import { constantBackoff } from "@daiso-tech/core/backoff-policies";
 
 await rateLimiterFactoryResolver
-  .setBackoffPolicy(constantBackoff())
-  .setRateLimiterPolicy(new SlidingWindowLimiter())
-  .use("redis")
-  .create("a")
-  .runOrFail(async () => {
-    // ... code to apply rate-limiter logic
-  });
+    .setBackoffPolicy(constantBackoff())
+    .setRateLimiterPolicy(new SlidingWindowLimiter())
+    .use("redis")
+    .create("a")
+    .runOrFail(async () => {
+        // ... code to apply rate-limiter logic
+    });
 ```
 
 :::info
@@ -203,4 +203,3 @@ Note that the `DatabaseRateLimiterFactoryResolver` is immutable, meaning any con
 ## Further information
 
 For further information refer to [`@daiso-tech/core/rate-limiter`](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) API docs.
-

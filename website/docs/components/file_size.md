@@ -1,8 +1,8 @@
 ---
 tags:
- - Utilities
+    - Utilities
 keywords:
- - Utilities
+    - Utilities
 ---
 
 # FileSize
@@ -96,7 +96,6 @@ Less than or equals:
 FileSize.fromBytes(20_000).lte(FileSize.fromBytes(40_000));
 ```
 
-
 ### Converting a FileSize
 
 You can get amount of bytes contained in the `FileSize`:
@@ -149,7 +148,6 @@ const deserializedFileSize = serde.deserialize(serializedFileSize);
 // logs false
 console.log(serializedFileSize === deserializedFileSize);
 ```
-
 
 ## FileSize contract
 

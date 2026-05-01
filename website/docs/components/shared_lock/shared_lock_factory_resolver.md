@@ -3,11 +3,11 @@ sidebar_position: 2
 sidebar_label: Resolver classes
 pagination_label: Shared-lock resolver classes
 tags:
- - Shared-lock
- - Resolvers
+    - Shared-lock
+    - Resolvers
 keywords:
- - Shared-lock
- - Resolvers
+    - Shared-lock
+    - Resolvers
 ---
 
 # SharedLockFactoryResolver

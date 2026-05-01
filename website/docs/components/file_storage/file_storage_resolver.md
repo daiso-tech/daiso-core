@@ -3,11 +3,11 @@ sidebar_position: 2
 sidebar_label: Resolver classes
 pagination_label: FileStorage resolver classes
 tags:
- - FileStorage
- - Resolvers
+    - FileStorage
+    - Resolvers
 keywords:
- - FileStorage
- - Resolvers
+    - FileStorage
+    - Resolvers
 ---
 
 # FileStorageResolver
@@ -38,10 +38,7 @@ const fileStorageResolver = new FileStorageResolver({
 ### 1. Using the default adapter
 
 ```ts
-await fileStorageResolver
-    .use()
-    .create("file.txt")
-    .add("Text file content");
+await fileStorageResolver.use().create("file.txt").add("Text file content");
 ```
 
 :::danger
@@ -51,10 +48,7 @@ Note that if you dont set a default adapter, an error will be thrown.
 ### 2. Specifying an adapter explicitly
 
 ```ts
-await fileStorageResolver
-    .use("fs")
-    .create("file.txt")
-    .add("Text file content");
+await fileStorageResolver.use("fs").create("file.txt").add("Text file content");
 ```
 
 :::danger

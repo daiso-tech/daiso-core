@@ -3,31 +3,31 @@ sidebar_position: 3
 sidebar_label: Configuring adapters
 pagination_label: Configuring semaphore adapters
 tags:
- - Semaphore
- - Configuring adapters
- - In-memory
- - Mongodb
- - Redis
- - Kysely
- - Sqlite
- - Mysql
- - Postgres
- - Sqlite
- - Libsql
- - NoOp
+    - Semaphore
+    - Configuring adapters
+    - In-memory
+    - Mongodb
+    - Redis
+    - Kysely
+    - Sqlite
+    - Mysql
+    - Postgres
+    - Sqlite
+    - Libsql
+    - NoOp
 keywords:
- - Semaphore
- - Configuring adapters
- - In-memory
- - Mongodb
- - Redis
- - Kysely
- - Sqlite
- - Mysql
- - Postgres
- - Sqlite
- - Libsql
- - NoOp
+    - Semaphore
+    - Configuring adapters
+    - In-memory
+    - Mongodb
+    - Redis
+    - Kysely
+    - Sqlite
+    - Mysql
+    - Postgres
+    - Sqlite
+    - Libsql
+    - NoOp
 ---
 
 # Configuring semaphore adapters
@@ -328,7 +328,6 @@ const noOpSemaphoreAdapter = new NoOpSemaphoreAdapter();
 :::info
 The `NoOpSemaphoreAdapter` is useful when you want to mock out or disable your [`SemaphoreFactory`](https://daiso-tech.github.io/daiso-core/classes/Semaphore.SemaphoreFactory.html) instance.
 :::
-
 
 ## Further information
 

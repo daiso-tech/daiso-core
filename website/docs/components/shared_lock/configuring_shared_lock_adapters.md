@@ -3,31 +3,31 @@ sidebar_position: 3
 sidebar_label: Configuring adapters
 pagination_label: Configuring shared-lock adapters
 tags:
- - Shared-lock
- - Configuring adapters
- - In-memory
- - Mongodb
- - Redis
- - Kysely
- - Sqlite
- - Mysql
- - Postgres
- - Sqlite
- - Libsql
- - NoOp
+    - Shared-lock
+    - Configuring adapters
+    - In-memory
+    - Mongodb
+    - Redis
+    - Kysely
+    - Sqlite
+    - Mysql
+    - Postgres
+    - Sqlite
+    - Libsql
+    - NoOp
 keywords:
- - Shared-lock
- - Configuring adapters
- - In-memory
- - Mongodb
- - Redis
- - Kysely
- - Sqlite
- - Mysql
- - Postgres
- - Sqlite
- - Libsql
- - NoOp
+    - Shared-lock
+    - Configuring adapters
+    - In-memory
+    - Mongodb
+    - Redis
+    - Kysely
+    - Sqlite
+    - Mysql
+    - Postgres
+    - Sqlite
+    - Libsql
+    - NoOp
 ---
 
 # Configuring shared-lock adapters
@@ -312,6 +312,7 @@ To remove the shared-lock table and all stored shared-lock data, use `deInit` me
 ```ts
 await kyselySharedLockAdapter.deInit();
 ```
+
 :::
 
 ## NoOpSharedLockAdapter

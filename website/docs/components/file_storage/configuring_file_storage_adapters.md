@@ -3,29 +3,29 @@ sidebar_position: 3
 sidebar_label: Configuring adapters
 pagination_label: Configuring file-storage adapters
 tags:
- - FileStorage
- - Configuring adapters
- - In-memory
- - File system
- - Aws s3
- - Cloudflare r2
- - Digital ocean spaces
- - Tigris
- - Supabase Storage
- - Minio
- - NoOp
+    - FileStorage
+    - Configuring adapters
+    - In-memory
+    - File system
+    - Aws s3
+    - Cloudflare r2
+    - Digital ocean spaces
+    - Tigris
+    - Supabase Storage
+    - Minio
+    - NoOp
 keywords:
- - FileStorage
- - Configuring adapters
- - In-memory
- - File system
- - Aws s3
- - Cloudflare r2
- - Digital ocean spaces
- - Tigris
- - Supabase Storage
- - Minio
- - NoOp
+    - FileStorage
+    - Configuring adapters
+    - In-memory
+    - File system
+    - Aws s3
+    - Cloudflare r2
+    - Digital ocean spaces
+    - Tigris
+    - Supabase Storage
+    - Minio
+    - NoOp
 ---
 
 # Configuring file-storage adapters
@@ -73,7 +73,7 @@ You can configure the root folder:
 import { FsFileStorageAdapter } from "@daiso-tech/core/file-storage/fs-file-storage-adapter";
 
 const fsFileStorageAdapter = new FsFileStorageAdapter({
-    location: "/my-custom-location"
+    location: "/my-custom-location",
 });
 ```
 
@@ -84,9 +84,10 @@ import { Base64Codec } from "@daiso-tech/core/codec/base-64-codec";
 import { FsFileStorageAdapter } from "@daiso-tech/core/file-storage/fs-file-storage-adapter";
 
 const fsFileStorageAdapter = new FsFileStorageAdapter({
-    codec: new Base64Codec()
+    codec: new Base64Codec(),
 });
 ```
+
 :::warning
 Not encoding and decoding is required for `FsFileStorageAdapter` to maintain a flat hierarchy within the root folder and to ensure compatibility with OS-restricted characters.
 :::
@@ -107,28 +108,31 @@ import { S3FileStorageAdapter } from "@daiso-tech/core/file-storage/s3-file-stor
 
 const s3Client = new S3Client({
     credentials: {
-        accessKeyId: 'AWS_ACCESS_KEY_ID',
-        secretAccessKey: 'AWS_SECRET_ACCESS_KEY',
+        accessKeyId: "AWS_ACCESS_KEY_ID",
+        secretAccessKey: "AWS_SECRET_ACCESS_KEY",
     },
     region: "AWS_REGION",
-})
+});
 const s3FileStorageAdapter = new S3FileStorageAdapter({
-  client: s3Client
+    client: s3Client,
 });
 ```
 
 Other settings:
 
 ```ts
-import { S3FileStorageAdapter, defaultPublicUrlGenerator } from "@daiso-tech/core/file-storage/s3-file-storage-adapter";
+import {
+    S3FileStorageAdapter,
+    defaultPublicUrlGenerator,
+} from "@daiso-tech/core/file-storage/s3-file-storage-adapter";
 
 const s3Client = new S3Client({
     credentials: {
-        accessKeyId: 'AWS_ACCESS_KEY_ID',
-        secretAccessKey: 'AWS_SECRET_ACCESS_KEY',
+        accessKeyId: "AWS_ACCESS_KEY_ID",
+        secretAccessKey: "AWS_SECRET_ACCESS_KEY",
     },
     region: "AWS_REGION",
-})
+});
 const s3FileStorageAdapter = new S3FileStorageAdapter({
     client: s3Client,
 
@@ -162,18 +166,19 @@ const s3FileStorageAdapter = new S3FileStorageAdapter({
     /**
      * Define a custom public url generator for creating public and signed URLs.
      */
-    publicUrlGenerator: defaultPublicUrlGenerator
+    publicUrlGenerator: defaultPublicUrlGenerator,
 });
 ```
 
 :::info
 Note this adapter with object storage services that are compatible with aws s3 like:
- - Cloudflare r2
- - Digital ocean spaces
- - Tigris
- - Supabase Storage
- - Minio
-:::
+
+- Cloudflare r2
+- Digital ocean spaces
+- Tigris
+- Supabase Storage
+- Minio
+  :::
 
 ## NoOpFileStorageAdapter
 
