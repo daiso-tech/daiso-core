@@ -21,10 +21,28 @@ jobs:
               run: npm ci
 
             - name: Linting
-              run: npm run lint
+              run: npx tsx --tsconfig ./tsconfig.json scripts/run-changed.ts --script \"npx eslint\" --extension \"js,jsx,ts,tsx\" --branch ${{ github.base_ref }}
 
-    pubcheck:
-        name: Checking-package
+    format:
+        name: Formating
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Install Node js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ secrets.NODE_VERSION }}
+
+            - name: Install Dependencies
+              run: npm ci
+
+            - name: Formating
+              run: npx tsx --tsconfig ./tsconfig.json scripts/run-changed.ts --script \"npx prettier --check\" --extension \"json,md,mdx\" --branch ${{ github.base_ref }}
+
+    package_json_exports_check:
+        name: Package json exports check
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -39,7 +57,25 @@ jobs:
               run: npm ci
 
             - name: Checking
-              run: npm run publint
+              run: npm run package-json-exports-check
+
+    module_exports_files_check:
+        name: Module exports files check
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Install Node js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ secrets.NODE_VERSION }}
+
+            - name: Install Dependencies
+              run: npm ci
+
+            - name: Checking
+              run: npm run module-exports-files-check
 
     check:
         name: Checking
