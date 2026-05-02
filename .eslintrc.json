@@ -30,6 +30,48 @@
                 "plugin:prettier/recommended"
             ],
             "rules": {
+                "@typescript-eslint/naming-convention": [
+                    "error",
+                    {
+                        "selector": [
+                            "variable",
+                            "classProperty",
+                            "classicAccessor",
+                            "autoAccessor",
+                            "typeProperty"
+                        ],
+                        "format": ["camelCase", "UPPER_CASE"],
+                        "leadingUnderscore": "allow",
+                        "trailingUnderscore": "allow"
+                    },
+                    {
+                        "selector": ["class", "interface", "typeAlias"],
+                        "format": ["PascalCase"]
+                    },
+                    {
+                        "selector": ["parameter", "parameterProperty"],
+                        "format": ["camelCase"],
+                        "leadingUnderscore": "allow",
+                        "trailingUnderscore": "allow"
+                    },
+                    {
+                        "selector": ["typeParameter"],
+                        "format": ["PascalCase"],
+                        "prefix": ["T"],
+                        "trailingUnderscore": "allow"
+                    },
+                    {
+                        "selector": [
+                            "method",
+                            "function",
+                            "objectLiteralMethod",
+                            "typeMethod"
+                        ],
+                        "format": ["camelCase"],
+                        "leadingUnderscore": "allow",
+                        "trailingUnderscore": "allow"
+                    }
+                ],
                 "object-shorthand": ["error", "always"],
                 "no-shadow": [
                     "error",

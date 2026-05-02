@@ -40,9 +40,9 @@ async function main() {
         if (process.platform === "win32" && scriptPath.startsWith("/")) {
             scriptPath = scriptPath.slice(1);
         }
-        const __dirname = path.dirname(scriptPath);
-        const srcDir = path.resolve(__dirname, "../src");
-        const pkgPath = path.resolve(__dirname, "../package.json");
+        const dirname = path.dirname(scriptPath);
+        const srcDir = path.resolve(dirname, "../src");
+        const pkgPath = path.resolve(dirname, "../package.json");
 
         const moduleExportFiles = await findModuleExportsFiles(srcDir);
 

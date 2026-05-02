@@ -63,7 +63,7 @@ describe("class: EventBus", () => {
                     adapter,
                     namespace,
                     eventMapSchema,
-                    __onUncaughtRejection: (error_) => {
+                    _onUncaughtRejection: (error_) => {
                         error = error_;
                     },
                 });
@@ -88,7 +88,7 @@ describe("class: EventBus", () => {
                     adapter,
                     namespace,
                     eventMapSchema,
-                    __onUncaughtRejection: (error_) => {
+                    _onUncaughtRejection: (error_) => {
                         error = error_;
                     },
                 });
@@ -113,7 +113,7 @@ describe("class: EventBus", () => {
                     adapter,
                     namespace,
                     eventMapSchema,
-                    __onUncaughtRejection: (error_) => {
+                    _onUncaughtRejection: (error_) => {
                         error = error_;
                     },
                 });
@@ -135,7 +135,7 @@ describe("class: EventBus", () => {
                     adapter,
                     namespace,
                     eventMapSchema,
-                    __onUncaughtRejection: (error_) => {
+                    _onUncaughtRejection: (error_) => {
                         error = error_;
                     },
                 });
@@ -163,7 +163,7 @@ describe("class: EventBus", () => {
                     adapter,
                     namespace,
                     eventMapSchema,
-                    __onUncaughtRejection: (error_) => {
+                    _onUncaughtRejection: (error_) => {
                         error = error_;
                     },
                 });

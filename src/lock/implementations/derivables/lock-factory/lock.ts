@@ -69,7 +69,7 @@ export class Lock implements ILock {
     /**
      * @internal
      */
-    static _internal_serialize(deserializedValue: Lock): ISerializedLock {
+    static _serialize(deserializedValue: Lock): ISerializedLock {
         return {
             version: "1",
             key: deserializedValue._key.get(),
@@ -121,15 +121,15 @@ export class Lock implements ILock {
         this.defaultRefreshTime = defaultRefreshTime;
     }
 
-    _internal_getNamespace(): INamespace {
+    _getNamespace(): INamespace {
         return this.namespace;
     }
 
-    _internal_getSerdeTransformerName(): string {
+    _getSerdeTransformerName(): string {
         return this.serdeTransformerName;
     }
 
-    _internal_getAdapter(): LockAdapterVariants {
+    _getAdapter(): LockAdapterVariants {
         return this.originalAdapter;
     }
 

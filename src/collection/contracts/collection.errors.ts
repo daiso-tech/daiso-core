@@ -101,8 +101,8 @@ export type AllCollectionErrors = InferInstance<
 export function isCollectionError(
     value: unknown,
 ): value is AllCollectionErrors {
-    for (const ErrorClass of Object.values(COLLECTION_ERRORS)) {
-        if (value instanceof ErrorClass) {
+    for (const errorClass of Object.values(COLLECTION_ERRORS)) {
+        if (value instanceof errorClass) {
             return true;
         }
     }

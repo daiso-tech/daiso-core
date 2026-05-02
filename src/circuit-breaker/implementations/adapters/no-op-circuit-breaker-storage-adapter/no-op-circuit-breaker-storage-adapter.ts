@@ -30,11 +30,11 @@ export class NoOpCircuitBreakerStorageAdapter<TType>
         return Promise.resolve(
             fn({
                 find: (
-                    __context: IReadableContext,
+                    _nestedContext: IReadableContext,
                     _key: string,
                 ): Promise<TType | null> => Promise.resolve(null),
                 upsert: (
-                    __context: IReadableContext,
+                    _nestedContext: IReadableContext,
                     _key: string,
                     _state: TType,
                 ) => Promise.resolve(),

@@ -20,6 +20,7 @@ type IRedisJsonLockState = {
 };
 
 declare module "ioredis" {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     interface RedisCommander<Context> {
         /**
          *
@@ -27,12 +28,14 @@ declare module "ioredis" {
          * @param lockId
          * @param expiration As unix timestamp in miliseconds
          */
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_lock_acquire(
             key: string,
             lockId: string,
             expiration: number | null,
         ): Result<1 | 0, Context>;
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_lock_release(key: string, lockId: string): Result<1 | 0, Context>;
 
         /**
@@ -41,6 +44,7 @@ declare module "ioredis" {
          * @param lockId
          * @param expiration As unix timestamp in miliseconds
          */
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_lock_refresh(
             key: string,
             lockId: string,
@@ -50,6 +54,7 @@ declare module "ioredis" {
         /**
          * @returns {string} {@link IRedisJsonLockState | `IRedisJsonLockState`} or `null` as json string.
          */
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_lock_get_state(key: string): Result<string, Context>;
     }
 }

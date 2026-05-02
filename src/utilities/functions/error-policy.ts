@@ -107,8 +107,8 @@ export async function callErrorPolicyOnThrow<TError = unknown>(
         return false;
     }
 
-    for (const ErrorClass of resolveOneOrMore(errorPolicy)) {
-        if (error instanceof ErrorClass) {
+    for (const errorClass of resolveOneOrMore(errorPolicy)) {
+        if (error instanceof errorClass) {
             return true;
         }
     }

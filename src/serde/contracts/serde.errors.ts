@@ -74,8 +74,8 @@ export type AllSerdeErrors =
  * @group Errors
  */
 export function isSerdeError(value: unknown): value is AllSerdeErrors {
-    for (const ErrorClass of Object.values(SERDE_ERRORS)) {
-        if (value instanceof ErrorClass) {
+    for (const errorClass of Object.values(SERDE_ERRORS)) {
+        if (value instanceof errorClass) {
             return true;
         }
     }

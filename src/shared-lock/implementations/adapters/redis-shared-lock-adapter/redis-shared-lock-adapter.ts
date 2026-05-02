@@ -38,28 +38,34 @@ type IRedisJsonSharedLockState = {
 };
 
 declare module "ioredis" {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     interface RedisCommander<Context> {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_shared_lock_acquire_writer(
             key: string,
             lockId: string,
             expiration: number | null,
         ): Result<1 | 0, Context>;
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_shared_lock_release_writer(
             key: string,
             lockId: string,
         ): Result<1 | 0, Context>;
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_shared_lock_refresh_writer(
             key: string,
             lockId: string,
             expiration: number,
         ): Result<1 | 0, Context>;
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_shared_lock_force_release_writer(
             key: string,
         ): Result<1 | 0, Context>;
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_shared_lock_acquire_reader(
             key: string,
             lockId: string,
@@ -68,12 +74,14 @@ declare module "ioredis" {
             now: number,
         ): Result<1 | 0, Context>;
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_shared_lock_release_reader(
             key: string,
             lockId: string,
             now: number,
         ): Result<1 | 0, Context>;
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_shared_lock_refresh_reader(
             key: string,
             lockId: string,
@@ -81,11 +89,13 @@ declare module "ioredis" {
             now: number,
         ): Result<1 | 0, Context>;
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_shared_lock_force_release_all_readers(
             key: string,
             now: number,
         ): Result<1 | 0, Context>;
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_shared_lock_force_release(
             key: string,
             now: number,
@@ -94,6 +104,7 @@ declare module "ioredis" {
         /**
          * Returns {@link IRedisJsonSharedLockState | `IRedisJsonSharedLockState | null`} as json string.
          */
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_shared_lock_get_state(
             key: string,
             now: number,

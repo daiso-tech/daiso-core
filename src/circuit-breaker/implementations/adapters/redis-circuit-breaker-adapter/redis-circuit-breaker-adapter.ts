@@ -59,7 +59,9 @@ export type RedisCircuitBreakerAdapterSettings = {
 };
 
 declare module "ioredis" {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     interface RedisCommander<Context> {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_circuit_breaker_update_state(
             key: string,
             backoffSettings: string,
@@ -67,6 +69,7 @@ declare module "ioredis" {
             currentDate: number,
         ): Result<string, Context>;
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_circuit_breaker_track_failure(
             key: string,
             backoffSettings: string,
@@ -74,6 +77,7 @@ declare module "ioredis" {
             currentDate: number,
         ): Result<void, Context>;
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_circuit_breaker_track_success(
             key: string,
             backoffSettings: string,
