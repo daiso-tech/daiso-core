@@ -153,7 +153,7 @@ export function handleOnExecutionAttempt<TParameters extends Array<unknown>>(
                 context,
             });
         } catch (error: unknown) {
-            console.log(
+            console.error(
                 "Error occurred in onExecutionAttempt callback:",
                 error,
             );
@@ -190,7 +190,7 @@ export function handleOnRetryDelay<TParameters extends Array<unknown>>(
                 context,
             });
         } catch (error_: unknown) {
-            console.log("Error occurred in onRetryDelay callback:", error_);
+            console.error("Error occurred in onRetryDelay callback:", error_);
         }
     })();
 }
@@ -314,7 +314,7 @@ async function handleWhenThrow<TParameters extends Array<unknown>>(
 /**
  * @internal
  */
-type ThrowErrosSettings = {
+type ThrowErrorsSettings = {
     allErrors: Array<unknown>;
     throwLastError: boolean;
     maxAttempts: number;
@@ -323,7 +323,7 @@ type ThrowErrosSettings = {
 /**
  * @internal
  */
-function throwErrors(settings: ThrowErrosSettings): never {
+function throwErrors(settings: ThrowErrorsSettings): never {
     const { allErrors, throwLastError, maxAttempts } = settings;
     if (allErrors.length !== 0 && !throwLastError) {
         throw RetryResilienceError.create(allErrors, maxAttempts);

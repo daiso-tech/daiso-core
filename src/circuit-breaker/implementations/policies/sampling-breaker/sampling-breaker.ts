@@ -122,7 +122,7 @@ export function resolveSamplingBreakerSettings(
     } = settings;
 
     validateFailureThreshold(failureThreshold);
-    validateSuccessThreshold(failureThreshold);
+    validateSuccessThreshold(successThreshold);
 
     return {
         failureThreshold,

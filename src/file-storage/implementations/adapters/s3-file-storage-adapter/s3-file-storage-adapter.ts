@@ -435,6 +435,18 @@ export class S3FileStorageAdapter
         }
     }
 
+    private static async resolveStreamSettings(
+        stream: WritableFileAdapterStream,
+    ) {
+        return {
+            Body:
+                stream.fileSizeInBytes === null
+                    ? await buffer(stream.data)
+                    : Readable.from(stream.data),
+            ContentLength: stream.fileSizeInBytes ?? undefined,
+        };
+    }
+
     async addStream(
         _context: IReadableContext,
         key: string,
@@ -446,11 +458,9 @@ export class S3FileStorageAdapter
                     ServerSideEncryption: this.serverSideEncryption,
                     Bucket: this.bucket,
                     Key: key,
-                    Body:
-                        stream.fileSizeInBytes === null
-                            ? await buffer(Readable.from(stream.data))
-                            : Readable.from(stream.data),
-                    ContentLength: stream.fileSizeInBytes ?? undefined,
+                    ...(await S3FileStorageAdapter.resolveStreamSettings(
+                        stream,
+                    )),
                     IfNoneMatch: "*",
                     ContentType: stream.contentType,
                     CacheControl: stream.cacheControl ?? undefined,
@@ -504,11 +514,9 @@ export class S3FileStorageAdapter
                     ServerSideEncryption: this.serverSideEncryption,
                     Bucket: this.bucket,
                     Key: key,
-                    Body:
-                        stream.fileSizeInBytes === null
-                            ? await buffer(Readable.from(stream.data))
-                            : Readable.from(stream.data),
-                    ContentLength: stream.fileSizeInBytes ?? undefined,
+                    ...(await S3FileStorageAdapter.resolveStreamSettings(
+                        stream,
+                    )),
                     IfMatch: "*",
                     ContentType: stream.contentType,
                     CacheControl: stream.cacheControl ?? undefined,
@@ -607,11 +615,7 @@ export class S3FileStorageAdapter
                 ServerSideEncryption: this.serverSideEncryption,
                 Bucket: this.bucket,
                 Key: key,
-                Body:
-                    stream.fileSizeInBytes === null
-                        ? await buffer(stream.data)
-                        : Readable.from(stream.data),
-                ContentLength: stream.fileSizeInBytes ?? undefined,
+                ...(await S3FileStorageAdapter.resolveStreamSettings(stream)),
                 ContentType: stream.contentType,
                 CacheControl: stream.cacheControl ?? undefined,
                 ContentDisposition: stream.contentDisposition ?? undefined,
@@ -631,7 +635,7 @@ export class S3FileStorageAdapter
                 ServerSideEncryption: this.serverSideEncryption,
                 Bucket: this.bucket,
                 Key: key,
-                Body: Readable.from(stream.data),
+                ...(await S3FileStorageAdapter.resolveStreamSettings(stream)),
                 ContentType: stream.contentType,
                 CacheControl: stream.cacheControl ?? undefined,
                 ContentDisposition: stream.contentDisposition ?? undefined,

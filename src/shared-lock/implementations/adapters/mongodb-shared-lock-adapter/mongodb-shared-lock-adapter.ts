@@ -1073,12 +1073,12 @@ export class MongodbSharedLockAdapter
             return writerState.value;
         }
 
-        const ReaderState = MongodbSharedLockAdapter.extractReaderState(
+        const readerState = MongodbSharedLockAdapter.extractReaderState(
             reader,
             writer,
         );
-        if (ReaderState.type === OPTION.SOME) {
-            return ReaderState.value;
+        if (readerState.type === OPTION.SOME) {
+            return readerState.value;
         }
 
         throw new UnexpectedError(

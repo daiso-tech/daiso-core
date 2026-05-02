@@ -186,7 +186,7 @@ async function handleWhenThrow<TParameters extends Array<unknown>>(
 /**
  * @internal
  */
-type ThrowErrosSettings = {
+type ThrowErrorsSettings = {
     allErrors: Array<unknown>;
     throwLastError: boolean;
     attempt: number;
@@ -197,7 +197,7 @@ type ThrowErrosSettings = {
 /**
  * @internal
  */
-function throwErrors(settings: ThrowErrosSettings): never {
+function throwErrors(settings: ThrowErrorsSettings): never {
     const {
         allErrors,
         throwLastError,
