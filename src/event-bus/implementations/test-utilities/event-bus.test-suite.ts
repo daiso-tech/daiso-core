@@ -325,7 +325,7 @@ export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {
                 expect(listener).toHaveBeenCalledTimes(0);
             });
             test("Should call listener once with AddEvent when listener is added and event is triggered 2 times", async () => {
-                const listener = vi.fn((_event_AddEvent) => {});
+                const listener = vi.fn((_event: AddEvent) => {});
                 await eventBus.listenOnce("add", listener);
 
                 const event: AddEvent = {

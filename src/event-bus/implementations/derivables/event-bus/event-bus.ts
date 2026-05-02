@@ -101,7 +101,7 @@ export type EventBusSettings<TEventMap extends BaseEventMap = BaseEventMap> =
          * Thist settings is only used for testing, dont use it in your code !
          * @internal
          */
-        __onUncaughtRejection?: (error: unknown) => void;
+        _onUncaughtRejection?: (error: unknown) => void;
     };
 
 /**
@@ -123,7 +123,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
     /**
      * Thist instance variable is only used for testing!
      */
-    private readonly __onUncaughtRejection: InvokableFn<[error: unknown], void>;
+    private readonly _onUncaughtRejection: InvokableFn<[error: unknown], void>;
 
     /**
      * @example
@@ -138,7 +138,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
      */
     constructor(settings: EventBusSettings<TEventMap>) {
         const {
-            __onUncaughtRejection = (error) => {
+            _onUncaughtRejection = (error) => {
                 console.error(
                     `An error of type "${String(error)}" occurred in event listener`,
                 );
@@ -157,7 +157,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         this.eventMapSchema = eventMapSchema;
         this.adapter = adapter;
         this.namespace = namespace;
-        this.__onUncaughtRejection = __onUncaughtRejection;
+        this._onUncaughtRejection = _onUncaughtRejection;
     }
 
     private createWrappedListener<TEventName extends keyof TEventMap>(
@@ -174,7 +174,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
                     type: eventName,
                 });
             } catch (error: unknown) {
-                this.__onUncaughtRejection(error);
+                this._onUncaughtRejection(error);
             }
         };
     }
@@ -257,7 +257,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
                 const resolvedListener = resolveInvokable(listener);
                 await resolvedListener(event_);
             } catch (error: unknown) {
-                this.__onUncaughtRejection(error);
+                this._onUncaughtRejection(error);
             } finally {
                 await this.removeListener(eventName, listener);
             }
