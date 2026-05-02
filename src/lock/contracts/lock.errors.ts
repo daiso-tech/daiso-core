@@ -111,8 +111,8 @@ export type AllLockErrors = InferInstance<
  * @group Errors
  */
 export function isLockError(value: unknown): value is AllLockErrors {
-    for (const ErrorClass of Object.values(LOCK_ERRORS)) {
-        if (value instanceof ErrorClass) {
+    for (const errorClass of Object.values(LOCK_ERRORS)) {
+        if (value instanceof errorClass) {
             return true;
         }
     }
