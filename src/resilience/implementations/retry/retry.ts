@@ -208,6 +208,7 @@ type HandleWhenReturnSettings<TParameters extends Array<unknown>, TReturn> = {
     maxAttempts: number;
     backoffPolicy: BackoffPolicy;
     onRetryDelay: OnRetryDelay<TParameters>;
+    allErrors: Array<unknown>;
 };
 
 /**
@@ -226,6 +227,7 @@ async function handleWhenReturn<TParameters extends Array<unknown>, TReturn>(
         maxAttempts,
         backoffPolicy,
         onRetryDelay,
+        allErrors,
     } = settings;
 
     handleOnExecutionAttempt({
@@ -240,6 +242,7 @@ async function handleWhenReturn<TParameters extends Array<unknown>, TReturn>(
         return optionSome(value);
     }
     // Handle retrying if an false is returned
+    allErrors.push(value);
 
     // Only sleep if there will actually be a next attempt
     if (attempt < maxAttempts) {
@@ -372,6 +375,7 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                     maxAttempts,
                     backoffPolicy,
                     onRetryDelay,
+                    allErrors,
                 });
                 if (result.type === "some") {
                     return result.value;

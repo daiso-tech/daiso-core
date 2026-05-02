@@ -58,6 +58,7 @@ type HandleWhenReturnSettings<TParameters extends Array<unknown>, TReturn> = {
     intervalAsTimeSpan: TimeSpan;
     endDate: Date;
     onRetryDelay: OnRetryDelay<TParameters>;
+    allErrors: Array<unknown>;
 };
 
 /**
@@ -87,6 +88,7 @@ async function handleWhenReturn<TParameters extends Array<unknown>, TReturn>(
         intervalAsTimeSpan,
         endDate,
         onRetryDelay,
+        allErrors,
     } = settings;
 
     handleOnExecutionAttempt({
@@ -105,6 +107,7 @@ async function handleWhenReturn<TParameters extends Array<unknown>, TReturn>(
         };
     }
     // Handle retrying if an false is returned
+    allErrors.push(value);
 
     handleOnRetryDelay({
         onRetryDelay,
@@ -257,6 +260,7 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                     intervalAsTimeSpan,
                     endDate,
                     onRetryDelay,
+                    allErrors,
                 });
                 if (result.type === "return") {
                     return result.value;
