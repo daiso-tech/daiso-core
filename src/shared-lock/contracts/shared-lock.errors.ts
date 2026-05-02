@@ -116,8 +116,8 @@ export type AllReaderSemaphoreErrors = InferInstance<
 export function isReaderSemaphoreError(
     value: unknown,
 ): value is AllReaderSemaphoreErrors {
-    for (const ErrorClass of Object.values(READER_SEMAPHORE_ERRORS)) {
-        if (value instanceof ErrorClass) {
+    for (const errorClass of Object.values(READER_SEMAPHORE_ERRORS)) {
+        if (value instanceof errorClass) {
             return true;
         }
     }
@@ -232,8 +232,8 @@ export type AllWriterLockErrors = InferInstance<
 export function isWriterLockError(
     value: unknown,
 ): value is AllWriterLockErrors {
-    for (const ErrorClass of Object.values(WRITER_LOCK_ERRORS)) {
-        if (value instanceof ErrorClass) {
+    for (const errorClass of Object.values(WRITER_LOCK_ERRORS)) {
+        if (value instanceof errorClass) {
             return true;
         }
     }
