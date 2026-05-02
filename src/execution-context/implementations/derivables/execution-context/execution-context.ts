@@ -166,9 +166,9 @@ export class ExecutionContext implements IExecutionContext {
         });
     }
 
-    bind<TArgs extends Array<unknown>, Treturn>(
-        fn: Invokable<[...args: TArgs], Treturn>,
-    ): InvokableFn<[...args: TArgs], Treturn> {
+    bind<TArgs extends Array<unknown>, TReturn>(
+        fn: Invokable<[...args: TArgs], TReturn>,
+    ): InvokableFn<[...args: TArgs], TReturn> {
         // Capture the context at bind time
         const currentContext = this.executionContextStorage.get();
         const capturedContext =
@@ -176,7 +176,7 @@ export class ExecutionContext implements IExecutionContext {
                 ? new Context(new Map())
                 : currentContext.copy();
 
-        return (...args: TArgs): Treturn => {
+        return (...args: TArgs): TReturn => {
             return this.executionContextStorage.run(
                 capturedContext.copy(),
                 () => {
