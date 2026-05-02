@@ -442,7 +442,7 @@ export class MemorySharedLockAdapter
         return hasReleasedAllReaders || hasReleasedWriter;
     }
 
-    private static extractWriterState(
+    private static extractReaderState(
         writerLock: MemorySharedWriterLockData | null,
         readerSemaphore: MemorySharedReaderSemaphoreData | null,
     ): Option<ISharedLockAdapterState | null> {
@@ -475,7 +475,7 @@ export class MemorySharedLockAdapter
         return optionNone();
     }
 
-    private static extractActiveWriterState(
+    private static extractWriterState_(
         writerLock: MemorySharedWriterLockData | null,
         readerSemaphore: MemorySharedReaderSemaphoreData | null,
     ): Option<ISharedLockAdapterState | null> {
@@ -509,12 +509,12 @@ export class MemorySharedLockAdapter
         return optionNone();
     }
 
-    private static extractReaderState(
+    private static extractActiveWriterState(
         writerLock: MemorySharedWriterLockData | null,
         readerSemaphore: MemorySharedReaderSemaphoreData | null,
     ): Option<ISharedLockAdapterState | null> {
         const activeWriterStateOption =
-            MemorySharedLockAdapter.extractActiveWriterState(
+            MemorySharedLockAdapter.extractWriterState_(
                 writerLock,
                 readerSemaphore,
             );
@@ -546,7 +546,7 @@ export class MemorySharedLockAdapter
 
         const { writerLock, readerSemaphore } = sharedLock;
 
-        const writerState = MemorySharedLockAdapter.extractWriterState(
+        const writerState = MemorySharedLockAdapter.extractReaderState(
             writerLock,
             readerSemaphore,
         );
@@ -554,7 +554,7 @@ export class MemorySharedLockAdapter
             return writerState.value;
         }
 
-        const readerState = MemorySharedLockAdapter.extractReaderState(
+        const readerState = MemorySharedLockAdapter.extractActiveWriterState(
             writerLock,
             readerSemaphore,
         );
