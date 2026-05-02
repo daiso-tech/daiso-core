@@ -2,22 +2,28 @@
  * @module Resilience
  */
 
-import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
+import { type IContext } from "@/execution-context/contracts/execution-context.contract.js";
+import {
+    type MiddlewareFn,
+    type NextFn,
+} from "@/middleware/contracts/_module.js";
 import { RetryIntervalResilienceError } from "@/resilience/implementations/resilience.errors.js";
-import { type RetryCallbacks } from "@/resilience/implementations/retry/_module.js";
+import {
+    handleOnExecutionAttempt,
+    handleOnRetryDelay,
+    type OnExecutionAttempt,
+    type OnRetryDelay,
+    type RetryCallbacks,
+} from "@/resilience/implementations/retry/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callErrorPolicyOnThrow,
     callErrorPolicyOnValue,
-    callInvokable,
     delay,
-    OPTION,
-    optionNone,
-    optionSome,
     UnexpectedError,
+    type ErrorPolicy,
     type ErrorPolicySettings,
-    type Option,
 } from "@/utilities/_module.js";
 
 /**
@@ -38,6 +44,185 @@ export type RetryIntervalSettings<
          */
         throwLastError?: boolean;
     };
+
+/**
+ * @internal
+ */
+type HandleWhenReturnSettings<TParameters extends Array<unknown>, TReturn> = {
+    onExecutionAttempt: OnExecutionAttempt<TParameters>;
+    attempt: number;
+    args: TParameters;
+    context: IContext;
+    next: NextFn<TParameters, TReturn>;
+    errorPolicy: ErrorPolicy | undefined;
+    intervalAsTimeSpan: TimeSpan;
+    endDate: Date;
+    onRetryDelay: OnRetryDelay<TParameters>;
+    allErrors: Array<unknown>;
+};
+
+/**
+ * @internal
+ */
+async function handleWhenReturn<TParameters extends Array<unknown>, TReturn>(
+    settings: HandleWhenReturnSettings<TParameters, Promise<TReturn>>,
+): Promise<
+    | {
+          type: "break";
+      }
+    | {
+          type: "return";
+          value: TReturn;
+      }
+    | {
+          type: "end";
+      }
+> {
+    const {
+        onExecutionAttempt,
+        attempt,
+        args,
+        context,
+        next,
+        errorPolicy,
+        intervalAsTimeSpan,
+        endDate,
+        onRetryDelay,
+        allErrors,
+    } = settings;
+
+    handleOnExecutionAttempt({
+        onExecutionAttempt,
+        attempt,
+        args,
+        context,
+    });
+
+    const value = await next();
+
+    if (!callErrorPolicyOnValue(errorPolicy, value)) {
+        return {
+            type: "return",
+            value,
+        };
+    }
+    // Handle retrying if an false is returned
+    allErrors.push(value);
+
+    handleOnRetryDelay({
+        onRetryDelay,
+        error: value,
+        waitTime: intervalAsTimeSpan,
+        attempt,
+        args,
+        context,
+    });
+
+    const remainingAfterValue = endDate.getTime() - Date.now();
+    if (remainingAfterValue <= 0) {
+        return {
+            type: "break",
+        };
+    }
+    await delay(intervalAsTimeSpan);
+    return {
+        type: "end",
+    };
+}
+
+/**
+ * @internal
+ */
+type HandleWhenThrowSettings<TParameters extends Array<unknown>> = {
+    allErrors: Array<unknown>;
+    error: unknown;
+    errorPolicy: ErrorPolicy | undefined;
+    onRetryDelay: OnRetryDelay<TParameters>;
+    intervalAsTimeSpan: TimeSpan;
+    attempt: number;
+    args: TParameters;
+    context: IContext;
+    endDate: Date;
+};
+
+/**
+ * @internal
+ */
+async function handleWhenThrow<TParameters extends Array<unknown>>(
+    settings: HandleWhenThrowSettings<TParameters>,
+): Promise<boolean> {
+    const {
+        allErrors,
+        error,
+        errorPolicy,
+        onRetryDelay,
+        intervalAsTimeSpan,
+        attempt,
+        args,
+        context,
+        endDate,
+    } = settings;
+
+    if (await callErrorPolicyOnThrow<any>(errorPolicy, error)) {
+        allErrors.push(error);
+    } else {
+        throw error;
+    }
+
+    handleOnRetryDelay({
+        onRetryDelay,
+        error,
+        waitTime: intervalAsTimeSpan,
+        attempt,
+        args,
+        context,
+    });
+
+    const remainingAfterValue = endDate.getTime() - Date.now();
+    if (remainingAfterValue <= 0) {
+        return true;
+    }
+    await delay(intervalAsTimeSpan);
+    return false;
+}
+
+/**
+ * @internal
+ */
+type ThrowErrorsSettings = {
+    allErrors: Array<unknown>;
+    throwLastError: boolean;
+    attempt: number;
+    timeAsTimeSpan: TimeSpan;
+    intervalAsTimeSpan: TimeSpan;
+};
+
+/**
+ * @internal
+ */
+function throwErrors(settings: ThrowErrorsSettings): never {
+    const {
+        allErrors,
+        throwLastError,
+        attempt,
+        timeAsTimeSpan,
+        intervalAsTimeSpan,
+    } = settings;
+    if (allErrors.length !== 0 && !throwLastError) {
+        throw RetryIntervalResilienceError.create(
+            allErrors,
+            attempt - 1,
+            timeAsTimeSpan,
+            intervalAsTimeSpan,
+        );
+    }
+    if (allErrors.length !== 0 && throwLastError) {
+        throw allErrors.at(-1);
+    }
+    throw new UnexpectedError(
+        "retryInterval middleware reached an unreachble state, this is a bug please file issue on github.",
+    );
+}
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
@@ -61,105 +246,55 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
 
     return async ({ args, context, next }) => {
         const endDate = timeAsTimeSpan.toEndDate();
-        let result: Option<TReturn> = optionNone();
         const allErrors: Array<unknown> = [];
         let attempt = 1;
         while (endDate.getTime() > new Date().getTime()) {
             try {
-                void (async () => {
-                    try {
-                        await callInvokable(onExecutionAttempt, {
-                            attempt,
-                            args,
-                            context,
-                        });
-                    } catch (error: unknown) {
-                        console.log(
-                            "Error occurred in onExecutionAttempt callback:",
-                            error,
-                        );
-                    }
-                })();
-                const value = await next();
-
-                if (!callErrorPolicyOnValue(errorPolicy, value)) {
-                    result = optionSome(value);
-                    return value;
+                const result = await handleWhenReturn({
+                    onExecutionAttempt,
+                    attempt,
+                    args,
+                    context,
+                    next,
+                    errorPolicy,
+                    intervalAsTimeSpan,
+                    endDate,
+                    onRetryDelay,
+                    allErrors,
+                });
+                if (result.type === "return") {
+                    return result.value;
                 }
-                // Handle retrying if an false is returned
-
-                void (async () => {
-                    try {
-                        await callInvokable(onRetryDelay, {
-                            error: value,
-                            waitTime: intervalAsTimeSpan,
-                            attempt,
-                            args,
-                            context,
-                        });
-                    } catch (error: unknown) {
-                        console.log(
-                            "Error occurred in onRetryDelay callback:",
-                            error,
-                        );
-                    }
-                })();
-
-                const remainingAfterValue = endDate.getTime() - Date.now();
-                if (remainingAfterValue <= 0) {
+                if (result.type === "break") {
                     break;
                 }
-                await delay(interval);
             } catch (error: unknown) {
-                if (await callErrorPolicyOnThrow<any>(errorPolicy, error)) {
-                    allErrors.push(error);
-                } else {
-                    throw error;
-                }
-
-                void (async () => {
-                    try {
-                        await callInvokable(onRetryDelay, {
-                            error,
-                            waitTime: intervalAsTimeSpan,
-                            attempt,
-                            args,
-                            context,
-                        });
-                    } catch (error_: unknown) {
-                        console.log(
-                            "Error occurred in onRetryDelay callback:",
-                            error_,
-                        );
-                    }
-                })();
-
-                const remainingAfterValue = endDate.getTime() - Date.now();
-                if (remainingAfterValue <= 0) {
+                if (
+                    await handleWhenThrow({
+                        allErrors,
+                        error,
+                        errorPolicy,
+                        onRetryDelay,
+                        intervalAsTimeSpan,
+                        attempt,
+                        args,
+                        context,
+                        endDate,
+                    })
+                ) {
                     break;
                 }
-                await delay(intervalAsTimeSpan);
             } finally {
                 attempt++;
             }
         }
 
-        if (allErrors.length !== 0 && !throwLastError) {
-            throw RetryIntervalResilienceError.create(
-                allErrors,
-                attempt - 1,
-                timeAsTimeSpan,
-                intervalAsTimeSpan,
-            );
-        }
-        if (allErrors.length !== 0 && throwLastError) {
-            throw allErrors.at(-1);
-        }
-        if (result.type === OPTION.SOME) {
-            return result.value;
-        }
-        throw new UnexpectedError(
-            "retryInterval middleware reached an unreachble state, this is a bug please file issue on github.",
-        );
+        throwErrors({
+            allErrors,
+            throwLastError,
+            attempt,
+            timeAsTimeSpan,
+            intervalAsTimeSpan,
+        });
     };
 }

@@ -522,6 +522,87 @@ describe("function: retryInterval", () => {
             expect(result).toBe("success");
             expect(nextFn).toHaveBeenCalledTimes(2);
         });
+
+        test("Should throw RetryIntervalResilienceError when errorPolicy class matches and all attempts throw", async () => {
+            class RetryableError extends Error {}
+
+            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
+                .fn()
+                .mockRejectedValue(new RetryableError("fail"));
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(50),
+                interval: TimeSpan.fromMilliseconds(10),
+                errorPolicy: RetryableError,
+            });
+
+            await expect(
+                middleware({ args: [], next: nextFn, context }),
+            ).rejects.toThrow(RetryIntervalResilienceError);
+
+            expect(vi.mocked(nextFn).mock.calls.length).toBeGreaterThanOrEqual(
+                2,
+            );
+        });
+
+        test("Should throw RetryIntervalResilienceError when errorPolicy predicate matches and all attempts throw", async () => {
+            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
+                .fn()
+                .mockRejectedValue(new Error("retryable"));
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(50),
+                interval: TimeSpan.fromMilliseconds(10),
+                errorPolicy: (error: unknown) =>
+                    error instanceof Error && error.message === "retryable",
+            });
+
+            await expect(
+                middleware({ args: [], next: nextFn, context }),
+            ).rejects.toThrow(RetryIntervalResilienceError);
+
+            expect(vi.mocked(nextFn).mock.calls.length).toBeGreaterThanOrEqual(
+                2,
+            );
+        });
+
+        test("Should throw RetryIntervalResilienceError when treatFalseAsError is true and all attempts return false", async () => {
+            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
+                .fn()
+                .mockResolvedValue(false);
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(50),
+                interval: TimeSpan.fromMilliseconds(10),
+                errorPolicy: { treatFalseAsError: true },
+            });
+
+            await expect(
+                middleware({ args: [], next: nextFn, context }),
+            ).rejects.toThrow(RetryIntervalResilienceError);
+
+            expect(vi.mocked(nextFn).mock.calls.length).toBeGreaterThanOrEqual(
+                2,
+            );
+        });
+
+        test("Should include false return values in RetryIntervalResilienceError when treatFalseAsError is true", async () => {
+            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
+                .fn()
+                .mockResolvedValue(false);
+            const middleware = retryInterval({
+                time: TimeSpan.fromMilliseconds(50),
+                interval: TimeSpan.fromMilliseconds(10),
+                errorPolicy: { treatFalseAsError: true },
+            });
+
+            try {
+                await middleware({ args: [], next: nextFn, context });
+                expect.unreachable();
+            } catch (error: unknown) {
+                expect(error).toBeInstanceOf(RetryIntervalResilienceError);
+                const retryError = error as RetryIntervalResilienceError;
+                expect(retryError.errors.length).toBeGreaterThanOrEqual(2);
+                expect(retryError.errors.every((e) => e === false)).toBe(true);
+            }
+        });
     });
 
     describe("callback: onExecutionAttempt", () => {

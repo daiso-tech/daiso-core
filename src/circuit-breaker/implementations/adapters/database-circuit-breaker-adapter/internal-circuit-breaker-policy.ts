@@ -77,7 +77,7 @@ export class InternalCircuitBreakerPolicy<TMetrics = unknown> {
         return this.circuitBreakerPolicy.isEqual?.(metricsA, metricsB) ?? false;
     }
 
-    isEqual(
+    private isClosedStateEqual(
         stateA: AllCircuitBreakerState<TMetrics>,
         stateB: AllCircuitBreakerState<TMetrics>,
     ): boolean {
@@ -87,6 +87,13 @@ export class InternalCircuitBreakerPolicy<TMetrics = unknown> {
         ) {
             return this.isMetricsEqual(stateA.metrics, stateB.metrics);
         }
+        return false;
+    }
+
+    private isOpenedStateEqual(
+        stateA: AllCircuitBreakerState<TMetrics>,
+        stateB: AllCircuitBreakerState<TMetrics>,
+    ): boolean {
         if (
             stateA.type === CIRCUIT_BREAKER_STATE.OPEN &&
             stateB.type === CIRCUIT_BREAKER_STATE.OPEN
@@ -96,6 +103,13 @@ export class InternalCircuitBreakerPolicy<TMetrics = unknown> {
                 stateA.startedAt === stateB.startedAt
             );
         }
+        return false;
+    }
+
+    private isHalfOpenedStateEqual(
+        stateA: AllCircuitBreakerState<TMetrics>,
+        stateB: AllCircuitBreakerState<TMetrics>,
+    ): boolean {
         if (
             stateA.type === CIRCUIT_BREAKER_STATE.HALF_OPEN &&
             stateB.type === CIRCUIT_BREAKER_STATE.HALF_OPEN
@@ -105,6 +119,13 @@ export class InternalCircuitBreakerPolicy<TMetrics = unknown> {
                 this.isMetricsEqual(stateA.metrics, stateB.metrics)
             );
         }
+        return false;
+    }
+
+    private isIsolatedStateEqual(
+        stateA: AllCircuitBreakerState<TMetrics>,
+        stateB: AllCircuitBreakerState<TMetrics>,
+    ): boolean {
         if (
             stateA.type === CIRCUIT_BREAKER_STATE.ISOLATED &&
             stateB.type === CIRCUIT_BREAKER_STATE.ISOLATED
@@ -112,6 +133,18 @@ export class InternalCircuitBreakerPolicy<TMetrics = unknown> {
             return true;
         }
         return false;
+    }
+
+    isEqual(
+        stateA: AllCircuitBreakerState<TMetrics>,
+        stateB: AllCircuitBreakerState<TMetrics>,
+    ): boolean {
+        return (
+            this.isClosedStateEqual(stateA, stateB) ||
+            this.isOpenedStateEqual(stateA, stateB) ||
+            this.isHalfOpenedStateEqual(stateA, stateB) ||
+            this.isIsolatedStateEqual(stateA, stateB)
+        );
     }
 
     initialState(): ClosedState<TMetrics> {
