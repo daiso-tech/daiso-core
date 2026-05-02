@@ -828,7 +828,9 @@ describe("class: IterableCollection", () => {
                         ),
                     )
                     .pipe((collection_) =>
-                        collection_.map((collection__) => collection__.sum()),
+                        collection_.map((nestedCollection_) =>
+                            nestedCollection_.sum(),
+                        ),
                     )
                     .pipe((collection_) => collection_.sum());
             expect(result).toBeTypeOf("number");
