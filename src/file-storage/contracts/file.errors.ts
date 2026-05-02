@@ -100,8 +100,8 @@ export type AllFileErrors = InferInstance<
  * @group Errors
  */
 export function isFileError(value: unknown): value is AllFileErrors {
-    for (const ErrorClass of Object.values(FILE_STORAGE_ERRORS)) {
-        if (value instanceof ErrorClass) {
+    for (const errorClass of Object.values(FILE_STORAGE_ERRORS)) {
+        if (value instanceof errorClass) {
             return true;
         }
     }
