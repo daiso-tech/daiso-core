@@ -21,7 +21,9 @@ type IRedisJsonSemaphoreState = {
 };
 
 declare module "ioredis" {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     interface RedisCommander<Context> {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_semaphore_acquire(
             key: string,
             slotId: string,
@@ -30,17 +32,20 @@ declare module "ioredis" {
             now: number,
         ): Result<1 | 0, Context>;
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_semaphore_release(
             key: string,
             slotId: string,
             now: number,
         ): Result<1 | 0, Context>;
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_semaphore_force_release_all(
             key: string,
             now: number,
         ): Result<1 | 0, Context>;
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_semaphore_refresh(
             key: string,
             slotId: string,
@@ -51,6 +56,7 @@ declare module "ioredis" {
         /**
          * Returns {@link IRedisJsonSemaphoreState | `IRedisJsonSemaphoreState | null`} as json string.
          */
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_semaphore_get_state(
             key: string,
             now: number,
