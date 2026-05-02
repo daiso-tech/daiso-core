@@ -74,8 +74,8 @@ export type AllCircuitBreakerErrors = InferInstance<
 export function isCircuitBreakerError(
     value: unknown,
 ): value is AllCircuitBreakerErrors {
-    for (const ErrorClass of Object.values(CIRCUIT_BREAKER_ERRORS)) {
-        if (value instanceof ErrorClass) {
+    for (const errorClass of Object.values(CIRCUIT_BREAKER_ERRORS)) {
+        if (value instanceof errorClass) {
             return true;
         }
     }
