@@ -77,8 +77,8 @@ export type AllCacheErrors = InferInstance<
  * @group Errors
  */
 export function isCacheError(value: unknown): value is AllCacheErrors {
-    for (const ErrorClass of Object.values(CACHE_ERRORS)) {
-        if (value instanceof ErrorClass) {
+    for (const errorClass of Object.values(CACHE_ERRORS)) {
+        if (value instanceof errorClass) {
             return true;
         }
     }

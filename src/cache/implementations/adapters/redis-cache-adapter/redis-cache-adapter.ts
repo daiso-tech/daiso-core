@@ -14,7 +14,9 @@ import { type SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_mo
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 declare module "ioredis" {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     interface RedisCommander<Context> {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_cache_increment(
             key: string,
             number: string,
