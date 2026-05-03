@@ -458,6 +458,11 @@
             "import": "./dist/utilities/_module-exports.js"
         }
     },
+    "config": {
+        "cz-customizable": {
+            "config": "./.cz-config.cjs"
+        }
+    },
     "publishConfig": {
         "access": "public",
         "provenance": true
@@ -483,7 +488,8 @@
         "check:all:changed": "npm run check && npm run lint:changed && npm run format:changed && npm run test:changed && npm run module-exports-files-check && npm run package-json-exports-check",
         "check:all:fix:changed": "npm run check && npm run lint:fix:changed && npm run format:fix:changed && npm run test:changed && npm run module-exports-files-check && npm run package-json-exports-check",
         "docs": "npx typedoc",
-        "release": "npm run build && npx changeset publish"
+        "release": "npm run build && npx changeset publish",
+        "commit": "npx git-cz"
     },
     "devDependencies": {
         "@aws-sdk/client-s3": "^3.1011.0",
@@ -505,6 +511,9 @@
         "@typescript-eslint/parser": "^8.1.0",
         "@vitest/eslint-plugin": "^1.0.3",
         "better-sqlite3": "^12.5.0",
+        "commitizen": "^4.3.1",
+        "cz-conventional-changelog": "^3.3.0",
+        "cz-customizable": "^7.5.4",
         "eslint": "^8.57.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-import": "^2.32.0",
