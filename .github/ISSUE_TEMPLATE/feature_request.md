@@ -1,11 +1,10 @@
 ---
 name: Feature request
 about: Suggest an new component for this project
-title: ''
-labels: ''
+title: ""
+labels: ""
 assignees: yousif-khalil-abdulkarim
 type: Feature
-
 ---
 
 **Is your new component request related to a problem? Please describe.**

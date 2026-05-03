@@ -1,10 +1,9 @@
 ---
 name: Enhacement request
 about: Suggest an idea for existing component
-title: ''
+title: ""
 labels: enhancement
 assignees: yousif-khalil-abdulkarim
-
 ---
 
 **Is your enhancement related to an existing component? Please describe.**
