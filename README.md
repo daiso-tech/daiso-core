@@ -68,6 +68,80 @@ A growing collection of officially maintained, production-ready components. Ever
 
 ---
 
+## 🔮 Upcoming Components
+
+Components currently in design or development — not yet available in any release.
+
+### ⏰ Job Scheduling
+
+- **Job scheduler**: Schedule work with full flexibility — immediate dispatch, delayed execution, and recurring jobs.
+
+### 🔀 Structured Concurrency
+
+- **Structured cancellations**: Planning to support running async tasks in structured scopes where child tasks are tied to their parent's lifetime — with automatic cancellation, error propagation, and resource cleanup.
+- **Promise queue**: Planning to add a configurable promise queue to control the number of concurrently executing promises and prevent resource exhaustion.
+
+### 💉 Dependency Injection
+
+- **DI container**: Planning to build a lightweight, type-safe dependency injection container for wiring application components without tight coupling.
+
+### 📣 Notifications
+
+- **Notifications**: Planning to support sending notifications through multiple channels with flexible dispatch strategies — synchronous dispatching, immediate enqueueing, delayed enqueueing, and recurring messages. Planned channel adapters include Slack, Discord, email, SMS, and WebSocket (browser push).
+
+### 🗄️ Data Integrity
+
+- **Transaction context**: Planning to support coordinating database transactions across components with the after-commit, outbox, and inbox patterns for reliable, exactly-once message delivery.
+- **Idempotent cache**: Planning to add built-in idempotency support for the Job Scheduler and Event Bus to prevent duplicate job execution and event processing.
+
+### 🐘 Database
+
+- **MikroORM** _(primary)_: Planning first-class integration with [MikroORM](https://mikro-orm.io/) as the main recommended database layer — full ORM support across PostgreSQL, MongoDB, SQLite, and more, with deep integration across all components.
+
+### 🔍 Text Search
+
+- **Text search**: Planning to support synchronising your database — synchronously or asynchronously — with an external search engine, queryable through a unified, ergonomic interface. First-class integrations with MikroORM, PostgreSQL (via Kysely), and MongoDB are planned so no glue code will be required.
+
+### 🌐 HTTP
+
+- **HTTP server**: Planning to support defining HTTP servers using the standard Web platform `Request`/`Response` API — portable across runtimes with no framework lock-in.
+- **OpenAPI**: Planning first-class OpenAPI support — define your API schema alongside your handlers and get spec generation, validation, and documentation out of the box.
+
+### 🔐 Security
+
+- **Session management**: Planning to support managing user sessions securely with a pluggable, adapter-driven API.
+- **Authorization gates**: Planning to implement Laravel-inspired gate primitives for fine-grained, policy-based access control.
+- **Apache Casbin integration**: Planning integration with [Casbin](https://casbin.org/) for advanced authorization using attribute-based, role-based, and relationship-based access control models.
+- **Authentication**: Planning first-class support for username/password, email verification, OAuth, and WebAuthn — with a [Better Auth](https://www.better-auth.com/) integration for batteries-included setups.
+
+---
+
+## 🌟 Vision
+
+@daiso-tech/core is built around one core idea: **production-grade backend primitives that work great standalone, but are even better together** — all inside your existing fullstack TypeScript app.
+
+### Composable by design, not by requirement
+
+Every component is self-contained and has zero hard dependencies on the others. You can drop the Cache, the Lock, or the EventBus into any project in isolation. But when you use them together, they integrate seamlessly — sharing the same execution context, serde layer, adapters, and conventions without any extra wiring.
+
+### No DI container required — but supported when you want it _(coming soon)_
+
+Components are plain classes you instantiate yourself. There is no forced dependency injection framework. A DI container is currently in development and, once ready, will be a first-class citizen that understands every component in the library — so when you do want a container, it just works with no adapters and no boilerplate.
+
+### One server, one app
+
+The library's HTTP primitives are built on the standard Web platform `Request`/`Response` API, which means your route handlers run natively inside **Next.js, SvelteKit, Nuxt, SolidStart, Analog (Angular), TanStack Start, cloudflare workers, vercel functions, netlify functions and many more plattforms by leveraging Hono js** — no separate backend server to host, deploy, or maintain. Your fullstack app _is_ your backend.
+
+### A cohesive experience for the JavaScript ecosystem
+
+The long-term vision is to give TypeScript developers a cohesive, batteries-included experience — authentication, authorization, job scheduling, notifications, queues, caching, file storage, and more — designed from the ground up for the modern JavaScript fullstack world. No framework lock-in, no vendor lock-in, just great primitives that fit together.
+
+### The framework experience
+
+On top of the agnostic core, a separate opinionated, batteries-included framework layer is planned. Unlike the core library, it will not be agnostic — it will make deliberate choices so you don't have to. It will be delivered as a **Vite plugin** that can be dropped into most modern frontend frameworks — Next.js, SvelteKit, Nuxt, SolidStart, TanStack Start, Analog, and more — and will lean heavily on **code generation** to eliminate boilerplate, auto-wire components, and provide a truly integrated developer experience with convention-over-configuration feel directly inside your existing fullstack app.
+
+---
+
 ## ⭐ Find this library useful?
 
 If you see potential in @daiso-tech/core, starring the repo on GitHub helps others discover it and motivates continued development. It takes one click and means a lot.
