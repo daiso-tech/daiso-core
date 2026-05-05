@@ -19,6 +19,14 @@ import {
     Copy,
     Check,
     Star,
+    Clock,
+    Bell,
+    Box,
+    Search,
+    Globe,
+    GitBranch,
+    Lightbulb,
+    Server,
 } from "lucide-react";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import { type ReactNode, useState, useCallback } from "react";
@@ -254,6 +262,73 @@ function CtaSection() {
     );
 }
 
+// --- Upcoming Components ---
+
+function UpcomingSection({ items }: { items: ComponentItemProps[] }) {
+    return (
+        <section className="padding-vert--xl daiso-section-alt">
+            <div className="container">
+                <div className="text--center margin-bottom--xl">
+                    <h2 className="daiso-section-title">🔮 Upcoming Components</h2>
+                    <p className="daiso-section-subtitle">
+                        Components currently in design or development — not yet
+                        available in any release.
+                    </p>
+                </div>
+                <div className="row">
+                    {items.map((item, idx) => (
+                        <ComponentItem key={idx} {...item} />
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
+
+// --- Vision ---
+
+type VisionItemProps = {
+    title: string;
+    comingSoon?: boolean;
+    description: ReactNode;
+};
+
+function VisionItem({ title, comingSoon, description }: VisionItemProps) {
+    return (
+        <div className="col col--6 margin-bottom--lg">
+            <div className="daiso-feature-card" style={{ height: "100%" }}>
+                <h3 style={{ marginTop: 0 }}>{title}</h3>
+                <p style={{ margin: 0 }}>{description}</p>
+            </div>
+        </div>
+    );
+}
+
+function VisionSection({ items }: { items: VisionItemProps[] }) {
+    return (
+        <section className="padding-vert--xl">
+            <div className="container">
+                <div className="text--center margin-bottom--xl">
+                    <h2 className="daiso-section-title">🌟 Vision</h2>
+                    <p className="daiso-section-subtitle" style={{ textAlign: "left" }}>
+                        @daiso-tech/core is built around one core idea:{" "}
+                        <strong>
+                            production-grade backend primitives that work great
+                            standalone, but are even better together
+                        </strong>{" "}
+                        — all inside your existing fullstack TypeScript app.
+                    </p>
+                </div>
+                <div className="row">
+                    {items.map((item, idx) => (
+                        <VisionItem key={idx} {...item} />
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
+
 // --- Data ---
 
 const featureItems: FeatureItemProps[] = [
@@ -388,6 +463,182 @@ const componentItems: ComponentItemProps[] = [
     },
 ];
 
+const upcomingItems: ComponentItemProps[] = [
+    {
+        icon: <Clock size="1.5rem" strokeWidth={1.5} />,
+        title: "Job scheduler",
+        description:
+            "Schedule work with full flexibility — immediate dispatch, delayed execution, and recurring jobs.",
+    },
+    {
+        icon: <GitBranch size="1.5rem" strokeWidth={1.5} />,
+        title: "Structured cancellations",
+        description:
+            "Planning to support running async tasks in structured scopes where child tasks are tied to their parent's lifetime — with automatic cancellation, error propagation, and resource cleanup.",
+    },
+    {
+        icon: <Layers size="1.5rem" strokeWidth={1.5} />,
+        title: "Promise queue",
+        description:
+            "Planning to add a configurable promise queue to control the number of concurrently executing promises and prevent resource exhaustion.",
+    },
+    {
+        icon: <Box size="1.5rem" strokeWidth={1.5} />,
+        title: "DI container",
+        description:
+            "Planning to build a lightweight, type-safe dependency injection container for wiring application components without tight coupling.",
+    },
+    {
+        icon: <Bell size="1.5rem" strokeWidth={1.5} />,
+        title: "Notifications",
+        description:
+            "Planning to support sending notifications through multiple channels — synchronous dispatching, immediate enqueueing, delayed enqueueing, and recurring messages. Planned adapters include Slack, Discord, email, SMS, and WebSocket (browser push).",
+    },
+    {
+        icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
+        title: "Transaction context",
+        description:
+            "Planning to support coordinating database transactions across components with the after-commit, outbox, and inbox patterns for reliable, exactly-once message delivery.",
+    },
+    {
+        icon: <Copy size="1.5rem" strokeWidth={1.5} />,
+        title: "Idempotent cache",
+        description:
+            "Planning to add built-in idempotency support for the Job Scheduler and Event Bus to prevent duplicate job execution and event processing.",
+    },
+    {
+        icon: <Database size="1.5rem" strokeWidth={1.5} />,
+        title: "MikroORM",
+        description: (
+            <>
+                Planning first-class integration with{" "}
+                <a href="https://mikro-orm.io/">MikroORM</a> as the primary
+                database layer — full ORM support across PostgreSQL, MongoDB,
+                SQLite, and more, with deep integration across all components.
+            </>
+        ),
+    },
+    {
+        icon: <Search size="1.5rem" strokeWidth={1.5} />,
+        title: "Text search",
+        description:
+            "Planning to support synchronising your database — synchronously or asynchronously — with an external search engine via a unified interface. First-class integrations with MikroORM, PostgreSQL (via Kysely), and MongoDB planned.",
+    },
+    {
+        icon: <Globe size="1.5rem" strokeWidth={1.5} />,
+        title: "HTTP server",
+        description:
+            "Planning to support defining HTTP servers using the standard Web platform Request/Response API — portable across runtimes with no framework lock-in.",
+    },
+    {
+        icon: <Server size="1.5rem" strokeWidth={1.5} />,
+        title: "OpenAPI",
+        description:
+            "Planning first-class OpenAPI support — define your API schema alongside your handlers and get spec generation, validation, and documentation out of the box.",
+    },
+    {
+        icon: <Users size="1.5rem" strokeWidth={1.5} />,
+        title: "Session management",
+        description:
+            "Planning to support managing user sessions securely with a pluggable, adapter-driven API.",
+    },
+    {
+        icon: <Lock size="1.5rem" strokeWidth={1.5} />,
+        title: "Authorization gates",
+        description:
+            "Planning to implement gate primitives for fine-grained, policy-based access control.",
+    },
+    {
+        icon: <Lightbulb size="1.5rem" strokeWidth={1.5} />,
+        title: "Apache Casbin integration",
+        description: (
+            <>
+                Planning integration with{" "}
+                <a href="https://casbin.org/">Casbin</a> for advanced
+                authorization using attribute-based, role-based, and
+                relationship-based access control models.
+            </>
+        ),
+    },
+    {
+        icon: <Plug size="1.5rem" strokeWidth={1.5} />,
+        title: "Authentication",
+        description: (
+            <>
+                Planning first-class support for username/password, email
+                verification, OAuth, and WebAuthn — with a{" "}
+                <a href="https://www.better-auth.com/">Better Auth</a>{" "}
+                integration for batteries-included setups.
+            </>
+        ),
+    },
+    {
+        icon: <Server size="1.5rem" strokeWidth={1.5} />,
+        title: (
+            <>
+                Logging &amp; OpenTelemetry
+            </>
+        ),
+        description: (
+            <>
+                Planned support for flexible logging and <a href="https://opentelemetry.io/">OpenTelemetry</a> integration to make debugging and observability seamless.
+            </>
+        ),
+    },
+];
+
+const visionItems: VisionItemProps[] = [
+    {
+        title: "Composable by design, not by requirement",
+        description:
+            "Every component is self-contained and has zero hard dependencies on the others. You can drop the Cache, the Lock, or the EventBus into any project in isolation. But when you use them together, they integrate seamlessly — sharing the same execution context, serde layer, adapters, and conventions without any extra wiring.",
+    },
+    {
+        title: "No DI container required — but supported when you want it",
+        comingSoon: true,
+        description:
+            "Components are plain classes you instantiate yourself. There is no forced dependency injection framework. A DI container is currently in development and, once ready, will be a first-class citizen that understands every component in the library — so when you do want a container, it just works with no adapters and no boilerplate.",
+    },
+    {
+        title: "One server, one app",
+        description: (
+            <>
+                The library's HTTP primitives are built on the standard Web
+                platform <code>Request</code>/<code>Response</code> API, which
+                means your route handlers run natively inside{" "}
+                <strong>
+                    Next.js, SvelteKit, Nuxt, SolidStart, Analog (Angular),
+                    TanStack Start, Cloudflare Workers, Vercel Functions, Netlify
+                    Functions, and many more platforms via Hono
+                </strong>{" "}
+                — no separate backend server to host, deploy, or maintain. Your
+                fullstack app <em>is</em> your backend.
+            </>
+        ),
+    },
+    {
+        title: "A cohesive experience for the JavaScript ecosystem",
+        description:
+            "The long-term vision is to give TypeScript developers a cohesive, batteries-included experience — authentication, authorization, job scheduling, notifications, queues, caching, file storage, and more — designed from the ground up for the modern JavaScript fullstack world. No framework lock-in, no vendor lock-in, just great primitives that fit together.",
+    },
+    {
+        title: "The framework experience",
+        description: (
+            <>
+                On top of the agnostic core, a separate opinionated,
+                batteries-included framework layer is planned. It will be
+                delivered as a <strong>Vite plugin</strong> that can be dropped
+                into most modern frontend frameworks — SvelteKit, Nuxt,
+                SolidStart, TanStack Start, Analog angular, and more — and will lean
+                heavily on <strong>code generation</strong> to eliminate
+                boilerplate, auto-wire components, and provide a truly integrated
+                developer experience with convention-over-configuration feel
+                directly inside your existing fullstack app.
+            </>
+        ),
+    },
+];
+
 // --- Page ---
 
 export default function Home(): ReactNode {
@@ -439,6 +690,8 @@ export default function Home(): ReactNode {
             <main>
                 <FeatureSection items={featureItems} />
                 <ComponentSection items={componentItems} />
+                <UpcomingSection items={upcomingItems} />
+                <VisionSection items={visionItems} />
                 <GitHubStarBanner />
                 <CtaSection />
             </main>
