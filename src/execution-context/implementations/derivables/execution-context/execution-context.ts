@@ -36,6 +36,8 @@ import {
  * - Get, set, update, and remove context values using context tokens
  * - Execute functions within a specific context
  * - Bind functions to capture and preserve context across async boundaries
+ *
+ * @group Derivables
  */
 export class ExecutionContext implements IExecutionContext {
     /**

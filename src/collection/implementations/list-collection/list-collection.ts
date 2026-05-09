@@ -44,7 +44,7 @@ import {
  * All methods in `ListCollection` are executed eagerly.
  *
  * IMPORT_PATH: `"@daiso-tech/core/collection"`
- * @group Adapters
+ * @group Implementations
  */
 export class ListCollection<TInput = unknown> implements ICollection<TInput> {
     /**

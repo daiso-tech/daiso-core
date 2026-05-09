@@ -77,7 +77,7 @@ import {
  * All methods that return {@link ICollection | `ICollection`} are executed lazly, meaning the execution will occur iterating the items withthe `forEach` method or `for of` loop.
  *
  * IMPORT_PATH: `"@daiso-tech/core/collection"`
- * @group Adapters
+ * @group Implementations
  */
 export class IterableCollection<TInput = unknown>
     implements ICollection<TInput>

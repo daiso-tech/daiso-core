@@ -18,6 +18,8 @@ import { type InvokableFn } from "@/utilities/_module.js";
  * and other asynchronous operations.
  *
  * Recommended for Node.js environments where async context isolation is needed.
+ *
+ * @group Adapters
  */
 export class AlsExecutionContextAdapter<TValue>
     implements IExecutionContextAdapter<TValue>
