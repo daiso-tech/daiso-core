@@ -1,9 +1,11 @@
 /**
  * @module DepdencyInjection
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
 
 /**
  * @group Errors
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
 export class ServiceResolutionError extends Error {
     static create(tokenId: string): ServiceResolutionError {
@@ -15,7 +17,6 @@ export class ServiceResolutionError extends Error {
     /**
      * Note: Do not instantiate `ServiceResolutionError` directly via the constructor. Use the static `create()` factory method instead.
      * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
-     * @internal
      */
     constructor(message: string, cause?: unknown) {
         super(message, { cause });
@@ -26,6 +27,7 @@ export class ServiceResolutionError extends Error {
  * Is throw when singleton is depdent on transient or scoped.
  * Is also thrown when scoped is depdent on transient
  * @group Errors
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
 export class InvalidDepdencyError extends Error {
     static create(tokenId: string): InvalidDepdencyError {
@@ -37,7 +39,6 @@ export class InvalidDepdencyError extends Error {
     /**
      * Note: Do not instantiate `InvalidDepdencyError` directly via the constructor. Use the static `create()` factory method instead.
      * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
-     * @internal
      */
     constructor(message: string, cause?: unknown) {
         super(message, { cause });

@@ -2,458 +2,296 @@
  * @module DepdencyInjection
  */
 
+import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
 import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type InvalidDepdencyError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ServiceResolutionError,
-} from "@/depdency-injection/contracts/container.errors.js";
-import { type Enhance, type Use } from "@/middleware/contracts/_module.js";
-import {
-    type AnyObjectWithMethods,
-    type AnyFunction,
-    type IDeinitizable,
-    type IInitizable,
-    type InvokableFn,
-    type OneOrArray,
     type OneOrMore,
     type Promisable,
-    type Invokable,
-    type AnyClass,
     type Class,
+    type IInitizable,
+    type IDeinitizable,
+    type Invokable,
 } from "@/utilities/_module.js";
 
 /**
+ * Represents a class token for dependency injection.
+ * Used to uniquely identify a class type in the DI container.
+ *
+ * @template TInstance The instance type produced by the class.
  * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
-export type ClassToken<TInstance = unknown> = {
-    new (...parameters: Array<unknown>): TInstance;
-};
+export type ClassToken<TInstance = unknown> = Class<Array<any>, TInstance>;
 
 /**
+ * Represents a generic token for dependency injection.
+ * Used for non-class, non-function types (e.g., interfaces, types).
+ *
+ * @template TType The type associated with this token.
  * @group Contracts
- */
-export type FuncToken<TReturn> = InvokableFn<Array<unknown>, TReturn>;
-
-/**
- * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
 export type GenericToken<TType = unknown> = {
     /**
-     * Unique identifier for this token, used internally as the storage key
+     * Unique identifier for this token, used internally as the storage key.
      */
     id: string;
 
     /**
      * Phantom type that is only used for type inference.
-     * This property is never actually set at runtime and exists only to help
+     * This property is never actually set at runtime and exists only to help TypeScript infer types.
      */
     __type: TType | null;
 };
 
 /**
+ * Union type for all supported dependency injection tokens.
+ * Can be a class, function, or generic token.
+ *
+ * @template TType The type associated with the token.
  * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
-export type DiToken<TType = unknown> =
-    | ClassToken<TType>
-    | GenericToken<TType>
-    | FuncToken<TType>;
+export type DiToken<TType = unknown> = ClassToken<TType> | GenericToken<TType>;
 
 /**
+ * Contract for resolving dependencies from the DI container.
+ * Provides methods to resolve services by token, with or without defaults, and by tag.
+ *
  * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
 export type IServiceContainerResolver = {
+    /**
+     * Resolves a service by its token.
+     * @param token The DI token to resolve.
+     * @returns The instance or null if not found.
+     */
     resolve<TType>(token: DiToken<TType>): Promise<TType | null>;
 
+    /**
+     * Resolves a service by its token, or returns the provided default value if not found.
+     * @param token The DI token to resolve.
+     * @param defaultValue The value to return if the service is not found.
+     * @returns The resolved service or the default value.
+     */
     resolveOr<TType>(
         token: DiToken<TType>,
-        defaultValue: TType,
+        defaultValue: NoInfer<TType>,
     ): Promise<TType>;
 
     /**
-     * @throws {ServiceResolutionError}
+     * Resolves a service by its token, or throws if not found.
+     * @param token The DI token to resolve.
+     * @returns The resolved service.
+     * @throws {ServiceResolutionError} If the service cannot be resolved.
      */
     resolveOrFail<TType>(token: DiToken<TType>): Promise<TType>;
 
+    /**
+     * Resolves all services registered under a given tag.
+     * @param token The DI token representing the tag.
+     * @returns An array of resolved services.
+     */
     resolveTag<TType>(token: DiToken<TType>): Promise<Array<TType>>;
 };
 
 /**
+ * Contract for configuring the lifetime of a service registration.
+ * Allows marking a registration as singleton, transient, or scoped.
+ *
  * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
-export type BindFactorySettings<TType = unknown> = {
-    token: DiToken<TType>;
-    factory: () => Promisable<TType>;
-    tags?: OneOrArray<GenericToken<TType>>;
+export type IRegistrationLifetime = {
+    /**
+     * Registers the service as a singleton (one instance for the app lifetime).
+     * @throws {InvalidDepdencyError} If the dependency graph is invalid for singleton.
+     * @returns A promise that resolves when registration is complete.
+     */
+    asSingleton(): Promise<void>;
+
+    /**
+     * Registers the service as transient (new instance per resolution).
+     * @returns A promise that resolves when registration is complete.
+     */
+    asTransient(): Promise<void>;
+
+    /**
+     * Registers the service as scoped (one instance per scope, e.g., request).
+     * @throws {InvalidDepdencyError} If the dependency graph is invalid for scoped.
+     * @returns A promise that resolves when registration is complete.
+     */
+    asScoped(): Promise<void>;
 };
 
 /**
+ * Maps constructor or function parameter positions to DI tokens.
+ * Used to specify dependencies for classes/functions in registration.
+ *
+ * @template TParameters The tuple of parameter types.
  * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
-export type BindConstantSettings<TType = unknown> = {
-    token: DiToken<TType>;
-    value: TType;
-    tags?: OneOrArray<GenericToken<TType>>;
-};
-
-/**
- * @group Contracts
- */
-export type ClassDependencies<TClass extends AnyClass = AnyClass> = {
-    [K in Extract<keyof ConstructorParameters<TClass>, `${number}`>]: DiToken<
-        ConstructorParameters<TClass>[K]
-    >;
+export type ParameterTokens<TParameters extends Array<unknown>> = {
+    [K in Extract<keyof TParameters, `${number}`>]: DiToken<TParameters[K]>;
 } & {
-    length: ConstructorParameters<TClass>["length"];
+    length: TParameters["length"];
 };
 
 /**
+ * Contract for registering services and providers in the DI container.
+ * Provides methods to register providers, factories, classes, functions, constants, and aliases.
+ *
  * @group Contracts
- */
-export type ClassBindingSettings<TClass extends AnyClass = AnyClass> = {
-    class_: TClass;
-    deps: ClassDependencies<TClass>;
-    tags?: OneOrArray<GenericToken<[]>>;
-};
-
-/**
- * @group Contracts
- */
-export type FuncDependencies<TFunc extends AnyFunction = AnyFunction> = {
-    [K in Extract<keyof Parameters<TFunc>, `${number}`>]: DiToken<
-        Parameters<TFunc>[K]
-    >;
-} & {
-    length: Parameters<TFunc>["length"];
-};
-
-/**
- * @group Contracts
- */
-export type FuncBindingSettings<TFunc extends AnyFunction = AnyFunction> = {
-    func: TFunc;
-    deps: FuncDependencies<TFunc>;
-    tags?: OneOrArray<GenericToken<[]>>;
-};
-
-/**
- * @group Contracts
- */
-export type AliasSettings<TType = unknown> = {
-    originalToken: DiToken<TType>;
-    aliasToken: DiToken<TType>;
-    tags?: OneOrArray<GenericToken<TType>>;
-};
-
-/**
- * @group Contracts
- */
-export type ContextualBindFactorySettings<TType = unknown> = {
-    factory: () => Promisable<TType>;
-    tags?: OneOrArray<GenericToken<TType>>;
-};
-
-/**
- * @group Contracts
- */
-export type ContextualBindConstantSettings<TType> = {
-    value: TType;
-    tags?: OneOrArray<GenericToken<TType>>;
-};
-
-/**
- * @group Contracts
- */
-export type IContextualBindingRegister<TType = unknown> = {
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindConstant(
-        settings: ContextualBindConstantSettings<TType>,
-    ): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindFactorySingleton(
-        settings: ContextualBindFactorySettings<TType>,
-    ): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindClassSingleton<TClass extends Class<Array<any>, TType>>(
-        settings: ClassBindingSettings<TClass>,
-    ): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindFuncSingleton<TFunc extends InvokableFn<Array<any>, TType>>(
-        settings?: FuncBindingSettings<TFunc>,
-    ): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindFactoryTransient(
-        settings: ContextualBindFactorySettings<TType>,
-    ): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindClassTransient<TClass extends Class<Array<any>, TType>>(
-        settings: ClassBindingSettings<TClass>,
-    ): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindFuncTransient<TFunc extends InvokableFn<Array<any>, TType>>(
-        settings?: FuncBindingSettings<TFunc>,
-    ): Promise<void>;
-};
-
-/**
- * @group Contracts
- */
-export type IContextualBindingBuilder = {
-    needs<TType>(token: DiToken<TType>): IContextualBindingRegister<TType>;
-};
-
-/**
- * @group Contracts
- */
-export type InferMethodNames<TType> = {
-    [K in keyof TType]: TType[K] extends AnyFunction ? K : never;
-}[keyof TType];
-
-/**
- * @group Contracts
- */
-export type MethodsDecoratorSettings<TType = unknown> = {
-    container: IServiceContainerResolver;
-    enhance: Enhance;
-    instance: TType;
-    methods: Array<InferMethodNames<TType>>;
-};
-
-/**
- * @group Contracts
- */
-export type MethodsDecorator<TType = unknown> = InvokableFn<
-    [settings: MethodsDecoratorSettings<TType>],
-    Promisable<void>
->;
-
-/**
- * @group Contracts
- */
-export type FunctionDecoratorSettings<TType = unknown> = {
-    container: IServiceContainerResolver;
-    use: Use;
-    function: TType;
-};
-
-/**
- * @group Contracts
- */
-export type FunctionDecorator<TType = unknown> = InvokableFn<
-    [settings: FunctionDecoratorSettings<TType>],
-    Promisable<void>
->;
-
-/**
- * @group Contracts
- */
-export type InferDecorator<TType> = TType extends AnyObjectWithMethods
-    ? MethodsDecorator<TType>
-    : TType extends AnyFunction
-      ? FunctionDecorator<TType>
-      : never;
-
-/**
- * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
 export type IServiceContainerRegister = {
     /**
-     * @throws {InvalidDepdencyError}
+     * Registers a context-bound factory for a token. The factory receives the current execution context and produces the instance for the scope.
+     *
+     * @param token The DI token to register.
+     * @param factory The factory function that receives the current {@link IExecutionContext | `IExecutionContext`} and returns the instance.
+     * @returns A promise that resolves when registration is complete.
      */
-    bindProvier(provider: IServiceProvider): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindConstant<TType>(settings: BindConstantSettings<TType>): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindFactorySingleton<TType>(
-        settings: BindFactorySettings<TType>,
-    ): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindClassSingleton<TClass extends AnyClass>(
-        settings?: ClassBindingSettings<TClass>,
-    ): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindFuncSingleton<TFunc extends AnyFunction>(
-        settings?: FuncBindingSettings<TFunc>,
-    ): Promise<void>;
-
-    bindFactoryTransient<TType>(
-        settings: BindFactorySettings<TType>,
-    ): Promise<void>;
-
-    bindClassTransient<TClass extends AnyClass>(
-        settings?: ClassBindingSettings<TClass>,
-    ): Promise<void>;
-
-    bindFuncTransient<TFunc extends AnyFunction>(
-        settings?: FuncBindingSettings<TFunc>,
-    ): Promise<void>;
-
-    alias<TType>(settings: AliasSettings<TType>): Promise<void>;
-
-    when<TType>(token: DiToken<TType>): IContextualBindingBuilder;
-
-    decorate<TType>(
+    registerContextFactory<TType>(
         token: DiToken<TType>,
-        decorators: OneOrMore<InferDecorator<TType>>,
-    ): void;
+        factory: Invokable<
+            [executionContext: IExecutionContext],
+            Promisable<TType>
+        >,
+    ): Promise<void>;
+
+    /**
+     * Registers a service provider, which can register multiple services.
+     * @param provider The service provider to register.
+     * @returns A promise that resolves when registration is complete.
+     */
+    registerProvider(provider: IServiceProvider): Promise<void>;
+
+    /**
+     * Registers a factory function for a token.
+     * @param token The generic token to register.
+     * @param factory The factory function to produce the instance.
+     * @param tags Optional tags for grouping or resolving by tag.
+     * @returns An object to configure the registration lifetime.
+     */
+    registerFactory<TType>(
+        token: DiToken<TType>,
+        factory: (resolver: IServiceContainerResolver) => Promisable<TType>,
+        tags?: OneOrMore<DiToken<TType>>,
+    ): IRegistrationLifetime;
+
+    /**
+     * Registers a class for dependency injection.
+     * @param class_ The class to register.
+     * @param deps The parameter tokens for the constructor.
+     * @param tags Optional tags for grouping or resolving by tag.
+     * @returns An object to configure the registration lifetime.
+     */
+    registerClass<TParameters extends Array<unknown>, TType>(
+        class_: Class<TParameters, TType>,
+        deps: ParameterTokens<TParameters>,
+        tags?: OneOrMore<DiToken<TType>>,
+    ): IRegistrationLifetime;
+
+    /**
+     * Registers a value for a token.
+     * @param token The generic token to register.
+     * @param value The value to associate with the token.
+     * @param tags Optional tags for grouping or resolving by tag.
+     * @returns An object to configure the registration lifetime.
+     */
+    registerValue<TType>(
+        token: DiToken<TType>,
+        value: TType,
+        tags?: OneOrMore<DiToken<TType>>,
+    ): IRegistrationLifetime;
+
+    /**
+     * Creates an alias from one token to another.
+     * @param originalToken The original DI token.
+     * @param aliasToken The alias DI token.
+     * @returns A promise that resolves when registration is complete.
+     */
+    alias<TType>(
+        originalToken: DiToken<TType>,
+        aliasToken: DiToken<TType>,
+    ): Promise<void>;
 };
 
 /**
  * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
-export type IServiceContainer = IServiceContainerRegister &
-    IServiceContainerResolver;
+export type IScopedContainer = {
+    /**
+     * Runs an async function within the scope of the container resolver.
+     * @param asyncFn The {@link AsyncLazyable | `AsyncLazyable`} to run, receiving the container resolver.
+     * @returns The result of the async function.
+     */
+    run<TValue = void>(
+        asyncFn: Invokable<[], Promise<TValue>>,
+    ): Promise<TValue>;
+};
 
 /**
+ * The main contract for a dependency injection container.
+ * Combines both resolving and registering capabilities.
+ *
  * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
+ */
+export type IServiceContainer = IServiceContainerResolver &
+    IServiceContainerRegister &
+    IScopedContainer;
+
+/**
+ * Contract for objects that need initialization after being resolved from the container.
+ *
+ * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
 export type IOnServiceInit = {
+    /**
+     * Called after the service is initialized and resolved from the container.
+     * @param container The DI container resolver.
+     */
     onInit(container: IServiceContainerResolver): Promisable<void>;
 };
 
 /**
+ * Contract for objects that need de-initialization before being disposed by the container.
+ *
  * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
 export type IOnServiceDeInit = {
+    /**
+     * Called before the service is disposed by the container.
+     * @param container The DI container resolver.
+     */
     onDeInit(container: IServiceContainerResolver): Promisable<void>;
 };
 
 /**
+ * Contract for service providers that can register services and handle lifecycle hooks.
+ *
  * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
 export type IServiceProvider = Partial<IOnServiceInit> &
     Partial<IOnServiceDeInit> & {
-        register(container: IServiceContainer): Promisable<void>;
+        /**
+         * Called to register services with the container.
+         * @param container The DI container to register services with.
+         */
+        provide(container: IServiceContainer): Promisable<void>;
     };
 
 /**
+ * The root contract for a DI container, including initialization and de-initialization.
+ *
  * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
-export type IScopedContextualBindingRegister<TType = unknown> = {
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindScopedConstant(
-        settings: ContextualBindConstantSettings<TType>,
-    ): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindScopedFactory(
-        settings: ContextualBindFactorySettings<TType>,
-    ): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindScopedClass<TClass extends Class<Array<any>, TType>>(
-        settings: ClassBindingSettings<TClass>,
-    ): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindScopedFunc<TFunc extends InvokableFn<Array<any>, TType>>(
-        settings?: FuncBindingSettings<TFunc>,
-    ): Promise<void>;
-};
-
-/**
- * @group Contracts
- */
-export type IScopedContextualBindingBuilder = {
-    needs<TType>(token: DiToken<TType>): IContextualBindingRegister<TType>;
-};
-
-/**
- * @group Contracts
- */
-export type IScopedRegister = {
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindScopedConstant<TType>(
-        settings: BindConstantSettings<TType>,
-    ): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindScopedFactory<TType>(
-        settings: BindFactorySettings<TType>,
-    ): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindScopedClass<TClass extends AnyClass>(
-        settings: ClassBindingSettings<TClass>,
-    ): Promise<void>;
-
-    /**
-     * @throws {InvalidDepdencyError}
-     */
-    bindScopedFunc<TFunc extends AnyFunction>(
-        settings?: FuncBindingSettings<TFunc>,
-    ): Promise<void>;
-
-    alias<TType>(settings: AliasSettings<TType>): Promise<void>;
-
-    when<TType>(token: DiToken<TType>): IScopedContextualBindingBuilder;
-
-    decorate<TType>(
-        token: DiToken<TType>,
-        decorators: OneOrMore<InferDecorator<TType>>,
-    ): void;
-};
-
-/**
- * @group Contracts
- */
-export type IRunScoped = {
-    runScoped<TReturn>(
-        register: Invokable<[register: IScopedRegister], Promisable<void>>,
-        invokable: Invokable<[resolver: IServiceContainerResolver], TReturn>,
-    ): Promise<TReturn>;
-};
-
-/**
- * @group Contracts
- */
-export type IContainer = IInitizable &
-    IDeinitizable &
-    IServiceContainer &
-    IRunScoped;
+export type IContainer = IInitizable & IDeinitizable & IServiceContainer;
