@@ -169,6 +169,14 @@
             "types": "./dist/collection/contracts/_module-exports.d.ts",
             "import": "./dist/collection/contracts/_module-exports.js"
         },
+        "./depdency-injection": {
+            "types": "./dist/depdency-injection/implementations/_module-exports.d.ts",
+            "import": "./dist/depdency-injection/implementations/_module-exports.js"
+        },
+        "./depdency-injection/contracts": {
+            "types": "./dist/depdency-injection/contracts/_module-exports.d.ts",
+            "import": "./dist/depdency-injection/contracts/_module-exports.js"
+        },
         "./event-bus": {
             "types": "./dist/event-bus/implementations/derivables/_module-exports.d.ts",
             "import": "./dist/event-bus/implementations/derivables/_module-exports.js"
