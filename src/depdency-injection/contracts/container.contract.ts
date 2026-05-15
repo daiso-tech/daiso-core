@@ -2,7 +2,6 @@
  * @module DepdencyInjection
  */
 
-import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
 import {
     type OneOrMore,
     type Promisable,
@@ -60,7 +59,7 @@ export type DiToken<TType = unknown> = ClassToken<TType> | GenericToken<TType>;
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
-export type IServiceContainerResolver = {
+export type IContainerResolver = {
     /**
      * Resolves a service by its token.
      * @param token The DI token to resolve.
@@ -139,35 +138,103 @@ export type ParameterTokens<TParameters extends Array<unknown>> = {
 };
 
 /**
+ * Contract for objects that need initialization after being resolved from the container.
+ *
+ * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
+ */
+export type IOnServiceInit = {
+    /**
+     * Called after the service is initialized and resolved from the container.
+     * @param container The DI container resolver.
+     */
+    onInit(container: IContainerResolver): Promisable<void>;
+};
+
+/**
+ * Contract for objects that need de-initialization before being disposed by the container.
+ *
+ * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
+ */
+export type IOnServiceDeInit = {
+    /**
+     * Called before the service is disposed by the container.
+     * @param container The DI container resolver.
+     */
+    onDeInit(container: IContainerResolver): Promisable<void>;
+};
+
+/**
+ * Contract for registering and exporting modules in the DI container.
+ * Extends the base registration contract with module import/export capabilities.
+ *
+ * @group Contracts
+ * IMPORT_PATH: "@daiso-tech/core/depdency-injection/contracts"
+ */
+export type IContainerModuleRegister = IContainerRegisterBase & {
+    /**
+     * Imports a DI module and registers its providers.
+     * @param module The module class to import.
+     * @param args The arguments to pass to the module constructor.
+     */
+    import<TParameters extends Array<unknown>>(
+        module: Class<TParameters, IContainerModule>,
+        args: TParameters,
+    ): Promise<void>;
+
+    /**
+     * Exports tokens from the module for external consumption.
+     * @param tokens The DI tokens to export.
+     */
+    exports(tokens: DiToken): Promise<void>;
+};
+
+/**
+ * Base contract for a DI module provider.
+ * Modules must implement this to register their providers.
+ *
+ * @group Contracts
+ * IMPORT_PATH: "@daiso-tech/core/depdency-injection/contracts"
+ */
+export type IContainerModuleBase = {
+    /**
+     * Registers providers with the given module register.
+     * @param register The module register to use for registration.
+     */
+    provider(register: IContainerModuleRegister): Promise<void>;
+};
+
+/**
+ * Contract for a DI module, supporting optional lifecycle hooks.
+ *
+ * @group Contracts
+ * IMPORT_PATH: "@daiso-tech/core/depdency-injection/contracts"
+ */
+export type IContainerModule = Partial<IOnServiceDeInit> &
+    Partial<IOnServiceInit> &
+    IContainerModuleBase;
+
+/**
+ * Factory function type for resolving a dependency using the container resolver.
+ *
+ * @template TType The type produced by the factory.
+ * @group Contracts
+ * IMPORT_PATH: "@daiso-tech/core/depdency-injection/contracts"
+ */
+export type FactoryResolver<TType = unknown> = Invokable<
+    [resolver: IContainerResolver],
+    Promisable<TType>
+>;
+
+/**
  * Contract for registering services and providers in the DI container.
  * Provides methods to register providers, factories, classes, functions, constants, and aliases.
  *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
-export type IServiceContainerRegister = {
-    /**
-     * Registers a context-bound factory for a token. The factory receives the current execution context and produces the instance for the scope.
-     *
-     * @param token The DI token to register.
-     * @param factory The factory function that receives the current {@link IExecutionContext | `IExecutionContext`} and returns the instance.
-     * @returns A promise that resolves when registration is complete.
-     */
-    registerContextFactory<TType>(
-        token: DiToken<TType>,
-        factory: Invokable<
-            [executionContext: IExecutionContext],
-            Promisable<TType>
-        >,
-    ): Promise<void>;
-
-    /**
-     * Registers a service provider, which can register multiple services.
-     * @param provider The service provider to register.
-     * @returns A promise that resolves when registration is complete.
-     */
-    registerProvider(provider: IServiceProvider): Promise<void>;
-
+export type IContainerRegisterBase = {
     /**
      * Registers a factory function for a token.
      * @param token The generic token to register.
@@ -177,7 +244,7 @@ export type IServiceContainerRegister = {
      */
     registerFactory<TType>(
         token: DiToken<TType>,
-        factory: (resolver: IServiceContainerResolver) => Promisable<TType>,
+        factory: FactoryResolver<TType>,
         tags?: OneOrMore<DiToken<TType>>,
     ): IRegistrationLifetime;
 
@@ -191,6 +258,11 @@ export type IServiceContainerRegister = {
     registerClass<TParameters extends Array<unknown>, TType>(
         class_: Class<TParameters, TType>,
         deps: ParameterTokens<TParameters>,
+        tags?: OneOrMore<DiToken<TType>>,
+    ): IRegistrationLifetime;
+    registerClass<TType>(
+        class_: Class<[], TType>,
+        deps: [],
         tags?: OneOrMore<DiToken<TType>>,
     ): IRegistrationLifetime;
 
@@ -215,7 +287,14 @@ export type IServiceContainerRegister = {
      */
     alias<TType>(
         originalToken: DiToken<TType>,
-        aliasToken: DiToken<TType>,
+        aliasToken: GenericToken<TType>,
+    ): Promise<void>;
+};
+
+export type IContainerRegister = IContainerRegisterBase & {
+    registerModule<TParameters extends Array<unknown>>(
+        module: Class<TParameters, IContainerModule>,
+        args: TParameters,
     ): Promise<void>;
 };
 
@@ -223,7 +302,7 @@ export type IServiceContainerRegister = {
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
-export type IScopedContainer = {
+export type IContainerScope = {
     /**
      * Runs an async function within the scope of the container resolver.
      * @param asyncFn The {@link AsyncLazyable | `AsyncLazyable`} to run, receiving the container resolver.
@@ -235,63 +314,13 @@ export type IScopedContainer = {
 };
 
 /**
- * The main contract for a dependency injection container.
- * Combines both resolving and registering capabilities.
- *
- * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
- */
-export type IServiceContainer = IServiceContainerResolver &
-    IServiceContainerRegister &
-    IScopedContainer;
-
-/**
- * Contract for objects that need initialization after being resolved from the container.
- *
- * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
- */
-export type IOnServiceInit = {
-    /**
-     * Called after the service is initialized and resolved from the container.
-     * @param container The DI container resolver.
-     */
-    onInit(container: IServiceContainerResolver): Promisable<void>;
-};
-
-/**
- * Contract for objects that need de-initialization before being disposed by the container.
- *
- * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
- */
-export type IOnServiceDeInit = {
-    /**
-     * Called before the service is disposed by the container.
-     * @param container The DI container resolver.
-     */
-    onDeInit(container: IServiceContainerResolver): Promisable<void>;
-};
-
-/**
- * Contract for service providers that can register services and handle lifecycle hooks.
- *
- * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
- */
-export type IServiceProvider = Partial<IOnServiceInit> &
-    Partial<IOnServiceDeInit> & {
-        /**
-         * Called to register services with the container.
-         * @param container The DI container to register services with.
-         */
-        provide(container: IServiceContainer): Promisable<void>;
-    };
-
-/**
  * The root contract for a DI container, including initialization and de-initialization.
  *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/depdency-injection/contracts"`
  */
-export type IContainer = IInitizable & IDeinitizable & IServiceContainer;
+export type IContainer = IInitizable &
+    IDeinitizable &
+    IContainerResolver &
+    IContainerRegister &
+    IContainerScope;
