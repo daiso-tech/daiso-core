@@ -19,12 +19,38 @@ export class ValidationError extends Error {
  *
  * @throws {ValidationError}
  */
-export async function validate(
-    schema: StandardSchemaV1 | undefined,
-    value: unknown,
-): Promise<void> {
-    const result = await schema?.["~standard"].validate(value);
-    if (result?.issues) {
-        throw new ValidationError(result.issues);
+export async function validate<TType>(
+    schema: StandardSchemaV1<unknown, TType> | undefined,
+    value: TType,
+): Promise<TType> {
+    const validationResult = await schema?.["~standard"].validate(value);
+    if (validationResult === undefined) {
+        return value;
     }
+    if (validationResult.issues) {
+        throw new ValidationError(validationResult.issues);
+    }
+    return validationResult.value;
+}
+
+/**
+ * @internal
+ *
+ * @throws {ValidationError}
+ */
+export function validateSync<TType>(
+    schema: StandardSchemaV1<unknown, TType> | undefined,
+    value: TType,
+): TType {
+    const validationResult = schema?.["~standard"].validate(value);
+    if (validationResult instanceof Promise) {
+        throw new TypeError("!!__MESSAGE__!!");
+    }
+    if (validationResult === undefined) {
+        return value;
+    }
+    if (validationResult.issues) {
+        throw new ValidationError(validationResult.issues);
+    }
+    return validationResult.value;
 }
