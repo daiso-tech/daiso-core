@@ -26,7 +26,12 @@ import {
     type EmptyCollectionError,
 } from "@/collection/contracts/collection.errors.js";
 import { type ISerializable } from "@/serde/contracts/_module.js";
-import { type IterableValue, type Lazyable } from "@/utilities/_module.js";
+import {
+    type IterableValue,
+    type Lazyable,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ValidationError,
+} from "@/utilities/_module.js";
 
 /**
  * Collapses 1 layer of nested array, iterable, or collection types into their element type.
@@ -115,6 +120,7 @@ export interface ICollection<TInput = unknown>
     /**
      * The `validate` method filters all items that matches the `schema` and transforms them afterwards.
      * The `schema` can be any [standard schema](https://standardschema.dev/) compliant object.
+     * @throws {ValidationError}
      */
     validate<TOutput>(
         schema: StandardSchemaV1<TInput, TOutput>,

@@ -262,7 +262,11 @@ export class Cache<TType = unknown> implements ICache<TType> {
                 this.executionContext,
                 keyObj.toString(),
             );
-            if (this.shouldValidateOutput && value !== null) {
+            if (
+                this.shouldValidateOutput &&
+                this.schema !== undefined &&
+                value !== null
+            ) {
                 value = await validate(this.schema, value);
             }
 
@@ -312,7 +316,11 @@ export class Cache<TType = unknown> implements ICache<TType> {
                 this.executionContext,
                 keyObj.toString(),
             );
-            if (this.shouldValidateOutput && value !== null) {
+            if (
+                this.shouldValidateOutput &&
+                this.schema !== undefined &&
+                value !== null
+            ) {
                 value = await validate(this.schema, value);
             }
 
@@ -369,12 +377,21 @@ export class Cache<TType = unknown> implements ICache<TType> {
             this.executionContext,
             keyObj.toString(),
         );
-        if (this.shouldValidateOutput && value !== null) {
+        if (
+            this.shouldValidateOutput &&
+            this.schema !== undefined &&
+            value !== null
+        ) {
             value = await validate(this.schema, value);
         }
         if (value === null) {
-            const resolvedValueToAdd = await resolveAsyncLazyable(valueToAdd);
-            value = await validate(this.schema, resolvedValueToAdd);
+            let resolvedValueToAdd = await resolveAsyncLazyable(valueToAdd);
+            if (this.schema !== undefined) {
+                resolvedValueToAdd = (await validate(
+                    this.schema,
+                    resolvedValueToAdd,
+                )) as NoneFunc<TType>;
+            }
             const hasAdded = await this.adapter.add(
                 this.executionContext,
                 keyObj.toString(),
@@ -454,7 +471,9 @@ export class Cache<TType = unknown> implements ICache<TType> {
         const ttl = this.resolveCacheWriteSettings(settings);
         const keyObj = this.namespace.create(key);
         try {
-            value = await validate(this.schema, value);
+            if (this.schema !== undefined) {
+                value = await validate(this.schema, value);
+            }
             const hasAdded = await this.adapter.add(
                 this.executionContext,
                 keyObj.toString(),
@@ -512,7 +531,9 @@ export class Cache<TType = unknown> implements ICache<TType> {
         const ttl = this.resolveCacheWriteSettings(settings);
         const keyObj = this.namespace.create(key);
         try {
-            value = await validate(this.schema, value);
+            if (this.schema !== undefined) {
+                value = await validate(this.schema, value);
+            }
             const hasUpdated = await this.adapter.put(
                 this.executionContext,
                 keyObj.toString(),
@@ -555,7 +576,9 @@ export class Cache<TType = unknown> implements ICache<TType> {
     async update(key: string, value: TType): Promise<boolean> {
         const keyObj = this.namespace.create(key);
         try {
-            value = await validate(this.schema, value);
+            if (this.schema !== undefined) {
+                value = await validate(this.schema, value);
+            }
             const hasUpdated = await this.adapter.update(
                 this.executionContext,
                 keyObj.toString(),

@@ -38,6 +38,8 @@ import {
     type Option,
     optionSome,
     optionNone,
+    ValidationError,
+    validateSync,
 } from "@/utilities/_module.js";
 
 /**
@@ -266,12 +268,13 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
     ): ICollection<TOutput> {
         const validatedItems: Array<TOutput> = [];
         for (const item of this.array) {
-            const result = schema["~standard"].validate(item);
-            if (isPromiseLike(result)) {
-                throw new TypeError("Schema validation must be synchronous");
-            }
-            if (!result.issues) {
-                validatedItems.push(result.value);
+            try {
+                const validatedItem = validateSync(schema, item);
+                validatedItems.push(validatedItem);
+            } catch (error: unknown) {
+                if (!(error instanceof ValidationError)) {
+                    throw error;
+                }
             }
         }
         return new ListCollection(validatedItems);
