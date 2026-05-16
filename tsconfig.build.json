@@ -4,7 +4,8 @@
         "rootDir": "./src",
         "outDir": "./dist",
         "sourceMap": true,
-        "declaration": true
+        "declaration": true,
+        "incremental": false
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules/*", "vite.config.ts", "**/*.test.ts"]
