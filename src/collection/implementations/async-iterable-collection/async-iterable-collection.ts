@@ -76,7 +76,7 @@ import {
  * All methods that return {@link IAsyncCollection | `IAsyncCollection`} are executed lazly, meaning the execution will occur iterating the items withthe `forEach` method or `for await` loop.
  *
  * IMPORT_PATH: `"@daiso-tech/core/collection"`
- * @group Adapters
+ * @group Implementations
  */
 export class AsyncIterableCollection<TInput = unknown>
     implements IAsyncCollection<TInput>
