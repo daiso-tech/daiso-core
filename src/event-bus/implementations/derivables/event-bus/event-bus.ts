@@ -167,7 +167,10 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         return async (event: InferEvent<TEventMap, TEventName>) => {
             try {
                 if (this.shouldValidateOutput) {
-                    await validate(this.eventMapSchema?.[eventName], event);
+                    event = (await validate(
+                        this.eventMapSchema?.[eventName],
+                        event,
+                    )) as InferEvent<TEventMap, TEventName>;
                 }
                 await resolveInvokable(listener)({
                     ...event,
@@ -252,7 +255,10 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         ) => {
             try {
                 if (this.shouldValidateOutput) {
-                    await validate(this.eventMapSchema?.[eventName], event_);
+                    event_ = (await validate(
+                        this.eventMapSchema?.[eventName],
+                        event_,
+                    )) as InferEvent<TEventMap, TEventName>;
                 }
                 const resolvedListener = resolveInvokable(listener);
                 await resolvedListener(event_);
@@ -333,7 +339,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         eventName: TEventName,
         event: TEventMap[TEventName],
     ): Promise<void> {
-        await validate(this.eventMapSchema?.[eventName], event);
+        event = await validate(this.eventMapSchema?.[eventName], event);
         await this.adapter.dispatch(
             this.executionContext,
             this.namespace.create(String(eventName)).toString(),
