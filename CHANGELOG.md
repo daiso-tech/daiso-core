@@ -1,5 +1,12 @@
 # @daiso-tech/core
 
+## 0.53.0
+
+### Minor Changes
+
+- e7404ad: Introduced new component `@daiso-tech/core/config-accessor`, including the `ConfigAccessor` class and the `IConfigAccessor` contract. This component provides a type-safe way to read domain configuration values by path, with support for optional schema validation and default values.
+- 3a8c200: Introduced new component `@daiso-tech/core/env-accessor`, including the `EnvAccessor` class and the `IEnvAccessor` contract. This component provides a type-safe way to read environment variables, with support for required schema validation, default values and multiple sources (e.g you can read from aws secret manager and process.env and merge them together).
+
 ## 0.52.3
 
 ### Patch Changes
@@ -1118,8 +1125,8 @@
 - 3ca9190: Renamed `FallbackSettings.fallbackPolicy` to `FallbackSettings.errorPolicy`
 - 3ca9190: - Removed the following types:
 
-                                                                                                                      - `AsyncFactoryable`
-                                                                                                                      - `Factoryable`
+                                                                                                                        - `AsyncFactoryable`
+                                                                                                                        - `Factoryable`
 
     - Updated remaining factory types to use the new `InvokableFn` and `InvokableObject` contracts:
         - Synchronous factories:
