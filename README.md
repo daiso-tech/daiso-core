@@ -65,6 +65,8 @@ A growing collection of officially maintained, production-ready components. Ever
 - **Serde**: Add custom serialization and deserialization logic that integrates transparently with every other component in the library.
 - **Collection**: Effortlessly work with Arrays, Iterables, and AsyncIterables using a rich, composable, and lazy collection API.
 - **Execution context**: Propagate request-scoped data — user info, trace IDs, tenant context — across async boundaries. Integrates transparently with all components and adapters.
+- **Config accessor**: Read typed application config values through a small accessor with optional schema validation.
+- **Env accessor**: Load and validate environment variables from one or more sources with type-safe access.
 
 ---
 
@@ -118,27 +120,27 @@ Components currently in design or development — not yet available in any relea
 
 ## 🌟 Vision
 
-@daiso-tech/core is built around one core idea: **production-grade backend primitives that work great standalone, but are even better together** — all inside your existing fullstack TypeScript app.
+@daiso-tech/core will be built around one core idea: **production-grade backend primitives that work great standalone, but are even better together** — all inside your existing fullstack TypeScript app.
 
 ### Composable by design, not by requirement
 
-Every component is self-contained and has zero hard dependencies on the others. You can drop the Cache, the Lock, or the EventBus into any project in isolation. But when you use them together, they integrate seamlessly — sharing the same execution context, serde layer, adapters, and conventions without any extra wiring.
+Every component will be self-contained and will have zero hard dependencies on the others. You will be able to drop the Cache, the Lock, or the EventBus into any project in isolation. But when you use them together, they will integrate seamlessly — sharing the same execution context, serde layer, adapters, and conventions without any extra wiring.
 
-### No DI container required — but supported when you want it _(coming soon)_
+### No DI container required — but supported when you want it
 
-Components are plain classes you instantiate yourself. There is no forced dependency injection framework. A DI container is currently in development and, once ready, will be a first-class citizen that understands every component in the library — so when you do want a container, it just works with no adapters and no boilerplate.
+Components will remain plain classes you instantiate yourself. There will be no forced dependency injection framework. The DI container will become a first-class citizen that understands every component in the library — so when you do want a container, it will work with no adapters and no boilerplate.
 
 ### One server, one app
 
-The library's HTTP primitives are built on the standard Web platform `Request`/`Response` API, which means your route handlers run natively inside **Next.js, SvelteKit, Nuxt, SolidStart, Analog (Angular), TanStack Start, cloudflare workers, vercel functions, netlify functions and many more plattforms by leveraging Hono js** — no separate backend server to host, deploy, or maintain. Your fullstack app _is_ your backend.
+The library's HTTP primitives will be built on the standard Web platform `Request`/`Response` API, which will allow your route handlers to run natively inside **Next.js, SvelteKit, Nuxt, SolidStart, Analog (Angular), TanStack Start, cloudflare workers, vercel functions, netlify functions and many more plattforms by leveraging Hono js** — with no separate backend server to host, deploy, or maintain. Your fullstack app will become your backend.
 
 ### A cohesive experience for the JavaScript ecosystem
 
-The long-term vision is to give TypeScript developers a cohesive, batteries-included experience — authentication, authorization, job scheduling, notifications, queues, caching, file storage, and more — designed from the ground up for the modern JavaScript fullstack world. No framework lock-in, no vendor lock-in, just great primitives that fit together.
+The long-term vision will be to give TypeScript developers a cohesive, batteries-included experience — authentication, authorization, job scheduling, notifications, queues, caching, file storage, and more — designed from the ground up for the modern JavaScript fullstack world. There will be no framework lock-in, no vendor lock-in, just great primitives that fit together.
 
 ### The framework experience
 
-On top of the agnostic core, a separate opinionated, batteries-included framework layer is planned. Unlike the core library, it will not be agnostic — it will make deliberate choices so you don't have to. It will be delivered as a **Vite plugin** that can be dropped into most modern frontend frameworks — Next.js, SvelteKit, Nuxt, SolidStart, TanStack Start, Analog, and more — and will lean heavily on **code generation** to eliminate boilerplate, auto-wire components, and provide a truly integrated developer experience with convention-over-configuration feel directly inside your existing fullstack app.
+On top of the agnostic core, a separate opinionated, batteries-included framework layer will be introduced. Unlike the core library, it will not be agnostic — it will make deliberate choices so you will not have to. It will be delivered as a **Vite plugin** that can be dropped into most modern frontend frameworks — Next.js, SvelteKit, Nuxt, SolidStart, TanStack Start, Analog, and more — and will lean heavily on **code generation** to eliminate boilerplate, auto-wire components, and provide a truly integrated developer experience with a convention-over-configuration feel directly inside your existing fullstack app.
 
 ---
 
