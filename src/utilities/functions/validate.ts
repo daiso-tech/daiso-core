@@ -42,7 +42,9 @@ export function validateSync<TInput, TOutput = TInput>(
 ): TOutput {
     const validationResult = schema["~standard"].validate(value);
     if (validationResult instanceof Promise) {
-        throw new TypeError("!!__MESSAGE__!!");
+        throw new TypeError(
+            "validateSync() does not support async schemas. Use validate() instead.",
+        );
     }
     if (validationResult.issues) {
         throw new ValidationError(validationResult.issues);

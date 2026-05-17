@@ -66,18 +66,18 @@ export class ConfigAccessor<
      * const config = {}
      *
      * const schema = z.object({
-     *   // Suppports primtive string, number, boolean values
+     *   // Supports primitive string, number, boolean values
      *   a: z.string(),
      *
-     *   // Suppports nested object with fields of string, number, boolean values
+     *   // Supports nested object with fields of string, number, boolean values
      *   b: z.object({
      *     a: z.string(),
      *   }),
      *
-     *   // Suppports array with item of string, number, boolean values
+     *   // Supports array with item of string, number, boolean values
      *   c: z.string().array(),
      *
-     *   // Suppports array of object with fields of string, number, boolean values
+     *   // Supports array of object with fields of string, number, boolean values
      *   d: z.object({
      *     a: z.string(),
      *   })
@@ -96,10 +96,10 @@ export class ConfigAccessor<
      * // Return the value of field b which is an object
      * accessor.get("b")
      *
-     * // Return the value of field b.a which is an primtive
+     * // Return the value of field b.a which is an primitive
      * accessor.get("b.a")
      *
-     * // Return the first item of field c wich an primtive
+     * // Return the first item of field c which an primitive
      * accessor.get("c.1")
      *
      * // Return the first item of field d which an object
@@ -119,7 +119,12 @@ export class ConfigAccessor<
 
     private extractPathSegments(path: string): PathSegments {
         const path_ = path;
-        const [root, nested] = path_.split(".");
+        const [root, nested, ...rest] = path_.split(".");
+        if (rest.length > 0) {
+            throw new UnexpectedError(
+                "Config path supports at most one nested path segment.",
+            );
+        }
         if (root === undefined) {
             throw new UnexpectedError(
                 "BUG: Config path must specify a field name (received undefined). This is an internal error and should be reported.",

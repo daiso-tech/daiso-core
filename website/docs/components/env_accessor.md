@@ -61,7 +61,7 @@ accessor.get("PORT");
 Will return default value if NODE_ENV enviroment field is missing:
 
 ```ts
-accessor.getOr("NODE_ENV", 5000);
+accessor.getOr("NODE_ENV", "DEV");
 ```
 
 ## IEnvAccessor contract

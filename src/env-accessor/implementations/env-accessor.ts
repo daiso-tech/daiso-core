@@ -41,7 +41,7 @@ export type EnvAccessorSettings<
 };
 
 /**
- * `EnvAccessor` provides type-safe access to enviroment variables, with optional schema validation.
+ * `EnvAccessor` provides type-safe access to environment variables, with optional schema validation.
  *
  * It supports multiple sources (sync/async/lazy), schema validation, and convenient access patterns.
  *
@@ -84,7 +84,7 @@ export class EnvAccessor<TEnvConfig extends BaseEnvConfig>
      * // Define a schema for your environment variables
      * const schema = z.object({
      *   NODE_ENV: z.string(),
-     *   PORT: z.string().pipe(z.coerce.number()).default("3000"),
+     *   PORT: z.string().default("3000").pipe(z.coerce.number()),
      * });
      *
      * // Initialize the accessor

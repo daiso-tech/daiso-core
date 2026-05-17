@@ -28,8 +28,6 @@ import {
 import {
     type AsyncLazyable,
     type AsyncIterableValue,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ValidationError,
 } from "@/utilities/_module.js";
 
 /**
@@ -102,7 +100,6 @@ export interface IAsyncCollection<TInput = unknown>
     /**
      * The `validate` method filters all items that matches the `schema` and transforms them afterwards.
      * The `schema` can be any [standard schema](https://standardschema.dev/) compliant object.
-     * @throws {ValidationError}
      */
     validate<TOutput>(
         schema: StandardSchemaV1<TInput, TOutput>,

@@ -11,7 +11,7 @@ import { type IInitizable, type UndefinedToNull } from "@/utilities/_module.js";
 /**
  * @group Contracts
  */
-export type RawEnvConfig = Partial<Record<string, string>>;
+export type RawEnvConfig = Partial<Record<string, string | number | boolean>>;
 
 /**
  * @group Contracts
