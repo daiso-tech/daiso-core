@@ -95,16 +95,14 @@ export class RateLimiterSerdeTransformer
         }
 
         const isSerdTransformerNameMathcing =
-            this.serdeTransformerName ===
-            value._internal_getSerdeTransformerName();
+            this.serdeTransformerName === value._getSerdeTransformerName();
 
         const isNamespaceMatching =
-            this.namespace.toString() ===
-            value._internal_getNamespace().toString();
+            this.namespace.toString() === value._getNamespace().toString();
 
         const isAdapterMatching =
             getConstructorName(this.adapter) ===
-            getConstructorName(value._internal_getAdapter());
+            getConstructorName(value._getAdapter());
 
         return (
             isSerdTransformerNameMathcing &&
@@ -133,6 +131,6 @@ export class RateLimiterSerdeTransformer
     }
 
     serialize(deserializedValue: RateLimiter): ISerializedRateLimiter {
-        return RateLimiter._internal_serialize(deserializedValue);
+        return RateLimiter._serialize(deserializedValue);
     }
 }

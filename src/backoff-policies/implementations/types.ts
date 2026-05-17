@@ -25,7 +25,6 @@ import {
  *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  * @group Implementations
- * @group Adapters
  */
 export const BACKOFFS = {
     CONSTANT: "CONSTANT",
@@ -39,7 +38,6 @@ export const BACKOFFS = {
  *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  * @group Implementations
- * @group Adapters
  */
 export type BackoffsLiterals = (typeof BACKOFFS)[keyof typeof BACKOFFS];
 
@@ -49,7 +47,6 @@ export type BackoffsLiterals = (typeof BACKOFFS)[keyof typeof BACKOFFS];
  *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  * @group Implementations
- * @group Adapters
  */
 export type ConstantBackoffSettingsEnum = Omit<
     ConstantBackoffSettings,
@@ -67,7 +64,6 @@ export type ConstantBackoffSettingsEnum = Omit<
  *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  * @group Implementations
- * @group Adapters
  */
 export type ExponentialBackoffSettingsEnum = Omit<
     ExponentialBackoffSettings,
@@ -85,7 +81,6 @@ export type ExponentialBackoffSettingsEnum = Omit<
  *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  * @group Implementations
- * @group Adapters
  */
 export type LinearBackoffSettingsEnum = Omit<
     LinearBackoffSettings,
@@ -103,7 +98,6 @@ export type LinearBackoffSettingsEnum = Omit<
  *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  * @group Implementations
- * @group Adapters
  */
 export type PolynomialBackoffSettingsEnum = Omit<
     PolynomialBackoffSettings,
@@ -121,7 +115,6 @@ export type PolynomialBackoffSettingsEnum = Omit<
  *
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
  * @group Implementations
- * @group Adapters
  */
 export type BackoffSettingsEnum =
     | ConstantBackoffSettingsEnum

@@ -87,7 +87,7 @@ export class File implements IFile {
     /**
      * @internal
      */
-    static _internal_serialize(deserializedValue: File): ISerializedFile {
+    static _serialize(deserializedValue: File): ISerializedFile {
         return {
             version: "1",
             key: deserializedValue._key.get(),
@@ -168,15 +168,15 @@ export class File implements IFile {
         return rawKey;
     }
 
-    _internal_getNamespace(): INamespace {
+    _getNamespace(): INamespace {
         return this.namespace;
     }
 
-    _internal_getSerdeTransformerName(): string {
+    _getSerdeTransformerName(): string {
         return this.serdeTransformerName;
     }
 
-    _internal_getAdapter(): FileStorageAdapterVariants {
+    _getAdapter(): FileStorageAdapterVariants {
         return this.originalAdapter;
     }
 

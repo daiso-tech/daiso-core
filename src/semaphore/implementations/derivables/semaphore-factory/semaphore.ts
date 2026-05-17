@@ -68,9 +68,7 @@ export class Semaphore implements ISemaphore {
     /**
      * @internal
      */
-    static _internal_serialize(
-        deserializedValue: Semaphore,
-    ): ISerializedSemaphore {
+    static _serialize(deserializedValue: Semaphore): ISerializedSemaphore {
         return {
             version: "1",
             key: deserializedValue._key.get(),
@@ -126,15 +124,15 @@ export class Semaphore implements ISemaphore {
         this.originalAdapter = originalAdapter;
     }
 
-    _internal_getNamespace(): INamespace {
+    _getNamespace(): INamespace {
         return this.namespace;
     }
 
-    _internal_getSerdeTransformerName(): string {
+    _getSerdeTransformerName(): string {
         return this.serdeTransformerName;
     }
 
-    _internal_getAdapter(): SemaphoreAdapterVariants {
+    _getAdapter(): SemaphoreAdapterVariants {
         return this.originalAdapter;
     }
 

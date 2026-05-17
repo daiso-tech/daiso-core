@@ -27,7 +27,7 @@ class NoOpKey implements IKey {
  * The `NoOpNamespace` will disable namespacing.
  *
  * IMPORT_PATH: `"@daiso-tech/core/namespace"`
- * @group Adapters
+ * @group Implementations
  */
 export class NoOpNamespace implements INamespace {
     toString(): string {

@@ -9,6 +9,7 @@ import {
 /**
  * @internal
  */
+// eslint-disable-next-line sonarjs/cyclomatic-complexity
 export function isSignedFileStorageAdapter(
     adapter: FileStorageAdapterVariants,
 ): adapter is ISignedFileStorageAdapter {

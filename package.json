@@ -1,7 +1,7 @@
 {
     "name": "@daiso-tech/core",
     "private": false,
-    "version": "0.52.1",
+    "version": "0.52.3",
     "author": "Yousif Abdulkarim",
     "license": "Apache-2.0",
     "type": "module",
@@ -169,6 +169,14 @@
             "types": "./dist/collection/contracts/_module-exports.d.ts",
             "import": "./dist/collection/contracts/_module-exports.js"
         },
+        "./config-accessor": {
+            "types": "./dist/config-accessor/implementations/_module-exports.d.ts",
+            "import": "./dist/config-accessor/implementations/_module-exports.js"
+        },
+        "./config-accessor/contracts": {
+            "types": "./dist/config-accessor/contracts/_module-exports.d.ts",
+            "import": "./dist/config-accessor/contracts/_module-exports.js"
+        },
         "./depdency-injection": {
             "types": "./dist/depdency-injection/implementations/_module-exports.d.ts",
             "import": "./dist/depdency-injection/implementations/_module-exports.js"
@@ -176,6 +184,14 @@
         "./depdency-injection/contracts": {
             "types": "./dist/depdency-injection/contracts/_module-exports.d.ts",
             "import": "./dist/depdency-injection/contracts/_module-exports.js"
+        },
+        "./env-accessor": {
+            "types": "./dist/env-accessor/implementations/_module-exports.d.ts",
+            "import": "./dist/env-accessor/implementations/_module-exports.js"
+        },
+        "./env-accessor/contracts": {
+            "types": "./dist/env-accessor/contracts/_module-exports.d.ts",
+            "import": "./dist/env-accessor/contracts/_module-exports.js"
         },
         "./event-bus": {
             "types": "./dist/event-bus/implementations/derivables/_module-exports.d.ts",
@@ -466,6 +482,11 @@
             "import": "./dist/utilities/_module-exports.js"
         }
     },
+    "config": {
+        "cz-customizable": {
+            "config": "./.cz-config.cjs"
+        }
+    },
     "publishConfig": {
         "access": "public",
         "provenance": true
@@ -491,7 +512,8 @@
         "check:all:changed": "npm run check && npm run lint:changed && npm run format:changed && npm run test:changed && npm run module-exports-files-check && npm run package-json-exports-check",
         "check:all:fix:changed": "npm run check && npm run lint:fix:changed && npm run format:fix:changed && npm run test:changed && npm run module-exports-files-check && npm run package-json-exports-check",
         "docs": "npx typedoc",
-        "release": "npm run build && npx changeset publish"
+        "release": "npm run build && npx changeset publish",
+        "commit": "npx git-cz"
     },
     "devDependencies": {
         "@aws-sdk/client-s3": "^3.1011.0",
@@ -513,12 +535,16 @@
         "@typescript-eslint/parser": "^8.1.0",
         "@vitest/eslint-plugin": "^1.0.3",
         "better-sqlite3": "^12.5.0",
+        "commitizen": "^4.3.1",
+        "cz-conventional-changelog": "^3.3.0",
+        "cz-customizable": "^7.5.4",
         "eslint": "^8.57.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-import": "^2.32.0",
         "eslint-plugin-no-relative-import-paths": "^1.5.5",
         "eslint-plugin-only-error": "^1.0.2",
         "eslint-plugin-prettier": "^5.2.1",
+        "eslint-plugin-sonarjs": "^4.0.3",
         "eslint-plugin-tsdoc": "^0.3.0",
         "eslint-plugin-typescript-enum": "^2.1.0",
         "eslint-plugin-vitest": "^0.5.4",
@@ -567,6 +593,7 @@
         "etag": "^1.8.1",
         "mime-types": "^3.0.2",
         "superjson": "^2.2.2",
+        "type-fest": "^5.6.0",
         "uuid": "^11.0.5"
     }
 }

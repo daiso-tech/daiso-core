@@ -126,8 +126,8 @@ export type AllResilienceErrors =
 export function isResilienceError(
     value: unknown,
 ): value is AllResilienceErrors {
-    for (const ErrorClass of Object.values(RESILIENCE_ERRORS)) {
-        if (value instanceof ErrorClass) {
+    for (const errorClass of Object.values(RESILIENCE_ERRORS)) {
+        if (value instanceof errorClass) {
             return true;
         }
     }

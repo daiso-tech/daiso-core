@@ -61,7 +61,7 @@ export class MemoryRateLimiterStorageAdapter<TType>
     ): Promise<TValue> {
         return await fn({
             upsert: (
-                __context: IReadableContext,
+                _nestedContext: IReadableContext,
                 key: string,
                 state: TType,
                 expiration: Date,

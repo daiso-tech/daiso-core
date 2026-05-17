@@ -1099,14 +1099,16 @@ describe("class: AsyncIterableCollection", () => {
                         ),
                     )
                     .then((collection_) =>
-                        collection_.pipe((collection__) =>
-                            collection__.map((collection___) =>
-                                collection___.sum(),
+                        collection_.pipe((nestedCollection_) =>
+                            nestedCollection_.map((nestedLevel2Collection_) =>
+                                nestedLevel2Collection_.sum(),
                             ),
                         ),
                     )
                     .then((collection_) =>
-                        collection_.pipe((collection__) => collection__.sum()),
+                        collection_.pipe((nestedCollection_) =>
+                            nestedCollection_.sum(),
+                        ),
                     );
             expect(a).toBeTypeOf("number");
         });

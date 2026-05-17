@@ -100,16 +100,14 @@ export class CircuitBreakerSerdeTransformer
         }
 
         const isSerdTransformerNameMathcing =
-            this.serdeTransformerName ===
-            value._internal_getSerdeTransformerName();
+            this.serdeTransformerName === value._getSerdeTransformerName();
 
         const isNamespaceMatching =
-            this.namespace.toString() ===
-            value._internal_getNamespace().toString();
+            this.namespace.toString() === value._getNamespace().toString();
 
         const isAdapterMatching =
             getConstructorName(this.adapter) ===
-            getConstructorName(value._internal_getAdapter());
+            getConstructorName(value._getAdapter());
 
         return (
             isSerdTransformerNameMathcing &&
@@ -138,6 +136,6 @@ export class CircuitBreakerSerdeTransformer
     }
 
     serialize(deserializedValue: CircuitBreaker): ISerializedCircuitBreaker {
-        return CircuitBreaker._internal_serialize(deserializedValue);
+        return CircuitBreaker._serialize(deserializedValue);
     }
 }

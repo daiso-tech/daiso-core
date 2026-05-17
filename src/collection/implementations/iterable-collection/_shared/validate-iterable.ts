@@ -3,7 +3,7 @@
  */
 import { type StandardSchemaV1 } from "@standard-schema/spec";
 
-import { isPromiseLike } from "@/utilities/_module.js";
+import { validateSync, ValidationError } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -16,12 +16,12 @@ export class ValidateIterable<TInput, TOutput> implements Iterable<TOutput> {
 
     *[Symbol.iterator](): Iterator<TOutput> {
         for (const item of this.iterable) {
-            const result = this.schema["~standard"].validate(item);
-            if (isPromiseLike(result)) {
-                throw new TypeError("Schema validation must be synchronous");
-            }
-            if (!result.issues) {
-                yield result.value;
+            try {
+                yield validateSync(this.schema, item);
+            } catch (error: unknown) {
+                if (!(error instanceof ValidationError)) {
+                    throw error;
+                }
             }
         }
     }

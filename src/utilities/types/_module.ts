@@ -6,4 +6,5 @@ export type * from "@/utilities/types/class.type.js";
 export type * from "@/utilities/types/infer-instance.type.js";
 export type * from "@/utilities/types/none-func.type.js";
 export type * from "@/utilities/types/promiseable.type.js";
+export type * from "@/utilities/types/undefined-to-null.type.js";
 export type * from "@/utilities/types/wait-until.type.js";

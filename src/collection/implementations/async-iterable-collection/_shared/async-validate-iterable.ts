@@ -3,6 +3,8 @@
  */
 import { type StandardSchemaV1 } from "@standard-schema/spec";
 
+import { validate, ValidationError } from "@/utilities/_module.js";
+
 /**
  * @internal
  */
@@ -16,10 +18,12 @@ export class AsyncValidateIterable<TInput, TOutput>
 
     async *[Symbol.asyncIterator](): AsyncIterator<TOutput> {
         for await (const item of this.iterable) {
-            const result = await this.schema["~standard"].validate(item);
-
-            if (!result.issues) {
-                yield result.value;
+            try {
+                yield await validate(this.schema, item);
+            } catch (error: unknown) {
+                if (!(error instanceof ValidationError)) {
+                    throw error;
+                }
             }
         }
     }

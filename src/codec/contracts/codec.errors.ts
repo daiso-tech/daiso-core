@@ -76,8 +76,8 @@ export type AllCodecErrors = InferInstance<
  * @group Errors
  */
 export function isCodecError(value: unknown): value is AllCodecErrors {
-    for (const ErrorClass of Object.values(CODEC_ERRORS)) {
-        if (value instanceof ErrorClass) {
+    for (const errorClass of Object.values(CODEC_ERRORS)) {
+        if (value instanceof errorClass) {
             return true;
         }
     }

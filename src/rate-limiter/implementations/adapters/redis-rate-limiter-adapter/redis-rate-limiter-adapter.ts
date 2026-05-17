@@ -34,10 +34,12 @@ type IRedisJsonRateLimiterState = {
 };
 
 declare module "ioredis" {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     interface RedisCommander<Context> {
         /**
          * @returns {string} {@link IRedisJsonRateLimiterState | `IRedisJsonRateLimiterState`} or `null` as json string.
          */
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_rate_limiter_update_state(
             key: string,
             limit: number,
@@ -49,6 +51,7 @@ declare module "ioredis" {
         /**
          * @returns {string} {@link IRedisJsonRateLimiterState | `IRedisJsonRateLimiterState`} or `null` as json string.
          */
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         daiso_rate_limiter_get_state(
             key: string,
             backoffSettings: string,

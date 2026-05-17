@@ -30,6 +30,7 @@ export type ContextToken<TValue> = {
      * This property is never actually set at runtime and exists only to help
      * TypeScript infer the correct value type when using get/put operations.
      */
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     __type: TValue | null;
 };
 

@@ -208,6 +208,7 @@ export class Serde<TSerializedValue>
      * const serde: IFlexibleSerde = new Serde(new SuperJsonSerdeAdapter());
      * ```
      */
+    // eslint-disable-next-line sonarjs/cognitive-complexity, sonarjs/cyclomatic-complexity
     constructor(
         private readonly serdeAdapter: IFlexibleSerdeAdapter<TSerializedValue>,
         settings: SerdeSettings = {},

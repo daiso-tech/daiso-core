@@ -11,7 +11,14 @@ import {
     type SharedLockAcquireSettings,
 } from "@/shared-lock/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import { UnexpectedError, type IDeinitizable } from "@/utilities/_module.js";
+import {
+    OPTION,
+    optionNone,
+    optionSome,
+    UnexpectedError,
+    type IDeinitizable,
+    type Option,
+} from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/memory-shared-lock-adapter"`
@@ -435,31 +442,23 @@ export class MemorySharedLockAdapter
         return hasReleasedAllReaders || hasReleasedWriter;
     }
 
-    async getState(
-        _context: IReadableContext,
-        key: string,
-    ): Promise<ISharedLockAdapterState | null> {
-        const sharedLock = this.map.get(key);
-
-        if (sharedLock === undefined) {
-            return Promise.resolve(null);
-        }
-
-        const { writerLock, readerSemaphore } = sharedLock;
-
+    private static extractReaderState(
+        writerLock: MemorySharedWriterLockData | null,
+        readerSemaphore: MemorySharedReaderSemaphoreData | null,
+    ): Option<ISharedLockAdapterState | null> {
         if (
             writerLock === null &&
             readerSemaphore !== null &&
             readerSemaphore.slots.size === 0
         ) {
-            return Promise.resolve(null);
+            return optionSome(null);
         }
         if (
             writerLock === null &&
             readerSemaphore !== null &&
             readerSemaphore.slots.size !== 0
         ) {
-            return Promise.resolve({
+            return optionSome({
                 writer: null,
                 reader: {
                     limit: readerSemaphore.limit,
@@ -473,12 +472,19 @@ export class MemorySharedLockAdapter
             });
         }
 
+        return optionNone();
+    }
+
+    private static extractWriterState_(
+        writerLock: MemorySharedWriterLockData | null,
+        readerSemaphore: MemorySharedReaderSemaphoreData | null,
+    ): Option<ISharedLockAdapterState | null> {
         if (
             readerSemaphore === null &&
             writerLock !== null &&
             !writerLock.hasExpiration
         ) {
-            return Promise.resolve({
+            return optionSome({
                 reader: null,
                 writer: {
                     owner: writerLock.owner,
@@ -489,23 +495,71 @@ export class MemorySharedLockAdapter
         if (
             readerSemaphore === null &&
             writerLock !== null &&
-            writerLock.hasExpiration &&
-            writerLock.expiration <= new Date()
-        ) {
-            return Promise.resolve(null);
-        }
-        if (
-            readerSemaphore === null &&
-            writerLock !== null &&
             writerLock.hasExpiration
         ) {
-            return Promise.resolve({
+            return optionSome({
                 reader: null,
                 writer: {
                     owner: writerLock.owner,
                     expiration: writerLock.expiration,
                 },
             });
+        }
+
+        return optionNone();
+    }
+
+    private static extractActiveWriterState(
+        writerLock: MemorySharedWriterLockData | null,
+        readerSemaphore: MemorySharedReaderSemaphoreData | null,
+    ): Option<ISharedLockAdapterState | null> {
+        const activeWriterStateOption =
+            MemorySharedLockAdapter.extractWriterState_(
+                writerLock,
+                readerSemaphore,
+            );
+        if (activeWriterStateOption.type === OPTION.SOME) {
+            return activeWriterStateOption;
+        }
+
+        if (
+            readerSemaphore === null &&
+            writerLock !== null &&
+            writerLock.hasExpiration &&
+            writerLock.expiration <= new Date()
+        ) {
+            return optionSome(null);
+        }
+
+        return optionNone();
+    }
+
+    async getState(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<ISharedLockAdapterState | null> {
+        const sharedLock = this.map.get(key);
+
+        if (sharedLock === undefined) {
+            return Promise.resolve(null);
+        }
+
+        const { writerLock, readerSemaphore } = sharedLock;
+
+        const writerState = MemorySharedLockAdapter.extractReaderState(
+            writerLock,
+            readerSemaphore,
+        );
+        if (writerState.type === OPTION.SOME) {
+            return writerState.value;
+        }
+
+        const readerState = MemorySharedLockAdapter.extractActiveWriterState(
+            writerLock,
+            readerSemaphore,
+        );
+        if (readerState.type === OPTION.SOME) {
+            return readerState.value;
         }
 
         throw new UnexpectedError(

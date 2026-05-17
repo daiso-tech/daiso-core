@@ -85,7 +85,7 @@ export type SerializedNamespace = {
  * The `Namespace` class adds prefixes/suffixes to keys to avoid conflicts and group related items.
  *
  * IMPORT_PATH: `"@daiso-tech/core/namespace"`
- * @group Adapters
+ * @group Implementations
  *
  * @example
  * ```ts

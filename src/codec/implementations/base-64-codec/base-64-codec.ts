@@ -10,7 +10,7 @@ import {
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/codec/base-64-codec"`
- * @group Adapters
+ * @group Implementations
  */
 export class Base64Codec implements ICodec<string, string> {
     encode(decodedValue: string): string {

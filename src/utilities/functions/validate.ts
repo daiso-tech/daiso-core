@@ -19,12 +19,35 @@ export class ValidationError extends Error {
  *
  * @throws {ValidationError}
  */
-export async function validate(
-    schema: StandardSchemaV1 | undefined,
-    value: unknown,
-): Promise<void> {
-    const result = await schema?.["~standard"].validate(value);
-    if (result?.issues) {
-        throw new ValidationError(result.issues);
+export async function validate<TInput, TOutput = TInput>(
+    schema: StandardSchemaV1<TInput, TOutput>,
+    value: TInput,
+): Promise<TOutput> {
+    const validationResult = await schema["~standard"].validate(value);
+
+    if (validationResult.issues) {
+        throw new ValidationError(validationResult.issues);
     }
+    return validationResult.value;
+}
+
+/**
+ * @internal
+ *
+ * @throws {ValidationError}
+ */
+export function validateSync<TInput, TOutput = TInput>(
+    schema: StandardSchemaV1<TInput, TOutput>,
+    value: TInput,
+): TOutput {
+    const validationResult = schema["~standard"].validate(value);
+    if (validationResult instanceof Promise) {
+        throw new TypeError(
+            "validateSync() does not support async schemas. Use validate() instead.",
+        );
+    }
+    if (validationResult.issues) {
+        throw new ValidationError(validationResult.issues);
+    }
+    return validationResult.value;
 }

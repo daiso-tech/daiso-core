@@ -60,7 +60,7 @@ export class CircuitBreaker implements ICircuitBreaker {
     /**
      * @internal
      */
-    static _internal_serialize(
+    static _serialize(
         deserializedValue: CircuitBreaker,
     ): ISerializedCircuitBreaker {
         return {
@@ -109,15 +109,15 @@ export class CircuitBreaker implements ICircuitBreaker {
         this.namespace = namespace;
     }
 
-    _internal_getNamespace(): INamespace {
+    _getNamespace(): INamespace {
         return this.namespace;
     }
 
-    _internal_getSerdeTransformerName(): string {
+    _getSerdeTransformerName(): string {
         return this.serdeTransformerName;
     }
 
-    _internal_getAdapter(): ICircuitBreakerAdapter {
+    _getAdapter(): ICircuitBreakerAdapter {
         return this.adapter;
     }
 

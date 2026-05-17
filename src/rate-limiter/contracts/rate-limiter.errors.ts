@@ -63,8 +63,8 @@ export type AllRateLimiterErrors = InferInstance<
 export function isRateLimiterError(
     value: unknown,
 ): value is AllRateLimiterErrors {
-    for (const ErrorClass of Object.values(RATE_LIMITER_ERRORS)) {
-        if (value instanceof ErrorClass) {
+    for (const errorClass of Object.values(RATE_LIMITER_ERRORS)) {
+        if (value instanceof errorClass) {
             return true;
         }
     }

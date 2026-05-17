@@ -59,9 +59,7 @@ export class RateLimiter implements IRateLimiter {
     /**
      * @internal
      */
-    static _internal_serialize(
-        deserializedValue: RateLimiter,
-    ): ISerializedRateLimiter {
+    static _serialize(deserializedValue: RateLimiter): ISerializedRateLimiter {
         return {
             version: "1",
             key: deserializedValue._key.get(),
@@ -109,15 +107,15 @@ export class RateLimiter implements IRateLimiter {
         this.adapter = adapter;
     }
 
-    _internal_getNamespace(): INamespace {
+    _getNamespace(): INamespace {
         return this.namespace;
     }
 
-    _internal_getSerdeTransformerName(): string {
+    _getSerdeTransformerName(): string {
         return this.serdeTransformerName;
     }
 
-    _internal_getAdapter(): IRateLimiterAdapter {
+    _getAdapter(): IRateLimiterAdapter {
         return this.adapter;
     }
 
