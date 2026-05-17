@@ -26,7 +26,6 @@ import {
 import {
     isInvokable,
     isIterable,
-    isPromiseLike,
     resolveInvokable,
     resolveIterableValue,
     type IterableValue,
