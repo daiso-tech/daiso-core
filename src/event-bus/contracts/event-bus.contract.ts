@@ -6,7 +6,12 @@ import {
     type BaseEvent,
     type EventListenerFn,
 } from "@/event-bus/contracts/event-bus-adapter.contract.js";
-import { type IInvokableObject, type OneOrArray } from "@/utilities/_module.js";
+import {
+    type IInvokableObject,
+    type OneOrArray,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ValidationError,
+} from "@/utilities/_module.js";
 
 /**
  * Base type for event maps - a record of event names to their event payloads.
@@ -75,6 +80,7 @@ export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
      * @template TEventName - The name(s) of the event(s) to listen to
      * @param eventNames - Single event name or array of event names to subscribe to
      * @param listener - Callback function or object to invoke when events are dispatched
+     * @throws {ValidationError} Inside the listener
      */
     addListener<TEventName extends keyof TEventMap>(
         eventNames: OneOrArray<TEventName>,
@@ -88,6 +94,7 @@ export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
      * @template TEventName - The name(s) of the event(s) to stop listening to
      * @param eventNames - Single event name or array of event names to unsubscribe from
      * @param listener - The listener callback to remove
+     * @throws {ValidationError} Inside the listener
      */
     removeListener<TEventName extends keyof TEventMap>(
         eventNames: OneOrArray<TEventName>,
@@ -100,6 +107,7 @@ export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
      * @template TEventName - The name of the event to listen to
      * @param eventName - The event name to subscribe to
      * @param listener - Callback function or object to invoke when the event is dispatched
+     * @throws {ValidationError} Inside the listener
      */
     listenOnce<TEventName extends keyof TEventMap>(
         eventName: TEventName,
@@ -113,6 +121,7 @@ export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
      * @template TEventName - The name of the event to wait for
      * @param eventName - The event name to wait for
      * @returns A Promise that resolves with the event when it is dispatched
+     * @throws {ValidationError}
      */
     asPromise<TEventName extends keyof TEventMap>(
         eventName: TEventName,
@@ -126,6 +135,7 @@ export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
      * @param eventName - The event name to subscribe to
      * @param listener - Callback function or object to invoke when the event is dispatched
      * @returns A cleanup function that removes the listener when called
+     * @throws {ValidationError} Inside the listener
      */
     subscribeOnce<TEventName extends keyof TEventMap>(
         eventName: TEventName,
@@ -135,6 +145,7 @@ export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
     /**
      * The `subscribe` method is used for listening to one or more {@link BaseEvent | `BaseEvent`} and it returns a cleanup function that removes listener when called.
      * The same listener can only be added once for a specific event. Adding the same listener multiple times will have no effect and nothing will occur.
+     * @throws {ValidationError} Inside the listener
      */
     subscribe<TEventName extends keyof TEventMap>(
         eventNames: OneOrArray<TEventName>,
@@ -151,6 +162,7 @@ export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
 export type IEventDispatcher<TEventMap extends BaseEventMap = BaseEventMap> = {
     /**
      * The `dispatch` method is used for dispatching a {@link BaseEvent | `BaseEvent`}.
+     * @throws {ValidationError}
      */
     dispatch<TEventName extends keyof TEventMap>(
         eventName: TEventName,
