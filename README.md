@@ -132,7 +132,7 @@ Components will remain plain classes you instantiate yourself. There will be no 
 
 ### One server, one app
 
-The library's HTTP primitives will be built on the standard Web platform `Request`/`Response` API, which will allow your route handlers to run natively inside **Next.js, SvelteKit, Nuxt, SolidStart, Analog (Angular), TanStack Start, cloudflare workers, vercel functions, netlify functions and many more plattforms by leveraging Hono js** — with no separate backend server to host, deploy, or maintain. Your fullstack app will become your backend.
+The library's HTTP primitives will be built on the standard Web platform `Request`/`Response` API, which will allow your route handlers to run natively inside **Next.js, SvelteKit, Nuxt, SolidStart, Analog (Angular), TanStack Start, cloudflare workers, vercel functions, netlify functions and many more platforms by leveraging Hono js** — with no separate backend server to host, deploy, or maintain. Your fullstack app will become your backend.
 
 ### A cohesive experience for the JavaScript ecosystem
 
