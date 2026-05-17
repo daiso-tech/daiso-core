@@ -27,6 +27,7 @@ import {
     GitBranch,
     Lightbulb,
     Server,
+    Key,
 } from "lucide-react";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import { type ReactNode, useState, useCallback } from "react";
@@ -142,7 +143,7 @@ type ComponentItemProps = {
 
 function ComponentItem(props: ComponentItemProps) {
     const card = (
-        <div className="daiso-component-card card shadow--md">
+        <div className="daiso-component-card card">
             <div className="card__header">
                 <div className="daiso-component-icon">{props.icon}</div>
                 <h3>{props.title}</h3>
@@ -311,7 +312,7 @@ function VisionSection({ items }: { items: VisionItemProps[] }) {
                 <div className="text--center margin-bottom--xl">
                     <h2 className="daiso-section-title">🌟 Vision</h2>
                     <p className="daiso-section-subtitle" style={{ textAlign: "left" }}>
-                        @daiso-tech/core is built around one core idea:{" "}
+                        @daiso-tech/core will be built around one core idea:{" "}
                         <strong>
                             production-grade backend primitives that work great
                             standalone, but are even better together
@@ -461,6 +462,18 @@ const componentItems: ComponentItemProps[] = [
             "Robust async flows with built-in middlewares: retry, fallback, and timeout for reliability and fault tolerance.",
         href: "/docs/components/resilience",
     },
+    {
+        icon: <Box size="1.5rem" strokeWidth={1.5} />,
+        title: "Typed config access",
+        description:
+            "ConfigAccessor reads typed application config values through a small accessor with optional schema validation.",
+    },
+    {
+        icon: <Key size="1.5rem" strokeWidth={1.5} />,
+        title: "Validated env access",
+        description:
+            "EnvAccessor loads and validates environment variables from one or more sources with type-safe access.",
+    },
 ];
 
 const upcomingItems: ComponentItemProps[] = [
@@ -591,49 +604,52 @@ const visionItems: VisionItemProps[] = [
     {
         title: "Composable by design, not by requirement",
         description:
-            "Every component is self-contained and has zero hard dependencies on the others. You can drop the Cache, the Lock, or the EventBus into any project in isolation. But when you use them together, they integrate seamlessly — sharing the same execution context, serde layer, adapters, and conventions without any extra wiring.",
+            "Every component will be self-contained and will have zero hard dependencies on the others. You will be able to drop the Cache, the Lock, or the EventBus into any project in isolation. But when you use them together, they will integrate seamlessly — sharing the same execution context, serde layer, adapters, and conventions without any extra wiring.",
     },
     {
         title: "No DI container required — but supported when you want it",
         comingSoon: true,
         description:
-            "Components are plain classes you instantiate yourself. There is no forced dependency injection framework. A DI container is currently in development and, once ready, will be a first-class citizen that understands every component in the library — so when you do want a container, it just works with no adapters and no boilerplate.",
+            "Components will remain plain classes you instantiate yourself. There will be no forced dependency injection framework. The DI container will become a first-class citizen that understands every component in the library — so when you do want a container, it will work with no adapters and no boilerplate.",
     },
     {
         title: "One server, one app",
         description: (
             <>
-                The library's HTTP primitives are built on the standard Web
+                The library's HTTP primitives will be built on the standard Web
                 platform <code>Request</code>/<code>Response</code> API, which
-                means your route handlers run natively inside{" "}
+                will allow your route handlers to run natively inside{" "}
                 <strong>
                     Next.js, SvelteKit, Nuxt, SolidStart, Analog (Angular),
                     TanStack Start, Cloudflare Workers, Vercel Functions, Netlify
                     Functions, and many more platforms via Hono
                 </strong>{" "}
-                — no separate backend server to host, deploy, or maintain. Your
-                fullstack app <em>is</em> your backend.
+                — with no separate backend server to host, deploy, or maintain.
+                Your fullstack app will become your backend.
             </>
         ),
     },
     {
         title: "A cohesive experience for the JavaScript ecosystem",
         description:
-            "The long-term vision is to give TypeScript developers a cohesive, batteries-included experience — authentication, authorization, job scheduling, notifications, queues, caching, file storage, and more — designed from the ground up for the modern JavaScript fullstack world. No framework lock-in, no vendor lock-in, just great primitives that fit together.",
+            "The long-term vision will be to give TypeScript developers a cohesive, batteries-included experience — authentication, authorization, job scheduling, notifications, queues, caching, file storage, and more — designed from the ground up for the modern JavaScript fullstack world. There will be no framework lock-in, no vendor lock-in, just great primitives that fit together.",
     },
     {
         title: "The framework experience",
         description: (
             <>
                 On top of the agnostic core, a separate opinionated,
-                batteries-included framework layer is planned. It will be
+                batteries-included framework layer will be introduced. Unlike
+                the core library, it will not be agnostic — it will make
+                deliberate choices so you will not have to. It will be
                 delivered as a <strong>Vite plugin</strong> that can be dropped
-                into most modern frontend frameworks — SvelteKit, Nuxt,
-                SolidStart, TanStack Start, Analog angular, and more — and will lean
-                heavily on <strong>code generation</strong> to eliminate
-                boilerplate, auto-wire components, and provide a truly integrated
-                developer experience with convention-over-configuration feel
-                directly inside your existing fullstack app.
+                into most modern frontend frameworks — Next.js, SvelteKit,
+                Nuxt, SolidStart, TanStack Start, Analog, and more — and will
+                lean heavily on <strong>code generation</strong> to eliminate
+                boilerplate, auto-wire components, and provide a truly
+                integrated developer experience with a
+                convention-over-configuration feel directly inside your
+                existing fullstack app.
             </>
         ),
     },
