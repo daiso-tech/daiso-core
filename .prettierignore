@@ -6,4 +6,4 @@ CHANGELOG.md
 website/.docusaurus
 website/.build
 !website/docs
-tsconfig.tsbuildinfo
+*.tsbuildinfo

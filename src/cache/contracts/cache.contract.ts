@@ -10,6 +10,8 @@ import {
     type Invokable,
     type AsyncLazyable,
     type NoneFunc,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type ValidationError,
 } from "@/utilities/_module.js";
 
 /**
@@ -82,6 +84,7 @@ export type IReadableCache<TType = unknown> = {
      *
      * @param key - The cache key to retrieve
      * @returns The cached value, or null if the key is not found or has expired
+     * @throws {ValidationError}
      */
     get(key: string): Promise<TType | null>;
 
@@ -91,6 +94,7 @@ export type IReadableCache<TType = unknown> = {
      * @param key - The cache key to retrieve
      * @returns The cached value
      * @throws {KeyNotFoundCacheError} If the key is not found or has expired
+     * @throws {ValidationError}
      */
     getOrFail(key: string): Promise<TType>;
 
@@ -100,6 +104,7 @@ export type IReadableCache<TType = unknown> = {
      * @param key - The cache key to retrieve
      * @param defaultValue - Default value to return if key is not found. Can be a static value, sync function, or async function.
      * @returns The cached value, or the default value if the key is not found
+     * @throws {ValidationError}
      */
     getOr(
         key: string,
@@ -135,6 +140,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
     /**
      * The `getAndRemove` method returns the value when `key` is found otherwise null will be returned.
      * The key will be removed after it is returned.
+     * @throws {ValidationError}
      */
     getAndRemove(key: string): Promise<TType | null>;
 
@@ -142,6 +148,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * The `getOrAdd` method will retrieve the given `key` if found otherwise `valueToAdd` will be added and returned.
      *
      * @param valueToAdd - can be regular value, sync or async {@link Invokable | `Invokable`} value and {@link Promise | `Promise`} value.
+     * @throws {ValidationError}
      */
     getOrAdd(
         key: string,
@@ -155,6 +162,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * @param settings.ttl - If null is passed, the item will not expire.
      *
      * @returns Returns true when key doesn't exists otherwise false will be returned.
+     * @throws {ValidationError}
      */
     add(
         key: string,
@@ -167,6 +175,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * Throws an error if the `key` exists.
      *
      * @throws {KeyExistsCacheError}
+     * @throws {ValidationError}
      */
     addOrFail(
         key: string,
@@ -180,6 +189,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * @param settings.ttl - If null is passed, the item will not expire.
      *
      * @returns Returns true if the `key` where replaced otherwise false is returned.
+     * @throws {ValidationError}
      */
     put(
         key: string,
@@ -191,6 +201,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * The `update` method updates the given `key` with given `value`.
      *
      * @returns Returns true if the `key` where updated otherwise false will be returned.
+     * @throws {ValidationError}
      */
     update(key: string, value: TType): Promise<boolean>;
 
@@ -199,6 +210,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * Thorws error if the `key` is not found.
      *
      * @throws {KeyNotFoundCacheError}
+     * @throws {ValidationError}
      */
     updateOrFail(key: string, value: TType): Promise<void>;
 
@@ -211,6 +223,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * @returns Returns true if the `key` where incremented otherwise false will be returned.
      *
      * @throws {TypeError}
+     * @throws {ValidationError}
      */
     increment(key: string, value?: Extract<TType, number>): Promise<boolean>;
 
@@ -222,6 +235,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      *
      * @throws {KeyNotFoundCacheError}
      * @throws {TypeError}
+     * @throws {ValidationError}
      */
     incrementOrFail(key: string, value?: Extract<TType, number>): Promise<void>;
 
@@ -234,6 +248,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * @returns Returns true if the `key` where decremented otherwise false will be returned.
      *
      * @throws {TypeError}
+     * @throws {ValidationError}
      */
     decrement(key: string, value?: Extract<TType, number>): Promise<boolean>;
 
@@ -245,6 +260,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      *
      * @throws {KeyNotFoundCacheError}
      * @throws {TypeError}
+     * @throws {ValidationError}
      */
     decrementOrFail(key: string, value?: Extract<TType, number>): Promise<void>;
 
