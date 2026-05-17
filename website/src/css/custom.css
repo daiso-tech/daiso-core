@@ -21,6 +21,8 @@
   --daiso-hero-bg-end: #2e8555;
   --daiso-icon-bg: rgba(46, 133, 85, 0.12);
   --daiso-icon-color: var(--ifm-color-primary);
+  --daiso-card-bg: linear-gradient(180deg, #ffffff 0%, #f6fbf7 100%);
+  --daiso-card-bg-hover: linear-gradient(180deg, #ffffff 0%, #eef8f1 100%);
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -35,6 +37,8 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 
   --daiso-icon-bg: rgba(37, 194, 160, 0.15);
+  --daiso-card-bg: linear-gradient(180deg, rgba(27, 39, 35, 0.98) 0%, rgba(21, 48, 40, 0.98) 100%);
+  --daiso-card-bg-hover: linear-gradient(180deg, rgba(31, 47, 42, 0.98) 0%, rgba(24, 58, 47, 0.98) 100%);
 }
 
 /* ================================================================
@@ -234,28 +238,26 @@
    ================================================================ */
 
 .daiso-feature-card {
-  background: var(--ifm-background-color);
+  background: var(--daiso-card-bg);
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: 0.75rem;
   padding: 1.75rem;
   height: 100%;
   transition: box-shadow 0.2s ease, transform 0.2s ease, background 0.2s;
-  box-shadow: 0 2px 12px 0 rgba(46,133,85,0.07), 0 1.5px 4px 0 rgba(0,0,0,0.04);
+  box-shadow: 0 1px 6px 0 rgba(46,133,85,0.05), 0 1px 2px 0 rgba(0,0,0,0.03);
 }
 
 .daiso-feature-card:hover {
-  box-shadow: 0 8px 30px rgba(46,133,85,0.13), 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 18px rgba(46,133,85,0.10), 0 2px 6px rgba(0,0,0,0.06);
   transform: translateY(-4px);
-  background: #f7faf7;
+  background: var(--daiso-card-bg-hover);
 }
 
 [data-theme='dark'] .daiso-feature-card {
-  background: var(--ifm-background-surface-color);
-  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.18), 0 1.5px 4px 0 rgba(0,0,0,0.10);
+  box-shadow: 0 1px 6px 0 rgba(0,0,0,0.14), 0 1px 2px 0 rgba(0,0,0,0.08);
 }
 [data-theme='dark'] .daiso-feature-card:hover {
-  background: var(--ifm-background-surface-color);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.32), 0 2px 8px rgba(0,0,0,0.18);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.24), 0 2px 6px rgba(0,0,0,0.14);
 }
 
 .daiso-feature-icon {
@@ -299,12 +301,18 @@
 }
 
 .daiso-component-card {
+  background: var(--daiso-card-bg);
+  border: 1px solid var(--ifm-color-emphasis-200);
   height: 100%;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease,
+    border-color 0.2s ease;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
 }
 
 .daiso-component-card:hover {
-  box-shadow: var(--ifm-global-shadow-md) !important;
+  background: var(--daiso-card-bg-hover);
+  border-color: rgba(46, 133, 85, 0.22);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
   transform: translateY(-4px);
 }
 
