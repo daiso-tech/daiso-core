@@ -169,6 +169,22 @@
             "types": "./dist/collection/contracts/_module-exports.d.ts",
             "import": "./dist/collection/contracts/_module-exports.js"
         },
+        "./config-accessor": {
+            "types": "./dist/config-accessor/implementations/_module-exports.d.ts",
+            "import": "./dist/config-accessor/implementations/_module-exports.js"
+        },
+        "./config-accessor/contracts": {
+            "types": "./dist/config-accessor/contracts/_module-exports.d.ts",
+            "import": "./dist/config-accessor/contracts/_module-exports.js"
+        },
+        "./env-accessor": {
+            "types": "./dist/env-accessor/implementations/_module-exports.d.ts",
+            "import": "./dist/env-accessor/implementations/_module-exports.js"
+        },
+        "./env-accessor/contracts": {
+            "types": "./dist/env-accessor/contracts/_module-exports.d.ts",
+            "import": "./dist/env-accessor/contracts/_module-exports.js"
+        },
         "./event-bus": {
             "types": "./dist/event-bus/implementations/derivables/_module-exports.d.ts",
             "import": "./dist/event-bus/implementations/derivables/_module-exports.js"
