@@ -470,7 +470,7 @@ const componentItems: ComponentItemProps[] = [
     },
     {
         icon: <Key size="1.5rem" strokeWidth={1.5} />,
-        title: "Validated env access",
+        title: "Typed env access",
         description:
             "EnvAccessor loads and validates environment variables from one or more sources with type-safe access.",
     },
