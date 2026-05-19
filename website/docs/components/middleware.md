@@ -225,7 +225,7 @@ const wrappedFn = use(
 
 ### Using execution context
 
-Access and modify the execution context within middleware. For more details about the execution context module, see [Execution Context](./execution-context.md).
+Access and modify the execution context within middleware. For more details about the execution context module, see [Execution Context](./execution_context.md).
 
 ```ts
 import { contextToken } from "@daiso-tech/core/execution-context";

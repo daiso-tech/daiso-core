@@ -453,7 +453,7 @@ const componentItems: ComponentItemProps[] = [
         title: "Execution context",
         description:
             "Propagate request-scoped data — user info, trace IDs, tenant context — across async boundaries. Integrates transparently with all components and adapters.",
-        href: "/docs/components/execution-context",
+        href: "/docs/components/execution_context",
     },
     {
         icon: <Zap size="1.5rem" strokeWidth={1.5} />,
@@ -467,12 +467,14 @@ const componentItems: ComponentItemProps[] = [
         title: "Typed config access",
         description:
             "ConfigAccessor reads typed application config values through a small accessor with optional schema validation.",
+        href: "/docs/components/config_accessor",
     },
     {
         icon: <Key size="1.5rem" strokeWidth={1.5} />,
-        title: "Validated env access",
+        title: "Typed env access",
         description:
             "EnvAccessor loads and validates environment variables from one or more sources with type-safe access.",
+        href: "/docs/components/env_accessor",
     },
 ];
 
