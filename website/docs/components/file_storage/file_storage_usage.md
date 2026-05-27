@@ -35,7 +35,7 @@ const fileStorage = new FileStorage({
 ```
 
 :::info
-Here is a complete list of settings for the [`FileStorage`](https://daiso-tech.github.io/daiso-core/types/FileStorage.FileStorage.html) class.
+Here is a complete list of settings for the [`FileStorage`](https://daiso-tech.github.io/daiso-core/types/FileStorage.FileStorageSettings.html) class.
 :::
 
 ## FileStorage basics

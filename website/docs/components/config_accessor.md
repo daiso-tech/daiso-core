@@ -5,7 +5,7 @@ keywords:
     - Utilities
 ---
 
-# ConfigAccessor
+# Config accessor
 
 The `@daiso-tech/core/config-accessor` component provides standardized type-safe access to domain configuration variables. It supports optional schema validation useful accessing dynamic configurations (e.g tenneat configurations).
 

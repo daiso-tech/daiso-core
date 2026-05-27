@@ -5,7 +5,7 @@ keywords:
     - Utilities
 ---
 
-# EnvAccessor
+# Env accessor
 
 The `@daiso-tech/core/env-accessor` component provides easy type-safe access to enviroment variables.
 It supports multiple sources (sync/async), schema validation, and convenient access patterns.
