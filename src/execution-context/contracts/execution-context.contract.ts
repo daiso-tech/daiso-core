@@ -30,8 +30,7 @@ export type ContextToken<TValue> = {
      * This property is never actually set at runtime and exists only to help
      * TypeScript infer the correct value type when using get/put operations.
      */
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    __type: TValue | null;
+    _type: TValue | null;
 };
 
 /**
@@ -45,7 +44,7 @@ export type ContextToken<TValue> = {
  *
  * @template TValue - The type of value this token will represent
  * @param id - Unique identifier string for the token (recommend using a descriptive name or UUID)
- * @returns A new ContextToken with the specified ID and type
+ * @returns A new contextToken with the specified ID and type
  *
  * @example
  * import { contextToken } from "@daiso-tech/core/execution-context/contracts";
