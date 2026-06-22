@@ -11,9 +11,9 @@ import { isIterable } from "@/utilities/_module.js";
 /**
  * @internal
  */
-export class CrossJoinIterable<TInput, TExtended = TInput>
-    implements Iterable<CrossJoinResult<TInput, TExtended>>
-{
+export class CrossJoinIterable<TInput, TExtended = TInput> implements Iterable<
+    CrossJoinResult<TInput, TExtended>
+> {
     constructor(
         private readonly collection: ICollection<TInput>,
         private readonly iterable: Iterable<TExtended>,

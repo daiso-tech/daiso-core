@@ -55,9 +55,9 @@ export type LockFactoryResolverSettings<TAdapters extends string> =
  * IMPORT_PATH: `"@daiso-tech/core/lock"`
  * @group Derivables
  */
-export class LockFactoryResolver<TAdapters extends string>
-    implements ILockFactoryResolver<TAdapters>
-{
+export class LockFactoryResolver<
+    TAdapters extends string,
+> implements ILockFactoryResolver<TAdapters> {
     /**
      * @example
      * ```ts

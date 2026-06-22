@@ -8,9 +8,10 @@ import { validate, ValidationError } from "@/utilities/_module.js";
 /**
  * @internal
  */
-export class AsyncValidateIterable<TInput, TOutput>
-    implements AsyncIterable<TOutput>
-{
+export class AsyncValidateIterable<
+    TInput,
+    TOutput,
+> implements AsyncIterable<TOutput> {
     constructor(
         private readonly iterable: AsyncIterable<TInput>,
         private readonly schema: StandardSchemaV1<TInput, TOutput>,

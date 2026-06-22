@@ -12,9 +12,11 @@ import { resolveInvokable } from "@/utilities/_module.js";
 /**
  * @internal
  */
-export class ChangeIterable<TInput, TFilterOutput extends TInput, TMapOutput>
-    implements Iterable<TInput | TFilterOutput | TMapOutput>
-{
+export class ChangeIterable<
+    TInput,
+    TFilterOutput extends TInput,
+    TMapOutput,
+> implements Iterable<TInput | TFilterOutput | TMapOutput> {
     constructor(
         private collection: ICollection<TInput>,
         private predicateFn: PredicateInvokable<

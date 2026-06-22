@@ -14,9 +14,9 @@ import {
 /**
  * @internal
  */
-export class AsyncChunkWhileIterable<TInput>
-    implements AsyncIterable<IAsyncCollection<TInput>>
-{
+export class AsyncChunkWhileIterable<TInput> implements AsyncIterable<
+    IAsyncCollection<TInput>
+> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,

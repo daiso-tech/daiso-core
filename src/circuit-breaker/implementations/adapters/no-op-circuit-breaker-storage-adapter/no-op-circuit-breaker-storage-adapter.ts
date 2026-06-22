@@ -17,9 +17,9 @@ import { type InvokableFn } from "@/utilities/_module.js";
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/database-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
-export class NoOpCircuitBreakerStorageAdapter<TType>
-    implements ICircuitBreakerStorageAdapter<TType>
-{
+export class NoOpCircuitBreakerStorageAdapter<
+    TType,
+> implements ICircuitBreakerStorageAdapter<TType> {
     transaction<TValue>(
         _context: IReadableContext,
         fn: InvokableFn<

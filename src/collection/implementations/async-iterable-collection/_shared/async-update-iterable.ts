@@ -16,8 +16,7 @@ export class AsyncChangeIterable<
     TInput,
     TFilterOutput extends TInput,
     TMapOutput,
-> implements AsyncIterable<TInput | TFilterOutput | TMapOutput>
-{
+> implements AsyncIterable<TInput | TFilterOutput | TMapOutput> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private predicateFn: AsyncPredicate<

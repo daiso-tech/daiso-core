@@ -110,9 +110,9 @@ export type EventBusSettings<TEventMap extends BaseEventMap = BaseEventMap> =
  * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
  * @group Derivables
  */
-export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
-    implements IEventBus<TEventMap>
-{
+export class EventBus<
+    TEventMap extends BaseEventMap = BaseEventMap,
+> implements IEventBus<TEventMap> {
     private readonly shouldValidateOutput: boolean;
     private readonly store = new ListenerStore();
     private readonly adapter: IEventBusAdapter;

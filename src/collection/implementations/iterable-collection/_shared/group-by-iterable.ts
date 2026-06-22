@@ -8,9 +8,9 @@ import { resolveInvokable } from "@/utilities/_module.js";
 /**
  * @internal
  */
-export class GroupByIterable<TInput, TOutput = TInput>
-    implements Iterable<[TOutput, ICollection<TInput>]>
-{
+export class GroupByIterable<TInput, TOutput = TInput> implements Iterable<
+    [TOutput, ICollection<TInput>]
+> {
     constructor(
         private collection: ICollection<TInput>,
         private selectFn: Map<TInput, ICollection<TInput>, TOutput> = (item) =>

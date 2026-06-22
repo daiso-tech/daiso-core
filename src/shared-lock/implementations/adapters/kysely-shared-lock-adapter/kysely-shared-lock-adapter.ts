@@ -121,9 +121,7 @@ export type KyselySharedLockAdapterSettings = {
 /**
  * @internal
  */
-class DatabaseReaderSemaphoreTransaction
-    implements IDatabaseReaderSemaphoreTransaction
-{
+class DatabaseReaderSemaphoreTransaction implements IDatabaseReaderSemaphoreTransaction {
     private readonly isMysql: boolean;
 
     constructor(private readonly kysely: Kysely<KyselySharedLockTables>) {

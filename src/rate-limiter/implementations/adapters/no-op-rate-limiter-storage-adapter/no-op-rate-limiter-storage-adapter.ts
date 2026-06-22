@@ -16,9 +16,9 @@ import { type InvokableFn } from "@/utilities/_module.js";
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/no-op-rate-limiter-storage-adapter"`
  * @internal
  */
-class NoOpRateLimiterStorageAdapterTransaction<TType>
-    implements IRateLimiterStorageAdapterTransaction<TType>
-{
+class NoOpRateLimiterStorageAdapterTransaction<
+    TType,
+> implements IRateLimiterStorageAdapterTransaction<TType> {
     upsert(
         _context: IReadableContext,
         _key: string,
@@ -42,9 +42,9 @@ class NoOpRateLimiterStorageAdapterTransaction<TType>
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/no-op-rate-limiter-storage-adapter"`
  * @group Adapters
  */
-export class NoOpRateLimiterStorageAdapter<TType>
-    implements IRateLimiterStorageAdapter<TType>
-{
+export class NoOpRateLimiterStorageAdapter<
+    TType,
+> implements IRateLimiterStorageAdapter<TType> {
     transaction<TValue>(
         _context: IReadableContext,
         fn: InvokableFn<

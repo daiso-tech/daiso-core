@@ -39,9 +39,10 @@ export type RateLimiterSerdeTransformerSettings = {
 /**
  * @internal
  */
-export class RateLimiterSerdeTransformer
-    implements ISerdeTransformer<RateLimiter, ISerializedRateLimiter>
-{
+export class RateLimiterSerdeTransformer implements ISerdeTransformer<
+    RateLimiter,
+    ISerializedRateLimiter
+> {
     private readonly adapter: IRateLimiterAdapter;
     private readonly namespace: INamespace;
     private readonly errorPolicy: ErrorPolicy;

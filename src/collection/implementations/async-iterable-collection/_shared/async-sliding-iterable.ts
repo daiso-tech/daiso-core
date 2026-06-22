@@ -7,9 +7,9 @@ import { type IAsyncCollection } from "@/collection/contracts/_module.js";
 /**
  * @internal
  */
-export class AsyncSlidingIteralbe<TInput>
-    implements AsyncIterable<IAsyncCollection<TInput>>
-{
+export class AsyncSlidingIteralbe<TInput> implements AsyncIterable<
+    IAsyncCollection<TInput>
+> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private chunkSize: number,

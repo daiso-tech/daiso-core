@@ -78,9 +78,9 @@ import {
  * IMPORT_PATH: `"@daiso-tech/core/collection"`
  * @group Implementations
  */
-export class AsyncIterableCollection<TInput = unknown>
-    implements IAsyncCollection<TInput>
-{
+export class AsyncIterableCollection<
+    TInput = unknown,
+> implements IAsyncCollection<TInput> {
     /**
      * The `concat` static method is a convenient utility for easily concatenating multiple {@link Iterable | `Iterable`} or {@link AsyncIterable | `AsyncIterable`}.
      * @example

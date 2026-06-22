@@ -8,9 +8,9 @@ import { resolveInvokable } from "@/utilities/_module.js";
 /**
  * @internal
  */
-export class CountByIterable<TInput, TOutput = TInput>
-    implements Iterable<[TOutput, number]>
-{
+export class CountByIterable<TInput, TOutput = TInput> implements Iterable<
+    [TOutput, number]
+> {
     constructor(
         private collection: ICollection<TInput>,
         private selectFn: Map<TInput, ICollection<TInput>, TOutput> = (item) =>

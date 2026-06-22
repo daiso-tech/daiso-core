@@ -53,8 +53,7 @@ type PathSegments = {
 export class ConfigAccessor<
     TInputConfig extends BaseConfig,
     TOutputConfig extends BaseConfig = TInputConfig,
-> implements IConfigAccessor<TOutputConfig>
-{
+> implements IConfigAccessor<TOutputConfig> {
     private readonly configObject: TOutputConfig;
 
     /**

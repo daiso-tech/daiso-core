@@ -10,9 +10,9 @@ import {
 /**
  * @internal
  */
-export class AsyncZipIterable<TInput, TExtended>
-    implements AsyncIterable<[TInput, TExtended]>
-{
+export class AsyncZipIterable<TInput, TExtended> implements AsyncIterable<
+    [TInput, TExtended]
+> {
     constructor(
         private iterableA: AsyncIterableValue<TInput>,
         private iterableB: AsyncIterableValue<TExtended>,

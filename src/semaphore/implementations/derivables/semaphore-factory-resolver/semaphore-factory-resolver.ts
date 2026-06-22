@@ -54,9 +54,9 @@ export type SemaphoreFactoryResolverSettings<TAdapters extends string> =
  * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
  * @group Derivables
  */
-export class SemaphoreFactoryResolver<TAdapters extends string>
-    implements ISemaphoreFactoryResolver<TAdapters>
-{
+export class SemaphoreFactoryResolver<
+    TAdapters extends string,
+> implements ISemaphoreFactoryResolver<TAdapters> {
     /**
      * @example
      * ```ts

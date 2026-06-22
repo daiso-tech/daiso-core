@@ -60,9 +60,10 @@ export type CacheResolverSettings<
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */
-export class CacheResolver<TAdapters extends string = string, TType = unknown>
-    implements ICacheResolver<TAdapters, TType>
-{
+export class CacheResolver<
+    TAdapters extends string = string,
+    TType = unknown,
+> implements ICacheResolver<TAdapters, TType> {
     /**
      * @example
      * ```ts

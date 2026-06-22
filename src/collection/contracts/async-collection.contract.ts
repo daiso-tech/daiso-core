@@ -55,8 +55,9 @@ export type AsyncCollapse<TValue> = TValue extends string
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  * @group Contracts
  */
-export interface IAsyncCollection<TInput = unknown>
-    extends AsyncIterable<TInput> {
+export interface IAsyncCollection<
+    TInput = unknown,
+> extends AsyncIterable<TInput> {
     /**
      * The `toIterator` method converts the collection to a new iterator.
      */

@@ -10,9 +10,9 @@ import {
 /**
  * @internal
  */
-export class AsyncEntriesIterable<TInput>
-    implements AsyncIterable<[number, TInput]>
-{
+export class AsyncEntriesIterable<TInput> implements AsyncIterable<
+    [number, TInput]
+> {
     constructor(private iterable: AsyncIterableValue<TInput>) {}
 
     async *[Symbol.asyncIterator](): AsyncIterator<[number, TInput]> {

@@ -90,9 +90,7 @@ export type FixedWindowLimiterState = {
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/policies"`
  * @group Policies
  */
-export class FixedWindowLimiter
-    implements IRateLimiterPolicy<FixedWindowLimiterState>
-{
+export class FixedWindowLimiter implements IRateLimiterPolicy<FixedWindowLimiterState> {
     private readonly window: TimeSpan;
 
     constructor(settings: FixedWindowLimiterSettings = {}) {

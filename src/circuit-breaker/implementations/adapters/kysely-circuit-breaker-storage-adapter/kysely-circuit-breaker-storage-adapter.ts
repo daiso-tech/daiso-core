@@ -83,9 +83,9 @@ async function find<TType>(
 /**
  * @internal
  */
-class KyselyCircuitBreakerStorageAdapterTransaction<TType = unknown>
-    implements ICircuitBreakerStorageAdapterTransaction<TType>
-{
+class KyselyCircuitBreakerStorageAdapterTransaction<
+    TType = unknown,
+> implements ICircuitBreakerStorageAdapterTransaction<TType> {
     private readonly kysely: Kysely<KyselyCircuitBreakerStorageTables>;
     private readonly serde: ISerde<string>;
     private readonly isMysql: boolean;
