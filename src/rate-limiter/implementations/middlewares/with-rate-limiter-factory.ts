@@ -13,16 +13,10 @@ import {
 /**
  * @group Middleware
  */
-export type RateLimiterMiddlewareSettings<
+export type WithRateLimiterSettings<
     TParameters extends Array<unknown> = Array<unknown>,
 > = ErrorPolicy & {
-    /**
-     * @default
-     * ```ts
-     * (...args) => JSON.stringify(args)
-     * ```
-     */
-    key?: Invokable<TParameters, string>;
+    key: Invokable<TParameters, string>;
     onlyError?: boolean;
     limit: number;
 };
@@ -31,11 +25,11 @@ export type RateLimiterMiddlewareSettings<
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/middlewares"`
  * @group Middleware
  */
-export function rateLimiterMiddlewareFactory(
+export function withRateLimiterFactory(
     rateLimiterFactory: IRateLimiterFactoryBase,
 ) {
     return <TParameters extends Array<unknown>, TReturn>(
-        settings: RateLimiterMiddlewareSettings<TParameters>,
+        settings: WithRateLimiterSettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
         const { key = (...args) => JSON.stringify(args), ...rest } = settings;
         return ({ next, args }) => {

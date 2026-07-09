@@ -1,5 +1,5 @@
 import { describe, test } from "vitest";
 
-describe("function: semaphoreMiddlewareFactory", () => {
+describe("function: withCircuitBreakerFactory", () => {
     test.todo("Write tests!!!");
 });

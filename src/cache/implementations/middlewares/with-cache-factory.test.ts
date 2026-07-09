@@ -1,5 +1,5 @@
 import { describe, test } from "vitest";
 
-describe("function: sharedLockMiddlewareFactory", () => {
+describe("function: withCacheFactory", () => {
     test.todo("Write tests!!!");
 });

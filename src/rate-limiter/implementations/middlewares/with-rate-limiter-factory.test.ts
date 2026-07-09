@@ -1,5 +1,5 @@
 import { describe, test } from "vitest";
 
-describe("function: lockMiddlewareFactory", () => {
+describe("function: withRateLimiterFactory", () => {
     test.todo("Write tests!!!");
 });

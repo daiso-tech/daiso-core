@@ -23,16 +23,10 @@ export type SharedLockWhenSetting =
 /**
  * @group Middleware
  */
-export type SharedLockMiddlewareSettings<
+export type WithSharedLockFactorySettings<
     TParameters extends Array<unknown> = Array<unknown>,
 > = {
-    /**
-     * @default
-     * ```ts
-     * (...args) => JSON.stringify(args)
-     * ```
-     */
-    key?: Invokable<TParameters, string>;
+    key: Invokable<TParameters, string>;
 
     /**
      * @default
@@ -55,11 +49,11 @@ export type SharedLockMiddlewareSettings<
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/middlewares"`
  * @group Middleware
  */
-export function sharedLockMiddlewareFactory(
+export function withSharedLockFactory(
     sharedLockFactory: ISharedLockFactoryBase,
 ) {
     return <TParameters extends Array<unknown>, TReturn>(
-        settings: SharedLockMiddlewareSettings<TParameters>,
+        settings: WithSharedLockFactorySettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
         const {
             key = (...args) => JSON.stringify(args),

@@ -17,16 +17,10 @@ import {
 /**
  * @group Middleware
  */
-export type CircuitBreakerMiddlewareSettings<
+export type WithCircuitBreakerSettings<
     TParameters extends Array<unknown> = Array<unknown>,
 > = ErrorPolicy & {
-    /**
-     * @default
-     * ```ts
-     * (...args) => JSON.stringify(args)
-     * ```
-     */
-    key?: Invokable<TParameters, string>;
+    key: Invokable<TParameters, string>;
     trigger?: CircuitBreakerTrigger;
     slowCallTime?: ITimeSpan;
 };
@@ -35,11 +29,11 @@ export type CircuitBreakerMiddlewareSettings<
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/middlewares"`
  * @group Middleware
  */
-export function circuitBreakerMiddlewareFactory(
+export function withCircuitBreakerFactory(
     circuitBreakerFactory: ICircuitBreakerFactoryBase,
 ) {
     return <TParameters extends Array<unknown>, TReturn>(
-        settings: CircuitBreakerMiddlewareSettings<TParameters>,
+        settings: WithCircuitBreakerSettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
         const { key = (...args) => JSON.stringify(args), ...rest } = settings;
         return ({ next, args }) => {

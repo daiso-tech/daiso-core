@@ -12,25 +12,19 @@ import { callInvokable, type Invokable } from "@/utilities/_module.js";
 /**
  * @group Middleware
  */
-export type CacheMiddlewareSettings<
+export type WithCacheSettings<
     TParameters extends Array<unknown> = Array<unknown>,
 > = CacheWriteSettings & {
-    /**
-     * @default
-     * ```ts
-     * (...args) => JSON.stringify(args)
-     * ```
-     */
-    key?: Invokable<TParameters, string>;
+    key: Invokable<TParameters, string>;
 };
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/cache/middlewares"`
  * @group Middleware
  */
-export function cacheMiddlewareFactory(cache: ICacheBase) {
+export function withCacheFactory(cache: ICacheBase) {
     return <TParameters extends Array<unknown>, TReturn>(
-        settings: CacheMiddlewareSettings<TParameters>,
+        settings: WithCacheSettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
         const { key = (...args) => JSON.stringify(args), ...rest } = settings;
         return async ({ next, args }) => {

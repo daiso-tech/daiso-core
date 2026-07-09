@@ -1,27 +1,21 @@
 /**
- * @module Lock
+ * @module Semaphore
  */
 
 import { v4 } from "uuid";
 
-import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
+import { type ISemaphoreFactoryBase } from "@/semaphore/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 import { callInvokable, type Invokable } from "@/utilities/_module.js";
 
 /**
  * @group Middleware
  */
-export type LockMiddlewareSettings<
+export type WithSemaphoreSettings<
     TParameters extends Array<unknown> = Array<unknown>,
 > = {
-    /**
-     * @default
-     * ```ts
-     * (...args) => JSON.stringify(args)
-     * ```
-     */
-    key?: Invokable<TParameters, string>;
+    key: Invokable<TParameters, string>;
 
     /**
      * @default
@@ -31,29 +25,31 @@ export type LockMiddlewareSettings<
      * () => v4()
      * ```
      */
-    lockId?: Invokable<TParameters, string>;
+    slotId?: Invokable<TParameters, string>;
 
     ttl?: ITimeSpan | null;
+
+    limit: number;
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock/middlewares"`
+ * IMPORT_PATH: `"@daiso-tech/core/semaphore/middlewares"`
  * @group Middleware
  */
-export function lockMiddlewareFactory(lockFactory: ILockFactoryBase) {
+export function withSemaphoreFactory(semaphoreFactory: ISemaphoreFactoryBase) {
     return <TParameters extends Array<unknown>, TReturn>(
-        settings: LockMiddlewareSettings<TParameters>,
+        settings: WithSemaphoreSettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
         const {
             key = (...args) => JSON.stringify(args),
-            lockId = () => v4(),
+            slotId = () => v4(),
             ...rest
         } = settings;
         return ({ next, args }) => {
-            return lockFactory
+            return semaphoreFactory
                 .create(callInvokable(key, ...args), {
                     ...rest,
-                    lockId: callInvokable(lockId, ...args),
+                    slotId: callInvokable(slotId, ...args),
                 })
                 .runOrFail(next);
         };
