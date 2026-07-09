@@ -24,7 +24,7 @@ import { useFactory } from "@daiso-tech/core/middleware";
 import { ExecutionContext } from "@daiso-tech/core/execution-context";
 import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter";
 
-// Create a middleware function with a specific execution context
+// Create a middleware function with a specific execution-context
 const use = useFactory({
     executionContext: new ExecutionContext(new AlsExecutionContextAdapter()),
     defaultPriority: 0,
@@ -44,7 +44,7 @@ Configure the middleware factory with custom settings:
 ```ts
 type UseFactorySettings = {
     /**
-     * The execution context to use for all middleware invocations.
+     * The execution-context to use for all middleware invocations.
      * Defaults to a new ExecutionContext with NoOpExecutionContextAdapter
      */
     executionContext?: IExecutionContext;
@@ -66,7 +66,7 @@ const use = useFactory({
 
 ### Creating a simple middleware
 
-A middleware is a function that receives middleware arguments (containing the original arguments, a next function, and the execution context) and returns the result:
+A middleware is a function that receives middleware arguments (containing the original arguments, a next function, and the execution-context) and returns the result:
 
 ```ts
 import { type MiddlewareArgs } from "@daiso-tech/core/middleware";
@@ -188,7 +188,7 @@ type MiddlewareArgs<TParameters, TReturn> = {
     args: TParameters;
     // Function to invoke next middleware or original function
     next: NextFn<TParameters, TReturn>;
-    // Execution context for storing request-scoped data
+    // ExecutionContext for storing request-scoped data
     context: IContext;
 };
 ```
@@ -223,9 +223,9 @@ const wrappedFn = use(
 // Executes in order: Auth -> Validation -> Logging -> Original function
 ```
 
-### Using execution context
+### Using execution-context
 
-Access and modify the execution context within middleware. For more details about the execution context module, see [Execution Context](./execution_context.md).
+Access and modify the execution-context within middleware. For more details about the execution-context module, see [Execution Context](./execution_context.md).
 
 ```ts
 import { contextToken } from "@daiso-tech/core/execution-context";

@@ -1,7 +1,7 @@
 ---
 sidebar_position: 4
 sidebar_label: Creating adapters
-pagination_label: Creating file-storage adapters
+pagination_label: Creating FileStorage adapters
 tags:
     - FileStorage
     - Creating adapters
@@ -12,7 +12,7 @@ keywords:
     - Creating database adapters
 ---
 
-# Creating lock adapters
+# Creating FileStorage adapters
 
 ## Implementing your custom IFileStorageAdapter
 
@@ -20,7 +20,7 @@ In order to create an adapter you need to implement the [`IFileStorageAdapter`](
 
 ## Implementing your custom ISignedFileStorageAdapter
 
-We provide an additional contract [`ISignedFileStorageAdapter`](https://daiso-tech.github.io/daiso-core/types/FileStorage.ISignedFileStorageAdapter.html) for building custom file-storage adapters with support for creating signed download and upload urls.
+We provide an additional contract [`ISignedFileStorageAdapter`](https://daiso-tech.github.io/daiso-core/types/FileStorage.ISignedFileStorageAdapter.html) for building custom FileStorage adapters with support for creating signed download and upload urls.
 
 ## Implementing your custom IFileStorage class
 
@@ -28,4 +28,4 @@ In some cases, you may need to implement a custom [`FileStorage`](https://daiso-
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/file-storage`](https://daiso-tech.github.io/daiso-core/modules/FileStorage.html) API docs.
+For further information refer to [`@daiso-tech/core/FileStorage`](https://daiso-tech.github.io/daiso-core/modules/FileStorage.html) API docs.

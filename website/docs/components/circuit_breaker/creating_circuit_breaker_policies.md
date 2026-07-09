@@ -1,7 +1,7 @@
 ---
 sidebar_position: 6
 sidebar_label: Creating policies
-pagination_label: Creating circuit-breaker policies
+pagination_label: Creating CircuitBreaker policies
 ---
 
 # Creating policies

@@ -12,16 +12,16 @@ keywords:
 
 # FileStorageResolver
 
-The `FileStorageResolver` class provides a flexible way to configure and switch between different file-storage adapters at runtime.
+The `FileStorageResolver` class provides a flexible way to configure and switch between different FileStorage adapters at runtime.
 
 ## Initial configuration
 
 To begin using the `IFileStorageFactory`, You will need to register all required adapters during initialization.
 
 ```ts
-import { FileStorageResolver } from "@daiso-tech/core/file-storage";
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
-import { FsFileStorageAdapter } from "@daiso-tech/core/file-storage/fs-file-storage-adapter";
+import { FileStorageResolver } from "@daiso-tech/core/FileStorage";
+import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
+import { FsFileStorageAdapter } from "@daiso-tech/core/FileStorage/fs-FileStorage-adapter";
 
 const fileStorageResolver = new FileStorageResolver({
     adapters: {
@@ -71,4 +71,4 @@ Note that the `FileStorageResolver` is immutable, meaning any configuration over
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/file-storage`](https://daiso-tech.github.io/daiso-core/modules/FileStorage.html) API docs.
+For further information refer to [`@daiso-tech/core/FileStorage`](https://daiso-tech.github.io/daiso-core/modules/FileStorage.html) API docs.

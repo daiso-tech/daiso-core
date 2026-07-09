@@ -1,16 +1,16 @@
 ---
 sidebar_position: 2
 sidebar_label: Resolver classes
-pagination_label: Circuit-breaker resolver classes
+pagination_label: CircuitBreaker resolver classes
 tags:
-    - Circuit-breaker
+    - CircuitBreaker
     - Resolvers
 keywords:
-    - Circuit-breaker
+    - CircuitBreaker
     - Resolvers
 ---
 
-# Circuit-breaker provider resolver classes
+# CircuitBreaker provider resolver classes
 
 ## pro
 

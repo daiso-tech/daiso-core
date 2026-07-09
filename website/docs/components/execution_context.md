@@ -5,13 +5,13 @@ keywords:
     - Utilities
 ---
 
-# Execution Context
+# ExecutionContext
 
 The `@daiso-tech/core/execution-context` module provides a type-safe, composable, and environment-agnostic way to store and propagate contextual data (such as request IDs, user info, or tracing metadata) across async boundaries and function calls. It is inspired by thread-local storage and context propagation in distributed systems, but is designed for modern TypeScript/JavaScript applications.
 
 ## Initial configuration
 
-To begin using the execution context, you'll need to create and configure an instance:
+To begin using the execution-context, you'll need to create and configure an instance:
 
 ```ts
 import {
@@ -20,11 +20,11 @@ import {
 } from "@daiso-tech/core/execution-context";
 import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter";
 
-// Create an execution context instance with an adapter
+// Create an execution-context instance with an adapter
 const executionContext = new ExecutionContext(new AlsExecutionContextAdapter());
 ```
 
-## Execution context basics
+## ExecutionContext basics
 
 ### Running code with context
 
@@ -129,7 +129,7 @@ The library includes several contracts that separate concerns for different use 
 
 #### `IExecutionContextBase`
 
-- `run(invokable)` — Runs a function within the current execution context. All context values are accessible during execution.
+- `run(invokable)` — Runs a function within the current execution-context. All context values are accessible during execution.
 - `bind(fn)` — Returns a new function that, when called, executes the original function within the captured context.
 
 #### `IContext`

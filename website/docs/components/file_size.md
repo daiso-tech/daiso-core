@@ -7,7 +7,7 @@ keywords:
 
 # FileSize
 
-The `@daiso-tech/core/file-size` component provides an easy way for defining, manipulating, and comparing file size. Furthermore, it is designed for easy integration with external file size libraries.
+The `@daiso-tech/core/file-size` component provides an easy way for defining, manipulating, and comparing file size. Furthermore, it is designed for easy integration with external file-size libraries.
 
 ### Creating a FileSize
 
@@ -151,18 +151,18 @@ console.log(serializedFileSize === deserializedFileSize);
 
 ## FileSize contract
 
-The `IFileSize` contract provides a standardized way to express a file size as bytes.
+The `IFileSize` contract provides a standardized way to express a file-size as bytes.
 
-Key components like `FileStorage`, rely on this contract, ensuring they are not tightly coupled to a specific file size implementation.
+Key components like `FileStorage`, rely on this contract, ensuring they are not tightly coupled to a specific file-size implementation.
 
-This decoupling is crucial for interoperability, allowing seamless integration with external file size libraries.
-To integrate a new library, its file size objects must simply implement the `IFileSize` contract.
+This decoupling is crucial for interoperability, allowing seamless integration with external file-size libraries.
+To integrate a new library, its file-size objects must simply implement the `IFileSize` contract.
 
 :::info
 Note `FileSize` class implements `IFileSize` contract.
 :::
 
-The `IFileSize` contract requires you to implement the `TO_MILLISECONDS` method on the file size object, which must return the file size in milliseconds.
+The `IFileSize` contract requires you to implement the `TO_MILLISECONDS` method on the file-size object, which must return the file-size in milliseconds.
 
 ```ts
 import { IFileSize, TO_BYTES } from "@daiso-tech/core/file-size/contracts";

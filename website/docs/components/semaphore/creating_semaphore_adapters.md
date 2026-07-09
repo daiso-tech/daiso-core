@@ -1,7 +1,7 @@
 ---
 sidebar_position: 4
 sidebar_label: Creating adapters
-pagination_label: Creating semaphore adapters
+pagination_label: Creating Semaphore adapters
 tags:
     - Semaphore
     - Creating adapters
@@ -12,7 +12,7 @@ keywords:
     - Creating database adapters
 ---
 
-# Creating semaphore adapters
+# Creating Semaphore adapters
 
 ## Implementing your custom ISemaphoreAdapter
 
@@ -82,10 +82,10 @@ In some cases, you may need to implement a custom [`SemaphoreFactory`](https://d
 
 ## Testing your custom ISemaphoreFactory class
 
-We provide a complete test suite to verify your custom event bus class implementation. Simply use the [`semaphoreFactoryTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Semaphore.semaphoreFactoryTestSuite.html) function:
+We provide a complete test suite to verify your custom event-bus class implementation. Simply use the [`semaphoreFactoryTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Semaphore.semaphoreFactoryTestSuite.html) function:
 
 - Preconfigured Vitest test cases
-- Standardized event bus behavior validation
+- Standardized event-bus behavior validation
 - Common edge case coverage
 
 Usage example:
