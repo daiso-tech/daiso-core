@@ -4,15 +4,10 @@
 import { type Router } from "hono/router";
 
 import {
-    type FileDef,
-    type FileInputs,
-    type HttpMethod,
     type HttpMiddleware,
     type HttpRouteGroup,
     type IHttpEndpoint,
     type IHttpRouterBase,
-    type ReqInputs,
-    type StringInputs,
 } from "@/http-router/contracts/_module.js";
 import { MiddlewareBuilder } from "@/http-router/implementations/middleware-builder.js";
 import { type RouterEntry } from "@/http-router/implementations/types.js";
@@ -24,32 +19,12 @@ import { callInvokable } from "@/utilities/_module.js";
 export class HttpRouterBase implements IHttpRouterBase {
     constructor(
         private readonly prefix: string,
-        private readonly middlewares: Array<HttpMiddleware<HttpMethod, any>>,
+        private readonly middlewares: Array<HttpMiddleware>,
         private readonly router: Router<RouterEntry>,
     ) {}
 
-    use<
-        TReqMethod extends HttpMethod = HttpMethod,
-        TReqJson = unknown,
-        TReqFields extends ReqInputs = Partial<Record<string, unknown>>,
-        TReqParams extends ReqInputs = Partial<Record<string, unknown>>,
-        TReqSearchParams extends ReqInputs = Partial<Record<string, unknown>>,
-        TReqHeaders extends ReqInputs = Partial<Record<string, unknown>>,
-        TReqFiles extends FileInputs = Partial<Record<string, FileDef>>,
-        TCookieData extends StringInputs = Partial<Record<string, string>>,
-    >(
-        middleware: HttpMiddleware<
-            TReqMethod,
-            TReqJson,
-            TReqFields,
-            TReqParams,
-            TReqSearchParams,
-            TReqHeaders,
-            TReqFiles,
-            TCookieData
-        >,
-    ): IHttpRouterBase {
-        this.middlewares.push(middleware as HttpMiddleware<HttpMethod, any>);
+    use(middleware: HttpMiddleware): IHttpRouterBase {
+        this.middlewares.push(middleware);
         return this;
     }
 
@@ -57,28 +32,8 @@ export class HttpRouterBase implements IHttpRouterBase {
         return [this.prefix, subPath].join("/").replaceAll("//", "/");
     }
 
-    endpoint<
-        TReqMethod extends HttpMethod = HttpMethod,
-        TReqJson = unknown,
-        TReqFields extends ReqInputs = Partial<Record<string, unknown>>,
-        TReqParams extends ReqInputs = Partial<Record<string, unknown>>,
-        TReqSearchParams extends ReqInputs = Partial<Record<string, unknown>>,
-        TReqHeaders extends ReqInputs = Partial<Record<string, unknown>>,
-        TReqFiles extends FileInputs = Partial<Record<string, FileDef>>,
-        TCookieData extends StringInputs = Partial<Record<string, string>>,
-    >(
-        endpoint: IHttpEndpoint<
-            TReqMethod,
-            TReqJson,
-            TReqFields,
-            TReqParams,
-            TReqSearchParams,
-            TReqHeaders,
-            TReqFiles,
-            TCookieData
-        >,
-    ): IHttpRouterBase {
-        const endpoint_ = endpoint as IHttpEndpoint<HttpMethod, any>;
+    endpoint(endpoint: IHttpEndpoint): IHttpRouterBase {
+        const endpoint_ = endpoint;
         const {
             method: methods = [
                 "CONNECT",
@@ -95,7 +50,7 @@ export class HttpRouterBase implements IHttpRouterBase {
             middlewares = (builder) => builder,
         } = endpoint_;
 
-        const endpointMiddlewares: Array<HttpMiddleware<HttpMethod, any>> = [];
+        const endpointMiddlewares: Array<HttpMiddleware> = [];
         callInvokable(middlewares, new MiddlewareBuilder(endpointMiddlewares));
 
         for (const method of methods) {

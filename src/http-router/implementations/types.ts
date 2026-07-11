@@ -2,7 +2,6 @@
  * @module HttpRouter
  */
 import {
-    type HttpMethod,
     type HttpMiddleware,
     type IHttpEndpoint,
 } from "@/http-router/contracts/_module.js";
@@ -13,7 +12,7 @@ import {
  */
 export type MiddlewareEntry = {
     type: "middleware";
-    middleware: HttpMiddleware<HttpMethod, any>;
+    middleware: HttpMiddleware;
 };
 
 /**
@@ -22,7 +21,7 @@ export type MiddlewareEntry = {
  */
 export type EndpointEntry = {
     type: "endpoint";
-    endpoint: IHttpEndpoint<HttpMethod, any>;
+    endpoint: IHttpEndpoint;
 };
 
 /**

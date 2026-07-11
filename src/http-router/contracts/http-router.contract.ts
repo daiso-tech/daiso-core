@@ -2,19 +2,9 @@
  * @module HttpRouter
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
-import {
-    type FileInputs,
-    type ReqInputs,
-    type StringInputs,
-} from "@/http-router/contracts/_shared.js";
 import { type HttpHandler } from "@/http-router/contracts/http-handler.contract.js";
-import { type HttpMiddlewareHandler } from "@/http-router/contracts/http-middleware.contract.js";
-import {
-    type HttpMethod,
-    type HttpReqSchema,
-} from "@/http-router/contracts/http-req.contract.js";
+import { type HttpMiddleware } from "@/http-router/contracts/http-middleware.contract.js";
+import { type HttpMethod } from "@/http-router/contracts/http-req.contract.js";
 import { type IWinterTcFetch } from "@/http-router/contracts/winter-tc-fetch.contract.js";
 import {
     type InvokableFn,
@@ -22,154 +12,6 @@ import {
     type OneOrAtLeastOne,
     type Invokable,
 } from "@/utilities/_module.js";
-
-/**
- * Combines request-data and cookie validation schemas into a single schema type.
- * Each field maps directly to its own type parameter for reliable inference.
- *
- * @typeParam TReqJson - The type of the parsed JSON body.
- * @typeParam TReqFields - The type of the parsed form fields.
- * @typeParam TReqParams - The type of the parsed path parameters.
- * @typeParam TReqSearchParams - The type of the parsed query parameters.
- * @typeParam TReqHeaders - The type of the parsed headers.
- * @typeParam TReqFiles - The expected file definitions.
- * @typeParam TCookieData - A record mapping cookie names to their value types.
- *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
- * @group Contracts
- */
-export type HttpSchema<
-    TReqJson = unknown,
-    TReqFields extends ReqInputs = ReqInputs,
-    TReqParams extends ReqInputs = ReqInputs,
-    TReqSearchParams extends ReqInputs = ReqInputs,
-    TReqHeaders extends ReqInputs = ReqInputs,
-    TReqFiles extends FileInputs = FileInputs,
-    TCookieData extends StringInputs = StringInputs,
-> = {
-    req?: HttpReqSchema<
-        TReqJson,
-        TReqFields,
-        TReqParams,
-        TReqSearchParams,
-        TReqHeaders,
-        TReqFiles
-    >;
-    cookies?: StandardSchemaV1<StringInputs, TCookieData>;
-};
-
-/**
- * Pairs a middleware handler with optional validation schemas.
- * Used with {@link IHttpRouterBase.use} to register middlewares that validate
- * and process incoming requests before they reach the endpoint handler.
- *
- * @typeParam TReqMethod - The HTTP method for this middleware.
- * @typeParam TReqJson - The type of the parsed JSON body.
- * @typeParam TReqFields - The type of the parsed form fields.
- * @typeParam TReqParams - The type of the parsed path parameters.
- * @typeParam TReqSearchParams - The type of the parsed query parameters.
- * @typeParam TReqHeaders - The type of the parsed headers.
- * @typeParam TReqFiles - The expected file definitions.
- * @typeParam TCookieData - A record mapping cookie names to their value types.
- *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
- * @group Contracts
- */
-export type HttpMiddleware<
-    TReqMethod extends HttpMethod = HttpMethod,
-    TReqJson = unknown,
-    TReqFields extends ReqInputs = ReqInputs,
-    TReqParams extends ReqInputs = ReqInputs,
-    TReqSearchParams extends ReqInputs = ReqInputs,
-    TReqHeaders extends ReqInputs = ReqInputs,
-    TReqFiles extends FileInputs = FileInputs,
-    TCookieData extends StringInputs = StringInputs,
-> = {
-    handler: HttpMiddlewareHandler<
-        TReqMethod,
-        TReqJson,
-        TReqFields,
-        TReqParams,
-        TReqSearchParams,
-        TReqHeaders,
-        TReqFiles,
-        TCookieData
-    >;
-
-    /**
-     * Optional validation schemas for request data.
-     */
-    validation?: HttpSchema<
-        TReqJson,
-        TReqFields,
-        TReqParams,
-        TReqSearchParams,
-        TReqHeaders,
-        TReqFiles,
-        TCookieData
-    >;
-};
-
-/**
- * A helper function that creates a typed {@link HttpMiddleware} definition.
- * Use this function to get full type inference for request data, files,
- * and cookie data when defining inline middleware registrations.
- *
- * @typeParam TReqMethod - The HTTP method for this middleware.
- * @typeParam TReqJson - The type of the parsed JSON body.
- * @typeParam TReqFields - The type of the parsed form fields.
- * @typeParam TReqParams - The type of the parsed path parameters.
- * @typeParam TReqSearchParams - The type of the parsed query parameters.
- * @typeParam TReqHeaders - The type of the parsed headers.
- * @typeParam TReqFiles - The expected file definitions.
- * @typeParam TCookieData - A record mapping cookie names to their value types.
- *
- * @param middleware - The middleware registration configuration object.
- * @returns The same middleware registration configuration object with inferred types.
- *
- * @example
- * ```typescript
- * defineHttpMiddleware({
- *   handler: async ({ req, next }) => { ... },
- *   validation: { headers: myHeaderSchema },
- * });
- * ```
- *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
- * @group Contracts
- */
-export function defineHttpMiddleware<
-    TReqMethod extends HttpMethod = HttpMethod,
-    TReqJson = unknown,
-    TReqFields extends ReqInputs = ReqInputs,
-    TReqParams extends ReqInputs = ReqInputs,
-    TReqSearchParams extends ReqInputs = ReqInputs,
-    TReqHeaders extends ReqInputs = ReqInputs,
-    TReqFiles extends FileInputs = FileInputs,
-    TCookieData extends StringInputs = StringInputs,
->(
-    middleware: HttpMiddleware<
-        TReqMethod,
-        TReqJson,
-        TReqFields,
-        TReqParams,
-        TReqSearchParams,
-        TReqHeaders,
-        TReqFiles,
-        TCookieData
-    >,
-): HttpMiddleware<
-    TReqMethod,
-    TReqJson,
-    TReqFields,
-    TReqParams,
-    TReqSearchParams,
-    TReqHeaders,
-    TReqFiles,
-    TCookieData
-> {
-    return middleware;
-}
 
 /**
  * A builder for registering type-safe middleware scoped to a single endpoint.
@@ -185,66 +27,19 @@ export type IMiddlewareBuilder = {
     /**
      * Registers one or more middleware handlers with fully typed request data inference.
      *
-     * @typeParam TReqMethod - The HTTP method scope for this middleware.
-     * @typeParam TReqJson - The type of the parsed JSON body.
-     * @typeParam TReqFields - The type of the parsed form fields.
-     * @typeParam TReqParams - The type of the parsed path parameters.
-     * @typeParam TReqSearchParams - The type of the parsed query parameters.
-     * @typeParam TReqHeaders - The type of the parsed headers.
-     * @typeParam TReqFiles - The expected file definitions.
-     * @typeParam TCookieData - A record mapping cookie names to their value types.
-     *
      * @param middleware - One or more middleware registrations.
      * @returns The builder instance for chaining.
      */
-    use<
-        TReqMethod extends HttpMethod = HttpMethod,
-        TReqJson = unknown,
-        TReqFields extends ReqInputs = ReqInputs,
-        TReqParams extends ReqInputs = ReqInputs,
-        TReqSearchParams extends ReqInputs = ReqInputs,
-        TReqHeaders extends ReqInputs = ReqInputs,
-        TReqFiles extends FileInputs = FileInputs,
-        TCookieData extends StringInputs = StringInputs,
-    >(
-        middleware: HttpMiddleware<
-            TReqMethod,
-            TReqJson,
-            TReqFields,
-            TReqParams,
-            TReqSearchParams,
-            TReqHeaders,
-            TReqFiles,
-            TCookieData
-        >,
-    ): IMiddlewareBuilder;
+    use(middleware: HttpMiddleware): IMiddlewareBuilder;
 };
 
 /**
  * Defines a single HTTP endpoint registration.
  *
- * @typeParam TReqMethod - The HTTP method for this endpoint.
- * @typeParam TReqJson - The type of the parsed JSON body.
- * @typeParam TReqFields - The type of the parsed form fields.
- * @typeParam TReqParams - The type of the parsed path parameters.
- * @typeParam TReqSearchParams - The type of the parsed query parameters.
- * @typeParam TReqHeaders - The type of the parsed headers.
- * @typeParam TReqFiles - The expected file definitions.
- * @typeParam TCookieData - A record mapping cookie names to their value types.
- *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export type IHttpEndpoint<
-    TReqMethod extends HttpMethod = HttpMethod,
-    TReqJson = unknown,
-    TReqFields extends ReqInputs = ReqInputs,
-    TReqParams extends ReqInputs = ReqInputs,
-    TReqSearchParams extends ReqInputs = ReqInputs,
-    TReqHeaders extends ReqInputs = ReqInputs,
-    TReqFiles extends FileInputs = FileInputs,
-    TCookieData extends StringInputs = StringInputs,
-> = {
+export type IHttpEndpoint = {
     /**
      * The URL path pattern for this endpoint.
      */
@@ -268,34 +63,12 @@ export type IHttpEndpoint<
      * ]
      * ```
      */
-    method?: OneOrAtLeastOne<TReqMethod>;
+    method?: OneOrAtLeastOne<HttpMethod>;
 
     /**
      * The handler that processes requests to this endpoint.
      */
-    handler: HttpHandler<
-        TReqMethod,
-        TReqJson,
-        TReqFields,
-        TReqParams,
-        TReqSearchParams,
-        TReqHeaders,
-        TReqFiles,
-        TCookieData
-    >;
-
-    /**
-     * Optional validation schemas for request data.
-     */
-    validation?: HttpSchema<
-        TReqJson,
-        TReqFields,
-        TReqParams,
-        TReqSearchParams,
-        TReqHeaders,
-        TReqFiles,
-        TCookieData
-    >;
+    handler: HttpHandler;
 
     /**
      * Middleware handlers that apply **only to this endpoint**.
@@ -310,15 +83,6 @@ export type IHttpEndpoint<
  * A helper function that creates a typed {@link IHttpEndpoint} definition.
  * Use this function to get full type inference for request data, files,
  * and cookie data when defining inline endpoint objects.
- *
- * @typeParam TReqMethod - The HTTP method for this endpoint.
- * @typeParam TReqJson - The type of the parsed JSON body.
- * @typeParam TReqFields - The type of the parsed form fields.
- * @typeParam TReqParams - The type of the parsed path parameters.
- * @typeParam TReqSearchParams - The type of the parsed query parameters.
- * @typeParam TReqHeaders - The type of the parsed headers.
- * @typeParam TReqFiles - The expected file definitions.
- * @typeParam TCookieData - A record mapping cookie names to their value types.
  *
  * @param endpoint - The endpoint configuration object.
  * @returns The same endpoint configuration object with inferred types.
@@ -335,36 +99,7 @@ export type IHttpEndpoint<
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export function defineHttpEndpoint<
-    TReqMethod extends HttpMethod = HttpMethod,
-    TReqJson = unknown,
-    TReqFields extends ReqInputs = ReqInputs,
-    TReqParams extends ReqInputs = ReqInputs,
-    TReqSearchParams extends ReqInputs = ReqInputs,
-    TReqHeaders extends ReqInputs = ReqInputs,
-    TReqFiles extends FileInputs = FileInputs,
-    TCookieData extends StringInputs = StringInputs,
->(
-    endpoint: IHttpEndpoint<
-        TReqMethod,
-        TReqJson,
-        TReqFields,
-        TReqParams,
-        TReqSearchParams,
-        TReqHeaders,
-        TReqFiles,
-        TCookieData
-    >,
-): IHttpEndpoint<
-    TReqMethod,
-    TReqJson,
-    TReqFields,
-    TReqParams,
-    TReqSearchParams,
-    TReqHeaders,
-    TReqFiles,
-    TCookieData
-> {
+export function defineHttpEndpoint(endpoint: IHttpEndpoint): IHttpEndpoint {
     return endpoint;
 }
 
@@ -395,76 +130,18 @@ export type IHttpRouterBase = {
      * endpoint definition instead — this scopes the middleware to that
      * route alone and prevents it from affecting other endpoints.
      *
-     * @typeParam TReqMethod - The HTTP method scope for this middleware.
-     * @typeParam TReqJson - The type of the parsed JSON body.
-     * @typeParam TReqFields - The type of the parsed form fields.
-     * @typeParam TReqParams - The type of the parsed path parameters.
-     * @typeParam TReqSearchParams - The type of the parsed query parameters.
-     * @typeParam TReqHeaders - The type of the parsed headers.
-     * @typeParam TReqFiles - The expected file definitions.
-     * @typeParam TCookieData - A record mapping cookie names to their value types.
-     *
      * @param middleware - One or more middleware registrations.
      * @returns The router instance for chaining.
      */
-    use<
-        TReqMethod extends HttpMethod = HttpMethod,
-        TReqJson = unknown,
-        TReqFields extends ReqInputs = ReqInputs,
-        TReqParams extends ReqInputs = ReqInputs,
-        TReqSearchParams extends ReqInputs = ReqInputs,
-        TReqHeaders extends ReqInputs = ReqInputs,
-        TReqFiles extends FileInputs = FileInputs,
-        TCookieData extends StringInputs = StringInputs,
-    >(
-        middleware: HttpMiddleware<
-            TReqMethod,
-            TReqJson,
-            TReqFields,
-            TReqParams,
-            TReqSearchParams,
-            TReqHeaders,
-            TReqFiles,
-            TCookieData
-        >,
-    ): IHttpRouterBase;
+    use(middleware: HttpMiddleware): IHttpRouterBase;
 
     /**
      * Registers a single endpoint with fully typed request data inference.
      *
-     * @typeParam TReqMethod - The HTTP method for this endpoint.
-     * @typeParam TReqJson - The type of the parsed JSON body.
-     * @typeParam TReqFields - The type of the parsed form fields.
-     * @typeParam TReqParams - The type of the parsed path parameters.
-     * @typeParam TReqSearchParams - The type of the parsed query parameters.
-     * @typeParam TReqHeaders - The type of the parsed headers.
-     * @typeParam TReqFiles - The expected file definitions.
-     * @typeParam TCookieData - A record mapping cookie names to their value types.
-     *
      * @param endpoint - The endpoint definition.
      * @returns The router instance for chaining.
      */
-    endpoint<
-        TReqMethod extends HttpMethod = HttpMethod,
-        TReqJson = unknown,
-        TReqFields extends ReqInputs = ReqInputs,
-        TReqParams extends ReqInputs = ReqInputs,
-        TReqSearchParams extends ReqInputs = ReqInputs,
-        TReqHeaders extends ReqInputs = ReqInputs,
-        TReqFiles extends FileInputs = FileInputs,
-        TCookieData extends StringInputs = StringInputs,
-    >(
-        endpoint: IHttpEndpoint<
-            TReqMethod,
-            TReqJson,
-            TReqFields,
-            TReqParams,
-            TReqSearchParams,
-            TReqHeaders,
-            TReqFiles,
-            TCookieData
-        >,
-    ): IHttpRouterBase;
+    endpoint(endpoint: IHttpEndpoint): IHttpRouterBase;
 
     /**
      * Groups a set of routes under an optional path prefix.

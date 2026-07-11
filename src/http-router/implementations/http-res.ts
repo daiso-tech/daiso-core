@@ -15,7 +15,6 @@ import {
     type HttpResETag,
     type IHttpRes,
     type HttpStatus,
-    type StringInputs,
     type CookieSetSettings,
     type CookieScope,
     type IHttpResHelpers,
@@ -55,9 +54,7 @@ export type IHttpResSettings = {
  * IMPORT_PATH: `"@daiso-tech/core/http-router"`
  * @group Implementations
  */
-export class HttpRes<
-    TCookieData extends StringInputs = StringInputs,
-> implements IHttpRes<TCookieData> {
+export class HttpRes implements IHttpRes {
     private headers: Headers;
     private status: number | null;
     private statusText: string | null;
@@ -82,57 +79,51 @@ export class HttpRes<
         this.body = body;
     }
 
-    setContentType(type: HttpResContentType): IHttpRes<TCookieData> {
+    setContentType(type: HttpResContentType): IHttpRes {
         return this.setHeader("Content-Type", type);
     }
 
-    setContentLength(length: number | IFileSize): IHttpRes<TCookieData> {
+    setContentLength(length: number | IFileSize): IHttpRes {
         return this.setHeader(
             "Content-Length",
             String(typeof length === "number" ? length : length[TO_BYTES]()),
         );
     }
 
-    setContentEncoding(
-        encoding: HttpResContentEncoding,
-    ): IHttpRes<TCookieData> {
+    setContentEncoding(encoding: HttpResContentEncoding): IHttpRes {
         return this.setHeader("Content-Encoding", encoding);
     }
 
-    setContentLanguage(
-        language: HttpResContentLanguage,
-    ): IHttpRes<TCookieData> {
+    setContentLanguage(language: HttpResContentLanguage): IHttpRes {
         return this.setHeader("Content-Language", language);
     }
 
-    setContentDisposition(
-        disposition: HttpResContentDisposition,
-    ): IHttpRes<TCookieData> {
+    setContentDisposition(disposition: HttpResContentDisposition): IHttpRes {
         return this.setHeader("Content-Disposition", disposition);
     }
 
-    setContentRange(range: HttpResContentRange): IHttpRes<TCookieData> {
+    setContentRange(range: HttpResContentRange): IHttpRes {
         return this.setHeader("Content-Range", range);
     }
 
-    setCacheControl(cacheControl: HttpResCacheControl): IHttpRes<TCookieData> {
+    setCacheControl(cacheControl: HttpResCacheControl): IHttpRes {
         return this.setHeader("Cache-Control", cacheControl);
     }
 
-    setETag(eTag: HttpResETag): IHttpRes<TCookieData> {
+    setETag(eTag: HttpResETag): IHttpRes {
         return this.setHeader("ETag", eTag);
     }
 
-    setLocation(location: string): IHttpRes<TCookieData> {
+    setLocation(location: string): IHttpRes {
         return this.setHeader("Location", location);
     }
 
-    setHeader(key: string, value: string): IHttpRes<TCookieData> {
+    setHeader(key: string, value: string): IHttpRes {
         this.headers.set(key, value);
         return this;
     }
 
-    appendHeader(key: string, value: string): IHttpRes<TCookieData> {
+    appendHeader(key: string, value: string): IHttpRes {
         this.headers.append(key, value);
         return this;
     }
@@ -141,19 +132,19 @@ export class HttpRes<
         return this.headers.get(key) ?? null;
     }
 
-    setStatus(status: HttpStatus | number): IHttpRes<TCookieData> {
+    setStatus(status: HttpStatus | number): IHttpRes {
         this.status = Number(status);
         return this;
     }
 
-    setStatusText(statusText: string): IHttpRes<TCookieData> {
+    setStatusText(statusText: string): IHttpRes {
         this.statusText = statusText;
         return this;
     }
 
     setBody(
         content: string | ArrayBuffer | Uint8Array | AsyncIterable<Uint8Array>,
-    ): IHttpRes<TCookieData> {
+    ): IHttpRes {
         this.body = content;
         return this;
     }
@@ -258,19 +249,13 @@ export class HttpRes<
         return extractedCookieName === cookieName;
     }
 
-    putCookie<
-        TField extends keyof TCookieData,
-        TValue extends TCookieData[TField],
-    >(
-        name: TField,
-        value: TValue,
+    putCookie(
+        name: string,
+        value: string,
         settings: CookieSetSettings = {},
-    ): IHttpRes<TCookieData> {
+    ): IHttpRes {
         if (typeof name !== "string") {
             throw new TypeError("Cookie name must be a string.");
-        }
-        if (value === undefined) {
-            throw new TypeError("Cookie value must not be undefined.");
         }
 
         if (!this.hasCookies(name)) {
@@ -321,10 +306,7 @@ export class HttpRes<
         });
     }
 
-    removeCookie<TField extends keyof TCookieData>(
-        name: TField,
-        settings?: CookieScope,
-    ): IHttpRes<TCookieData> {
+    removeCookie(name: string, settings?: CookieScope): IHttpRes {
         if (typeof name !== "string") {
             throw new TypeError("Cookie name must be a string.");
         }
@@ -356,9 +338,7 @@ export class HttpRes<
         return this;
     }
 
-    withoutCookies<TField extends keyof TCookieData>(
-        name?: TField,
-    ): IHttpRes<TCookieData> {
+    withoutCookies(name?: string): IHttpRes {
         if (name === undefined) {
             this.headers = new Headers(
                 [...this.headers].filter(
@@ -385,7 +365,7 @@ export class HttpRes<
         return this;
     }
 
-    hasCookies<TField extends keyof TCookieData>(name?: TField): boolean {
+    hasCookies(name?: string): boolean {
         const cookies = [...this.headers].filter(([headerName]) =>
             HttpRes.isSetCookieHeader(headerName),
         );
@@ -429,25 +409,25 @@ export class HttpRes<
 /**
  * @internal
  */
-export const httpResHelpers: IHttpResHelpers<any> = {
-    fromWebRes(res: Response): IHttpRes<any> {
-        return new HttpRes<any>({
+export const httpResHelpers: IHttpResHelpers = {
+    fromWebRes(res: Response): IHttpRes {
+        return new HttpRes({
             headers: res.headers,
             status: res.status,
             statusText: res.statusText,
             body: res.body ?? null,
         });
     },
-    text(content: string): IHttpRes<any> {
+    text(content: string): IHttpRes {
         return new HttpRes().setBody(content).setContentType("text/plain");
     },
-    html(content: string): IHttpRes<any> {
+    html(content: string): IHttpRes {
         return new HttpRes().setBody(content).setContentType("text/html");
     },
     json<TData>(
         content: TData,
         schema?: StandardSchemaV1<unknown, TData>,
-    ): IHttpRes<any> {
+    ): IHttpRes {
         if (schema !== undefined) {
             content = validateSync(schema, content);
         }
@@ -455,16 +435,16 @@ export const httpResHelpers: IHttpResHelpers<any> = {
             .setBody(JSON.stringify(content))
             .setContentType("application/json");
     },
-    notFound(): IHttpRes<any> {
+    notFound(): IHttpRes {
         return this.html("Not found").setStatus(404);
     },
-    redirect(url: string): IHttpRes<any> {
+    redirect(url: string): IHttpRes {
         return new HttpRes()
             .setStatus(302)
             .setLocation(url)
             .setContentType("text/plain");
     },
-    permanentRedirect(url: string): IHttpRes<any> {
+    permanentRedirect(url: string): IHttpRes {
         return new HttpRes()
             .setStatus(301)
             .setLocation(url)

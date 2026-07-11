@@ -2,35 +2,43 @@
  * @module HttpRouter
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
-import { TO_BYTES } from "@/file-size/contracts/_module.js";
 import {
-    type FileDef,
-    type FileInputs,
     type HttpMethod,
-    type HttpReqFiles,
-    type HttpReqSchema,
-    type HttpSchema,
+    type HttpReqSchemas,
     type IHttpFile,
-    type IHttpFileCollection,
     type IHttpReq,
     type RawFormData,
-    type ReqInputs,
     type MultiStringInputs,
     type StringInputs,
-    type StaticFileDef,
+    type FileDef,
+    type FileInputs,
+    type IValidatedHttpReq,
+    type ReqInputs,
 } from "@/http-router/contracts/_module.js";
-import { HttpFileCollection } from "@/http-router/implementations/http-file-collection.js";
 import { HttpFile } from "@/http-router/implementations/http-file.js";
-import {
-    validate,
-    validateSync,
-    ValidationError,
-    callInvokable,
-    isInvokableObject,
-    type UndefinedToNull,
-} from "@/utilities/_module.js";
+import { ValidatedHttpReq } from "@/http-router/implementations/validated-http-req.js";
+
+/**
+ * Configuration for creating an {@link HttpReq} from a standard Web API `Request`.
+ *
+ * Bundles the raw `Request` object with optional validation schemas and
+ * pre-resolved path parameters so the resulting `HttpReq` can apply
+ * type-safe validation on demand.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * @group Implementations
+ */
+export type FromWebReqSettings = {
+    /**
+     * The raw Web API `Request` object to wrap.
+     */
+    request: Request;
+
+    /**
+     * @internal
+     */
+    _rawParams?: StringInputs;
+};
 
 /**
  * A variant of {@link TestReqBody} representing a JSON request body.
@@ -119,49 +127,6 @@ export type TestReqBody =
     | TestReqCustom;
 
 /**
- * Optional validation schemas for use with {@link HttpReq.fromUrl}.
- *
- * Groups a {@link HttpReqSchema} for validating request data (JSON body, form
- * fields, path parameters, search parameters, headers, and file definitions)
- * together with an optional {@link https://standardschema.dev/ | Standard Schema V1}
- * schema for validating and transforming cookies.
- *
- * Each field maps directly to its own type parameter so TypeScript can infer
- * the output type from the schema (e.g. from a Zod schema) without needing
- * to reverse through indexed access types.
- *
- * @typeParam TReqJson - The type of the parsed JSON body.
- * @typeParam TReqFields - The type of the parsed form fields.
- * @typeParam TReqParams - The type of the parsed path parameters.
- * @typeParam TReqSearchParams - The type of the parsed query parameters.
- * @typeParam TReqHeaders - The type of the parsed headers.
- * @typeParam TReqFiles - The expected file upload definitions.
- * @typeParam TCookieData - A record mapping cookie names to their value types.
- *
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
- * @group Implementations
- */
-export type HttpReqValidation<
-    TReqJson = unknown,
-    TReqFields extends ReqInputs = ReqInputs,
-    TReqParams extends ReqInputs = ReqInputs,
-    TReqSearchParams extends ReqInputs = ReqInputs,
-    TReqHeaders extends ReqInputs = ReqInputs,
-    TReqFiles extends FileInputs = FileInputs,
-    TCookieData extends StringInputs = StringInputs,
-> = {
-    req?: HttpReqSchema<
-        TReqJson,
-        TReqFields,
-        TReqParams,
-        TReqSearchParams,
-        TReqHeaders,
-        TReqFiles
-    >;
-    cookies?: StandardSchemaV1<StringInputs, TCookieData>;
-};
-
-/**
  * Configuration for creating an {@link HttpReq} instance for testing purposes.
  *
  * Allows you to construct a fully synthetic HTTP request by providing
@@ -181,15 +146,7 @@ export type HttpReqValidation<
  * IMPORT_PATH: `"@daiso-tech/core/http-router"`
  * @group Implementations
  */
-export type TestReqSettings<
-    TReqJson = unknown,
-    TReqFields extends ReqInputs = ReqInputs,
-    TReqParams extends ReqInputs = ReqInputs,
-    TReqSearchParams extends ReqInputs = ReqInputs,
-    TReqHeaders extends ReqInputs = ReqInputs,
-    TReqFiles extends FileInputs = FileInputs,
-    TCookieData extends StringInputs = StringInputs,
-> = {
+export type TestReqSettings = {
     /**
      * @default "https://test.local"
      */
@@ -225,78 +182,6 @@ export type TestReqSettings<
      * custom payload.
      */
     body?: TestReqBody;
-
-    /**
-     * Validation schemas for request data and cookies.
-     *
-     * Each schema is applied lazily when the corresponding accessor
-     * (e.g. {@link IHttpReq.json}, {@link IHttpReq.params},
-     * {@link IHttpReq.cookies}) is called on the resulting `HttpReq`.
-     */
-    validation?: HttpSchema<
-        TReqJson,
-        TReqFields,
-        TReqParams,
-        TReqSearchParams,
-        TReqHeaders,
-        TReqFiles,
-        TCookieData
-    >;
-};
-
-/**
- * Configuration for creating an {@link HttpReq} from a standard Web API `Request`.
- *
- * Bundles the raw `Request` object with optional validation schemas and
- * pre-resolved path parameters so the resulting `HttpReq` can apply
- * type-safe validation on demand.
- *
- * @typeParam TReqJson - The type of the parsed JSON body.
- * @typeParam TReqFields - The type of the parsed form fields.
- * @typeParam TReqParams - The type of the parsed path parameters.
- * @typeParam TReqSearchParams - The type of the parsed query parameters.
- * @typeParam TReqHeaders - The type of the parsed headers.
- * @typeParam TReqFiles - The expected file upload definitions.
- * @typeParam TCookieData - A record mapping cookie names to their value types.
- *
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
- * @group Implementations
- */
-export type FromWebReqSettings<
-    TReqJson = unknown,
-    TReqFields extends ReqInputs = ReqInputs,
-    TReqParams extends ReqInputs = ReqInputs,
-    TReqSearchParams extends ReqInputs = ReqInputs,
-    TReqHeaders extends ReqInputs = ReqInputs,
-    TReqFiles extends FileInputs = FileInputs,
-    TCookieData extends StringInputs = StringInputs,
-> = {
-    /**
-     * The raw Web API `Request` object to wrap.
-     */
-    request: Request;
-
-    /**
-     * Validation schemas for request data and cookies.
-     *
-     * Each schema is applied lazily when the corresponding accessor
-     * (e.g. {@link IHttpReq.json}, {@link IHttpReq.params},
-     * {@link IHttpReq.cookies}) is called on the resulting `HttpReq`.
-     */
-    validation?: HttpSchema<
-        TReqJson,
-        TReqFields,
-        TReqParams,
-        TReqSearchParams,
-        TReqHeaders,
-        TReqFiles,
-        TCookieData
-    >;
-
-    /**
-     * @internal
-     */
-    _rawParams?: StringInputs;
 };
 
 /**
@@ -319,68 +204,16 @@ export type FromWebReqSettings<
  * IMPORT_PATH: `"@daiso-tech/core/http-router"`
  * @group Implementations
  */
-export class HttpReq<
-    TReqMethod = HttpMethod,
-    TReqJson = unknown,
-    TReqFields extends ReqInputs = ReqInputs,
-    TReqParams extends ReqInputs = ReqInputs,
-    TReqSearchParams extends ReqInputs = ReqInputs,
-    TReqHeaders extends ReqInputs = ReqInputs,
-    TReqFiles extends FileInputs = FileInputs,
-    TCookieData extends StringInputs = StringInputs,
-> implements IHttpReq<
-    TReqMethod,
-    TReqJson,
-    TReqFields,
-    TReqParams,
-    TReqSearchParams,
-    TReqHeaders,
-    TReqFiles,
-    TCookieData
-> {
+export class HttpReq implements IHttpReq {
     /**
      * Creates an `HttpReq` instance from a standard Web API `Request` object.
      *
-     * @typeParam TMethod_ - The HTTP method type.
-     * @typeParam TJson_ - The type of the parsed JSON body.
-     * @typeParam TReqFields_ - The type of the parsed form fields.
-     * @typeParam TParams_ - The type of the parsed path parameters.
-     * @typeParam TSearchParams_ - The type of the parsed query parameters.
-     * @typeParam THeaders_ - The type of the parsed headers.
-     * @typeParam TReqFiles_ - The expected file upload definitions.
      * @param req - The source `Request` object.
      * @returns A new `IHttpReq` instance wrapping the request.
      */
-    static fromWebReq<
-        TMethod_ = HttpMethod,
-        TJson_ = unknown,
-        TReqFields_ extends ReqInputs = ReqInputs,
-        TParams_ extends ReqInputs = ReqInputs,
-        TSearchParams_ extends ReqInputs = ReqInputs,
-        THeaders_ extends StringInputs = StringInputs,
-        TReqFiles_ extends FileInputs = FileInputs,
-        TCookieData_ extends StringInputs = StringInputs,
-    >(
-        settings: FromWebReqSettings<
-            TJson_,
-            TReqFields_,
-            TParams_,
-            TSearchParams_,
-            THeaders_,
-            TReqFiles_,
-            TCookieData_
-        >,
-    ): IHttpReq<
-        TMethod_,
-        TJson_,
-        TReqFields_,
-        TParams_,
-        TSearchParams_,
-        THeaders_,
-        TReqFiles_
-    > {
-        const { request, validation, _rawParams } = settings;
-        return new HttpReq(request, validation, _rawParams);
+    static fromWebReq(settings: FromWebReqSettings): IHttpReq {
+        const { request, _rawParams } = settings;
+        return new HttpReq(request, _rawParams);
     }
 
     private static deserializeCookies(headers: Headers): StringInputs {
@@ -562,46 +395,11 @@ export class HttpReq<
      * identically to one created from a real request, including validation
      * support.
      *
-     * @typeParam TMethod_ - The HTTP method type.
-     * @typeParam TJson_ - The type of the parsed JSON body.
-     * @typeParam TReqFields_ - The type of the parsed form fields.
-     * @typeParam TParams_ - The type of the parsed path parameters.
-     * @typeParam TSearchParams_ - The type of the parsed query parameters.
-     * @typeParam THeaders_ - The type of the parsed headers.
-     * @typeParam TReqFiles_ - The expected file upload definitions.
-     * @typeParam TCookieData_ - A record mapping cookie names to their value types.
      * @param settings - Configuration for the test request, including mock
      *   data and optional validation schemas.
      * @returns A new `IHttpReq` instance suitable for testing.
      */
-    static test<
-        TMethod_ = HttpMethod,
-        TJson_ = unknown,
-        TReqFields_ extends ReqInputs = ReqInputs,
-        TParams_ extends ReqInputs = ReqInputs,
-        TSearchParams_ extends ReqInputs = ReqInputs,
-        THeaders_ extends StringInputs = StringInputs,
-        TReqFiles_ extends FileInputs = FileInputs,
-        TCookieData_ extends StringInputs = StringInputs,
-    >(
-        settings: TestReqSettings<
-            TJson_,
-            TReqFields_,
-            TParams_,
-            TSearchParams_,
-            THeaders_,
-            TReqFiles_,
-            TCookieData_
-        >,
-    ): IHttpReq<
-        TMethod_,
-        TJson_,
-        TReqFields_,
-        TParams_,
-        TSearchParams_,
-        THeaders_,
-        TReqFiles_
-    > {
+    static test(settings: TestReqSettings): IHttpReq {
         const {
             hostname = "https://test.local",
             url,
@@ -610,7 +408,6 @@ export class HttpReq<
             headers = {},
             cookies = {},
             body,
-            validation = {},
         } = settings;
 
         const finalUrl = HttpReq.buildTestUrl(hostname, url, searchParams);
@@ -626,28 +423,11 @@ export class HttpReq<
             body: finalBody,
         });
 
-        return new HttpReq<
-            TMethod_,
-            TJson_,
-            TReqFields_,
-            TParams_,
-            TSearchParams_,
-            THeaders_,
-            TReqFiles_
-        >(request, validation, params);
+        return new HttpReq(request, params);
     }
 
     private constructor(
         private readonly request: Request,
-        private readonly validation: HttpReqValidation<
-            TReqJson,
-            TReqFields,
-            TReqParams,
-            TReqSearchParams,
-            TReqHeaders,
-            TReqFiles,
-            TCookieData
-        > = {},
         private readonly rawParamsData: StringInputs = {},
     ) {}
 
@@ -669,47 +449,16 @@ export class HttpReq<
         return this.request.signal;
     }
 
-    cookies(): TCookieData;
-    cookies<
-        TField extends keyof TCookieData,
-        TValue extends TCookieData[TField],
-    >(field: TField): UndefinedToNull<TValue>;
-    cookies<
-        TField extends keyof TCookieData,
-        TValue extends TCookieData[TField],
-    >(field?: TField): UndefinedToNull<TValue> | TCookieData {
-        const rawCookies = this.rawCookies();
-
-        let cookies = rawCookies as TCookieData;
-        if (this.validation.cookies) {
-            cookies = validateSync(this.validation.cookies, rawCookies);
-        }
-
-        if (field === undefined) {
-            return cookies;
-        }
-
-        return (cookies[field] ?? null) as UndefinedToNull<TValue>;
-    }
-
     rawCookies(): StringInputs {
         return HttpReq.deserializeCookies(this.request.headers);
     }
 
-    get method(): TReqMethod {
-        return this.request.method as TReqMethod;
+    get method(): HttpMethod {
+        return this.request.method;
     }
 
     get url(): string {
         return this.request.url;
-    }
-
-    async json(): Promise<TReqJson> {
-        const data = await this.rawJson();
-        if (this.validation.req?.json) {
-            return await validate(this.validation.req.json, data);
-        }
-        return data as TReqJson;
     }
 
     rawJson(): Promise<unknown> {
@@ -749,209 +498,8 @@ export class HttpReq<
         return result;
     }
 
-    fields(): Promise<TReqFields>;
-    fields<TField extends keyof TReqFields, TValue extends TReqFields[TField]>(
-        field: TField,
-    ): Promise<UndefinedToNull<TValue>>;
-    async fields<
-        TField extends keyof TReqFields,
-        TValue extends TReqFields[TField],
-    >(field?: TField): Promise<TValue | TReqFields> {
-        const formData = await this.rawFormData();
-
-        const rawFormFields: MultiStringInputs = {};
-        for (const [key, value] of Object.entries(formData)) {
-            if (typeof value === "string") {
-                rawFormFields[key] = value;
-            } else if (
-                Array.isArray(value) &&
-                value.length > 0 &&
-                typeof value[0] === "string"
-            ) {
-                rawFormFields[key] = value as Array<string>;
-            }
-        }
-
-        let fields = rawFormFields as TReqFields;
-        if (this.validation.req?.fields) {
-            fields = await validate(this.validation.req.fields, rawFormFields);
-        }
-
-        if (field === undefined) {
-            return fields;
-        }
-
-        const selectedFormFieldValue = (fields[field] ?? null) as TValue;
-        return selectedFormFieldValue;
-    }
-
-    private async validateFormFiles(): Promise<HttpReqFiles<TReqFiles>> {
-        const formData = await this.rawFormData();
-
-        const rawFormFiles = Object.fromEntries(
-            Object.entries(formData).filter(([_key, value]) => {
-                return typeof value !== "string";
-            }),
-        ) as Partial<Record<string, IHttpFile | Array<IHttpFile>>>;
-
-        const filesValidation = (this.validation.req?.files ?? {}) as TReqFiles;
-        const result: Record<string, IHttpFileCollection> = {};
-
-        for (const key in filesValidation) {
-            const fileValidation = filesValidation[key];
-            if (fileValidation === undefined) {
-                continue;
-            }
-
-            const collected = this.collectFiles(rawFormFiles[key]);
-            const resolvedDefs = this.resolveFileDefs(
-                fileValidation,
-                collected,
-            );
-
-            for (const [index, file] of collected.entries()) {
-                const def = resolvedDefs[index];
-                if (def === undefined) {
-                    continue;
-                }
-                this.validateSingleFile(key, index, file, def);
-            }
-
-            this.validateFileCount(key, collected.length, resolvedDefs[0]);
-            result[key] = new HttpFileCollection(key, collected);
-        }
-
-        return result as HttpReqFiles<TReqFiles>;
-    }
-
-    private collectFiles(
-        rawFile: IHttpFile | Array<IHttpFile> | undefined,
-    ): Array<IHttpFile> {
-        if (rawFile === undefined) return [];
-        return Array.isArray(rawFile) ? rawFile : [rawFile];
-    }
-
-    private resolveFileDefs(
-        fileValidation: FileDef,
-        collected: Array<IHttpFile>,
-    ): Array<StaticFileDef> {
-        const isDynamic =
-            typeof fileValidation === "function" ||
-            isInvokableObject(fileValidation);
-        if (!isDynamic) {
-            return collected.map(() => fileValidation);
-        }
-        return collected.map((file) => callInvokable(fileValidation, file));
-    }
-
-    private validateSingleFile(
-        key: string,
-        index: number,
-        file: IHttpFile,
-        def: StaticFileDef,
-    ): void {
-        if (
-            def.contentType !== undefined &&
-            file.contentType !== def.contentType
-        ) {
-            throw new ValidationError(
-                `File field "${key}" at index ${String(index)} expected content type "${def.contentType}" but got "${file.contentType}".`,
-            );
-        }
-
-        const exceedsFileSize =
-            def.fileSize !== undefined &&
-            file.fileSize[TO_BYTES]() > def.fileSize[TO_BYTES]();
-        if (exceedsFileSize) {
-            throw new ValidationError(
-                `File field "${key}" at index ${String(index)} exceeds the maximum file size.`,
-            );
-        }
-
-        const name = def.name;
-        if (name === undefined) {
-            return;
-        }
-
-        if (
-            typeof name === "string" &&
-            file.name.localeCompare(name, undefined, {
-                sensitivity: "base",
-            }) !== 0
-        ) {
-            throw new ValidationError(
-                `File field "${key}" at index ${String(index)} expected filename "${name}" but got "${file.name}".`,
-            );
-        }
-        if (typeof name === "string") {
-            return;
-        }
-
-        if (!name.test(file.name)) {
-            throw new ValidationError(
-                `File field "${key}" at index ${String(index)} filename "${file.name}" does not match the required pattern.`,
-            );
-        }
-    }
-
-    private validateFileCount(
-        key: string,
-        count: number,
-        firstDef: StaticFileDef | undefined,
-    ): void {
-        const max = firstDef?.max ?? 1;
-        const min = firstDef?.min ?? (firstDef?.optional === true ? 0 : 1);
-
-        if (count < min) {
-            throw new ValidationError(
-                `File field "${key}" requires at least ${String(min)} file(s), but ${String(count)} were uploaded.`,
-            );
-        }
-        if (count > max) {
-            throw new ValidationError(
-                `File field "${key}" accepts at most ${String(max)} file(s), but ${String(count)} were uploaded.`,
-            );
-        }
-    }
-
-    files(): Promise<HttpReqFiles<TReqFiles>>;
-    files<TField extends keyof TReqFiles>(
-        field: TField,
-    ): Promise<IHttpFileCollection>;
-    async files<TField extends keyof TReqFiles>(
-        field?: TField,
-        // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    ): Promise<IHttpFileCollection | HttpReqFiles<TReqFiles>> {
-        const files = await this.validateFormFiles();
-        if (field === undefined) {
-            return files;
-        }
-
-        return files[field];
-    }
-
     rawParams(): StringInputs {
         return this.rawParamsData;
-    }
-    params(): TReqParams;
-    params<TField extends keyof TReqParams, TValue extends TReqParams[TField]>(
-        field: TField,
-    ): UndefinedToNull<TValue>;
-    params<TField extends keyof TReqParams, TValue extends TReqParams[TField]>(
-        field?: TField,
-    ): UndefinedToNull<TValue> | TReqParams {
-        const rawParams = this.rawParams();
-
-        let params = rawParams as TReqParams;
-        if (this.validation.req?.params) {
-            params = validateSync(this.validation.req.params, rawParams);
-        }
-
-        if (field === undefined) {
-            return params;
-        }
-
-        return (params[field] ?? null) as UndefinedToNull<TValue>;
     }
 
     rawSearchParams(): MultiStringInputs {
@@ -968,56 +516,9 @@ export class HttpReq<
         }
         return result;
     }
-    searchParams(): TReqSearchParams;
-    searchParams<
-        TField extends keyof TReqSearchParams,
-        TValue extends TReqSearchParams[TField],
-    >(field: TField): UndefinedToNull<TValue>;
-    searchParams<
-        TField extends keyof TReqSearchParams,
-        TValue extends TReqSearchParams[TField],
-    >(field?: TField): UndefinedToNull<TValue> | TReqSearchParams {
-        const rawSearchParams = this.rawSearchParams();
-
-        let searchParams = rawSearchParams as TReqSearchParams;
-        if (this.validation.req?.searchParams) {
-            searchParams = validateSync(
-                this.validation.req.searchParams,
-                rawSearchParams,
-            );
-        }
-
-        if (field === undefined) {
-            return searchParams;
-        }
-
-        return (searchParams[field] ?? null) as UndefinedToNull<TValue>;
-    }
 
     rawHeaders(): StringInputs {
         return Object.fromEntries(this.request.headers.entries());
-    }
-    headers(): TReqHeaders;
-    headers<
-        TField extends keyof TReqHeaders,
-        TValue extends TReqHeaders[TField],
-    >(field: TField): UndefinedToNull<TValue>;
-    headers<
-        TField extends keyof TReqHeaders,
-        TValue extends TReqHeaders[TField],
-    >(field?: TField): UndefinedToNull<TValue> | TReqHeaders {
-        const rawHeaders = this.rawHeaders();
-
-        let headers = rawHeaders as TReqHeaders;
-        if (this.validation.req?.headers) {
-            headers = validateSync(this.validation.req.headers, rawHeaders);
-        }
-
-        if (field === undefined) {
-            return headers;
-        }
-
-        return (headers[field] ?? null) as UndefinedToNull<TValue>;
     }
 
     arrayBuffer(): Promise<ArrayBuffer> {
@@ -1034,5 +535,35 @@ export class HttpReq<
 
     get webReq(): Request {
         return this.request;
+    }
+
+    withSchema<
+        TReqJson = unknown,
+        TReqFields extends ReqInputs = Partial<Record<string, unknown>>,
+        TReqParams extends ReqInputs = Partial<Record<string, unknown>>,
+        TReqSearchParams extends ReqInputs = Partial<Record<string, unknown>>,
+        TReqHeaders extends ReqInputs = Partial<Record<string, unknown>>,
+        TReqFiles extends FileInputs = Partial<Record<string, FileDef>>,
+        TCookieData extends StringInputs = Partial<Record<string, string>>,
+    >(
+        schemas: HttpReqSchemas<
+            TReqJson,
+            TReqFields,
+            TReqParams,
+            TReqSearchParams,
+            TReqHeaders,
+            TReqFiles,
+            TCookieData
+        >,
+    ): IValidatedHttpReq<
+        TReqJson,
+        TReqFields,
+        TReqParams,
+        TReqSearchParams,
+        TReqHeaders,
+        TReqFiles,
+        TCookieData
+    > {
+        return new ValidatedHttpReq(this, schemas);
     }
 }

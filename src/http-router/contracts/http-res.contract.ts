@@ -5,7 +5,6 @@
 import { type StandardSchemaV1 } from "@standard-schema/spec";
 
 import { type IFileSize } from "@/file-size/contracts/_module.js";
-import { type StringInputs } from "@/http-router/contracts/_shared.js";
 import {
     type HttpResCacheControl,
     type HttpResContentDisposition,
@@ -119,58 +118,55 @@ export type CookieSetSettings = CookieScope & {
  * Each setter returns the instance for chaining. Access {@link webRes}
  * to obtain the final Web API `Response` object.
  *
- * @typeParam TCookieData - A record mapping cookie names to their value types.
  *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export type IHttpRes<TCookieData extends StringInputs = StringInputs> = {
+export type IHttpRes = {
     /**
      * Sets the `Content-Type` header to a well-known media type.
      */
-    setContentType(type: HttpResContentType): IHttpRes<TCookieData>;
+    setContentType(type: HttpResContentType): IHttpRes;
 
     /**
      * Sets the `Content-Length` header, accepting either a raw number or an IFileSize value.
      */
-    setContentLength(length: number | IFileSize): IHttpRes<TCookieData>;
+    setContentLength(length: number | IFileSize): IHttpRes;
 
     /**
      * Sets the `Content-Encoding` header (e.g. gzip, br, deflate).
      */
-    setContentEncoding(encoding: HttpResContentEncoding): IHttpRes<TCookieData>;
+    setContentEncoding(encoding: HttpResContentEncoding): IHttpRes;
 
     /**
      * Sets the `Content-Language` header to a BCP 47 language tag.
      */
-    setContentLanguage(language: HttpResContentLanguage): IHttpRes<TCookieData>;
+    setContentLanguage(language: HttpResContentLanguage): IHttpRes;
 
     /**
      * Sets the `Content-Disposition` header (inline or attachment).
      */
-    setContentDisposition(
-        disposition: HttpResContentDisposition,
-    ): IHttpRes<TCookieData>;
+    setContentDisposition(disposition: HttpResContentDisposition): IHttpRes;
 
     /**
      * Sets the `Content-Range` header for partial content responses.
      */
-    setContentRange(range: HttpResContentRange): IHttpRes<TCookieData>;
+    setContentRange(range: HttpResContentRange): IHttpRes;
 
     /**
      * Sets the `Cache-Control` header with caching directives.
      */
-    setCacheControl(cacheControl: HttpResCacheControl): IHttpRes<TCookieData>;
+    setCacheControl(cacheControl: HttpResCacheControl): IHttpRes;
 
     /**
      * Sets the `ETag` header for conditional response caching.
      */
-    setETag(eTag: HttpResETag): IHttpRes<TCookieData>;
+    setETag(eTag: HttpResETag): IHttpRes;
 
     /**
      * Sets the `Location` header, typically used for redirects (3xx).
      */
-    setLocation(location: string): IHttpRes<TCookieData>;
+    setLocation(location: string): IHttpRes;
 
     /**
      * Sets an arbitrary response header by key and value.
@@ -181,7 +177,7 @@ export type IHttpRes<TCookieData extends StringInputs = StringInputs> = {
      * @param key - The header name (e.g. `"X-Custom-Header"`).
      * @param value - The header value.
      */
-    setHeader(key: string, value: string): IHttpRes<TCookieData>;
+    setHeader(key: string, value: string): IHttpRes;
 
     /**
      * Appends a value to an existing response header instead of overwriting it.
@@ -193,7 +189,7 @@ export type IHttpRes<TCookieData extends StringInputs = StringInputs> = {
      * @param key - The header name.
      * @param value - The header value to append.
      */
-    appendHeader(key: string, value: string): IHttpRes<TCookieData>;
+    appendHeader(key: string, value: string): IHttpRes;
 
     /**
      * Returns the current value of a response header, or an empty string if not set.
@@ -206,7 +202,7 @@ export type IHttpRes<TCookieData extends StringInputs = StringInputs> = {
     /**
      * Sets the HTTP response status code or well-known HttpStatus.
      */
-    setStatus(status: HttpStatus | number): IHttpRes<TCookieData>;
+    setStatus(status: HttpStatus | number): IHttpRes;
 
     /**
      * Sets the response body as raw bytes without overriding the `Content-Type` header.
@@ -218,27 +214,22 @@ export type IHttpRes<TCookieData extends StringInputs = StringInputs> = {
      */
     setBody(
         content: string | ArrayBuffer | Uint8Array | AsyncIterable<unknown>,
-    ): IHttpRes<TCookieData>;
+    ): IHttpRes;
 
     /**
      * Adds a `Set-Cookie` header if one does not exist, or updates it
      * if a header with the given name is already present.
      *
-     * @typeParam TField - The name of the cookie.
-     * @typeParam TValue - The cookie value type.
      * @param name - The name of the cookie.
      * @param value - The cookie value.
      * @param settings - Optional cookie attributes (expires, httpOnly, etc.).
      * @returns This instance for chaining.
      */
-    putCookie<
-        TField extends keyof TCookieData,
-        TValue extends TCookieData[TField],
-    >(
-        name: TField,
-        value: TValue,
+    putCookie(
+        name: string,
+        value: string,
         settings?: CookieSetSettings,
-    ): IHttpRes<TCookieData>;
+    ): IHttpRes;
 
     /**
      * Adds or updates a `Set-Cookie` header with `Max-Age=0` for the given name,
@@ -248,40 +239,32 @@ export type IHttpRes<TCookieData extends StringInputs = StringInputs> = {
      * replaced with an expired version. Otherwise an expired header is
      * appended to ensure the client removes any matching cookie.
      *
-     * @typeParam TField - The name of the cookie to expire.
      * @param name - The name of the cookie to expire.
      * @param settings - Optional scope attributes (path, secure, domain) to
      *   match the cookie that was originally set.
      * @returns This instance for chaining.
      */
-    removeCookie<TField extends keyof TCookieData>(
-        name: TField,
-        settings?: CookieScope,
-    ): IHttpRes<TCookieData>;
+    removeCookie(name: string, settings?: CookieScope): IHttpRes;
 
     /**
      * Strips all `Set-Cookie` headers from the response builder, or only
      * the header matching the given name when one is provided.
      *
-     * @typeParam TField - The name of the cookie to remove.
      * @param name - Optional. The name of the cookie to strip. When omitted,
      *   all `Set-Cookie` headers are removed.
      * @returns This instance for chaining.
      */
-    withoutCookies<TField extends keyof TCookieData>(
-        name?: TField,
-    ): IHttpRes<TCookieData>;
+    withoutCookies(name?: string): IHttpRes;
 
     /**
      * Checks whether any `Set-Cookie` headers are present, or whether a
      * header with the given name exists when one is provided.
      *
-     * @typeParam TField - The name of the cookie.
      * @param name - Optional. The name of the cookie to check. When omitted,
      *   returns `true` if at least one `Set-Cookie` header exists.
      * @returns `true` if a matching or any `Set-Cookie` header is present.
      */
-    hasCookies<TField extends keyof TCookieData>(name?: TField): boolean;
+    hasCookies(name?: string): boolean;
 
     /**
      * Builds and returns the final Web API `Response` object from all
@@ -307,12 +290,11 @@ export type IHttpRes<TCookieData extends StringInputs = StringInputs> = {
  * implementation class — you typically call them as
  * `HttpRes.json(...)`, `HttpRes.redirect(...)`, etc.
  *
- * @typeParam TCookieData - A record mapping cookie names to their value types.
  *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export type IHttpResHelpers<TCookieData extends StringInputs = StringInputs> = {
+export type IHttpResHelpers = {
     /**
      * Creates an `HttpRes` instance from a standard Web API `Response` object.
      *
@@ -326,7 +308,7 @@ export type IHttpResHelpers<TCookieData extends StringInputs = StringInputs> = {
      * @param res - The source `Response` object to copy from.
      * @returns A new `IHttpRes` instance wrapping the response.
      */
-    fromWebRes(res: Response): IHttpRes<TCookieData>;
+    fromWebRes(res: Response): IHttpRes;
 
     /**
      * Replaces the response with a plain-text body and
@@ -334,7 +316,7 @@ export type IHttpResHelpers<TCookieData extends StringInputs = StringInputs> = {
      *
      * @param content - The text content.
      */
-    text(content: string): IHttpRes<TCookieData>;
+    text(content: string): IHttpRes;
 
     /**
      * Replaces the response with an HTML body and
@@ -342,13 +324,12 @@ export type IHttpResHelpers<TCookieData extends StringInputs = StringInputs> = {
      *
      * @param content - The HTML content.
      */
-    html(content: string): IHttpRes<TCookieData>;
+    html(content: string): IHttpRes;
 
     /**
      * Replaces the response with a JSON body and
      * `Content-Type: application/json`.
      *
-     * @typeParam TData - The type of data being serialized.
      * @param content - The data to serialize as JSON.
      * @param schema - An optional {@link https://standardschema.dev | Standard Schema}
      *   to validate the data before serialization. When provided, the data is
@@ -358,13 +339,13 @@ export type IHttpResHelpers<TCookieData extends StringInputs = StringInputs> = {
     json<TData>(
         content: TData,
         schema?: StandardSchemaV1<unknown, TData>,
-    ): IHttpRes<TCookieData>;
+    ): IHttpRes;
 
     /**
      * Replaces the response with a 404 Not Found HTML body and
      * `Content-Type: text/html`.
      */
-    notFound(): IHttpRes<TCookieData>;
+    notFound(): IHttpRes;
 
     /**
      * Replaces the response with a temporary redirect (HTTP 302)
@@ -372,7 +353,7 @@ export type IHttpResHelpers<TCookieData extends StringInputs = StringInputs> = {
      *
      * @param url - The redirect destination.
      */
-    redirect(url: string): IHttpRes<TCookieData>;
+    redirect(url: string): IHttpRes;
 
     /**
      * Replaces the response with a permanent redirect (HTTP 301)
@@ -380,5 +361,5 @@ export type IHttpResHelpers<TCookieData extends StringInputs = StringInputs> = {
      *
      * @param url - The redirect destination.
      */
-    permanentRedirect(url: string): IHttpRes<TCookieData>;
+    permanentRedirect(url: string): IHttpRes;
 };

@@ -13,20 +13,17 @@ import { TrieRouter } from "hono/router/trie-router";
 
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
 import {
-    type FileInputs,
-    type HttpMethod,
     type HttpMiddleware,
     type HttpRouteGroup,
     type IHttpEndpoint,
     type IHttpRouter,
     type IHttpRouterBase,
-    type ReqInputs,
     type StringInputs,
     type IHttpRes,
     type WinterTcMiddleware,
     type WinterTcRequestHandler,
     type HttpHandlerArgs,
-    type HttpMiddlewareHandlerArgs,
+    type HttpMiddlewareArgs,
 } from "@/http-router/contracts/_module.js";
 import { HttpReq } from "@/http-router/implementations/http-req.js";
 import {
@@ -260,15 +257,14 @@ export class HttpRouter implements IHttpRouter {
         middlewareMatches: Array<MiddlewareMatch>,
     ): Promise<IHttpRes> {
         const endpoint = endpointMatch[0].endpoint;
-        const httpReq = HttpReq.fromWebReq<any, any, any, any, any, any>({
+        const httpReq = HttpReq.fromWebReq({
             request,
-            validation: endpoint.validation,
             _rawParams: rawParams,
         });
         const httpRes = new HttpRes();
         const context = new Context(new Map());
 
-        const handlerArgs: HttpHandlerArgs<HttpMethod, any> = {
+        const handlerArgs: HttpHandlerArgs = {
             req: httpReq,
             res: httpRes,
             context,
@@ -282,78 +278,23 @@ export class HttpRouter implements IHttpRouter {
             const middleware = middlewareEntry[0].middleware;
             const nextHandler = chain;
             chain = () => {
-                const middlewareHttpReq = HttpReq.fromWebReq<
-                    any,
-                    any,
-                    any,
-                    any,
-                    any,
-                    any
-                >({
-                    request,
-                    validation: middleware.validation,
-                    _rawParams: rawParams,
-                });
-                const middlewareArgs: HttpMiddlewareHandlerArgs<
-                    HttpMethod,
-                    any
-                > = {
+                const middlewareArgs: HttpMiddlewareArgs = {
                     ...handlerArgs,
-                    req: middlewareHttpReq,
+                    req: httpReq,
                     next: () => nextHandler(),
                 };
-                return callInvokable(middleware.handler, middlewareArgs);
+                return callInvokable(middleware, middlewareArgs);
             };
         }
 
         return await chain();
     }
 
-    use<
-        TReqMethod extends HttpMethod = HttpMethod,
-        TReqJson = unknown,
-        TReqFields extends ReqInputs = ReqInputs,
-        TReqParams extends ReqInputs = ReqInputs,
-        TReqSearchParams extends ReqInputs = ReqInputs,
-        TReqHeaders extends ReqInputs = ReqInputs,
-        TReqFiles extends FileInputs = FileInputs,
-        TCookieData extends StringInputs = StringInputs,
-    >(
-        middleware: HttpMiddleware<
-            TReqMethod,
-            TReqJson,
-            TReqFields,
-            TReqParams,
-            TReqSearchParams,
-            TReqHeaders,
-            TReqFiles,
-            TCookieData
-        >,
-    ): IHttpRouterBase {
+    use(middleware: HttpMiddleware): IHttpRouterBase {
         return this.httpRouterBase.use(middleware);
     }
 
-    endpoint<
-        TReqMethod extends HttpMethod = HttpMethod,
-        TReqJson = unknown,
-        TReqFields extends ReqInputs = ReqInputs,
-        TReqParams extends ReqInputs = ReqInputs,
-        TReqSearchParams extends ReqInputs = ReqInputs,
-        TReqHeaders extends ReqInputs = ReqInputs,
-        TReqFiles extends FileInputs = FileInputs,
-        TCookieData extends StringInputs = StringInputs,
-    >(
-        endpoint: IHttpEndpoint<
-            TReqMethod,
-            TReqJson,
-            TReqFields,
-            TReqParams,
-            TReqSearchParams,
-            TReqHeaders,
-            TReqFiles,
-            TCookieData
-        >,
-    ): IHttpRouterBase {
+    endpoint(endpoint: IHttpEndpoint): IHttpRouterBase {
         return this.httpRouterBase.endpoint(endpoint);
     }
 
