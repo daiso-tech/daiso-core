@@ -3,7 +3,7 @@
  */
 
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type IRateLimiterAdapter,
@@ -33,15 +33,16 @@ export type RateLimiterSerdeTransformerSettings = {
     serdeTransformerName: string;
     enableAsyncTracking: boolean;
     waitUntil: WaitUntil;
-    executionContext: IExecutionContext;
+    context: IReadableContext;
 };
 
 /**
  * @internal
  */
-export class RateLimiterSerdeTransformer
-    implements ISerdeTransformer<RateLimiter, ISerializedRateLimiter>
-{
+export class RateLimiterSerdeTransformer implements ISerdeTransformer<
+    RateLimiter,
+    ISerializedRateLimiter
+> {
     private readonly adapter: IRateLimiterAdapter;
     private readonly namespace: INamespace;
     private readonly errorPolicy: ErrorPolicy;
@@ -50,7 +51,7 @@ export class RateLimiterSerdeTransformer
     private readonly enableAsyncTracking: boolean;
     private readonly onlyError: boolean;
     private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
 
     constructor(settings: RateLimiterSerdeTransformerSettings) {
         const {
@@ -62,10 +63,10 @@ export class RateLimiterSerdeTransformer
             errorPolicy,
             onlyError,
             waitUntil,
-            executionContext,
+            context,
         } = settings;
 
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
         this.onlyError = onlyError;
         this.enableAsyncTracking = enableAsyncTracking;
@@ -116,7 +117,7 @@ export class RateLimiterSerdeTransformer
         const keyObj = this.namespace.create(key);
 
         return new RateLimiter({
-            executionContext: this.executionContext,
+            context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             eventDispatcher: this.eventBus,

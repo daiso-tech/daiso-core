@@ -101,9 +101,7 @@ export type SlidingWindowLimiterState = Partial<Record<number, number>>;
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/policies"`
  * @group Policies
  */
-export class SlidingWindowLimiter
-    implements IRateLimiterPolicy<SlidingWindowLimiterState>
-{
+export class SlidingWindowLimiter implements IRateLimiterPolicy<SlidingWindowLimiterState> {
     private readonly window: TimeSpan;
     private readonly margin: TimeSpan;
 

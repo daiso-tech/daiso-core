@@ -4,7 +4,7 @@
 
 import { type BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
 import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type IRateLimiterFactoryResolver,
@@ -82,9 +82,9 @@ export type DatabaseRateLimiterFactoryResolverSettings<
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
  * @group Derivables
  */
-export class DatabaseRateLimiterFactoryResolver<TAdapters extends string>
-    implements IRateLimiterFactoryResolver<TAdapters>
-{
+export class DatabaseRateLimiterFactoryResolver<
+    TAdapters extends string,
+> implements IRateLimiterFactoryResolver<TAdapters> {
     /**
      * @example
      * ```ts
@@ -183,11 +183,11 @@ export class DatabaseRateLimiterFactoryResolver<TAdapters extends string>
     }
 
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): DatabaseRateLimiterFactoryResolver<TAdapters> {
         return new DatabaseRateLimiterFactoryResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 

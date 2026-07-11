@@ -66,9 +66,9 @@ async function find<TType>(
 /**
  * @internal
  */
-class KyselyRateLimiterStorageAdapterTransaction<TType>
-    implements IRateLimiterStorageAdapterTransaction<TType>
-{
+class KyselyRateLimiterStorageAdapterTransaction<
+    TType,
+> implements IRateLimiterStorageAdapterTransaction<TType> {
     private readonly isMysql: boolean;
 
     constructor(
