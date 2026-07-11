@@ -3,7 +3,7 @@
  */
 
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type FileEventMap,
     type FileStorageAdapterVariants,
@@ -42,16 +42,17 @@ export type FileSerdeTransformerSettings = {
     serdeTransformerName: string;
     onlyLowercase: boolean;
     keyValidator: InvokableFn<[key: string], string | null>;
-    executionContext: IExecutionContext;
+    context: IReadableContext;
     use: Use;
 };
 
 /**
  * @internal
  */
-export class FileSerdeTransformer
-    implements ISerdeTransformer<File, ISerializedFile>
-{
+export class FileSerdeTransformer implements ISerdeTransformer<
+    File,
+    ISerializedFile
+> {
     private readonly waitUntil: WaitUntil;
     private readonly onlyLowercase: boolean;
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
@@ -65,7 +66,7 @@ export class FileSerdeTransformer
     private readonly defaultContentEncoding: string | null;
     private readonly defaultCacheControl: string | null;
     private readonly defaultContentLanguage: string | null;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
     private readonly use: Use;
     private readonly lockFactory: ILockFactoryBase;
 
@@ -85,13 +86,13 @@ export class FileSerdeTransformer
             defaultContentLanguage,
             originalAdapter,
             waitUntil,
-            executionContext,
+            context,
             use,
         } = settings;
 
         this.lockFactory = lockFactory;
         this.use = use;
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
@@ -148,7 +149,7 @@ export class FileSerdeTransformer
             originalKey: key,
             lockFactory: this.lockFactory,
             use: this.use,
-            executionContext: this.executionContext,
+            context: this.context,
             waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,

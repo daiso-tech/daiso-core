@@ -3,7 +3,7 @@
  */
 
 import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type IFileStorage,
     type ISignedFileStorageAdapter,
@@ -55,9 +55,9 @@ export type FileStorageResolverSettings<TAdapters extends string = string> =
  * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
  * @group Derivables
  */
-export class FileStorageResolver<TAdapters extends string = string>
-    implements IFileStorageResolver<TAdapters>
-{
+export class FileStorageResolver<
+    TAdapters extends string = string,
+> implements IFileStorageResolver<TAdapters> {
     /**
      * @example
      * ```ts
@@ -172,11 +172,11 @@ export class FileStorageResolver<TAdapters extends string = string>
     }
 
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): FileStorageResolver<TAdapters> {
         return new FileStorageResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 

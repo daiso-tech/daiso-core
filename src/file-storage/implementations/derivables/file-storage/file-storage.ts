@@ -13,7 +13,7 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type EventBus,
 } from "@/event-bus/implementations/derivables/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
@@ -206,7 +206,7 @@ export type FileStorageSettingsBase = {
     waitUntil?: WaitUntil;
 
     /**
-     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
+     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
@@ -215,7 +215,7 @@ export type FileStorageSettingsBase = {
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
      */
-    executionContext?: IExecutionContext;
+    context?: IReadableContext;
 
     /**
      * You can provide an {@link ILockFactoryBase | `ILockFactoryBase`}, an {@link ILockAdapter | `ILockAdapter`} or an {@link IDatabaseLockAdapter | `IDatabaseLockAdapter`} instance to handle locking when write methods are called.
@@ -266,7 +266,7 @@ export class FileStorage implements IFileStorage {
     private readonly onlyLowercase: boolean;
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
     private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
     private readonly use: Use;
     private readonly lockFactory: ILockFactoryBase;
 
@@ -302,15 +302,13 @@ export class FileStorage implements IFileStorage {
             defaultContentLanguage = null,
             urlAdapter = {},
             waitUntil = defaultWaitUntil,
-            executionContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            ),
+            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
             lockFactory = new NoOpLockAdapter(),
         } = settings;
 
         this.lockFactory = resolveLockFactoryInput(namespace, lockFactory);
-        this.use = useFactory({ executionContext });
-        this.executionContext = executionContext;
+        this.use = useFactory();
+        this.context = context;
         this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
@@ -332,7 +330,7 @@ export class FileStorage implements IFileStorage {
         const transformer = new FileSerdeTransformer({
             lockFactory: this.lockFactory,
             use: this.use,
-            executionContext: this.executionContext,
+            context: this.context,
             waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,
@@ -356,7 +354,7 @@ export class FileStorage implements IFileStorage {
         return new File({
             lockFactory: this.lockFactory,
             use: this.use,
-            executionContext: this.executionContext,
+            context: this.context,
             waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,
@@ -379,7 +377,7 @@ export class FileStorage implements IFileStorage {
         return this.use(
             async () => {
                 await this.adapter.removeByPrefix(
-                    this.executionContext,
+                    this.context,
                     this.namespace.toString(),
                 );
                 callInvokable(
@@ -397,7 +395,7 @@ export class FileStorage implements IFileStorage {
             const keys = filesArr.map((file) => {
                 return file.key.toString();
             });
-            return await this.adapter.removeMany(this.executionContext, keys);
+            return await this.adapter.removeMany(this.context, keys);
         }, [
             ...filesArr.map<MiddlewareFn<[], Promise<boolean>>>((file) => {
                 return async ({ next }) => {
