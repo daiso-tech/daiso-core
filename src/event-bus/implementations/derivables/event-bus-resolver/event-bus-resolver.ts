@@ -13,7 +13,7 @@ import {
     type EventBusSettingsBase,
     type EventMapSchema,
 } from "@/event-bus/implementations/derivables/event-bus/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
@@ -59,8 +59,7 @@ export type EventBusResolverSettings<
 export class EventBusResolver<
     TAdapters extends string = string,
     TEventMap extends BaseEventMap = BaseEventMap,
-> implements IEventBusResolver<TAdapters, TEventMap>
-{
+> implements IEventBusResolver<TAdapters, TEventMap> {
     /**
      * @example
      * ```ts
@@ -124,11 +123,11 @@ export class EventBusResolver<
     }
 
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): EventBusResolver<TAdapters, TEventMap> {
         return new EventBusResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 

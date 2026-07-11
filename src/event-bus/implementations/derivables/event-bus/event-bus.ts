@@ -15,7 +15,7 @@ import {
     type InferEvent,
 } from "@/event-bus/contracts/_module.js";
 import { ListenerStore } from "@/event-bus/implementations/derivables/event-bus/listener-store.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
@@ -71,7 +71,7 @@ export type EventBusSettingsBase<
     namespace?: INamespace;
 
     /**
-     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
+     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
@@ -80,7 +80,7 @@ export type EventBusSettingsBase<
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
      */
-    executionContext?: IExecutionContext;
+    context?: IReadableContext;
 };
 
 /**
@@ -110,15 +110,15 @@ export type EventBusSettings<TEventMap extends BaseEventMap = BaseEventMap> =
  * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
  * @group Derivables
  */
-export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
-    implements IEventBus<TEventMap>
-{
+export class EventBus<
+    TEventMap extends BaseEventMap = BaseEventMap,
+> implements IEventBus<TEventMap> {
     private readonly shouldValidateOutput: boolean;
     private readonly store = new ListenerStore();
     private readonly adapter: IEventBusAdapter;
     private readonly namespace: INamespace;
     private readonly eventMapSchema: EventMapSchema<TEventMap> | undefined;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
 
     /**
      * Thist instance variable is only used for testing!
@@ -147,12 +147,10 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
             eventMapSchema,
             namespace = new NoOpNamespace(),
             adapter,
-            executionContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            ),
+            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.executionContext = executionContext;
+        this.context = context;
         this.shouldValidateOutput = shouldValidateOutput;
         this.eventMapSchema = eventMapSchema;
         this.adapter = adapter;
@@ -197,7 +195,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         );
         try {
             await this.adapter.addListener(
-                this.executionContext,
+                this.context,
                 key.toString(),
                 resolvedListener as EventListenerFn<BaseEvent>,
             );
@@ -230,7 +228,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         }
         try {
             await this.adapter.removeListener(
-                this.executionContext,
+                this.context,
                 key.toString(),
                 resolvedListener as EventListenerFn<BaseEvent>,
             );
@@ -283,7 +281,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         );
         try {
             await this.adapter.addListener(
-                this.executionContext,
+                this.context,
                 key.toString(),
                 resolvedListener as EventListenerFn<BaseEvent>,
             );
@@ -349,7 +347,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
             event = await validate(this.eventMapSchema[eventName], event);
         }
         await this.adapter.dispatch(
-            this.executionContext,
+            this.context,
             this.namespace.create(String(eventName)).toString(),
             event,
         );
