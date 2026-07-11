@@ -8,9 +8,9 @@ import { type AsyncIterableValue } from "@/utilities/_module.js";
 /**
  * @internal
  */
-export class AsyncPadStartIterable<TInput, TExtended>
-    implements AsyncIterable<TInput | TExtended>
-{
+export class AsyncPadStartIterable<TInput, TExtended> implements AsyncIterable<
+    TInput | TExtended
+> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private maxLength: number,

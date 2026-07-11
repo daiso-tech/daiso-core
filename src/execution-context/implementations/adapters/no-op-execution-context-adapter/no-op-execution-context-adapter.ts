@@ -17,9 +17,9 @@ import { callInvokable, type InvokableFn } from "@/utilities/_module.js";
  * Use this adapter when you want to disable context functionality or in environments
  * where context propagation is not necessary.
  */
-export class NoOpExecutionContextAdapter<TValue>
-    implements IExecutionContextAdapter<TValue>
-{
+export class NoOpExecutionContextAdapter<
+    TValue,
+> implements IExecutionContextAdapter<TValue> {
     get(): TValue | null {
         return null;
     }

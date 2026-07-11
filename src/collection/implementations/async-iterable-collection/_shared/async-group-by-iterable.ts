@@ -14,9 +14,10 @@ import {
 /**
  * @internal
  */
-export class AsyncGroupByIterable<TInput, TOutput = TInput>
-    implements AsyncIterable<[TOutput, IAsyncCollection<TInput>]>
-{
+export class AsyncGroupByIterable<
+    TInput,
+    TOutput = TInput,
+> implements AsyncIterable<[TOutput, IAsyncCollection<TInput>]> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private selectFn: AsyncMap<

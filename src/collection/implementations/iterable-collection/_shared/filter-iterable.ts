@@ -11,9 +11,10 @@ import { resolveInvokable } from "@/utilities/_module.js";
 /**
  * @internal
  */
-export class FilterIterable<TInput, TOutput extends TInput>
-    implements Iterable<TOutput>
-{
+export class FilterIterable<
+    TInput,
+    TOutput extends TInput,
+> implements Iterable<TOutput> {
     constructor(
         private collection: ICollection<TInput>,
         private predicateFn: PredicateInvokable<

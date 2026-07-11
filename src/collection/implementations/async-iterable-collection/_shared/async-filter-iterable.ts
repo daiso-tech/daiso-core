@@ -11,9 +11,10 @@ import { resolveInvokable } from "@/utilities/_module.js";
 /**
  * @internal
  */
-export class AsyncFilterIterable<TInput, TOutput extends TInput>
-    implements AsyncIterable<TOutput>
-{
+export class AsyncFilterIterable<
+    TInput,
+    TOutput extends TInput,
+> implements AsyncIterable<TOutput> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private predicateFn: AsyncPredicate<

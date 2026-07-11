@@ -16,9 +16,9 @@ import {
 /**
  * @internal
  */
-export class AsyncCrossJoinIterable<TInput, TExtended>
-    implements AsyncIterable<CrossJoinResult<TInput, TExtended>>
-{
+export class AsyncCrossJoinIterable<TInput, TExtended> implements AsyncIterable<
+    CrossJoinResult<TInput, TExtended>
+> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private iterable: AsyncIterableValue<TExtended>,

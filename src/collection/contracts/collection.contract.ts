@@ -70,8 +70,7 @@ export type SerializedCollection<TInput = unknown> = {
  * @group Contracts
  */
 export interface ICollection<TInput = unknown>
-    extends Iterable<TInput>,
-        ISerializable<SerializedCollection<TInput>> {
+    extends Iterable<TInput>, ISerializable<SerializedCollection<TInput>> {
     /**
      * The `toIterator` method converts the collection to a new iterator.
      */

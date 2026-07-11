@@ -11,9 +11,9 @@ import { resolveInvokable } from "@/utilities/_module.js";
 /**
  * @internal
  */
-export class WhenIterable<TInput, TExtended>
-    implements Iterable<TInput | TExtended>
-{
+export class WhenIterable<TInput, TExtended> implements Iterable<
+    TInput | TExtended
+> {
     constructor(
         private collection: ICollection<TInput>,
         private condition: () => boolean,

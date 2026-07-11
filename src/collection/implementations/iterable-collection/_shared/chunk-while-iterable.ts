@@ -11,9 +11,9 @@ import { resolveInvokable } from "@/utilities/_module.js";
 /**
  * @internal
  */
-export class ChunkWhileIterable<TInput>
-    implements Iterable<ICollection<TInput>>
-{
+export class ChunkWhileIterable<TInput> implements Iterable<
+    ICollection<TInput>
+> {
     constructor(
         private collection: ICollection<TInput>,
         private predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,

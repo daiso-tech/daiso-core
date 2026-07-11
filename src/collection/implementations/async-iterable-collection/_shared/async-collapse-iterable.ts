@@ -11,9 +11,9 @@ import { isAsyncIterable, isIterable } from "@/utilities/_module.js";
 /**
  * @internal
  */
-export class AsyncCollapseIterable<TInput>
-    implements AsyncIterable<AsyncCollapse<TInput>>
-{
+export class AsyncCollapseIterable<TInput> implements AsyncIterable<
+    AsyncCollapse<TInput>
+> {
     constructor(private collection: IAsyncCollection<TInput>) {}
 
     async *[Symbol.asyncIterator](): AsyncIterator<AsyncCollapse<TInput>> {

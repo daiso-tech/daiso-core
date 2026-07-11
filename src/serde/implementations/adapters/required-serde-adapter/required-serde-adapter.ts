@@ -12,9 +12,9 @@ import {
  * IMPORT_PATH: `"@daiso-tech/core/serde/no-op-serde-adapter"`
  * @group Adapters
  */
-export class RequiredSerdeAdapter<TSerializedValue>
-    implements IFlexibleSerdeAdapter<TSerializedValue>
-{
+export class RequiredSerdeAdapter<
+    TSerializedValue,
+> implements IFlexibleSerdeAdapter<TSerializedValue> {
     private static getErrorMessage(methodName: string): string {
         return (
             `[RequiredSerdeAdapter]: The method '${methodName}' was called, but no valid IFlexibleSerdeAdapter was provided. ` +
