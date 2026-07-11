@@ -2,7 +2,6 @@
  * @module Resilience
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import {
     type Invokable,
@@ -25,7 +24,6 @@ export type OnFallbackData<
     error: unknown;
     fallbackValue: TFallbackValue;
     args: TParameters;
-    context: IReadableContext;
 };
 
 /**
@@ -78,7 +76,7 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
     settings: NoInfer<FallbackSettings<TParameters, TReturn>>,
 ): MiddlewareFn<TParameters, Promise<TReturn>> {
     const { fallbackValue, errorPolicy, onFallback = () => {} } = settings;
-    return async ({ args, next, context }) => {
+    return async ({ args, next }) => {
         try {
             const value = await next();
 
@@ -95,7 +93,6 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
                             error: value,
                             fallbackValue: resolvedFallbackValue,
                             args,
-                            context,
                         });
                     } catch (error: unknown) {
                         console.error(
@@ -123,7 +120,6 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
                             error,
                             fallbackValue: resolvedFallbackValue as TReturn,
                             args,
-                            context,
                         });
                     } catch (error_: unknown) {
                         console.error(

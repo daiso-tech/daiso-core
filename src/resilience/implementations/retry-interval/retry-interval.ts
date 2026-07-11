@@ -2,7 +2,6 @@
  * @module Resilience
  */
 
-import { type IContext } from "@/execution-context/contracts/execution-context.contract.js";
 import {
     type MiddlewareFn,
     type NextFn,
@@ -52,7 +51,6 @@ type HandleWhenReturnSettings<TParameters extends Array<unknown>, TReturn> = {
     onExecutionAttempt: OnExecutionAttempt<TParameters>;
     attempt: number;
     args: TParameters;
-    context: IContext;
     next: NextFn<TParameters, TReturn>;
     errorPolicy: ErrorPolicy | undefined;
     intervalAsTimeSpan: TimeSpan;
@@ -82,7 +80,6 @@ async function handleWhenReturn<TParameters extends Array<unknown>, TReturn>(
         onExecutionAttempt,
         attempt,
         args,
-        context,
         next,
         errorPolicy,
         intervalAsTimeSpan,
@@ -95,7 +92,6 @@ async function handleWhenReturn<TParameters extends Array<unknown>, TReturn>(
         onExecutionAttempt,
         attempt,
         args,
-        context,
     });
 
     const value = await next();
@@ -115,7 +111,6 @@ async function handleWhenReturn<TParameters extends Array<unknown>, TReturn>(
         waitTime: intervalAsTimeSpan,
         attempt,
         args,
-        context,
     });
 
     const remainingAfterValue = endDate.getTime() - Date.now();
@@ -141,7 +136,6 @@ type HandleWhenThrowSettings<TParameters extends Array<unknown>> = {
     intervalAsTimeSpan: TimeSpan;
     attempt: number;
     args: TParameters;
-    context: IContext;
     endDate: Date;
 };
 
@@ -159,7 +153,6 @@ async function handleWhenThrow<TParameters extends Array<unknown>>(
         intervalAsTimeSpan,
         attempt,
         args,
-        context,
         endDate,
     } = settings;
 
@@ -175,7 +168,6 @@ async function handleWhenThrow<TParameters extends Array<unknown>>(
         waitTime: intervalAsTimeSpan,
         attempt,
         args,
-        context,
     });
 
     const remainingAfterValue = endDate.getTime() - Date.now();
@@ -244,7 +236,7 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
     const timeAsTimeSpan = TimeSpan.fromTimeSpan(time);
     const intervalAsTimeSpan = TimeSpan.fromTimeSpan(interval);
 
-    return async ({ args, context, next }) => {
+    return async ({ args, next }) => {
         const endDate = timeAsTimeSpan.toEndDate();
         const allErrors: Array<unknown> = [];
         let attempt = 1;
@@ -254,7 +246,6 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                     onExecutionAttempt,
                     attempt,
                     args,
-                    context,
                     next,
                     errorPolicy,
                     intervalAsTimeSpan,
@@ -278,7 +269,6 @@ export function retryInterval<TParameters extends Array<unknown>, TReturn>(
                         intervalAsTimeSpan,
                         attempt,
                         args,
-                        context,
                         endDate,
                     })
                 ) {

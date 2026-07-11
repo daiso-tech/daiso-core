@@ -2,7 +2,6 @@
  * @module Resilience
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { TimeoutResilienceError } from "@/resilience/implementations/resilience.errors.js";
 import {
@@ -20,7 +19,6 @@ export type OnTimeoutData<TParameters extends Array<unknown> = Array<unknown>> =
     {
         waitTime: TimeSpan;
         args: TParameters;
-        context: IReadableContext;
     };
 
 /**
@@ -78,7 +76,7 @@ export function timeout<TParameters extends Array<unknown>, TReturn>(
 ): MiddlewareFn<TParameters, Promise<TReturn>> {
     const { waitTime = TimeSpan.fromSeconds(2), onTimeout = () => {} } =
         settings;
-    return async ({ args, next, context }) => {
+    return async ({ args, next }) => {
         const timeoutError = TimeoutResilienceError.create(
             TimeSpan.fromTimeSpan(waitTime),
         );
@@ -104,7 +102,6 @@ export function timeout<TParameters extends Array<unknown>, TReturn>(
                 try {
                     await callInvokable(onTimeout, {
                         args,
-                        context,
                         waitTime: TimeSpan.fromTimeSpan(waitTime),
                     });
                 } catch {
