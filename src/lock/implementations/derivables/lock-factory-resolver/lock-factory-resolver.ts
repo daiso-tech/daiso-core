@@ -2,7 +2,7 @@
  * @module Lock
  */
 import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type ILockFactoryResolver,
     type ILockFactory,
@@ -55,9 +55,9 @@ export type LockFactoryResolverSettings<TAdapters extends string> =
  * IMPORT_PATH: `"@daiso-tech/core/lock"`
  * @group Derivables
  */
-export class LockFactoryResolver<TAdapters extends string>
-    implements ILockFactoryResolver<TAdapters>
-{
+export class LockFactoryResolver<
+    TAdapters extends string,
+> implements ILockFactoryResolver<TAdapters> {
     /**
      * @example
      * ```ts
@@ -128,11 +128,11 @@ export class LockFactoryResolver<TAdapters extends string>
     }
 
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): LockFactoryResolver<TAdapters> {
         return new LockFactoryResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 

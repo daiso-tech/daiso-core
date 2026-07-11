@@ -3,7 +3,7 @@
  */
 
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type ILockAdapter,
     type LockAdapterVariants,
@@ -34,16 +34,17 @@ export type LockSerdeTransformerSettings = {
     eventBus: IEventBus<LockEventMap>;
     serdeTransformerName: string;
     waitUntil: WaitUntil;
-    executionContext: IExecutionContext;
+    context: IReadableContext;
     use: Use;
 };
 
 /**
  * @internal
  */
-export class LockSerdeTransformer
-    implements ISerdeTransformer<Lock, ISerializedLock>
-{
+export class LockSerdeTransformer implements ISerdeTransformer<
+    Lock,
+    ISerializedLock
+> {
     private readonly adapter: ILockAdapter;
     private readonly originalAdapter: LockAdapterVariants;
     private readonly namespace: INamespace;
@@ -51,7 +52,7 @@ export class LockSerdeTransformer
     private readonly eventBus: IEventBus<LockEventMap>;
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
     private readonly use: Use;
 
     constructor(settings: LockSerdeTransformerSettings) {
@@ -63,12 +64,12 @@ export class LockSerdeTransformer
             eventBus,
             serdeTransformerName,
             waitUntil,
-            executionContext,
+            context,
             use,
         } = settings;
 
         this.use = use;
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
@@ -117,7 +118,7 @@ export class LockSerdeTransformer
 
         return new Lock({
             use: this.use,
-            executionContext: this.executionContext,
+            context: this.context,
             waitUntil: this.waitUntil,
             namespace: this.namespace,
             adapter: this.adapter,
