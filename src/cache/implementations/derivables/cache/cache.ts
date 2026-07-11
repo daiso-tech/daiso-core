@@ -31,7 +31,7 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type EventBus,
 } from "@/event-bus/implementations/derivables/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
@@ -129,7 +129,7 @@ export type CacheSettingsBase<TType = unknown> = {
     waitUntil?: WaitUntil;
 
     /**
-     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
+     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
@@ -138,7 +138,7 @@ export type CacheSettingsBase<TType = unknown> = {
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
      */
-    executionContext?: IExecutionContext;
+    context?: IReadableContext;
 
     /**
      * You can provide an {@link ILockFactoryBase | `ILockFactoryBase`}, an {@link ILockAdapter | `ILockAdapter`} or an {@link IDatabaseLockAdapter | `IDatabaseLockAdapter`} instance to handle locking when {@link GetOrAddSettings | `GetOrAddSettings.enableLocking`} is set to true during a `getOrAdd` call.
@@ -180,7 +180,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     private readonly shouldValidateOutput: boolean;
     private readonly defaultJitter: number | null;
     private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
     private readonly lockFactory: ILockFactoryBase;
 
     /**
@@ -222,14 +222,12 @@ export class Cache<TType = unknown> implements ICache<TType> {
             defaultTtl = null,
             defaultJitter = 0.2,
             waitUntil = defaultWaitUntil,
-            executionContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            ),
+            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
             lockFactory = new NoOpLockAdapter(),
         } = settings;
 
         this.lockFactory = resolveLockFactoryInput(namespace, lockFactory);
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
         this.shouldValidateOutput = shouldValidateOutput;
         this.schema = schema;
@@ -258,10 +256,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     async get(key: string): Promise<TType | null> {
         const keyObj = this.namespace.create(key);
         try {
-            let value = await this.adapter.get(
-                this.executionContext,
-                keyObj.toString(),
-            );
+            let value = await this.adapter.get(this.context, keyObj.toString());
             if (
                 this.shouldValidateOutput &&
                 this.schema !== undefined &&
@@ -313,7 +308,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         const keyObj = this.namespace.create(key);
         try {
             let value = await this.adapter.getAndRemove(
-                this.executionContext,
+                this.context,
                 keyObj.toString(),
             );
             if (
@@ -373,10 +368,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     ): Promise<TType> {
         const ttl = this.resolveCacheWriteSettings(settings);
         const keyObj = this.namespace.create(key);
-        let value = await this.adapter.get(
-            this.executionContext,
-            keyObj.toString(),
-        );
+        let value = await this.adapter.get(this.context, keyObj.toString());
         if (
             this.shouldValidateOutput &&
             this.schema !== undefined &&
@@ -393,7 +385,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
                 )) as NoneFunc<TType>;
             }
             const hasAdded = await this.adapter.add(
-                this.executionContext,
+                this.context,
                 keyObj.toString(),
                 resolvedValueToAdd,
                 ttl,
@@ -475,7 +467,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
                 value = await validate(this.schema, value);
             }
             const hasAdded = await this.adapter.add(
-                this.executionContext,
+                this.context,
                 keyObj.toString(),
                 value,
                 ttl,
@@ -535,7 +527,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
                 value = await validate(this.schema, value);
             }
             const hasUpdated = await this.adapter.put(
-                this.executionContext,
+                this.context,
                 keyObj.toString(),
                 value,
                 ttl,
@@ -580,7 +572,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
                 value = await validate(this.schema, value);
             }
             const hasUpdated = await this.adapter.update(
-                this.executionContext,
+                this.context,
                 keyObj.toString(),
                 value,
             );
@@ -629,7 +621,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         const keyObj = this.namespace.create(key);
         try {
             const hasUpdated = await this.adapter.increment(
-                this.executionContext,
+                this.context,
                 keyObj.toString(),
                 value,
             );
@@ -707,10 +699,9 @@ export class Cache<TType = unknown> implements ICache<TType> {
     async remove(key: string): Promise<boolean> {
         const keyObj = this.namespace.create(key);
         try {
-            const hasRemoved = await this.adapter.removeMany(
-                this.executionContext,
-                [keyObj.toString()],
-            );
+            const hasRemoved = await this.adapter.removeMany(this.context, [
+                keyObj.toString(),
+            ]);
             if (hasRemoved) {
                 callInvokable(
                     this.waitUntil,
@@ -760,7 +751,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         const keyObjArr = keysArr.map((key) => this.namespace.create(key));
         try {
             const hasRemovedAtLeastOne = await this.adapter.removeMany(
-                this.executionContext,
+                this.context,
                 keyObjArr.map((keyObj) => keyObj.toString()),
             );
             if (hasRemovedAtLeastOne) {
@@ -817,7 +808,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     async clear(): Promise<void> {
         try {
             await this.adapter.removeByKeyPrefix(
-                this.executionContext,
+                this.context,
                 this.namespace.toString(),
             );
             callInvokable(

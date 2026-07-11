@@ -14,7 +14,7 @@ import {
     type CacheSettingsBase,
 } from "@/cache/implementations/derivables/cache/_module.js";
 import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type LockFactoryInput } from "@/lock/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -60,9 +60,10 @@ export type CacheResolverSettings<
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */
-export class CacheResolver<TAdapters extends string = string, TType = unknown>
-    implements ICacheResolver<TAdapters, TType>
-{
+export class CacheResolver<
+    TAdapters extends string = string,
+    TType = unknown,
+> implements ICacheResolver<TAdapters, TType> {
     /**
      * @example
      * ```ts
@@ -141,11 +142,11 @@ export class CacheResolver<TAdapters extends string = string, TType = unknown>
     }
 
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): CacheResolver<TAdapters, TType> {
         return new CacheResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 

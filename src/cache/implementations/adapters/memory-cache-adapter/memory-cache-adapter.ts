@@ -16,9 +16,9 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  * IMPORT_PATH: `"@daiso-tech/core/cache/memory-cache-adapter"`
  * @group Adapters
  */
-export class MemoryCacheAdapter<TType = unknown>
-    implements ICacheAdapter<TType>
-{
+export class MemoryCacheAdapter<
+    TType = unknown,
+> implements ICacheAdapter<TType> {
     private readonly timeoutMap = new Map<
         string,
         NodeJS.Timeout | string | number
