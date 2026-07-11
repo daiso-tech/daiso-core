@@ -2,7 +2,7 @@
  * @module Semaphore
  */
 import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type ISemaphoreFactoryResolver,
@@ -54,9 +54,9 @@ export type SemaphoreFactoryResolverSettings<TAdapters extends string> =
  * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
  * @group Derivables
  */
-export class SemaphoreFactoryResolver<TAdapters extends string>
-    implements ISemaphoreFactoryResolver<TAdapters>
-{
+export class SemaphoreFactoryResolver<
+    TAdapters extends string,
+> implements ISemaphoreFactoryResolver<TAdapters> {
     /**
      * @example
      * ```ts
@@ -120,11 +120,11 @@ export class SemaphoreFactoryResolver<TAdapters extends string>
     }
 
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): SemaphoreFactoryResolver<TAdapters> {
         return new SemaphoreFactoryResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 
