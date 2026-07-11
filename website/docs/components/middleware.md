@@ -21,12 +21,9 @@ To begin using middleware, create a middleware application function using the fa
 
 ```ts
 import { useFactory } from "@daiso-tech/core/middleware";
-import { ExecutionContext } from "@daiso-tech/core/execution-context";
-import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter";
 
 // Create a middleware function with a specific execution context
 const use = useFactory({
-    executionContext: new ExecutionContext(new AlsExecutionContextAdapter()),
     defaultPriority: 0,
 });
 ```
@@ -44,12 +41,6 @@ Configure the middleware factory with custom settings:
 ```ts
 type UseFactorySettings = {
     /**
-     * The execution context to use for all middleware invocations.
-     * Defaults to a new ExecutionContext with NoOpExecutionContextAdapter
-     */
-    executionContext?: IExecutionContext;
-
-    /**
      * Default priority for middleware without an explicit priority.
      * Defaults to 0
      */
@@ -57,7 +48,6 @@ type UseFactorySettings = {
 };
 
 const use = useFactory({
-    executionContext: customContext,
     defaultPriority: 50,
 });
 ```
