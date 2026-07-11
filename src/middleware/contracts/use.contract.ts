@@ -2,7 +2,6 @@
  * @module Middleware
  */
 
-import { type IContext } from "@/execution-context/contracts/_module.js";
 import {
     type InvokableFn,
     type IInvokableObject,
@@ -40,15 +39,14 @@ export type NextFn<
 /**
  * Arguments passed to middleware functions during execution.
  *
- * Contains the original function arguments, a reference to the next middleware in the chain,
- * and the execution context for accessing and modifying state.
+ * Contains the original function arguments, a reference to the next middleware in the chain.
  *
  * @typeParam TParameters - Type of arguments passed to the function
  * @typeParam TReturn - Type of value returned from the function
  *
  * @example
  * ```ts
- * const loggingMiddleware: MiddlewareFn = ({ args, next, context }) => {
+ * const loggingMiddleware: MiddlewareFn = ({ args, next }) => {
  *   console.log('Before:', args);
  *   const result = next(args);
  *   console.log('After:', result);
@@ -71,8 +69,6 @@ export type MiddlewareArgs<
     args: TParameters;
     /** Function to call the next middleware or final function */
     next: NextFn<TParameters, TReturn>;
-    /** Execution context for state management */
-    context: IContext;
 };
 
 /**
@@ -119,25 +115,6 @@ export type IMiddlewareObject<
  * @typeParam TParameters - Type of arguments passed to the function
  * @typeParam TReturn - Type of value returned from the function
  *
- * @example
- * ```ts
- * const cacheToken = contextToken<Map<string, unknown>>("cache");
- *
- * const cacheMiddleware: MiddlewareFn = async ({ args, next, context }) => {
- *   const cacheKey = JSON.stringify(args);
- *   const cache = context.getOr(cacheToken, () => new Map());
- *   if (cache.has(cacheKey)) return cache.get(cacheKey);
- *
- *   const result = await next(args);
- *   cache.set(cacheKey, result);
- *   context.put(cacheToken, cache);
- *   return result;
- * };
- * ```
- *
- * @see {@link IMiddlewareObject | `IMiddlewareObject`}
- * @see {@link Middleware | `Middleware`}
- *
  * IMPORT_PATH: `@daiso-tech/core/middleware`
  * @group Contracts
  */
@@ -150,7 +127,7 @@ export type MiddlewareFn<
  * A middleware in the execution chain.
  *
  * Can be either a function or an object implementation. Both forms have access to
- * the original arguments, the next middleware function, and the execution context.
+ * the original arguments, the next middleware function.
  *
  * Middlewares are executed in order of priority (lower priority first), and each
  * middleware can:
@@ -159,7 +136,6 @@ export type MiddlewareFn<
  * - Cache results
  * - Handle errors
  * - Modify return values
- * - Access and manipulate execution context
  *
  * @typeParam TParameters - Type of arguments passed to the function
  * @typeParam TReturn - Type of value returned from the function
@@ -183,7 +159,7 @@ export type Middleware<
  *
  * Wraps the provided invokable with the specified middlewares, creating a new function
  * that executes all middlewares in priority order before delegating to the original
- * invokable. The execution happens within the provided execution context.
+ * invokable.
  *
  * @typeParam TParameters - Type of arguments passed to the invokable
  * @typeParam TReturn - Type of value returned from the invokable
