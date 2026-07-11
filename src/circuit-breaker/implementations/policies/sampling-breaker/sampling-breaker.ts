@@ -199,9 +199,7 @@ type ProccesedMetricData = {
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
  * @group Policies
  */
-export class SamplingBreaker
-    implements ICircuitBreakerPolicy<SamplingBreakerState>
-{
+export class SamplingBreaker implements ICircuitBreakerPolicy<SamplingBreakerState> {
     private readonly failureThreshold: number;
     private readonly successThreshold: number;
     private readonly timeSpan: TimeSpan;

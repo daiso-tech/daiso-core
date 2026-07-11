@@ -1422,9 +1422,7 @@ describe("class: CircuitBreakerFactory", () => {
             expect(handler).toHaveBeenCalledOnce();
         });
         test("Should differentiate between different adapters that have same namespace", async () => {
-            class WrapperCircuitBreakerAdapter
-                implements ICircuitBreakerAdapter
-            {
+            class WrapperCircuitBreakerAdapter implements ICircuitBreakerAdapter {
                 constructor(
                     private readonly adapter_: ICircuitBreakerAdapter,
                 ) {}

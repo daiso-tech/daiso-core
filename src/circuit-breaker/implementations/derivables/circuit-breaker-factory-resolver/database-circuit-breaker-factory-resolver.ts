@@ -16,7 +16,7 @@ import {
     type CircuitBreakerFactorySettingsBase,
 } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/_module.js";
 import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
@@ -84,9 +84,9 @@ export type DatabaseCircuitBreakerFactoryResolverSettings<
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
-export class DatabaseCircuitBreakerFactoryResolver<TAdapters extends string>
-    implements ICircuitBreakerFactoryResolver<TAdapters>
-{
+export class DatabaseCircuitBreakerFactoryResolver<
+    TAdapters extends string,
+> implements ICircuitBreakerFactoryResolver<TAdapters> {
     /**
      * @example
      * ```ts
@@ -194,11 +194,11 @@ export class DatabaseCircuitBreakerFactoryResolver<TAdapters extends string>
     }
 
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): DatabaseCircuitBreakerFactoryResolver<TAdapters> {
         return new DatabaseCircuitBreakerFactoryResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 

@@ -15,7 +15,7 @@ import {
     CIRCUIT_BREAKER_EVENTS,
 } from "@/circuit-breaker/contracts/_module.js";
 import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
@@ -42,7 +42,7 @@ export type CircuitBreakerSettings = {
     serdeTransformerName: string;
     namespace: INamespace;
     waitUntil: WaitUntil;
-    executionContext: IExecutionContext;
+    context: IReadableContext;
 };
 
 /**
@@ -79,7 +79,7 @@ export class CircuitBreaker implements ICircuitBreaker {
     private readonly serdeTransformerName: string;
     private readonly namespace: INamespace;
     private readonly enableAsyncTracking: boolean;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
 
     constructor(settings: CircuitBreakerSettings) {
         const {
@@ -93,10 +93,10 @@ export class CircuitBreaker implements ICircuitBreaker {
             serdeTransformerName,
             namespace,
             waitUntil,
-            executionContext,
+            context,
         } = settings;
 
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
         this.enableAsyncTracking = enableAsyncTracking;
         this.eventDispatcher = eventDispatcher;
@@ -126,44 +126,29 @@ export class CircuitBreaker implements ICircuitBreaker {
     }
 
     async getState(): Promise<CircuitBreakerState> {
-        return this.adapter.getState(
-            this.executionContext,
-            this._key.toString(),
-        );
+        return this.adapter.getState(this.context, this._key.toString());
     }
 
     private async trackFailure(): Promise<void> {
         if (this.enableAsyncTracking) {
             callInvokable(
                 this.waitUntil,
-                this.adapter.trackFailure(
-                    this.executionContext,
-                    this._key.toString(),
-                ),
+                this.adapter.trackFailure(this.context, this._key.toString()),
             );
             return;
         }
-        await this.adapter.trackFailure(
-            this.executionContext,
-            this._key.toString(),
-        );
+        await this.adapter.trackFailure(this.context, this._key.toString());
     }
 
     private async trackSuccess(): Promise<void> {
         if (this.enableAsyncTracking) {
             callInvokable(
                 this.waitUntil,
-                this.adapter.trackSuccess(
-                    this.executionContext,
-                    this._key.toString(),
-                ),
+                this.adapter.trackSuccess(this.context, this._key.toString()),
             );
             return;
         }
-        await this.adapter.trackSuccess(
-            this.executionContext,
-            this._key.toString(),
-        );
+        await this.adapter.trackSuccess(this.context, this._key.toString());
     }
 
     private async trackErrorWrapper<TValue = void>(
@@ -270,7 +255,7 @@ export class CircuitBreaker implements ICircuitBreaker {
 
     private async guard(): Promise<void> {
         const transition = await this.adapter.updateState(
-            this.executionContext,
+            this.context,
             this._key.toString(),
         );
         const hasStateChaned = transition.to !== transition.from;
@@ -312,7 +297,7 @@ export class CircuitBreaker implements ICircuitBreaker {
     }
 
     async reset(): Promise<void> {
-        await this.adapter.reset(this.executionContext, this._key.toString());
+        await this.adapter.reset(this.context, this._key.toString());
         callInvokable(
             this.waitUntil,
             this.eventDispatcher.dispatch(CIRCUIT_BREAKER_EVENTS.RESETED, {
@@ -322,7 +307,7 @@ export class CircuitBreaker implements ICircuitBreaker {
     }
 
     async isolate(): Promise<void> {
-        await this.adapter.isolate(this.executionContext, this._key.toString());
+        await this.adapter.isolate(this.context, this._key.toString());
         callInvokable(
             this.waitUntil,
             this.eventDispatcher.dispatch(CIRCUIT_BREAKER_EVENTS.ISOLATED, {
