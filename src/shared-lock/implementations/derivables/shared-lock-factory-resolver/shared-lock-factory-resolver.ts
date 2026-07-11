@@ -2,7 +2,7 @@
  * @module SharedLock
  */
 import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type ISharedLockFactoryResolver,
@@ -55,9 +55,9 @@ export type SharedLockFactoryResolverSettings<TAdapters extends string> =
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
  * @group Derivables
  */
-export class SharedLockFactoryResolver<TAdapters extends string>
-    implements ISharedLockFactoryResolver<TAdapters>
-{
+export class SharedLockFactoryResolver<
+    TAdapters extends string,
+> implements ISharedLockFactoryResolver<TAdapters> {
     /**
      * @example
      * ```ts
@@ -130,11 +130,11 @@ export class SharedLockFactoryResolver<TAdapters extends string>
     }
 
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): SharedLockFactoryResolver<TAdapters> {
         return new SharedLockFactoryResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 
