@@ -37,13 +37,13 @@ export type GenericToken<TRegisteredType = unknown> = {
     /**
      * Unique identifier for this token, used internally as the storage key.
      */
-    id: symbol;
+    readonly id: symbol;
 
     /**
      * Phantom type that is only used for type inference.
      * This property is never actually set at runtime and exists only to help TypeScript infer types.
      */
-    _type: TRegisteredType | null;
+    readonly _type: TRegisteredType | null;
 };
 
 /**
@@ -96,7 +96,7 @@ export type DiToken<TRegisteredType = unknown> =
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-export type FactoryRegisterCallback<
+export type ServiceFactory<
     TDeps extends Array<unknown> = Array<unknown>,
     TRegisteredType = unknown,
 > = Invokable<
@@ -134,7 +134,7 @@ export type FactoryRegistration<
     token: DiToken<TRegisteredType>;
 
     /** The factory function that creates the service instance. */
-    factory: FactoryRegisterCallback<TDeps, TRegisteredType>;
+    factory: ServiceFactory<TDeps, TRegisteredType>;
 
     /** The dependency tokens to resolve and inject into the factory. */
     deps: DepsTokens<TDeps>;
@@ -155,7 +155,7 @@ export type ClassRegistration<
     TRegisteredType = unknown,
 > = {
     /** The class constructor to instantiate. */
-    class_: Class<TDeps, TRegisteredType>;
+    impl: Class<TDeps, TRegisteredType>;
 
     /** The dependency tokens to resolve and inject into the constructor. */
     deps: DepsTokens<TDeps>;
@@ -204,6 +204,31 @@ export type IServiceLifetime = {
 };
 
 /**
+ * Configuration for contextual binding — when a specific consumer (`when`)
+ * depends on a generic identifier (`needs`), provide a specific
+ * implementation (`give`).
+ *
+ * This enables swapping implementations on a per-consumer basis without
+ * changing the consumer's own registration.
+ *
+ * @typeParam TWhen - The consuming type that needs a contextual dependency.
+ * @typeParam TNeeds - The abstract dependency being satisfied.
+ *
+ * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
+ */
+export type ContextRegistration<TWhen, TNeeds> = {
+    /** The consumer token whose dependency is being contextually overridden. */
+    when: DiToken<TWhen>;
+
+    /** The di token representing the dependency to satisfy. */
+    needs: DiToken<TNeeds>;
+
+    /** The concrete token to provide in place of `needs` for the given `when`. */
+    give: DiToken<TNeeds>;
+};
+
+/**
  * Core service registration interface providing factory, class, value,
  * and dynamic registration methods.
  *
@@ -244,6 +269,18 @@ export type IServiceRegisterBase = {
      * via {@link IDynamicServiceRegister.set}.
      */
     registerDynamic(token: DiToken): void;
+
+    /**
+     * Registers a contextual binding so that when the specified consumer
+     * (`when`) requires an abstract dependency (`needs`), a specific
+     * implementation (`give`) is provided instead.
+     *
+     * Useful for targeting overrides to a single consumer without affecting
+     * other consumers of the same abstract dependency.
+     */
+    registerContext<TWhen = unknown, TNeeds = unknown>(
+        settings: ContextRegistration<TWhen, TNeeds>,
+    ): void;
 };
 
 /**
@@ -361,6 +398,11 @@ export type IServiceResolver = {
      * Resolves a service by token, throwing {@link ServiceNotFoundDiError} if not found.
      */
     resolveOrFail<TType>(token: DiToken<TType>): Promise<TType>;
+
+    /**
+     * Checks whether a token exists.
+     */
+    has(token: DiToken): Promise<boolean>;
 };
 
 /**
@@ -459,7 +501,7 @@ export type RunSettings<TValue = unknown> = {
     /**
      * Optional dynamic service provider to register before the scope executes.
      */
-    registration?: DynamicServiceProvider;
+    dynamicRegistration?: DynamicServiceProvider;
 
     /**
      * The lazily-evaluated scope body to execute within the container scope.
