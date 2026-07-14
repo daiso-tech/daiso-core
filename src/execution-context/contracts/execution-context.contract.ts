@@ -24,14 +24,14 @@ export type ContextToken<TValue> = {
      * Unique symbol reference for this token, used internally as the storage key.
      * Using a symbol guarantees uniqueness — two tokens with the same name will never collide.
      */
-    id: symbol;
+    readonly id: symbol;
 
     /**
      * Phantom type that is only used for type inference.
      * This property is never actually set at runtime and exists only to help
      * TypeScript infer the correct value type when using get/put operations.
      */
-    _type: TValue | null;
+    readonly _type: TValue | null;
 };
 
 /**
