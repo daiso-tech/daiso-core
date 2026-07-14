@@ -60,6 +60,10 @@ A growing collection of officially maintained, production-ready components. Ever
 
 - **EventBus**: Publish and subscribe to events across distributed server instances or entirely in-memory for local testing.
 
+### 💉 Dependency Injection
+
+- **DI container**: A lightweight, type-safe dependency injection container for managing service lifetimes, resolving dependencies, and composing large applications in a modular and testable way.
+
 ### 🧰 Utilities
 
 - **Serde**: Add custom serialization and deserialization logic that integrates transparently with every other component in the library.
@@ -83,11 +87,7 @@ Components currently in design or development — not yet available in any relea
 - **Structured cancellations**: Planning to support running async tasks in structured scopes where child tasks are tied to their parent's lifetime — with automatic cancellation, error propagation, and resource cleanup.
 - **Promise queue**: Planning to add a configurable promise queue to control the number of concurrently executing promises and prevent resource exhaustion.
 
-### 💉 Dependency Injection
-
-- **DI container**: Planning to build a lightweight, type-safe dependency injection container for wiring application components without tight coupling.
-
-### 📣 Notifications
+###  Notifications
 
 - **Notifications**: Planning to support sending notifications through multiple channels with flexible dispatch strategies — synchronous dispatching, immediate enqueueing, delayed enqueueing, and recurring messages. Planned channel adapters include Slack, Discord, email, SMS, and WebSocket (browser push).
 

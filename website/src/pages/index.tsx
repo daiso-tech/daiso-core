@@ -476,6 +476,13 @@ const componentItems: ComponentItemProps[] = [
             "EnvAccessor loads and validates environment variables from one or more sources with type-safe access.",
         href: "/docs/components/env_accessor",
     },
+    {
+        icon: <Box size="1.5rem" strokeWidth={1.5} />,
+        title: "DI container",
+        description:
+            "A lightweight, type-safe dependency injection container for managing service lifetimes, resolving dependencies, and composing large applications in a modular and testable way.",
+        href: "/docs/components/dependency_injection",
+    },
 ];
 
 const upcomingItems: ComponentItemProps[] = [
@@ -496,12 +503,6 @@ const upcomingItems: ComponentItemProps[] = [
         title: "Promise queue",
         description:
             "Planning to add a configurable promise queue to control the number of concurrently executing promises and prevent resource exhaustion.",
-    },
-    {
-        icon: <Box size="1.5rem" strokeWidth={1.5} />,
-        title: "DI container",
-        description:
-            "Planning to build a lightweight, type-safe dependency injection container for wiring application components without tight coupling.",
     },
     {
         icon: <Bell size="1.5rem" strokeWidth={1.5} />,

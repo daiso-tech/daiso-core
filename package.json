@@ -177,13 +177,13 @@
             "types": "./dist/config-accessor/contracts/_module-exports.d.ts",
             "import": "./dist/config-accessor/contracts/_module-exports.js"
         },
-        "./depdency-injection": {
-            "types": "./dist/depdency-injection/implementations/_module-exports.d.ts",
-            "import": "./dist/depdency-injection/implementations/_module-exports.js"
+        "./di": {
+            "types": "./dist/di/implementations/_module-exports.d.ts",
+            "import": "./dist/di/implementations/_module-exports.js"
         },
-        "./depdency-injection/contracts": {
-            "types": "./dist/depdency-injection/contracts/_module-exports.d.ts",
-            "import": "./dist/depdency-injection/contracts/_module-exports.js"
+        "./di/contracts": {
+            "types": "./dist/di/contracts/_module-exports.d.ts",
+            "import": "./dist/di/contracts/_module-exports.js"
         },
         "./env-accessor": {
             "types": "./dist/env-accessor/implementations/_module-exports.d.ts",
