@@ -25,6 +25,11 @@ import {
 } from "@/utilities/_module.js";
 
 /**
+ * A token that identifies a registered type via a unique symbol.
+ * Use {@link genericToken} to create an instance.
+ *
+ * @typeParam TRegisteredType - The type of the registered service.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
@@ -42,6 +47,11 @@ export type GenericToken<TRegisteredType = unknown> = {
 };
 
 /**
+ * Creates a new generic token identified by the given `id`.
+ *
+ * @param id - A unique string identifier for the token.
+ * @returns A new {@link GenericToken} instance.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
@@ -52,12 +62,22 @@ export function genericToken<TValue>(id: string): GenericToken<TValue> {
 }
 
 /**
+ * A class constructor used as a DI token. The class itself serves as the
+ * registration key — no separate token object is needed.
+ *
+ * @typeParam TInstance - The type of the class instance.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type ClassToken<TInstance = unknown> = Class<Array<any>, TInstance>;
 
 /**
+ * A union of {@link ClassToken} and {@link GenericToken} — the two ways to
+ * identify a registered service in the DI container.
+ *
+ * @typeParam TRegisteredType - The type of the registered service.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
@@ -66,6 +86,13 @@ export type DiToken<TRegisteredType = unknown> =
     | GenericToken<TRegisteredType>;
 
 /**
+ * A callback invoked by the container to create a service instance.
+ * Receives resolved dependencies followed by the current
+ * {@link IExecutionContext}.
+ *
+ * @typeParam TDeps - Tuple of dependency types.
+ * @typeParam TRegisteredType - The type this factory produces.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
@@ -78,6 +105,11 @@ export type FactoryRegisterCallback<
 >;
 
 /**
+ * Maps a tuple of dependency types to a tuple of {@link DiToken}s.
+ * Each position K in the input tuple becomes `DiToken<TDeps[K]>`.
+ *
+ * @typeParam TDeps - Tuple of dependency types to map.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
@@ -86,6 +118,11 @@ export type DepsTokens<TDeps extends Array<unknown> = Array<unknown>> = {
 };
 
 /**
+ * Configuration for registering a factory-based service.
+ *
+ * @typeParam TDeps - Tuple of dependency types the factory consumes.
+ * @typeParam TRegisteredType - The type produced by the factory.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
@@ -93,12 +130,23 @@ export type FactoryRegistration<
     TDeps extends Array<unknown> = Array<unknown>,
     TRegisteredType = unknown,
 > = {
+    /** The token used to identify and resolve this service. */
     token: DiToken<TRegisteredType>;
+
+    /** The factory function that creates the service instance. */
     factory: FactoryRegisterCallback<TDeps, TRegisteredType>;
+
+    /** The dependency tokens to resolve and inject into the factory. */
     deps: DepsTokens<TDeps>;
 };
 
 /**
+ * Configuration for registering a class-based service.
+ * The container will construct the class, injecting its dependencies.
+ *
+ * @typeParam TDeps - Tuple of constructor dependency types.
+ * @typeParam TRegisteredType - The type of the class instance.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
@@ -106,36 +154,68 @@ export type ClassRegistration<
     TDeps extends Array<unknown> = Array<unknown>,
     TRegisteredType = unknown,
 > = {
+    /** The class constructor to instantiate. */
     class_: Class<TDeps, TRegisteredType>;
+
+    /** The dependency tokens to resolve and inject into the constructor. */
     deps: DepsTokens<TDeps>;
 };
 
 /**
+ * Configuration for registering a pre-constructed value as a service.
+ * Value registrations are always resolved as singletons.
+ *
+ * @typeParam TRegisteredType - The type of the value.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type ValueRegistration<TRegisteredType = unknown> = {
+    /** The token used to identify and resolve this service. */
     token: DiToken<TRegisteredType>;
+
+    /** The pre-constructed value to register. */
     value: TRegisteredType;
 };
 
 /**
+ * Fluent interface for configuring the lifetime of a registered service.
+ * Returned by {@link IServiceRegisterBase.registerFactory} and
+ * {@link IServiceRegisterBase.registerClass}.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IServiceLifetime = {
+    /**
+     * A single instance is created and shared across all resolutions.
+     */
     singleton(): void;
 
+    /**
+     * A single instance is created per {@link IContainerScope.run | scope} execution.
+     */
     scoped(): void;
 
+    /**
+     * A new instance is created every time the service is resolved.
+     */
     transient(): void;
 };
 
 /**
+ * Core service registration interface providing factory, class, value,
+ * and dynamic registration methods.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IServiceRegisterBase = {
+    /**
+     * Registers a factory function that creates the service instance.
+     *
+     * @returns An {@link IServiceLifetime} to configure the service lifetime.
+     */
     registerFactory<
         TDeps extends Array<unknown> = [],
         TRegisteredType = unknown,
@@ -143,36 +223,61 @@ export type IServiceRegisterBase = {
         settings: FactoryRegistration<TDeps, TRegisteredType>,
     ): IServiceLifetime;
 
+    /**
+     * Registers a class whose instance will be constructed by the container.
+     *
+     * @returns An {@link IServiceLifetime} to configure the service lifetime.
+     */
     registerClass<TDeps extends Array<unknown> = [], TRegisteredType = unknown>(
         settings: ClassRegistration<TDeps, TRegisteredType>,
     ): IServiceLifetime;
 
-    // Registers always as signleton
+    /**
+     * Registers a pre-constructed value that is always resolved as a singleton.
+     */
     registerValue<TRegisteredType = unknown>(
         settings: ValueRegistration<TRegisteredType>,
     ): void;
 
-    // Registers a dynamic value
+    /**
+     * Registers a token whose value will be provided dynamically at runtime
+     * via {@link IDynamicServiceRegister.set}.
+     */
     registerDynamic(token: DiToken): void;
 };
 
 /**
+ * A hook callback invoked during container lifecycle events.
+ * Receives an {@link IServiceResolver} to resolve services during the hook.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type DiHook = Invokable<[resolver: IServiceResolver], Promisable<void>>;
 
 /**
+ * Interface for registering lifecycle hooks that run on container
+ * initialization and deinitialization.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IContainerHooks = {
+    /**
+     * Registers a handler to be invoked after the container is initialized (when `container.init` method is called).
+     */
     onContainerInit(handler: DiHook): void;
 
+    /**
+     * Registers a handler to be invoked before the container is deinitialized (when `container.deInit` method is called).
+     */
     onContainerDeInit(handler: DiHook): void;
 };
 
 /**
+ * The full service registration interface, combining base registration,
+ * provider registration, and container lifecycle hooks.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
@@ -181,6 +286,9 @@ export type IServiceRegister = IServiceRegisterBase &
     IContainerHooks;
 
 /**
+ * A plain function that acts as a service provider, receiving an
+ * {@link IServiceRegister} to register services.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
@@ -190,6 +298,9 @@ export type ServiceProviderFn = InvokableFn<
 >;
 
 /**
+ * An object with an `invoke` method that acts as a service provider,
+ * receiving an {@link IServiceRegister} to register services.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
@@ -199,35 +310,65 @@ export type IServiceProvider = IInvokableObject<
 >;
 
 /**
+ * A service provider, either as a plain function ({@link ServiceProviderFn})
+ * or an object with an `invoke` method ({@link IServiceProvider}).
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type ServiceProvider = ServiceProviderFn | IServiceProvider;
 
 /**
+ * Interface for registering a {@link ServiceProvider} that can
+ * batch-register multiple services at once.
+ *
+ * Useful for creating reusable, isolated code blocks — similar to Laravel
+ * service providers — that encapsulate a group of related registrations.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IServiceProviderRegister = {
+    /**
+     * Registers a {@link ServiceProvider} that can register multiple services
+     * via the provided {@link IServiceRegister}.
+     */
     registerProvider(provider: ServiceProvider): void;
 };
 
 /**
+ * Interface for resolving registered services by token, with nullable,
+ * default-value, and throw-on-missing variants.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IServiceResolver = {
+    /**
+     * Resolves a service by token, returning `null` if not found.
+     */
     resolve<TType>(token: DiToken<TType>): Promise<TType | null>;
 
+    /**
+     * Resolves a service by token, returning the `defaultValue` if not found.
+     */
     resolveOr<TType>(
         token: DiToken<TType>,
         defaultValue: NoInfer<TType>,
     ): Promise<TType>;
 
+    /**
+     * Resolves a service by token, throwing {@link ServiceNotFoundDiError} if not found.
+     */
     resolveOrFail<TType>(token: DiToken<TType>): Promise<TType>;
 };
 
 /**
+ * A callback that provides a dynamic value for a token at runtime,
+ * receiving the current {@link IExecutionContext}.
+ *
+ * @typeParam TRegisteredType - The type of the dynamic value.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
@@ -237,25 +378,43 @@ export type DynamicValue<TRegisteredType = unknown> = Invokable<
 >;
 
 /**
+ * Configuration for setting a dynamic value at runtime via
+ * {@link IDynamicServiceRegister.set}.
+ *
+ * @typeParam TRegisteredType - The type of the value.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type DynamicRegistration<TRegisteredType = unknown> = {
+    /** The token whose dynamic value is being set. */
     token: DiToken<TRegisteredType>;
+
+    /** A static value or a {@link DynamicValue} callback. */
     value: TRegisteredType | DynamicValue<TRegisteredType>;
 };
 
 /**
+ * Interface for setting dynamic values at runtime for tokens previously
+ * registered via {@link IServiceRegisterBase.registerDynamic}.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IDynamicServiceRegister = {
+    /**
+     * Sets the value for a token previously registered via
+     * {@link IServiceRegisterBase.registerDynamic}.
+     */
     set<TRegisteredType = unknown>(
         settings: DynamicRegistration<TRegisteredType>,
     ): Promise<void>;
 };
 
 /**
+ * A plain function that provides dynamic service registrations,
+ * receiving an {@link IDynamicServiceRegister} to set values.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
@@ -265,6 +424,9 @@ export type DynamicServiceProviderFn = InvokableFn<
 >;
 
 /**
+ * An object with an `invoke` method that provides dynamic service
+ * registrations, receiving an {@link IDynamicServiceRegister}.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
@@ -274,6 +436,9 @@ export type IDynamicServiceProvider = IInvokableObject<
 >;
 
 /**
+ * A dynamic service provider, either as a plain function
+ * ({@link DynamicServiceProviderFn}) or an object ({@link IDynamicServiceProvider}).
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
@@ -282,27 +447,52 @@ export type DynamicServiceProvider =
     | IDynamicServiceProvider;
 
 /**
+ * Configuration for a scoped container execution via
+ * {@link IContainerScope.run}.
+ *
+ * @typeParam TValue - The return type of the scope body.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type RunSettings<TValue = unknown> = {
+    /**
+     * Optional dynamic service provider to register before the scope executes.
+     */
     registration?: DynamicServiceProvider;
+
+    /**
+     * The lazily-evaluated scope body to execute within the container scope.
+     */
     scope: AsyncLazy<TValue>;
 };
 
 /**
+ * Interface for executing code within a scoped container context.
+ * Scoped services are resolved only once per {@link run} invocation.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IContainerScope = {
+    /**
+     * Runs a callback within a scoped container context.
+     * Scoped services are resolved once per `run()` invocation.
+     */
     run<TValue = void>(settings: RunSettings<TValue>): Promise<void>;
 };
 
 /**
+ * Interface for overriding existing service registrations, is meant for
+ * testing.
+ *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IServiceOverrider = {
+    /**
+     * Overrides an existing factory registration with a new factory.
+     */
     overrideFactory<
         TDeps extends Array<unknown> = [],
         TRegisteredType = unknown,
@@ -310,20 +500,33 @@ export type IServiceOverrider = {
         settings: FactoryRegistration<TDeps, TRegisteredType>,
     ): void;
 
+    /**
+     * Overrides an existing class registration with a new class.
+     */
     overrideClass<TDeps extends Array<unknown> = [], TRegisteredType = unknown>(
         settings: ClassRegistration<TDeps, TRegisteredType>,
     ): void;
 
+    /**
+     * Overrides an existing value registration with a new value.
+     */
     overrideValue<TRegisteredType = unknown>(
         settings: ValueRegistration<TRegisteredType>,
     ): void;
 };
 
 /**
- * @throws {ServiceNotFoundDiError}
- * @throws {InvalidLifetimeDiError}
- * @throws {CircularDependencyDiError}
- * @throws {ServiceExistsDiError}
+ * The top-level DI container interface. Combines initialization, scope
+ * management, registration, resolution, overriding, and forking into a
+ * single cohesive API.
+ *
+ * The following errors can be thrown any method listed in `IContainer` dependent on the algorithm used:
+ * @throws {ServiceNotFoundDiError} When a required service cannot be resolved.
+ * @throws {InvalidLifetimeDiError} When a lifetime configuration is invalid
+ *   (e.g. singleton depending on transient).
+ * @throws {CircularDependencyDiError} When a circular dependency is detected
+ *   in the service graph.
+ * @throws {ServiceExistsDiError} When attempting to register a duplicate token.
  *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
@@ -334,5 +537,10 @@ export type IContainer = IInitizable &
     IServiceRegister &
     IServiceResolver &
     IServiceOverrider & {
+        /**
+         * Creates a child container that inherits all registrations from this
+         * container. The child container can override registrations without
+         * affecting the parent.
+         */
         fork(): IContainer;
     };
