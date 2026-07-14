@@ -21,9 +21,10 @@ import {
  */
 export type ContextToken<TValue> = {
     /**
-     * Unique identifier for this token, used internally as the storage key
+     * Unique symbol reference for this token, used internally as the storage key.
+     * Using a symbol guarantees uniqueness — two tokens with the same name will never collide.
      */
-    id: string;
+    id: symbol;
 
     /**
      * Phantom type that is only used for type inference.
@@ -54,7 +55,7 @@ export type ContextToken<TValue> = {
  */
 export function contextToken<TValue>(id: string): ContextToken<TValue> {
     return {
-        id,
+        id: Symbol(id),
     } as ContextToken<TValue>;
 }
 
