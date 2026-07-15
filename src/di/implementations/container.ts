@@ -1,5 +1,6 @@
 import {
     type ClassRegistration,
+    type ContextRegistration,
     type DiHook,
     type DiToken,
     type FactoryRegistration,
@@ -59,15 +60,21 @@ export class Container implements IContainer {
         throw new Error("Method not implemented.");
     }
 
+    registerContext<TWhen = unknown, TNeeds = unknown>(
+        settings: ContextRegistration<TWhen, TNeeds>,
+    ): void {
+        throw new Error("Method not implemented.");
+    }
+
+    registerProvider(provider: ServiceProvider): void {
+        throw new Error("Method not implemented.");
+    }
+
     onContainerInit(handler: DiHook): void {
         throw new Error("Method not implemented.");
     }
 
     onContainerDeInit(handler: DiHook): void {
-        throw new Error("Method not implemented.");
-    }
-
-    registerProvider(provider: ServiceProvider): void {
         throw new Error("Method not implemented.");
     }
 
@@ -83,6 +90,10 @@ export class Container implements IContainer {
     }
 
     resolveOrFail<TType>(token: DiToken<TType>): Promise<TType> {
+        throw new Error("Method not implemented.");
+    }
+
+    has(token: DiToken): Promise<boolean> {
         throw new Error("Method not implemented.");
     }
 
