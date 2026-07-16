@@ -2,6 +2,8 @@
  * @module HttpRouter
  */
 
+import { type Promisable } from "type-fest";
+
 import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
@@ -17,7 +19,7 @@ import { type InvokableFn } from "@/utilities/_module.js";
  */
 export type WinterTcRequestHandler = InvokableFn<
     [request: Request],
-    Promise<Response>
+    Promisable<Response>
 >;
 
 /**

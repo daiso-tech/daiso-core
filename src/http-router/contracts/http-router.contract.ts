@@ -144,7 +144,7 @@ export type IHttpRouterBase = {
     endpoint(endpoint: IHttpEndpoint): IHttpRouterBase;
 
     /**
-     * Groups a set of routes under an optional path prefix.
+     * Groups a set of routes together.
      *
      * @param group - A callback that receives a sub-router to register routes on.
      * @returns The router instance for chaining.

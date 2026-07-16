@@ -53,6 +53,29 @@ export type HttpReqFiles<TReqFiles extends FileInputs> = {
     [K in keyof TReqFiles]: IHttpFileCollection;
 };
 
+/**
+ * A validated, type-safe view of the incoming HTTP request.
+ *
+ * Returned by {@link IHttpReqValidation.withSchema | withSchema}, this type
+ * provides schema-validated access to all request data sources — JSON body,
+ * form fields, uploaded files, path parameters, query parameters, headers,
+ * and cookies — with full type inference from the provided schemas.
+ *
+ * Each accessor method is overloaded: calling with no arguments returns the
+ * entire validated record, while passing a specific field name returns only
+ * that field's value (with `null` for undefined optional fields).
+ *
+ * @typeParam TReqJson - The type of the parsed JSON body.
+ * @typeParam TReqFields - The type of the parsed form fields.
+ * @typeParam TReqParams - The type of the parsed path parameters.
+ * @typeParam TReqSearchParams - The type of the parsed query parameters.
+ * @typeParam TReqHeaders - The type of the parsed headers.
+ * @typeParam TReqFiles - The expected file definitions.
+ * @typeParam TCookieData - A record mapping cookie names to their value types.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * @group Contracts
+ */
 export type IValidatedHttpReq<
     TReqJson = unknown,
     TReqFields extends ReqInputs = ReqInputs,
@@ -172,7 +195,9 @@ export type IValidatedHttpReq<
 /**
  * Defines optional validation schemas for each source of request data.
  * Each field uses Standard Schema V1 to validate and transform the input.
- * Cookies are not validated here but handled separately via {@link ICookieStore}.
+ *
+ * Cookies are validated via the optional `cookies` schema, which receives
+ * raw cookie strings and should produce a typed record of parsed values.
  *
  * Each field maps directly to its own type parameter so TypeScript can infer
  * the output type from the schema (e.g. from a Zod schema) without needing
@@ -184,6 +209,7 @@ export type IValidatedHttpReq<
  * @typeParam TReqSearchParams - The type of the parsed query parameters.
  * @typeParam TReqHeaders - The type of the parsed headers.
  * @typeParam TReqFiles - The expected file definitions.
+ * @typeParam TCookieData - The type of the parsed cookie data.
  *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
@@ -232,6 +258,17 @@ export type HttpReqSchemas<
     cookies?: StandardSchemaV1<StringInputs, TCookieData>;
 };
 
+/**
+ * Provides the {@link IHttpReqValidation.withSchema | withSchema} method for
+ * applying validation schemas to an {@link IHttpReq}.
+ *
+ * Calling {@link IHttpReqValidation.withSchema | withSchema} returns an
+ * {@link IValidatedHttpReq} that provides schema-validated access to all
+ * request data sources.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * @group Contracts
+ */
 export type IHttpReqValidation = {
     withSchema<
         TReqJson = unknown,
@@ -262,6 +299,18 @@ export type IHttpReqValidation = {
     >;
 };
 
+/**
+ * The base request interface providing raw, unvalidated access to all
+ * request data sources.
+ *
+ * Implements `AsyncIterable<unknown>` so the request can be streamed,
+ * and exposes raw methods for every source (cookies, JSON body, form data,
+ * path params, query params, headers) alongside the underlying
+ * {@link IHttpReqBase.webReq | Web API Request}.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * @group Contracts
+ */
 export type IHttpReqBase = AsyncIterable<unknown> & {
     /**
      * An {@link https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal | AbortSignal}
@@ -354,12 +403,13 @@ export type IHttpReqBase = AsyncIterable<unknown> & {
 /**
  * Represents an incoming HTTP request with typed access to all data sources.
  *
- * Provides methods to access parsed and raw values for the body, form fields,
- * path parameters, query parameters, and headers.
- * Cookies are handled separately via {@link ICookieStore}.
+ * Combines {@link IHttpReqValidation} (for schema-based validation via
+ * {@link IHttpReqValidation.withSchema | withSchema}) with
+ * {@link IHttpReqBase} (for raw, unvalidated access).
  *
- * Each generic type parameter corresponds to a single source of request data,
- * allowing granular type inference without needing a wrapper type.
+ * Cookies are validated through the {@link HttpReqSchemas.cookies | cookies}
+ * schema on {@link HttpReqSchemas}, accessible after calling
+ * {@link IHttpReqValidation.withSchema | withSchema}.
  *
  * @typeParam TReqJson - The type of the parsed JSON body.
  * @typeParam TReqFields - The type of the parsed form fields.

@@ -13,8 +13,8 @@ import {
     type HttpResContentRange,
     type HttpResContentType,
     type HttpResETag,
-} from "@/http-router/contracts/http-res-headers.contract.js";
-import { type HttpStatus } from "@/http-router/contracts/http-status.contract.js";
+} from "@/http-router/contracts/http-res-headers.js";
+import { type HttpStatus } from "@/http-router/contracts/http-status.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
@@ -115,8 +115,9 @@ export type CookieSetSettings = CookieScope & {
 /**
  * Represents an outgoing HTTP response with a builder-style API.
  *
- * Each setter returns the instance for chaining. Access {@link webRes}
- * to obtain the final Web API `Response` object.
+ * Each setter returns the instance for chaining. Call
+ * {@link IHttpRes.buildWebRes | buildWebRes} to obtain the final Web API
+ * `Response` object.
  *
  *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
@@ -205,6 +206,13 @@ export type IHttpRes = {
     setStatus(status: HttpStatus | number): IHttpRes;
 
     /**
+     * Sets the HTTP response status text (the human-readable reason phrase).
+     *
+     * @param statusText - The status text (e.g. `"Not Found"`).
+     */
+    setStatusText(statusText: string): IHttpRes;
+
+    /**
      * Sets the response body as raw bytes without overriding the `Content-Type` header.
      *
      * Accepts a string, binary buffer, or an async iterable of byte chunks for streaming.
@@ -286,9 +294,10 @@ export type IHttpRes = {
  * and 404 responses, as well as a method to wrap an existing Web API
  * `Response` into an {@link IHttpRes} builder.
  *
- * These methods are available as static methods on the {@link HttpRes}
- * implementation class — you typically call them as
- * `HttpRes.json(...)`, `HttpRes.redirect(...)`, etc.
+ * These methods are available directly on the handler and middleware
+ * arguments via {@link HttpHandlerArgs} (which extends this type).
+ * You typically call them as `json(...)`, `redirect(...)`, etc.
+ * from within a handler or middleware function.
  *
  *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`

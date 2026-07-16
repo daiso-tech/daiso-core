@@ -35,7 +35,8 @@ export type HttpMiddlewareArgs = HttpHandlerArgs & {
 
 /**
  * An invokable object that acts as HTTP middleware.
- * Receives middleware args (request, context, cookie store, next) and returns a response.
+ * Receives {@link HttpMiddlewareArgs} (request, response builder, context, next)
+ * and returns a response.
  *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
@@ -47,7 +48,8 @@ export type IHttpMiddlewareObject = IInvokableObject<
 
 /**
  * A function that acts as HTTP middleware.
- * Receives middleware args (request, context, cookie store, next) and returns a response.
+ * Receives {@link HttpMiddlewareArgs} (request, response builder, context, next)
+ * and returns a response.
  *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts

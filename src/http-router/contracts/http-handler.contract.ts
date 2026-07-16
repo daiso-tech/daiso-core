@@ -40,7 +40,7 @@ export type HttpHandlerArgs = IHttpResHelpers & {
 
 /**
  * An invokable object that handles an HTTP request.
- * Receives handler args (request, context, cookie store) and returns a response.
+ * Receives handler args ({@link HttpHandlerArgs}) and returns a response.
  *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
@@ -52,7 +52,7 @@ export type IHttpHandlerObject = IInvokableObject<
 
 /**
  * A function that handles an HTTP request.
- * Receives handler args (request, context, cookie store) and returns a response.
+ * Receives handler args ({@link HttpHandlerArgs}) and returns a response.
  *
  *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
