@@ -28,7 +28,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * @group Implementations
+ * @internal
  */
 export class ValidatedHttpReq<
     TReqJson = unknown,

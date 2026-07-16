@@ -2,7 +2,7 @@
  * @module HttpRouter
  */
 
-import { FileSize } from "@/file-size/implementations/file-size.js";
+import { FileSize } from "@/file-size/implementations/_module.js";
 import { type IHttpFile } from "@/http-router/contracts/_module.js";
 
 /**

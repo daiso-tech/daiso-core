@@ -2,8 +2,6 @@
  * @module HttpRouter
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
 import { TO_BYTES, type IFileSize } from "@/file-size/contracts/_module.js";
 import {
     type HttpResContentType,
@@ -17,11 +15,10 @@ import {
     type HttpStatus,
     type CookieSetSettings,
     type CookieScope,
-    type IHttpResHelpers,
 } from "@/http-router/contracts/_module.js";
 import { TO_MILLISECONDS } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/time-span.js";
-import { isAsyncIterable, validateSync } from "@/utilities/_module.js";
+import { isAsyncIterable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -43,14 +40,6 @@ export type IHttpResSettings = {
 };
 
 /**
- * The default implementation of {@link IHttpRes}.
- *
- * Provides a builder-style API for constructing HTTP responses.
- * Each setter returns the instance for chaining.
- *
- * Static factory methods offer convenient shortcuts for common response types
- * such as JSON, HTML, plain text, and redirects.
- *
  * IMPORT_PATH: `"@daiso-tech/core/http-router"`
  * @group Implementations
  */
@@ -405,49 +394,3 @@ export class HttpRes implements IHttpRes {
         });
     }
 }
-
-/**
- * @internal
- */
-export const httpResHelpers: IHttpResHelpers = {
-    fromWebRes(res: Response): IHttpRes {
-        return new HttpRes({
-            headers: res.headers,
-            status: res.status,
-            statusText: res.statusText,
-            body: res.body ?? null,
-        });
-    },
-    text(content: string): IHttpRes {
-        return new HttpRes().setBody(content).setContentType("text/plain");
-    },
-    html(content: string): IHttpRes {
-        return new HttpRes().setBody(content).setContentType("text/html");
-    },
-    json<TData>(
-        content: TData,
-        schema?: StandardSchemaV1<unknown, TData>,
-    ): IHttpRes {
-        if (schema !== undefined) {
-            content = validateSync(schema, content);
-        }
-        return new HttpRes()
-            .setBody(JSON.stringify(content))
-            .setContentType("application/json");
-    },
-    notFound(): IHttpRes {
-        return this.html("Not found").setStatus(404);
-    },
-    redirect(url: string): IHttpRes {
-        return new HttpRes()
-            .setStatus(302)
-            .setLocation(url)
-            .setContentType("text/plain");
-    },
-    permanentRedirect(url: string): IHttpRes {
-        return new HttpRes()
-            .setStatus(301)
-            .setLocation(url)
-            .setContentType("text/plain");
-    },
-};

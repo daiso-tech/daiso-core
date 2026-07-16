@@ -147,6 +147,8 @@ export type TestReqBody =
  * @group Implementations
  */
 export type TestReqSettings = {
+    method: HttpMethod;
+
     /**
      * @default "https://test.local"
      */
@@ -401,6 +403,7 @@ export class HttpReq implements IHttpReq {
      */
     static test(settings: TestReqSettings): IHttpReq {
         const {
+            method,
             hostname = "https://test.local",
             url,
             params = {},
@@ -421,6 +424,7 @@ export class HttpReq implements IHttpReq {
             headers: finalHeaders,
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             body: finalBody,
+            method,
         });
 
         return new HttpReq(request, params);

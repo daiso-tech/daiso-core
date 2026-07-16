@@ -24,12 +24,12 @@ import {
     type WinterTcRequestHandler,
     type HttpHandlerArgs,
     type HttpMiddlewareArgs,
+    type HttpHandlerFn,
+    HttpError,
 } from "@/http-router/contracts/_module.js";
 import { HttpReq } from "@/http-router/implementations/http-req.js";
-import {
-    HttpRes,
-    httpResHelpers,
-} from "@/http-router/implementations/http-res.js";
+import { httpResHelpers } from "@/http-router/implementations/http-res-helpers.js";
+import { HttpRes } from "@/http-router/implementations/http-res.js";
 import { HttpRouterBase } from "@/http-router/implementations/http-router-base.js";
 import {
     type EndpointEntry,
@@ -39,6 +39,7 @@ import {
 import { use } from "@/http-router/middlewares/_module.js";
 import {
     callInvokable,
+    isInvokable,
     type InvokableFn,
     type OneOrMore,
     type Promisable,
@@ -149,6 +150,9 @@ type ResolveRouteReturn = {
     paramsStash: ParamStash | undefined;
 };
 
+/**
+ * @group Implementations
+ */
 export class HttpRouter implements IHttpRouter {
     private readonly router: Router<RouterEntry>;
     private readonly httpRouterBase: HttpRouterBase;
@@ -168,28 +172,86 @@ export class HttpRouter implements IHttpRouter {
         this.middlewares = middlewares;
         this.httpRouterBase = new HttpRouterBase("/", [], this.router);
         this.fetch = use(async (req) => {
-            const routeResult = HttpRouter.resolveRoute(this.router, req);
-            if (routeResult === null) {
-                return httpResHelpers.notFound().buildWebRes();
+            try {
+                const routeResult = HttpRouter.resolveRoute(this.router, req);
+                if (routeResult === null) {
+                    return httpResHelpers.notFound().buildWebRes();
+                }
+
+                const { endpointMatch, middlewareMatches, paramsStash } =
+                    routeResult;
+
+                const rawParams = HttpRouter.resolveParams(
+                    endpointMatch[1],
+                    paramsStash,
+                );
+
+                const httpRes = await HttpRouter.buildHandlerChain(
+                    req,
+                    rawParams,
+                    endpointMatch,
+                    middlewareMatches,
+                );
+
+                return httpRes.buildWebRes();
+            } catch (error: unknown) {
+                if (!(error instanceof HttpError)) {
+                    return httpResHelpers
+                        .text("Unexpected error occurred")
+                        .setStatus(500)
+                        .buildWebRes();
+                }
+
+                return httpResHelpers
+                    .json({
+                        name: error.name,
+                        status: error.status,
+                        message: error.message,
+                    })
+                    .buildWebRes();
             }
-
-            const { endpointMatch, middlewareMatches, paramsStash } =
-                routeResult;
-
-            const rawParams = HttpRouter.resolveParams(
-                endpointMatch[1],
-                paramsStash,
-            );
-
-            const httpRes = await HttpRouter.buildHandlerChain(
-                req,
-                rawParams,
-                endpointMatch,
-                middlewareMatches,
-            );
-
-            return httpRes.buildWebRes();
         }, this.middlewares);
+    }
+
+    /**
+     * Adapts a Winter TC request handler into an `HttpHandlerFn` that can be
+     * used with `HttpRouter.endpoint()`.
+     *
+     * Winter TC handlers use the standard fetch signature
+     * `(request: Request) => Promise<Response>`, while `HttpRouter` endpoint
+     * handlers receive the richer `HttpHandlerArgs` interface. This method
+     * bridges the two by passing `args.req.webReq` (the underlying Web API
+     * `Request`) to the Winter TC handler and converting the returned
+     * `Response` back via `args.fromWebRes()`.
+     *
+     * @param winterTcHandler - A Winter TC handler function conforming to
+     *   `WinterTcRequestHandler` (`(request: Request) => Promise<Response>`).
+     * @returns An `HttpHandlerFn` suitable for use in `router.endpoint()`.
+     *
+     * @example
+     * ```typescript
+     * const winterHandler: WinterTcRequestHandler = async (request) => {
+     *   const url = new URL(request.url);
+     *   if (url.pathname === "/health") {
+     *     return new Response("OK", { status: 200 });
+     *   }
+     *   return fetch(request);
+     * };
+     *
+     * router.endpoint({
+     *   url: "/proxy/*",
+     *   method: ["GET"],
+     *   handler: HttpRouter.fromWinterTcHandler(winterHandler),
+     * });
+     * ```
+     */
+    static fromWinterTcHandler(
+        winterTcHandler: WinterTcRequestHandler,
+    ): HttpHandlerFn {
+        return async (args) => {
+            const response = await winterTcHandler(args.req.webReq);
+            return args.fromWebRes(response);
+        };
     }
 
     private static resolveRoute(
@@ -197,10 +259,7 @@ export class HttpRouter implements IHttpRouter {
         request: Request,
     ): ResolveRouteReturn | null {
         const url = new URL(request.url);
-        const result = router.match(
-            request.method,
-            `${url.pathname}${String(url.searchParams)}`,
-        );
+        const result = router.match(request.method.toLowerCase(), url.pathname);
         const [matches, paramsStash] = result;
 
         const index = matches.findIndex(
@@ -304,7 +363,7 @@ export class HttpRouter implements IHttpRouter {
         prefixOrGroup: string | HttpRouteGroup,
         group?: HttpRouteGroup,
     ): IHttpRouterBase {
-        if (typeof prefixOrGroup === "object") {
+        if (isInvokable(prefixOrGroup)) {
             return this.httpRouterBase.group(prefixOrGroup);
         }
 

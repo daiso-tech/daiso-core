@@ -11,7 +11,7 @@ import {
 } from "@/http-router/contracts/_module.js";
 import { MiddlewareBuilder } from "@/http-router/implementations/middleware-builder.js";
 import { type RouterEntry } from "@/http-router/implementations/types.js";
-import { callInvokable } from "@/utilities/_module.js";
+import { callInvokable, isInvokable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -85,7 +85,7 @@ export class HttpRouterBase implements IHttpRouterBase {
         prefixOrGroup: HttpRouteGroup | string,
         group?: HttpRouteGroup,
     ): IHttpRouterBase {
-        if (typeof prefixOrGroup === "object") {
+        if (isInvokable(prefixOrGroup)) {
             callInvokable(
                 prefixOrGroup,
                 new HttpRouterBase(

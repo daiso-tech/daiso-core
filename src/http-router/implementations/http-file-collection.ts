@@ -2,21 +2,15 @@
  * @module HttpRouter
  */
 
-import { type IHttpFileCollection } from "@/http-router/contracts/http-file-collection.contract.js";
-import { type IHttpFile } from "@/http-router/contracts/http-file.contract.js";
 import {
+    type IHttpFileCollection,
+    type IHttpFile,
     EmptyFileCollectionError,
     FileIndexOutOfBoundsError,
-} from "@/http-router/contracts/http-file.errors.js";
+} from "@/http-router/contracts/_module.js";
 
 /**
- * Default implementation of {@link IHttpFileCollection}.
- *
- * Wraps a readonly array of {@link IHttpFile} instances with safe and
- * throwing accessors, plus iteration support.
- *
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
- * @group Implementations
+ * @internal
  */
 export class HttpFileCollection implements IHttpFileCollection {
     /**
