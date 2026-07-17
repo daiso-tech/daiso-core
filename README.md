@@ -60,6 +60,10 @@ A growing collection of officially maintained, production-ready components. Ever
 
 - **EventBus**: Publish and subscribe to events across distributed server instances or entirely in-memory for local testing.
 
+### 🌐 HTTP
+
+- **HTTP Router**: Route HTTP requests with a universal WinterTC-compatible fetch handler. Works with any framework or runtime that is WinterTC-compatible like Cloudflare Workers, AWS Lambda (via Hono), Next.
+
 ### 🧰 Utilities
 
 - **Serde**: Add custom serialization and deserialization logic that integrates transparently with every other component in the library.
@@ -103,11 +107,6 @@ Components currently in design or development — not yet available in any relea
 ### 🔍 Text Search
 
 - **Text search**: Planning to support synchronising your database — synchronously or asynchronously — with an external search engine, queryable through a unified, ergonomic interface. First-class integrations with MikroORM, PostgreSQL (via Kysely), and MongoDB are planned so no glue code will be required.
-
-### 🌐 HTTP
-
-- **HTTP server**: Planning to support defining HTTP servers using the standard Web platform `Request`/`Response` API — portable across runtimes with no framework lock-in.
-- **OpenAPI**: Planning first-class OpenAPI support — define your API schema alongside your handlers and get spec generation, validation, and documentation out of the box.
 
 ### 🔐 Security
 

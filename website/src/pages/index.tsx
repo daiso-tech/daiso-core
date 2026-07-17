@@ -476,6 +476,13 @@ const componentItems: ComponentItemProps[] = [
             "EnvAccessor loads and validates environment variables from one or more sources with type-safe access.",
         href: "/docs/components/env_accessor",
     },
+    {
+        icon: <Globe size="1.5rem" strokeWidth={1.5} />,
+        title: "HTTP Router",
+        description:
+            "Route HTTP requests with a universal WinterTC-compatible fetch handler. Works with any framework or runtime that is WinterTC-compatible like Cloudflare Workers, AWS Lambda (via Hono), Next.",
+          href: "/docs/components/http_router",
+    },
 ];
 
 const upcomingItems: ComponentItemProps[] = [
