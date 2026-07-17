@@ -1,5 +1,25 @@
 # @daiso-tech/core
 
+## 0.54.0
+
+### Minor Changes
+
+- d945731: Add new `HttpRouter` component — a framework-agnostic HTTP router implementing the Winter TC fetch standard.
+
+    Key features:
+
+    - **Winter TC compliant** — Exposes a standard `fetch(request: Request): Response` signature compatible with any runtime (Node.js, Bun, Deno, Cloudflare Workers, etc.)
+    - **Typed routing** — Path parameters, optional parameters, wildcards, regex-constrained parameters, and method matching
+    - **Route grouping** — Prefix-based route grouping with nesting support
+    - **Three middleware layers** — Router-level Winter TC middleware, shared middleware via `router.use()`, and endpoint-specific middleware via `middlewares` builder
+    - **Rich request handling** — `HttpReq` with access to JSON body, form data (including file uploads), path/query parameters, headers, cookies, and Standard Schema validation
+    - **Fluent response builder** — `HttpRes` with status codes, headers, cookie management (set, remove, check, strip), and helpers for `text()`, `html()`, `json()`, `notFound()`, `redirect()`, `permanentRedirect()`
+    - **Winter TC interoperability** — `HttpRouter.fromWinterTcHandler()` static method to adapt Winter TC handlers for use as endpoint handlers, plus `WinterTcMiddlewareFn`, `IWinterTcMiddlewareObject`, and `defineWinterTcMiddleware`
+    - **Typed HTTP errors** — `HttpError` class for structured error responses with status codes
+    - **File upload support** — `HttpFile` with content access methods (text, bytes, stream, buffer) and file properties
+    - **Testing utilities** — `HttpReq.test()` with `TestReqSettings` for creating synthetic requests with mocked params, headers, cookies, and body variants (JSON, URL-encoded, multipart, custom)
+    - **Composable architecture** — Built on Hono's router engine (SmartRouter, RegExpRouter, TrieRouter) with support for custom router adapters
+
 ## 0.53.0
 
 ### Minor Changes
@@ -229,7 +249,6 @@
     Now all these adapters take instance of `IReadableExecutionContext` as first argument.
 
     #### Integrated execution-context with following classes:
-
     - `Cache`
     - `CircuitBreakerFactory`
     - `EventBus`
@@ -244,7 +263,6 @@
 - 3a3df7c: - **Unified Middleware System**: Introduced a new middleware component that replaces the legacy Hooks system. - **Hybrid Support**: Natively handles both synchronous and asynchronous functions within a single interface. - **Execution Context**: Added full support for passing execution context through the middleware chain. - **Priority Management**: Built-in support for defining execution order via priority levels.
 
     ### Changed
-
     - **Removed Hooks Component**: The legacy Hooks system has been removed to reduce architectural complexity.
         - **Simplified API**: Removed the need for separate classes for sync and async hooks, significantly reducing boilerplate.
         - **Refined DX**: Replaced the verbose and complex Hooks API with a more ergonomic and streamlined middleware pattern.
@@ -264,7 +282,6 @@
     - shared-lock
 
     #### New Features
-
     - Added a reusable delay utility
     - The following classes support `waitUntil` configuration, facilitating seamless integration with serverless environments like `Vercel`, `Cloudflare`, and `Netlify`:
         - `Cache`
@@ -295,7 +312,6 @@
         - Reader: `acquireReaderBlocking`, `acquireReaderBlockingOrFail`, `runReaderBlockingOrFail`
 
     ## New Features
-
     - **`retryInterval` Middleware**: A new utility that retries a function call at a specified interval until a defined timeout is reached. This provides a unified way to handle retries across the framework without needing specialized "blocking" variants of every method.
 
 ## 0.50.0
@@ -1125,8 +1141,8 @@
 - 3ca9190: Renamed `FallbackSettings.fallbackPolicy` to `FallbackSettings.errorPolicy`
 - 3ca9190: - Removed the following types:
 
-                                                                                                                        - `AsyncFactoryable`
-                                                                                                                        - `Factoryable`
+                                                                                                                          - `AsyncFactoryable`
+                                                                                                                          - `Factoryable`
 
     - Updated remaining factory types to use the new `InvokableFn` and `InvokableObject` contracts:
         - Synchronous factories:
@@ -1674,7 +1690,6 @@
         - <i>ISerializer</i>: Handles olny serialization.
 
     ## New Features
-
     - Introduced the <i>ISerializable</i> contract, enabling classes to be marked as serializable.
     - Added the <i>IFlexibleSerde</i> contract, allowing registration of custom classes for serialization and deserialization.
     - Implemented the <i>ISerializable</i> contract the <i>TimeSpan</i> class.
@@ -1694,7 +1709,6 @@
       This method simplifies add listener that will only execute once.
 
     ## Changes
-
     - Moved event bus group logic from the <i>Cache</i> class into the adapters classes.
         - **Key Impact**: Each adapter is now required to implement the <i>getGroup</i> and <i>withGroup</i> methods.
         - This change enhances flexibility for adapter-specific logic.
@@ -1740,7 +1754,6 @@
     - **Added `toMap`**: Converts a collection to a `Map` if the items are tuples of two elements.
 
     ### IAsyncCollection
-
     - **Added `toRecord`**: Converts a collection to a `Record` if the items are tuples of two elements, where the first element is a `string`, `number`, or `symbol`.
     - **Added `toMap`**: Converts a collection to a `Map` if the items are tuples of two elements.
 
@@ -1759,7 +1772,6 @@
     - Added MemoryCacheAdapter
 
     ## Changes
-
     - Added Cache module: Introduced a new Cache module that supports both TTL (time-to-live) keys and non-TTL keys.
     - Removed Storage module: Its functionality has been replaced by the more versatile Cache module, which supports both TTL and non-TTL keys.
         - New Cache Adapters: Added the following cache adapters for improved flexibility and compatibility:
@@ -1819,19 +1831,16 @@
     - Added IEventBusAdapter, RedisEventBusAdapter and MemoryEventBusAdapter.
 
     ## Improvements
-
     - Improvevd IStorage so they trigger events that can be listenable
     - Improved IStorage by adding new methods that that are useful for multitennacy
 
     ## New Features
-
     - Introduced the `EventBus` class and the `IEventBus` contract, which provide essential methods for supporting multitenancy.
     - Added IEventBusAdapter contract the following event bus adapters:
         - `RedisEventBusAdapter`
         - `MemoryEventBusAdapter`
 
     ## Improvements
-
     - Enhanced `IStorage` to trigger events that can be subscribed to for better event-driven behavior.
     - Expanded `IStorage` with new methods designed to support multitenancy effectively.
 
@@ -1868,7 +1877,6 @@
 - e2031da: # New features
 
     ## Async utilities
-
     - Added <i>abortable</i> async utility function.
     - Added <i>abortableIterable</i> utility function.
     - Added <i>delay</i> async utility function.
@@ -1881,7 +1889,6 @@
     - Added <i>constant</i>, <i>exponential</i>, <i>linear</i> and <i>polynomial</i> backoff policies.
 
     ## Utilities
-
     - Added TimeSpan class that makes easy to work time intervals.
 
 - d070f85: Introduced a new namespace feature for the Storage contract. This enhancement enables the creation of a new Storage instance with a specified prefixed namespace, derived from the current Storage.
@@ -1897,12 +1904,10 @@
 - ff9b885: ## Cache
 
     ### Contracts
-
     - Added cache contract
     - Added cache adapter contract.
 
     ### Adapters
-
     - Added redis cache adapter
     - Added mongodb cache adapter
     - Added sqlite cache adapter.
@@ -1910,11 +1915,9 @@
     ## Serializer
 
     ### Contracts
-
     - Added serializer contract
 
     ### Adapters
-
     - Added super json serializer adapter
     - Added redis serializer adapter
     - Added mongodb serializer adapter
