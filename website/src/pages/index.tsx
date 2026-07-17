@@ -547,12 +547,6 @@ const upcomingItems: ComponentItemProps[] = [
             "Planning to support synchronising your database — synchronously or asynchronously — with an external search engine via a unified interface. First-class integrations with MikroORM, PostgreSQL (via Kysely), and MongoDB planned.",
     },
     {
-        icon: <Globe size="1.5rem" strokeWidth={1.5} />,
-        title: "HTTP server",
-        description:
-            "Planning to support defining HTTP servers using the standard Web platform Request/Response API — portable across runtimes with no framework lock-in.",
-    },
-    {
         icon: <Server size="1.5rem" strokeWidth={1.5} />,
         title: "OpenAPI",
         description:
