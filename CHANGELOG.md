@@ -1,5 +1,11 @@
 # @daiso-tech/core
 
+## 0.54.1
+
+### Patch Changes
+
+- 3377c6d: Updatead README.md file
+
 ## 0.54.0
 
 ### Minor Changes
@@ -1141,8 +1147,8 @@
 - 3ca9190: Renamed `FallbackSettings.fallbackPolicy` to `FallbackSettings.errorPolicy`
 - 3ca9190: - Removed the following types:
 
-                                                                                                                          - `AsyncFactoryable`
-                                                                                                                          - `Factoryable`
+                                                                                                                            - `AsyncFactoryable`
+                                                                                                                            - `Factoryable`
 
     - Updated remaining factory types to use the new `InvokableFn` and `InvokableObject` contracts:
         - Synchronous factories:
