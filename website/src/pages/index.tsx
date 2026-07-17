@@ -489,6 +489,7 @@ const componentItems: ComponentItemProps[] = [
         title: "HTTP Router",
         description:
             "Route HTTP requests with a universal WinterTC-compatible fetch handler. Works with any framework or runtime that is WinterTC-compatible like Cloudflare Workers, AWS Lambda (via Hono), Next.js and more.",
+          href: "/docs/components/http_router",
     },
 ];
 
