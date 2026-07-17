@@ -20,9 +20,9 @@ In order to create an adapter you need to implement the [`Router`](https://githu
 
 ```ts
 interface Router<T> {
-  name: string;
-  add(method: string, path: string, handler: T): void;
-  match(method: string, path: string): Result<T>;
+    name: string;
+    add(method: string, path: string, handler: T): void;
+    match(method: string, path: string): Result<T>;
 }
 ```
 

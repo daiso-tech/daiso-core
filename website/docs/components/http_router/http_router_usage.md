@@ -390,13 +390,13 @@ type IUser = {
     id: string;
     firstName: string;
     lastName: string;
-}
+};
 
 async function loadUser(): Promise<IUser> {
     // ...
 }
 
-const token = contextToken<IUser>("USER")
+const token = contextToken<IUser>("USER");
 
 router.use(async ({ context, next }) => {
     context.put(token, await loadUser());
@@ -698,7 +698,11 @@ const httpReq = HttpReq.test({
 Simulates an `application/json` payload:
 
 ```ts
-import { HttpRouter, defaultHttpRouterAdapter, HttpReq } from "@daiso-tech/core/http-router";
+import {
+    HttpRouter,
+    defaultHttpRouterAdapter,
+    HttpReq,
+} from "@daiso-tech/core/http-router";
 import { describe, expect, test } from "vitest";
 
 describe("JSON body", () => {
@@ -740,7 +744,11 @@ describe("JSON body", () => {
 Simulates an `application/x-www-form-urlencoded` form:
 
 ```ts
-import { HttpRouter, defaultHttpRouterAdapter, HttpReq } from "@daiso-tech/core/http-router";
+import {
+    HttpRouter,
+    defaultHttpRouterAdapter,
+    HttpReq,
+} from "@daiso-tech/core/http-router";
 import { describe, expect, test } from "vitest";
 
 describe("URL-encoded body", () => {
@@ -750,7 +758,8 @@ describe("URL-encoded body", () => {
         router.endpoint({
             url: "/submit",
             method: ["POST"],
-            handler: async ({ req, text }) => text(String(await req.rawFormData())),
+            handler: async ({ req, text }) =>
+                text(String(await req.rawFormData())),
         });
 
         const httpReq = HttpReq.test({
@@ -773,7 +782,11 @@ describe("URL-encoded body", () => {
 Simulates a `multipart/form-data` payload with optional text fields and file uploads:
 
 ```ts
-import { HttpRouter, defaultHttpRouterAdapter, HttpReq } from "@daiso-tech/core/http-router";
+import {
+    HttpRouter,
+    defaultHttpRouterAdapter,
+    HttpReq,
+} from "@daiso-tech/core/http-router";
 import { describe, expect, test } from "vitest";
 
 describe("Multipart body", () => {
@@ -786,9 +799,10 @@ describe("Multipart body", () => {
             handler: async ({ req, json }) => {
                 const formData = await req.rawFormData();
                 const file = formData["avatar"];
-                const content = file && typeof file !== "string"
-                    ? await file.asText()
-                    : null;
+                const content =
+                    file && typeof file !== "string"
+                        ? await file.asText()
+                        : null;
                 return json({ uploaded: !!content });
             },
         });
@@ -818,7 +832,11 @@ describe("Multipart body", () => {
 Passes `data` through as-is for arbitrary payloads:
 
 ```ts
-import { HttpRouter, defaultHttpRouterAdapter, HttpReq } from "@daiso-tech/core/http-router";
+import {
+    HttpRouter,
+    defaultHttpRouterAdapter,
+    HttpReq,
+} from "@daiso-tech/core/http-router";
 import { describe, expect, test } from "vitest";
 
 describe("Custom body", () => {
@@ -903,6 +921,7 @@ router.endpoint({
     },
 });
 ```
+
 :::info
 All validation throw a `ValidationError` if constraints are not met.
 :::
@@ -1000,7 +1019,7 @@ import { type WinterTcRequestHandler } from "@daiso-tech/core/http-router/contra
 // A standard Winter TC handler
 const healthHandler: WinterTcRequestHandler = async (request) => {
     if (request.method.toLowerCase() !== "get") {
-        return new Response("Not found", { status: 404 })
+        return new Response("Not found", { status: 404 });
     }
     const url = new URL(request.url);
     if (url.pathname === "/health") {
@@ -1017,4 +1036,3 @@ router.endpoint({
 ```
 
 The method internally passes `req.webReq` (the underlying Web API `Request`) to the Winter TC handler and converts the returned `Response` into an `IHttpRes` via `fromWebRes()`.
-

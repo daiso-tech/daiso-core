@@ -78,6 +78,7 @@ In order for this to work with the Pages Router, disable Vercel Node.js helpers 
 ```sh
 NODEJS_HELPERS=0
 ```
+
 :::
 
 **Reference:** [Next.js Pages Router API Routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes)

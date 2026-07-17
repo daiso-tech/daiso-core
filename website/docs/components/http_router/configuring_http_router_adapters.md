@@ -24,12 +24,15 @@ keywords:
 
 ```ts
 new SmartRouter({
-  routers: [new RegExpRouter(), new TrieRouter()],
-})
+    routers: [new RegExpRouter(), new TrieRouter()],
+});
 ```
 
 ```ts
-import { HttpRouter, defaultHttpRouterAdapter } from "@daiso-tech/core/http-router";
+import {
+    HttpRouter,
+    defaultHttpRouterAdapter,
+} from "@daiso-tech/core/http-router";
 
 new HttpRouter({ router: defaultHttpRouterAdapter });
 ```
@@ -43,9 +46,9 @@ import { RegExpRouter } from "hono/router/reg-exp-router";
 import { TrieRouter } from "hono/router/trie-router";
 
 new HttpRouter({
-  router: new SmartRouter({
-    routers: [new RegExpRouter(), new TrieRouter()],
-  }),
+    router: new SmartRouter({
+        routers: [new RegExpRouter(), new TrieRouter()],
+    }),
 });
 ```
 
@@ -96,6 +99,7 @@ import { PatternRouter } from "hono/router/pattern-router";
 
 new HttpRouter({ router: new PatternRouter() });
 ```
+
 ## Further information
 
 For further information refer to:
