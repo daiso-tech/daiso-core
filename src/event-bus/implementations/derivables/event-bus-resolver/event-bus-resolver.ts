@@ -59,8 +59,7 @@ export type EventBusResolverSettings<
 export class EventBusResolver<
     TAdapters extends string = string,
     TEventMap extends BaseEventMap = BaseEventMap,
-> implements IEventBusResolver<TAdapters, TEventMap>
-{
+> implements IEventBusResolver<TAdapters, TEventMap> {
     /**
      * @example
      * ```ts

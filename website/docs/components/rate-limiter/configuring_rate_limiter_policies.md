@@ -1,10 +1,10 @@
 ---
 sidebar_position: 4
 sidebar_label: Configuring policies
-pagination_label: Configuring rate-limiter policies
+pagination_label: Configuring RateLimiter policies
 ---
 
-# Configuring rate-limiter policies
+# Configuring RateLimiter policies
 
 ## SlidingWindowLimiter
 

@@ -1,9 +1,9 @@
 ---
 sidebar_position: 3
 sidebar_label: Configuring adapters
-pagination_label: Configuring rate-limiter adapters
+pagination_label: Configuring RateLimiter adapters
 tags:
-    - Rate-limiter
+    - RateLimiter
     - Configuring adapters
     - In-memory
     - Mongodb
@@ -16,7 +16,7 @@ tags:
     - Libsql
     - NoOp
 keywords:
-    - Rate-limiter
+    - RateLimiter
     - Configuring adapters
     - In-memory
     - Mongodb
@@ -30,7 +30,7 @@ keywords:
     - NoOp
 ---
 
-# Configuring rate-limiter adapters
+# Configuring RateLimiter adapters
 
 ## RedisRateLimiterAdapter
 
@@ -68,7 +68,7 @@ const redisRateLimiterAdapter = new RedisRateLimiterAdapter({
 
 The settings are the same as [backoff policies](../backoff_policies.md) settings.
 
-### Configuring rate-limiter policy
+### Configuring RateLimiter policy
 
 The `type` field is the only required field. All other fields are optional.
 
@@ -124,7 +124,7 @@ const rateLimiterAdapter = new DatabaseRateLimiterAdapter({
 });
 ```
 
-### Configuring rate-limiter policy
+### Configuring RateLimiter policy
 
 You can use any of defined [rate-limiter policies](./configuring_rate_limiter_policies.md) or [create your own](./creating_rate_limiter_policies.md).
 

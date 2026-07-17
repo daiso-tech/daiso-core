@@ -14,9 +14,9 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
 /**
  * @internal
  */
-export class DatabaseCacheAdapter<TType = unknown>
-    implements ICacheAdapter<TType>
-{
+export class DatabaseCacheAdapter<
+    TType = unknown,
+> implements ICacheAdapter<TType> {
     constructor(private readonly adapter: IDatabaseCacheAdapter<TType>) {}
 
     private static handleData<TType_>(

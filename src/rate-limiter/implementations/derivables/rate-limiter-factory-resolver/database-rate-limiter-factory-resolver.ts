@@ -82,9 +82,9 @@ export type DatabaseRateLimiterFactoryResolverSettings<
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
  * @group Derivables
  */
-export class DatabaseRateLimiterFactoryResolver<TAdapters extends string>
-    implements IRateLimiterFactoryResolver<TAdapters>
-{
+export class DatabaseRateLimiterFactoryResolver<
+    TAdapters extends string,
+> implements IRateLimiterFactoryResolver<TAdapters> {
     /**
      * @example
      * ```ts

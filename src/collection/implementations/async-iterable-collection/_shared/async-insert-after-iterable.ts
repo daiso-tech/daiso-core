@@ -15,9 +15,10 @@ import {
 /**
  * @internal
  */
-export class AsyncInsertAfterIterable<TInput, TExtended>
-    implements AsyncIterable<TInput | TExtended>
-{
+export class AsyncInsertAfterIterable<
+    TInput,
+    TExtended,
+> implements AsyncIterable<TInput | TExtended> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,

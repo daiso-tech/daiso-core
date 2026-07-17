@@ -18,7 +18,7 @@ In order to create an adapter you need to implement the [`IEventBusAdapter`](htt
 
 ## Testing your custom IEventBusAdapter
 
-We provide a complete test suite to verify your event bus adapter implementation. Simply use the [`eventBusAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/EventBus.eventBusAdapterTestSuite.html) function:
+We provide a complete test suite to verify your event-bus adapter implementation. Simply use the [`eventBusAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/EventBus.eventBusAdapterTestSuite.html) function:
 
 - Preconfigured Vitest test cases
 - Common edge case coverage
@@ -49,10 +49,10 @@ In some cases, you may need to implement a custom [`EventBus`](https://daiso-tec
 
 ## Testing your custom IEventBus class
 
-We provide a complete test suite to verify your custom event bus class implementation. Simply use the [`eventBusTestSuite`](https://daiso-tech.github.io/daiso-core/functions/EventBus.eventBusTestSuite.html) function:
+We provide a complete test suite to verify your custom event-bus class implementation. Simply use the [`eventBusTestSuite`](https://daiso-tech.github.io/daiso-core/functions/EventBus.eventBusTestSuite.html) function:
 
 - Preconfigured Vitest test cases
-- Standardized event bus behavior validation
+- Standardized event-bus behavior validation
 - Common edge case coverage
 
 Usage example:

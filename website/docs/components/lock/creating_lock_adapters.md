@@ -1,7 +1,7 @@
 ---
 sidebar_position: 4
 sidebar_label: Creating adapters
-pagination_label: Creating lock adapters
+pagination_label: Creating Lock adapters
 tags:
     - Lock
     - Creating adapters
@@ -12,7 +12,7 @@ keywords:
     - Creating database adapters
 ---
 
-# Creating lock adapters
+# Creating Lock adapters
 
 ## Implementing your custom ILockAdapter
 

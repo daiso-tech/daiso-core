@@ -41,9 +41,10 @@ export type SharedLockSerdeTransformerSettings = {
 /**
  * @internal
  */
-export class SharedLockSerdeTransformer
-    implements ISerdeTransformer<SharedLock, ISerializedSharedLock>
-{
+export class SharedLockSerdeTransformer implements ISerdeTransformer<
+    SharedLock,
+    ISerializedSharedLock
+> {
     private readonly adapter: ISharedLockAdapter;
     private readonly originalAdapter: SharedLockAdapterVariants;
     private readonly namespace: INamespace;

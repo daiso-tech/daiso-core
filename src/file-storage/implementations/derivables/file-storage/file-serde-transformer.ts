@@ -49,9 +49,10 @@ export type FileSerdeTransformerSettings = {
 /**
  * @internal
  */
-export class FileSerdeTransformer
-    implements ISerdeTransformer<File, ISerializedFile>
-{
+export class FileSerdeTransformer implements ISerdeTransformer<
+    File,
+    ISerializedFile
+> {
     private readonly waitUntil: WaitUntil;
     private readonly onlyLowercase: boolean;
     private readonly keyValidator: InvokableFn<[key: string], string | null>;

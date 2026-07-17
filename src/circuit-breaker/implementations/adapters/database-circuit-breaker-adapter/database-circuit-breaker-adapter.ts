@@ -60,9 +60,9 @@ export type DatabaseCircuitBreakerAdapterSettings = {
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter"`
  * @group Adapters
  */
-export class DatabaseCircuitBreakerAdapter<TMetrics = unknown>
-    implements ICircuitBreakerAdapter
-{
+export class DatabaseCircuitBreakerAdapter<
+    TMetrics = unknown,
+> implements ICircuitBreakerAdapter {
     private readonly circuitBreakerStorage: CircuitBreakerStorage<TMetrics>;
     private readonly circuitBreakerStateManager: CircuitBreakerStateManager<TMetrics>;
 

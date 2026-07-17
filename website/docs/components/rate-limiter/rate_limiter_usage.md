@@ -1,18 +1,18 @@
 ---
 sidebar_position: 1
 sidebar_label: Usage
-pagination_label: Rate-limiter Usage
+pagination_label: RateLimiter Usage
 tags:
-    - Rate-limiter
+    - RateLimiter
     - Usage
     - Namespace
 keywords:
-    - Rate-limiter
+    - RateLimiter
     - Usage
     - Namespace
 ---
 
-# Rate-limiter usage
+# RateLimiter usage
 
 The `@daiso-tech/core/rate-limiter` component provides a way for managing rate-limiter independent of underlying platform or storage.
 
@@ -39,7 +39,7 @@ const rateLimiterFactory = new RateLimiterFactory({
 Here is a complete list of settings for the [`RateLimiterFactory`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.RateLimiterFactorySettingsBase.html) class.
 :::
 
-## Rate-limiter basics
+## RateLimiter basics
 
 ### Creating a rate-limiter
 
@@ -122,7 +122,7 @@ if (state === RATE_LIMITER_STATE.BLOCKED) {
 }
 ```
 
-### Rate-limiter instance variables
+### RateLimiter instance variables
 
 The `RateLimiter` class exposes instance variables such as:
 
@@ -263,7 +263,7 @@ await eventBus.addListener(
 );
 ```
 
-### Rate-limiter events
+### RateLimiter events
 
 You can listen to different [rate-limiter events](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) that are triggered by the `RateLimiter` instance.
 Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` or `IEventBusAdapter` contract.

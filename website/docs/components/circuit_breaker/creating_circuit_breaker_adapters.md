@@ -1,18 +1,18 @@
 ---
 sidebar_position: 5
 sidebar_label: Creating adapters
-pagination_label: Creating circuit-breaker adapters
+pagination_label: Creating CircuitBreaker adapters
 tags:
-    - Circuit-breaker
+    - CircuitBreaker
     - Creating adapters
     - Creating database adapters
 keywords:
-    - Circuit-breaker
+    - CircuitBreaker
     - Creating adapters
     - Creating database adapters
 ---
 
-# Creating circuit-breaker adapters
+# Creating CircuitBreaker adapters
 
 ## Implementing your custom ICircuitBreakerAdapter
 

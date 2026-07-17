@@ -19,9 +19,9 @@ import { type InvokableFn } from "@/utilities/_module.js";
  *
  * Recommended for Node.js environments where async context isolation is needed.
  */
-export class AlsExecutionContextAdapter<TValue>
-    implements IExecutionContextAdapter<TValue>
-{
+export class AlsExecutionContextAdapter<
+    TValue,
+> implements IExecutionContextAdapter<TValue> {
     private readonly als = new AsyncLocalStorage<TValue>();
 
     get(): TValue | null {

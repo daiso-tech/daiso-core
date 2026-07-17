@@ -102,9 +102,7 @@ export function resolveConsecutiveBreakerSettings(
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
  * @group Policies
  */
-export class ConsecutiveBreaker
-    implements ICircuitBreakerPolicy<ConsecutiveBreakerState>
-{
+export class ConsecutiveBreaker implements ICircuitBreakerPolicy<ConsecutiveBreakerState> {
     private readonly failureThreshold: number;
     private readonly successThreshold: number;
 

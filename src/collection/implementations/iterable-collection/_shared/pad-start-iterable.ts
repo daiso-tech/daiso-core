@@ -7,9 +7,9 @@ import { type ICollection } from "@/collection/contracts/_module.js";
 /**
  * @internal
  */
-export class PadStartIterable<TInput, TExtended>
-    implements Iterable<TInput | TExtended>
-{
+export class PadStartIterable<TInput, TExtended> implements Iterable<
+    TInput | TExtended
+> {
     constructor(
         private collection: ICollection<TInput>,
         private maxLength: number,

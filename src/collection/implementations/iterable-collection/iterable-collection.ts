@@ -79,9 +79,9 @@ import {
  * IMPORT_PATH: `"@daiso-tech/core/collection"`
  * @group Implementations
  */
-export class IterableCollection<TInput = unknown>
-    implements ICollection<TInput>
-{
+export class IterableCollection<
+    TInput = unknown,
+> implements ICollection<TInput> {
     /**
      * The `concat` static method is a convenient utility for easily concatenating multiple {@link Iterable | `Iterable`}.
      * @example

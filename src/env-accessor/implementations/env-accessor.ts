@@ -48,9 +48,9 @@ export type EnvAccessorSettings<
  * @template TEnvConfig The environment config type.
  * @group Implementations
  */
-export class EnvAccessor<TEnvConfig extends BaseEnvConfig>
-    implements IEnvAccessor<TEnvConfig>
-{
+export class EnvAccessor<
+    TEnvConfig extends BaseEnvConfig,
+> implements IEnvAccessor<TEnvConfig> {
     private envConfig: TEnvConfig | null = null;
 
     private readonly schema: StandardSchemaV1<

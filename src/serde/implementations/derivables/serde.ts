@@ -195,9 +195,9 @@ export type SerializedClass = {
  * IMPORT_PATH: `"@daiso-tech/core/serde"`
  * @group Derivables
  */
-export class Serde<TSerializedValue>
-    implements IFlexibleSerde<TSerializedValue>
-{
+export class Serde<
+    TSerializedValue,
+> implements IFlexibleSerde<TSerializedValue> {
     /**
      * @example
      * ```ts

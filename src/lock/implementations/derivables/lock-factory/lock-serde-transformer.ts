@@ -41,9 +41,10 @@ export type LockSerdeTransformerSettings = {
 /**
  * @internal
  */
-export class LockSerdeTransformer
-    implements ISerdeTransformer<Lock, ISerializedLock>
-{
+export class LockSerdeTransformer implements ISerdeTransformer<
+    Lock,
+    ISerializedLock
+> {
     private readonly adapter: ILockAdapter;
     private readonly originalAdapter: LockAdapterVariants;
     private readonly namespace: INamespace;

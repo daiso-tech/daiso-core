@@ -55,9 +55,9 @@ export type FileStorageResolverSettings<TAdapters extends string = string> =
  * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
  * @group Derivables
  */
-export class FileStorageResolver<TAdapters extends string = string>
-    implements IFileStorageResolver<TAdapters>
-{
+export class FileStorageResolver<
+    TAdapters extends string = string,
+> implements IFileStorageResolver<TAdapters> {
     /**
      * @example
      * ```ts

@@ -55,9 +55,9 @@ export type SharedLockFactoryResolverSettings<TAdapters extends string> =
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
  * @group Derivables
  */
-export class SharedLockFactoryResolver<TAdapters extends string>
-    implements ISharedLockFactoryResolver<TAdapters>
-{
+export class SharedLockFactoryResolver<
+    TAdapters extends string,
+> implements ISharedLockFactoryResolver<TAdapters> {
     /**
      * @example
      * ```ts

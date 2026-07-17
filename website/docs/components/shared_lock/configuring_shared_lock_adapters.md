@@ -1,9 +1,9 @@
 ---
 sidebar_position: 3
 sidebar_label: Configuring adapters
-pagination_label: Configuring shared-lock adapters
+pagination_label: Configuring SharedLock adapters
 tags:
-    - Shared-lock
+    - SharedLock
     - Configuring adapters
     - In-memory
     - Mongodb
@@ -16,7 +16,7 @@ tags:
     - Libsql
     - NoOp
 keywords:
-    - Shared-lock
+    - SharedLock
     - Configuring adapters
     - In-memory
     - Mongodb
@@ -30,7 +30,7 @@ keywords:
     - NoOp
 ---
 
-# Configuring shared-lock adapters
+# Configuring SharedLock adapters
 
 ## MemorySharedLockAdapter
 

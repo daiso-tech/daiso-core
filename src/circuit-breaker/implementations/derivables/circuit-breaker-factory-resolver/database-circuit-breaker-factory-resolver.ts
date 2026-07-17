@@ -84,9 +84,9 @@ export type DatabaseCircuitBreakerFactoryResolverSettings<
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
  * @group Derivables
  */
-export class DatabaseCircuitBreakerFactoryResolver<TAdapters extends string>
-    implements ICircuitBreakerFactoryResolver<TAdapters>
-{
+export class DatabaseCircuitBreakerFactoryResolver<
+    TAdapters extends string,
+> implements ICircuitBreakerFactoryResolver<TAdapters> {
     /**
      * @example
      * ```ts

@@ -60,9 +60,9 @@ export type DatabaseRateLimiterAdapterSettings = {
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/database-rate-limiter-adapter"`
  * @group Adapters
  */
-export class DatabaseRateLimiterAdapter<TMetrics = unknown>
-    implements IRateLimiterAdapter
-{
+export class DatabaseRateLimiterAdapter<
+    TMetrics = unknown,
+> implements IRateLimiterAdapter {
     private readonly rateLimiterStorage: RateLimiterStorage<TMetrics>;
     private readonly rateLimiterStateManager: RateLimiterStateManager<TMetrics>;
 

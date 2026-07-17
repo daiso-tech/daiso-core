@@ -1,18 +1,18 @@
 ---
 sidebar_position: 4
 sidebar_label: Creating adapters
-pagination_label: Creating shared-lock adapters
+pagination_label: Creating SharedLock adapters
 tags:
-    - Shared-lock
+    - SharedLock
     - Creating adapters
     - Creating database adapters
 keywords:
-    - Shared-lock
+    - SharedLock
     - Creating adapters
     - Creating database adapters
 ---
 
-# Creating shared-lock adapters
+# Creating SharedLock adapters
 
 ## Implementing your custom ISharedLockAdapter
 
@@ -82,10 +82,10 @@ In some cases, you may need to implement a custom [`SharedLockFactory`](https://
 
 ## Testing your custom ISharedLockFactory class
 
-We provide a complete test suite to verify your custom event bus class implementation. Simply use the [`sharedLockProviderTestSuite`](https://daiso-tech.github.io/daiso-core/functions/SharedLock.sharedLockProviderTestSuite.html) function:
+We provide a complete test suite to verify your custom event-bus class implementation. Simply use the [`sharedLockProviderTestSuite`](https://daiso-tech.github.io/daiso-core/functions/SharedLock.sharedLockProviderTestSuite.html) function:
 
 - Preconfigured Vitest test cases
-- Standardized event bus behavior validation
+- Standardized event-bus behavior validation
 - Common edge case coverage
 
 Usage example:

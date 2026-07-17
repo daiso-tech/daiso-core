@@ -48,9 +48,9 @@ export type RedisCacheAdapterSettings = {
  * IMPORT_PATH: `"@daiso-tech/core/cache/redis-cache-adapter"`
  * @group Adapters
  */
-export class RedisCacheAdapter<TType = unknown>
-    implements ICacheAdapter<TType>
-{
+export class RedisCacheAdapter<
+    TType = unknown,
+> implements ICacheAdapter<TType> {
     private static isRedisTypeError(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
         value: any,

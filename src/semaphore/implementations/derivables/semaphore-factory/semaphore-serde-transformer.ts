@@ -41,9 +41,10 @@ export type SemaphoreSerdeTransformerSettings = {
 /**
  * @internal
  */
-export class SemaphoreSerdeTransformer
-    implements ISerdeTransformer<Semaphore, ISerializedSemaphore>
-{
+export class SemaphoreSerdeTransformer implements ISerdeTransformer<
+    Semaphore,
+    ISerializedSemaphore
+> {
     private readonly adapter: ISemaphoreAdapter;
     private readonly originalAdapter: SemaphoreAdapterVariants;
     private readonly namespace: INamespace;

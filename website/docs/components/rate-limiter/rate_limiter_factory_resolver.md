@@ -1,16 +1,16 @@
 ---
 sidebar_position: 2
 sidebar_label: Resolver classes
-pagination_label: Rate-limiter resolver classes
+pagination_label: RateLimiter resolver classes
 tags:
-    - Rate-limiter
+    - RateLimiter
     - Resolvers
 keywords:
-    - Rate-limiter
+    - RateLimiter
     - Resolvers
 ---
 
-# Rate-limiter resolver factory classes
+# RateLimiter resolver factory classes
 
 ## RateLimiterFactoryResolver
 

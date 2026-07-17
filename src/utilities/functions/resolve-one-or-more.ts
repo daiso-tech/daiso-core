@@ -12,6 +12,11 @@ export type OneOrMore<TItem> = TItem | Iterable<TItem>;
 /**
  * IMPORT_PATH: `"@daiso-tech/core/utilities"`
  */
+export type OneOrAtLeastOne<TItem> = TItem | [TItem, ...Array<TItem>];
+
+/**
+ * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ */
 export type OneOrArray<TItem> = TItem | Array<TItem>;
 
 /**

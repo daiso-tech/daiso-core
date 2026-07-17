@@ -5,9 +5,9 @@
 /**
  * @internal
  */
-export class ZipIterable<TInput, TExtended>
-    implements Iterable<[TInput, TExtended]>
-{
+export class ZipIterable<TInput, TExtended> implements Iterable<
+    [TInput, TExtended]
+> {
     constructor(
         private iterableA: Iterable<TInput>,
         private iterableB: Iterable<TExtended>,

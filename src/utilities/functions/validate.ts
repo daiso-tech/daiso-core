@@ -5,11 +5,17 @@
 import { type StandardSchemaV1 } from "@standard-schema/spec";
 
 export class ValidationError extends Error {
-    constructor(issues: ReadonlyArray<StandardSchemaV1.Issue>) {
+    static create(
+        issues: ReadonlyArray<StandardSchemaV1.Issue>,
+    ): ValidationError {
         const jsonMessage = JSON.stringify(issues, null, 2);
-        super(
+        return new ValidationError(
             `A validation error occurred with the following issues:\n${jsonMessage}`,
         );
+    }
+
+    constructor(message: string, cause?: unknown) {
+        super(message, { cause });
         this.name = ValidationError.name;
     }
 }
@@ -26,7 +32,7 @@ export async function validate<TInput, TOutput = TInput>(
     const validationResult = await schema["~standard"].validate(value);
 
     if (validationResult.issues) {
-        throw new ValidationError(validationResult.issues);
+        throw ValidationError.create(validationResult.issues);
     }
     return validationResult.value;
 }
@@ -47,7 +53,7 @@ export function validateSync<TInput, TOutput = TInput>(
         );
     }
     if (validationResult.issues) {
-        throw new ValidationError(validationResult.issues);
+        throw ValidationError.create(validationResult.issues);
     }
     return validationResult.value;
 }

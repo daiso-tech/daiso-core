@@ -90,9 +90,9 @@ export type KyselyCacheAdapterSettings = {
 /**
  * @internal
  */
-export class DatabaseCacheTransaction<TType>
-    implements IDatabaseCacheTransaction<TType>
-{
+export class DatabaseCacheTransaction<
+    TType,
+> implements IDatabaseCacheTransaction<TType> {
     private readonly isMysql: boolean;
 
     constructor(

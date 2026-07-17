@@ -11,9 +11,10 @@ import { resolveInvokable } from "@/utilities/_module.js";
 /**
  * @internal
  */
-export class AsyncUniqueIterable<TInput, TOutput>
-    implements AsyncIterable<TInput>
-{
+export class AsyncUniqueIterable<
+    TInput,
+    TOutput,
+> implements AsyncIterable<TInput> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private callback: AsyncMap<

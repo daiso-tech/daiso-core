@@ -42,9 +42,10 @@ export type CircuitBreakerSerdeTransformerSettings = {
 /**
  * @internal
  */
-export class CircuitBreakerSerdeTransformer
-    implements ISerdeTransformer<CircuitBreaker, ISerializedCircuitBreaker>
-{
+export class CircuitBreakerSerdeTransformer implements ISerdeTransformer<
+    CircuitBreaker,
+    ISerializedCircuitBreaker
+> {
     private readonly adapter: ICircuitBreakerAdapter;
     private readonly namespace: INamespace;
     private readonly slowCallTime: TimeSpan;

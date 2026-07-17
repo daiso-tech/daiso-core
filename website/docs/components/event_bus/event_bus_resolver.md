@@ -12,7 +12,7 @@ keywords:
 
 # EventBusResolver
 
-The `EventBusResolver` class provides a flexible way to configure and switch between different event bus adapters at runtime.
+The `EventBusResolver` class provides a flexible way to configure and switch between different event-bus adapters at runtime.
 
 ## Initial configuration
 

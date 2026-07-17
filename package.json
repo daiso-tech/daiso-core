@@ -62,7 +62,20 @@
         "s3",
         "aws-s3",
         "local",
-        "file-system"
+        "file-system",
+        "http",
+        "http-router",
+        "winter-tc",
+        "hono",
+        "elysiajs",
+        "h3",
+        "HatTip",
+        "next",
+        "nuxt",
+        "analogjs",
+        "sveltekit",
+        "solid-start",
+        "tanstack-start"
     ],
     "exports": {
         "./backoff-policies": {
@@ -260,6 +273,18 @@
         "./file-storage/test-utilities": {
             "types": "./dist/file-storage/implementations/test-utilities/_module-exports.d.ts",
             "import": "./dist/file-storage/implementations/test-utilities/_module-exports.js"
+        },
+        "./http-router": {
+            "types": "./dist/http-router/implementations/_module-exports.d.ts",
+            "import": "./dist/http-router/implementations/_module-exports.js"
+        },
+        "./http-router/contracts": {
+            "types": "./dist/http-router/contracts/_module-exports.d.ts",
+            "import": "./dist/http-router/contracts/_module-exports.js"
+        },
+        "./http-router/middlewares": {
+            "types": "./dist/http-router/middlewares/_module-exports.d.ts",
+            "import": "./dist/http-router/middlewares/_module-exports.js"
         },
         "./lock": {
             "types": "./dist/lock/implementations/derivables/_module-exports.d.ts",
@@ -540,6 +565,7 @@
         "eslint-plugin-tsdoc": "^0.3.0",
         "eslint-plugin-typescript-enum": "^2.1.0",
         "eslint-plugin-vitest": "^0.5.4",
+        "hono": "^4.12.26",
         "ioredis": "^5.4.1",
         "kysely": "^0.28.2",
         "mongodb": "^6.10.0",
