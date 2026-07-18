@@ -43,11 +43,6 @@ export type WithSharedLockFactorySettings<
      * A function or static value that produces the lock key from the wrapped
      * function's arguments. All consumers using the same key share the same
      * lock state.
-     *
-     * @default
-     * ```ts
-     * (...args) => JSON.stringify(args)
-     * ```
      */
     key: Invokable<TParameters, string>;
 

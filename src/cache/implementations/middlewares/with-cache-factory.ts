@@ -21,11 +21,6 @@ export type WithCacheSettings<
     /**
      * A function or static value that produces the cache key from the
      * wrapped function's arguments.
-     *
-     * @default
-     * ```ts
-     * (...args) => JSON.stringify(args)
-     * ```
      */
     key: Invokable<TParameters, string>;
 };

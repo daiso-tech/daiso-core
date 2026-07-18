@@ -22,11 +22,6 @@ export type WithLockSettings<
      * A function or static value that produces the lock key from the wrapped
      * function's arguments. The lock is acquired on this key, ensuring mutual
      * exclusion across processes for the same key.
-     *
-     * @default
-     * ```ts
-     * (...args) => JSON.stringify(args)
-     * ```
      */
     key: Invokable<TParameters, string>;
 

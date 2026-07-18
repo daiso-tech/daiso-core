@@ -27,11 +27,6 @@ export type WithCircuitBreakerSettings<
      * A function or static value that produces a unique identifier for the
      * circuit from the wrapped function's arguments. Each unique key gets its
      * own circuit state.
-     *
-     * @default
-     * ```ts
-     * (...args) => JSON.stringify(args)
-     * ```
      */
     key: Invokable<TParameters, string>;
 
