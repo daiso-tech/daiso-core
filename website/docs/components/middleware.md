@@ -15,6 +15,7 @@ To begin using middleware, create a middleware application function using the fa
 ```ts
 import { useFactory } from "@daiso-tech/core/middleware";
 
+// Create a middleware function with a specific execution-context
 const use = useFactory({
     defaultPriority: 0,
 });

@@ -16,7 +16,7 @@ keywords:
     - NoOp
 ---
 
-## Configuring EventBus adapters
+# Configuring EventBus adapters
 
 ## MemoryEventBusAdapter
 

@@ -1,10 +1,10 @@
 ---
 sidebar_position: 4
 sidebar_label: Configuring policies
-pagination_label: Configuring circuit-breaker policies
+pagination_label: Configuring CircuitBreaker policies
 ---
 
-# Configuring circuit-breaker policies
+# Configuring CircuitBreaker policies
 
 ## ConsecutiveBreaker
 

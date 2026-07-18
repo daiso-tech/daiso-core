@@ -214,7 +214,10 @@ function GitHubStarBanner() {
                 >
                     <Star
                         size="1rem"
-                        style={{ marginRight: "0.5rem", verticalAlign: "middle" }}
+                        style={{
+                            marginRight: "0.5rem",
+                            verticalAlign: "middle",
+                        }}
                         strokeWidth={2}
                     />
                     Star on GitHub
@@ -270,7 +273,9 @@ function UpcomingSection({ items }: { items: ComponentItemProps[] }) {
         <section className="padding-vert--xl daiso-section-alt">
             <div className="container">
                 <div className="text--center margin-bottom--xl">
-                    <h2 className="daiso-section-title">🔮 Upcoming Components</h2>
+                    <h2 className="daiso-section-title">
+                        🔮 Upcoming Components
+                    </h2>
                     <p className="daiso-section-subtitle">
                         Components currently in design or development — not yet
                         available in any release.
@@ -311,7 +316,10 @@ function VisionSection({ items }: { items: VisionItemProps[] }) {
             <div className="container">
                 <div className="text--center margin-bottom--xl">
                     <h2 className="daiso-section-title">🌟 Vision</h2>
-                    <p className="daiso-section-subtitle" style={{ textAlign: "left" }}>
+                    <p
+                        className="daiso-section-subtitle"
+                        style={{ textAlign: "left" }}
+                    >
                         @daiso-tech/core will be built around one core idea:{" "}
                         <strong>
                             production-grade backend primitives that work great
@@ -476,6 +484,13 @@ const componentItems: ComponentItemProps[] = [
             "EnvAccessor loads and validates environment variables from one or more sources with type-safe access.",
         href: "/docs/components/env_accessor",
     },
+    {
+        icon: <Globe size="1.5rem" strokeWidth={1.5} />,
+        title: "HTTP Router",
+        description:
+            "Route HTTP requests with a universal WinterTC-compatible fetch handler. Works with any framework or runtime that is WinterTC-compatible like Cloudflare Workers, AWS Lambda (via Hono), Next.js and more.",
+        href: "/docs/components/http_router/http_router_usage",
+    },
 ];
 
 const upcomingItems: ComponentItemProps[] = [
@@ -540,12 +555,6 @@ const upcomingItems: ComponentItemProps[] = [
             "Planning to support synchronising your database — synchronously or asynchronously — with an external search engine via a unified interface. First-class integrations with MikroORM, PostgreSQL (via Kysely), and MongoDB planned.",
     },
     {
-        icon: <Globe size="1.5rem" strokeWidth={1.5} />,
-        title: "HTTP server",
-        description:
-            "Planning to support defining HTTP servers using the standard Web platform Request/Response API — portable across runtimes with no framework lock-in.",
-    },
-    {
         icon: <Server size="1.5rem" strokeWidth={1.5} />,
         title: "OpenAPI",
         description:
@@ -589,14 +598,12 @@ const upcomingItems: ComponentItemProps[] = [
     },
     {
         icon: <Server size="1.5rem" strokeWidth={1.5} />,
-        title: (
-            <>
-                Logging &amp; OpenTelemetry
-            </>
-        ),
+        title: <>Logging &amp; OpenTelemetry</>,
         description: (
             <>
-                Planned support for flexible logging and <a href="https://opentelemetry.io/">OpenTelemetry</a> integration to make debugging and observability seamless.
+                Planned support for flexible logging and{" "}
+                <a href="https://opentelemetry.io/">OpenTelemetry</a>{" "}
+                integration to make debugging and observability seamless.
             </>
         ),
     },
@@ -623,8 +630,8 @@ const visionItems: VisionItemProps[] = [
                 will allow your route handlers to run natively inside{" "}
                 <strong>
                     Next.js, SvelteKit, Nuxt, SolidStart, Analog (Angular),
-                    TanStack Start, Cloudflare Workers, Vercel Functions, Netlify
-                    Functions, and many more platforms via Hono
+                    TanStack Start, Cloudflare Workers, Vercel Functions,
+                    Netlify Functions, and many more platforms via Hono
                 </strong>{" "}
                 — with no separate backend server to host, deploy, or maintain.
                 Your fullstack app will become your backend.
@@ -643,15 +650,15 @@ const visionItems: VisionItemProps[] = [
                 On top of the agnostic core, a separate opinionated,
                 batteries-included framework layer will be introduced. Unlike
                 the core library, it will not be agnostic — it will make
-                deliberate choices so you will not have to. It will be
-                delivered as a <strong>Vite plugin</strong> that can be dropped
-                into most modern frontend frameworks — Next.js, SvelteKit,
-                Nuxt, SolidStart, TanStack Start, Analog, and more — and will
-                lean heavily on <strong>code generation</strong> to eliminate
+                deliberate choices so you will not have to. It will be delivered
+                as a <strong>Vite plugin</strong> that can be dropped into most
+                modern frontend frameworks — Next.js, SvelteKit, Nuxt,
+                SolidStart, TanStack Start, Analog, and more — and will lean
+                heavily on <strong>code generation</strong> to eliminate
                 boilerplate, auto-wire components, and provide a truly
                 integrated developer experience with a
-                convention-over-configuration feel directly inside your
-                existing fullstack app.
+                convention-over-configuration feel directly inside your existing
+                fullstack app.
             </>
         ),
     },
@@ -674,7 +681,9 @@ export default function Home(): ReactNode {
                         {siteConfig.tagline}
                     </p>
                     <p className="daiso-hero-subtext">
-                        The library contains 4,640 tests — the majority are integration and behavior tests, ensuring reliability in real-world scenarios.
+                        The library contains 4,640 tests — the majority are
+                        integration and behavior tests, ensuring reliability in
+                        real-world scenarios.
                     </p>
                     <div className="margin-bottom--xl">
                         <InstallCommand />

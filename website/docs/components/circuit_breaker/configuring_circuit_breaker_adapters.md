@@ -1,9 +1,9 @@
 ---
 sidebar_position: 3
 sidebar_label: Configuring adapters
-pagination_label: Configuring circuit-breaker adapters
+pagination_label: Configuring CircuitBreaker adapters
 tags:
-    - Circuit-breaker
+    - CircuitBreaker
     - Configuring adapters
     - In-memory
     - Mongodb
@@ -16,7 +16,7 @@ tags:
     - Libsql
     - NoOp
 keywords:
-    - Circuit-breaker
+    - CircuitBreaker
     - Configuring adapters
     - In-memory
     - Mongodb
@@ -30,7 +30,7 @@ keywords:
     - NoOp
 ---
 
-# Configuring circuit-breaker adapters
+# Configuring CircuitBreaker adapters
 
 ## RedisCircuitBreakerAdapter
 
@@ -68,7 +68,7 @@ const redisCircuitBreakerAdapter = new RedisCircuitBreakerAdapter({
 
 The settings are the same as [backoff policies](../backoff_policies.md) settings.
 
-### Configuring circuit-breaker policy
+### Configuring CircuitBreaker policy
 
 The `type` field is the only required field. All other fields are optional.
 
@@ -124,7 +124,7 @@ const circuitBreakerAdapter = new DatabaseCircuitBreakerAdapter({
 });
 ```
 
-### Configuring circuit-breaker policy
+### Configuring CircuitBreaker policy
 
 You can use any of defined [circuit-breaker policies](./configuring_circuit_breaker_policies.md) or [create your own](./creating_circuit_breaker_policies.md).
 

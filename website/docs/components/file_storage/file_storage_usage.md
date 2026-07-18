@@ -14,7 +14,7 @@ keywords:
 
 # FileStorage usage
 
-The `@daiso-tech/core/file-storage` component provides a way for managing files independent of underlying platform or storage.
+The `@daiso-tech/core/FileStorage` component provides a way for managing files independent of underlying platform or storage.
 
 ## Initial configuration
 
@@ -22,8 +22,8 @@ To begin using the `FileStorage` class, you'll need to create and configure an i
 
 ```ts
 import { TimeSpan } from "@daiso-tech/core/time-span";
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
-import { FileStorage } from "@daiso-tech/core/file-storage";
+import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
+import { FileStorage } from "@daiso-tech/core/FileStorage";
 
 const fileStorage = new FileStorage({
     // You can provide defaultContentType value by default is application/octet-stream
@@ -228,7 +228,7 @@ const hasAdded = await fileStorage.create("file.txt").addStream({
 });
 ```
 
-You can also pass the file size of the stream which used for optimizations by some adapters:
+You can also pass the file-size of the stream which used for optimizations by some adapters:
 
 ```ts
 import { createReadStream } from "node:fs"
@@ -245,7 +245,7 @@ const hasAdded = await fileStorage.create("file.txt").addStream({
 ```
 
 :::info
-It is best practice to pass file size whenever possible because of the optimizations.  
+It is best practice to pass file-size whenever possible because of the optimizations.  
 :::
 
 ### Retrieving files
@@ -404,7 +404,7 @@ Use `moveAndReplaceOrFail` method to perform the same operations as the `moveAnd
 
 ### Signed urls and public urls.
 
-Create signed urls to allow clients to upload files directly to file-storage.
+Create signed urls to allow clients to upload files directly to FileStorage.
 
 Upload url methods:
 
@@ -420,7 +420,7 @@ const uploadUrl = await fileStorage.create("source.txt").getSignedUploadUrl({
 console.log(uploadUrl)
 ```
 
-Create signed urls to allow clients to download files directly from file-storage.
+Create signed urls to allow clients to download files directly from FileStorage.
 
 Download url methods:
 
@@ -456,16 +456,16 @@ console.log(publicUrl);
 ```
 
 :::info
-Note since not all file-storage adapters support signed or public URLs, you can manually override these behaviors using the `urlAdapter` setting:
+Note since not all FileStorage adapters support signed or public URLs, you can manually override these behaviors using the `urlAdapter` setting:
 
 ```ts
 import { TimeSpan } from "@daiso-tech/core/time-span";
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
+import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
 import {
     FildeAdapterDownloadUrlSettings,
     FildeAdapterUploadUrlSettings,
-} from "@daiso-tech/core/file-storage/contracts";
-import { FileStorage } from "@daiso-tech/core/file-storage";
+} from "@daiso-tech/core/FileStorage/contracts";
+import { FileStorage } from "@daiso-tech/core/FileStorage";
 
 const fileStorage = new FileStorage({
     // You can provide defaultContentType value by default is application/octet-stream
@@ -517,15 +517,15 @@ For further information about namespacing refer to [`@daiso-tech/core/namespace`
 
 ```ts
 import { Namespace } from "@daiso-tech/core/namespace";
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
-import { FileStorage } from "@daiso-tech/core/file-storage";
+import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
+import { FileStorage } from "@daiso-tech/core/FileStorage";
 
 const fileStorageA = new FileStorage({
-    namespace: new Namespace("@file-storage-a"),
+    namespace: new Namespace("@FileStorage-a"),
     adapter: new MemoryFileStorageAdapter(),
 });
 const fileStorageB = new FileStorage({
-    namespace: new Namespace("@file-storage-b"),
+    namespace: new Namespace("@FileStorage-b"),
     adapter: new MemoryFileStorageAdapter(),
 });
 
@@ -556,8 +556,8 @@ In order to serialize or deserialize a file object you need pass an object that 
 Manually serializing and deserializing the file object:
 
 ```ts
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
-import { FileStorage } from "@daiso-tech/core/file-storage";
+import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
+import { FileStorage } from "@daiso-tech/core/FileStorage";
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
 
@@ -585,9 +585,9 @@ Note you only need manuall serialization and deserialization when integrating wi
 As long you pass the same `Serde` instances with all other components you dont need to serialize and deserialize the file object manually.
 
 ```ts
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
-import type { IFile } from "@daiso-tech/core/file-storage/contracts";
-import { FileStorage } from "@daiso-tech/core/file-storage";
+import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
+import type { IFile } from "@daiso-tech/core/FileStorage/contracts";
+import { FileStorage } from "@daiso-tech/core/FileStorage";
 import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
 import { EventBus } from "@daiso-tech/core/event-bus";
 import { Serde } from "@daiso-tech/core/serde";
@@ -634,8 +634,8 @@ You can listen to different [file events](https://daiso-tech.github.io/daiso-cor
 Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` or `IEventBusAdapter` contract.
 
 ```ts
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
-import { FileStorage, FILE_EVENTS } from "@daiso-tech/core/file-storage";
+import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
+import { FileStorage, FILE_EVENTS } from "@daiso-tech/core/FileStorage";
 import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
 
 const fileStorage = new FileStorage({
@@ -651,11 +651,11 @@ await fileStorage.create("file.txt").add({ data: "CONTENT" });
 ```
 
 :::warning
-If multiple file-storage adapters (e.g., `FsFileStorageAdapter` and `MemoryFileStorageAdapter`) are used at the same time, you need to isolate their events by assigning separate namespaces. This prevents listeners from unintentionally capturing events across adapters.
+If multiple FileStorage adapters (e.g., `FsFileStorageAdapter` and `MemoryFileStorageAdapter`) are used at the same time, you need to isolate their events by assigning separate namespaces. This prevents listeners from unintentionally capturing events across adapters.
 
 ```ts
-import { FsFileStorageAdapter } from "@daiso-tech/core/file-storage/fs-file-storage-adapter";
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
+import { FsFileStorageAdapter } from "@daiso-tech/core/FileStorage/fs-FileStorage-adapter";
+import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
 import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
 import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
@@ -692,8 +692,8 @@ const fsFileStorage = new FileStorage({
 The `FileStorage` instance method supports distributed locking via the `lockFactory` settings passed into `FileStorage` constructor. Data races will occur when multiple clients simultaneously perform write operation to same file and file will be corrupted.
 
 ```ts
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
-import { FileStorage } from "@daiso-tech/core/file-storage";
+import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
+import { FileStorage } from "@daiso-tech/core/FileStorage";
 import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
 
 const fileStorage = new FileStorage({
@@ -724,4 +724,4 @@ The library includes 3 additional contracts:
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/file-storage`](https://daiso-tech.github.io/daiso-core/modules/FileStorage.html) API docs.
+For further information refer to [`@daiso-tech/core/FileStorage`](https://daiso-tech.github.io/daiso-core/modules/FileStorage.html) API docs.

@@ -134,6 +134,45 @@ export type MiddlewareFn<
 > = InvokableFn<[args: MiddlewareArgs<TParameters, TReturn>], TReturn>;
 
 /**
+ * Defines a middleware function with type inference.
+ *
+ * A convenience helper that ensures the provided handler conforms to the
+ * {@link MiddlewareFn} signature while preserving exact parameter and
+ * return types. This allows TypeScript to infer narrower types for
+ * `TParameters` and `TReturn` without needing explicit generic annotations
+ * on the handler.
+ *
+ * Use this when defining middleware functions to get accurate type checking
+ * and IntelliSense without sacrificing type safety.
+ *
+ * @typeParam TParameters - Type of arguments passed through the middleware chain
+ * @typeParam TReturn - Type of value returned from the function
+ * @param middleware - A function conforming to {@link MiddlewareFn}.
+ * @returns The same handler, typed as {@link MiddlewareFn}.
+ *
+ * @example
+ * ```ts
+ * const loggingMiddleware = defineMiddleware(({ args, next, context }) => {
+ *     console.log('Before:', args);
+ *     const result = next(args);
+ *     console.log('After:', result);
+ *     return result;
+ * });
+ * ```
+ *
+ * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * @group Contracts
+ */
+export function defineMiddleware<
+    TParameters extends Array<unknown> = Array<unknown>,
+    TReturn = unknown,
+>(
+    middleware: MiddlewareFn<TParameters, TReturn>,
+): MiddlewareFn<TParameters, TReturn> {
+    return middleware;
+}
+
+/**
  * A middleware in the execution chain.
  *
  * Can be either a function or an object implementation. Both forms have access to

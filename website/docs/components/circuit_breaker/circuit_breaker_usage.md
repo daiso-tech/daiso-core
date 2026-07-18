@@ -1,18 +1,18 @@
 ---
 sidebar_position: 1
 sidebar_label: Usage
-pagination_label: Circuit-breaker Usage
+pagination_label: CircuitBreaker Usage
 tags:
-    - Circuit-breaker
+    - CircuitBreaker
     - Usage
     - Namespace
 keywords:
-    - Circuit-breaker
+    - CircuitBreaker
     - Usage
     - Namespace
 ---
 
-# Circuit-breaker usage
+# CircuitBreaker usage
 
 The `@daiso-tech/core/circuit-breaker` component provides a way for managing circuit-breaker independent of underlying platform or storage.
 
@@ -39,7 +39,7 @@ const circuitBreakerFactory = new CircuitBreakerFactory({
 Here is a complete list of settings for the [`CircuitBreakerFactory`](https://daiso-tech.github.io/daiso-core/types/CircuitBreaker.CircuitBreakerFactorySettingsBase.html) class.
 :::
 
-## Circuit-breaker basics
+## CircuitBreaker basics
 
 ### Creating a circuit-breaker
 
@@ -176,7 +176,7 @@ if (state === CIRCUIT_BREAKER_STATE.ISOLATED) {
 }
 ```
 
-### Circuit-breaker instance variables
+### CircuitBreaker instance variables
 
 The `CircuitBreaker` class exposes instance variables such as:
 
@@ -319,7 +319,7 @@ await eventBus.addListener(
 );
 ```
 
-### Circuit-breaker events
+### CircuitBreaker events
 
 You can listen to different [circuit-breaker events](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) that are triggered by the `CircuitBreaker` instance.
 Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` or `IEventBusAdapter` contract.

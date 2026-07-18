@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 sidebar_label: Configuring adapters
-pagination_label: Configuring semaphore adapters
+pagination_label: Configuring Semaphore adapters
 tags:
     - Semaphore
     - Configuring adapters
@@ -30,7 +30,7 @@ keywords:
     - NoOp
 ---
 
-# Configuring semaphore adapters
+# Configuring Semaphore adapters
 
 ## MemorySemaphoreAdapter
 

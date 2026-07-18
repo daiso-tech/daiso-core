@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 sidebar_label: Configuring adapters
-pagination_label: Configuring lock adapters
+pagination_label: Configuring Lock adapters
 tags:
     - Lock
     - Configuring adapters
@@ -30,7 +30,7 @@ keywords:
     - NoOp
 ---
 
-# Configuring lock adapters
+# Configuring Lock adapters
 
 ## MemoryLockAdapter
 

@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 sidebar_label: Configuring adapters
-pagination_label: Configuring file-storage adapters
+pagination_label: Configuring FileStorage adapters
 tags:
     - FileStorage
     - Configuring adapters
@@ -28,14 +28,14 @@ keywords:
     - NoOp
 ---
 
-# Configuring file-storage adapters
+# Configuring FileStorage adapters
 
 ## MemoryFileStorageAdapter
 
 To use the `MemoryFileStorageAdapter` you only need to create instance of it:
 
 ```ts
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
+import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
 
 const memoryFileStorageAdapter = new MemoryFileStorageAdapter();
 ```
@@ -43,7 +43,7 @@ const memoryFileStorageAdapter = new MemoryFileStorageAdapter();
 You can also provide an `Map` that will be used for storing the files in memory:
 
 ```ts
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
+import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
 
 const map = new Map<any, any>();
 const memoryFileStorageAdapter = new MemoryFileStorageAdapter(map);
@@ -62,7 +62,7 @@ Note this adapter doesnt have support for creating signed upload, signed downloa
 To use the `FsFileStorageAdapter` you only need to create instance of it:
 
 ```ts
-import { FsFileStorageAdapter } from "@daiso-tech/core/file-storage/fs-file-storage-adapter";
+import { FsFileStorageAdapter } from "@daiso-tech/core/FileStorage/fs-FileStorage-adapter";
 
 const fsFileStorageAdapter = new FsFileStorageAdapter();
 ```
@@ -70,7 +70,7 @@ const fsFileStorageAdapter = new FsFileStorageAdapter();
 You can configure the root folder:
 
 ```ts
-import { FsFileStorageAdapter } from "@daiso-tech/core/file-storage/fs-file-storage-adapter";
+import { FsFileStorageAdapter } from "@daiso-tech/core/FileStorage/fs-FileStorage-adapter";
 
 const fsFileStorageAdapter = new FsFileStorageAdapter({
     location: "/my-custom-location",
@@ -81,7 +81,7 @@ You can configure codec used for file names:
 
 ```ts
 import { Base64Codec } from "@daiso-tech/core/codec/base-64-codec";
-import { FsFileStorageAdapter } from "@daiso-tech/core/file-storage/fs-file-storage-adapter";
+import { FsFileStorageAdapter } from "@daiso-tech/core/FileStorage/fs-FileStorage-adapter";
 
 const fsFileStorageAdapter = new FsFileStorageAdapter({
     codec: new Base64Codec(),
@@ -104,7 +104,7 @@ To use the `S3FileStorageAdapter`, you'll need to:
 1. Install the required dependency: [`@aws-sdk/client-s3`](https://www.npmjs.com/package/@aws-sdk/client-s3) package:
 
 ```ts
-import { S3FileStorageAdapter } from "@daiso-tech/core/file-storage/s3-file-storage-adapter";
+import { S3FileStorageAdapter } from "@daiso-tech/core/FileStorage/s3-FileStorage-adapter";
 
 const s3Client = new S3Client({
     credentials: {
@@ -124,7 +124,7 @@ Other settings:
 import {
     S3FileStorageAdapter,
     defaultPublicUrlGenerator,
-} from "@daiso-tech/core/file-storage/s3-file-storage-adapter";
+} from "@daiso-tech/core/FileStorage/s3-FileStorage-adapter";
 
 const s3Client = new S3Client({
     credentials: {
@@ -185,7 +185,7 @@ Note this adapter with object storage services that are compatible with aws s3 l
 The `NoOpFileStorageAdapter` is a no-operation implementation, it performs no actions when called:
 
 ```ts
-import { NoOpFileStorageAdapter } from "@daiso-tech/core/file-storage/no-op-file-storage-adpater";
+import { NoOpFileStorageAdapter } from "@daiso-tech/core/FileStorage/no-op-FileStorage-adpater";
 
 const noOpFileStorageAdapter = new NoOpFileStorageAdapter();
 ```
@@ -196,4 +196,4 @@ The `NoOpFileStorageAdapter` is useful when you want to mock out or disable your
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/file-storage`](https://daiso-tech.github.io/daiso-core/modules/FileStorage.html) API docs.
+For further information refer to [`@daiso-tech/core/FileStorage`](https://daiso-tech.github.io/daiso-core/modules/FileStorage.html) API docs.

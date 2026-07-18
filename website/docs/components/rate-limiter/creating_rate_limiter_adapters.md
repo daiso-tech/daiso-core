@@ -1,18 +1,18 @@
 ---
 sidebar_position: 5
 sidebar_label: Creating adapters
-pagination_label: Creating rate-limiter adapters
+pagination_label: Creating RateLimiter adapters
 tags:
-    - Rate-limiter
+    - RateLimiter
     - Creating adapters
     - Creating database adapters
 keywords:
-    - Rate-limiter
+    - RateLimiter
     - Creating adapters
     - Creating database adapters
 ---
 
-# Creating rate-limiter adapters
+# Creating RateLimiter adapters
 
 ## Implementing your custom IRateLimiterAdapter
 
