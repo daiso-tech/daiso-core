@@ -64,6 +64,9 @@ A growing collection of officially maintained, production-ready components. Ever
 
 - **HTTP Router**: Route HTTP requests with a universal WinterTC-compatible fetch handler. Works with any framework or runtime that is WinterTC-compatible like Cloudflare Workers, AWS Lambda (via Hono), Next.js and more.
 
+### 🔗 Middleware
+- Intercept, compose and extend any sync or async function with a priority-based middleware pipeline useful for AOP (Aspect Oriented Programming).
+
 ### 🧰 Utilities
 
 - **Serde**: Add custom serialization and deserialization logic that integrates transparently with every other component in the library.

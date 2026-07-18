@@ -453,7 +453,7 @@ const componentItems: ComponentItemProps[] = [
         icon: <Webhook size="1.5rem" strokeWidth={1.5} />,
         title: "Middleware",
         description:
-            "Intercept and compose any sync or async function with a priority-based middleware pipeline. Built-in retry, fallback, and timeout middlewares for handling transient failures.",
+            "Intercept, compose and extend any sync or async function with a priority-based middleware pipeline useful for AOP (Aspect Oriented Programming). Built-in retry, fallback, timeout, lock, semaphore, shared-lock, cache, rate-limiter, circuit-breaker  middlewares for handling transient failures.",
         href: "/docs/components/middleware",
     },
     {
