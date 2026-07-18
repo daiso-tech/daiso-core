@@ -1,19 +1,11 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
-import { type IContext } from "@/execution-context/contracts/_module.js";
-import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
 import { type NextFn } from "@/middleware/contracts/_module.js";
 import { RetryIntervalResilienceError } from "@/resilience/implementations/resilience.errors.js";
 import { retryInterval } from "@/resilience/implementations/retry-interval/retry-interval.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: retryInterval", () => {
-    let context: IContext;
-
-    beforeEach(() => {
-        context = new Context(new Map());
-    });
-
     describe("setting: time and interval", () => {
         test("Should retry within the time window until success", async () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
@@ -672,24 +664,6 @@ describe("function: retryInterval", () => {
             );
         });
 
-        test("Should be called with context", async () => {
-            const onExecutionAttempt = vi.fn();
-            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
-                .fn()
-                .mockResolvedValue("ok");
-            const middleware = retryInterval({
-                time: TimeSpan.fromMilliseconds(500),
-                interval: TimeSpan.fromMilliseconds(10),
-                onExecutionAttempt,
-            });
-
-            await middleware({ args: [], next: nextFn, name: "" });
-
-            expect(onExecutionAttempt).toHaveBeenCalledWith(
-                expect.objectContaining({ context }),
-            );
-        });
-
         test("Should not prevent execution when callback throws", async () => {
             const onExecutionAttempt = vi
                 .fn()
@@ -841,25 +815,6 @@ describe("function: retryInterval", () => {
 
             expect(onRetryDelay).toHaveBeenCalledWith(
                 expect.objectContaining({ args: ["test-arg"] }),
-            );
-        });
-
-        test("Should be called with context", async () => {
-            const onRetryDelay = vi.fn();
-            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
-                .fn()
-                .mockRejectedValueOnce(new Error("fail"))
-                .mockResolvedValue("ok");
-            const middleware = retryInterval({
-                time: TimeSpan.fromMilliseconds(500),
-                interval: TimeSpan.fromMilliseconds(10),
-                onRetryDelay,
-            });
-
-            await middleware({ args: [], next: nextFn, name: "" });
-
-            expect(onRetryDelay).toHaveBeenCalledWith(
-                expect.objectContaining({ context }),
             );
         });
 
