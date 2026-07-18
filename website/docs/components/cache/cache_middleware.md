@@ -56,6 +56,7 @@ const cachedFetchUser = use(
 const user = await cachedFetchUser("123"); // Cache miss — fetches and caches
 const userAgain = await cachedFetchUser("123"); // Cache hit — returns immediately
 ```
+
 ## Further information
 
 For further information refer to [`@daiso-tech/core/cache`](https://daiso-tech.github.io/daiso-core/modules/Cache.html) API docs.

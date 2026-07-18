@@ -24,7 +24,10 @@ This middleware is ideal for scenarios where read operations are safe to run con
 ## Initial setup
 
 ```ts
-import { withSharedLockFactory, SHARED_LOCK_WHEN } from "@daiso-tech/core/shared-lock/middlewares";
+import {
+    withSharedLockFactory,
+    SHARED_LOCK_WHEN,
+} from "@daiso-tech/core/shared-lock/middlewares";
 import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
 import { useFactory } from "@daiso-tech/core/middleware";
 
