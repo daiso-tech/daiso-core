@@ -39,6 +39,7 @@ describe("function: enhanceFactory", () => {
             methodA(_value: string): void {},
             methodB(_value: string): void {},
         };
+        const methodName = objectLiteral.methodA.name;
 
         const middlewareA = vi.fn<MiddlewareFn<[value: string], void>>();
 
@@ -51,6 +52,7 @@ describe("function: enhanceFactory", () => {
         expect(middlewareA).toHaveBeenCalledWith({
             args: [value],
             next: expect.any(Function) as NextFn<[value: string]>,
+            name: methodName,
         });
     });
     test("Should not call underlying middleware when non-enhanced object literal method is invoked", () => {
@@ -99,6 +101,7 @@ describe("function: enhanceFactory", () => {
             methodB(_value: string): void {}
         }
         const instance = new Test();
+        const methodName = instance.methodA.name;
 
         const middlewareA = vi.fn<MiddlewareFn<[value: string], void>>();
 
@@ -108,9 +111,11 @@ describe("function: enhanceFactory", () => {
         instance.methodA(value);
 
         expect(middlewareA).toHaveBeenCalledOnce();
+
         expect(middlewareA).toHaveBeenCalledWith({
             args: [value],
             next: expect.any(Function) as NextFn<[value: string]>,
+            name: methodName,
         });
     });
     test("Should not call underlying middleware when non-enhanced class instance method is invoked", () => {

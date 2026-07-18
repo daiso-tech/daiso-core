@@ -34,7 +34,14 @@ export function enhanceFactory(use: Use): Enhance {
             );
         }
 
+        const enhancedFn = use(fn.bind(obj), middlewares);
+        Object.defineProperty(enhancedFn, "name", {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            value: (obj[field] as any).name,
+            configurable: true,
+        });
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        obj[field] = use(fn.bind(obj), middlewares) as any;
+        obj[field] = enhancedFn as any;
     };
 }

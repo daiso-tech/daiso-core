@@ -151,10 +151,18 @@ export function useFactory(settings: UseFactorySettings = {}): Use {
                 const next: NextFn<TParameters, TReturn> = (args = args_) => {
                     return prevFunc(...args);
                 };
+
+                // If function has been binded the name field will be "bound fnName"
+                // So we need to remove the "bound " prefix.
+                let name = getInvokableName(invokable);
+                if (name.toLowerCase().startsWith("bound ")) {
+                    name = name.slice(6);
+                }
+
                 return middleware.invoke({
                     args: args_,
                     next,
-                    name: getInvokableName(invokable),
+                    name,
                 });
             };
         }
