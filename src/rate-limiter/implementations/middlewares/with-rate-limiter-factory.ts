@@ -6,7 +6,7 @@ import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { type IRateLimiterFactoryBase } from "@/rate-limiter/contracts/_module.js";
 import {
     callInvokable,
-    type ErrorPolicy,
+    type ErrorPolicySettings,
     type Invokable,
 } from "@/utilities/_module.js";
 
@@ -15,7 +15,7 @@ import {
  */
 export type WithRateLimiterSettings<
     TParameters extends Array<unknown> = Array<unknown>,
-> = ErrorPolicy & {
+> = ErrorPolicySettings & {
     key: Invokable<TParameters, string>;
     onlyError?: boolean;
     limit: number;
