@@ -65,10 +65,20 @@ export type MiddlewareArgs<
     TParameters extends Array<unknown> = Array<unknown>,
     TReturn = unknown,
 > = {
-    /** The arguments passed to the original function */
+    /**
+     * The arguments passed to the original function
+     */
     args: TParameters;
-    /** Function to call the next middleware or final function */
+
+    /**
+     * Function to call the next middleware or final function
+     */
     next: NextFn<TParameters, TReturn>;
+
+    /**
+     * The name of the function.
+     */
+    name: string;
 };
 
 /**

@@ -15,6 +15,7 @@ import {
     resolveOneOrMore,
     isInvokableObject,
     resolveInvokable,
+    getInvokableName,
 } from "@/utilities/_module.js";
 
 /**
@@ -153,6 +154,7 @@ export function useFactory(settings: UseFactorySettings = {}): Use {
                 return middleware.invoke({
                     args: args_,
                     next,
+                    name: getInvokableName(invokable),
                 });
             };
         }
