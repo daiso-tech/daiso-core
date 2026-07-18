@@ -171,20 +171,21 @@ export type Middleware<
  *
  * @example
  * ```ts
- * const use = useFactory();
+ * function main(use: Use): void {
+ *   // Apply a single middleware
+ *   const logged = use(fetchData, loggingMiddleware);
  *
- * // Apply a single middleware
- * const logged = use(fetchData, loggingMiddleware);
+ *   // Apply multiple middlewares (executed in priority order)
+ *   const enhanced = use(fetchData, [
+ *     { priority: 0, invoke: authMiddleware },
+ *     { priority: 10, invoke: cacheMiddleware },
+ *     { priority: 20, invoke: loggingMiddleware }
+ *   ]);
  *
- * // Apply multiple middlewares (executed in priority order)
- * const enhanced = use(fetchData, [
- *   { priority: 0, invoke: authMiddleware },
- *   { priority: 10, invoke: cacheMiddleware },
- *   { priority: 20, invoke: loggingMiddleware }
- * ]);
+ *   // Call the wrapped function
+ *   const result = logged(arg1, arg2);
+ * }
  *
- * // Call the wrapped function
- * const result = logged(arg1, arg2);
  * ```
  *
  * @see {@link UseFactorySettings | `UseFactorySettings`}

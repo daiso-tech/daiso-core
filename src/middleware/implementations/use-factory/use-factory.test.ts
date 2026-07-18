@@ -4,7 +4,7 @@ import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { useFactory } from "@/middleware/implementations/use-factory/use-factory.js";
 
 describe("function: useFactory", () => {
-    test("should call middleware before next function", () => {
+    test("Should call middleware before next function", () => {
         const order: Array<string> = [];
         const use = useFactory();
         const fn = use(
@@ -21,8 +21,7 @@ describe("function: useFactory", () => {
         expect(result).toBe(3);
         expect(order).toEqual(["before", "fn"]);
     });
-
-    test("should call middleware after next function", () => {
+    test("Should call middleware after next function", () => {
         const order: Array<string> = [];
         const use = useFactory();
         const fn = use(
@@ -40,8 +39,7 @@ describe("function: useFactory", () => {
         expect(result).toBe(3);
         expect(order).toEqual(["fn", "after"]);
     });
-
-    test("should allow middleware to return early without calling next", () => {
+    test("Should allow middleware to return early without calling next", () => {
         const order: Array<string> = [];
         const use = useFactory();
         const fn = use(
@@ -58,8 +56,7 @@ describe("function: useFactory", () => {
         expect(result).toBe(42);
         expect(order).toEqual(["middleware"]);
     });
-
-    test("should execute middlewares in priority order (lower first)", () => {
+    test("Should execute middlewares in priority order (lower first)", () => {
         const order: Array<string> = [];
         const use = useFactory();
         const fn = use(() => {
@@ -96,8 +93,7 @@ describe("function: useFactory", () => {
             "fn",
         ]);
     });
-
-    test("should use defaultPriority for middlewares without explicit priority", () => {
+    test("Should use defaultPriority for middlewares without explicit priority", () => {
         const order: Array<string> = [];
         const use = useFactory({ defaultPriority: 15 });
         const fnMiddleware: MiddlewareFn<[], string> = ({ args, next }) => {
