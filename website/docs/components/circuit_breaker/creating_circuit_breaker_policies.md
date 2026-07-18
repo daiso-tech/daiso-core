@@ -4,7 +4,7 @@ sidebar_label: Creating policies
 pagination_label: Creating CircuitBreaker policies
 ---
 
-# Creating policies
+# Creating CircuitBreaker policies
 
 ## Implementing your custom ICircuitBreakerPolicy
 
