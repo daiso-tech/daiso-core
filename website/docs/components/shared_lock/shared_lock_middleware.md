@@ -21,7 +21,7 @@ The SharedLock middleware wraps function calls with a distributed shared lock (r
 
 This middleware is ideal for scenarios where read operations are safe to run concurrently but write operations need exclusive access, such as coordinating access to shared data structures, cached resources, or files.
 
-## Initial setup
+## Usage
 
 ```ts
 import {
@@ -29,24 +29,13 @@ import {
     SHARED_LOCK_WHEN,
 } from "@daiso-tech/core/shared-lock/middlewares";
 import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
 
-const sharedLockFactory = SharedLockFactory({
-    // Configure adapter (e.g. Redis)
+const sharedLockFactory = new SharedLockFactory({
+    adapter: new MemorySharedLockAdapter(),
 });
-
 const withSharedLock = withSharedLockFactory(sharedLockFactory);
 
-const use = useFactory();
-```
-
-:::info
-Here is a complete list of settings for the [`WithSharedLock`](https://daiso-tech.github.io/daiso-core/types/SharedLock.WithSharedLockFactorySettings.html) function.
-:::
-
-## Usage
-
-```ts
 const readData = async (key: string): Promise<unknown> => {
     // Safe to run concurrently with other readers
     return { data: "..." };
@@ -62,8 +51,26 @@ const safeRead = use(
     }),
 );
 
-await safeRead("config");
+const writeData = async (key: string): Promise<unknown> => {
+    // Safe to run concurrently as only writer
+};
+
+// Wrap with shared-lock in writer mode — only writer allowed
+const safeWrite = use(
+    writeData,
+    withSharedLock({
+        key: (resourceKey) => `data:${resourceKey}`,
+        when: SHARED_LOCK_WHEN.WRITER,
+        limit: 10,
+    }),
+);
+
+await writeData("config");
 ```
+
+:::info
+Here is a complete list of settings for the [`withSharedLock`](https://daiso-tech.github.io/daiso-core/types/SharedLock.WithSharedLockFactorySettings.html) function.
+:::
 
 ## Further information
 

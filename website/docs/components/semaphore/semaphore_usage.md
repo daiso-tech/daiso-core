@@ -376,13 +376,12 @@ Retrying acquiring semaphore with `acquireOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const semaphore = semaphoreFactory.create("semaphore", {
     limit: 2,
 });
 
-const use = useFactory();
 try {
     await use(async () => {
         await semaphore.acquireOrFail();
@@ -402,13 +401,11 @@ Retrying acquiring semaphore with `acquire` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const semaphore = semaphoreFactory.create("semaphore", {
     limit: 2,
 });
-
-const use = useFactory();
 
 const hasAquired = await use(async () => {
     return await semaphore.acquire();
@@ -435,13 +432,12 @@ Retrying acquiring semaphore with `runOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const semaphore = semaphoreFactory.create("semaphore", {
     limit: 2,
 });
 
-const use = useFactory();
 await use(async () => {
     await semaphore.runOrFail(async () => {
         // The critical section
@@ -463,14 +459,13 @@ Retrying acquiring semaphore with `acquireOrFail` method:
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
 import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const semaphore = semaphoreFactory.create("resource", {
     limit: 2,
 });
 
-const use = useFactory();
 try {
     await use(async () => {
         await semaphore.acquireOrFail();
@@ -493,14 +488,13 @@ Retrying acquiring semaphore with `acquire` method:
 
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const semaphore = semaphoreFactory.create("resource", {
     limit: 2,
 });
 
-const use = useFactory();
 const hasAcquired = await use(async () => {
     return await semaphore.acquire();
 }, [
@@ -527,14 +521,12 @@ Retrying acquiring semaphore with `runOrFail` method:
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
 import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const semaphore = semaphoreFactory.create("resource", {
     limit: 2,
 });
-
-const use = useFactory();
 
 await use(async () => {
     await semaphore.runOrFail(async () => {

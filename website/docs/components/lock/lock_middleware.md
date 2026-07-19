@@ -16,29 +16,18 @@ keywords:
 
 The Lock middleware wraps function calls with a distributed lock, ensuring mutual exclusion across processes. Before executing the wrapped function, a lock is acquired on a key derived from the function's arguments. If another process already holds the lock, the call waits (or fails immediately for non-blocking locks) until the lock is released.
 
-## Initial setup
+## Usage
 
 ```ts
 import { withLockFactory } from "@daiso-tech/core/lock/middlewares";
 import { LockFactory } from "@daiso-tech/core/lock";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
 
-const lockFactory = LockFactory({
-    // Configure adapter (e.g. Redis)
+const lockFactory = new LockFactory({
+    adapter: new MemoryLockAdapter()
 });
-
 const withLock = withLockFactory(lockFactory);
 
-const use = useFactory();
-```
-
-:::info
-Here is a complete list of settings for the [`WithLock`](https://daiso-tech.github.io/daiso-core/types/Lock.WithLockSettings.html) function.
-:::
-
-## Usage
-
-```ts
 const processJob = async (jobId: string): Promise<void> => {
     // Critical section — only one process should execute this at a time
     await process(jobId);
@@ -54,6 +43,10 @@ const safeProcess = use(
 
 await safeProcess("job-123"); // Acquires lock, processes, releases lock
 ```
+
+:::info
+Here is a complete list of settings for the [`withLock`](https://daiso-tech.github.io/daiso-core/types/Lock.WithLockSettings.html) function.
+:::
 
 ## Further information
 

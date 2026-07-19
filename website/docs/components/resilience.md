@@ -21,9 +21,7 @@ The `fallback` middleware adds fallback value when an error occurs:
 
 ```ts
 import { fallback } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
-
-const use = useFactory();
+import { use } from "@daiso-tech/core/middleware";
 
 function unstableFn(): number {
     // We simulate a function that can throw unexpected errors
@@ -89,9 +87,7 @@ The `retry` middleware enables automatic retries for all errors or specific erro
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
-
-const use = useFactory();
+import { use } from "@daiso-tech/core/middleware";
 
 function unstableFn(): number {
     // We simulate a function that can throw unexpected errors
@@ -204,10 +200,8 @@ The `retryInterval` middleware retries a function repeatedly within a given time
 
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
-
-const use = useFactory();
 
 function unstableFn(): number {
     // We simulate a function that can throw unexpected errors
@@ -307,10 +301,8 @@ The `timeout` middleware automatically aborts functions after a specified time p
 
 ```ts
 import { timeout } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
-
-const use = useFactory();
 
 async function fetchData(): Promise<Response> {
     const response = await fetch("ENDPOINT");

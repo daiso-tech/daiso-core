@@ -312,11 +312,10 @@ Retrying acquiring lock with `acquireOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const lock = lockFactory.create("lock");
 
-const use = useFactory();
 try {
     await use(async () => {
         await lock.acquireOrFail();
@@ -336,11 +335,10 @@ Retrying acquiring lock with `acquire` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const lock = lockFactory.create("lock");
 
-const use = useFactory();
 const hasAquired = await use(async () => {
     return await lock.acquire();
 }, [
@@ -366,11 +364,9 @@ Retrying acquiring lock with `runOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const lock = lockFactory.create("lock");
-
-const use = useFactory();
 
 await use(async () => {
     await lock.runOrFail(async () => {
@@ -393,12 +389,11 @@ Retrying acquiring lock with `acquireOrFail` method:
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
 import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const lock = lockFactory.create("resource");
 
-const use = useFactory();
 try {
     await use(async () => {
         await lock.acquireOrFail();
@@ -421,12 +416,11 @@ Retrying acquiring lock with `acquire` method:
 
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const lock = lockFactory.create("resource");
 
-const use = useFactory();
 const hasAcquired = await use(async () => {
     return await lock.acquire();
 }, [
@@ -453,12 +447,10 @@ Retrying acquiring lock with `runOrFail` method:
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
 import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const lock = lockFactory.create("resource");
-
-const use = useFactory();
 
 await use(async () => {
     await lock.runOrFail(async () => {
