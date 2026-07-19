@@ -9,12 +9,11 @@ import { NoOpCircuitBreakerAdapter } from "@/circuit-breaker/implementations/ada
 import { CircuitBreakerFactory } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/_module.js";
 import { CircuitBreaker } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
 import { withCircuitBreakerFactory } from "@/circuit-breaker/implementations/middlewares/with-circuit-breaker-factory.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { use } from "@/middleware/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withCircuitBreakerFactory", () => {
     let circuitBreakerFactory: ICircuitBreakerFactory;
-    const use = useFactory();
 
     beforeEach(() => {
         circuitBreakerFactory = new CircuitBreakerFactory({

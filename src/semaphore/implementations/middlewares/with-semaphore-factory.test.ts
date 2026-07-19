@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { use } from "@/middleware/implementations/_module.js";
 import { type SemaphoreFactoryCreateSettings } from "@/semaphore/contracts/_module.js";
 import { NoOpSemaphoreAdapter } from "@/semaphore/implementations/adapters/_module.js";
 import { SemaphoreFactory } from "@/semaphore/implementations/derivables/_module.js";
@@ -11,7 +11,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withSemaphoreFactory", () => {
     let semaphoreFactory: SemaphoreFactory;
-    const use = useFactory();
 
     beforeEach(() => {
         semaphoreFactory = new SemaphoreFactory({

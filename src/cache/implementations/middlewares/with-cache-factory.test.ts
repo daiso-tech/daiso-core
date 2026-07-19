@@ -4,12 +4,11 @@ import { type GetOrAddSettings } from "@/cache/contracts/_module.js";
 import { NoOpCacheAdapter } from "@/cache/implementations/adapters/_module.js";
 import { Cache } from "@/cache/implementations/derivables/_module.js";
 import { withCacheFactory } from "@/cache/implementations/middlewares/with-cache-factory.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { use } from "@/middleware/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withCacheFactory", () => {
     let cache: Cache<string>;
-    const use = useFactory();
 
     beforeEach(() => {
         cache = new Cache<string>({
