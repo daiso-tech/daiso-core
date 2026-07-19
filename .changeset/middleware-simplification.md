@@ -22,8 +22,13 @@ The middleware module has been simplified by removing the factory layer and expo
 #### Migration guide
 
 **Before:**
+
 ```ts
-import { useFactory, enhanceFactory, withPluginFactory } from "@daiso-tech/core/middleware";
+import {
+    useFactory,
+    enhanceFactory,
+    withPluginFactory,
+} from "@daiso-tech/core/middleware";
 
 const use = useFactory();
 const enhance = enhanceFactory(use);
@@ -31,6 +36,7 @@ const withPlugin = withPluginFactory(enhance);
 ```
 
 **After:**
+
 ```ts
 import { use, enhance, withPlugin } from "@daiso-tech/core/middleware";
 ```

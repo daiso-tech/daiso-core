@@ -13,7 +13,10 @@ The `@daiso-tech/core/middleware` module provides a flexible middleware system f
 A middleware is a function that receives middleware arguments (containing the original arguments, a next function, and the name of the function) and returns the result:
 
 ```ts
-import { type MiddlewareArgs, type MiddlewareFn } from "@daiso-tech/core/middleware";
+import {
+    type MiddlewareArgs,
+    type MiddlewareFn,
+} from "@daiso-tech/core/middleware";
 
 const createLoggingMiddleware = <TParameters extends Array<unknown>, TReturn>(
     prefix: string = "LOG",
@@ -129,16 +132,19 @@ type MiddlewareArgs<TParameters, TReturn> = {
 A helper function for defining middleware with accurate type inference. It ensures the provided handler conforms to the `MiddlewareFn` signature while preserving exact parameter and return types, without needing explicit generic annotations:
 
 ```ts
-import { defineMiddleware, type MiddlewareFn } from "@daiso-tech/core/middleware";
+import {
+    defineMiddleware,
+    type MiddlewareFn,
+} from "@daiso-tech/core/middleware";
 
-const loggingMiddleware = defineMiddleware(<T extends unknown[], R>(
-    { args, next }: MiddlewareArgs<T, R>,
-): R => {
-    console.log("Before:", args);
-    const result = next(args);
-    console.log("After:", result);
-    return result;
-});
+const loggingMiddleware = defineMiddleware(
+    <T extends unknown[], R>({ args, next }: MiddlewareArgs<T, R>): R => {
+        console.log("Before:", args);
+        const result = next(args);
+        console.log("After:", result);
+        return result;
+    },
+);
 ```
 
 ## Patterns
@@ -179,7 +185,10 @@ Middleware can be asynchronous:
 const createAsyncValidationMiddleware = (
     validator: (args: [string, number]) => Promise<boolean>,
 ): MiddlewareFn<[string, number], Promise<string>> => {
-    return async ({ args, next }: MiddlewareArgs<[string, number], Promise<string>>): Promise<string> => {
+    return async ({
+        args,
+        next,
+    }: MiddlewareArgs<[string, number], Promise<string>>): Promise<string> => {
         // Perform async validation
         const isValid = await validator(args);
         if (!isValid) throw new Error("Validation failed");
@@ -226,7 +235,10 @@ Catch and handle errors in middleware:
 const createErrorHandlingMiddleware = (
     errorHandler?: (error: unknown) => void,
 ): MiddlewareFn<[string, number], Promise<string>> => {
-    return async ({ args, next }: MiddlewareArgs<[string, number], Promise<string>>): Promise<string> => {
+    return async ({
+        args,
+        next,
+    }: MiddlewareArgs<[string, number], Promise<string>>): Promise<string> => {
         try {
             return await next(args);
         } catch (error) {
@@ -354,7 +366,11 @@ The `withPlugin` function provides a way to apply one or more plugins to a class
 #### Usage with Class Instances
 
 ```ts
-import { withPlugin, type PluginFn, type MiddlewareFn } from "@daiso-tech/core/middleware";
+import {
+    withPlugin,
+    type PluginFn,
+    type MiddlewareFn,
+} from "@daiso-tech/core/middleware";
 
 class UserService {
     async getUser(id: string): Promise<{ name: string }> {
@@ -453,20 +469,25 @@ const enhancedService = withPlugin(service, [
 For plugins with state or configuration, use the object form:
 
 ```ts
-import { type IPluginObject, type MiddlewareFn } from "@daiso-tech/core/middleware";
+import {
+    type IPluginObject,
+    type MiddlewareFn,
+} from "@daiso-tech/core/middleware";
 
 class MetricsPlugin implements IPluginObject<UserService> {
     constructor(private readonly metricsClient: MetricsClient) {}
 
     invoke(service: UserService, enhance: Enhance): void {
-        const metricsMiddleware: MiddlewareFn<[string], Promise<{ name: string }>> = 
-            async ({ args, next }) => {
-                const start = performance.now();
-                const result = await next(args);
-                const duration = performance.now() - start;
-                this.metricsClient.record("getUser", duration);
-                return result;
-            };
+        const metricsMiddleware: MiddlewareFn<
+            [string],
+            Promise<{ name: string }>
+        > = async ({ args, next }) => {
+            const start = performance.now();
+            const result = await next(args);
+            const duration = performance.now() - start;
+            this.metricsClient.record("getUser", duration);
+            return result;
+        };
 
         enhance(service, "getUser", metricsMiddleware);
     }

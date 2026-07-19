@@ -27,7 +27,7 @@ import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/m
 import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
 
 const rateLimiterFactory = new RateLimiterFactory({
-       adapter: new DatabaseRateLimiterAdapter({
+    adapter: new DatabaseRateLimiterAdapter({
         adapter: new MemoryRateLimiterStorageAdapter(),
     }),
 });

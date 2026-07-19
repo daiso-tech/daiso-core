@@ -753,7 +753,6 @@ const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
 });
 
-
 await use(async () => {
     await sharedLock.runWriterOrFail(async () => {
         // ... critical section
@@ -848,7 +847,6 @@ import { TimeSpan } from "@daiso-tech/core/time-span";
 const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
 });
-
 
 await use(async () => {
     await sharedLock.runReaderOrFail(async () => {

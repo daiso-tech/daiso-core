@@ -24,7 +24,7 @@ import { LockFactory } from "@daiso-tech/core/lock";
 import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
 
 const lockFactory = new LockFactory({
-    adapter: new MemoryLockAdapter()
+    adapter: new MemoryLockAdapter(),
 });
 const withLock = withLockFactory(lockFactory);
 
