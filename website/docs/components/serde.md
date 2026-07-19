@@ -189,7 +189,7 @@ The library includes 4 additional contracts:
 
 - `IFlexibleSerde` – Allows for both serialization, deserialization and for registering custom serialization/deserialization and deserialization logic.
 
-This seperation makes it easy to visually distinguish the 4 contracts, making it immediately obvious that they serve different purposes.
+This separation makes it easy to visually distinguish the 4 contracts, making it immediately obvious that they serve different purposes.
 
 ## Further information
 
