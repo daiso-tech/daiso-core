@@ -1,1 +1,1 @@
-export * from "@/rate-limiter/implementations/middlewares/rate-limiter-middleware-factory.js";
+export * from "@/rate-limiter/implementations/middlewares/with-rate-limiter-factory.js";

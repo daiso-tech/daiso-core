@@ -1,13 +1,14 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
-import { contextToken } from "@/execution-context/contracts/execution-context.contract.js";
-import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/als-execution-context-adapter.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
+import {
+    type MiddlewareArgs,
+    type MiddlewareFn,
+    type NextFn,
+} from "@/middleware/contracts/_module.js";
 import { useFactory } from "@/middleware/implementations/use-factory/use-factory.js";
 
 describe("function: useFactory", () => {
-    test("should call middleware before next function", () => {
+    test("Should call middleware before next function", () => {
         const order: Array<string> = [];
         const use = useFactory();
         const fn = use(
@@ -24,8 +25,7 @@ describe("function: useFactory", () => {
         expect(result).toBe(3);
         expect(order).toEqual(["before", "fn"]);
     });
-
-    test("should call middleware after next function", () => {
+    test("Should call middleware after next function", () => {
         const order: Array<string> = [];
         const use = useFactory();
         const fn = use(
@@ -43,8 +43,7 @@ describe("function: useFactory", () => {
         expect(result).toBe(3);
         expect(order).toEqual(["fn", "after"]);
     });
-
-    test("should allow middleware to return early without calling next", () => {
+    test("Should allow middleware to return early without calling next", () => {
         const order: Array<string> = [];
         const use = useFactory();
         const fn = use(
@@ -61,8 +60,7 @@ describe("function: useFactory", () => {
         expect(result).toBe(42);
         expect(order).toEqual(["middleware"]);
     });
-
-    test("should execute middlewares in priority order (lower first)", () => {
+    test("Should execute middlewares in priority order (lower first)", () => {
         const order: Array<string> = [];
         const use = useFactory();
         const fn = use(() => {
@@ -99,8 +97,7 @@ describe("function: useFactory", () => {
             "fn",
         ]);
     });
-
-    test("should use defaultPriority for middlewares without explicit priority", () => {
+    test("Should use defaultPriority for middlewares without explicit priority", () => {
         const order: Array<string> = [];
         const use = useFactory({ defaultPriority: 15 });
         const fnMiddleware: MiddlewareFn<[], string> = ({ args, next }) => {
@@ -123,45 +120,121 @@ describe("function: useFactory", () => {
         fn();
         expect(order).toEqual(["priority-10", "fn-middleware", "fn"]);
     });
-
-    test("should provide execution context to middleware when using AlsExecutionContextAdapter", () => {
-        const executionContext = new ExecutionContext(
-            new AlsExecutionContextAdapter(),
-        );
-        const token = contextToken<number>("value");
-        const use = useFactory({ executionContext });
-        const fn = use(
-            () => {
-                return executionContext.get(token);
-            },
-            ({ args, next, context }) => {
-                context.put(token, 99);
-                return next(args);
-            },
-        );
-        const result = fn();
-        expect(result).toBe(99);
-    });
-
-    test("should isolate execution context between calls when using AlsExecutionContextAdapter", () => {
-        const executionContext = new ExecutionContext(
-            new AlsExecutionContextAdapter(),
-        );
-        const token = contextToken<number>("counter");
-        const use = useFactory({ executionContext });
-        const fn = use(
-            () => {
-                return executionContext.get(token);
-            },
-            ({ args, next, context }) => {
-                context.put(token, (context.get(token) ?? 0) + 1);
-                return next(args);
-            },
-        );
-        const result1 = fn();
-        const result2 = fn();
-        expect(result1).toBe(1);
-        expect(result2).toBe(1);
-        expect(executionContext.get(token)).toBeNull();
+    describe("MiddlewareArgs passed to middleware handlers", () => {
+        test("Should pass correct args to middleware", () => {
+            const use = useFactory();
+            const middleware = vi.fn(
+                ({ args, next }: MiddlewareArgs<[number, number], number>) =>
+                    next(args),
+            );
+            const fn = use((a: number, b: number) => a + b, middleware);
+            expect(fn(3, 4)).toBe(7);
+            expect(middleware).toHaveBeenCalledTimes(1);
+            expect(middleware).toHaveBeenCalledWith(
+                expect.objectContaining({ args: [3, 4] }),
+            );
+        });
+        test("Should pass next function that executes the wrapped function", () => {
+            const use = useFactory();
+            const middleware = vi.fn(
+                ({ args, next }: MiddlewareArgs<[number, number], number>) =>
+                    next(args),
+            );
+            const wrappedFn = vi.fn((a: number, b: number) => a * b);
+            const fn = use(wrappedFn, middleware);
+            expect(fn(4, 5)).toBe(20);
+            expect(wrappedFn).toHaveBeenCalledWith(4, 5);
+        });
+        test("Should pass next function that propagates modified arguments", () => {
+            const use = useFactory();
+            const wrappedFn = vi.fn((a: number, b: number) => a + b);
+            const fn = use(
+                wrappedFn,
+                ({ next }: MiddlewareArgs<[number, number], number>) =>
+                    next([10, 20]),
+            );
+            expect(fn(1, 2)).toBe(30);
+            expect(wrappedFn).toHaveBeenCalledWith(10, 20);
+        });
+        test("Should pass next function that defaults to original args when called without arguments", () => {
+            const use = useFactory();
+            const wrappedFn = vi.fn((a: string, b: string) => `${a} ${b}`);
+            const fn = use(
+                wrappedFn,
+                (_args: MiddlewareArgs<[string, string], string>) =>
+                    _args.next(),
+            );
+            expect(fn("hello", "world")).toBe("hello world");
+            expect(wrappedFn).toHaveBeenCalledWith("hello", "world");
+        });
+        test("Should pass the function name for a named function", () => {
+            const use = useFactory();
+            function add(a: number, b: number): number {
+                return a + b;
+            }
+            const middleware = vi.fn(
+                ({ args, next }: MiddlewareArgs<[number, number], number>) =>
+                    next(args),
+            );
+            const fn = use(add, middleware);
+            fn(1, 2);
+            expect(middleware).toHaveBeenCalledWith(
+                expect.objectContaining({ name: "add" }),
+            );
+        });
+        test("Should pass an empty string name for an anonymous arrow function", () => {
+            const use = useFactory();
+            const middleware = vi.fn(
+                ({ args, next }: MiddlewareArgs<[number], number>) =>
+                    next(args),
+            );
+            const fn = use((x: number) => x * 2, middleware);
+            fn(5);
+            expect(middleware).toHaveBeenCalledWith(
+                expect.objectContaining({ name: "" }),
+            );
+        });
+        test("Should pass the correct name through multiple middlewares in priority order", () => {
+            const use = useFactory();
+            function multiply(a: number, b: number): number {
+                return a * b;
+            }
+            const middleware1 = vi.fn(
+                ({ args, next }: MiddlewareArgs<[number, number], number>) =>
+                    next(args),
+            );
+            const middleware2 = vi.fn(
+                ({ args, next }: MiddlewareArgs<[number, number], number>) =>
+                    next(args),
+            );
+            const fn = use(multiply, [
+                { priority: 10, invoke: middleware1 },
+                { priority: 0, invoke: middleware2 },
+            ]);
+            fn(6, 7);
+            expect(middleware1).toHaveBeenCalledWith(
+                expect.objectContaining({ name: "multiply" }),
+            );
+            expect(middleware2).toHaveBeenCalledWith(
+                expect.objectContaining({ name: "multiply" }),
+            );
+        });
+        test("Should pass all MiddlewareArgs properties simultaneously", () => {
+            const use = useFactory();
+            function compute(a: number, b: number): number {
+                return a - b;
+            }
+            const middleware = vi.fn(
+                ({ args, next }: MiddlewareArgs<[number, number], number>) =>
+                    next(args),
+            );
+            const fn = use(compute, middleware);
+            expect(fn(10, 3)).toBe(7);
+            expect(middleware).toHaveBeenCalledWith({
+                args: [10, 3],
+                next: expect.any(Function) as NextFn,
+                name: "compute",
+            });
+        });
     });
 });

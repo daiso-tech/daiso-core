@@ -51,6 +51,7 @@ export class HttpError extends Error {
 
         super(message, { cause });
 
+        this.name = HttpError.name;
         this.status = status;
     }
 }

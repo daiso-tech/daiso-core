@@ -3,7 +3,7 @@
  */
 
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type ILockAdapter,
     type LockAdapterVariants,
@@ -34,7 +34,7 @@ export type LockSerdeTransformerSettings = {
     eventBus: IEventBus<LockEventMap>;
     serdeTransformerName: string;
     waitUntil: WaitUntil;
-    executionContext: IExecutionContext;
+    context: IReadableContext;
     use: Use;
 };
 
@@ -52,7 +52,7 @@ export class LockSerdeTransformer implements ISerdeTransformer<
     private readonly eventBus: IEventBus<LockEventMap>;
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
     private readonly use: Use;
 
     constructor(settings: LockSerdeTransformerSettings) {
@@ -64,12 +64,12 @@ export class LockSerdeTransformer implements ISerdeTransformer<
             eventBus,
             serdeTransformerName,
             waitUntil,
-            executionContext,
+            context,
             use,
         } = settings;
 
         this.use = use;
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
@@ -118,7 +118,7 @@ export class LockSerdeTransformer implements ISerdeTransformer<
 
         return new Lock({
             use: this.use,
-            executionContext: this.executionContext,
+            context: this.context,
             waitUntil: this.waitUntil,
             namespace: this.namespace,
             adapter: this.adapter,

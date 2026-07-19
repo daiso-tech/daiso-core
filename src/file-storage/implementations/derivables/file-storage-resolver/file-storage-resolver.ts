@@ -3,7 +3,7 @@
  */
 
 import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type IFileStorage,
     type ISignedFileStorageAdapter,
@@ -172,11 +172,11 @@ export class FileStorageResolver<
     }
 
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): FileStorageResolver<TAdapters> {
         return new FileStorageResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 

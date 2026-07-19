@@ -1,4 +1,5 @@
 export * from "@/utilities/functions/array-like-to-iterable.js";
+export * from "@/utilities/functions/copy-obj.js";
 export * from "@/utilities/functions/default-wait-until.js";
 export * from "@/utilities/functions/delay.js";
 export * from "@/utilities/functions/error-policy.js";

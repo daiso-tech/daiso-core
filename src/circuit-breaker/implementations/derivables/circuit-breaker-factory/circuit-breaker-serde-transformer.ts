@@ -12,7 +12,7 @@ import {
     type ISerializedCircuitBreaker,
 } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
@@ -36,7 +36,7 @@ export type CircuitBreakerSerdeTransformerSettings = {
     serdeTransformerName: string;
     enableAsyncTracking: boolean;
     waitUntil: WaitUntil;
-    executionContext: IExecutionContext;
+    context: IReadableContext;
 };
 
 /**
@@ -55,7 +55,7 @@ export class CircuitBreakerSerdeTransformer implements ISerdeTransformer<
     private readonly serdeTransformerName: string;
     private readonly enableAsyncTracking: boolean;
     private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
 
     constructor(settings: CircuitBreakerSerdeTransformerSettings) {
         const {
@@ -68,10 +68,10 @@ export class CircuitBreakerSerdeTransformer implements ISerdeTransformer<
             serdeTransformerName,
             enableAsyncTracking,
             waitUntil,
-            executionContext,
+            context,
         } = settings;
 
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
         this.enableAsyncTracking = enableAsyncTracking;
         this.adapter = adapter;
@@ -122,7 +122,7 @@ export class CircuitBreakerSerdeTransformer implements ISerdeTransformer<
         const keyObj = this.namespace.create(key);
 
         return new CircuitBreaker({
-            executionContext: this.executionContext,
+            context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             eventDispatcher: this.eventBus,

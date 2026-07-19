@@ -2,7 +2,7 @@
  * @module Lock
  */
 import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type ILockFactoryResolver,
     type ILockFactory,
@@ -128,11 +128,11 @@ export class LockFactoryResolver<
     }
 
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): LockFactoryResolver<TAdapters> {
         return new LockFactoryResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 

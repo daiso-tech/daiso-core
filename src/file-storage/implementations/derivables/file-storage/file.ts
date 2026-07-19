@@ -8,7 +8,7 @@ import { Readable } from "stream";
 import { lookup } from "mime-types";
 
 import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { TO_BYTES } from "@/file-size/contracts/_module.js";
 import { FileSize } from "@/file-size/implementations/_module.js";
 import {
@@ -68,7 +68,7 @@ export type FileSettings = {
     defaultCacheControl: string | null;
     defaultContentLanguage: string | null;
     waitUntil: WaitUntil;
-    executionContext: IExecutionContext;
+    context: IReadableContext;
     use: Use;
 };
 
@@ -108,7 +108,7 @@ export class File implements IFile {
     private readonly defaultContentLanguage: string | null;
     private readonly onlyLowercase: boolean;
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
     private readonly use: Use;
     private readonly lockFactory: ILockFactoryBase;
     private readonly originalKey: string;
@@ -129,7 +129,7 @@ export class File implements IFile {
             defaultContentLanguage,
             originalAdapter,
             waitUntil,
-            executionContext,
+            context,
             use,
             lockFactory,
             originalKey,
@@ -138,7 +138,7 @@ export class File implements IFile {
         this.originalKey = originalKey;
         this.lockFactory = lockFactory;
         this.use = use;
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
@@ -203,7 +203,7 @@ export class File implements IFile {
     async getBytes(): Promise<Uint8Array | null> {
         return this.use(async () => {
             return await this.adapter.getBytes(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
             );
         }, [
@@ -263,7 +263,7 @@ export class File implements IFile {
     async getReadable(): Promise<Readable | null> {
         return this.use(async () => {
             const stream = await this.adapter.getStream(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
             );
             if (stream === null) {
@@ -295,7 +295,7 @@ export class File implements IFile {
     async getReadableStream(): Promise<ReadableStream<Uint8Array> | null> {
         return this.use(async () => {
             const stream = await this.adapter.getStream(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
             );
             if (stream === null) {
@@ -327,7 +327,7 @@ export class File implements IFile {
     async getMetadata(): Promise<FileMetadata | null> {
         return this.use(async () => {
             const metadata = await this.adapter.getMetaData(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
             );
             if (metadata === null) {
@@ -364,7 +364,7 @@ export class File implements IFile {
     async exists(): Promise<boolean> {
         return this.use(async () => {
             return await this.adapter.exists(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
             );
         }, [
@@ -399,19 +399,15 @@ export class File implements IFile {
             const { data, contentType = this.getContentType(this._key.get()) } =
                 content;
             const resolvedData = resolveFileContent(data);
-            return await this.adapter.add(
-                this.executionContext,
-                this._key.toString(),
-                {
-                    data: resolvedData,
-                    contentType,
-                    contentDisposition: this.defaultContentDisposition,
-                    contentEncoding: this.defaultContentEncoding,
-                    cacheControl: this.defaultCacheControl,
-                    contentLanguage: this.defaultContentLanguage,
-                    fileSizeInBytes: resolvedData.length,
-                },
-            );
+            return await this.adapter.add(this.context, this._key.toString(), {
+                data: resolvedData,
+                contentType,
+                contentDisposition: this.defaultContentDisposition,
+                contentEncoding: this.defaultContentEncoding,
+                cacheControl: this.defaultCacheControl,
+                contentLanguage: this.defaultContentLanguage,
+                fileSizeInBytes: resolvedData.length,
+            });
         }, [
             this.lock(),
             handleUnexpectedErrorEvent(
@@ -447,7 +443,7 @@ export class File implements IFile {
             } = stream;
 
             return await this.adapter.addStream(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
                 {
                     data: new ResolveFileStream(data),
@@ -483,7 +479,7 @@ export class File implements IFile {
                 content;
             const resolvedData = resolveFileContent(data);
             return await this.adapter.update(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
                 {
                     data: resolvedData,
@@ -521,7 +517,7 @@ export class File implements IFile {
                 contentType = this.getContentType(this._key.get()),
             } = stream;
             return await this.adapter.updateStream(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
                 {
                     data: new ResolveFileStream(data),
@@ -556,19 +552,15 @@ export class File implements IFile {
             const { data, contentType = this.getContentType(this._key.get()) } =
                 content;
             const resolvedData = resolveFileContent(data);
-            return await this.adapter.put(
-                this.executionContext,
-                this._key.toString(),
-                {
-                    data: resolvedData,
-                    contentType,
-                    contentDisposition: this.defaultContentDisposition,
-                    contentEncoding: this.defaultContentEncoding,
-                    cacheControl: this.defaultCacheControl,
-                    contentLanguage: this.defaultContentLanguage,
-                    fileSizeInBytes: resolvedData.length,
-                },
-            );
+            return await this.adapter.put(this.context, this._key.toString(), {
+                data: resolvedData,
+                contentType,
+                contentDisposition: this.defaultContentDisposition,
+                contentEncoding: this.defaultContentEncoding,
+                cacheControl: this.defaultCacheControl,
+                contentLanguage: this.defaultContentLanguage,
+                fileSizeInBytes: resolvedData.length,
+            });
         }, [
             this.lock(),
             handleUnexpectedErrorEvent(
@@ -588,7 +580,7 @@ export class File implements IFile {
                 contentType = this.getContentType(this._key.get()),
             } = stream;
             return await this.adapter.putStream(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
                 {
                     data: new ResolveFileStream(data),
@@ -613,7 +605,7 @@ export class File implements IFile {
 
     async remove(): Promise<boolean> {
         return this.use(async () => {
-            return await this.adapter.removeMany(this.executionContext, [
+            return await this.adapter.removeMany(this.context, [
                 this.key.toString(),
             ]);
         }, [
@@ -638,7 +630,7 @@ export class File implements IFile {
         const destinationKey = this.namespace.create(destination);
         return this.use(async () => {
             return await this.adapter.copy(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
                 destinationKey.toString(),
             );
@@ -677,7 +669,7 @@ export class File implements IFile {
         const destinationKey = this.namespace.create(destination);
         return this.use(async () => {
             return await this.adapter.copyAndReplace(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
                 destinationKey.toString(),
             );
@@ -707,7 +699,7 @@ export class File implements IFile {
         const destinationKey = this.namespace.create(destination);
         return this.use(async () => {
             return await this.adapter.move(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
                 destinationKey.toString(),
             );
@@ -746,7 +738,7 @@ export class File implements IFile {
         const destinationKey = this.namespace.create(destination);
         return this.use(async () => {
             return await this.adapter.moveAndReplace(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
                 destinationKey.toString(),
             );
@@ -776,7 +768,7 @@ export class File implements IFile {
     async getPublicUrl(): Promise<string | null> {
         return this.use(async () => {
             return await this.adapter.getPublicUrl(
-                this.executionContext,
+                this.context,
                 this.key.toString(),
             );
         }, [
@@ -806,7 +798,7 @@ export class File implements IFile {
     ): Promise<string> {
         const { ttl = TimeSpan.fromMinutes(10), contentType = null } = options;
         return await this.adapter.getSignedUploadUrl(
-            this.executionContext,
+            this.context,
             this._key.toString(),
             {
                 expirationInSeconds: TimeSpan.fromTimeSpan(ttl).toSeconds(),
@@ -825,7 +817,7 @@ export class File implements IFile {
                 contentDisposition = null,
             } = options;
             return await this.adapter.getSignedDownloadUrl(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
                 {
                     expirationInSeconds:

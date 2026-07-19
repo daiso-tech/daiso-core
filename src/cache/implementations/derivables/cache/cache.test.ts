@@ -137,7 +137,7 @@ describe("class: Cache", () => {
             });
         });
         describe("Locking:", () => {
-            test("should call lockFactory.create().runOrFail() when enableLocking is true", async () => {
+            test("Should call lockFactory.create().runOrFail() when enableLocking is true", async () => {
                 const lockFactory = new LockFactory({
                     adapter: new NoOpLockAdapter(),
                 });
@@ -157,7 +157,7 @@ describe("class: Cache", () => {
                 expect(runOrFailSpy).toHaveBeenCalledOnce();
             });
 
-            test("should not call lockFactory.create().runOrFail() when enableLocking is false", async () => {
+            test("Should not call lockFactory.create().runOrFail() when enableLocking is false", async () => {
                 const lockFactory = new LockFactory({
                     adapter: new NoOpLockAdapter(),
                 });

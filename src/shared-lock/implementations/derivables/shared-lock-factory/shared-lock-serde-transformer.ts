@@ -3,7 +3,7 @@
  */
 
 import { type IEventBus } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type Use } from "@/middleware/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
@@ -34,7 +34,7 @@ export type SharedLockSerdeTransformerSettings = {
     eventBus: IEventBus<SharedLockEventMap>;
     serdeTransformerName: string;
     waitUntil: WaitUntil;
-    executionContext: IExecutionContext;
+    context: IReadableContext;
     use: Use;
 };
 
@@ -52,7 +52,7 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
     private readonly eventBus: IEventBus<SharedLockEventMap>;
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
     private readonly use: Use;
 
     constructor(settings: SharedLockSerdeTransformerSettings) {
@@ -64,12 +64,12 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
             eventBus,
             serdeTransformerName,
             waitUntil,
-            executionContext,
+            context,
             use,
         } = settings;
 
         this.use = use;
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
@@ -118,7 +118,7 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
         const keyObj = this.namespace.create(key);
         return new SharedLock({
             use: this.use,
-            executionContext: this.executionContext,
+            context: this.context,
             waitUntil: this.waitUntil,
             lockId,
             adapter: this.adapter,

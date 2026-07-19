@@ -2,9 +2,6 @@
  * @module Middleware
  */
 
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/no-op-execution-context-adapter.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
     type IMiddlewareObject,
     type Middleware,
@@ -18,6 +15,7 @@ import {
     resolveOneOrMore,
     isInvokableObject,
     resolveInvokable,
+    getInvokableName,
 } from "@/utilities/_module.js";
 
 /**
@@ -30,35 +28,18 @@ import {
  * ```ts
  * const customContext = new ExecutionContext(new CustomAdapter());
  * const use = useFactory({
- *   executionContext: customContext,
+ *   context: customContext,
  *   defaultPriority: 100
  * });
  * ```
  *
  * @see {@link useFactory | `useFactory`}
- * @see {@link IExecutionContext | `IExecutionContext`}
+ * @see {@link IReadableContext | `IReadableContext`}
  *
  * IMPORT_PATH: `@daiso-tech/core/middleware`
  * @group Implementations
  */
 export type UseFactorySettings = {
-    /**
-     * The execution context in which middleware will be executed.
-     *
-     * Used to manage state and context across middleware and invokable execution.
-     * Middleware can access this context via the `context` property in {@link MiddlewareArgs | `MiddlewareArgs`}.
-     *
-     * @default
-     * ```ts
-     * new ExecutionContext(
-     *   new NoOpExecutionContextAdapter()
-     * )
-     * ```
-     *
-     * @see {@link IExecutionContext | `IExecutionContext`}
-     */
-    executionContext?: IExecutionContext;
-
     /**
      * Default priority for middlewares that do not explicitly set a priority.
      *
@@ -135,7 +116,7 @@ function resolveMiddlewares<TParameters extends Array<unknown>, TReturn>(
  *
  * // Create with custom execution context
  * const customContext = new ExecutionContext(new MyAdapter());
- * const useWithContext = useFactory({ executionContext: customContext });
+ * const useWithContext = useFactory({ context: customContext });
  *
  * // Create with custom default priority
  * const useWithPriority = useFactory({ defaultPriority: 50 });
@@ -153,12 +134,7 @@ function resolveMiddlewares<TParameters extends Array<unknown>, TReturn>(
  * @group Implementations
  */
 export function useFactory(settings: UseFactorySettings = {}): Use {
-    const {
-        defaultPriority = 0,
-        executionContext = new ExecutionContext(
-            new NoOpExecutionContextAdapter(),
-        ),
-    } = settings;
+    const { defaultPriority = 0 } = settings;
 
     return <TParameters extends Array<unknown>, TReturn>(
         invokable: Invokable<TParameters, TReturn>,
@@ -175,18 +151,24 @@ export function useFactory(settings: UseFactorySettings = {}): Use {
                 const next: NextFn<TParameters, TReturn> = (args = args_) => {
                     return prevFunc(...args);
                 };
+
+                // If function has been binded the name field will be "bound fnName"
+                // So we need to remove the "bound " prefix.
+                let name = getInvokableName(invokable);
+                if (name.toLowerCase().startsWith("bound ")) {
+                    name = name.slice(6);
+                }
+
                 return middleware.invoke({
                     args: args_,
                     next,
-                    context: executionContext,
+                    name,
                 });
             };
         }
         const prevFunc = func;
         func = (...args_: TParameters): TReturn => {
-            return executionContext.run(() => {
-                return prevFunc(...args_);
-            });
+            return prevFunc(...args_);
         };
         return func;
     };

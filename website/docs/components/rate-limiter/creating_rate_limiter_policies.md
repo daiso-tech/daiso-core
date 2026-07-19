@@ -4,7 +4,7 @@ sidebar_label: Creating policies
 pagination_label: Creating RateLimiter policies
 ---
 
-# Creating policies
+# Creating RateLimiter policies
 
 ## Implementing your custom IRateLimiterPolicy
 

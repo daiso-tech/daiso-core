@@ -4,7 +4,7 @@
 
 import { type BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
 import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type IRateLimiterFactoryResolver,
@@ -183,11 +183,11 @@ export class DatabaseRateLimiterFactoryResolver<
     }
 
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): DatabaseRateLimiterFactoryResolver<TAdapters> {
         return new DatabaseRateLimiterFactoryResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 

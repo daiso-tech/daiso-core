@@ -1,1 +1,1 @@
-export * from "@/semaphore/implementations/middlewares/semaphore-middleware-factory.js";
+export * from "@/semaphore/implementations/middlewares/with-semaphore-factory.js";

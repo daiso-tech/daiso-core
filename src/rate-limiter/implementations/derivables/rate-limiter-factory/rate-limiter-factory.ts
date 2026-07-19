@@ -14,7 +14,7 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type EventBus,
 } from "@/event-bus/implementations/derivables/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
@@ -123,7 +123,7 @@ export type RateLimiterFactorySettingsBase = {
     waitUntil?: WaitUntil;
 
     /**
-     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
+     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
@@ -132,7 +132,7 @@ export type RateLimiterFactorySettingsBase = {
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
      */
-    executionContext?: IExecutionContext;
+    context?: IReadableContext;
 };
 
 /**
@@ -165,7 +165,7 @@ export class RateLimiterFactory implements IRateLimiterFactory {
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
 
     /**
      * @example
@@ -209,12 +209,10 @@ export class RateLimiterFactory implements IRateLimiterFactory {
             serde = new Serde(new NoOpSerdeAdapter()),
             serdeTransformerName = "",
             waitUntil = defaultWaitUntil,
-            executionContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            ),
+            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.enableAsyncTracking = enableAsyncTracking;
@@ -229,7 +227,7 @@ export class RateLimiterFactory implements IRateLimiterFactory {
 
     private registerToSerde(): void {
         const transformer = new RateLimiterSerdeTransformer({
-            executionContext: this.executionContext,
+            context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             namespace: this.namespace,
@@ -258,7 +256,7 @@ export class RateLimiterFactory implements IRateLimiterFactory {
             limit,
         } = settings;
         return new RateLimiter({
-            executionContext: this.executionContext,
+            context: this.context,
             limit,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,

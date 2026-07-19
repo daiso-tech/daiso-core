@@ -16,7 +16,7 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type EventBus,
 } from "@/event-bus/implementations/derivables/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { type Use } from "@/middleware/contracts/_module.js";
@@ -140,7 +140,7 @@ export type SharedLockFactorySettingsBase = {
     waitUntil?: WaitUntil;
 
     /**
-     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
+     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
      * import { ExecutionContext } from "@daiso-tech/core/execution-context"
@@ -149,7 +149,7 @@ export type SharedLockFactorySettingsBase = {
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
      */
-    executionContext?: IExecutionContext;
+    context?: IReadableContext;
 };
 
 /**
@@ -187,7 +187,7 @@ export class SharedLockFactory implements ISharedLockFactory {
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
     private readonly use: Use;
 
     /**
@@ -228,13 +228,11 @@ export class SharedLockFactory implements ISharedLockFactory {
             eventBus = new NoOpEventBusAdapter(),
             serdeTransformerName = "",
             waitUntil = defaultWaitUntil,
-            executionContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            ),
+            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.use = useFactory({ executionContext });
-        this.executionContext = executionContext;
+        this.use = useFactory();
+        this.context = context;
         this.waitUntil = waitUntil;
         this.serde = serde;
         this.defaultRefreshTime = TimeSpan.fromTimeSpan(defaultRefreshTime);
@@ -253,7 +251,7 @@ export class SharedLockFactory implements ISharedLockFactory {
     private registerToSerde(): void {
         const transformer = new SharedLockSerdeTransformer({
             use: this.use,
-            executionContext: this.executionContext,
+            context: this.context,
             waitUntil: this.waitUntil,
             originalAdapter: this.originalAdapter,
             adapter: this.adapter,
@@ -303,7 +301,7 @@ export class SharedLockFactory implements ISharedLockFactory {
 
         return new SharedLock({
             use: this.use,
-            executionContext: this.executionContext,
+            context: this.context,
             waitUntil: this.waitUntil,
             limit,
             namespace: this.namespace,

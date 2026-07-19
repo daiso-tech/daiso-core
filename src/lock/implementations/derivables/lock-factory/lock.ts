@@ -3,7 +3,7 @@
  */
 
 import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
+import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type ILock,
     type ILockAdapter,
@@ -58,7 +58,7 @@ export type LockSettings = {
     ttl: TimeSpan | null;
     defaultRefreshTime: TimeSpan;
     waitUntil: WaitUntil;
-    executionContext: IExecutionContext;
+    context: IReadableContext;
     use: Use;
 };
 
@@ -88,7 +88,7 @@ export class Lock implements ILock {
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
     private readonly use: Use;
 
     constructor(settings: LockSettings) {
@@ -103,12 +103,12 @@ export class Lock implements ILock {
             serdeTransformerName,
             defaultRefreshTime,
             waitUntil,
-            executionContext,
+            context,
             use,
         } = settings;
 
         this.use = use;
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
         this.namespace = namespace;
         this.originalAdapter = originalAdapter;
@@ -147,7 +147,7 @@ export class Lock implements ILock {
     async acquire(): Promise<boolean> {
         return this.use(async () => {
             return await this.adapter.acquire(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
                 this.lockId,
                 this._ttl,
@@ -185,7 +185,7 @@ export class Lock implements ILock {
     async release(): Promise<boolean> {
         return this.use(async () => {
             return await this.adapter.release(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
                 this.lockId,
             );
@@ -222,7 +222,7 @@ export class Lock implements ILock {
     async forceRelease(): Promise<boolean> {
         return this.use(async () => {
             return await this.adapter.forceRelease(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
             );
         }, [
@@ -244,7 +244,7 @@ export class Lock implements ILock {
     async refresh(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
         return this.use(async () => {
             return await this.adapter.refresh(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
                 this.lockId,
                 TimeSpan.fromTimeSpan(ttl),
@@ -301,7 +301,7 @@ export class Lock implements ILock {
     async getState(): Promise<ILockState> {
         return this.use(async () => {
             const state = await this.adapter.getState(
-                this.executionContext,
+                this.context,
                 this._key.toString(),
             );
             if (state === null) {

@@ -1,13 +1,6 @@
----
 pagination_label: Middleware usage
-tags:
-    - Middleware
-    - Utilities
-keywords:
-    - Middleware
-    - Function Interception
-    - Middleware Pipeline
----
+tags: - Middleware - Utilities
+keywords: - Middleware - Function Interception - Middleware Pipeline
 
 # Middleware
 
@@ -21,12 +14,9 @@ To begin using middleware, create a middleware application function using the fa
 
 ```ts
 import { useFactory } from "@daiso-tech/core/middleware";
-import { ExecutionContext } from "@daiso-tech/core/execution-context";
-import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter";
 
 // Create a middleware function with a specific execution-context
 const use = useFactory({
-    executionContext: new ExecutionContext(new AlsExecutionContextAdapter()),
     defaultPriority: 0,
 });
 ```
@@ -44,12 +34,6 @@ Configure the middleware factory with custom settings:
 ```ts
 type UseFactorySettings = {
     /**
-     * The execution-context to use for all middleware invocations.
-     * Defaults to a new ExecutionContext with NoOpExecutionContextAdapter
-     */
-    executionContext?: IExecutionContext;
-
-    /**
      * Default priority for middleware without an explicit priority.
      * Defaults to 0
      */
@@ -57,7 +41,6 @@ type UseFactorySettings = {
 };
 
 const use = useFactory({
-    executionContext: customContext,
     defaultPriority: 50,
 });
 ```
@@ -66,7 +49,7 @@ const use = useFactory({
 
 ### Creating a simple middleware
 
-A middleware is a function that receives middleware arguments (containing the original arguments, a next function, and the execution-context) and returns the result:
+A middleware is a function that receives middleware arguments (containing the original arguments, a next function, and the name of the function) and returns the result:
 
 ```ts
 import { type MiddlewareArgs } from "@daiso-tech/core/middleware";
@@ -188,8 +171,9 @@ type MiddlewareArgs<TParameters, TReturn> = {
     args: TParameters;
     // Function to invoke next middleware or original function
     next: NextFn<TParameters, TReturn>;
-    // ExecutionContext for storing request-scoped data
-    context: IContext;
+
+    // name of the function/method
+    name: string;
 };
 ```
 
@@ -221,40 +205,6 @@ const wrappedFn = use(
 );
 
 // Executes in order: Auth -> Validation -> Logging -> Original function
-```
-
-### Using execution-context
-
-Access and modify the execution-context within middleware. For more details about the execution-context module, see [Execution Context](./execution_context.md).
-
-```ts
-import { contextToken } from "@daiso-tech/core/execution-context";
-import { Namespace } from "@daiso-tech/core/namespace";
-import { type MiddlewareFn } from "@daiso-tech/core/middleware/contracts";
-
-const namespace = new Namespace("myapp");
-type UserData = { id: string; name: string };
-const userToken = contextToken<UserData>(namespace.create("user").toString());
-
-const createContextAwareMiddleware = (
-    defaultUser: UserData,
-): MiddlewareFn<[string, number], string> => {
-    return ({
-        args,
-        next,
-        context,
-    }: MiddlewareArgs<[string, number], string>) => {
-        const user = context.getOr(userToken, defaultUser);
-        console.log("Executing as:", user.name);
-        return next(args);
-    };
-};
-
-const contextAwareMiddleware = createContextAwareMiddleware({
-    id: "anonymous",
-    name: "Guest",
-});
-const wrappedFn = use(originalFn, contextAwareMiddleware);
 ```
 
 ### Async middleware
@@ -455,7 +405,158 @@ alice.say("Hello!");
 
 This pattern is useful for adding cross-cutting concerns (logging, validation, authorization, etc.) to class methods in a reusable and declarative way.
 
----
+### Applying Plugins with `withPluginFactory`
+
+The `withPluginFactory` function provides a way to apply one or more plugins to a class instance or object literal, where each plugin can use the `enhance` function to wrap methods with middleware. This is useful for encapsulating cross-cutting concerns into reusable plugin units.
+
+#### Purpose
+
+`withPluginFactory` is a factory that takes an `Enhance` function (obtained from `enhanceFactory`) and returns a `WithPlugin` function. This `WithPlugin` function applies plugins to a **copy** of the target (class instance or object literal), always leaving the original unmodified.
+
+#### Usage with Class Instances
+
+```ts
+import {
+    useFactory,
+    enhanceFactory,
+    withPluginFactory,
+} from "@daiso-tech/core/middleware";
+import { type PluginFn } from "@daiso-tech/core/middleware/contracts";
+
+const use = useFactory();
+const enhance = enhanceFactory(use);
+const withPlugin = withPluginFactory(enhance);
+
+class UserService {
+    async getUser(id: string): Promise<{ name: string }> {
+        return { name: "Alice" };
+    }
+
+    async deleteUser(id: string): Promise<void> {
+        // Deletion logic
+    }
+}
+
+function withPerformanceLogging<
+    TParameters extends Array<unknown>,
+    TReturn,
+>(): MiddlewareFn<TParameters, Promise<TReturn>> {
+    return ({ next, name }) => {
+        const start = performance.now();
+        const returnValue = await next();
+        const end = performance.now();
+        const timeInMs = end - start;
+        console.log(`function/method ${name} took ${timeInMs}ms`);
+        return returnValue;
+    };
+}
+
+// Define a logging plugin
+const loggingPlugin: PluginFn<UserService> = (service, enhance) => {
+    enhance(service, "getUser", withPerformanceLogging());
+
+    enhance(service, "deleteUser", withPerformanceLogging());
+};
+
+// Apply the plugin to a class instance
+const service = new UserService();
+const enhancedService = withPlugin(service, loggingPlugin);
+
+await enhancedService.getUser("123");
+// Logs:
+// getUser called with: ["123"]
+// getUser returned: { name: "Alice" }
+
+// The original service is NOT modified — a copy is returned instead
+```
+
+#### Usage with Object Literals
+
+`withPlugin` also works with plain object literals:
+
+```ts
+const calculator = {
+    add(a: number, b: number): number {
+        return a + b;
+    },
+    subtract(a: number, b: number): number {
+        return a - b;
+    },
+};
+
+const loggingPlugin: PluginFn<typeof calculator> = (obj, enhance) => {
+    enhance(obj, "add", withPerformanceLogging());
+
+    enhance(obj, "subtract", withPerformanceLogging());
+};
+
+const enhancedCalc = withPlugin(calculator, loggingPlugin);
+
+enhancedCalc.add(2, 3);
+// Logs: add called with: [2, 3]
+
+// The original calculator object is NOT modified — a copy is returned instead
+```
+
+#### Applying Multiple Plugins
+
+You can apply multiple plugins at once by passing an array:
+
+```ts
+const monitoringPlugin: PluginFn<UserService> = (service, enhance) => {
+    // Monitor methods...
+};
+
+const validationPlugin: PluginFn<UserService> = (service, enhance) => {
+    // Validate methods...
+};
+
+const service = new UserService();
+const enhancedService = withPlugin(service, [
+    loggingPlugin,
+    monitoringPlugin,
+    validationPlugin,
+]);
+```
+
+#### Object-based Plugins
+
+For plugins with state or configuration, use the object form:
+
+```ts
+import { type IPluginObject } from "@daiso-tech/core/middleware/contracts";
+
+class MetricsPlugin implements IPluginObject<UserService> {
+    constructor(private readonly metricsClient: MetricsClient) {}
+
+    invoke(service: UserService, enhance: Enhance): void {
+        enhance(service, "getUser", [
+            (next) =>
+                async (...args) => {
+                    const start = performance.now();
+                    const result = await next(...args);
+                    const duration = performance.now() - start;
+                    this.metricsClient.record("getUser", duration);
+                    return result;
+                },
+        ]);
+    }
+}
+
+const service = new UserService();
+const enhancedService = withPlugin(service, new MetricsPlugin(client));
+```
+
+#### How it Works
+
+- `withPluginFactory` creates a `WithPlugin` function that **always** copies the target (whether a class instance or object literal), preserving the original.
+- Each plugin is invoked in order, receiving the copied target and the `enhance` function.
+- The `enhance` function wraps the specified method with a middleware pipeline.
+- The enhanced copy is returned, leaving the original untouched.
+
+:::info
+This pattern is ideal for building reusable feature packs (logging, monitoring) that can be composed and applied to any class instance or object literal.
+:::
 
 ## UseFactory configuration
 
