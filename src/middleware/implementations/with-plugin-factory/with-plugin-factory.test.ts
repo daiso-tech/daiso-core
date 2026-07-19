@@ -83,6 +83,7 @@ describe("function: withPluginFactory", () => {
             enhanceFn(instance, "methodA", middlewareA);
         };
 
+        const methodName = objectLiteral.methodA.name;
         const enhancedInstance = withPlugin(objectLiteral, plugin);
 
         const value = "value";
@@ -92,6 +93,7 @@ describe("function: withPluginFactory", () => {
         expect(middlewareA).toHaveBeenCalledWith({
             args: [value],
             next: expect.any(Function) as NextFn<[value: string]>,
+            name: methodName,
         });
     });
     test("Should call underlying Enhance when applying plugin on a class instance method", () => {
@@ -148,6 +150,7 @@ describe("function: withPluginFactory", () => {
             methodB(_value: string): void {}
         }
         const instance = new Test();
+        const methodName = instance.methodA.name;
 
         const middlewareA = vi.fn<MiddlewareFn<[value: string], void>>();
 
@@ -164,6 +167,7 @@ describe("function: withPluginFactory", () => {
         expect(middlewareA).toHaveBeenCalledWith({
             args: [value],
             next: expect.any(Function) as NextFn<[value: string]>,
+            name: methodName,
         });
     });
     test("Should return false for referential equality for object literals", () => {
