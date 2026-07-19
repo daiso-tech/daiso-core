@@ -3,8 +3,6 @@
  */
 
 import { type ICircuitBreaker } from "@/circuit-breaker/contracts/circuit-breaker.contract.js";
-import { type CircuitBreakerEventMap } from "@/circuit-breaker/contracts/circuit-breaker.events.js";
-import { type IEventListenable } from "@/event-bus/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 import { type ErrorPolicySettings } from "@/utilities/_module.js";
 
@@ -52,7 +50,7 @@ export type CircuitBreakerFactoryCreateSettings = ErrorPolicySettings & {
  * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
  * @group Contracts
  */
-export type ICircuitBreakerFactoryBase = {
+export type ICircuitBreakerFactory = {
     /**
      * The `create` method is used to create an instance of {@link ICircuitBreaker | `ICircuitBreaker`}.
      */
@@ -60,21 +58,4 @@ export type ICircuitBreakerFactoryBase = {
         key: string,
         settings?: CircuitBreakerFactoryCreateSettings,
     ): ICircuitBreaker;
-};
-
-/**
- * The `ICircuitBreakerListenable` contract defines a way for listening {@link ICircuitBreaker | `ICircuitBreaker`} operations and state transitions.
- *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
- * @group Contracts
- */
-export type ICircuitBreakerListenable =
-    IEventListenable<CircuitBreakerEventMap>;
-
-/**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
- * @group Contracts
- */
-export type ICircuitBreakerFactory = ICircuitBreakerFactoryBase & {
-    readonly events: ICircuitBreakerListenable;
 };

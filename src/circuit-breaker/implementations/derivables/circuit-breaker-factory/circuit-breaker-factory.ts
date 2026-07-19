@@ -4,28 +4,14 @@
 
 import {
     CIRCUIT_BREAKER_TRIGGER,
-    type CircuitBreakerEventMap,
     type CircuitBreakerFactoryCreateSettings,
     type ICircuitBreaker,
     type ICircuitBreakerFactory,
     type ICircuitBreakerAdapter,
     type CircuitBreakerTrigger,
-    type ICircuitBreakerListenable,
 } from "@/circuit-breaker/contracts/_module.js";
 import { CircuitBreakerSerdeTransformer } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker-serde-transformer.js";
 import { CircuitBreaker } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
-import {
-    type EventBusInput,
-    type IEventBus,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import {
-    resolveEventBusInput,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type EventBus,
-} from "@/event-bus/implementations/derivables/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
@@ -61,19 +47,6 @@ export type CircuitBreakerFactorySettingsBase = {
      * ```
      */
     namespace?: INamespace;
-
-    /**
-     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
-     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
-     *
-     * @default
-     * ```ts
-     * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
-     *
-     * new NoOpEventBusAdapter()
-     * ```
-     */
-    eventBus?: EventBusInput;
 
     /**
      * You can set the default `ErrorPolicy`
@@ -183,7 +156,6 @@ export type CircuitBreakerFactorySettings =
  */
 export class CircuitBreakerFactory implements ICircuitBreakerFactory {
     private readonly namespace: INamespace;
-    private readonly eventBus: IEventBus<CircuitBreakerEventMap>;
     private readonly adapter: ICircuitBreakerAdapter;
     private readonly defaultSlowCallTime: TimeSpan;
     private readonly defaultTrigger: CircuitBreakerTrigger;
@@ -229,7 +201,6 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
         const {
             enableAsyncTracking = true,
             namespace = new NoOpNamespace(),
-            eventBus = new NoOpEventBusAdapter(),
             adapter,
             defaultSlowCallTime = TimeSpan.fromSeconds(10),
             defaultTrigger = CIRCUIT_BREAKER_TRIGGER.BOTH,
@@ -244,7 +215,6 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
         this.waitUntil = waitUntil;
         this.enableAsyncTracking = enableAsyncTracking;
         this.namespace = namespace;
-        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.adapter = adapter;
         this.defaultSlowCallTime = TimeSpan.fromTimeSpan(defaultSlowCallTime);
         this.defaultTrigger = defaultTrigger;
@@ -263,17 +233,12 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
             slowCallTime: this.defaultSlowCallTime,
             errorPolicy: this.defaultErrorPolicy,
             trigger: this.defaultTrigger,
-            eventBus: this.eventBus,
             namespace: this.namespace,
             serdeTransformerName: this.serdeTransformerName,
         });
         for (const serde of resolveOneOrMore(this.serde)) {
             serde.registerCustom(transformer, CORE);
         }
-    }
-
-    get events(): ICircuitBreakerListenable {
-        return this.eventBus;
     }
 
     create(
@@ -290,7 +255,6 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
             context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
-            eventDispatcher: this.eventBus,
             adapter: this.adapter,
             key: this.namespace.create(key),
             slowCallTime: TimeSpan.fromTimeSpan(slowCallTime),
