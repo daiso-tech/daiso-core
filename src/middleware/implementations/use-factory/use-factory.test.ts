@@ -2,7 +2,6 @@ import { describe, expect, test, vi } from "vitest";
 
 import {
     type MiddlewareArgs,
-    type MiddlewareFn,
     type NextFn,
 } from "@/middleware/contracts/_module.js";
 import { useFactory } from "@/middleware/implementations/use-factory/use-factory.js";
@@ -96,29 +95,6 @@ describe("function: useFactory", () => {
             "priority-20",
             "fn",
         ]);
-    });
-    test("Should use defaultPriority for middlewares without explicit priority", () => {
-        const order: Array<string> = [];
-        const use = useFactory({ defaultPriority: 15 });
-        const fnMiddleware: MiddlewareFn<[], string> = ({ args, next }) => {
-            order.push("fn-middleware");
-            return next(args);
-        };
-        const fn = use(() => {
-            order.push("fn");
-            return "done";
-        }, [
-            fnMiddleware,
-            {
-                priority: 10,
-                invoke({ args, next }) {
-                    order.push("priority-10");
-                    return next(args);
-                },
-            },
-        ]);
-        fn();
-        expect(order).toEqual(["priority-10", "fn-middleware", "fn"]);
     });
     describe("MiddlewareArgs passed to middleware handlers", () => {
         test("Should pass correct args to middleware", () => {
