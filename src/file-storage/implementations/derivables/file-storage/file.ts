@@ -29,7 +29,7 @@ import { resolveFileContent } from "@/file-storage/implementations/derivables/fi
 import { ResolveFileStream } from "@/file-storage/implementations/derivables/file-storage/resolve-file-stream.js";
 import { type ILockFactory } from "@/lock/contracts/_module.js";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { use } from "@/middleware/implementations/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type InvokableFn } from "@/utilities/_module.js";
@@ -92,7 +92,6 @@ export class File implements IFile {
     private readonly context: IReadableContext;
     private readonly lockFactory: ILockFactory;
     private readonly originalKey: string;
-    private readonly use = useFactory();
 
     constructor(settings: FileSettings) {
         const {
@@ -306,7 +305,7 @@ export class File implements IFile {
         const { data, contentType = this.getContentType(this._key.get()) } =
             content;
         const resolvedData = resolveFileContent(data);
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.add(this.context, this._key.toString(), {
                 data: resolvedData,
                 contentType,
@@ -341,7 +340,7 @@ export class File implements IFile {
             contentType = this.getContentType(this._key.get()),
         } = stream;
 
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.addStream(
                 this.context,
                 this._key.toString(),
@@ -369,7 +368,7 @@ export class File implements IFile {
         const { data, contentType = this.getContentType(this._key.get()) } =
             content;
         const resolvedData = resolveFileContent(data);
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.update(
                 this.context,
                 this._key.toString(),
@@ -399,7 +398,7 @@ export class File implements IFile {
             fileSize = null,
             contentType = this.getContentType(this._key.get()),
         } = stream;
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.updateStream(
                 this.context,
                 this._key.toString(),
@@ -427,7 +426,7 @@ export class File implements IFile {
         const { data, contentType = this.getContentType(this._key.get()) } =
             content;
         const resolvedData = resolveFileContent(data);
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.put(this.context, this._key.toString(), {
                 data: resolvedData,
                 contentType,
@@ -446,7 +445,7 @@ export class File implements IFile {
             fileSize = null,
             contentType = this.getContentType(this._key.get()),
         } = stream;
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.putStream(
                 this.context,
                 this._key.toString(),
@@ -464,7 +463,7 @@ export class File implements IFile {
     }
 
     remove(): Promise<boolean> {
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.removeMany(this.context, [
                 this.key.toString(),
             ]);
@@ -480,7 +479,7 @@ export class File implements IFile {
 
     private async _copy(destination: string): Promise<FileWriteEnum> {
         const destinationKey = this.namespace.create(destination);
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.copy(
                 this.context,
                 this._key.toString(),
@@ -506,7 +505,7 @@ export class File implements IFile {
 
     copyAndReplace(destination: string): Promise<boolean> {
         const destinationKey = this.namespace.create(destination);
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.copyAndReplace(
                 this.context,
                 this._key.toString(),
@@ -523,7 +522,7 @@ export class File implements IFile {
     }
     private _move(destination: string): Promise<FileWriteEnum> {
         const destinationKey = this.namespace.create(destination);
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.move(
                 this.context,
                 this._key.toString(),
@@ -549,7 +548,7 @@ export class File implements IFile {
 
     moveAndReplace(destination: string): Promise<boolean> {
         const destinationKey = this.namespace.create(destination);
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.moveAndReplace(
                 this.context,
                 this._key.toString(),
