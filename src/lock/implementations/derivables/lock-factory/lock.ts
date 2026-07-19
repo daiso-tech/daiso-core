@@ -16,7 +16,6 @@ import {
     type ILockUnavailableState,
     type LockAdapterVariants,
 } from "@/lock/contracts/_module.js";
-import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type AsyncLazy, resolveLazyable } from "@/utilities/_module.js";
@@ -36,10 +35,9 @@ export type ISerializedLock = {
  */
 export type LockSettings = {
     serdeTransformerName: string;
-    namespace: INamespace;
     adapter: ILockAdapter;
     originalAdapter: LockAdapterVariants;
-    key: IKey;
+    key: string;
     lockId: string;
     ttl: TimeSpan | null;
     defaultRefreshTime: TimeSpan;
@@ -56,16 +54,15 @@ export class Lock implements ILock {
     static _serialize(deserializedValue: Lock): ISerializedLock {
         return {
             version: "1",
-            key: deserializedValue._key.get(),
+            key: deserializedValue.key,
             lockId: deserializedValue.lockId,
             ttlInMs: deserializedValue._ttl?.toMilliseconds() ?? null,
         };
     }
 
-    private readonly namespace: INamespace;
     private readonly adapter: ILockAdapter;
     private readonly originalAdapter: LockAdapterVariants;
-    private readonly _key: IKey;
+    private readonly _key: string;
     private readonly lockId: string;
     private _ttl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
@@ -74,7 +71,6 @@ export class Lock implements ILock {
 
     constructor(settings: LockSettings) {
         const {
-            namespace,
             adapter,
             originalAdapter,
             key,
@@ -86,7 +82,6 @@ export class Lock implements ILock {
         } = settings;
 
         this.context = context;
-        this.namespace = namespace;
         this.originalAdapter = originalAdapter;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
@@ -94,10 +89,6 @@ export class Lock implements ILock {
         this.lockId = lockId;
         this._ttl = ttl;
         this.defaultRefreshTime = defaultRefreshTime;
-    }
-
-    _getNamespace(): INamespace {
-        return this.namespace;
     }
 
     _getSerdeTransformerName(): string {
@@ -177,7 +168,7 @@ export class Lock implements ILock {
         }
     }
 
-    get key(): IKey {
+    get key(): string {
         return this._key;
     }
 

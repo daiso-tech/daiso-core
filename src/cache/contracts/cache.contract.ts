@@ -269,13 +269,10 @@ export type ICache<TType = unknown> = IReadableCache<TType> & {
     /**
      * The `removeMany` method removes many keys.
      *
-     * @param keys - The param items can be a string or an `Iterable` of strings.
-     * If the param items are an `Iterable`, it will be joined into a single string.
-     * Think of an `Iterable` as representing a path.
-     *
+     * @param keys
      * @returns Returns true if one of the keys where deleted otherwise false is returned.
      */
-    removeMany(keys: Iterable<string>): Promise<boolean>;
+    removeMany(keys: Array<string>): Promise<boolean>;
 
     /**
      * The `clear` method removes all the keys in the cache. If a cache is in a group then only the keys part of the group will be removed.

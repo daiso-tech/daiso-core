@@ -419,7 +419,7 @@ const sharedLock = sharedLockFactory.create("resource", {
 });
 
 // Will return the key of the shared-lock which is "resource"
-console.log(sharedLock.key.toString());
+console.log(sharedLock.key);
 
 // Will return the id of the shared-lock
 console.log(sharedLock.id);
@@ -427,10 +427,6 @@ console.log(sharedLock.id);
 // Will return the ttl of the shared-lock
 console.log(sharedLock.ttl);
 ```
-
-:::info
-The `key` field is an object that implements [`IKey`](../namespace.md) contract.
-:::
 
 ### SharedLock id
 
@@ -456,59 +452,6 @@ Manually defining shared-lock id is primarily useful for debugging or implementi
 In most cases, setting a shared-lock id is unnecessary.
 :::
 
-### Namespacing
-
-You can use the `Namespace` class to group related shared-locks without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
-
-:::info
-For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
-:::
-
-```ts
-import { Namespace } from "@daiso-tech/core/namespace";
-import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
-import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
-import Redis from "ioredis";
-
-const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
-
-const sharedLockFactoryA = new SharedLockFactory({
-    namespace: new Namespace("@sharedLock-a"),
-    adapter: new RedisSharedLockAdapter(database),
-});
-const sharedLockFactoryB = new SharedLockFactory({
-    namespace: new Namespace("@sharedLock-b"),
-    adapter: new RedisSharedLockAdapter(database),
-});
-
-const sharedLockA = await sharedLockFactoryA.create("key", {
-    ttl: null,
-    limit: 1,
-});
-const sharedLockB = await sharedLockFactoryB.create("key", {
-    ttl: null,
-    limit: 1,
-});
-
-const hasAquiredA = await sharedLockA.acquireWriter();
-// Will log true
-console.log(hasAquiredA);
-
-const hasAquiredB = await sharedLockB.acquireWriter();
-// Will log true
-console.log(hasAquiredB);
-
-const hasReleasedB = await sharedLockB.releaseWriter();
-// Will log true
-console.log(hasReleasedB);
-
-// Will log { type: "WRITER_ACQUIRED", remainingTime: null }
-console.log(await sharedLockA.getState());
-
-// Will log { type: "EXPIRED" }
-console.log(await sharedLockB.getState());
-```
-
 ### Retrying acquiring shared-lock as writer by attempts
 
 To retry acquiring shared-lock as writer you can use the [`retry`](../resilience.md) middleware.
@@ -518,13 +461,12 @@ Retrying acquiring shared-lock as writer with `acquireWriterOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireWriterLockError } from "@daiso-tech/core/shared-lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2,
 });
 
-const use = useFactory();
 try {
     await use(async () => {
         await sharedLock.acquireWriterOrFail();
@@ -544,13 +486,12 @@ Retrying acquiring sharedLock as writer with `acquireWriter` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2,
 });
 
-const use = useFactory();
 const hasAquired = await use(async () => {
     return await sharedLock.acquireWriter();
 }, [
@@ -576,13 +517,12 @@ Retrying acquiring shared-lock as writer with `runWriterOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireWriterLockError } from "@daiso-tech/core/shared-lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2,
 });
 
-const use = useFactory();
 await use(async () => {
     await sharedLock.runWriterOrFail(async () => {
         // The critical section
@@ -604,13 +544,12 @@ Retrying acquiring shared-lock as reader with `acquireReaderOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2,
 });
 
-const use = useFactory();
 try {
     await use(async () => {
         await sharedLock.acquireReaderOrFail();
@@ -630,13 +569,12 @@ Retrying acquiring sharedLock as reader with `acquireReader` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2,
 });
 
-const use = useFactory();
 const hasAquired = await use(async () => {
     return await sharedLock.acquireReader();
 }, [
@@ -662,13 +600,12 @@ Retrying acquiring shared-lock as reader with `runReaderOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2,
 });
 
-const use = useFactory();
 await use(async () => {
     await sharedLock.runReaderOrFail(async () => {
         // The critical section
@@ -690,14 +627,13 @@ Retrying acquiring shared-lock with `acquireWriterOrFail` method:
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
 import { FailedAcquireWriterLockError } from "@daiso-tech/core/shared-lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
 });
 
-const use = useFactory();
 try {
     await use(async () => {
         await sharedLock.acquireWriterOrFail();
@@ -720,14 +656,13 @@ Retrying acquiring shared-lock with `acquireWriter` method:
 
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
 });
 
-const use = useFactory();
 const hasAcquired = await use(async () => {
     return await sharedLock.acquireWriter();
 }, [
@@ -754,14 +689,12 @@ Retrying acquiring shared-lock with `runWriterOrFail` method:
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
 import { FailedAcquireWriterLockError } from "@daiso-tech/core/shared-lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
 });
-
-const use = useFactory();
 
 await use(async () => {
     await sharedLock.runWriterOrFail(async () => {
@@ -789,14 +722,13 @@ Retrying acquiring shared-lock with `acquireReaderOrFail` method:
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
 import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
 });
 
-const use = useFactory();
 try {
     await use(async () => {
         await sharedLock.acquireReaderOrFail();
@@ -819,14 +751,13 @@ Retrying acquiring shared-lock with `acquireReader` method:
 
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
 });
 
-const use = useFactory();
 const hasAcquired = await use(async () => {
     return await sharedLock.acquireReader();
 }, [
@@ -853,14 +784,12 @@ Retrying acquiring shared-lock with `runReaderOrFail` method:
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
 import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
 });
-
-const use = useFactory();
 
 await use(async () => {
     await sharedLock.runReaderOrFail(async () => {

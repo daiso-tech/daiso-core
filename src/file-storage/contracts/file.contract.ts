@@ -6,7 +6,6 @@ import { type Readable } from "node:stream";
 
 import { type IFileSize } from "@/file-size/contracts/_module.js";
 import { type FileSize } from "@/file-size/implementations/_module.js";
-import { type IKey } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
@@ -111,7 +110,7 @@ export type IReadableFile = {
     /**
      * The unique identifier/path for this file in storage.
      */
-    readonly key: IKey;
+    readonly key: string;
 
     /**
      * Retrieves file content as a UTF-8 text string.

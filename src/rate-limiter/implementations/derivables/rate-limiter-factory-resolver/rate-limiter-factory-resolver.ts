@@ -3,7 +3,6 @@
  */
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type IRateLimiterFactoryResolver,
     type IRateLimiterFactory,
@@ -88,13 +87,6 @@ export class RateLimiterFactoryResolver<
     constructor(
         private readonly settings: RateLimiterFactoryResolverSettings<TAdapters>,
     ) {}
-
-    setNamespace(namespace: INamespace): RateLimiterFactoryResolver<TAdapters> {
-        return new RateLimiterFactoryResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
 
     setOnlyError(onlyError?: boolean): RateLimiterFactoryResolver<TAdapters> {
         return new RateLimiterFactoryResolver({

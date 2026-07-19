@@ -18,29 +18,18 @@ The Semaphore middleware wraps function calls with a distributed semaphore, limi
 
 This is useful for controlling concurrency for resource-limited operations, such as database connection pooling, external API throttling, or rate-limited batch processing.
 
-## Initial setup
+## Usage
 
 ```ts
 import { withSemaphoreFactory } from "@daiso-tech/core/semaphore/middlewares";
 import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
 
-const semaphoreFactory = SemaphoreFactory({
-    // Configure adapter (e.g. Redis)
+const semaphoreFactory = new SemaphoreFactory({
+    adapter: new MemorySemaphoreAdapter(),
 });
-
 const withSemaphore = withSemaphoreFactory(semaphoreFactory);
 
-const use = useFactory();
-```
-
-:::info
-Here is a complete list of settings for the [`WithSemaphore`](https://daiso-tech.github.io/daiso-core/types/Semaphore.WithSemaphoreSettings.html) function.
-:::
-
-## Usage
-
-```ts
 const processFile = async (filePath: string): Promise<void> => {
     // Process file — limited concurrency
     await process(filePath);
@@ -63,6 +52,10 @@ await Promise.all([
     throttledProcess("/data/file4.json"), // Waits for a slot
 ]);
 ```
+
+:::info
+Here is a complete list of settings for the [`withSemaphore`](https://daiso-tech.github.io/daiso-core/types/Semaphore.WithSemaphoreSettings.html) function.
+:::
 
 ## Further information
 

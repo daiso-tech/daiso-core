@@ -15,7 +15,6 @@ import {
 } from "@/cache/implementations/derivables/cache/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type LockFactoryInput } from "@/lock/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
@@ -88,13 +87,6 @@ export class CacheResolver<
     constructor(
         private readonly settings: CacheResolverSettings<TAdapters, TType>,
     ) {}
-
-    setNamespace(namespace: INamespace): CacheResolver<TAdapters, TType> {
-        return new CacheResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
 
     setDefaultTtl(ttl: ITimeSpan | null): CacheResolver<TAdapters, TType> {
         return new CacheResolver({

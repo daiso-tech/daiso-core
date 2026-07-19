@@ -31,8 +31,6 @@ import {
     type LockFactory,
     resolveLockFactoryInput,
 } from "@/lock/implementations/derivables/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
@@ -61,16 +59,6 @@ export type CacheSettingsBase<TType = unknown> = {
      * @default true
      */
     shouldValidateOutput?: boolean;
-
-    /**
-     * @default
-     * ```ts
-     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
-     *
-     * new NoOpNamespace()
-     * ```
-     */
-    namespace?: INamespace;
 
     /**
      * You can decide the default ttl value. If null is passed then no ttl will be used by default.
@@ -131,7 +119,6 @@ export type CacheSettings<TType = unknown> = CacheSettingsBase<TType> & {
 export class Cache<TType = unknown> implements ICache<TType> {
     private readonly adapter: ICacheAdapter<TType>;
     private readonly defaultTtl: TimeSpan | null;
-    private readonly namespace: INamespace;
     private readonly schema: StandardSchemaV1<TType> | undefined;
     private readonly shouldValidateOutput: boolean;
     private readonly defaultJitter: number | null;
@@ -171,7 +158,6 @@ export class Cache<TType = unknown> implements ICache<TType> {
         const {
             shouldValidateOutput = true,
             schema,
-            namespace = new NoOpNamespace(),
             adapter,
             defaultTtl = null,
             defaultJitter = 0.2,
@@ -179,11 +165,10 @@ export class Cache<TType = unknown> implements ICache<TType> {
             lockFactory = new NoOpLockAdapter(),
         } = settings;
 
-        this.lockFactory = resolveLockFactoryInput(namespace, lockFactory);
+        this.lockFactory = resolveLockFactoryInput(lockFactory);
         this.context = context;
         this.shouldValidateOutput = shouldValidateOutput;
         this.schema = schema;
-        this.namespace = namespace;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
         this.adapter = resolveCacheAdapter(adapter);
@@ -201,9 +186,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     }
 
     async get(key: string): Promise<TType | null> {
-        const keyObj = this.namespace.create(key);
-
-        let value = await this.adapter.get(this.context, keyObj.toString());
+        let value = await this.adapter.get(this.context, key);
         if (
             this.shouldValidateOutput &&
             this.schema !== undefined &&
@@ -218,18 +201,13 @@ export class Cache<TType = unknown> implements ICache<TType> {
     async getOrFail(key: string): Promise<TType> {
         const value = await this.get(key);
         if (value === null) {
-            throw KeyNotFoundCacheError.create(this.namespace.create(key));
+            throw KeyNotFoundCacheError.create(key);
         }
         return value;
     }
 
     async getAndRemove(key: string): Promise<TType | null> {
-        const keyObj = this.namespace.create(key);
-
-        let value = await this.adapter.getAndRemove(
-            this.context,
-            keyObj.toString(),
-        );
+        let value = await this.adapter.getAndRemove(this.context, key);
         if (
             this.shouldValidateOutput &&
             this.schema !== undefined &&
@@ -260,8 +238,8 @@ export class Cache<TType = unknown> implements ICache<TType> {
         settings?: GetOrAddSettings,
     ): Promise<TType> {
         const ttl = this.resolveCacheWriteSettings(settings);
-        const keyObj = this.namespace.create(key);
-        let value = await this.adapter.get(this.context, keyObj.toString());
+
+        let value = await this.adapter.get(this.context, key);
         if (
             this.shouldValidateOutput &&
             this.schema !== undefined &&
@@ -277,12 +255,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
                     resolvedValueToAdd,
                 )) as NoneFunc<TType>;
             }
-            await this.adapter.add(
-                this.context,
-                keyObj.toString(),
-                resolvedValueToAdd,
-                ttl,
-            );
+            await this.adapter.add(this.context, key, resolvedValueToAdd, ttl);
             return resolvedValueToAdd;
         }
 
@@ -336,17 +309,11 @@ export class Cache<TType = unknown> implements ICache<TType> {
         settings?: CacheWriteSettings,
     ): Promise<boolean> {
         const ttl = this.resolveCacheWriteSettings(settings);
-        const keyObj = this.namespace.create(key);
 
         if (this.schema !== undefined) {
             value = await validate(this.schema, value);
         }
-        const hasAdded = await this.adapter.add(
-            this.context,
-            keyObj.toString(),
-            value,
-            ttl,
-        );
+        const hasAdded = await this.adapter.add(this.context, key, value, ttl);
 
         return hasAdded;
     }
@@ -358,7 +325,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     ): Promise<void> {
         const isNotFound = await this.add(key, value, settings);
         if (!isNotFound) {
-            throw KeyExistsCacheError.create(this.namespace.create(key));
+            throw KeyExistsCacheError.create(key);
         }
     }
 
@@ -368,14 +335,13 @@ export class Cache<TType = unknown> implements ICache<TType> {
         settings?: CacheWriteSettings,
     ): Promise<boolean> {
         const ttl = this.resolveCacheWriteSettings(settings);
-        const keyObj = this.namespace.create(key);
 
         if (this.schema !== undefined) {
             value = await validate(this.schema, value);
         }
         const hasUpdated = await this.adapter.put(
             this.context,
-            keyObj.toString(),
+            key,
             value,
             ttl,
         );
@@ -383,16 +349,10 @@ export class Cache<TType = unknown> implements ICache<TType> {
     }
 
     async update(key: string, value: TType): Promise<boolean> {
-        const keyObj = this.namespace.create(key);
-
         if (this.schema !== undefined) {
             value = await validate(this.schema, value);
         }
-        const hasUpdated = await this.adapter.update(
-            this.context,
-            keyObj.toString(),
-            value,
-        );
+        const hasUpdated = await this.adapter.update(this.context, key, value);
 
         return hasUpdated;
     }
@@ -400,7 +360,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     async updateOrFail(key: string, value: TType): Promise<void> {
         const isFound = await this.update(key, value);
         if (!isFound) {
-            throw KeyNotFoundCacheError.create(this.namespace.create(key));
+            throw KeyNotFoundCacheError.create(key);
         }
     }
 
@@ -408,11 +368,9 @@ export class Cache<TType = unknown> implements ICache<TType> {
         key: string,
         value = 1 as Extract<TType, number>,
     ): Promise<boolean> {
-        const keyObj = this.namespace.create(key);
-
         const hasUpdated = await this.adapter.increment(
             this.context,
-            keyObj.toString(),
+            key,
             value,
         );
 
@@ -425,7 +383,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     ): Promise<void> {
         const isFound = await this.increment(key, value);
         if (!isFound) {
-            throw KeyNotFoundCacheError.create(this.namespace.create(key));
+            throw KeyNotFoundCacheError.create(key);
         }
     }
 
@@ -442,16 +400,12 @@ export class Cache<TType = unknown> implements ICache<TType> {
     ): Promise<void> {
         const isFound = await this.decrement(key, value);
         if (!isFound) {
-            throw KeyNotFoundCacheError.create(this.namespace.create(key));
+            throw KeyNotFoundCacheError.create(key);
         }
     }
 
     async remove(key: string): Promise<boolean> {
-        const keyObj = this.namespace.create(key);
-
-        const hasRemoved = await this.adapter.removeMany(this.context, [
-            keyObj.toString(),
-        ]);
+        const hasRemoved = await this.adapter.removeMany(this.context, [key]);
 
         return hasRemoved;
     }
@@ -459,32 +413,23 @@ export class Cache<TType = unknown> implements ICache<TType> {
     async removeOrFail(key: string): Promise<void> {
         const isFound = await this.remove(key);
         if (!isFound) {
-            throw KeyNotFoundCacheError.create(this.namespace.create(key));
+            throw KeyNotFoundCacheError.create(key);
         }
     }
 
-    async removeMany(keys: Iterable<string>): Promise<boolean> {
-        if (typeof keys === "string") {
-            throw new TypeError(
-                `You cannot pass a string as keys to "removeMany" method.`,
-            );
-        }
+    async removeMany(keys: Array<string>): Promise<boolean> {
         const keysArr = [...keys];
         if (keysArr.length === 0) {
             return true;
         }
-        const keyObjArr = keysArr.map((key) => this.namespace.create(key));
         const hasRemovedAtLeastOne = await this.adapter.removeMany(
             this.context,
-            keyObjArr.map((keyObj) => keyObj.toString()),
+            keys,
         );
         return hasRemovedAtLeastOne;
     }
 
     async clear(): Promise<void> {
-        await this.adapter.removeByKeyPrefix(
-            this.context,
-            this.namespace.toString(),
-        );
+        await this.adapter.removeByKeyPrefix(this.context, "");
     }
 }

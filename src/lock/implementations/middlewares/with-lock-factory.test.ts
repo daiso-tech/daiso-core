@@ -6,12 +6,11 @@ import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
 import { LockFactory } from "@/lock/implementations/derivables/_module.js";
 import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
 import { withLockFactory } from "@/lock/implementations/middlewares/with-lock-factory.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { use } from "@/middleware/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withLockFactory", () => {
     let lockFactory: LockFactory;
-    const use = useFactory();
 
     beforeEach(() => {
         lockFactory = new LockFactory({

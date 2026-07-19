@@ -2,7 +2,6 @@
  * @module Semaphore
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
 import { type ISemaphoreState } from "@/semaphore/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
@@ -27,7 +26,7 @@ export type ISemaphoreStateMethods = {
      * The unique identifier for this semaphore instance.
      * Multiple semaphore instances with the same key share the same slot pool.
      */
-    readonly key: IKey;
+    readonly key: string;
 
     /**
      * The unique identifier for the slot holder (semaphore instance).

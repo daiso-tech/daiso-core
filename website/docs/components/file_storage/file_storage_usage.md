@@ -504,42 +504,7 @@ The `File` class exposes the key instance variable which is the filename:
 const file = fileStorage.create("file.txt");
 
 // Will return the file name
-console.log(file.key.toString());
-```
-
-### Namespacing
-
-You can use the `Namespace` class to group related files without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
-
-:::info
-For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
-:::
-
-```ts
-import { Namespace } from "@daiso-tech/core/namespace";
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
-import { FileStorage } from "@daiso-tech/core/FileStorage";
-
-const fileStorageA = new FileStorage({
-    namespace: new Namespace("@FileStorage-a"),
-    adapter: new MemoryFileStorageAdapter(),
-});
-const fileStorageB = new FileStorage({
-    namespace: new Namespace("@FileStorage-b"),
-    adapter: new MemoryFileStorageAdapter(),
-});
-
-const fileA = await fileStorageA.create("file.txt");
-const fileB = await fileStorageB.create("file.txt");
-
-await fileA.add({ data: "CONTENT_A" });
-await fileB.add({ data: "CONTENT_B" });
-
-// Will log "CONTENT_A"
-console.log(fileA.getText());
-
-// Will log "CONTENT_B"
-console.log(fileB.getText());
+console.log(file.key);
 ```
 
 ### Serialization and deserialization of file

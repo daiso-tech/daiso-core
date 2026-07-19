@@ -90,6 +90,10 @@
             "types": "./dist/cache/implementations/middlewares/_module-exports.d.ts",
             "import": "./dist/cache/implementations/middlewares/_module-exports.js"
         },
+        "./cache/plugins": {
+            "types": "./dist/cache/implementations/plugins/_module-exports.d.ts",
+            "import": "./dist/cache/implementations/plugins/_module-exports.js"
+        },
         "./cache/contracts": {
             "types": "./dist/cache/contracts/_module-exports.d.ts",
             "import": "./dist/cache/contracts/_module-exports.js"
@@ -133,6 +137,10 @@
         "./circuit-breaker/middlewares": {
             "types": "./dist/circuit-breaker/implementations/middlewares/_module-exports.d.ts",
             "import": "./dist/circuit-breaker/implementations/middlewares/_module-exports.js"
+        },
+        "./circuit-breaker/plugins": {
+            "types": "./dist/circuit-breaker/implementations/plugins/_module-exports.d.ts",
+            "import": "./dist/circuit-breaker/implementations/plugins/_module-exports.js"
         },
         "./circuit-breaker/contracts": {
             "types": "./dist/circuit-breaker/contracts/_module-exports.d.ts",
@@ -250,6 +258,10 @@
             "types": "./dist/file-storage/implementations/derivables/_module-exports.d.ts",
             "import": "./dist/file-storage/implementations/derivables/_module-exports.js"
         },
+        "./file-storage/plugins": {
+            "types": "./dist/file-storage/implementations/plugins/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/plugins/_module-exports.js"
+        },
         "./file-storage/contracts": {
             "types": "./dist/file-storage/contracts/_module-exports.d.ts",
             "import": "./dist/file-storage/contracts/_module-exports.js"
@@ -294,6 +306,10 @@
             "types": "./dist/lock/implementations/middlewares/_module-exports.d.ts",
             "import": "./dist/lock/implementations/middlewares/_module-exports.js"
         },
+        "./lock/plugins": {
+            "types": "./dist/lock/implementations/plugins/_module-exports.d.ts",
+            "import": "./dist/lock/implementations/plugins/_module-exports.js"
+        },
         "./lock/contracts": {
             "types": "./dist/lock/contracts/_module-exports.d.ts",
             "import": "./dist/lock/contracts/_module-exports.js"
@@ -330,14 +346,6 @@
             "types": "./dist/middleware/contracts/_module-exports.d.ts",
             "import": "./dist/middleware/contracts/_module-exports.js"
         },
-        "./namespace": {
-            "types": "./dist/namespace/implementations/_module-exports.d.ts",
-            "import": "./dist/namespace/implementations/_module-exports.js"
-        },
-        "./namespace/contracts": {
-            "types": "./dist/namespace/contracts/_module-exports.d.ts",
-            "import": "./dist/namespace/contracts/_module-exports.js"
-        },
         "./rate-limiter": {
             "types": "./dist/rate-limiter/implementations/derivables/_module-exports.d.ts",
             "import": "./dist/rate-limiter/implementations/derivables/_module-exports.js"
@@ -345,6 +353,10 @@
         "./rate-limiter/middlewares": {
             "types": "./dist/rate-limiter/implementations/middlewares/_module-exports.d.ts",
             "import": "./dist/rate-limiter/implementations/middlewares/_module-exports.js"
+        },
+        "./rate-limiter/plugins": {
+            "types": "./dist/rate-limiter/implementations/plugins/_module-exports.d.ts",
+            "import": "./dist/rate-limiter/implementations/plugins/_module-exports.js"
         },
         "./rate-limiter/contracts": {
             "types": "./dist/rate-limiter/contracts/_module-exports.d.ts",
@@ -397,6 +409,10 @@
         "./semaphore/middlewares": {
             "types": "./dist/semaphore/implementations/middlewares/_module-exports.d.ts",
             "import": "./dist/semaphore/implementations/middlewares/_module-exports.js"
+        },
+        "./semaphore/plugins": {
+            "types": "./dist/semaphore/implementations/plugins/_module-exports.d.ts",
+            "import": "./dist/semaphore/implementations/plugins/_module-exports.js"
         },
         "./semaphore/contracts": {
             "types": "./dist/semaphore/contracts/_module-exports.d.ts",
@@ -457,6 +473,10 @@
         "./shared-lock/middlewares": {
             "types": "./dist/shared-lock/implementations/middlewares/_module-exports.d.ts",
             "import": "./dist/shared-lock/implementations/middlewares/_module-exports.js"
+        },
+        "./shared-lock/plugins": {
+            "types": "./dist/shared-lock/implementations/plugins/_module-exports.d.ts",
+            "import": "./dist/shared-lock/implementations/plugins/_module-exports.js"
         },
         "./shared-lock/contracts": {
             "types": "./dist/shared-lock/contracts/_module-exports.d.ts",

@@ -1,15 +1,9 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
-import { type Use } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { use } from "@/middleware/implementations/_module.js";
 import { fallback } from "@/resilience/implementations/fallback/fallback.js";
 
 describe("function: fallback", () => {
-    let use: Use;
-    beforeEach(() => {
-        use = useFactory();
-    });
-
     describe("basic fallback behavior", () => {
         test("Should return original value when function succeeds", async () => {
             const fn = use(

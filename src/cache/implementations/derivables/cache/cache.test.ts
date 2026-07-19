@@ -9,14 +9,12 @@ import { ExecutionContext } from "@/execution-context/implementations/derivables
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
 import { LockFactory } from "@/lock/implementations/derivables/_module.js";
 import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
-import { Namespace } from "@/namespace/implementations/_module.js";
 import { ValidationError } from "@/utilities/_module.js";
 
 describe("class: Cache", () => {
     cacheTestSuite({
         createCache: () =>
             new Cache({
-                namespace: new Namespace("cache"),
                 adapter: new MemoryCacheAdapter(),
                 defaultJitter: null,
             }),
@@ -28,11 +26,9 @@ describe("class: Cache", () => {
     describe("standard schema:", () => {
         let adapter: MemoryCacheAdapter;
         let cache: Cache<string>;
-        const namespace = new Namespace("cache");
         beforeEach(() => {
             adapter = new MemoryCacheAdapter();
             cache = new Cache({
-                namespace,
                 adapter,
                 schema: z.string(),
             });
@@ -80,52 +76,27 @@ describe("class: Cache", () => {
                 new NoOpExecutionContextAdapter(),
             );
             test("method: get", async () => {
-                await adapter.add(
-                    noOpContext,
-                    namespace.create("a").toString(),
-                    1,
-                    null,
-                );
+                await adapter.add(noOpContext, "a", 1, null);
                 const promise = cache.get("a");
                 await expect(promise).rejects.toBeInstanceOf(ValidationError);
             });
             test("method: getOrFail", async () => {
-                await adapter.add(
-                    noOpContext,
-                    namespace.create("a").toString(),
-                    1,
-                    null,
-                );
+                await adapter.add(noOpContext, "a", 1, null);
                 const promise = cache.getOrFail("a");
                 await expect(promise).rejects.toBeInstanceOf(ValidationError);
             });
             test("method: getAndRemove", async () => {
-                await adapter.add(
-                    noOpContext,
-                    namespace.create("a").toString(),
-                    1,
-                    null,
-                );
+                await adapter.add(noOpContext, "a", 1, null);
                 const promise = cache.getAndRemove("a");
                 await expect(promise).rejects.toBeInstanceOf(ValidationError);
             });
             test("method: getOr", async () => {
-                await adapter.add(
-                    noOpContext,
-                    namespace.create("a").toString(),
-                    1,
-                    null,
-                );
+                await adapter.add(noOpContext, "a", 1, null);
                 const promise = cache.getOr("a", "1");
                 await expect(promise).rejects.toBeInstanceOf(ValidationError);
             });
             test("method: getOrAdd", async () => {
-                await adapter.add(
-                    noOpContext,
-                    namespace.create("a").toString(),
-                    1,
-                    null,
-                );
+                await adapter.add(noOpContext, "a", 1, null);
                 const promise = cache.getOrAdd("a", "1");
                 await expect(promise).rejects.toBeInstanceOf(ValidationError);
             });
@@ -138,7 +109,6 @@ describe("class: Cache", () => {
                 const createSpy = vi.spyOn(lockFactory, "create");
                 const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const lockingCache = new Cache<string>({
-                    namespace,
                     adapter: new MemoryCacheAdapter(),
                     lockFactory,
                 });
@@ -158,7 +128,6 @@ describe("class: Cache", () => {
                 const createSpy = vi.spyOn(lockFactory, "create");
                 const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const lockingCache = new Cache<string>({
-                    namespace,
                     adapter: new MemoryCacheAdapter(),
                     lockFactory,
                 });

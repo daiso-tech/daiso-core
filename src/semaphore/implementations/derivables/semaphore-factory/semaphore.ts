@@ -3,7 +3,6 @@
  */
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type ISemaphoreAdapter,
     type SemaphoreAdapterVariants,
@@ -38,10 +37,9 @@ export type SemaphoreSettings = {
     serdeTransformerName: string;
     adapter: ISemaphoreAdapter;
     originalAdapter: SemaphoreAdapterVariants;
-    key: IKey;
+    key: string;
     ttl: TimeSpan | null;
     defaultRefreshTime: TimeSpan;
-    namespace: INamespace;
     context: IReadableContext;
 };
 
@@ -55,7 +53,7 @@ export class Semaphore implements ISemaphore {
     static _serialize(deserializedValue: Semaphore): ISerializedSemaphore {
         return {
             version: "1",
-            key: deserializedValue._key.get(),
+            key: deserializedValue._key,
             limit: deserializedValue.limit,
             slotId: deserializedValue.slotId,
             ttlInMs: deserializedValue._ttl?.toMilliseconds() ?? null,
@@ -66,11 +64,10 @@ export class Semaphore implements ISemaphore {
     private readonly limit: number;
     private readonly adapter: ISemaphoreAdapter;
     private readonly originalAdapter: SemaphoreAdapterVariants;
-    private readonly _key: IKey;
+    private readonly _key: string;
     private _ttl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
-    private readonly namespace: INamespace;
     private readonly context: IReadableContext;
 
     constructor(settings: SemaphoreSettings) {
@@ -83,12 +80,10 @@ export class Semaphore implements ISemaphore {
             ttl,
             serdeTransformerName,
             defaultRefreshTime,
-            namespace,
             context,
         } = settings;
 
         this.context = context;
-        this.namespace = namespace;
         this.slotId = slotId;
         this.limit = limit;
         this.serdeTransformerName = serdeTransformerName;
@@ -97,10 +92,6 @@ export class Semaphore implements ISemaphore {
         this._ttl = ttl;
         this.defaultRefreshTime = defaultRefreshTime;
         this.originalAdapter = originalAdapter;
-    }
-
-    _getNamespace(): INamespace {
-        return this.namespace;
     }
 
     _getSerdeTransformerName(): string {
@@ -188,7 +179,7 @@ export class Semaphore implements ISemaphore {
         return this._ttl;
     }
 
-    get key(): IKey {
+    get key(): string {
         return this._key;
     }
 

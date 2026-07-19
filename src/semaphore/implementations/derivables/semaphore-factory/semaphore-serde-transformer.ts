@@ -3,7 +3,6 @@
  */
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type ISemaphoreAdapter,
     type SemaphoreAdapterVariants,
@@ -22,7 +21,6 @@ import { type OneOrMore, getConstructorName } from "@/utilities/_module.js";
 export type SemaphoreSerdeTransformerSettings = {
     adapter: ISemaphoreAdapter;
     originalAdapter: SemaphoreAdapterVariants;
-    namespace: INamespace;
     defaultRefreshTime: TimeSpan;
     serdeTransformerName: string;
     context: IReadableContext;
@@ -37,7 +35,6 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
 > {
     private readonly adapter: ISemaphoreAdapter;
     private readonly originalAdapter: SemaphoreAdapterVariants;
-    private readonly namespace: INamespace;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly context: IReadableContext;
@@ -46,7 +43,6 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
         const {
             adapter,
             originalAdapter,
-            namespace,
             defaultRefreshTime,
             serdeTransformerName,
             context,
@@ -56,7 +52,6 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this.originalAdapter = originalAdapter;
-        this.namespace = namespace;
         this.defaultRefreshTime = defaultRefreshTime;
     }
 
@@ -65,7 +60,6 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
             "semaphore",
             this.serdeTransformerName,
             getConstructorName(this.originalAdapter),
-            this.namespace.toString(),
         ].filter((str) => str !== "");
     }
 
@@ -80,34 +74,25 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
         const isSerdTransformerNameMathcing =
             value._getSerdeTransformerName() === this.serdeTransformerName;
 
-        const isNamespaceMatching =
-            this.namespace.toString() === value._getNamespace().toString();
-
         const isAdapterMatching =
             getConstructorName(this.originalAdapter) ===
             getConstructorName(value._getAdapter());
 
-        return (
-            isSerdTransformerNameMathcing &&
-            isNamespaceMatching &&
-            isAdapterMatching
-        );
+        return isSerdTransformerNameMathcing && isAdapterMatching;
     }
 
     deserialize(serializedValue: ISerializedSemaphore): Semaphore {
         const { key, slotId, limit, ttlInMs } = serializedValue;
-        const keyObj = this.namespace.create(key);
         return new Semaphore({
             context: this.context,
             slotId,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
-            key: keyObj,
+            key,
             limit,
             serdeTransformerName: this.serdeTransformerName,
             ttl: ttlInMs === null ? null : TimeSpan.fromMilliseconds(ttlInMs),
             defaultRefreshTime: this.defaultRefreshTime,
-            namespace: this.namespace,
         });
     }
 

@@ -13,7 +13,6 @@ import {
     CIRCUIT_BREAKER_STATE,
 } from "@/circuit-breaker/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callErrorPolicyOnThrow,
@@ -31,12 +30,11 @@ import {
 export type CircuitBreakerSettings = {
     enableAsyncTracking: boolean;
     adapter: ICircuitBreakerAdapter;
-    key: IKey;
+    key: string;
     slowCallTime: TimeSpan;
     errorPolicy: ErrorPolicy;
     trigger: CircuitBreakerTrigger;
     serdeTransformerName: string;
-    namespace: INamespace;
     waitUntil: WaitUntil;
     context: IReadableContext;
 };
@@ -61,18 +59,17 @@ export class CircuitBreaker implements ICircuitBreaker {
     ): ISerializedCircuitBreaker {
         return {
             version: "1",
-            key: deserializedValue._key.get(),
+            key: deserializedValue._key,
         };
     }
 
     private readonly waitUntil: WaitUntil;
-    private readonly _key: IKey;
+    private readonly _key: string;
     private readonly errorPolicy: ErrorPolicy;
     private readonly trigger: CircuitBreakerTrigger;
     private readonly slowCallTime: TimeSpan;
     private readonly adapter: ICircuitBreakerAdapter;
     private readonly serdeTransformerName: string;
-    private readonly namespace: INamespace;
     private readonly enableAsyncTracking: boolean;
     private readonly context: IReadableContext;
 
@@ -85,7 +82,6 @@ export class CircuitBreaker implements ICircuitBreaker {
             adapter,
             slowCallTime,
             serdeTransformerName,
-            namespace,
             waitUntil,
             context,
         } = settings;
@@ -99,11 +95,6 @@ export class CircuitBreaker implements ICircuitBreaker {
         this.adapter = adapter;
         this.slowCallTime = slowCallTime;
         this.serdeTransformerName = serdeTransformerName;
-        this.namespace = namespace;
-    }
-
-    _getNamespace(): INamespace {
-        return this.namespace;
     }
 
     _getSerdeTransformerName(): string {
@@ -114,7 +105,7 @@ export class CircuitBreaker implements ICircuitBreaker {
         return this.adapter;
     }
 
-    get key(): IKey {
+    get key(): string {
         return this._key;
     }
 

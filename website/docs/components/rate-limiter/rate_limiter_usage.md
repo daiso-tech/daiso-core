@@ -130,53 +130,10 @@ The `RateLimiter` class exposes instance variables such as:
 const rateLimiter = rateLimiterFactory.create("resource");
 
 // Will return the key of the rate-limiter which is "resource"
-console.log(rateLimiter.key.toString());
+console.log(rateLimiter.key);
 ```
-
-:::info
-The `key` field is an object that implements [`IKey`](../namespace.md) contract.
-:::
 
 ## Patterns
-
-### Namespacing
-
-You can use the `Namespace` class to group related rate-limiters without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
-
-:::info
-For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
-:::
-
-```ts
-import { Namespace } from "@daiso-tech/core/namespace";
-import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
-import { RateLimiterFactory } from "@daiso-tech/core/rate-limiter";
-import Redis from "ioredis";
-
-const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
-
-const rateLimiterFactoryA = new RateLimiterFactory({
-    namespace: new Namespace("@rate-limiter-a"),
-    adapter: new RedisRateLimiterAdapter({ database }),
-});
-const rateLimiterFactoryB = new RateLimiterFactory({
-    namespace: new Namespace("@rate-limiter-b"),
-    adapter: new RedisRateLimiterAdapter({ database }),
-});
-
-const rateLimiterA = rateLimiterFactoryA.create("key");
-const rateLimiterB = rateLimiterFactoryB.create("key");
-
-await rateLimiterA.runOrFail(async () => {
-    // some operation
-});
-
-// Will log "ALLOWED"
-console.log((await rateLimiterA.getState()).type);
-
-// Will log "EXPIRED" because rateLimiterB is in a different namespace
-console.log((await rateLimiterB.getState()).type);
-```
 
 ### Serialization and deserialization of rate-limiters
 

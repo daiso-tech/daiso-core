@@ -15,7 +15,6 @@ import {
     type FileStorageSettingsBase,
 } from "@/file-storage/implementations/derivables/file-storage/_module.js";
 import { type LockFactoryInput } from "@/lock/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
@@ -79,13 +78,6 @@ export class FileStorageResolver<
     constructor(
         private readonly settings: FileStorageResolverSettings<TAdapters>,
     ) {}
-
-    setNamespace(namespace: INamespace): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
 
     setDefaultContentType(contentType: string): FileStorageResolver<TAdapters> {
         return new FileStorageResolver({

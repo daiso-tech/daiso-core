@@ -2,7 +2,6 @@
  * @module Semaphore
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
 import { type InferInstance } from "@/utilities/_module.js";
 
 /**
@@ -12,9 +11,9 @@ import { type InferInstance } from "@/utilities/_module.js";
  * @group Errors
  */
 export class LimitReachedSemaphoreError extends Error {
-    static create(key: IKey, cause?: unknown): LimitReachedSemaphoreError {
+    static create(key: string, cause?: unknown): LimitReachedSemaphoreError {
         return new LimitReachedSemaphoreError(
-            `Key "${key.get()}" has reached the limit`,
+            `Key "${key}" has reached the limit`,
             cause,
         );
     }
@@ -38,12 +37,12 @@ export class LimitReachedSemaphoreError extends Error {
  */
 export class FailedRefreshSemaphoreError extends Error {
     static create(
-        key: IKey,
+        key: string,
         slotId: string,
         cause?: unknown,
     ): FailedRefreshSemaphoreError {
         return new FailedRefreshSemaphoreError(
-            `Failed to refresh slot "${slotId}" of key "${key.get()}"`,
+            `Failed to refresh slot "${slotId}" of key "${key}"`,
             cause,
         );
     }
@@ -67,12 +66,12 @@ export class FailedRefreshSemaphoreError extends Error {
  */
 export class FailedReleaseSemaphoreError extends Error {
     static create(
-        key: IKey,
+        key: string,
         slotId: string,
         cause?: unknown,
     ): FailedReleaseSemaphoreError {
         return new FailedReleaseSemaphoreError(
-            `Failed to release slot "${slotId}" of key "${key.get()}"`,
+            `Failed to release slot "${slotId}" of key "${key}"`,
             cause,
         );
     }

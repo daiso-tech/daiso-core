@@ -18,7 +18,6 @@ import {
 import { CircuitBreakerFactory } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker-factory.js";
 import { ConsecutiveBreaker } from "@/circuit-breaker/implementations/policies/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { Namespace } from "@/namespace/implementations/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/serde.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -551,56 +550,7 @@ describe("class: CircuitBreakerFactory", () => {
         });
     });
     describe("Serde tests:", () => {
-        test("Should differentiate between different namespaces", async () => {
-            const serde = new Serde(new SuperJsonSerdeAdapter());
-            const key = "a";
-            const circuitBreakerPolicy = new ConsecutiveBreaker({
-                failureThreshold: 1,
-                successThreshold: 1,
-            });
-
-            const circuitBreakerFactory1 = new CircuitBreakerFactory({
-                adapter: new DatabaseCircuitBreakerAdapter({
-                    adapter: new MemoryCircuitBreakerStorageAdapter(),
-                    circuitBreakerPolicy,
-                }),
-                enableAsyncTracking: false,
-                namespace: new Namespace("@circuit-breaker-1"),
-                serde,
-            });
-            const circuitBreaker1 = circuitBreakerFactory1.create(key);
-            try {
-                await circuitBreaker1.runOrFail(() => {
-                    return Promise.reject(
-                        new UnexpectedErrorA("Unexpected error"),
-                    );
-                });
-            } catch (error: unknown) {
-                if (!(error instanceof UnexpectedErrorA)) {
-                    throw error;
-                }
-            }
-
-            const circuitBreakerFactory2 = new CircuitBreakerFactory({
-                adapter: new DatabaseCircuitBreakerAdapter({
-                    adapter: new MemoryCircuitBreakerStorageAdapter(),
-                    circuitBreakerPolicy,
-                }),
-                enableAsyncTracking: false,
-                namespace: new Namespace("@circuit-breaker-2"),
-                serde,
-            });
-            const circuitBreaker2 = circuitBreakerFactory2.create(key);
-
-            const deserializedCircuitBreaker2 =
-                serde.deserialize<ICircuitBreaker>(
-                    serde.serialize(circuitBreaker2),
-                );
-            const handler = vi.fn();
-            await deserializedCircuitBreaker2.runOrFail(handler);
-            expect(handler).toHaveBeenCalledOnce();
-        });
-        test("Should differentiate between different adapters that have same namespace", async () => {
+        test("Should differentiate between different adapters", async () => {
             class WrapperCircuitBreakerAdapter implements ICircuitBreakerAdapter {
                 constructor(
                     private readonly adapter_: ICircuitBreakerAdapter,
@@ -639,7 +589,6 @@ describe("class: CircuitBreakerFactory", () => {
             }
 
             const serde = new Serde(new SuperJsonSerdeAdapter());
-            const circuitBreakerNamespace = new Namespace("@circuit-breaker");
             const key = "a";
             const circuitBreakerPolicy = new ConsecutiveBreaker({
                 failureThreshold: 1,
@@ -654,7 +603,6 @@ describe("class: CircuitBreakerFactory", () => {
                     }),
                 ),
                 enableAsyncTracking: false,
-                namespace: circuitBreakerNamespace,
                 serde,
             });
             const circuitBreaker1 = circuitBreakerFactory1.create(key);
@@ -676,7 +624,6 @@ describe("class: CircuitBreakerFactory", () => {
                     circuitBreakerPolicy,
                 }),
                 enableAsyncTracking: false,
-                namespace: circuitBreakerNamespace,
                 serde,
             });
             const circuitBreaker2 = circuitBreakerFactory2.create(key);
@@ -691,7 +638,6 @@ describe("class: CircuitBreakerFactory", () => {
         });
         test("Should differentiate between different serdeTransformerNames", async () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
-            const circuitBreakerNamespace = new Namespace("@circuit-breaker");
             const key = "a";
             const circuitBreakerPolicy = new ConsecutiveBreaker({
                 failureThreshold: 1,
@@ -704,7 +650,6 @@ describe("class: CircuitBreakerFactory", () => {
                     circuitBreakerPolicy,
                 }),
                 enableAsyncTracking: false,
-                namespace: circuitBreakerNamespace,
                 serdeTransformerName: "adapter1",
                 serde,
             });
@@ -727,7 +672,6 @@ describe("class: CircuitBreakerFactory", () => {
                     circuitBreakerPolicy,
                 }),
                 enableAsyncTracking: false,
-                namespace: circuitBreakerNamespace,
                 serdeTransformerName: "adapter2",
                 serde,
             });

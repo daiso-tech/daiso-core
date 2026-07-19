@@ -12,7 +12,6 @@ import {
     type ISerializedFile,
 } from "@/file-storage/implementations/derivables/file-storage/file.js";
 import { type ILockFactory } from "@/lock/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import {
     getConstructorName,
@@ -32,7 +31,6 @@ export type FileSerdeTransformerSettings = {
     defaultContentLanguage: string | null;
     originalAdapter: FileStorageAdapterVariants;
     adapter: ISignedFileStorageAdapter;
-    namespace: INamespace;
     serdeTransformerName: string;
     onlyLowercase: boolean;
     keyValidator: InvokableFn<[key: string], string | null>;
@@ -50,7 +48,6 @@ export class FileSerdeTransformer implements ISerdeTransformer<
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
     private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
-    private readonly namespace: INamespace;
     private readonly serdeTransformerName: string;
     private readonly defaultContentType: string;
     private readonly defaultContentDisposition: string | null;
@@ -66,7 +63,6 @@ export class FileSerdeTransformer implements ISerdeTransformer<
             onlyLowercase,
             keyValidator,
             adapter,
-            namespace,
             serdeTransformerName,
             defaultContentType,
             defaultCacheControl,
@@ -83,7 +79,6 @@ export class FileSerdeTransformer implements ISerdeTransformer<
         this.keyValidator = keyValidator;
         this.originalAdapter = originalAdapter;
         this.adapter = adapter;
-        this.namespace = namespace;
         this.serdeTransformerName = serdeTransformerName;
         this.defaultContentType = defaultContentType;
         this.defaultCacheControl = defaultCacheControl;
@@ -97,7 +92,6 @@ export class FileSerdeTransformer implements ISerdeTransformer<
             "file",
             this.serdeTransformerName,
             getConstructorName(this.originalAdapter),
-            this.namespace.toString(),
         ].filter((str) => str !== "");
     }
 
@@ -111,23 +105,15 @@ export class FileSerdeTransformer implements ISerdeTransformer<
         const isSerdTransformerNameMathcing =
             this.serdeTransformerName === value._getSerdeTransformerName();
 
-        const isNamespaceMatching =
-            this.namespace.toString() === value._getNamespace().toString();
-
         const isAdapterMatching =
             getConstructorName(this.originalAdapter) ===
             getConstructorName(value._getAdapter());
 
-        return (
-            isSerdTransformerNameMathcing &&
-            isNamespaceMatching &&
-            isAdapterMatching
-        );
+        return isSerdTransformerNameMathcing && isAdapterMatching;
     }
 
     deserialize(serializedValue: ISerializedFile): File {
         const { key } = serializedValue;
-        const keyObj = this.namespace.create(key);
 
         return new File({
             originalKey: key,
@@ -142,9 +128,8 @@ export class FileSerdeTransformer implements ISerdeTransformer<
             defaultContentEncoding: this.defaultContentEncoding,
             defaultContentLanguage: this.defaultContentLanguage,
             adapter: this.adapter,
-            key: keyObj,
+            key,
             serdeTransformerName: this.serdeTransformerName,
-            namespace: this.namespace,
         });
     }
 

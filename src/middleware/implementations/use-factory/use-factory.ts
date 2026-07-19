@@ -19,40 +19,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * Configuration options for creating a middleware application function.
- *
- * Allows customization of the execution context used during middleware execution
- * and the default priority assigned to middlewares without an explicit priority.
- *
- * @example
- * ```ts
- * const customContext = new ExecutionContext(new CustomAdapter());
- * const use = useFactory({
- *   context: customContext,
- *   defaultPriority: 100
- * });
- * ```
- *
- * @see {@link useFactory | `useFactory`}
- * @see {@link IReadableContext | `IReadableContext`}
- *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
- * @group Implementations
- */
-export type UseFactorySettings = {
-    /**
-     * Default priority for middlewares that do not explicitly set a priority.
-     *
-     * Middlewares are executed in order of priority (lower values first).
-     * This setting applies to function-based middlewares or object middlewares
-     * that don't specify a priority.
-     *
-     * @default 0
-     */
-    defaultPriority?: number;
-};
-
-/**
  * @internal
  */
 function isMiddlewareObject<TParameters extends Array<unknown>, TReturn>(
@@ -97,52 +63,21 @@ function resolveMiddlewares<TParameters extends Array<unknown>, TReturn>(
 }
 
 /**
- * Creates a middleware application function with optional custom settings.
- *
- * Returns a {@link Use | `Use`} function that can wrap invokables with middleware chains.
- * The factory pattern allows reusing the same configuration across multiple invokables,
- * including shared execution context and default middleware priority.
- *
- * @param settings - Configuration for the middleware application function
- *
- * @returns A {@link Use | `Use`} function configured with the provided settings
- *
- * @example
- * ```ts
- * import { useFactory } from '@daiso-tech/core/middleware';
- *
- * // Create with default settings
- * const use = useFactory();
- *
- * // Create with custom execution context
- * const customContext = new ExecutionContext(new MyAdapter());
- * const useWithContext = useFactory({ context: customContext });
- *
- * // Create with custom default priority
- * const useWithPriority = useFactory({ defaultPriority: 50 });
- *
- * // Use the middleware application function
- * const wrappedFunc = use(myFunction, [middleware1, middleware2]);
- * const result = wrappedFunc(...args);
- * ```
- *
- * @see {@link Use | `Use`}
- * @see {@link UseFactorySettings | `UseFactorySettings`}
- * @see {@link Middleware | `Middleware`}
- *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
- * @group Implementations
+ * @internal
  */
-export function useFactory(settings: UseFactorySettings = {}): Use {
-    const { defaultPriority = 0 } = settings;
+const DEFAULT_PRIORITY = 0;
 
+/**
+ * @internal
+ */
+export function useFactory(): Use {
     return <TParameters extends Array<unknown>, TReturn>(
         invokable: Invokable<TParameters, TReturn>,
         middlewares: OneOrMore<Middleware<TParameters, TReturn>>,
     ): InvokableFn<TParameters, TReturn> => {
         const resolvedMiddlewares = resolveMiddlewares(
             middlewares,
-            defaultPriority,
+            DEFAULT_PRIORITY,
         );
         let func = resolveInvokable(invokable);
         for (const middleware of [...resolvedMiddlewares].reverse()) {
@@ -173,3 +108,9 @@ export function useFactory(settings: UseFactorySettings = {}): Use {
         return func;
     };
 }
+
+/**
+ * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * @group Implementations
+ */
+export const use = useFactory();

@@ -8,7 +8,7 @@ A predicate function can be used to dynamically determine if an error should be 
 
 ```ts
 import { fallback } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 class CustomError extends Error {
     constructor(
@@ -20,7 +20,7 @@ class CustomError extends Error {
         this.name = CustomError.name;
     }
 }
-const use = useFactory();
+
 const func = use((): string => {
     return "asd";
 }, [
@@ -39,9 +39,8 @@ You can directly pass an class to match if errors are instance of the class:
 
 ```ts
 import { fallback } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
-const use = useFactory();
 const func = use((): string => {
     return "asd";
 }, [
@@ -58,9 +57,8 @@ You can also pass multiple error classes:
 
 ```ts
 import { fallback } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
-const use = useFactory();
 const func = use((): string => {
     return "asd";
 }, [
@@ -80,9 +78,8 @@ You can use any [standard schema](https://standardschema.dev/) as error policy:
 ```ts
 import { z } from "zod";
 import { fallback } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
-const use = useFactory();
 const func = use((): string => {
     return "asd";
 }, [
@@ -104,9 +101,8 @@ You can treat false return values as errors. This useful when you want to retry 
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
-const use = useFactory();
 const func = use(async (): Promise<boolean> => {
     // Will be
     console.log("EXECUTING");

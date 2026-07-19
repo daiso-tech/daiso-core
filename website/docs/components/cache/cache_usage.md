@@ -346,57 +346,6 @@ For further information about `LockFactory` refer to the [`@daiso-tech/core/lock
 The `lockFactory` defaults to a `NoOpLockAdapter` implementation, so `enableLocking: true` has no effect unless you provide a real lock adapter.
 :::
 
-### Namespacing
-
-You can use the `Namespace` class to group related data without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
-
-:::info
-For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
-:::
-
-```ts
-import { Namespace } from "@daiso-tech/core/namespace";
-import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
-import { Cache } from "@daiso-tech/core/cache";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import Redis from "ioredis";
-
-const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
-const serde = new Serde(new SuperJsonSerdeAdapter());
-
-const cacheA = new Cache({
-    namespace: new Namespace("@cache-a"),
-    adapter: new RedisCacheAdapter({
-        database,
-        serde,
-    }),
-});
-const cacheB = new Cache({
-    namespace: new Namespace("@cache-b"),
-    adapter: new RedisCacheAdapter({
-        database,
-        serde,
-    }),
-});
-
-await cacheA.add("key", 1);
-
-// cacheA Logs 1
-console.log(await cacheA.get("key"));
-
-// cacheB Logs null
-console.log(await cacheB.get("key"));
-
-await cacheB.add("key", "tests");
-
-// cacheB Logs "test"
-console.log(await cacheB.get("key"));
-
-// cacheA still Logs 1
-console.log(await cacheA.get("key"));
-```
-
 ### Separating cache reading from manipulation
 
 The library includes 2 additional contracts:

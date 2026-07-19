@@ -4,7 +4,6 @@
 
 import { type BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type IRateLimiterFactoryResolver,
     type IRateLimiterFactory,
@@ -117,15 +116,6 @@ export class DatabaseRateLimiterFactoryResolver<
     constructor(
         private readonly settings: DatabaseRateLimiterFactoryResolverSettings<TAdapters>,
     ) {}
-
-    setNamespace(
-        namespace: INamespace,
-    ): DatabaseRateLimiterFactoryResolver<TAdapters> {
-        return new DatabaseRateLimiterFactoryResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
 
     setOnlyError(
         onlyError?: boolean,

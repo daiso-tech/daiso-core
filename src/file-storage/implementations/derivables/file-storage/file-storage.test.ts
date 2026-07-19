@@ -29,7 +29,6 @@ import { type ILockFactory } from "@/lock/contracts/lock-factory.contract.js";
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
 import { LockFactory } from "@/lock/implementations/derivables/_module.js";
 import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
-import { Namespace } from "@/namespace/implementations/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/time-span.js";
@@ -42,7 +41,6 @@ describe("class: FileStorage", () => {
             const fileStorage = new FileStorage({
                 serde,
                 adapter: new MemoryFileStorageAdapter(),
-                namespace: new Namespace("file-storag"),
             });
             return {
                 fileStorage,
@@ -414,45 +412,16 @@ describe("class: FileStorage", () => {
         });
     });
     describe("Serde tests:", () => {
-        test("Should differentiate between different namespaces", async () => {
-            const serde = new Serde(new SuperJsonSerdeAdapter());
-            const key = "a";
-
-            const fileStorage1 = new FileStorage({
-                adapter: new MemoryFileStorageAdapter(),
-                namespace: new Namespace("@file-storage-1"),
-                serde,
-            });
-            const file1 = fileStorage1.create(key);
-            const data1 = new Uint8Array(Buffer.from("CONTENT_1"));
-            await file1.add({ data: data1 });
-
-            const fileProvider2 = new FileStorage({
-                adapter: new MemoryFileStorageAdapter(),
-                namespace: new Namespace("@file-storage-2"),
-                serde,
-            });
-
-            const file2 = fileProvider2.create(key);
-            const deserializedLock2 = serde.deserialize<IFile>(
-                serde.serialize(file2),
-            );
-            const data2 = new Uint8Array(Buffer.from("CONTENT_2"));
-            const result = await deserializedLock2.add({ data: data2 });
-            expect(result).toBe(true);
-        });
-        test("Should differentiate between different adapters that have same namespace", async () => {
+        test("Should differentiate between different adapters", async () => {
             let adapter2: FsFileStorageAdapter | null = null;
 
             try {
                 const serde = new Serde(new SuperJsonSerdeAdapter());
-                const fileStorageNamespace = new Namespace("@file-storage");
                 const key = "a";
 
                 const adapter1 = new MemoryFileStorageAdapter();
                 const fileStorage1 = new FileStorage({
                     adapter: adapter1,
-                    namespace: fileStorageNamespace,
                     serde,
                 });
                 const file1 = fileStorage1.create(key);
@@ -467,7 +436,6 @@ describe("class: FileStorage", () => {
                 await adapter2.init();
                 const fileStorage2 = new FileStorage({
                     adapter: adapter2,
-                    namespace: fileStorageNamespace,
                     serde,
                 });
 
@@ -487,12 +455,10 @@ describe("class: FileStorage", () => {
         });
         test("Should differentiate between different serdeTransformerNames", async () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
-            const fileStorageNamespace = new Namespace("@file-storage");
             const key = "a";
 
             const lockProvider1 = new FileStorage({
                 adapter: new MemoryFileStorageAdapter(),
-                namespace: fileStorageNamespace,
                 serdeTransformerName: "adapter1",
                 serde,
             });
@@ -502,7 +468,6 @@ describe("class: FileStorage", () => {
 
             const lockProvider2 = new FileStorage({
                 adapter: new MemoryFileStorageAdapter(),
-                namespace: fileStorageNamespace,
                 serdeTransformerName: "adapter2",
                 serde,
             });

@@ -18,8 +18,6 @@ import { ListenerStore } from "@/event-bus/implementations/derivables/event-bus/
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import {
     validate,
     resolveInvokable,
@@ -59,16 +57,6 @@ export type EventBusSettingsBase<
      * @default true
      */
     shouldValidateOutput?: boolean;
-
-    /**
-     * @default
-     * ```ts
-     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
-     *
-     * new NoOpNamespace()
-     * ```
-     */
-    namespace?: INamespace;
 
     /**
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
@@ -116,7 +104,6 @@ export class EventBus<
     private readonly shouldValidateOutput: boolean;
     private readonly store = new ListenerStore();
     private readonly adapter: IEventBusAdapter;
-    private readonly namespace: INamespace;
     private readonly eventMapSchema: EventMapSchema<TEventMap> | undefined;
     private readonly context: IReadableContext;
 
@@ -145,7 +132,6 @@ export class EventBus<
             },
             shouldValidateOutput = true,
             eventMapSchema,
-            namespace = new NoOpNamespace(),
             adapter,
             context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
@@ -154,7 +140,6 @@ export class EventBus<
         this.shouldValidateOutput = shouldValidateOutput;
         this.eventMapSchema = eventMapSchema;
         this.adapter = adapter;
-        this.namespace = namespace;
         this._onUncaughtRejection = _onUncaughtRejection;
     }
 
@@ -187,20 +172,22 @@ export class EventBus<
         eventName: TEventName,
         listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void> {
-        const key = this.namespace.create(String(eventName));
+        if (typeof eventName !== "string") {
+            throw new TypeError("!!__MESSAGE__!!");
+        }
         const resolvedListener = this.store.getOrAdd(
-            key.toString(),
+            eventName,
             listener,
             this.createWrappedListener(eventName, listener),
         );
         try {
             await this.adapter.addListener(
                 this.context,
-                key.toString(),
+                eventName,
                 resolvedListener as EventListenerFn<BaseEvent>,
             );
         } catch (error: unknown) {
-            this.store.getAndRemove(key.toString(), listener);
+            this.store.getAndRemove(eventName, listener);
             throw error;
         }
     }
@@ -218,22 +205,21 @@ export class EventBus<
         eventName: TEventName,
         listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void> {
-        const key = this.namespace.create(String(eventName));
-        const resolvedListener = this.store.getAndRemove(
-            key.toString(),
-            listener,
-        );
+        if (typeof eventName !== "string") {
+            throw new TypeError("!!__MESSAGE__!!");
+        }
+        const resolvedListener = this.store.getAndRemove(eventName, listener);
         if (resolvedListener === null) {
             return;
         }
         try {
             await this.adapter.removeListener(
                 this.context,
-                key.toString(),
+                eventName,
                 resolvedListener as EventListenerFn<BaseEvent>,
             );
         } catch (error: unknown) {
-            this.store.getOrAdd(key.toString(), listener, resolvedListener);
+            this.store.getOrAdd(eventName, listener, resolvedListener);
             throw error;
         }
     }
@@ -251,6 +237,9 @@ export class EventBus<
         eventName: TEventName,
         listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void> {
+        if (typeof eventName !== "string") {
+            throw new TypeError("!!__MESSAGE__!!");
+        }
         const wrappedListener = async (
             event_: InferEvent<TEventMap, TEventName>,
         ) => {
@@ -261,7 +250,7 @@ export class EventBus<
                 ) {
                     event_ = (await validate(
                         this.eventMapSchema[eventName],
-                        event_,
+                        event_ as any,
                     )) as InferEvent<TEventMap, TEventName>;
                 }
                 const resolvedListener = resolveInvokable(listener);
@@ -273,20 +262,19 @@ export class EventBus<
             }
         };
 
-        const key = this.namespace.create(String(eventName));
         const resolvedListener = this.store.getOrAdd(
-            key.toString(),
+            eventName,
             listener,
             wrappedListener,
         );
         try {
             await this.adapter.addListener(
                 this.context,
-                key.toString(),
+                eventName,
                 resolvedListener as EventListenerFn<BaseEvent>,
             );
         } catch (error: unknown) {
-            this.store.getAndRemove(key.toString(), listener);
+            this.store.getAndRemove(eventName, listener);
             throw error;
         }
     }
@@ -343,13 +331,12 @@ export class EventBus<
         eventName: TEventName,
         event: TEventMap[TEventName],
     ): Promise<void> {
+        if (typeof eventName !== "string") {
+            throw new TypeError("!!__MESSAGE__!!");
+        }
         if (this.eventMapSchema !== undefined) {
             event = await validate(this.eventMapSchema[eventName], event);
         }
-        await this.adapter.dispatch(
-            this.context,
-            this.namespace.create(String(eventName)).toString(),
-            event,
-        );
+        await this.adapter.dispatch(this.context, eventName, event);
     }
 }

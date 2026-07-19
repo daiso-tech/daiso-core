@@ -18,45 +18,44 @@ The RateLimiter middleware wraps function calls with a rate limiter, controlling
 
 This is useful for preventing abuse, controlling API rate limits, or throttling expensive operations.
 
-## Initial setup
+## Usage
 
 ```ts
 import { withRateLimiterFactory } from "@daiso-tech/core/rate-limiter/middlewares";
 import { RateLimiterFactory } from "@daiso-tech/core/rate-limiter";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
+import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
 
-const rateLimiterFactory = RateLimiterFactory({
-    // Configure adapter (e.g. Redis)
+const rateLimiterFactory = new RateLimiterFactory({
+    adapter: new DatabaseRateLimiterAdapter({
+        adapter: new MemoryRateLimiterStorageAdapter(),
+    }),
 });
-
 const withRateLimiter = withRateLimiterFactory(rateLimiterFactory);
 
-const use = useFactory();
-```
-
-:::info
-Here is a complete list of settings for the [`WithRateLimiter`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.WithRateLimiterSettings.html) function.
-:::
-
-## Usage
-
-```ts
-const callExternalApi = async (endpoint: string): Promise<unknown> => {
-    const response = await fetch(`https://api.example.com/${endpoint}`);
-    return response.json();
+const fetchHandler = async (request: Request): Promise<Response> => {
+    // ...
 };
 
 // Wrap with rate limiter — max 10 calls per window
 const rateLimitedCall = use(
-    callExternalApi,
+    fetchHandler,
     withRateLimiter({
-        key: (endpoint) => `api:${endpoint}`,
+        key: (req) => `api:${String(req.headers.get("x-ip"))}`,
         limit: 10,
     }),
 );
 
-await rateLimitedCall("users");
+await rateLimitedCall(
+    new Request("/url", {
+        method: "POST",
+    }),
+);
 ```
+
+:::info
+Here is a complete list of settings for the [`withRateLimiter`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.WithRateLimiterSettings.html) function.
+:::
 
 ## Further information
 

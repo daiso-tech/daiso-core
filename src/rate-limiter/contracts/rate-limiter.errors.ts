@@ -2,7 +2,6 @@
  * @module RateLimiter
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
 import { type RateLimiterBlockedState } from "@/rate-limiter/contracts/rate-limiter-state.contract.js";
 import { type InferInstance } from "@/utilities/_module.js";
 
@@ -15,12 +14,12 @@ import { type InferInstance } from "@/utilities/_module.js";
 export class BlockedRateLimiterError extends Error {
     static create(
         state: Omit<RateLimiterBlockedState, "type">,
-        key: IKey,
+        key: string,
         cause?: unknown,
     ): BlockedRateLimiterError {
         return new BlockedRateLimiterError(
             state,
-            `Rate limiter for key "${key.get()}" is blocked. All calls are being blocked until wait time is reached.`,
+            `Rate limiter for key "${key}" is blocked. All calls are being blocked until wait time is reached.`,
             cause,
         );
     }

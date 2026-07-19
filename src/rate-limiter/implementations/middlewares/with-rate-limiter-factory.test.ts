@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { use } from "@/middleware/implementations/_module.js";
 import {
     type RateLimiterFactoryCreateSettings,
     type IRateLimiterFactory,
@@ -12,7 +12,6 @@ import { withRateLimiterFactory } from "@/rate-limiter/implementations/middlewar
 
 describe("function: withRateLimiterFactory", () => {
     let rateLimiterFactory: IRateLimiterFactory;
-    const use = useFactory();
 
     beforeEach(() => {
         rateLimiterFactory = new RateLimiterFactory({

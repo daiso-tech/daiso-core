@@ -9,7 +9,6 @@ import { EventBus } from "@/event-bus/implementations/derivables/event-bus/event
 import { eventBusTestSuite } from "@/event-bus/implementations/test-utilities/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { Namespace } from "@/namespace/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay, ValidationError } from "@/utilities/_module.js";
 
@@ -26,7 +25,6 @@ describe("class: EventBus", () => {
         beforeEach,
         createEventBus: () =>
             new EventBus({
-                namespace: new Namespace("event-bus"),
                 adapter: new MemoryEventBusAdapter(eventEmitter),
             }),
     });
@@ -41,14 +39,12 @@ describe("class: EventBus", () => {
         };
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const invalidInput: AddEvent = { a: "asd", c: null } as any;
-        const namespace = new Namespace("event-bus");
 
         const TTL = TimeSpan.fromMilliseconds(10);
         describe("input validation:", () => {
             test("method: dispatch", async () => {
                 const eventBus = new EventBus({
                     adapter: new MemoryEventBusAdapter(),
-                    namespace,
                     eventMapSchema,
                 });
                 const promise = eventBus.dispatch("add", invalidInput);
@@ -61,7 +57,6 @@ describe("class: EventBus", () => {
                 const adapter = new MemoryEventBusAdapter();
                 const eventBus = new EventBus({
                     adapter,
-                    namespace,
                     eventMapSchema,
                     _onUncaughtRejection: (error_) => {
                         error = error_;
@@ -71,11 +66,7 @@ describe("class: EventBus", () => {
                 const listener: EventListenerFn<AddEvent> = () => {};
 
                 await eventBus.addListener("add", listener);
-                await adapter.dispatch(
-                    noOpContext,
-                    namespace.create("add").toString(),
-                    invalidInput,
-                );
+                await adapter.dispatch(noOpContext, "add", invalidInput);
                 await delay(TTL);
 
                 expect(error).toBeInstanceOf(ValidationError);
@@ -86,7 +77,6 @@ describe("class: EventBus", () => {
                 const adapter = new MemoryEventBusAdapter();
                 const eventBus = new EventBus({
                     adapter,
-                    namespace,
                     eventMapSchema,
                     _onUncaughtRejection: (error_) => {
                         error = error_;
@@ -96,11 +86,7 @@ describe("class: EventBus", () => {
                 const listener: EventListenerFn<AddEvent> = () => {};
 
                 await eventBus.listenOnce("add", listener);
-                await adapter.dispatch(
-                    noOpContext,
-                    namespace.create("add").toString(),
-                    invalidInput,
-                );
+                await adapter.dispatch(noOpContext, "add", invalidInput);
                 await delay(TTL);
 
                 expect(error).toBeInstanceOf(ValidationError);
@@ -111,7 +97,6 @@ describe("class: EventBus", () => {
                 const adapter = new MemoryEventBusAdapter();
                 const eventBus = new EventBus({
                     adapter,
-                    namespace,
                     eventMapSchema,
                     _onUncaughtRejection: (error_) => {
                         error = error_;
@@ -119,11 +104,7 @@ describe("class: EventBus", () => {
                 });
 
                 void eventBus.asPromise("add");
-                await adapter.dispatch(
-                    noOpContext,
-                    namespace.create("add").toString(),
-                    invalidInput,
-                );
+                await adapter.dispatch(noOpContext, "add", invalidInput);
                 await delay(TTL);
 
                 expect(error).toBeInstanceOf(ValidationError);
@@ -133,7 +114,6 @@ describe("class: EventBus", () => {
                 const adapter = new MemoryEventBusAdapter();
                 const eventBus = new EventBus({
                     adapter,
-                    namespace,
                     eventMapSchema,
                     _onUncaughtRejection: (error_) => {
                         error = error_;
@@ -146,11 +126,7 @@ describe("class: EventBus", () => {
                     "add",
                     listener,
                 );
-                await adapter.dispatch(
-                    noOpContext,
-                    namespace.create("add").toString(),
-                    invalidInput,
-                );
+                await adapter.dispatch(noOpContext, "add", invalidInput);
                 await delay(TTL);
 
                 expect(error).toBeInstanceOf(ValidationError);
@@ -161,7 +137,6 @@ describe("class: EventBus", () => {
                 const adapter = new MemoryEventBusAdapter();
                 const eventBus = new EventBus({
                     adapter,
-                    namespace,
                     eventMapSchema,
                     _onUncaughtRejection: (error_) => {
                         error = error_;
@@ -171,11 +146,7 @@ describe("class: EventBus", () => {
                 const listener: EventListenerFn<AddEvent> = () => {};
 
                 const unsubscribe = await eventBus.subscribe("add", listener);
-                await adapter.dispatch(
-                    noOpContext,
-                    namespace.create("add").toString(),
-                    invalidInput,
-                );
+                await adapter.dispatch(noOpContext, "add", invalidInput);
                 await delay(TTL);
 
                 expect(error).toBeInstanceOf(ValidationError);

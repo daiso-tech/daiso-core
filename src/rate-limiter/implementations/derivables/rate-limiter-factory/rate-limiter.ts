@@ -3,7 +3,6 @@
  */
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import {
     BlockedRateLimiterError,
     RATE_LIMITER_STATE,
@@ -30,10 +29,9 @@ export type RateLimiterSettings = {
     limit: number;
     enableAsyncTracking: boolean;
     adapter: IRateLimiterAdapter;
-    key: IKey;
+    key: string;
     errorPolicy: ErrorPolicy;
     onlyError: boolean;
-    namespace: INamespace;
     serdeTransformerName: string;
     waitUntil: WaitUntil;
     context: IReadableContext;
@@ -58,20 +56,19 @@ export class RateLimiter implements IRateLimiter {
     static _serialize(deserializedValue: RateLimiter): ISerializedRateLimiter {
         return {
             version: "1",
-            key: deserializedValue._key.get(),
+            key: deserializedValue._key,
             limit: deserializedValue._limit,
         };
     }
 
     private readonly waitUntil: WaitUntil;
-    private readonly _key: IKey;
+    private readonly _key: string;
     private readonly _limit: number;
     private readonly errorPolicy: ErrorPolicy;
     private readonly onlyError: boolean;
     private readonly adapter: IRateLimiterAdapter;
     private readonly enableAsyncTracking: boolean;
     private readonly serdeTransformerName: string;
-    private readonly namespace: INamespace;
     private readonly context: IReadableContext;
 
     constructor(settings: RateLimiterSettings) {
@@ -83,14 +80,12 @@ export class RateLimiter implements IRateLimiter {
             onlyError,
             adapter,
             serdeTransformerName,
-            namespace,
             waitUntil,
             context,
         } = settings;
 
         this.context = context;
         this.waitUntil = waitUntil;
-        this.namespace = namespace;
         this.serdeTransformerName = serdeTransformerName;
         this._limit = limit;
         this.enableAsyncTracking = enableAsyncTracking;
@@ -98,10 +93,6 @@ export class RateLimiter implements IRateLimiter {
         this.errorPolicy = errorPolicy;
         this.onlyError = onlyError;
         this.adapter = adapter;
-    }
-
-    _getNamespace(): INamespace {
-        return this.namespace;
     }
 
     _getSerdeTransformerName(): string {
@@ -148,7 +139,7 @@ export class RateLimiter implements IRateLimiter {
         return this.toRateLimiterState(state);
     }
 
-    get key(): IKey {
+    get key(): string {
         return this._key;
     }
 

@@ -5,11 +5,9 @@ pagination_label: Lock usage
 tags:
     - Lock
     - Usage
-    - Namespace
 keywords:
     - Lock
     - Usage
-    - Namespace
 ---
 
 # Lock usage
@@ -217,7 +215,7 @@ The `Lock` class exposes instance variables such as:
 const lock = lockFactory.create("resource");
 
 // Will return the key of the lock which is "resource"
-console.log(lock.key.toString());
+console.log(lock.key);
 
 // Will return the id of the lock
 console.log(lock.id);
@@ -225,10 +223,6 @@ console.log(lock.id);
 // Will return the ttl of the lock
 console.log(lock.ttl);
 ```
-
-:::info
-The `key` field is an object that implements [`IKey`](../namespace.md) contract.
-:::
 
 ### Lock id
 
@@ -256,53 +250,6 @@ An example of manual resource locking by the end user can be found in a multi-us
 In most cases, setting a custom lock id is unnecessary. Misusing this feature could result in different locks sharing the same lock id while modifying the same resource simultaneously, which may lead to race conditions.
 :::
 
-### Namespacing
-
-You can use the `Namespace` class to group related locks without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
-
-:::info
-For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
-:::
-
-```ts
-import { Namespace } from "@daiso-tech/core/namespace";
-import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
-import { LockFactory } from "@daiso-tech/core/lock";
-import Redis from "ioredis";
-
-const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
-
-const lockFactoryA = new LockFactory({
-    namespace: new Namespace("@lock-a"),
-    adapter: new RedisLockAdapter(database),
-});
-const lockFactoryB = new LockFactory({
-    namespace: new Namespace("@lock-b"),
-    adapter: new RedisLockAdapter(database),
-});
-
-const lockA = lockFactoryA.create("key", { ttl: null });
-const lockB = lockFactoryB.create("key", { ttl: null });
-
-const hasAquiredA = await lockA.acquire();
-// Will log true
-console.log(hasAquiredA);
-
-const hasAquiredB = await lockB.acquire();
-// Will log true
-console.log(hasAquiredB);
-
-const hasReleasedB = await lockB.release();
-// Will log true
-console.log(hasReleasedB);
-
-// Will log { type: "ACQUIRED", remainingTime: null }
-console.log(await lockA.getState());
-
-// Will log { type: "EXPIRED" }
-console.log(await lockB.getState());
-```
-
 ### Retrying acquiring lock by attempts
 
 To retry acquiring lock you can use the [`retry`](../resilience.md) middleware.
@@ -312,11 +259,10 @@ Retrying acquiring lock with `acquireOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const lock = lockFactory.create("lock");
 
-const use = useFactory();
 try {
     await use(async () => {
         await lock.acquireOrFail();
@@ -336,11 +282,10 @@ Retrying acquiring lock with `acquire` method:
 
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const lock = lockFactory.create("lock");
 
-const use = useFactory();
 const hasAquired = await use(async () => {
     return await lock.acquire();
 }, [
@@ -366,11 +311,9 @@ Retrying acquiring lock with `runOrFail` method:
 ```ts
 import { retry } from "@daiso-tech/core/resilience";
 import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 
 const lock = lockFactory.create("lock");
-
-const use = useFactory();
 
 await use(async () => {
     await lock.runOrFail(async () => {
@@ -393,12 +336,11 @@ Retrying acquiring lock with `acquireOrFail` method:
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
 import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const lock = lockFactory.create("resource");
 
-const use = useFactory();
 try {
     await use(async () => {
         await lock.acquireOrFail();
@@ -421,12 +363,11 @@ Retrying acquiring lock with `acquire` method:
 
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const lock = lockFactory.create("resource");
 
-const use = useFactory();
 const hasAcquired = await use(async () => {
     return await lock.acquire();
 }, [
@@ -453,12 +394,10 @@ Retrying acquiring lock with `runOrFail` method:
 ```ts
 import { retryInterval } from "@daiso-tech/core/resilience";
 import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
 import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const lock = lockFactory.create("resource");
-
-const use = useFactory();
 
 await use(async () => {
     await lock.runOrFail(async () => {

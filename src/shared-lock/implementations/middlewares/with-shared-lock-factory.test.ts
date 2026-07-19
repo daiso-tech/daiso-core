@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { use } from "@/middleware/implementations/_module.js";
 import { type SharedLockFactoryCreateSettings } from "@/shared-lock/contracts/_module.js";
 import { NoOpSharedLockAdapter } from "@/shared-lock/implementations/adapters/_module.js";
 import { SharedLockFactory } from "@/shared-lock/implementations/derivables/_module.js";
@@ -14,7 +14,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withSharedLockFactory", () => {
     let sharedLockFactory: SharedLockFactory;
-    const use = useFactory();
 
     beforeEach(() => {
         sharedLockFactory = new SharedLockFactory({

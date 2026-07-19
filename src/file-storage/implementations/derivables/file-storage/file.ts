@@ -29,8 +29,7 @@ import { resolveFileContent } from "@/file-storage/implementations/derivables/fi
 import { ResolveFileStream } from "@/file-storage/implementations/derivables/file-storage/resolve-file-stream.js";
 import { type ILockFactory } from "@/lock/contracts/_module.js";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
-import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
+import { use } from "@/middleware/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type InvokableFn } from "@/utilities/_module.js";
 
@@ -45,9 +44,8 @@ export type FileSettings = {
     defaultContentType: string;
     originalAdapter: FileStorageAdapterVariants;
     adapter: ISignedFileStorageAdapter;
-    key: IKey;
+    key: string;
     serdeTransformerName: string;
-    namespace: INamespace;
     defaultContentDisposition: string | null;
     defaultContentEncoding: string | null;
     defaultCacheControl: string | null;
@@ -73,15 +71,14 @@ export class File implements IFile {
     static _serialize(deserializedValue: File): ISerializedFile {
         return {
             version: "1",
-            key: deserializedValue._key.get(),
+            key: deserializedValue._key,
         };
     }
 
     private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
-    private readonly _key: IKey;
+    private readonly _key: string;
     private readonly serdeTransformerName: string;
-    private readonly namespace: INamespace;
     private readonly defaultContentType: string;
     private readonly defaultContentDisposition: string | null;
     private readonly defaultContentEncoding: string | null;
@@ -92,7 +89,6 @@ export class File implements IFile {
     private readonly context: IReadableContext;
     private readonly lockFactory: ILockFactory;
     private readonly originalKey: string;
-    private readonly use = useFactory();
 
     constructor(settings: FileSettings) {
         const {
@@ -101,7 +97,6 @@ export class File implements IFile {
             adapter,
             key,
             serdeTransformerName,
-            namespace,
             defaultContentType,
             defaultContentDisposition,
             defaultContentEncoding,
@@ -123,7 +118,6 @@ export class File implements IFile {
         this.adapter = adapter;
         this._key = key;
         this.serdeTransformerName = serdeTransformerName;
-        this.namespace = namespace;
         this.defaultContentDisposition = defaultContentDisposition;
         this.defaultContentEncoding = defaultContentEncoding;
         this.defaultCacheControl = defaultCacheControl;
@@ -131,20 +125,15 @@ export class File implements IFile {
         this.handleKey(this._key);
     }
 
-    private handleKey(key: IKey): string {
-        let rawKey = key.toString();
+    private handleKey(key: string): string {
         if (this.onlyLowercase) {
-            rawKey = rawKey.toLowerCase();
+            key = key.toLowerCase();
         }
-        const validationMessage = this.keyValidator(rawKey);
+        const validationMessage = this.keyValidator(key);
         if (validationMessage !== null) {
             throw InvalidKeyFileError.create(validationMessage);
         }
-        return rawKey;
-    }
-
-    _getNamespace(): INamespace {
-        return this.namespace;
+        return key;
     }
 
     _getSerdeTransformerName(): string {
@@ -153,10 +142,6 @@ export class File implements IFile {
 
     _getAdapter(): FileStorageAdapterVariants {
         return this.originalAdapter;
-    }
-
-    get key(): IKey {
-        return this._key;
     }
 
     async getText(): Promise<string | null> {
@@ -303,10 +288,9 @@ export class File implements IFile {
     }
 
     add(content: WritableFileContent): Promise<boolean> {
-        const { data, contentType = this.getContentType(this._key.get()) } =
-            content;
+        const { data, contentType = this.getContentType(this._key) } = content;
         const resolvedData = resolveFileContent(data);
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.add(this.context, this._key.toString(), {
                 data: resolvedData,
                 contentType,
@@ -338,10 +322,10 @@ export class File implements IFile {
         const {
             data,
             fileSize = null,
-            contentType = this.getContentType(this._key.get()),
+            contentType = this.getContentType(this._key),
         } = stream;
 
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.addStream(
                 this.context,
                 this._key.toString(),
@@ -366,10 +350,9 @@ export class File implements IFile {
     }
 
     update(content: WritableFileContent): Promise<boolean> {
-        const { data, contentType = this.getContentType(this._key.get()) } =
-            content;
+        const { data, contentType = this.getContentType(this._key) } = content;
         const resolvedData = resolveFileContent(data);
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.update(
                 this.context,
                 this._key.toString(),
@@ -397,9 +380,9 @@ export class File implements IFile {
         const {
             data,
             fileSize = null,
-            contentType = this.getContentType(this._key.get()),
+            contentType = this.getContentType(this._key),
         } = stream;
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.updateStream(
                 this.context,
                 this._key.toString(),
@@ -424,10 +407,9 @@ export class File implements IFile {
     }
 
     put(content: WritableFileContent): Promise<boolean> {
-        const { data, contentType = this.getContentType(this._key.get()) } =
-            content;
+        const { data, contentType = this.getContentType(this._key) } = content;
         const resolvedData = resolveFileContent(data);
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.put(this.context, this._key.toString(), {
                 data: resolvedData,
                 contentType,
@@ -444,9 +426,9 @@ export class File implements IFile {
         const {
             data,
             fileSize = null,
-            contentType = this.getContentType(this._key.get()),
+            contentType = this.getContentType(this._key),
         } = stream;
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.putStream(
                 this.context,
                 this._key.toString(),
@@ -464,27 +446,24 @@ export class File implements IFile {
     }
 
     remove(): Promise<boolean> {
-        return this.use(async () => {
-            return await this.adapter.removeMany(this.context, [
-                this.key.toString(),
-            ]);
+        return use(async () => {
+            return await this.adapter.removeMany(this.context, [this._key]);
         }, this.lock())();
     }
 
     async removeOrFail(): Promise<void> {
         const hasFound = await this.remove();
         if (!hasFound) {
-            throw KeyNotFoundFileError.create(this.key);
+            throw KeyNotFoundFileError.create(this._key);
         }
     }
 
     private async _copy(destination: string): Promise<FileWriteEnum> {
-        const destinationKey = this.namespace.create(destination);
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.copy(
                 this.context,
                 this._key.toString(),
-                destinationKey.toString(),
+                destination,
             );
         }, this.lock())();
     }
@@ -505,12 +484,11 @@ export class File implements IFile {
     }
 
     copyAndReplace(destination: string): Promise<boolean> {
-        const destinationKey = this.namespace.create(destination);
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.copyAndReplace(
                 this.context,
                 this._key.toString(),
-                destinationKey.toString(),
+                destination,
             );
         }, this.lock())();
     }
@@ -522,12 +500,11 @@ export class File implements IFile {
         }
     }
     private _move(destination: string): Promise<FileWriteEnum> {
-        const destinationKey = this.namespace.create(destination);
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.move(
                 this.context,
                 this._key.toString(),
-                destinationKey.toString(),
+                destination,
             );
         }, this.lock())();
     }
@@ -548,12 +525,11 @@ export class File implements IFile {
     }
 
     moveAndReplace(destination: string): Promise<boolean> {
-        const destinationKey = this.namespace.create(destination);
-        return this.use(async () => {
+        return use(async () => {
             return await this.adapter.moveAndReplace(
                 this.context,
                 this._key.toString(),
-                destinationKey.toString(),
+                destination,
             );
         }, this.lock())();
     }
@@ -566,10 +542,7 @@ export class File implements IFile {
     }
 
     async getPublicUrl(): Promise<string | null> {
-        return await this.adapter.getPublicUrl(
-            this.context,
-            this.key.toString(),
-        );
+        return await this.adapter.getPublicUrl(this.context, this._key);
     }
 
     async getPublicUrlOrFail(): Promise<string> {
@@ -622,5 +595,9 @@ export class File implements IFile {
             throw KeyNotFoundFileError.create(this._key);
         }
         return url;
+    }
+
+    get key(): string {
+        return this._key;
     }
 }

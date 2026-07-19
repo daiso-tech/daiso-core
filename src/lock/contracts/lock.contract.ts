@@ -3,7 +3,6 @@
  */
 
 import { type ILockState } from "@/lock/contracts/_module.js";
-import { type IKey } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import { type AsyncLazy } from "@/utilities/_module.js";
@@ -27,7 +26,7 @@ export type ILockStateMethods = {
      * The unique identifier for the resource being locked.
      * Multiple lock instances with the same key cannot be held simultaneously by different owners.
      */
-    readonly key: IKey;
+    readonly key: string;
 
     /**
      * The unique identifier for this lock holder (lock instance).

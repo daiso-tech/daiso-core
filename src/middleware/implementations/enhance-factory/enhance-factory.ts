@@ -10,13 +10,13 @@ import {
     type Middleware,
     type Use,
 } from "@/middleware/contracts/_module.js";
+import { use } from "@/middleware/implementations/use-factory/_module.js";
 import { type InvokableFn, type OneOrMore } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `@daiso-tech/core/middleware`
- * @group Implementations
+ * @internal
  */
-export function enhanceFactory(use: Use): Enhance {
+export function enhanceFactory(use_: Use): Enhance {
     return <TInstance, TField extends InferMethodNames<TInstance>>(
         obj: TInstance,
         field: TField,
@@ -28,13 +28,16 @@ export function enhanceFactory(use: Use): Enhance {
         >,
     ): void => {
         const fn = obj[field] as InvokableFn<any, any>;
+        if (typeof fn === "undefined") {
+            return fn;
+        }
         if (typeof fn !== "function") {
             throw new TypeError(
                 `Cannot enhance ${String(field)} because it is not a function`,
             );
         }
 
-        const enhancedFn = use(fn.bind(obj), middlewares);
+        const enhancedFn = use_(fn.bind(obj), middlewares);
         Object.defineProperty(enhancedFn, "name", {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             value: (obj[field] as any).name,
@@ -45,3 +48,9 @@ export function enhanceFactory(use: Use): Enhance {
         obj[field] = enhancedFn as any;
     };
 }
+
+/**
+ * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * @group Implementations
+ */
+export const enhance = enhanceFactory(use);
