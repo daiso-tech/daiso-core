@@ -4,23 +4,9 @@
 
 import { v4 } from "uuid";
 
-import {
-    type EventBusInput,
-    type IEventBus,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import {
-    resolveEventBusInput,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type EventBus,
-} from "@/event-bus/implementations/derivables/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type Use } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
@@ -29,11 +15,9 @@ import { Serde } from "@/serde/implementations/derivables/_module.js";
 import {
     type ISharedLock,
     type ISharedLockAdapter,
-    type SharedLockEventMap,
     type SharedLockFactoryCreateSettings,
     type ISharedLockFactory,
     type SharedLockAdapterVariants,
-    type ISharedLockListenable,
 } from "@/shared-lock/contracts/_module.js";
 import { resolveSharedLockAdapter } from "@/shared-lock/implementations/derivables/shared-lock-factory/resolve-shared-lock-adapter.js";
 import { SharedLockSerdeTransformer } from "@/shared-lock/implementations/derivables/shared-lock-factory/shared-lock-serde-transformer.js";
@@ -46,8 +30,6 @@ import {
     type Invokable,
     callInvokable,
     type OneOrMore,
-    type WaitUntil,
-    defaultWaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -96,19 +78,6 @@ export type SharedLockFactorySettingsBase = {
     createLockId?: Invokable<[], string>;
 
     /**
-     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
-     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
-     *
-     * @default
-     * ```ts
-     * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
-     *
-     * new NoOpEventBusAdapter()
-     * ```
-     */
-    eventBus?: EventBusInput;
-
-    /**
      * You can decide the default ttl value for {@link ISharedLock | `ISharedLock`} expiration. If null is passed then no ttl will be used by default.
      * @default
      * ```ts
@@ -128,16 +97,6 @@ export type SharedLockFactorySettingsBase = {
      * ```
      */
     defaultRefreshTime?: ITimeSpan;
-
-    /**
-     * You can pass the `waitUntil` function to handle background promises.
-     * This is required when working with environments like Cloudflare Workers or Vercel Functions to ensure tasks complete after the response is sent.
-     * @default
-     * ```ts
-     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
-     * ```
-     */
-    waitUntil?: WaitUntil;
 
     /**
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
@@ -177,7 +136,6 @@ export type SharedLockFactorySettings = SharedLockFactorySettingsBase & {
  * @group Derivables
  */
 export class SharedLockFactory implements ISharedLockFactory {
-    private readonly eventBus: IEventBus<SharedLockEventMap>;
     private readonly originalAdapter: SharedLockAdapterVariants;
     private readonly adapter: ISharedLockAdapter;
     private readonly namespace: INamespace;
@@ -186,9 +144,7 @@ export class SharedLockFactory implements ISharedLockFactory {
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
-    private readonly waitUntil: WaitUntil;
     private readonly context: IReadableContext;
-    private readonly use: Use;
 
     /**
      * @example
@@ -225,22 +181,17 @@ export class SharedLockFactory implements ISharedLockFactory {
             serde = new Serde(new NoOpSerdeAdapter()),
             namespace = new NoOpNamespace(),
             adapter,
-            eventBus = new NoOpEventBusAdapter(),
             serdeTransformerName = "",
-            waitUntil = defaultWaitUntil,
             context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.use = useFactory();
         this.context = context;
-        this.waitUntil = waitUntil;
         this.serde = serde;
         this.defaultRefreshTime = TimeSpan.fromTimeSpan(defaultRefreshTime);
         this.creatLockId = createLockId;
         this.namespace = namespace;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
-        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.serdeTransformerName = serdeTransformerName;
 
         this.originalAdapter = adapter;
@@ -250,23 +201,16 @@ export class SharedLockFactory implements ISharedLockFactory {
 
     private registerToSerde(): void {
         const transformer = new SharedLockSerdeTransformer({
-            use: this.use,
             context: this.context,
-            waitUntil: this.waitUntil,
             originalAdapter: this.originalAdapter,
             adapter: this.adapter,
             defaultRefreshTime: this.defaultRefreshTime,
-            eventBus: this.eventBus,
             namespace: this.namespace,
             serdeTransformerName: this.serdeTransformerName,
         });
         for (const serde of resolveOneOrMore(this.serde)) {
             serde.registerCustom(transformer, CORE);
         }
-    }
-
-    get events(): ISharedLockListenable {
-        return this.eventBus;
     }
 
     /**
@@ -300,14 +244,11 @@ export class SharedLockFactory implements ISharedLockFactory {
         const keyObj = this.namespace.create(key);
 
         return new SharedLock({
-            use: this.use,
             context: this.context,
-            waitUntil: this.waitUntil,
             limit,
             namespace: this.namespace,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
-            eventDispatcher: this.eventBus,
             key: keyObj,
             lockId,
             ttl: ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
