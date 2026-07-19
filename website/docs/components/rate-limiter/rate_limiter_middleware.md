@@ -46,7 +46,11 @@ const rateLimitedCall = use(
     }),
 );
 
-await rateLimitedCall("users");
+await rateLimitedCall(
+    new Request("/url", {
+        method: "POST",
+    }),
+);
 ```
 
 :::info
