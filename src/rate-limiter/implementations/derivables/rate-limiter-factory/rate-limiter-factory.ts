@@ -2,18 +2,6 @@
  * @module RateLimiter
  */
 
-import {
-    type EventBusInput,
-    type IEventBus,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import {
-    resolveEventBusInput,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type EventBus,
-} from "@/event-bus/implementations/derivables/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
@@ -22,9 +10,7 @@ import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import {
     type IRateLimiter,
     type IRateLimiterAdapter,
-    type IRateLimiterListenable,
     type IRateLimiterFactory,
-    type RateLimiterEventMap,
     type RateLimiterFactoryCreateSettings,
 } from "@/rate-limiter/contracts/_module.js";
 import { RateLimiterSerdeTransformer } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter-serde-transformer.js";
@@ -57,19 +43,6 @@ export type RateLimiterFactorySettingsBase = {
      * ```
      */
     namespace?: INamespace;
-
-    /**
-     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
-     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
-     *
-     * @default
-     * ```ts
-     * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
-     *
-     * new NoOpEventBusAdapter()
-     * ```
-     */
-    eventBus?: EventBusInput;
 
     /**
      * You can set the default `ErrorPolicy`
@@ -157,7 +130,6 @@ export type RateLimiterFactorySettings = RateLimiterFactorySettingsBase & {
  */
 export class RateLimiterFactory implements IRateLimiterFactory {
     private readonly namespace: INamespace;
-    private readonly eventBus: IEventBus<RateLimiterEventMap>;
     private readonly adapter: IRateLimiterAdapter;
     private readonly onlyError: boolean;
     private readonly defaultErrorPolicy: ErrorPolicy;
@@ -202,7 +174,6 @@ export class RateLimiterFactory implements IRateLimiterFactory {
         const {
             enableAsyncTracking = true,
             namespace = new NoOpNamespace(),
-            eventBus = new NoOpEventBusAdapter(),
             adapter,
             onlyError = false,
             defaultErrorPolicy = () => true,
@@ -217,7 +188,6 @@ export class RateLimiterFactory implements IRateLimiterFactory {
         this.serdeTransformerName = serdeTransformerName;
         this.enableAsyncTracking = enableAsyncTracking;
         this.namespace = namespace;
-        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.adapter = adapter;
         this.onlyError = onlyError;
         this.defaultErrorPolicy = defaultErrorPolicy;
@@ -231,7 +201,6 @@ export class RateLimiterFactory implements IRateLimiterFactory {
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             namespace: this.namespace,
-            eventBus: this.eventBus,
             adapter: this.adapter,
             onlyError: this.onlyError,
             errorPolicy: this.defaultErrorPolicy,
@@ -240,10 +209,6 @@ export class RateLimiterFactory implements IRateLimiterFactory {
         for (const serde of resolveOneOrMore(this.serde)) {
             serde.registerCustom(transformer, CORE);
         }
-    }
-
-    get events(): IRateLimiterListenable {
-        return this.eventBus;
     }
 
     create(
@@ -260,7 +225,6 @@ export class RateLimiterFactory implements IRateLimiterFactory {
             limit,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
-            eventDispatcher: this.eventBus,
             adapter: this.adapter,
             key: this.namespace.create(key),
             errorPolicy,
