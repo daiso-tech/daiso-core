@@ -1,5 +1,77 @@
 # @daiso-tech/core
 
+## 0.55.0
+
+### Minor Changes
+
+- 7edaf05: ### Middleware Component Overhaul
+
+    - **Decoupled middleware from execution-context**: The middleware component no longer depends on the `execution-context` component. The `Use` type and `useFactory` implementation have been refactored to remove the `IExecutionContext` dependency — middleware can now receive context via other mechanisms.
+    - **Added `WithPlugin` contract and `withPluginFactory`**: Introduced the `WithPlugin` type and `withPluginFactory(enhance)` implementation, which applies one or more plugins (function or object-based) to an object instance, each receiving the instance and an `Enhance` function.
+
+    ### Resilience Middleware Renaming
+
+    All resilience component middleware factories have been renamed from `{name}-middleware-factory` to `with-{name}-factory` for a more consistent and descriptive naming convention:
+
+    - **Cache**: `cacheMiddlewareFactory` → `withCacheFactory`
+    - **Circuit Breaker**: `circuitBreakerMiddlewareFactory` → `withCircuitBreakerFactory`
+    - **Lock**: `lockMiddlewareFactory` → `withLockFactory`
+    - **Rate Limiter**: `rateLimiterMiddlewareFactory` → `withRateLimiterFactory` (detected as rename)
+    - **Semaphore**: `semaphoreMiddlewareFactory` → `withSemaphoreFactory`
+    - **Shared Lock**: `sharedLockMiddlewareFactory` → `withSharedLockFactory`
+
+    ### Context Dependency Updates
+
+    All resilience components now depend on `IReadableContext` instead of `IExecutionContext`:
+
+    - Cache
+    - Circuit Breaker
+    - Event Bus
+    - File Storage
+    - Lock
+    - Rate Limiter
+    - Semaphore
+    - Shared Lock
+
+- 6fcfd1f: ### Middleware system simplification
+
+    The middleware module has been simplified by removing the factory layer and exposing pre-configured public APIs directly.
+
+    #### Breaking changes
+    - **`useFactory` is now internal.** Instead of calling `useFactory()` to create a `Use` function, import the pre-configured `use` constant directly from `@daiso-tech/core/middleware`.
+    - **`enhanceFactory` is now internal.** Instead of calling `enhanceFactory(use)` to create an `Enhance` function, import the pre-configured `enhance` constant directly from `@daiso-tech/core/middleware`.
+    - **`withPluginFactory` is now internal.** Instead of calling `withPluginFactory(enhance)` to create a `WithPlugin` function, import the pre-configured `withPlugin` constant directly from `@daiso-tech/core/middleware`.
+    - **`UseFactorySettings` type and `defaultPriority` option removed.** `useFactory` no longer accepts a settings object. The default priority for function-based middlewares is now always `0`. To assign a custom priority, set the `priority` property on an `IMiddlewareObject`.
+
+    #### New public API
+    - Added `use` — a pre-configured middleware application function. Import directly from `@daiso-tech/core/middleware`.
+    - Added `enhance` — a pre-configured method enhancer. Import directly from `@daiso-tech/core/middleware`.
+    - Added `withPlugin` — a pre-configured plugin applicator. Import directly from `@daiso-tech/core/middleware`.
+
+    #### Migration guide
+
+    **Before:**
+
+    ```ts
+    import {
+        useFactory,
+        enhanceFactory,
+        withPluginFactory,
+    } from "@daiso-tech/core/middleware";
+
+    const use = useFactory();
+    const enhance = enhanceFactory(use);
+    const withPlugin = withPluginFactory(enhance);
+    ```
+
+    **After:**
+
+    ```ts
+    import { use, enhance, withPlugin } from "@daiso-tech/core/middleware";
+    ```
+
+    You cannot rely on `defaultPriority` setting, all middlewares default priorities are `0`.
+
 ## 0.54.1
 
 ### Patch Changes
@@ -1147,8 +1219,8 @@
 - 3ca9190: Renamed `FallbackSettings.fallbackPolicy` to `FallbackSettings.errorPolicy`
 - 3ca9190: - Removed the following types:
 
-                                                                                                                            - `AsyncFactoryable`
-                                                                                                                            - `Factoryable`
+                                                                                                                              - `AsyncFactoryable`
+                                                                                                                              - `Factoryable`
 
     - Updated remaining factory types to use the new `InvokableFn` and `InvokableObject` contracts:
         - Synchronous factories:
