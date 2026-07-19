@@ -980,7 +980,6 @@ The library includes 4 additional contracts:
 
 - [`ISharedLockFactory`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLockFactory.html) - Allows only for creation of shared-locks.
 
-
 ## Further information
 
 For further information refer to [`@daiso-tech/core/shared-lock`](https://daiso-tech.github.io/daiso-core/modules/SharedLock.html) API docs.
