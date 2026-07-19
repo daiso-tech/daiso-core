@@ -4,23 +4,9 @@
 
 import { v4 } from "uuid";
 
-import {
-    type EventBusInput,
-    type IEventBus,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import {
-    resolveEventBusInput,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type EventBus,
-} from "@/event-bus/implementations/derivables/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type Use } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import {
@@ -29,10 +15,8 @@ import {
     type ISemaphore,
     type ISemaphoreAdapter,
     type SemaphoreAdapterVariants,
-    type SemaphoreEventMap,
     type SemaphoreFactoryCreateSettings,
     type ISemaphoreFactory,
-    type ISemaphoreListenable,
 } from "@/semaphore/contracts/_module.js";
 import { resolveSemaphoreAdapter } from "@/semaphore/implementations/derivables/semaphore-factory/resolve-semaphore-adapter.js";
 import { SemaphoreSerdeTransformer } from "@/semaphore/implementations/derivables/semaphore-factory/semaphore-serde-transformer.js";
@@ -45,12 +29,10 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callInvokable,
     CORE,
-    defaultWaitUntil,
     isPositiveNbr,
     resolveOneOrMore,
     type Invokable,
     type OneOrMore,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -99,19 +81,6 @@ export type SemaphoreFactorySettingsBase = {
     createSlotId?: Invokable<[], string>;
 
     /**
-     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
-     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
-     *
-     * @default
-     * ```ts
-     * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
-     *
-     * new NoOpEventBusAdapter()
-     * ```
-     */
-    eventBus?: EventBusInput;
-
-    /**
      * You can decide the default ttl value for {@link ISemaphore | `ISemaphore`} expiration. If null is passed then no ttl will be used by default.
      * @default
      * ```ts
@@ -131,16 +100,6 @@ export type SemaphoreFactorySettingsBase = {
      * ```
      */
     defaultRefreshTime?: ITimeSpan;
-
-    /**
-     * You can pass the `waitUntil` function to handle background promises.
-     * This is required when working with environments like Cloudflare Workers or Vercel Functions to ensure tasks complete after the response is sent.
-     * @default
-     * ```ts
-     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
-     * ```
-     */
-    waitUntil?: WaitUntil;
 
     /**
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
@@ -180,7 +139,6 @@ export type SemaphoreFactorySettings = SemaphoreFactorySettingsBase & {
  * @group Derivables
  */
 export class SemaphoreFactory implements ISemaphoreFactory {
-    private readonly eventBus: IEventBus<SemaphoreEventMap>;
     private readonly adapter: ISemaphoreAdapter;
     private readonly originalAdapter: SemaphoreAdapterVariants;
     private readonly namespace: INamespace;
@@ -189,9 +147,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
     private readonly createSlotId: Invokable<[], string>;
-    private readonly waitUntil: WaitUntil;
     private readonly context: IReadableContext;
-    private readonly use: Use;
 
     /**
      * @example
@@ -228,22 +184,17 @@ export class SemaphoreFactory implements ISemaphoreFactory {
             serde = new Serde(new NoOpSerdeAdapter()),
             namespace = new NoOpNamespace(),
             adapter,
-            eventBus = new NoOpEventBusAdapter(),
             serdeTransformerName = "",
-            waitUntil = defaultWaitUntil,
             context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.use = useFactory();
         this.context = context;
-        this.waitUntil = waitUntil;
         this.createSlotId = createSlotId;
         this.serde = serde;
         this.defaultRefreshTime = TimeSpan.fromTimeSpan(defaultRefreshTime);
         this.namespace = namespace;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
-        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.serdeTransformerName = serdeTransformerName;
 
         this.originalAdapter = adapter;
@@ -254,23 +205,16 @@ export class SemaphoreFactory implements ISemaphoreFactory {
 
     private registerToSerde(): void {
         const transformer = new SemaphoreSerdeTransformer({
-            use: this.use,
             context: this.context,
-            waitUntil: this.waitUntil,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
             defaultRefreshTime: this.defaultRefreshTime,
-            eventBus: this.eventBus,
             namespace: this.namespace,
             serdeTransformerName: this.serdeTransformerName,
         });
         for (const serde of resolveOneOrMore(this.serde)) {
             serde.registerCustom(transformer, CORE);
         }
-    }
-
-    get events(): ISemaphoreListenable {
-        return this.eventBus;
     }
 
     create(key: string, settings: SemaphoreFactoryCreateSettings): ISemaphore {
@@ -282,14 +226,11 @@ export class SemaphoreFactory implements ISemaphoreFactory {
         isPositiveNbr(limit);
 
         return new Semaphore({
-            use: this.use,
             context: this.context,
-            waitUntil: this.waitUntil,
             slotId,
             limit,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
-            eventDispatcher: this.eventBus,
             key: this.namespace.create(key),
             ttl: ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
             serdeTransformerName: this.serdeTransformerName,

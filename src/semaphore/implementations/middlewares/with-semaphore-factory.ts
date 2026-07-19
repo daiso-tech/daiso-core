@@ -5,7 +5,7 @@
 import { v4 } from "uuid";
 
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
-import { type ISemaphoreFactoryBase } from "@/semaphore/contracts/_module.js";
+import { type ISemaphoreFactory } from "@/semaphore/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 import { callInvokable, type Invokable } from "@/utilities/_module.js";
 
@@ -69,7 +69,7 @@ export type WithSemaphoreSettings<
  * IMPORT_PATH: `"@daiso-tech/core/semaphore/middlewares"`
  * @group Middleware
  */
-export function withSemaphoreFactory(semaphoreFactory: ISemaphoreFactoryBase) {
+export function withSemaphoreFactory(semaphoreFactory: ISemaphoreFactory) {
     return <TParameters extends Array<unknown>, TReturn>(
         settings: WithSemaphoreSettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {

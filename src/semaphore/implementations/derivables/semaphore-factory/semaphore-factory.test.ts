@@ -2,8 +2,6 @@ import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { Namespace } from "@/namespace/implementations/_module.js";
 import { type ISemaphore } from "@/semaphore/contracts/_module.js";
 import {
@@ -21,10 +19,6 @@ describe("class: SemaphoreFactory", () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
             const semaphoreFactory = new SemaphoreFactory({
                 serde,
-                eventBus: new EventBus({
-                    namespace: new Namespace("event-bus"),
-                    adapter: new MemoryEventBusAdapter(),
-                }),
                 adapter: new MemorySemaphoreAdapter(),
                 namespace: new Namespace("semaphore"),
             });
@@ -48,10 +42,6 @@ describe("class: SemaphoreFactory", () => {
             const lockProvider1 = new SemaphoreFactory({
                 adapter: new MemorySemaphoreAdapter(),
                 namespace: new Namespace("@lock-1"),
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                    namespace: new Namespace("@event-bus/semaphore-1"),
-                }),
                 serde,
             });
             const lock1 = lockProvider1.create(key, { ttl, limit });
@@ -60,10 +50,6 @@ describe("class: SemaphoreFactory", () => {
             const lockProvider2 = new SemaphoreFactory({
                 adapter: new MemorySemaphoreAdapter(),
                 namespace: new Namespace("@lock-2"),
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                    namespace: new Namespace("@event-bus/semaphore-2"),
-                }),
                 serde,
             });
 
@@ -77,7 +63,6 @@ describe("class: SemaphoreFactory", () => {
         test("Should differentiate between different adapters that have same namespace", async () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
             const lockNamespace = new Namespace("@lock");
-            const eventNamespace = new Namespace("@event-bus/semaphore");
             const key = "a";
             const ttl = null;
             const limit = 1;
@@ -86,10 +71,6 @@ describe("class: SemaphoreFactory", () => {
             const lockProvider1 = new SemaphoreFactory({
                 adapter: adapter1,
                 namespace: lockNamespace,
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                    namespace: eventNamespace,
-                }),
                 serde,
             });
             const lock1 = lockProvider1.create(key, { ttl, limit });
@@ -107,10 +88,6 @@ describe("class: SemaphoreFactory", () => {
             const lockProvider2 = new SemaphoreFactory({
                 adapter: adapter2,
                 namespace: lockNamespace,
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                    namespace: eventNamespace,
-                }),
                 serde,
             });
 
@@ -125,7 +102,6 @@ describe("class: SemaphoreFactory", () => {
         test("Should differentiate between different serdeTransformerNames", async () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
             const lockNamespace = new Namespace("@lock");
-            const eventNamespace = new Namespace("@event-bus/semaphore");
             const key = "a";
             const ttl = null;
             const limit = 1;
@@ -133,10 +109,6 @@ describe("class: SemaphoreFactory", () => {
             const lockProvider1 = new SemaphoreFactory({
                 adapter: new MemorySemaphoreAdapter(),
                 namespace: lockNamespace,
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                    namespace: eventNamespace,
-                }),
                 serdeTransformerName: "adapter1",
                 serde,
             });
@@ -146,10 +118,6 @@ describe("class: SemaphoreFactory", () => {
             const lockProvider2 = new SemaphoreFactory({
                 adapter: new MemorySemaphoreAdapter(),
                 namespace: lockNamespace,
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                    namespace: eventNamespace,
-                }),
                 serdeTransformerName: "adapter2",
                 serde,
             });

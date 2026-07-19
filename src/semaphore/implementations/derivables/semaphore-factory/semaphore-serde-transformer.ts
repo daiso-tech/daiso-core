@@ -2,14 +2,11 @@
  * @module Semaphore
  */
 
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type Use } from "@/middleware/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type ISemaphoreAdapter,
     type SemaphoreAdapterVariants,
-    type SemaphoreEventMap,
 } from "@/semaphore/contracts/_module.js";
 import {
     Semaphore,
@@ -17,11 +14,7 @@ import {
 } from "@/semaphore/implementations/derivables/semaphore-factory/semaphore.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    type OneOrMore,
-    type WaitUntil,
-    getConstructorName,
-} from "@/utilities/_module.js";
+import { type OneOrMore, getConstructorName } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -31,11 +24,8 @@ export type SemaphoreSerdeTransformerSettings = {
     originalAdapter: SemaphoreAdapterVariants;
     namespace: INamespace;
     defaultRefreshTime: TimeSpan;
-    eventBus: IEventBus<SemaphoreEventMap>;
     serdeTransformerName: string;
-    waitUntil: WaitUntil;
     context: IReadableContext;
-    use: Use;
 };
 
 /**
@@ -49,11 +39,8 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
     private readonly originalAdapter: SemaphoreAdapterVariants;
     private readonly namespace: INamespace;
     private readonly defaultRefreshTime: TimeSpan;
-    private readonly eventBus: IEventBus<SemaphoreEventMap>;
     private readonly serdeTransformerName: string;
-    private readonly waitUntil: WaitUntil;
     private readonly context: IReadableContext;
-    private readonly use: Use;
 
     constructor(settings: SemaphoreSerdeTransformerSettings) {
         const {
@@ -61,22 +48,16 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
             originalAdapter,
             namespace,
             defaultRefreshTime,
-            eventBus,
             serdeTransformerName,
-            waitUntil,
             context,
-            use,
         } = settings;
 
-        this.use = use;
         this.context = context;
-        this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this.originalAdapter = originalAdapter;
         this.namespace = namespace;
         this.defaultRefreshTime = defaultRefreshTime;
-        this.eventBus = eventBus;
     }
 
     get name(): OneOrMore<string> {
@@ -117,13 +98,10 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
         const { key, slotId, limit, ttlInMs } = serializedValue;
         const keyObj = this.namespace.create(key);
         return new Semaphore({
-            use: this.use,
             context: this.context,
-            waitUntil: this.waitUntil,
             slotId,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
-            eventDispatcher: this.eventBus,
             key: keyObj,
             limit,
             serdeTransformerName: this.serdeTransformerName,
