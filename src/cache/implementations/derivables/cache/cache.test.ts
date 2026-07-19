@@ -4,8 +4,6 @@ import { z } from "zod";
 import { MemoryCacheAdapter } from "@/cache/implementations/adapters/_module.js";
 import { Cache } from "@/cache/implementations/derivables/_module.js";
 import { cacheTestSuite } from "@/cache/implementations/test-utilities/_module.js";
-import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
@@ -20,10 +18,6 @@ describe("class: Cache", () => {
             new Cache({
                 namespace: new Namespace("cache"),
                 adapter: new MemoryCacheAdapter(),
-                eventBus: new EventBus({
-                    namespace: new Namespace("event-bus"),
-                    adapter: new MemoryEventBusAdapter(),
-                }),
                 defaultJitter: null,
             }),
         test,

@@ -13,7 +13,6 @@ import {
     Cache,
     type CacheSettingsBase,
 } from "@/cache/implementations/derivables/cache/_module.js";
-import { type EventBusInput } from "@/event-bus/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type LockFactoryInput } from "@/lock/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
@@ -21,7 +20,6 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -105,13 +103,6 @@ export class CacheResolver<
         });
     }
 
-    setEventBus(eventBus: EventBusInput): CacheResolver<TAdapters, TType> {
-        return new CacheResolver({
-            ...this.settings,
-            eventBus,
-        });
-    }
-
     setSchema<TSchemaOutputType>(
         schema: StandardSchemaV1<TSchemaOutputType>,
     ): CacheResolver<TAdapters, TSchemaOutputType> {
@@ -131,13 +122,6 @@ export class CacheResolver<
         return new CacheResolver({
             ...this.settings,
             defaultJitter: jitter,
-        });
-    }
-
-    setWaitUntil(waitUntil: WaitUntil): CacheResolver<TAdapters, TType> {
-        return new CacheResolver({
-            ...this.settings,
-            waitUntil,
         });
     }
 

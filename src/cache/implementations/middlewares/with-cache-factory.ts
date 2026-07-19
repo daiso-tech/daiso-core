@@ -4,7 +4,7 @@
 
 import {
     type CacheWriteSettings,
-    type ICacheBase,
+    type ICache,
 } from "@/cache/contracts/_module.js";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { callInvokable, type Invokable } from "@/utilities/_module.js";
@@ -27,7 +27,7 @@ export type WithCacheSettings<
 
 /**
  * Creates a middleware factory that caches the return value of the wrapped
- * function using the provided {@link ICacheBase} instance.
+ * function using the provided {@link ICache} instance.
  *
  * The cache key is derived from the wrapped function's arguments via the
  * `key` setting. If the key is already present in the cache the cached value
@@ -41,7 +41,7 @@ export type WithCacheSettings<
  * IMPORT_PATH: `"@daiso-tech/core/cache/middlewares"`
  * @group Middleware
  */
-export function withCacheFactory(cache: ICacheBase) {
+export function withCacheFactory(cache: Pick<ICache, "getOrAdd">) {
     return <TParameters extends Array<unknown>, TReturn>(
         settings: WithCacheSettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
