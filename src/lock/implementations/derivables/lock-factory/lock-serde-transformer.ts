@@ -2,26 +2,19 @@
  * @module Lock
  */
 
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type ILockAdapter,
     type LockAdapterVariants,
-    type LockEventMap,
 } from "@/lock/contracts/_module.js";
 import {
     Lock,
     type ISerializedLock,
 } from "@/lock/implementations/derivables/lock-factory/lock.js";
-import { type Use } from "@/middleware/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    getConstructorName,
-    type OneOrMore,
-    type WaitUntil,
-} from "@/utilities/_module.js";
+import { getConstructorName, type OneOrMore } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -31,11 +24,8 @@ export type LockSerdeTransformerSettings = {
     originalAdapter: LockAdapterVariants;
     namespace: INamespace;
     defaultRefreshTime: TimeSpan;
-    eventBus: IEventBus<LockEventMap>;
     serdeTransformerName: string;
-    waitUntil: WaitUntil;
     context: IReadableContext;
-    use: Use;
 };
 
 /**
@@ -49,11 +39,8 @@ export class LockSerdeTransformer implements ISerdeTransformer<
     private readonly originalAdapter: LockAdapterVariants;
     private readonly namespace: INamespace;
     private readonly defaultRefreshTime: TimeSpan;
-    private readonly eventBus: IEventBus<LockEventMap>;
     private readonly serdeTransformerName: string;
-    private readonly waitUntil: WaitUntil;
     private readonly context: IReadableContext;
-    private readonly use: Use;
 
     constructor(settings: LockSerdeTransformerSettings) {
         const {
@@ -61,22 +48,16 @@ export class LockSerdeTransformer implements ISerdeTransformer<
             originalAdapter,
             namespace,
             defaultRefreshTime,
-            eventBus,
             serdeTransformerName,
-            waitUntil,
             context,
-            use,
         } = settings;
 
-        this.use = use;
         this.context = context;
-        this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this.originalAdapter = originalAdapter;
         this.namespace = namespace;
         this.defaultRefreshTime = defaultRefreshTime;
-        this.eventBus = eventBus;
     }
 
     get name(): OneOrMore<string> {
@@ -117,13 +98,10 @@ export class LockSerdeTransformer implements ISerdeTransformer<
         const keyObj = this.namespace.create(key);
 
         return new Lock({
-            use: this.use,
             context: this.context,
-            waitUntil: this.waitUntil,
             namespace: this.namespace,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
-            eventDispatcher: this.eventBus,
             key: keyObj,
             lockId,
             serdeTransformerName: this.serdeTransformerName,

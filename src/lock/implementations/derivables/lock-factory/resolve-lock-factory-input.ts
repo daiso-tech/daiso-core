@@ -3,7 +3,7 @@
  */
 
 import {
-    type ILockFactoryBase,
+    type ILockFactory,
     type LockFactoryInput,
 } from "@/lock/contracts/_module.js";
 import { isLockFactory } from "@/lock/implementations/derivables/lock-factory/is-lock-factory.js";
@@ -16,7 +16,7 @@ import { type INamespace } from "@/namespace/contracts/_module.js";
 export function resolveLockFactoryInput(
     namespace: INamespace,
     lockFactoryInput: LockFactoryInput,
-): ILockFactoryBase {
+): ILockFactory {
     if (isLockFactory(lockFactoryInput)) {
         return lockFactoryInput;
     }

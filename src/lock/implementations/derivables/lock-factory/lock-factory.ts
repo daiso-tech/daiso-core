@@ -4,18 +4,6 @@
 
 import { v4 } from "uuid";
 
-import {
-    type EventBusInput,
-    type IEventBus,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import {
-    resolveEventBusInput,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type EventBus,
-} from "@/event-bus/implementations/derivables/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
@@ -28,8 +16,6 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type IDatabaseLockAdapter,
     type LockAdapterVariants,
-    type LockEventMap,
-    type ILockListenable,
 } from "@/lock/contracts/_module.js";
 import { LockSerdeTransformer } from "@/lock/implementations/derivables/lock-factory/lock-serde-transformer.js";
 import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
@@ -49,8 +35,6 @@ import {
     resolveOneOrMore,
     type Invokable,
     callInvokable,
-    type WaitUntil,
-    defaultWaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -99,19 +83,6 @@ export type LockFactorySettingsBase = {
     createLockId?: Invokable<[], string>;
 
     /**
-     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
-     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
-     *
-     * @default
-     * ```ts
-     * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
-     *
-     * new NoOpEventBusAdapter()
-     * ```
-     */
-    eventBus?: EventBusInput;
-
-    /**
      * You can decide the default ttl value for {@link ILock | `ILock`} expiration. If null is passed then no ttl will be used by default.
      * @default
      * ```ts
@@ -131,16 +102,6 @@ export type LockFactorySettingsBase = {
      * ```
      */
     defaultRefreshTime?: ITimeSpan;
-
-    /**
-     * You can pass the `waitUntil` function to handle background promises.
-     * This is required when working with environments like Cloudflare Workers or Vercel Functions to ensure tasks complete after the response is sent.
-     * @default
-     * ```ts
-     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
-     * ```
-     */
-    waitUntil?: WaitUntil;
 
     /**
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
@@ -180,7 +141,6 @@ export type LockFactorySettings = LockFactorySettingsBase & {
  * @group Derivables
  */
 export class LockFactory implements ILockFactory {
-    private readonly eventBus: IEventBus<LockEventMap>;
     private readonly originalAdapter: LockAdapterVariants;
     private readonly adapter: ILockAdapter;
     private readonly namespace: INamespace;
@@ -189,7 +149,6 @@ export class LockFactory implements ILockFactory {
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
-    private readonly waitUntil: WaitUntil;
     private readonly context: IReadableContext;
     private readonly use: Use;
 
@@ -228,22 +187,18 @@ export class LockFactory implements ILockFactory {
             serde = new Serde(new NoOpSerdeAdapter()),
             namespace = new NoOpNamespace(),
             adapter,
-            eventBus = new NoOpEventBusAdapter(),
             serdeTransformerName = "",
-            waitUntil = defaultWaitUntil,
             context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
         this.use = useFactory();
         this.context = context;
-        this.waitUntil = waitUntil;
         this.serde = serde;
         this.defaultRefreshTime = TimeSpan.fromTimeSpan(defaultRefreshTime);
         this.creatLockId = createLockId;
         this.namespace = namespace;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
-        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.serdeTransformerName = serdeTransformerName;
 
         this.originalAdapter = adapter;
@@ -253,23 +208,16 @@ export class LockFactory implements ILockFactory {
 
     private registerToSerde(): void {
         const transformer = new LockSerdeTransformer({
-            use: this.use,
             context: this.context,
-            waitUntil: this.waitUntil,
             originalAdapter: this.originalAdapter,
             adapter: this.adapter,
             defaultRefreshTime: this.defaultRefreshTime,
-            eventBus: this.eventBus,
             namespace: this.namespace,
             serdeTransformerName: this.serdeTransformerName,
         });
         for (const serde of resolveOneOrMore(this.serde)) {
             serde.registerCustom(transformer, CORE);
         }
-    }
-
-    get events(): ILockListenable {
-        return this.eventBus;
     }
 
     /**
@@ -299,13 +247,10 @@ export class LockFactory implements ILockFactory {
         const keyObj = this.namespace.create(key);
 
         return new Lock({
-            use: this.use,
             context: this.context,
-            waitUntil: this.waitUntil,
             namespace: this.namespace,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
-            eventDispatcher: this.eventBus,
             key: keyObj,
             lockId,
             ttl: ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
