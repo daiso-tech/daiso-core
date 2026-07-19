@@ -4,24 +4,19 @@ import { join } from "node:path";
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
-    FILE_EVENTS,
     KeyNotFoundFileError,
     type FileAdapterMetadata,
     type FileAdapterSignedDownloadUrlSettings,
     type FileAdapterSignedUploadUrlSettings,
     type FileAdapterStream,
     type FileWriteEnum,
-    type FoundFileEvent,
     type IFile,
     type IFileStorage,
     type IFileStorageAdapter,
     type IFileUrlAdapter,
     type ISignedFileStorageAdapter,
-    type NotFoundFileEvent,
     type WritableFileAdapterContent,
     type WritableFileAdapterStream,
 } from "@/file-storage/contracts/_module.js";
@@ -30,7 +25,7 @@ import { MemoryFileStorageAdapter } from "@/file-storage/implementations/adapter
 import { NoOpFileStorageAdapter } from "@/file-storage/implementations/adapters/no-op-file-storage-adapter/_module.js";
 import { FileStorage } from "@/file-storage/implementations/derivables/file-storage/file-storage.js";
 import { fileStorageTestSuite } from "@/file-storage/implementations/test-utilities/_module.js";
-import { type ILockFactoryBase } from "@/lock/contracts/lock-factory.contract.js";
+import { type ILockFactory } from "@/lock/contracts/lock-factory.contract.js";
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
 import { LockFactory } from "@/lock/implementations/derivables/_module.js";
 import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
@@ -46,10 +41,6 @@ describe("class: FileStorage", () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
             const fileStorage = new FileStorage({
                 serde,
-                eventBus: new EventBus({
-                    namespace: new Namespace("event-bus"),
-                    adapter: new MemoryEventBusAdapter(),
-                }),
                 adapter: new MemoryFileStorageAdapter(),
                 namespace: new Namespace("file-storag"),
             });
@@ -237,53 +228,6 @@ describe("class: FileStorage", () => {
 
             expect(getPublicUrlSpy).toHaveBeenCalledOnce();
         });
-        test("Should dispatch NotFoundFileEvent when key doesnt exists", async () => {
-            const fileStorage = new FileStorage({
-                adapter: new MemoryFileStorageAdapter(),
-                urlAdapter: {
-                    ...mockedUrlAdapter,
-                    getPublicUrl(_key) {
-                        return Promise.resolve(null);
-                    },
-                },
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                }),
-            });
-
-            const listener = vi.fn((_event: NotFoundFileEvent) => {});
-            await fileStorage.events.addListener(
-                FILE_EVENTS.NOT_FOUND,
-                listener,
-            );
-
-            await fileStorage.create("a").getPublicUrl();
-            await delay(TTL);
-
-            expect(listener).toHaveBeenCalledOnce();
-        });
-        test("Should dispatch FoundFileEvent when key exists", async () => {
-            const fileStorage = new FileStorage({
-                adapter: new MemoryFileStorageAdapter(),
-                urlAdapter: {
-                    ...mockedUrlAdapter,
-                    getPublicUrl(_key) {
-                        return Promise.resolve("FAKE_URL");
-                    },
-                },
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                }),
-            });
-
-            const listener = vi.fn((_event: FoundFileEvent) => {});
-            await fileStorage.events.addListener(FILE_EVENTS.FOUND, listener);
-
-            await fileStorage.create("a").getPublicUrl();
-            await delay(TTL);
-
-            expect(listener).toHaveBeenCalledOnce();
-        });
     });
     describe("method: getPublicUrlOrFail", () => {
         test("Should throw KeyNotFoundFileError when method is not defined in adapter or derivable", async () => {
@@ -333,58 +277,6 @@ describe("class: FileStorage", () => {
             await delay(TTL);
 
             expect(getPublicUrlSpy).toHaveBeenCalledOnce();
-        });
-        test("Should dispatch NotFoundFileEvent when key doesnt exists", async () => {
-            const fileStorage = new FileStorage({
-                adapter: new MemoryFileStorageAdapter(),
-                urlAdapter: {
-                    ...mockedUrlAdapter,
-                    getPublicUrl(_key) {
-                        return Promise.resolve(null);
-                    },
-                },
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                }),
-            });
-
-            const listener = vi.fn((_event: NotFoundFileEvent) => {});
-            await fileStorage.events.addListener(
-                FILE_EVENTS.NOT_FOUND,
-                listener,
-            );
-
-            try {
-                await fileStorage.create("a").getPublicUrlOrFail();
-            } catch (error: unknown) {
-                if (!(error instanceof KeyNotFoundFileError)) {
-                    throw error;
-                }
-            }
-            await delay(TTL);
-
-            expect(listener).toHaveBeenCalledOnce();
-        });
-        test("Should dispatch FoundFileEvent when key exists", async () => {
-            const fileStorage = new FileStorage({
-                adapter: new MemoryFileStorageAdapter(),
-                urlAdapter: {
-                    ...mockedUrlAdapter,
-                    getPublicUrl(_key) {
-                        return Promise.resolve("FAKE_URL");
-                    },
-                },
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                }),
-            });
-
-            const listener = vi.fn((_event: FoundFileEvent) => {});
-            await fileStorage.events.addListener(FILE_EVENTS.FOUND, listener);
-
-            await fileStorage.create("a").getPublicUrlOrFail();
-
-            expect(listener).toHaveBeenCalledOnce();
         });
     });
     describe("method: getSignedUploadUrl", () => {
@@ -467,53 +359,6 @@ describe("class: FileStorage", () => {
 
             expect(getSignedDownloadUrlSpy).toHaveBeenCalledOnce();
         });
-        test("Should dispatch NotFoundFileEvent when key doesnt exists", async () => {
-            const fileStorage = new FileStorage({
-                adapter: new MemoryFileStorageAdapter(),
-                urlAdapter: {
-                    ...mockedUrlAdapter,
-                    getSignedDownloadUrl(_key) {
-                        return Promise.resolve(null);
-                    },
-                },
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                }),
-            });
-
-            const listener = vi.fn((_event: NotFoundFileEvent) => {});
-            await fileStorage.events.addListener(
-                FILE_EVENTS.NOT_FOUND,
-                listener,
-            );
-
-            await fileStorage.create("a").getSignedDownloadUrl();
-            await delay(TTL);
-
-            expect(listener).toHaveBeenCalledOnce();
-        });
-        test("Should dispatch FoundFileEvent when key exists", async () => {
-            const fileStorage = new FileStorage({
-                adapter: new MemoryFileStorageAdapter(),
-                urlAdapter: {
-                    ...mockedUrlAdapter,
-                    getSignedDownloadUrl(_key) {
-                        return Promise.resolve("FAKE_URL");
-                    },
-                },
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                }),
-            });
-
-            const listener = vi.fn((_event: FoundFileEvent) => {});
-            await fileStorage.events.addListener(FILE_EVENTS.FOUND, listener);
-
-            await fileStorage.create("a").getSignedDownloadUrl();
-            await delay(TTL);
-
-            expect(listener).toHaveBeenCalledOnce();
-        });
     });
     describe("method: getSignedDownloadUrlOrFail", () => {
         test("Should throw KeyNotFoundFileError when method is not defined in adapter or derivable", async () => {
@@ -567,59 +412,6 @@ describe("class: FileStorage", () => {
 
             expect(getSignedDownloadUrlSpy).toHaveBeenCalledOnce();
         });
-        test("Should dispatch NotFoundFileEvent when key doesnt exists", async () => {
-            const fileStorage = new FileStorage({
-                adapter: new MemoryFileStorageAdapter(),
-                urlAdapter: {
-                    ...mockedUrlAdapter,
-                    getSignedDownloadUrl(_key) {
-                        return Promise.resolve(null);
-                    },
-                },
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                }),
-            });
-
-            const listener = vi.fn((_event: NotFoundFileEvent) => {});
-            await fileStorage.events.addListener(
-                FILE_EVENTS.NOT_FOUND,
-                listener,
-            );
-
-            try {
-                await fileStorage.create("a").getSignedDownloadUrlOrFail();
-            } catch (error: unknown) {
-                if (!(error instanceof KeyNotFoundFileError)) {
-                    throw error;
-                }
-            }
-            await delay(TTL);
-
-            expect(listener).toHaveBeenCalledOnce();
-        });
-        test("Should dispatch FoundFileEvent when key exists", async () => {
-            const fileStorage = new FileStorage({
-                adapter: new MemoryFileStorageAdapter(),
-                urlAdapter: {
-                    ...mockedUrlAdapter,
-                    getSignedDownloadUrl(_key) {
-                        return Promise.resolve("FAKE_URL");
-                    },
-                },
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                }),
-            });
-
-            const listener = vi.fn((_event: FoundFileEvent) => {});
-            await fileStorage.events.addListener(FILE_EVENTS.FOUND, listener);
-
-            await fileStorage.create("a").getSignedDownloadUrlOrFail();
-            await delay(TTL);
-
-            expect(listener).toHaveBeenCalledOnce();
-        });
     });
     describe("Serde tests:", () => {
         test("Should differentiate between different namespaces", async () => {
@@ -629,10 +421,6 @@ describe("class: FileStorage", () => {
             const fileStorage1 = new FileStorage({
                 adapter: new MemoryFileStorageAdapter(),
                 namespace: new Namespace("@file-storage-1"),
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                    namespace: new Namespace("@event-bus/file-storage-1"),
-                }),
                 serde,
             });
             const file1 = fileStorage1.create(key);
@@ -642,10 +430,6 @@ describe("class: FileStorage", () => {
             const fileProvider2 = new FileStorage({
                 adapter: new MemoryFileStorageAdapter(),
                 namespace: new Namespace("@file-storage-2"),
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                    namespace: new Namespace("@event-bus/file-storage-2"),
-                }),
                 serde,
             });
 
@@ -663,17 +447,12 @@ describe("class: FileStorage", () => {
             try {
                 const serde = new Serde(new SuperJsonSerdeAdapter());
                 const fileStorageNamespace = new Namespace("@file-storage");
-                const eventNamespace = new Namespace("@event-bus/file-storage");
                 const key = "a";
 
                 const adapter1 = new MemoryFileStorageAdapter();
                 const fileStorage1 = new FileStorage({
                     adapter: adapter1,
                     namespace: fileStorageNamespace,
-                    eventBus: new EventBus({
-                        adapter: new MemoryEventBusAdapter(),
-                        namespace: eventNamespace,
-                    }),
                     serde,
                 });
                 const file1 = fileStorage1.create(key);
@@ -689,10 +468,6 @@ describe("class: FileStorage", () => {
                 const fileStorage2 = new FileStorage({
                     adapter: adapter2,
                     namespace: fileStorageNamespace,
-                    eventBus: new EventBus({
-                        adapter: new MemoryEventBusAdapter(),
-                        namespace: eventNamespace,
-                    }),
                     serde,
                 });
 
@@ -713,16 +488,11 @@ describe("class: FileStorage", () => {
         test("Should differentiate between different serdeTransformerNames", async () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
             const fileStorageNamespace = new Namespace("@file-storage");
-            const eventNamespace = new Namespace("@event-bus/file-storage");
             const key = "a";
 
             const lockProvider1 = new FileStorage({
                 adapter: new MemoryFileStorageAdapter(),
                 namespace: fileStorageNamespace,
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                    namespace: eventNamespace,
-                }),
                 serdeTransformerName: "adapter1",
                 serde,
             });
@@ -733,10 +503,6 @@ describe("class: FileStorage", () => {
             const lockProvider2 = new FileStorage({
                 adapter: new MemoryFileStorageAdapter(),
                 namespace: fileStorageNamespace,
-                eventBus: new EventBus({
-                    adapter: new MemoryEventBusAdapter(),
-                    namespace: eventNamespace,
-                }),
                 serdeTransformerName: "adapter2",
                 serde,
             });
@@ -753,7 +519,7 @@ describe("class: FileStorage", () => {
     });
     describe("Locking:", () => {
         let fileStorage: IFileStorage;
-        let lockFactory: ILockFactoryBase;
+        let lockFactory: ILockFactory;
         beforeEach(() => {
             lockFactory = new LockFactory({
                 adapter: new NoOpLockAdapter(),
@@ -907,7 +673,7 @@ describe("class: FileStorage", () => {
                 expect(runOrFailSpy).toHaveBeenCalledOnce();
             });
         });
-        describe("IFileStorageBase methods:", () => {
+        describe("IFileStorage methods:", () => {
             test("Should not call lockFactory.create when calling clear", async () => {
                 const createSpy = vi.spyOn(lockFactory, "create");
                 const runOrFailSpy = vi.spyOn(Lock.prototype, "runOrFail");

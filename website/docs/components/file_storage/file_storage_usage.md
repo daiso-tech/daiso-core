@@ -627,66 +627,6 @@ await eventBus.addListener("sending-file-over-network", ({ file }) => {
 });
 ```
 
-### File events
-
-You can listen to different [file events](https://daiso-tech.github.io/daiso-core/modules/File.html) that are triggered by the `File` instance.
-
-Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` or `IEventBusAdapter` contract.
-
-```ts
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
-import { FileStorage, FILE_EVENTS } from "@daiso-tech/core/FileStorage";
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-
-const fileStorage = new FileStorage({
-    adapter: new MemoryFileStorageAdapter(),
-    eventBus: new MemoryEventBusAdapter(),
-});
-
-await fileStorage.events.addListener(FILE_EVENTS.ADDED, () => {
-    console.log("File added");
-});
-
-await fileStorage.create("file.txt").add({ data: "CONTENT" });
-```
-
-:::warning
-If multiple FileStorage adapters (e.g., `FsFileStorageAdapter` and `MemoryFileStorageAdapter`) are used at the same time, you need to isolate their events by assigning separate namespaces. This prevents listeners from unintentionally capturing events across adapters.
-
-```ts
-import { FsFileStorageAdapter } from "@daiso-tech/core/FileStorage/fs-FileStorage-adapter";
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
-import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import { Namespace } from "@daiso-tech/core/namespace";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
-
-const redisPubSubEventBusAdapter = new RedisPubSubEventBusAdapter({
-    client: new Redis("YOUR_REDIS_CONNECTION_STRING"),
-    serde,
-});
-
-const memoryFileStorageAdapter = new MemoryFileStorageAdapter();
-const memoryFileStorage = new FileStorage({
-    adapter: memoryFileStorageAdapter,
-    // We assign distinct namespaces to MemoryFileStorageAdapter and FsFileStorageAdapter to isolate their events.
-    namespace: new Namespace(["memory", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter,
-});
-
-const fsFileStorageAdapter = new FsFileStorageAdapter();
-const fsFileStorage = new FileStorage({
-    adapter: fsFileStorageAdapter,
-    // We assign distinct namespaces to MemoryFileStorageAdapter and FsFileStorageAdapter to isolate their events.
-    namespace: new Namespace(["fs", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter,
-});
-```
-
-:::
-
 ### File locking on write operations
 
 The `FileStorage` instance method supports distributed locking via the `lockFactory` settings passed into `FileStorage` constructor. Data races will occur when multiple clients simultaneously perform write operation to same file and file will be corrupted.
@@ -710,17 +650,17 @@ You can pass `ILockFactoryBase`, `ILockAdapter`, and `IDatabaseLockAdapter` to `
 For further information about `LockFactory` refer to the [`@daiso-tech/core/lock`](../lock/lock_usage.md) documentation.
 :::
 
-### Separating creating, listening to and manipulating files
+### Separating file creation from manipulation
 
 The library includes 3 additional contracts:
 
-- [`IFile`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IFile.html) - Allows only for manipulating of the file.
+- [`IReadableFile`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IReadableFile.html) - Allows only for reading a file.
+
+- [`IFile`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IFile.html) - Allows for both reading and manipulating the file.
 
 - [`IFileFactory`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IFileFactory.html) - Allows only for creation of file.
 
-- [`IFileStorageBase`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IFileStorageBase.html) - Allows for creation and removal of files.
-
-- [`IFileListenable`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IFileListenable.html) - Allows only to listening to file events.
+- [`IFileStorage`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IFileStorage.html) - Allows for creation and removal of files.
 
 ## Further information
 

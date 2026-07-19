@@ -1,40 +1,22 @@
 /**
  * @module FileStorage
  */
-import {
-    type EventBusInput,
-    type IEventBus,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import {
-    resolveEventBusInput,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type EventBus,
-} from "@/event-bus/implementations/derivables/_module.js";
+
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
-    FILE_EVENTS,
-    type FileEventMap,
     type FileStorageAdapterVariants,
     type IFile,
-    type IFileListenable,
     type IFileStorage,
     type IFileUrlAdapter,
     type ISignedFileStorageAdapter,
 } from "@/file-storage/contracts/_module.js";
-import {
-    handleClearEvent,
-    handleUnexpectedErrorEvent,
-} from "@/file-storage/implementations/derivables/file-storage/event-helpers.js";
 import { FileSerdeTransformer } from "@/file-storage/implementations/derivables/file-storage/file-serde-transformer.js";
 import { File } from "@/file-storage/implementations/derivables/file-storage/file.js";
 import { resolveFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/resolve-file-storage-adapter.js";
 import {
-    type ILockFactoryBase,
+    type ILockFactory,
     type LockFactoryInput,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type IDatabaseLockAdapter,
@@ -48,7 +30,7 @@ import {
     type LockFactory,
     resolveLockFactoryInput,
 } from "@/lock/implementations/derivables/_module.js";
-import { type MiddlewareFn, type Use } from "@/middleware/contracts/_module.js";
+import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { useFactory } from "@/middleware/implementations/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
@@ -56,13 +38,10 @@ import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import {
-    callInvokable,
     CORE,
-    defaultWaitUntil,
     resolveOneOrMore,
     type InvokableFn,
     type OneOrMore,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -165,19 +144,6 @@ export type FileStorageSettingsBase = {
     urlAdapter?: Partial<IFileUrlAdapter>;
 
     /**
-     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
-     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
-     *
-     * @default
-     * ```ts
-     * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
-     *
-     * new NoOpEventBusAdapter()
-     * ```
-     */
-    eventBus?: EventBusInput;
-
-    /**
      * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link FileStorage | `FileStorage`} to register the file's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
@@ -194,16 +160,6 @@ export type FileStorageSettingsBase = {
      * @default ""
      */
     serdeTransformerName?: string;
-
-    /**
-     * You can pass the `waitUntil` function to handle background promises.
-     * This is required when working with environments like Cloudflare Workers or Vercel Functions to ensure tasks complete after the response is sent.
-     * @default
-     * ```ts
-     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
-     * ```
-     */
-    waitUntil?: WaitUntil;
 
     /**
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
@@ -252,7 +208,6 @@ export type FileStorageSettings = FileStorageSettingsBase & {
  * @group Derivables
  */
 export class FileStorage implements IFileStorage {
-    private readonly eventBus: IEventBus<FileEventMap>;
     private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
     private readonly namespace: INamespace;
@@ -265,10 +220,8 @@ export class FileStorage implements IFileStorage {
     private readonly defaultContentLanguage: string | null;
     private readonly onlyLowercase: boolean;
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
-    private readonly waitUntil: WaitUntil;
     private readonly context: IReadableContext;
-    private readonly use: Use;
-    private readonly lockFactory: ILockFactoryBase;
+    private readonly lockFactory: ILockFactory;
 
     /**
      * @example
@@ -290,7 +243,6 @@ export class FileStorage implements IFileStorage {
         const {
             adapter,
             namespace = new NoOpNamespace(),
-            eventBus = new NoOpEventBusAdapter(),
             onlyLowercase = false,
             keyValidator = defaultKeyValidator,
             serde = new Serde(new NoOpSerdeAdapter()),
@@ -301,15 +253,12 @@ export class FileStorage implements IFileStorage {
             defaultContentEncoding = null,
             defaultContentLanguage = null,
             urlAdapter = {},
-            waitUntil = defaultWaitUntil,
             context = new ExecutionContext(new NoOpExecutionContextAdapter()),
             lockFactory = new NoOpLockAdapter(),
         } = settings;
 
         this.lockFactory = resolveLockFactoryInput(namespace, lockFactory);
-        this.use = useFactory();
         this.context = context;
-        this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
         this.originalAdapter = adapter;
@@ -320,7 +269,6 @@ export class FileStorage implements IFileStorage {
         this.defaultContentLanguage = defaultContentLanguage;
         this.adapter = resolveFileStorageAdapter(adapter, urlAdapter);
         this.namespace = namespace;
-        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.serde = serde;
         this.serdeTransformerName = serdeTransformerName;
         this.registerToSerde();
@@ -329,9 +277,7 @@ export class FileStorage implements IFileStorage {
     private registerToSerde(): void {
         const transformer = new FileSerdeTransformer({
             lockFactory: this.lockFactory,
-            use: this.use,
             context: this.context,
-            waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,
             originalAdapter: this.originalAdapter,
@@ -341,7 +287,6 @@ export class FileStorage implements IFileStorage {
             defaultContentEncoding: this.defaultContentEncoding,
             defaultContentLanguage: this.defaultContentLanguage,
             adapter: this.adapter,
-            eventBus: this.eventBus,
             namespace: this.namespace,
             serdeTransformerName: this.serdeTransformerName,
         });
@@ -353,9 +298,7 @@ export class FileStorage implements IFileStorage {
     create(key: string): IFile {
         return new File({
             lockFactory: this.lockFactory,
-            use: this.use,
             context: this.context,
-            waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,
             originalAdapter: this.originalAdapter,
@@ -367,31 +310,22 @@ export class FileStorage implements IFileStorage {
             adapter: this.adapter,
             key: this.namespace.create(key),
             originalKey: key,
-            eventDispatcher: this.eventBus,
             serdeTransformerName: this.serdeTransformerName,
             namespace: this.namespace,
         });
     }
 
-    clear(): Promise<void> {
-        return this.use(
-            async () => {
-                await this.adapter.removeByPrefix(
-                    this.context,
-                    this.namespace.toString(),
-                );
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(FILE_EVENTS.CLEARED, {}),
-                );
-            },
-            handleUnexpectedErrorEvent(this.waitUntil, this.eventBus),
-        )();
+    async clear(): Promise<void> {
+        await this.adapter.removeByPrefix(
+            this.context,
+            this.namespace.toString(),
+        );
     }
 
-    removeMany(files: Iterable<IFile>): Promise<boolean> {
+    async removeMany(files: Iterable<IFile>): Promise<boolean> {
         const filesArr = [...files];
-        return this.use(async () => {
+        const use = useFactory();
+        return use(async () => {
             const keys = filesArr.map((file) => {
                 return file.key.toString();
             });
@@ -404,12 +338,6 @@ export class FileStorage implements IFileStorage {
                         .runOrFail(next);
                 };
             }),
-            handleClearEvent(this.waitUntil, this.eventBus, filesArr),
-            handleUnexpectedErrorEvent(this.waitUntil, this.eventBus),
         ])();
-    }
-
-    get events(): IFileListenable {
-        return this.eventBus;
     }
 }

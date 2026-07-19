@@ -2,10 +2,8 @@
  * @module FileStorage
  */
 
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
-    type FileEventMap,
     type FileStorageAdapterVariants,
     type ISignedFileStorageAdapter,
 } from "@/file-storage/contracts/_module.js";
@@ -13,23 +11,20 @@ import {
     File,
     type ISerializedFile,
 } from "@/file-storage/implementations/derivables/file-storage/file.js";
-import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
-import { type Use } from "@/middleware/contracts/_module.js";
+import { type ILockFactory } from "@/lock/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import {
     getConstructorName,
     type InvokableFn,
     type OneOrMore,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
 export type FileSerdeTransformerSettings = {
-    lockFactory: ILockFactoryBase;
-    waitUntil: WaitUntil;
+    lockFactory: ILockFactory;
     defaultContentType: string;
     defaultContentDisposition: string | null;
     defaultContentEncoding: string | null;
@@ -38,12 +33,10 @@ export type FileSerdeTransformerSettings = {
     originalAdapter: FileStorageAdapterVariants;
     adapter: ISignedFileStorageAdapter;
     namespace: INamespace;
-    eventBus: IEventBus<FileEventMap>;
     serdeTransformerName: string;
     onlyLowercase: boolean;
     keyValidator: InvokableFn<[key: string], string | null>;
     context: IReadableContext;
-    use: Use;
 };
 
 /**
@@ -53,13 +46,11 @@ export class FileSerdeTransformer implements ISerdeTransformer<
     File,
     ISerializedFile
 > {
-    private readonly waitUntil: WaitUntil;
     private readonly onlyLowercase: boolean;
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
     private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
     private readonly namespace: INamespace;
-    private readonly eventBus: IEventBus<FileEventMap>;
     private readonly serdeTransformerName: string;
     private readonly defaultContentType: string;
     private readonly defaultContentDisposition: string | null;
@@ -67,8 +58,7 @@ export class FileSerdeTransformer implements ISerdeTransformer<
     private readonly defaultCacheControl: string | null;
     private readonly defaultContentLanguage: string | null;
     private readonly context: IReadableContext;
-    private readonly use: Use;
-    private readonly lockFactory: ILockFactoryBase;
+    private readonly lockFactory: ILockFactory;
 
     constructor(settings: FileSerdeTransformerSettings) {
         const {
@@ -77,7 +67,6 @@ export class FileSerdeTransformer implements ISerdeTransformer<
             keyValidator,
             adapter,
             namespace,
-            eventBus,
             serdeTransformerName,
             defaultContentType,
             defaultCacheControl,
@@ -85,21 +74,16 @@ export class FileSerdeTransformer implements ISerdeTransformer<
             defaultContentEncoding,
             defaultContentLanguage,
             originalAdapter,
-            waitUntil,
             context,
-            use,
         } = settings;
 
         this.lockFactory = lockFactory;
-        this.use = use;
         this.context = context;
-        this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
         this.originalAdapter = originalAdapter;
         this.adapter = adapter;
         this.namespace = namespace;
-        this.eventBus = eventBus;
         this.serdeTransformerName = serdeTransformerName;
         this.defaultContentType = defaultContentType;
         this.defaultCacheControl = defaultCacheControl;
@@ -148,9 +132,7 @@ export class FileSerdeTransformer implements ISerdeTransformer<
         return new File({
             originalKey: key,
             lockFactory: this.lockFactory,
-            use: this.use,
             context: this.context,
-            waitUntil: this.waitUntil,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,
             originalAdapter: this.originalAdapter,
@@ -159,7 +141,6 @@ export class FileSerdeTransformer implements ISerdeTransformer<
             defaultContentDisposition: this.defaultContentDisposition,
             defaultContentEncoding: this.defaultContentEncoding,
             defaultContentLanguage: this.defaultContentLanguage,
-            eventDispatcher: this.eventBus,
             adapter: this.adapter,
             key: keyObj,
             serdeTransformerName: this.serdeTransformerName,
