@@ -290,7 +290,7 @@ The library includes two additional contracts:
 
 - [`IEventListenable`](https://daiso-tech.github.io/daiso-core/types/EventBus.IEventListenable.html) - Allows only for event listening.
 
-This seperation makes it easy to visually distinguish the two contracts, making it immediately obvious that they serve different purposes.
+This separation makes it easy to visually distinguish the two contracts, making it immediately obvious that they serve different purposes.
 
 ```ts
 import type {

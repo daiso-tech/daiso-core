@@ -5,37 +5,20 @@
 import { type StandardSchemaV1 } from "@standard-schema/spec";
 
 import {
-    CACHE_EVENTS,
     type ICache,
     type ICacheAdapter,
     KeyNotFoundCacheError,
-    type CacheEventMap,
-    type NotFoundCacheEvent,
-    type RemovedCacheEvent,
     KeyExistsCacheError,
     type CacheWriteSettings,
-    type ICacheListenable,
     type GetOrAddSettings,
 } from "@/cache/contracts/_module.js";
 import { type CacheAdapterVariants } from "@/cache/contracts/types.js";
 import { resolveCacheAdapter } from "@/cache/implementations/derivables/cache/resolve-cache-adapter.js";
-import {
-    type EventBusInput,
-    type IEventBus,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import {
-    resolveEventBusInput,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type EventBus,
-} from "@/event-bus/implementations/derivables/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
-    type ILockFactoryBase,
+    type ILockFactory,
     type LockFactoryInput,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type ILockAdapter,
@@ -53,14 +36,11 @@ import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
-    callInvokable,
-    defaultWaitUntil,
     resolveAsyncLazyable,
     validate,
     withJitter,
     type AsyncLazyable,
     type NoneFunc,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -93,19 +73,6 @@ export type CacheSettingsBase<TType = unknown> = {
     namespace?: INamespace;
 
     /**
-     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
-     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
-     *
-     * @default
-     * ```ts
-     * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
-     *
-     * new NoOpEventBusAdapter()
-     * ```
-     */
-    eventBus?: EventBusInput;
-
-    /**
      * You can decide the default ttl value. If null is passed then no ttl will be used by default.
      * @default null
      */
@@ -117,16 +84,6 @@ export type CacheSettingsBase<TType = unknown> = {
      * @default 0.2
      */
     defaultJitter?: number | null;
-
-    /**
-     * You can pass the `waitUntil` function to handle background promises.
-     * This is required when working with environments like Cloudflare Workers or Vercel Functions to ensure tasks complete after the response is sent.
-     * @default
-     * ```ts
-     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
-     * ```
-     */
-    waitUntil?: WaitUntil;
 
     /**
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
@@ -172,16 +129,14 @@ export type CacheSettings<TType = unknown> = CacheSettingsBase<TType> & {
  * @group Derivables
  */
 export class Cache<TType = unknown> implements ICache<TType> {
-    private readonly eventBus: IEventBus<CacheEventMap<TType>>;
     private readonly adapter: ICacheAdapter<TType>;
     private readonly defaultTtl: TimeSpan | null;
     private readonly namespace: INamespace;
     private readonly schema: StandardSchemaV1<TType> | undefined;
     private readonly shouldValidateOutput: boolean;
     private readonly defaultJitter: number | null;
-    private readonly waitUntil: WaitUntil;
     private readonly context: IReadableContext;
-    private readonly lockFactory: ILockFactoryBase;
+    private readonly lockFactory: ILockFactory;
 
     /**
      *
@@ -218,29 +173,21 @@ export class Cache<TType = unknown> implements ICache<TType> {
             schema,
             namespace = new NoOpNamespace(),
             adapter,
-            eventBus = new NoOpEventBusAdapter(),
             defaultTtl = null,
             defaultJitter = 0.2,
-            waitUntil = defaultWaitUntil,
             context = new ExecutionContext(new NoOpExecutionContextAdapter()),
             lockFactory = new NoOpLockAdapter(),
         } = settings;
 
         this.lockFactory = resolveLockFactoryInput(namespace, lockFactory);
         this.context = context;
-        this.waitUntil = waitUntil;
         this.shouldValidateOutput = shouldValidateOutput;
         this.schema = schema;
         this.namespace = namespace;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
-        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.adapter = resolveCacheAdapter(adapter);
         this.defaultJitter = defaultJitter;
-    }
-
-    get events(): ICacheListenable<TType> {
-        return this.eventBus;
     }
 
     async exists(key: string): Promise<boolean> {
@@ -255,45 +202,17 @@ export class Cache<TType = unknown> implements ICache<TType> {
 
     async get(key: string): Promise<TType | null> {
         const keyObj = this.namespace.create(key);
-        try {
-            let value = await this.adapter.get(this.context, keyObj.toString());
-            if (
-                this.shouldValidateOutput &&
-                this.schema !== undefined &&
-                value !== null
-            ) {
-                value = await validate(this.schema, value);
-            }
 
-            if (value === null) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.NOT_FOUND, {
-                        key: keyObj,
-                    }),
-                );
-            } else {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.FOUND, {
-                        key: keyObj,
-                        value,
-                    }),
-                );
-            }
-
-            return value;
-        } catch (error: unknown) {
-            callInvokable(
-                this.waitUntil,
-                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                    keys: [keyObj.get()],
-                    method: this.get.name,
-                    error,
-                }),
-            );
-            throw error;
+        let value = await this.adapter.get(this.context, keyObj.toString());
+        if (
+            this.shouldValidateOutput &&
+            this.schema !== undefined &&
+            value !== null
+        ) {
+            value = await validate(this.schema, value);
         }
+
+        return value;
     }
 
     async getOrFail(key: string): Promise<TType> {
@@ -306,46 +225,20 @@ export class Cache<TType = unknown> implements ICache<TType> {
 
     async getAndRemove(key: string): Promise<TType | null> {
         const keyObj = this.namespace.create(key);
-        try {
-            let value = await this.adapter.getAndRemove(
-                this.context,
-                keyObj.toString(),
-            );
-            if (
-                this.shouldValidateOutput &&
-                this.schema !== undefined &&
-                value !== null
-            ) {
-                value = await validate(this.schema, value);
-            }
 
-            if (value === null) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.NOT_FOUND, {
-                        key: keyObj,
-                    }),
-                );
-            } else {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.REMOVED, {
-                        key: keyObj,
-                    }),
-                );
-            }
-            return value;
-        } catch (error: unknown) {
-            callInvokable(
-                this.waitUntil,
-                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                    keys: [keyObj.get()],
-                    method: this.getAndRemove.name,
-                    error,
-                }),
-            );
-            throw error;
+        let value = await this.adapter.getAndRemove(
+            this.context,
+            keyObj.toString(),
+        );
+        if (
+            this.shouldValidateOutput &&
+            this.schema !== undefined &&
+            value !== null
+        ) {
+            value = await validate(this.schema, value);
         }
+
+        return value;
     }
 
     async getOr(
@@ -384,31 +277,13 @@ export class Cache<TType = unknown> implements ICache<TType> {
                     resolvedValueToAdd,
                 )) as NoneFunc<TType>;
             }
-            const hasAdded = await this.adapter.add(
+            await this.adapter.add(
                 this.context,
                 keyObj.toString(),
                 resolvedValueToAdd,
                 ttl,
             );
-            if (hasAdded) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.ADDED, {
-                        key: keyObj,
-                        value: resolvedValueToAdd,
-                        ttl,
-                    }),
-                );
-            }
             return resolvedValueToAdd;
-        } else {
-            callInvokable(
-                this.waitUntil,
-                this.eventBus.dispatch(CACHE_EVENTS.FOUND, {
-                    key: keyObj,
-                    value,
-                }),
-            );
         }
 
         return value;
@@ -462,46 +337,18 @@ export class Cache<TType = unknown> implements ICache<TType> {
     ): Promise<boolean> {
         const ttl = this.resolveCacheWriteSettings(settings);
         const keyObj = this.namespace.create(key);
-        try {
-            if (this.schema !== undefined) {
-                value = await validate(this.schema, value);
-            }
-            const hasAdded = await this.adapter.add(
-                this.context,
-                keyObj.toString(),
-                value,
-                ttl,
-            );
-            if (hasAdded) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.ADDED, {
-                        key: keyObj,
-                        value,
-                        ttl,
-                    }),
-                );
-            } else {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.KEY_EXISTS, {
-                        key: keyObj,
-                    }),
-                );
-            }
-            return hasAdded;
-        } catch (error: unknown) {
-            callInvokable(
-                this.waitUntil,
-                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                    keys: [keyObj.get()],
-                    value,
-                    method: this.add.name,
-                    error,
-                }),
-            );
-            throw error;
+
+        if (this.schema !== undefined) {
+            value = await validate(this.schema, value);
         }
+        const hasAdded = await this.adapter.add(
+            this.context,
+            keyObj.toString(),
+            value,
+            ttl,
+        );
+
+        return hasAdded;
     }
 
     async addOrFail(
@@ -522,89 +369,32 @@ export class Cache<TType = unknown> implements ICache<TType> {
     ): Promise<boolean> {
         const ttl = this.resolveCacheWriteSettings(settings);
         const keyObj = this.namespace.create(key);
-        try {
-            if (this.schema !== undefined) {
-                value = await validate(this.schema, value);
-            }
-            const hasUpdated = await this.adapter.put(
-                this.context,
-                keyObj.toString(),
-                value,
-                ttl,
-            );
-            if (hasUpdated) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.UPDATED, {
-                        key: keyObj,
-                        value,
-                    }),
-                );
-            } else {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.ADDED, {
-                        key: keyObj,
-                        value,
-                        ttl,
-                    }),
-                );
-            }
-            return hasUpdated;
-        } catch (error: unknown) {
-            callInvokable(
-                this.waitUntil,
-                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                    keys: [keyObj.get()],
-                    value,
-                    method: this.put.name,
-                    error,
-                }),
-            );
-            throw error;
+
+        if (this.schema !== undefined) {
+            value = await validate(this.schema, value);
         }
+        const hasUpdated = await this.adapter.put(
+            this.context,
+            keyObj.toString(),
+            value,
+            ttl,
+        );
+        return hasUpdated;
     }
 
     async update(key: string, value: TType): Promise<boolean> {
         const keyObj = this.namespace.create(key);
-        try {
-            if (this.schema !== undefined) {
-                value = await validate(this.schema, value);
-            }
-            const hasUpdated = await this.adapter.update(
-                this.context,
-                keyObj.toString(),
-                value,
-            );
-            if (hasUpdated) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.UPDATED, {
-                        key: keyObj,
-                        value,
-                    }),
-                );
-            } else {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.NOT_FOUND, {
-                        key: keyObj,
-                    }),
-                );
-            }
-            return hasUpdated;
-        } catch (error: unknown) {
-            callInvokable(
-                this.waitUntil,
-                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                    keys: [keyObj.get()],
-                    value,
-                    method: this.update.name,
-                    error,
-                }),
-            );
-            throw error;
+
+        if (this.schema !== undefined) {
+            value = await validate(this.schema, value);
         }
+        const hasUpdated = await this.adapter.update(
+            this.context,
+            keyObj.toString(),
+            value,
+        );
+
+        return hasUpdated;
     }
 
     async updateOrFail(key: string, value: TType): Promise<void> {
@@ -619,54 +409,14 @@ export class Cache<TType = unknown> implements ICache<TType> {
         value = 1 as Extract<TType, number>,
     ): Promise<boolean> {
         const keyObj = this.namespace.create(key);
-        try {
-            const hasUpdated = await this.adapter.increment(
-                this.context,
-                keyObj.toString(),
-                value,
-            );
-            if (hasUpdated && value > 0) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.INCREMENTED, {
-                        key: keyObj,
-                        value,
-                    }),
-                );
-            }
-            if (hasUpdated && value < 0) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.DECREMENTED, {
-                        key: keyObj,
-                        value: -value,
-                    }),
-                );
-            }
-            if (!hasUpdated) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.NOT_FOUND, {
-                        key: keyObj,
-                    }),
-                );
-            }
-            return hasUpdated;
-        } catch (error: unknown) {
-            callInvokable(
-                this.waitUntil,
-                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                    keys: [keyObj.get()],
-                    value,
-                    method: this.increment.name,
-                    error,
-                }),
-            );
-            throw new TypeError(
-                `Unable to increment or decrement none number type key "${keyObj.get()}"`,
-                { cause: error },
-            );
-        }
+
+        const hasUpdated = await this.adapter.increment(
+            this.context,
+            keyObj.toString(),
+            value,
+        );
+
+        return hasUpdated;
     }
 
     async incrementOrFail(
@@ -698,37 +448,12 @@ export class Cache<TType = unknown> implements ICache<TType> {
 
     async remove(key: string): Promise<boolean> {
         const keyObj = this.namespace.create(key);
-        try {
-            const hasRemoved = await this.adapter.removeMany(this.context, [
-                keyObj.toString(),
-            ]);
-            if (hasRemoved) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.REMOVED, {
-                        key: keyObj,
-                    }),
-                );
-            } else {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventBus.dispatch(CACHE_EVENTS.NOT_FOUND, {
-                        key: keyObj,
-                    }),
-                );
-            }
-            return hasRemoved;
-        } catch (error: unknown) {
-            callInvokable(
-                this.waitUntil,
-                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                    keys: [keyObj.get()],
-                    method: this.removeMany.name,
-                    error,
-                }),
-            );
-            throw error;
-        }
+
+        const hasRemoved = await this.adapter.removeMany(this.context, [
+            keyObj.toString(),
+        ]);
+
+        return hasRemoved;
     }
 
     async removeOrFail(key: string): Promise<void> {
@@ -749,81 +474,17 @@ export class Cache<TType = unknown> implements ICache<TType> {
             return true;
         }
         const keyObjArr = keysArr.map((key) => this.namespace.create(key));
-        try {
-            const hasRemovedAtLeastOne = await this.adapter.removeMany(
-                this.context,
-                keyObjArr.map((keyObj) => keyObj.toString()),
-            );
-            if (hasRemovedAtLeastOne) {
-                const events = keyObjArr.map(
-                    (
-                        keyObj,
-                    ): [typeof CACHE_EVENTS.REMOVED, RemovedCacheEvent] =>
-                        [
-                            CACHE_EVENTS.REMOVED,
-                            {
-                                key: keyObj,
-                            },
-                        ] as const,
-                );
-                for (const [eventName, event] of events) {
-                    callInvokable(
-                        this.waitUntil,
-                        this.eventBus.dispatch(eventName, event),
-                    );
-                }
-            } else {
-                const events = keyObjArr.map(
-                    (
-                        keyObj,
-                    ): [typeof CACHE_EVENTS.NOT_FOUND, NotFoundCacheEvent] =>
-                        [
-                            CACHE_EVENTS.NOT_FOUND,
-                            {
-                                key: keyObj,
-                            },
-                        ] as const,
-                );
-                for (const [eventName, event] of events) {
-                    callInvokable(
-                        this.waitUntil,
-                        this.eventBus.dispatch(eventName, event),
-                    );
-                }
-            }
-            return hasRemovedAtLeastOne;
-        } catch (error: unknown) {
-            callInvokable(
-                this.waitUntil,
-                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                    keys: keyObjArr.map((keyObj) => keyObj.get()),
-                    method: this.remove.name,
-                    error,
-                }),
-            );
-            throw error;
-        }
+        const hasRemovedAtLeastOne = await this.adapter.removeMany(
+            this.context,
+            keyObjArr.map((keyObj) => keyObj.toString()),
+        );
+        return hasRemovedAtLeastOne;
     }
 
     async clear(): Promise<void> {
-        try {
-            await this.adapter.removeByKeyPrefix(
-                this.context,
-                this.namespace.toString(),
-            );
-            callInvokable(
-                this.waitUntil,
-                this.eventBus.dispatch(CACHE_EVENTS.CLEARED, {}),
-            );
-        } catch (error: unknown) {
-            callInvokable(
-                this.waitUntil,
-                this.eventBus.dispatch(CACHE_EVENTS.UNEXPECTED_ERROR, {
-                    method: this.clear.name,
-                    error,
-                }),
-            );
-            throw error;
-        }
+        await this.adapter.removeByKeyPrefix(
+            this.context,
+            this.namespace.toString(),
+        );
     }
 }

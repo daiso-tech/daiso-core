@@ -2,8 +2,6 @@
  * @module Cache
  */
 
-import { type CacheEventMap } from "@/cache/contracts/cache.events.js";
-import { type IEventListenable } from "@/event-bus/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -13,17 +11,6 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type ValidationError,
 } from "@/utilities/_module.js";
-
-/**
- * The `ICacheListenable` contract provides a way to listen to cache operation events and track state changes.
- * Subscribe to cache events to monitor entry additions, retrievals, updates, evictions, and expirations.
- *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
- * @group Contracts
- */
-export type ICacheListenable<TType = unknown> = IEventListenable<
-    CacheEventMap<TType>
->;
 
 /**
  * Configuration settings for cache write operations.
@@ -131,12 +118,12 @@ export type GetOrAddSettings = CacheWriteSettings & {
 };
 
 /**
- * The `ICacheBase` contract defines a way for storing and reading as key-value pairs independent of data storage.
+ * The `ICache` contract defines a way for storing and reading as key-value pairs independent of data storage.
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
  * @group Contracts
  */
-export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
+export type ICache<TType = unknown> = IReadableCache<TType> & {
     /**
      * The `getAndRemove` method returns the value when `key` is found otherwise null will be returned.
      * The key will be removed after it is returned.
@@ -294,14 +281,4 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * The `clear` method removes all the keys in the cache. If a cache is in a group then only the keys part of the group will be removed.
      */
     clear(): Promise<void>;
-};
-
-/**
- * The `ICache` contract defines a way for as key-value pairs independent of data storage and listening to operation events.
- *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
- * @group Contracts
- */
-export type ICache<TType = unknown> = ICacheBase<TType> & {
-    readonly events: ICacheListenable<TType>;
 };

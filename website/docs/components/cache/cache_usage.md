@@ -397,117 +397,39 @@ console.log(await cacheB.get("key"));
 console.log(await cacheA.get("key"));
 ```
 
-### Cache events
+### Separating cache reading from manipulation
 
-You can listen to different [cache events](https://daiso-tech.github.io/daiso-core/modules/Cache.html) that are triggered by the `Cache` instance.
-Refer to the [`@daiso-tech/core/event-bus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` or `IEventBusAdapter` contract.
-
-```ts
-import { CACHE_EVENTS } from "@daiso-tech/core/cache/contracts";
-
-// Will log whenever an item is added, updated and removed
-await cache.events.subscribe(CACHE_EVENTS.ADDED, (event) => {
-    console.log(event);
-});
-
-await cache.add("a", "b");
-```
-
-:::warning
-If multiple cache adapters (e.g., `RedisCacheAdapter` and `MemoryCacheAdapter`) are used at the same time, you need to isolate their events by assigning separate namespaces. This prevents listeners from unintentionally capturing events across adapters.
-
-```ts
-import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { Cache } from "@daiso-tech/core/cache";
-import { Namespace } from "@daiso-tech/core/namespace";
-import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import Redis from "ioredis";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
-
-const redisPubSubEventBusAdapter = new RedisPubSubEventBusAdapter({
-    client: new Redis("YOUR_REDIS_CONNECTION_STRING"),
-    serde,
-});
-
-const memoryCacheAdapter = new MemoryCacheAdapter();
-const memoryCache = new Cache({
-    adapter: memoryCacheAdapter,
-    // We assign distinct namespaces to MemoryCacheAdapter and RedisCacheAdapter to isolate their events.
-    namespace: new Namespace(["memory", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter,
-});
-
-const redisCacheAdapter = new RedisCacheAdapter({
-    serde,
-    database: new Redis("YOUR_REDIS_CONNECTION_STRING"),
-});
-const redisCache = new Cache({
-    adapter: redisCacheAdapter,
-    // We assign distinct namespaces to MemoryCacheAdapter and RedisCacheAdapter to isolate their events.
-    namespace: new Namespace(["redis", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter,
-});
-```
-
-:::
-
-### Separating reading cache, manipulating cache and listening
-
-The library includes two additional contracts:
+The library includes 2 additional contracts:
 
 - [`IReadableCache`](https://daiso-tech.github.io/daiso-core/types/Cache.IReadableCache.html) - Allows only for reading cache.
 
-- [`ICacheBase`](https://daiso-tech.github.io/daiso-core/types/Cache.ICacheBase.html) - Allows only for reading and manipulating the cache.
+- [`ICache`](https://daiso-tech.github.io/daiso-core/types/Cache.ICache.html) - Allows for both reading and manipulating the cache.
 
-- [`ICacheListenable`](https://daiso-tech.github.io/daiso-core/types/Cache.ICacheListenable.html) - Allows only for listening to cache events.
-
-This seperation makes it easy to visually distinguish the two contracts, making it immediately obvious that they serve different purposes.
+This separation makes it easy to visually distinguish the two contracts, making it immediately obvious that they serve different purposes.
 
 ```ts
-import type {
-    ICache,
-    ICacheBase,
-    IReadableCache,
-    ICacheListenable,
-    CACHE_EVENTS,
-} from "@daiso-tech/core/cache/contracts";
+import type { ICache, IReadableCache } from "@daiso-tech/core/cache/contracts";
 import { Cache } from "@daiso-tech/core/cache";
 import { MemoryCacheAdapter } from "@daiso-tech/core/cache/adapter/memory-cache-adapter";
-import { MemoryEventBus } from "@daiso-tech/core/event-bus/memory-event-bus";
 
 async function readingFunc(cache: IReadableCache): Promise<void> {
-    // You cannot access the listener methods
     // You cannot access write methods like put, add and update
     // You will get typescript error if you try
 
-    console.lolg("reading only:", await cache.get("a"));
+    console.log("reading only:", await cache.get("a"));
 }
-async function manipulatingFunc(cache: ICacheBase): Promise<void> {
-    // You cannot access the listener methods
+async function manipulatingFunc(cache: ICache): Promise<void> {
     // You will get typescript error if you try
 
     await cache.add("a", 1);
-    console.lolg("writing and reading:", await cache.get("a"));
-}
-async function listenerFunc(cacheListenable: ICacheListenable): Promise<void> {
-    // You cannot access the cache methods
-    // You will get typescript error if you try
-
-    await cacheListenable.addListener(CACHE_EVENTS.ADDED, (event) => {
-        console.log("EVENT:", event);
-    });
+    console.log("writing and reading:", await cache.get("a"));
 }
 
 const cache = new Cache({
     adapter: new MemoryCacheAdapter(),
-    eventBus: new MemoryEventBus(),
 });
-await listenerFunc(cache.events);
 await manipulatingFunc(cache);
+await readingFunc(cache);
 ```
 
 ## Further information

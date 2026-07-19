@@ -4,7 +4,7 @@ import { type IReadableContext } from "@/execution-context/contracts/execution-c
 import {
     type ILockAdapter,
     type ILockAdapterState,
-    type ILockFactoryBase,
+    type ILockFactory,
     type LockFactoryCreateSettings,
     type ILock,
     type IDatabaseLockAdapter,
@@ -18,7 +18,7 @@ import { type InvokableFn } from "@/utilities/_module.js";
 
 describe("function: isLockFactory", () => {
     test("Should return true when given ILockFactoryBase", () => {
-        const lockFactory: ILockFactoryBase = {
+        const lockFactory: ILockFactory = {
             create(_key: string, _settings?: LockFactoryCreateSettings): ILock {
                 throw new Error("Function not implemented.");
             },

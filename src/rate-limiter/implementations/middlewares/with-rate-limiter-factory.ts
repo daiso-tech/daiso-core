@@ -3,7 +3,7 @@
  */
 
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
-import { type IRateLimiterFactoryBase } from "@/rate-limiter/contracts/_module.js";
+import { type IRateLimiterFactory } from "@/rate-limiter/contracts/_module.js";
 import {
     callInvokable,
     type ErrorPolicySettings,
@@ -26,7 +26,7 @@ export type WithRateLimiterSettings<
  * @group Middleware
  */
 export function withRateLimiterFactory(
-    rateLimiterFactory: IRateLimiterFactoryBase,
+    rateLimiterFactory: IRateLimiterFactory,
 ) {
     return <TParameters extends Array<unknown>, TReturn>(
         settings: WithRateLimiterSettings<TParameters>,

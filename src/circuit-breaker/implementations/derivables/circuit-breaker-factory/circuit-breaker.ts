@@ -11,10 +11,7 @@ import {
     CIRCUIT_BREAKER_TRIGGER,
     type ICircuitBreakerAdapter,
     CIRCUIT_BREAKER_STATE,
-    type CircuitBreakerEventMap,
-    CIRCUIT_BREAKER_EVENTS,
 } from "@/circuit-breaker/contracts/_module.js";
-import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -33,7 +30,6 @@ import {
  */
 export type CircuitBreakerSettings = {
     enableAsyncTracking: boolean;
-    eventDispatcher: IEventDispatcher<CircuitBreakerEventMap>;
     adapter: ICircuitBreakerAdapter;
     key: IKey;
     slowCallTime: TimeSpan;
@@ -75,7 +71,6 @@ export class CircuitBreaker implements ICircuitBreaker {
     private readonly trigger: CircuitBreakerTrigger;
     private readonly slowCallTime: TimeSpan;
     private readonly adapter: ICircuitBreakerAdapter;
-    private readonly eventDispatcher: IEventDispatcher<CircuitBreakerEventMap>;
     private readonly serdeTransformerName: string;
     private readonly namespace: INamespace;
     private readonly enableAsyncTracking: boolean;
@@ -84,7 +79,6 @@ export class CircuitBreaker implements ICircuitBreaker {
     constructor(settings: CircuitBreakerSettings) {
         const {
             enableAsyncTracking,
-            eventDispatcher,
             key,
             errorPolicy,
             trigger,
@@ -99,7 +93,6 @@ export class CircuitBreaker implements ICircuitBreaker {
         this.context = context;
         this.waitUntil = waitUntil;
         this.enableAsyncTracking = enableAsyncTracking;
-        this.eventDispatcher = eventDispatcher;
         this._key = key;
         this.errorPolicy = errorPolicy;
         this.trigger = trigger;
@@ -171,27 +164,6 @@ export class CircuitBreaker implements ICircuitBreaker {
                 } else {
                     await this.trackFailure();
                 }
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        CIRCUIT_BREAKER_EVENTS.TRACKED_FAILURE,
-                        {
-                            circuitBreaker: this,
-                            error,
-                        },
-                    ),
-                );
-            } else if (shouldRecordError) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        CIRCUIT_BREAKER_EVENTS.UNTRACKED_FAILURE,
-                        {
-                            circuitBreaker: this,
-                            error,
-                        },
-                    ),
-                );
             }
             throw error;
         }
@@ -215,39 +187,12 @@ export class CircuitBreaker implements ICircuitBreaker {
 
         if (shouldRecordSlowCall && isCallSlow) {
             await this.trackFailure();
-            callInvokable(
-                this.waitUntil,
-                this.eventDispatcher.dispatch(
-                    CIRCUIT_BREAKER_EVENTS.TRACKED_SLOW_CALL,
-                    {
-                        circuitBreaker: this,
-                    },
-                ),
-            );
         }
         if (shouldRecordSlowCall && !isCallSlow) {
             await this.trackSuccess();
-            callInvokable(
-                this.waitUntil,
-                this.eventDispatcher.dispatch(
-                    CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS,
-                    {
-                        circuitBreaker: this,
-                    },
-                ),
-            );
         }
         if (!shouldRecordSlowCall) {
             await this.trackSuccess();
-            callInvokable(
-                this.waitUntil,
-                this.eventDispatcher.dispatch(
-                    CIRCUIT_BREAKER_EVENTS.TRACKED_SUCCESS,
-                    {
-                        circuitBreaker: this,
-                    },
-                ),
-            );
         }
 
         return value;
@@ -258,20 +203,6 @@ export class CircuitBreaker implements ICircuitBreaker {
             this.context,
             this._key.toString(),
         );
-        const hasStateChaned = transition.to !== transition.from;
-        if (hasStateChaned) {
-            callInvokable(
-                this.waitUntil,
-                this.eventDispatcher.dispatch(
-                    CIRCUIT_BREAKER_EVENTS.STATE_TRANSITIONED,
-                    {
-                        circuitBreaker: this,
-                        from: transition.from,
-                        to: transition.to,
-                    },
-                ),
-            );
-        }
 
         const isInOpenState = transition.to === CIRCUIT_BREAKER_STATE.OPEN;
         if (isInOpenState) {
@@ -298,21 +229,9 @@ export class CircuitBreaker implements ICircuitBreaker {
 
     async reset(): Promise<void> {
         await this.adapter.reset(this.context, this._key.toString());
-        callInvokable(
-            this.waitUntil,
-            this.eventDispatcher.dispatch(CIRCUIT_BREAKER_EVENTS.RESETED, {
-                circuitBreaker: this,
-            }),
-        );
     }
 
     async isolate(): Promise<void> {
         await this.adapter.isolate(this.context, this._key.toString());
-        callInvokable(
-            this.waitUntil,
-            this.eventDispatcher.dispatch(CIRCUIT_BREAKER_EVENTS.ISOLATED, {
-                circuitBreaker: this,
-            }),
-        );
     }
 }

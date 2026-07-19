@@ -1,7 +1,6 @@
 /**
  * @module Lock
  */
-import { type EventBusInput } from "@/event-bus/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type ILockFactoryResolver,
@@ -18,7 +17,6 @@ import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
     type Invokable,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -99,13 +97,6 @@ export class LockFactoryResolver<
         });
     }
 
-    setEventBus(eventBus: EventBusInput): LockFactoryResolver<TAdapters> {
-        return new LockFactoryResolver({
-            ...this.settings,
-            eventBus,
-        });
-    }
-
     setDefaultTtl(ttl: ITimeSpan | null): LockFactoryResolver<TAdapters> {
         return new LockFactoryResolver({
             ...this.settings,
@@ -117,13 +108,6 @@ export class LockFactoryResolver<
         return new LockFactoryResolver({
             ...this.settings,
             defaultRefreshTime: time,
-        });
-    }
-
-    setWaitUntil(waitUntil: WaitUntil): LockFactoryResolver<TAdapters> {
-        return new LockFactoryResolver({
-            ...this.settings,
-            waitUntil,
         });
     }
 

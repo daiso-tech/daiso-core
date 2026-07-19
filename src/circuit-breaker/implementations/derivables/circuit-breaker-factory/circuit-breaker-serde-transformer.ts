@@ -3,7 +3,6 @@
  */
 
 import {
-    type CircuitBreakerEventMap,
     type CircuitBreakerTrigger,
     type ICircuitBreakerAdapter,
 } from "@/circuit-breaker/contracts/_module.js";
@@ -11,7 +10,6 @@ import {
     CircuitBreaker,
     type ISerializedCircuitBreaker,
 } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
@@ -32,7 +30,6 @@ export type CircuitBreakerSerdeTransformerSettings = {
     slowCallTime: TimeSpan;
     errorPolicy: ErrorPolicy;
     trigger: CircuitBreakerTrigger;
-    eventBus: IEventBus<CircuitBreakerEventMap>;
     serdeTransformerName: string;
     enableAsyncTracking: boolean;
     waitUntil: WaitUntil;
@@ -51,7 +48,6 @@ export class CircuitBreakerSerdeTransformer implements ISerdeTransformer<
     private readonly slowCallTime: TimeSpan;
     private readonly errorPolicy: ErrorPolicy;
     private readonly trigger: CircuitBreakerTrigger;
-    private readonly eventBus: IEventBus<CircuitBreakerEventMap>;
     private readonly serdeTransformerName: string;
     private readonly enableAsyncTracking: boolean;
     private readonly waitUntil: WaitUntil;
@@ -64,7 +60,6 @@ export class CircuitBreakerSerdeTransformer implements ISerdeTransformer<
             slowCallTime,
             errorPolicy,
             trigger,
-            eventBus,
             serdeTransformerName,
             enableAsyncTracking,
             waitUntil,
@@ -79,7 +74,6 @@ export class CircuitBreakerSerdeTransformer implements ISerdeTransformer<
         this.slowCallTime = slowCallTime;
         this.errorPolicy = errorPolicy;
         this.trigger = trigger;
-        this.eventBus = eventBus;
         this.serdeTransformerName = serdeTransformerName;
     }
 
@@ -125,7 +119,6 @@ export class CircuitBreakerSerdeTransformer implements ISerdeTransformer<
             context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
-            eventDispatcher: this.eventBus,
             adapter: this.adapter,
             key: keyObj,
             slowCallTime: this.slowCallTime,

@@ -2,34 +2,21 @@
  * @module Semaphore
  */
 
-import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type Use } from "@/middleware/contracts/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type ISemaphoreAdapter,
     type SemaphoreAdapterVariants,
-    type SemaphoreEventMap,
     type ISemaphore,
     FailedRefreshSemaphoreError,
     LimitReachedSemaphoreError,
     FailedReleaseSemaphoreError,
-    SEMAPHORE_EVENTS,
     SEMAPHORE_STATE,
     type ISemaphoreState,
 } from "@/semaphore/contracts/_module.js";
-import {
-    handleDispatch,
-    handleUnexpectedError,
-} from "@/semaphore/implementations/derivables/semaphore-factory/event-helpers.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    callInvokable,
-    resolveLazyable,
-    type AsyncLazy,
-    type WaitUntil,
-} from "@/utilities/_module.js";
+import { resolveLazyable, type AsyncLazy } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -51,14 +38,11 @@ export type SemaphoreSettings = {
     serdeTransformerName: string;
     adapter: ISemaphoreAdapter;
     originalAdapter: SemaphoreAdapterVariants;
-    eventDispatcher: IEventDispatcher<SemaphoreEventMap>;
     key: IKey;
     ttl: TimeSpan | null;
     defaultRefreshTime: TimeSpan;
     namespace: INamespace;
-    waitUntil: WaitUntil;
     context: IReadableContext;
-    use: Use;
 };
 
 /**
@@ -82,15 +66,12 @@ export class Semaphore implements ISemaphore {
     private readonly limit: number;
     private readonly adapter: ISemaphoreAdapter;
     private readonly originalAdapter: SemaphoreAdapterVariants;
-    private readonly eventDispatcher: IEventDispatcher<SemaphoreEventMap>;
     private readonly _key: IKey;
     private _ttl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly namespace: INamespace;
-    private readonly waitUntil: WaitUntil;
     private readonly context: IReadableContext;
-    private readonly use: Use;
 
     constructor(settings: SemaphoreSettings) {
         const {
@@ -98,26 +79,20 @@ export class Semaphore implements ISemaphore {
             limit,
             adapter,
             originalAdapter,
-            eventDispatcher,
             key,
             ttl,
             serdeTransformerName,
             defaultRefreshTime,
             namespace,
-            waitUntil,
             context,
-            use,
         } = settings;
 
-        this.use = use;
         this.context = context;
-        this.waitUntil = waitUntil;
         this.namespace = namespace;
         this.slotId = slotId;
         this.limit = limit;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
-        this.eventDispatcher = eventDispatcher;
         this._key = key;
         this._ttl = ttl;
         this.defaultRefreshTime = defaultRefreshTime;
@@ -146,37 +121,14 @@ export class Semaphore implements ISemaphore {
             await this.release();
         }
     }
-
-    acquire(): Promise<boolean> {
-        return this.use(async () => {
-            return await this.adapter.acquire({
-                context: this.context,
-                key: this._key.toString(),
-                slotId: this.slotId,
-                limit: this.limit,
-                ttl: this._ttl,
-            });
-        }, [
-            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
-            handleDispatch({
-                on: "true",
-                eventName: SEMAPHORE_EVENTS.ACQUIRED,
-                eventData: {
-                    semaphore: this,
-                },
-                eventDispatcher: this.eventDispatcher,
-                waitUntil: this.waitUntil,
-            }),
-            handleDispatch({
-                on: "false",
-                eventName: SEMAPHORE_EVENTS.LIMIT_REACHED,
-                eventData: {
-                    semaphore: this,
-                },
-                eventDispatcher: this.eventDispatcher,
-                waitUntil: this.waitUntil,
-            }),
-        ])();
+    async acquire(): Promise<boolean> {
+        return await this.adapter.acquire({
+            context: this.context,
+            key: this._key.toString(),
+            slotId: this.slotId,
+            limit: this.limit,
+            ttl: this._ttl,
+        });
     }
 
     async acquireOrFail(): Promise<void> {
@@ -186,34 +138,12 @@ export class Semaphore implements ISemaphore {
         }
     }
 
-    release(): Promise<boolean> {
-        return this.use(async () => {
-            return await this.adapter.release(
-                this.context,
-                this._key.toString(),
-                this.slotId,
-            );
-        }, [
-            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
-            handleDispatch({
-                on: "true",
-                eventName: SEMAPHORE_EVENTS.RELEASED,
-                eventData: {
-                    semaphore: this,
-                },
-                eventDispatcher: this.eventDispatcher,
-                waitUntil: this.waitUntil,
-            }),
-            handleDispatch({
-                on: "false",
-                eventName: SEMAPHORE_EVENTS.FAILED_RELEASE,
-                eventData: {
-                    semaphore: this,
-                },
-                eventDispatcher: this.eventDispatcher,
-                waitUntil: this.waitUntil,
-            }),
-        ])();
+    async release(): Promise<boolean> {
+        return await this.adapter.release(
+            this.context,
+            this._key.toString(),
+            this.slotId,
+        );
     }
 
     async releaseOrFail(): Promise<void> {
@@ -223,67 +153,24 @@ export class Semaphore implements ISemaphore {
         }
     }
 
-    forceReleaseAll(): Promise<boolean> {
-        return this.use(async () => {
-            return await this.adapter.forceReleaseAll(
-                this.context,
-                this._key.toString(),
-            );
-        }, [
-            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
-            async ({ next }) => {
-                const hasReleased = await next();
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        SEMAPHORE_EVENTS.ALL_FORCE_RELEASED,
-                        {
-                            semaphore: this,
-                            hasReleased,
-                        },
-                    ),
-                );
-                return hasReleased;
-            },
-        ])();
+    async forceReleaseAll(): Promise<boolean> {
+        return await this.adapter.forceReleaseAll(
+            this.context,
+            this._key.toString(),
+        );
     }
 
-    refresh(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
-        return this.use(async () => {
-            return await this.adapter.refresh(
-                this.context,
-                this._key.toString(),
-                this.slotId,
-                TimeSpan.fromTimeSpan(ttl),
-            );
-        }, [
-            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
-            handleDispatch({
-                on: "true",
-                eventName: SEMAPHORE_EVENTS.REFRESHED,
-                eventData: {
-                    semaphore: this,
-                },
-                eventDispatcher: this.eventDispatcher,
-                waitUntil: this.waitUntil,
-            }),
-            handleDispatch({
-                on: "false",
-                eventName: SEMAPHORE_EVENTS.FAILED_REFRESH,
-                eventData: {
-                    semaphore: this,
-                },
-                eventDispatcher: this.eventDispatcher,
-                waitUntil: this.waitUntil,
-            }),
-            async ({ next }) => {
-                const hasRefreshed = await next();
-                if (hasRefreshed) {
-                    this._ttl = TimeSpan.fromTimeSpan(ttl);
-                }
-                return hasRefreshed;
-            },
-        ])();
+    async refresh(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
+        const hasRefreshed = await this.adapter.refresh(
+            this.context,
+            this._key.toString(),
+            this.slotId,
+            TimeSpan.fromTimeSpan(ttl),
+        );
+        if (hasRefreshed) {
+            this._ttl = TimeSpan.fromTimeSpan(ttl);
+        }
+        return hasRefreshed;
     }
 
     async refreshOrFail(ttl?: ITimeSpan): Promise<void> {
@@ -305,53 +192,49 @@ export class Semaphore implements ISemaphore {
         return this._key;
     }
 
-    getState(): Promise<ISemaphoreState> {
-        return this.use(async () => {
-            const state = await this.adapter.getState(
-                this.context,
-                this._key.toString(),
-            );
-            if (state === null) {
-                return {
-                    type: SEMAPHORE_STATE.EXPIRED,
-                };
-            }
-
-            if (state.acquiredSlots.size >= state.limit) {
-                return {
-                    type: SEMAPHORE_STATE.LIMIT_REACHED,
-                    limit: state.limit,
-                    acquiredSlots: [...state.acquiredSlots.keys()],
-                };
-            }
-
-            const slot = state.acquiredSlots.get(this.slotId);
-            if (slot === undefined) {
-                return {
-                    type: SEMAPHORE_STATE.UNACQUIRED,
-                    acquiredSlots: [...state.acquiredSlots.keys()],
-                    acquiredSlotsCount: state.acquiredSlots.size,
-                    freeSlotsCount: state.limit - state.acquiredSlots.size,
-                    limit: state.limit,
-                };
-            }
-
+    async getState(): Promise<ISemaphoreState> {
+        const state = await this.adapter.getState(
+            this.context,
+            this._key.toString(),
+        );
+        if (state === null) {
             return {
-                type: SEMAPHORE_STATE.ACQUIRED,
+                type: SEMAPHORE_STATE.EXPIRED,
+            };
+        }
+
+        if (state.acquiredSlots.size >= state.limit) {
+            return {
+                type: SEMAPHORE_STATE.LIMIT_REACHED,
+                limit: state.limit,
+                acquiredSlots: [...state.acquiredSlots.keys()],
+            };
+        }
+
+        const slot = state.acquiredSlots.get(this.slotId);
+        if (slot === undefined) {
+            return {
+                type: SEMAPHORE_STATE.UNACQUIRED,
                 acquiredSlots: [...state.acquiredSlots.keys()],
                 acquiredSlotsCount: state.acquiredSlots.size,
                 freeSlotsCount: state.limit - state.acquiredSlots.size,
                 limit: state.limit,
-                remainingTime:
-                    slot === null
-                        ? null
-                        : TimeSpan.fromDateRange({
-                              start: new Date(),
-                              end: slot,
-                          }),
             };
-        }, [
-            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
-        ])();
+        }
+
+        return {
+            type: SEMAPHORE_STATE.ACQUIRED,
+            acquiredSlots: [...state.acquiredSlots.keys()],
+            acquiredSlotsCount: state.acquiredSlots.size,
+            freeSlotsCount: state.limit - state.acquiredSlots.size,
+            limit: state.limit,
+            remainingTime:
+                slot === null
+                    ? null
+                    : TimeSpan.fromDateRange({
+                          start: new Date(),
+                          end: slot,
+                      }),
+        };
     }
 }

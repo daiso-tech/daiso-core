@@ -2,13 +2,9 @@
  * @module RateLimiter
  */
 
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
-import {
-    type IRateLimiterAdapter,
-    type RateLimiterEventMap,
-} from "@/rate-limiter/contracts/_module.js";
+import { type IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
 import {
     RateLimiter,
     type ISerializedRateLimiter,
@@ -29,7 +25,6 @@ export type RateLimiterSerdeTransformerSettings = {
     namespace: INamespace;
     errorPolicy: ErrorPolicy;
     onlyError: boolean;
-    eventBus: IEventBus<RateLimiterEventMap>;
     serdeTransformerName: string;
     enableAsyncTracking: boolean;
     waitUntil: WaitUntil;
@@ -46,7 +41,6 @@ export class RateLimiterSerdeTransformer implements ISerdeTransformer<
     private readonly adapter: IRateLimiterAdapter;
     private readonly namespace: INamespace;
     private readonly errorPolicy: ErrorPolicy;
-    private readonly eventBus: IEventBus<RateLimiterEventMap>;
     private readonly serdeTransformerName: string;
     private readonly enableAsyncTracking: boolean;
     private readonly onlyError: boolean;
@@ -57,7 +51,6 @@ export class RateLimiterSerdeTransformer implements ISerdeTransformer<
         const {
             adapter,
             namespace,
-            eventBus,
             serdeTransformerName,
             enableAsyncTracking,
             errorPolicy,
@@ -73,7 +66,6 @@ export class RateLimiterSerdeTransformer implements ISerdeTransformer<
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this.namespace = namespace;
-        this.eventBus = eventBus;
         this.errorPolicy = errorPolicy;
         this.serdeTransformerName = serdeTransformerName;
     }
@@ -120,7 +112,6 @@ export class RateLimiterSerdeTransformer implements ISerdeTransformer<
             context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
-            eventDispatcher: this.eventBus,
             adapter: this.adapter,
             key: keyObj,
             limit,

@@ -5,7 +5,7 @@
 import { v4 } from "uuid";
 
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
-import { type ISharedLockFactoryBase } from "@/shared-lock/contracts/_module.js";
+import { type ISharedLockFactory } from "@/shared-lock/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 import { callInvokable, type Invokable } from "@/utilities/_module.js";
 
@@ -100,9 +100,7 @@ export type WithSharedLockFactorySettings<
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/middlewares"`
  * @group Middleware
  */
-export function withSharedLockFactory(
-    sharedLockFactory: ISharedLockFactoryBase,
-) {
+export function withSharedLockFactory(sharedLockFactory: ISharedLockFactory) {
     return <TParameters extends Array<unknown>, TReturn>(
         settings: WithSharedLockFactorySettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {

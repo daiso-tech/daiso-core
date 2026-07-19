@@ -1,7 +1,6 @@
 /**
  * @module Semaphore
  */
-import { type EventBusInput } from "@/event-bus/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
@@ -17,7 +16,6 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -89,13 +87,6 @@ export class SemaphoreFactoryResolver<
         });
     }
 
-    setEventBus(eventBus: EventBusInput): SemaphoreFactoryResolver<TAdapters> {
-        return new SemaphoreFactoryResolver({
-            ...this.settings,
-            eventBus,
-        });
-    }
-
     setDefaultTtl(ttl: ITimeSpan | null): SemaphoreFactoryResolver<TAdapters> {
         return new SemaphoreFactoryResolver({
             ...this.settings,
@@ -109,13 +100,6 @@ export class SemaphoreFactoryResolver<
         return new SemaphoreFactoryResolver({
             ...this.settings,
             defaultRefreshTime: time,
-        });
-    }
-
-    setWaitUntil(waitUntil: WaitUntil): SemaphoreFactoryResolver<TAdapters> {
-        return new SemaphoreFactoryResolver({
-            ...this.settings,
-            waitUntil,
         });
     }
 

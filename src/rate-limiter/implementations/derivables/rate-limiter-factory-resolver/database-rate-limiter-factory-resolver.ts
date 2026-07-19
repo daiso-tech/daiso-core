@@ -3,7 +3,6 @@
  */
 
 import { type BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
-import { type EventBusInput } from "@/event-bus/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
@@ -125,15 +124,6 @@ export class DatabaseRateLimiterFactoryResolver<
         return new DatabaseRateLimiterFactoryResolver({
             ...this.settings,
             namespace,
-        });
-    }
-
-    setEventBus(
-        eventBus: EventBusInput,
-    ): DatabaseRateLimiterFactoryResolver<TAdapters> {
-        return new DatabaseRateLimiterFactoryResolver({
-            ...this.settings,
-            eventBus,
         });
     }
 

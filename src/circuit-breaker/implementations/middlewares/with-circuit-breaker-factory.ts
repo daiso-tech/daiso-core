@@ -4,7 +4,7 @@
 
 import {
     type CircuitBreakerTrigger,
-    type ICircuitBreakerFactoryBase,
+    type ICircuitBreakerFactory,
 } from "@/circuit-breaker/contracts/_module.js";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -60,7 +60,7 @@ export type WithCircuitBreakerSettings<
  * @group Middleware
  */
 export function withCircuitBreakerFactory(
-    circuitBreakerFactory: ICircuitBreakerFactoryBase,
+    circuitBreakerFactory: ICircuitBreakerFactory,
 ) {
     return <TParameters extends Array<unknown>, TReturn>(
         settings: WithCircuitBreakerSettings<TParameters>,

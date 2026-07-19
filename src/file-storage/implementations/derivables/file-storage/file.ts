@@ -7,7 +7,6 @@ import { Readable } from "stream";
 
 import { lookup } from "mime-types";
 
-import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { TO_BYTES } from "@/file-size/contracts/_module.js";
 import { FileSize } from "@/file-size/implementations/_module.js";
@@ -18,7 +17,6 @@ import {
     type WritableFileStream,
     KeyExistsFileError,
     KeyNotFoundFileError,
-    type FileEventMap,
     type FileDownloadUrlOptions,
     FILE_WRITE_ENUM,
     type FileWriteEnum,
@@ -27,49 +25,34 @@ import {
     InvalidKeyFileError,
     type FileUploadUrlOptions,
 } from "@/file-storage/contracts/_module.js";
-import {
-    handleAddEvent,
-    handleBooleanFoundEvent,
-    handleCopyAndReplaceEvent,
-    handleCopyEvent,
-    handleMoveAndReplaceEvent,
-    handleMoveEvent,
-    handleNullableFoundEvent,
-    handlePutEvent,
-    handleRemoveEvent,
-    handleUnexpectedErrorEvent,
-    handleUpdateEvent,
-} from "@/file-storage/implementations/derivables/file-storage/event-helpers.js";
 import { resolveFileContent } from "@/file-storage/implementations/derivables/file-storage/resolve-file-content.js";
 import { ResolveFileStream } from "@/file-storage/implementations/derivables/file-storage/resolve-file-stream.js";
-import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
-import { type MiddlewareFn, type Use } from "@/middleware/contracts/_module.js";
+import { type ILockFactory } from "@/lock/contracts/_module.js";
+import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
+import { useFactory } from "@/middleware/implementations/_module.js";
 import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type InvokableFn, type WaitUntil } from "@/utilities/_module.js";
+import { type InvokableFn } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
 export type FileSettings = {
     originalKey: string;
-    lockFactory: ILockFactoryBase;
+    lockFactory: ILockFactory;
     onlyLowercase: boolean;
     keyValidator: InvokableFn<[key: string], string | null>;
     defaultContentType: string;
     originalAdapter: FileStorageAdapterVariants;
     adapter: ISignedFileStorageAdapter;
     key: IKey;
-    eventDispatcher: IEventDispatcher<FileEventMap>;
     serdeTransformerName: string;
     namespace: INamespace;
     defaultContentDisposition: string | null;
     defaultContentEncoding: string | null;
     defaultCacheControl: string | null;
     defaultContentLanguage: string | null;
-    waitUntil: WaitUntil;
     context: IReadableContext;
-    use: Use;
 };
 
 /**
@@ -94,11 +77,9 @@ export class File implements IFile {
         };
     }
 
-    private readonly waitUntil: WaitUntil;
     private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
     private readonly _key: IKey;
-    private readonly eventDispatcher: IEventDispatcher<FileEventMap>;
     private readonly serdeTransformerName: string;
     private readonly namespace: INamespace;
     private readonly defaultContentType: string;
@@ -109,9 +90,9 @@ export class File implements IFile {
     private readonly onlyLowercase: boolean;
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
     private readonly context: IReadableContext;
-    private readonly use: Use;
-    private readonly lockFactory: ILockFactoryBase;
+    private readonly lockFactory: ILockFactory;
     private readonly originalKey: string;
+    private readonly use = useFactory();
 
     constructor(settings: FileSettings) {
         const {
@@ -119,7 +100,6 @@ export class File implements IFile {
             keyValidator,
             adapter,
             key,
-            eventDispatcher,
             serdeTransformerName,
             namespace,
             defaultContentType,
@@ -128,25 +108,20 @@ export class File implements IFile {
             defaultCacheControl,
             defaultContentLanguage,
             originalAdapter,
-            waitUntil,
             context,
-            use,
             lockFactory,
             originalKey,
         } = settings;
 
         this.originalKey = originalKey;
         this.lockFactory = lockFactory;
-        this.use = use;
         this.context = context;
-        this.waitUntil = waitUntil;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
         this.originalAdapter = originalAdapter;
         this.defaultContentType = defaultContentType;
         this.adapter = adapter;
         this._key = key;
-        this.eventDispatcher = eventDispatcher;
         this.serdeTransformerName = serdeTransformerName;
         this.namespace = namespace;
         this.defaultContentDisposition = defaultContentDisposition;
@@ -201,23 +176,7 @@ export class File implements IFile {
     }
 
     async getBytes(): Promise<Uint8Array | null> {
-        return this.use(async () => {
-            return await this.adapter.getBytes(
-                this.context,
-                this._key.toString(),
-            );
-        }, [
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-            handleNullableFoundEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-        ])();
+        return await this.adapter.getBytes(this.context, this._key.toString());
     }
 
     async getBytesOrFail(): Promise<Uint8Array> {
@@ -261,27 +220,14 @@ export class File implements IFile {
     }
 
     async getReadable(): Promise<Readable | null> {
-        return this.use(async () => {
-            const stream = await this.adapter.getStream(
-                this.context,
-                this._key.toString(),
-            );
-            if (stream === null) {
-                return null;
-            }
-            return Readable.from(stream);
-        }, [
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-            handleNullableFoundEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-        ])();
+        const stream = await this.adapter.getStream(
+            this.context,
+            this._key.toString(),
+        );
+        if (stream === null) {
+            return null;
+        }
+        return Readable.from(stream);
     }
 
     async getReadableOrFail(): Promise<Readable> {
@@ -293,27 +239,14 @@ export class File implements IFile {
     }
 
     async getReadableStream(): Promise<ReadableStream<Uint8Array> | null> {
-        return this.use(async () => {
-            const stream = await this.adapter.getStream(
-                this.context,
-                this._key.toString(),
-            );
-            if (stream === null) {
-                return null;
-            }
-            return ReadableStream.from(stream);
-        }, [
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-            handleNullableFoundEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-        ])();
+        const stream = await this.adapter.getStream(
+            this.context,
+            this._key.toString(),
+        );
+        if (stream === null) {
+            return null;
+        }
+        return ReadableStream.from(stream);
     }
 
     async getReadableStreamOrFail(): Promise<ReadableStream<Uint8Array>> {
@@ -325,32 +258,19 @@ export class File implements IFile {
     }
 
     async getMetadata(): Promise<FileMetadata | null> {
-        return this.use(async () => {
-            const metadata = await this.adapter.getMetaData(
-                this.context,
-                this._key.toString(),
-            );
-            if (metadata === null) {
-                return null;
-            }
-            return {
-                contentType: metadata.contentType,
-                etag: metadata.etag,
-                updatedAt: metadata.updatedAt,
-                fileSize: FileSize.fromBytes(metadata.fileSizeInBytes),
-            };
-        }, [
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-            handleNullableFoundEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-        ])();
+        const metadata = await this.adapter.getMetaData(
+            this.context,
+            this._key.toString(),
+        );
+        if (metadata === null) {
+            return null;
+        }
+        return {
+            contentType: metadata.contentType,
+            etag: metadata.etag,
+            updatedAt: metadata.updatedAt,
+            fileSize: FileSize.fromBytes(metadata.fileSizeInBytes),
+        };
     }
 
     async getMetadataOrFail(): Promise<FileMetadata> {
@@ -362,19 +282,7 @@ export class File implements IFile {
     }
 
     async exists(): Promise<boolean> {
-        return this.use(async () => {
-            return await this.adapter.exists(
-                this.context,
-                this._key.toString(),
-            );
-        }, [
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-            handleBooleanFoundEvent(this.waitUntil, this.eventDispatcher, this),
-        ])();
+        return await this.adapter.exists(this.context, this._key.toString());
     }
 
     async missing(): Promise<boolean> {
@@ -394,11 +302,11 @@ export class File implements IFile {
         };
     }
 
-    async add(content: WritableFileContent): Promise<boolean> {
+    add(content: WritableFileContent): Promise<boolean> {
+        const { data, contentType = this.getContentType(this._key.get()) } =
+            content;
+        const resolvedData = resolveFileContent(data);
         return this.use(async () => {
-            const { data, contentType = this.getContentType(this._key.get()) } =
-                content;
-            const resolvedData = resolveFileContent(data);
             return await this.adapter.add(this.context, this._key.toString(), {
                 data: resolvedData,
                 contentType,
@@ -408,15 +316,7 @@ export class File implements IFile {
                 contentLanguage: this.defaultContentLanguage,
                 fileSizeInBytes: resolvedData.length,
             });
-        }, [
-            this.lock(),
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-            handleAddEvent(this.waitUntil, this.eventDispatcher, this),
-        ])();
+        }, this.lock())();
     }
 
     async addOrFail(content: WritableFileContent): Promise<void> {
@@ -434,14 +334,14 @@ export class File implements IFile {
         return resolvedContentType;
     }
 
-    async addStream(stream: WritableFileStream): Promise<boolean> {
-        return this.use(async () => {
-            const {
-                data,
-                fileSize = null,
-                contentType = this.getContentType(this._key.get()),
-            } = stream;
+    addStream(stream: WritableFileStream): Promise<boolean> {
+        const {
+            data,
+            fileSize = null,
+            contentType = this.getContentType(this._key.get()),
+        } = stream;
 
+        return this.use(async () => {
             return await this.adapter.addStream(
                 this.context,
                 this._key.toString(),
@@ -455,15 +355,7 @@ export class File implements IFile {
                     contentLanguage: this.defaultContentLanguage,
                 },
             );
-        }, [
-            this.lock(),
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-            handleAddEvent(this.waitUntil, this.eventDispatcher, this),
-        ])();
+        }, this.lock())();
     }
 
     async addStreamOrFail(stream: WritableFileStream): Promise<void> {
@@ -473,11 +365,11 @@ export class File implements IFile {
         }
     }
 
-    async update(content: WritableFileContent): Promise<boolean> {
+    update(content: WritableFileContent): Promise<boolean> {
+        const { data, contentType = this.getContentType(this._key.get()) } =
+            content;
+        const resolvedData = resolveFileContent(data);
         return this.use(async () => {
-            const { data, contentType = this.getContentType(this._key.get()) } =
-                content;
-            const resolvedData = resolveFileContent(data);
             return await this.adapter.update(
                 this.context,
                 this._key.toString(),
@@ -491,15 +383,7 @@ export class File implements IFile {
                     fileSizeInBytes: resolvedData.length,
                 },
             );
-        }, [
-            this.lock(),
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-            handleUpdateEvent(this.waitUntil, this.eventDispatcher, this),
-        ])();
+        }, this.lock())();
     }
 
     async updateOrFail(content: WritableFileContent): Promise<void> {
@@ -509,13 +393,13 @@ export class File implements IFile {
         }
     }
 
-    async updateStream(stream: WritableFileStream): Promise<boolean> {
+    updateStream(stream: WritableFileStream): Promise<boolean> {
+        const {
+            data,
+            fileSize = null,
+            contentType = this.getContentType(this._key.get()),
+        } = stream;
         return this.use(async () => {
-            const {
-                data,
-                fileSize = null,
-                contentType = this.getContentType(this._key.get()),
-            } = stream;
             return await this.adapter.updateStream(
                 this.context,
                 this._key.toString(),
@@ -529,15 +413,7 @@ export class File implements IFile {
                     contentLanguage: this.defaultContentLanguage,
                 },
             );
-        }, [
-            this.lock(),
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-            handleUpdateEvent(this.waitUntil, this.eventDispatcher, this),
-        ])();
+        }, this.lock())();
     }
 
     async updateStreamOrFail(stream: WritableFileStream): Promise<void> {
@@ -547,11 +423,11 @@ export class File implements IFile {
         }
     }
 
-    async put(content: WritableFileContent): Promise<boolean> {
+    put(content: WritableFileContent): Promise<boolean> {
+        const { data, contentType = this.getContentType(this._key.get()) } =
+            content;
+        const resolvedData = resolveFileContent(data);
         return this.use(async () => {
-            const { data, contentType = this.getContentType(this._key.get()) } =
-                content;
-            const resolvedData = resolveFileContent(data);
             return await this.adapter.put(this.context, this._key.toString(), {
                 data: resolvedData,
                 contentType,
@@ -561,24 +437,16 @@ export class File implements IFile {
                 contentLanguage: this.defaultContentLanguage,
                 fileSizeInBytes: resolvedData.length,
             });
-        }, [
-            this.lock(),
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-            handlePutEvent(this.waitUntil, this.eventDispatcher, this),
-        ])();
+        }, this.lock())();
     }
 
-    async putStream(stream: WritableFileStream): Promise<boolean> {
+    putStream(stream: WritableFileStream): Promise<boolean> {
+        const {
+            data,
+            fileSize = null,
+            contentType = this.getContentType(this._key.get()),
+        } = stream;
         return this.use(async () => {
-            const {
-                data,
-                fileSize = null,
-                contentType = this.getContentType(this._key.get()),
-            } = stream;
             return await this.adapter.putStream(
                 this.context,
                 this._key.toString(),
@@ -592,31 +460,15 @@ export class File implements IFile {
                     contentLanguage: this.defaultContentLanguage,
                 },
             );
-        }, [
-            this.lock(),
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-            handlePutEvent(this.waitUntil, this.eventDispatcher, this),
-        ])();
+        }, this.lock())();
     }
 
-    async remove(): Promise<boolean> {
+    remove(): Promise<boolean> {
         return this.use(async () => {
             return await this.adapter.removeMany(this.context, [
                 this.key.toString(),
             ]);
-        }, [
-            this.lock(),
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-            handleRemoveEvent(this.waitUntil, this.eventDispatcher, this),
-        ])();
+        }, this.lock())();
     }
 
     async removeOrFail(): Promise<void> {
@@ -634,20 +486,7 @@ export class File implements IFile {
                 this._key.toString(),
                 destinationKey.toString(),
             );
-        }, [
-            this.lock(),
-            handleCopyEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                destinationKey,
-                this,
-            ),
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-        ])();
+        }, this.lock())();
     }
 
     async copy(destination: string): Promise<boolean> {
@@ -665,7 +504,7 @@ export class File implements IFile {
         }
     }
 
-    async copyAndReplace(destination: string): Promise<boolean> {
+    copyAndReplace(destination: string): Promise<boolean> {
         const destinationKey = this.namespace.create(destination);
         return this.use(async () => {
             return await this.adapter.copyAndReplace(
@@ -673,20 +512,7 @@ export class File implements IFile {
                 this._key.toString(),
                 destinationKey.toString(),
             );
-        }, [
-            this.lock(),
-            handleCopyAndReplaceEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                destinationKey,
-                this,
-            ),
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-        ])();
+        }, this.lock())();
     }
 
     async copyAndReplaceOrFail(destination: string): Promise<void> {
@@ -695,7 +521,7 @@ export class File implements IFile {
             throw KeyNotFoundFileError.create(this._key);
         }
     }
-    private async _move(destination: string): Promise<FileWriteEnum> {
+    private _move(destination: string): Promise<FileWriteEnum> {
         const destinationKey = this.namespace.create(destination);
         return this.use(async () => {
             return await this.adapter.move(
@@ -703,20 +529,7 @@ export class File implements IFile {
                 this._key.toString(),
                 destinationKey.toString(),
             );
-        }, [
-            this.lock(),
-            handleMoveEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                destinationKey,
-                this,
-            ),
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-        ])();
+        }, this.lock())();
     }
 
     async move(destination: string): Promise<boolean> {
@@ -734,7 +547,7 @@ export class File implements IFile {
         }
     }
 
-    async moveAndReplace(destination: string): Promise<boolean> {
+    moveAndReplace(destination: string): Promise<boolean> {
         const destinationKey = this.namespace.create(destination);
         return this.use(async () => {
             return await this.adapter.moveAndReplace(
@@ -742,20 +555,7 @@ export class File implements IFile {
                 this._key.toString(),
                 destinationKey.toString(),
             );
-        }, [
-            this.lock(),
-            handleMoveAndReplaceEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                destinationKey,
-                this,
-            ),
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-        ])();
+        }, this.lock())();
     }
 
     async moveAndReplaceOrFail(destination: string): Promise<void> {
@@ -766,23 +566,10 @@ export class File implements IFile {
     }
 
     async getPublicUrl(): Promise<string | null> {
-        return this.use(async () => {
-            return await this.adapter.getPublicUrl(
-                this.context,
-                this.key.toString(),
-            );
-        }, [
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-            handleNullableFoundEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-        ])();
+        return await this.adapter.getPublicUrl(
+            this.context,
+            this.key.toString(),
+        );
     }
 
     async getPublicUrlOrFail(): Promise<string> {
@@ -810,34 +597,21 @@ export class File implements IFile {
     async getSignedDownloadUrl(
         options: FileDownloadUrlOptions = {},
     ): Promise<string | null> {
-        return this.use(async () => {
-            const {
-                ttl: expiration = TimeSpan.fromMinutes(10),
-                contentType = null,
-                contentDisposition = null,
-            } = options;
-            return await this.adapter.getSignedDownloadUrl(
-                this.context,
-                this._key.toString(),
-                {
-                    expirationInSeconds:
-                        TimeSpan.fromTimeSpan(expiration).toSeconds(),
-                    contentType,
-                    contentDisposition,
-                },
-            );
-        }, [
-            handleUnexpectedErrorEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-            handleNullableFoundEvent(
-                this.waitUntil,
-                this.eventDispatcher,
-                this,
-            ),
-        ])();
+        const {
+            ttl: expiration = TimeSpan.fromMinutes(10),
+            contentType = null,
+            contentDisposition = null,
+        } = options;
+        return await this.adapter.getSignedDownloadUrl(
+            this.context,
+            this._key.toString(),
+            {
+                expirationInSeconds:
+                    TimeSpan.fromTimeSpan(expiration).toSeconds(),
+                contentType,
+                contentDisposition,
+            },
+        );
     }
 
     async getSignedDownloadUrlOrFail(

@@ -2,7 +2,6 @@
  * @module FileStorage
  */
 
-import { type EventBusInput } from "@/event-bus/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type IFileStorage,
@@ -20,7 +19,6 @@ import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -89,13 +87,6 @@ export class FileStorageResolver<
         });
     }
 
-    setEventBus(eventBus: EventBusInput): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            eventBus,
-        });
-    }
-
     setDefaultContentType(contentType: string): FileStorageResolver<TAdapters> {
         return new FileStorageResolver({
             ...this.settings,
@@ -161,13 +152,6 @@ export class FileStorageResolver<
         return new FileStorageResolver({
             ...this.settings,
             keyValidator,
-        });
-    }
-
-    setWaitUntil(waitUntil: WaitUntil): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            waitUntil,
         });
     }
 

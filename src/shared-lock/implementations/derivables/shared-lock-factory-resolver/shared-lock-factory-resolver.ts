@@ -1,7 +1,6 @@
 /**
  * @module SharedLock
  */
-import { type EventBusInput } from "@/event-bus/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
@@ -18,7 +17,6 @@ import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
     type Invokable,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
 /**
@@ -99,13 +97,6 @@ export class SharedLockFactoryResolver<
         });
     }
 
-    setEventBus(eventBus: EventBusInput): SharedLockFactoryResolver<TAdapters> {
-        return new SharedLockFactoryResolver({
-            ...this.settings,
-            eventBus,
-        });
-    }
-
     setDefaultTtl(ttl: ITimeSpan | null): SharedLockFactoryResolver<TAdapters> {
         return new SharedLockFactoryResolver({
             ...this.settings,
@@ -119,13 +110,6 @@ export class SharedLockFactoryResolver<
         return new SharedLockFactoryResolver({
             ...this.settings,
             defaultRefreshTime: time,
-        });
-    }
-
-    setWaitUntil(waitUntil: WaitUntil): SharedLockFactoryResolver<TAdapters> {
-        return new SharedLockFactoryResolver({
-            ...this.settings,
-            waitUntil,
         });
     }
 
