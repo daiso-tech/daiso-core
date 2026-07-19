@@ -31,7 +31,7 @@ import {
     resolveLockFactoryInput,
 } from "@/lock/implementations/derivables/_module.js";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { use } from "@/middleware/implementations/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
@@ -324,7 +324,6 @@ export class FileStorage implements IFileStorage {
 
     async removeMany(files: Iterable<IFile>): Promise<boolean> {
         const filesArr = [...files];
-        const use = useFactory();
         return use(async () => {
             const keys = filesArr.map((file) => {
                 return file.key.toString();

@@ -16,29 +16,19 @@ keywords:
 
 The Cache middleware intercepts function calls and caches their return values using a configurable cache store. When the wrapped function is invoked, the middleware derives a cache key from the function's arguments. If the key exists in the cache, the cached value is returned immediately without executing the function. Otherwise, the function runs, its result is stored in the cache, and the result is returned.
 
-## Initial setup
+## Usage
 
 ```ts
 import { withCacheFactory } from "@daiso-tech/core/cache/middlewares";
 import { Cache } from "@daiso-tech/core/cache";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { use } from "@daiso-tech/core/middleware";
+import { MemoryCacheAdapter } from "@daiso-tech/core/cache/adapter/memory-cache-adapter";
 
-const cache = Cache({
+const cache = new Cache({
     adapter: new MemoryCacheAdapter(),
 });
-
 const withCache = withCacheFactory(cache);
 
-const use = useFactory();
-```
-
-:::info
-Here is a complete list of settings for the [`WithCache`](https://daiso-tech.github.io/daiso-core/types/Cache.WithCacheSettings.html) function.
-:::
-
-## Usage
-
-```ts
 const fetchUser = async (userId: string): Promise<{ name: string }> => {
     const response = await fetch(`/api/users/${userId}`);
     return response.json();
@@ -56,6 +46,10 @@ const cachedFetchUser = use(
 const user = await cachedFetchUser("123"); // Cache miss — fetches and caches
 const userAgain = await cachedFetchUser("123"); // Cache hit — returns immediately
 ```
+
+:::info
+Here is a complete list of settings for the [`withCache`](https://daiso-tech.github.io/daiso-core/types/Cache.WithCacheSettings.html) function.
+:::
 
 ## Further information
 

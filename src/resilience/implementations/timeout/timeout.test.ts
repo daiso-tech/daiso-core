@@ -1,7 +1,6 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
-import { type Use } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { use } from "@/middleware/implementations/_module.js";
 import { TimeoutResilienceError } from "@/resilience/implementations/resilience.errors.js";
 import { timeout } from "@/resilience/implementations/timeout/timeout.js";
 import {
@@ -12,12 +11,6 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay } from "@/utilities/functions/delay.js";
 
 describe("function: timeout", () => {
-    let use: Use;
-
-    beforeEach(() => {
-        use = useFactory();
-    });
-
     describe("basic timeout behavior", () => {
         test("Should return the result when function completes before timeout", async () => {
             const fn = use(

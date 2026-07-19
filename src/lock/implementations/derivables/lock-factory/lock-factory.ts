@@ -20,8 +20,6 @@ import {
 import { LockSerdeTransformer } from "@/lock/implementations/derivables/lock-factory/lock-serde-transformer.js";
 import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
 import { resolveLockAdapter } from "@/lock/implementations/derivables/lock-factory/resolve-lock-adapter.js";
-import { type Use } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
 import { type INamespace } from "@/namespace/contracts/_module.js";
 import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
@@ -150,7 +148,6 @@ export class LockFactory implements ILockFactory {
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
     private readonly context: IReadableContext;
-    private readonly use: Use;
 
     /**
      * @example
@@ -191,7 +188,6 @@ export class LockFactory implements ILockFactory {
             context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.use = useFactory();
         this.context = context;
         this.serde = serde;
         this.defaultRefreshTime = TimeSpan.fromTimeSpan(defaultRefreshTime);
