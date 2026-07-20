@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
-import { withLockPrefix } from "@/lock/implementations/plugins/with-lock-prefix/lock-prefix.js";
+import { withLockPrefix } from "@/lock/implementations/plugins/with-lock-prefix/with-lock-prefix.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
