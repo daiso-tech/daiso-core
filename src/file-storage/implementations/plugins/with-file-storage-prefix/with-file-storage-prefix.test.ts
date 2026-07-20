@@ -3,7 +3,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
 import { type WritableFileAdapterContent } from "@/file-storage/contracts/_module.js";
 import { NoOpFileStorageAdapter } from "@/file-storage/implementations/adapters/no-op-file-storage-adapter/_module.js";
-import { withFileStoragePrefix } from "@/file-storage/implementations/plugins/with-file-storage-prefix/file-storage-prefix.js";
+import { withFileStoragePrefix } from "@/file-storage/implementations/plugins/with-file-storage-prefix/with-file-storage-prefix.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";

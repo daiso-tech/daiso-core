@@ -1,1 +1,1 @@
-export * from "@/file-storage/implementations/plugins/with-file-storage-prefix/file-storage-prefix.js";
+export * from "@/file-storage/implementations/plugins/with-file-storage-prefix/with-file-storage-prefix.js";
