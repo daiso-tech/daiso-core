@@ -3,7 +3,7 @@
  */
 
 import { type PluginFn } from "@/middleware/contracts/_module.js";
-import { type IRateLimiterAdapter } from "@/rate-limiter/contracts/rate-limiter-adapter.contract.js";
+import { type IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
 
 /**
  * @group Plugins

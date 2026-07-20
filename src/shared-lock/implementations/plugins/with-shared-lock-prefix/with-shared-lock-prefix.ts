@@ -3,7 +3,7 @@
  */
 
 import { type PluginFn } from "@/middleware/contracts/_module.js";
-import { type ISharedLockAdapter } from "@/shared-lock/contracts/shared-lock-adapter.contract.js";
+import { type ISharedLockAdapter } from "@/shared-lock/contracts/_module.js";
 
 /**
  * @group Plugins

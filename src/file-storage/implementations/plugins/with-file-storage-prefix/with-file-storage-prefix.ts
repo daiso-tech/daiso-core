@@ -5,7 +5,7 @@
 import {
     type IFileUrlAdapter,
     type IFileStorageAdapter,
-} from "@/file-storage/contracts/file-storage-adapter.contract.js";
+} from "@/file-storage/contracts/_module.js";
 import { type PluginFn } from "@/middleware/contracts/_module.js";
 
 /**

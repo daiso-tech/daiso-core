@@ -3,7 +3,7 @@
  */
 
 import { type PluginFn } from "@/middleware/contracts/_module.js";
-import { type ISemaphoreAdapter } from "@/semaphore/contracts/semaphore-adapter.contract.js";
+import { type ISemaphoreAdapter } from "@/semaphore/contracts/_module.js";
 
 /**
  * @group Plugins

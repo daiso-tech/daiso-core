@@ -2,13 +2,15 @@
  * @module Cache
  */
 
-import { type ICacheAdapter } from "@/cache/contracts/cache-adapter.contract.js";
+import { type ICacheAdapter } from "@/cache/contracts/_module.js";
 import { type PluginFn } from "@/middleware/contracts/_module.js";
 
 /**
  * @group Plugins
  */
-export function withCachePrefix(prefix: string): PluginFn<ICacheAdapter> {
+export function withCachePrefix<TType>(
+    prefix: string,
+): PluginFn<ICacheAdapter<TType>> {
     function withPrefix(key: string): string {
         return prefix + key;
     }

@@ -2,7 +2,7 @@
  * @module Lock
  */
 
-import { type ILockAdapter } from "@/lock/contracts/lock-adapter.contract.js";
+import { type ILockAdapter } from "@/lock/contracts/_module.js";
 import { type PluginFn } from "@/middleware/contracts/_module.js";
 
 /**

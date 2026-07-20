@@ -2,7 +2,7 @@
  * @module CircuitBreaker
  */
 
-import { type ICircuitBreakerAdapter } from "@/circuit-breaker/contracts/circuit-breaker-adapter.contract.js";
+import { type ICircuitBreakerAdapter } from "@/circuit-breaker/contracts/_module.js";
 import { type PluginFn } from "@/middleware/contracts/_module.js";
 
 /**
