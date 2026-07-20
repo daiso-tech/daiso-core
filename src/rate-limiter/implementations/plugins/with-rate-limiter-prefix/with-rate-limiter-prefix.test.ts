@@ -5,7 +5,7 @@ import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enh
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
 import { NoOpRateLimiterAdapter } from "@/rate-limiter/implementations/adapters/_module.js";
-import { withRateLimiterPrefix } from "@/rate-limiter/implementations/plugins/with-rate-limiter-prefix/rate-limiter-prefix.js";
+import { withRateLimiterPrefix } from "@/rate-limiter/implementations/plugins/with-rate-limiter-prefix/with-rate-limiter-prefix.js";
 
 describe("function: withRateLimiterPrefix", () => {
     const context = new Context(new Map());
