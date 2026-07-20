@@ -1,1 +1,1 @@
-export * from "@/shared-lock/implementations/plugins/with-shared-lock-prefix/shared-lock-prefix.js";
+export * from "@/shared-lock/implementations/plugins/with-shared-lock-prefix/with-shared-lock-prefix.js";

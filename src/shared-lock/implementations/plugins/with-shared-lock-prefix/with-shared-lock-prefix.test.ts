@@ -5,7 +5,7 @@ import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enh
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
 import { NoOpSharedLockAdapter } from "@/shared-lock/implementations/adapters/_module.js";
-import { withSharedLockPrefix } from "@/shared-lock/implementations/plugins/with-shared-lock-prefix/shared-lock-prefix.js";
+import { withSharedLockPrefix } from "@/shared-lock/implementations/plugins/with-shared-lock-prefix/with-shared-lock-prefix.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withSharedLockPrefix", () => {
