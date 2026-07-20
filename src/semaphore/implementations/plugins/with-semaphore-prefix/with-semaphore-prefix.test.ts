@@ -5,7 +5,7 @@ import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enh
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
 import { NoOpSemaphoreAdapter } from "@/semaphore/implementations/adapters/_module.js";
-import { withSemaphorePrefix } from "@/semaphore/implementations/plugins/with-semaphore-prefix/semaphore-prefix.js";
+import { withSemaphorePrefix } from "@/semaphore/implementations/plugins/with-semaphore-prefix/with-semaphore-prefix.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withSemaphorePrefix", () => {
