@@ -15,8 +15,6 @@ import { CircuitBreaker } from "@/circuit-breaker/implementations/derivables/cir
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/serde.js";
@@ -38,16 +36,6 @@ import {
  * @group Derivables
  */
 export type CircuitBreakerFactorySettingsBase = {
-    /**
-     * @default
-     * ```ts
-     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
-     *
-     * new NoOpNamespace()
-     * ```
-     */
-    namespace?: INamespace;
-
     /**
      * You can set the default `ErrorPolicy`
      *
@@ -155,7 +143,6 @@ export type CircuitBreakerFactorySettings =
  * @group Derivables
  */
 export class CircuitBreakerFactory implements ICircuitBreakerFactory {
-    private readonly namespace: INamespace;
     private readonly adapter: ICircuitBreakerAdapter;
     private readonly defaultSlowCallTime: TimeSpan;
     private readonly defaultTrigger: CircuitBreakerTrigger;
@@ -200,7 +187,6 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
     constructor(settings: CircuitBreakerFactorySettings) {
         const {
             enableAsyncTracking = true,
-            namespace = new NoOpNamespace(),
             adapter,
             defaultSlowCallTime = TimeSpan.fromSeconds(10),
             defaultTrigger = CIRCUIT_BREAKER_TRIGGER.BOTH,
@@ -214,7 +200,6 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
         this.context = context;
         this.waitUntil = waitUntil;
         this.enableAsyncTracking = enableAsyncTracking;
-        this.namespace = namespace;
         this.adapter = adapter;
         this.defaultSlowCallTime = TimeSpan.fromTimeSpan(defaultSlowCallTime);
         this.defaultTrigger = defaultTrigger;
@@ -233,7 +218,6 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
             slowCallTime: this.defaultSlowCallTime,
             errorPolicy: this.defaultErrorPolicy,
             trigger: this.defaultTrigger,
-            namespace: this.namespace,
             serdeTransformerName: this.serdeTransformerName,
         });
         for (const serde of resolveOneOrMore(this.serde)) {
@@ -256,12 +240,11 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             adapter: this.adapter,
-            key: this.namespace.create(key),
+            key,
             slowCallTime: TimeSpan.fromTimeSpan(slowCallTime),
             errorPolicy,
             trigger,
             serdeTransformerName: this.serdeTransformerName,
-            namespace: this.namespace,
         });
     }
 }

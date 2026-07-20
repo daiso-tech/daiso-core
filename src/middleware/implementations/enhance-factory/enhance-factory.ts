@@ -28,6 +28,9 @@ export function enhanceFactory(use_: Use): Enhance {
         >,
     ): void => {
         const fn = obj[field] as InvokableFn<any, any>;
+        if (typeof fn === "undefined") {
+            return fn;
+        }
         if (typeof fn !== "function") {
             throw new TypeError(
                 `Cannot enhance ${String(field)} because it is not a function`,

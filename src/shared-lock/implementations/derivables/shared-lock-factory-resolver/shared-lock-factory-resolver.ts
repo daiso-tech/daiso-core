@@ -2,7 +2,6 @@
  * @module SharedLock
  */
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type ISharedLockFactoryResolver,
     type ISharedLockFactory,
@@ -80,13 +79,6 @@ export class SharedLockFactoryResolver<
     constructor(
         private readonly settings: SharedLockFactoryResolverSettings<TAdapters>,
     ) {}
-
-    setNamespace(namespace: INamespace): SharedLockFactoryResolver<TAdapters> {
-        return new SharedLockFactoryResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
 
     setCreateLockId(
         createId: Invokable<[], string>,

@@ -2,7 +2,6 @@ import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { Namespace } from "@/namespace/implementations/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { type ISharedLock } from "@/shared-lock/contracts/_module.js";
@@ -20,7 +19,6 @@ describe("class: SharedLockFactory", () => {
             const sharedLockFactory = new SharedLockFactory({
                 serde,
                 adapter: new MemorySharedLockAdapter(),
-                namespace: new Namespace("shared-lock"),
             });
             return { sharedLockFactory, serde };
         },
@@ -31,36 +29,8 @@ describe("class: SharedLockFactory", () => {
         retry: 10,
     });
     describe("Serde tests:", () => {
-        test("Should differentiate between different namespaces", async () => {
+        test("Should differentiate between different adapters", async () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
-            const key = "a";
-            const ttl = null;
-            const limit = 4;
-
-            const sharedLockFactory1 = new SharedLockFactory({
-                adapter: new MemorySharedLockAdapter(),
-                namespace: new Namespace("@lock-1"),
-                serde,
-            });
-            const lock1 = sharedLockFactory1.create(key, { ttl, limit });
-            await lock1.acquireWriter();
-
-            const sharedLockFactory2 = new SharedLockFactory({
-                adapter: new MemorySharedLockAdapter(),
-                namespace: new Namespace("@lock-2"),
-                serde,
-            });
-
-            const lock2 = sharedLockFactory2.create(key, { ttl, limit });
-            const deserializedLock2 = serde.deserialize<ISharedLock>(
-                serde.serialize(lock2),
-            );
-            const result = await deserializedLock2.acquireWriter();
-            expect(result).toBe(true);
-        });
-        test("Should differentiate between different adapters that have same namespace", async () => {
-            const serde = new Serde(new SuperJsonSerdeAdapter());
-            const lockNamespace = new Namespace("@lock");
             const key = "a";
             const ttl = null;
             const limit = 4;
@@ -68,7 +38,6 @@ describe("class: SharedLockFactory", () => {
             const adapter1 = new MemorySharedLockAdapter();
             const sharedLockFactory1 = new SharedLockFactory({
                 adapter: adapter1,
-                namespace: lockNamespace,
                 serde,
             });
             const lock1 = sharedLockFactory1.create(key, { ttl, limit });
@@ -85,7 +54,6 @@ describe("class: SharedLockFactory", () => {
             await adapter2.init();
             const sharedLockFactory2 = new SharedLockFactory({
                 adapter: adapter2,
-                namespace: lockNamespace,
                 serde,
             });
 
@@ -99,14 +67,12 @@ describe("class: SharedLockFactory", () => {
         });
         test("Should differentiate between different serdeTransformerNames", async () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
-            const lockNamespace = new Namespace("@lock");
             const key = "a";
             const ttl = null;
             const limit = 4;
 
             const sharedLockFactory1 = new SharedLockFactory({
                 adapter: new MemorySharedLockAdapter(),
-                namespace: lockNamespace,
                 serdeTransformerName: "adapter1",
                 serde,
             });
@@ -115,7 +81,6 @@ describe("class: SharedLockFactory", () => {
 
             const sharedLockFactory2 = new SharedLockFactory({
                 adapter: new MemorySharedLockAdapter(),
-                namespace: lockNamespace,
                 serdeTransformerName: "adapter2",
                 serde,
             });

@@ -375,58 +375,6 @@ await eventBus.dispatch("add", {
 });
 ```
 
-### Namespacing
-
-You can use the `Namespace` class to group related without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
-
-:::info
-For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
-:::
-
-```ts
-import { Namespace } from "@daiso-tech/core/namespace";
-import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import Redis from "ioredis";
-
-const client = new Redis("YOUR_REDIS_CONNECTION_STRING");
-const serde = new Serde(new SuperJsonSerdeAdapter());
-
-const eventBusA = new EventBus({
-    namespace: new Namespace("@eventBus-a"),
-    adapter: new RedisPubSubEventBusAdapter({
-        client,
-        serde,
-    }),
-});
-const eventBusB = new EventBus({
-    namespace: new Namespace("@eventBus-b"),
-    adapter: new RedisPubSubEventBusAdapter({
-        client,
-        serde,
-    }),
-});
-
-await eventBusA.addListener("test", (event) => {
-    console.log("TEST_A:", event);
-});
-await eventBusB.addListener("test", () => {
-    console.log("TEST_B", event);
-});
-
-// Will only log "TEST_A" { testA: true }
-await eventBusA.dispatch("test", {
-    testA: true,
-});
-
-// Will only log "TEST_B" { testB: true }
-await eventBusB.dispatch("test", {
-    testB: true,
-});
-```
-
 ## Further information
 
 For further information refer to [`@daiso-tech/core/event-bus`](https://daiso-tech.github.io/daiso-core/modules/EventBus.html) API docs.

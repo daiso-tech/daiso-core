@@ -3,7 +3,6 @@
  */
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import {
     FailedAcquireWriterLockError,
     FailedRefreshReaderSemaphoreError,
@@ -46,12 +45,11 @@ export type ISerializedSharedLock = {
  * @internal
  */
 export type SharedLockSettings = {
+    key: string;
     serdeTransformerName: string;
-    namespace: INamespace;
     adapter: ISharedLockAdapter;
     originalAdapter: SharedLockAdapterVariants;
     limit: number;
-    key: IKey;
     lockId: string;
     ttl: TimeSpan | null;
     defaultRefreshTime: TimeSpan;
@@ -68,17 +66,16 @@ export class SharedLock implements ISharedLock {
     static _serialize(deserializedValue: SharedLock): ISerializedSharedLock {
         return {
             version: "1",
-            key: deserializedValue._key.get(),
+            key: deserializedValue._key,
             limit: deserializedValue.limit,
             lockId: deserializedValue.lockId,
             ttlInMs: deserializedValue._ttl?.toMilliseconds() ?? null,
         };
     }
 
-    private readonly namespace: INamespace;
     private readonly adapter: ISharedLockAdapter;
     private readonly originalAdapter: SharedLockAdapterVariants;
-    private readonly _key: IKey;
+    private readonly _key: string;
     private readonly lockId: string;
     private _ttl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
@@ -88,32 +85,26 @@ export class SharedLock implements ISharedLock {
 
     constructor(settings: SharedLockSettings) {
         const {
-            namespace,
             adapter,
             originalAdapter,
-            key,
             lockId,
             ttl,
             serdeTransformerName,
             defaultRefreshTime,
             limit,
             context,
+            key,
         } = settings;
 
+        this._key = key;
         this.context = context;
         this.limit = limit;
-        this.namespace = namespace;
         this.originalAdapter = originalAdapter;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
-        this._key = key;
         this.lockId = lockId;
         this._ttl = ttl;
         this.defaultRefreshTime = defaultRefreshTime;
-    }
-
-    _getNamespace(): INamespace {
-        return this.namespace;
     }
 
     _getSerdeTransformerName(): string {
@@ -273,7 +264,7 @@ export class SharedLock implements ISharedLock {
         }
     }
 
-    get key(): IKey {
+    get key(): string {
         return this._key;
     }
 

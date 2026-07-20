@@ -21,5 +21,5 @@ export type IFileFactory = {
 export type IFileStorage = IFileFactory & {
     clear(): Promise<void>;
 
-    removeMany(files: Iterable<IFile>): Promise<boolean>;
+    removeMany(files: Array<IFile>): Promise<boolean>;
 };

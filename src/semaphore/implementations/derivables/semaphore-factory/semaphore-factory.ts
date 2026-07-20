@@ -7,8 +7,6 @@ import { v4 } from "uuid";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type IDatabaseSemaphoreAdapter,
@@ -42,16 +40,6 @@ import {
  * @group Derivables
  */
 export type SemaphoreFactorySettingsBase = {
-    /**
-     * @default
-     * ```ts
-     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
-     *
-     * new NoOpNamespace()
-     * ```
-     */
-    namespace?: INamespace;
-
     /**
      * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link SemaphoreFactory | `SemaphoreFactory`} to register the semaphore's serialization and deserialization logic for the provided adapter.
      * @default
@@ -141,7 +129,6 @@ export type SemaphoreFactorySettings = SemaphoreFactorySettingsBase & {
 export class SemaphoreFactory implements ISemaphoreFactory {
     private readonly adapter: ISemaphoreAdapter;
     private readonly originalAdapter: SemaphoreAdapterVariants;
-    private readonly namespace: INamespace;
     private readonly defaultTtl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
@@ -182,7 +169,6 @@ export class SemaphoreFactory implements ISemaphoreFactory {
             defaultTtl = TimeSpan.fromMinutes(5),
             defaultRefreshTime = TimeSpan.fromMinutes(5),
             serde = new Serde(new NoOpSerdeAdapter()),
-            namespace = new NoOpNamespace(),
             adapter,
             serdeTransformerName = "",
             context = new ExecutionContext(new NoOpExecutionContextAdapter()),
@@ -192,7 +178,6 @@ export class SemaphoreFactory implements ISemaphoreFactory {
         this.createSlotId = createSlotId;
         this.serde = serde;
         this.defaultRefreshTime = TimeSpan.fromTimeSpan(defaultRefreshTime);
-        this.namespace = namespace;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
         this.serdeTransformerName = serdeTransformerName;
@@ -209,7 +194,6 @@ export class SemaphoreFactory implements ISemaphoreFactory {
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
             defaultRefreshTime: this.defaultRefreshTime,
-            namespace: this.namespace,
             serdeTransformerName: this.serdeTransformerName,
         });
         for (const serde of resolveOneOrMore(this.serde)) {
@@ -231,11 +215,10 @@ export class SemaphoreFactory implements ISemaphoreFactory {
             limit,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
-            key: this.namespace.create(key),
+            key,
             ttl: ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
             serdeTransformerName: this.serdeTransformerName,
             defaultRefreshTime: this.defaultRefreshTime,
-            namespace: this.namespace,
         });
     }
 }

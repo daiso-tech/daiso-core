@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { Namespace } from "@/namespace/implementations/_module.js";
 import {
     BlockedRateLimiterError,
     RATE_LIMITER_STATE,
@@ -418,56 +417,7 @@ describe("class: RateLimiterFactory", () => {
         });
     });
     describe("Serde tests:", () => {
-        test("Should differentiate between different namespaces", async () => {
-            const serde = new Serde(new SuperJsonSerdeAdapter());
-            const key = "a";
-            const rateLimiterPolicy = new FixedWindowLimiter({
-                window: TimeSpan.fromMinutes(1),
-            });
-
-            const rateLimiterFactory1 = new RateLimiterFactory({
-                adapter: new DatabaseRateLimiterAdapter({
-                    adapter: new MemoryRateLimiterStorageAdapter(),
-                    rateLimiterPolicy,
-                }),
-                namespace: new Namespace("@circuit-breaker-1"),
-                serde,
-            });
-            const rateLimiter1 = rateLimiterFactory1.create(key, {
-                limit: 1,
-            });
-            try {
-                await rateLimiter1.runOrFail(() => {
-                    return Promise.reject(
-                        new UnexpectedErrorA("Unexpected error"),
-                    );
-                });
-            } catch (error: unknown) {
-                if (!(error instanceof UnexpectedErrorA)) {
-                    throw error;
-                }
-            }
-
-            const rateLimiterFactory2 = new RateLimiterFactory({
-                adapter: new DatabaseRateLimiterAdapter({
-                    adapter: new MemoryRateLimiterStorageAdapter(),
-                    rateLimiterPolicy,
-                }),
-                namespace: new Namespace("@circuit-breaker-2"),
-                serde,
-            });
-            const rateLimiter2 = rateLimiterFactory2.create(key, {
-                limit: 1,
-            });
-
-            const deserializedRateLimiter2 = serde.deserialize<IRateLimiter>(
-                serde.serialize(rateLimiter2),
-            );
-            const handler = vi.fn();
-            await deserializedRateLimiter2.runOrFail(handler);
-            expect(handler).toHaveBeenCalledOnce();
-        });
-        test("Should differentiate between different adapters that have same namespace", async () => {
+        test("Should differentiate between different adapters", async () => {
             class WrapperRateLimiterAdapter implements IRateLimiterAdapter {
                 constructor(private readonly adapter_: IRateLimiterAdapter) {}
 
@@ -492,7 +442,6 @@ describe("class: RateLimiterFactory", () => {
             }
 
             const serde = new Serde(new SuperJsonSerdeAdapter());
-            const rateLimiterNamespace = new Namespace("@circuit-breaker");
             const key = "a";
             const rateLimiterPolicy = new FixedWindowLimiter({
                 window: TimeSpan.fromMinutes(1),
@@ -505,7 +454,6 @@ describe("class: RateLimiterFactory", () => {
                         rateLimiterPolicy,
                     }),
                 ),
-                namespace: rateLimiterNamespace,
                 serde,
             });
             const rateLimiter1 = rateLimiterFactory1.create(key, {
@@ -528,7 +476,6 @@ describe("class: RateLimiterFactory", () => {
                     adapter: new MemoryRateLimiterStorageAdapter(),
                     rateLimiterPolicy,
                 }),
-                namespace: rateLimiterNamespace,
                 serde,
             });
             const rateLimiter2 = rateLimiterFactory2.create(key, {
@@ -544,7 +491,6 @@ describe("class: RateLimiterFactory", () => {
         });
         test("Should differentiate between different serdeTransformerNames", async () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
-            const rateLimiterNamespace = new Namespace("@circuit-breaker");
             const key = "a";
             const rateLimiterPolicy = new FixedWindowLimiter({
                 window: TimeSpan.fromMinutes(1),
@@ -555,7 +501,6 @@ describe("class: RateLimiterFactory", () => {
                     adapter: new MemoryRateLimiterStorageAdapter(),
                     rateLimiterPolicy,
                 }),
-                namespace: rateLimiterNamespace,
                 serdeTransformerName: "adapter1",
                 serde,
             });
@@ -579,7 +524,6 @@ describe("class: RateLimiterFactory", () => {
                     adapter: new MemoryRateLimiterStorageAdapter(),
                     rateLimiterPolicy,
                 }),
-                namespace: rateLimiterNamespace,
                 serdeTransformerName: "adapter2",
                 serde,
             });

@@ -184,55 +184,10 @@ The `CircuitBreaker` class exposes instance variables such as:
 const circuitBreaker = circuitBreakerFactory.create("resource");
 
 // Will return the key of the circuit-breaker which is "resource"
-console.log(circuitBreaker.key.toString());
+console.log(circuitBreaker);
 ```
-
-:::info
-The `key` field is an object that implements [`IKey`](../namespace.md) contract.
-:::
 
 ## Patterns
-
-### Namespacing
-
-You can use the `Namespace` class to group related circuit-breakers without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
-
-:::info
-For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
-:::
-
-```ts
-import { Namespace } from "@daiso-tech/core/namespace";
-import { RedisCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter";
-import { CircuitBreakerFactory } from "@daiso-tech/core/circuit-breaker";
-import Redis from "ioredis";
-
-const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
-
-const circuitBreakerFactoryA = new CircuitBreakerFactory({
-    namespace: new Namespace("@circuit-breaker-a"),
-    adapter: new RedisCircuitBreakerAdapter({ database }),
-});
-const circuitBreakerFactoryB = new CircuitBreakerFactory({
-    namespace: new Namespace("@circuit-breaker-b"),
-    adapter: new RedisCircuitBreakerAdapter({ database }),
-});
-
-const circuitBreakerA = await circuitBreakerFactoryA.create("key", {
-    ttl: null,
-});
-const circuitBreakerB = await circuitBreakerFactoryB.create("key", {
-    ttl: null,
-});
-
-await circuitBreakerA.isolate();
-
-// Will log ISOLATED
-console.log(await circuitBreakerA.getState());
-
-// Will log CLOSED
-console.log(await circuitBreakerB.getState());
-```
 
 ### Serialization and deserialization of circuit-breakers
 

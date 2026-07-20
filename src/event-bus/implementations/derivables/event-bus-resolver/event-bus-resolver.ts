@@ -14,7 +14,6 @@ import {
     type EventMapSchema,
 } from "@/event-bus/implementations/derivables/event-bus/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
@@ -94,15 +93,6 @@ export class EventBusResolver<
             TEventMap
         >,
     ) {}
-
-    setNamespace(
-        namespace: INamespace,
-    ): EventBusResolver<TAdapters, TEventMap> {
-        return new EventBusResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
 
     setEventMapType<TEventMap_ extends BaseEventMap>(): EventBusResolver<
         TAdapters,

@@ -2,7 +2,6 @@
  * @module Cache
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
 import { type InferInstance } from "@/utilities/_module.js";
 
 /**
@@ -12,11 +11,8 @@ import { type InferInstance } from "@/utilities/_module.js";
  * @group Errors
  */
 export class KeyNotFoundCacheError extends Error {
-    static create(key: IKey, cause?: unknown): KeyNotFoundCacheError {
-        return new KeyNotFoundCacheError(
-            `Key "${key.get()}" is not found`,
-            cause,
-        );
+    static create(key: string, cause?: unknown): KeyNotFoundCacheError {
+        return new KeyNotFoundCacheError(`Key "${key}" is not found`, cause);
     }
 
     /**
@@ -37,11 +33,8 @@ export class KeyNotFoundCacheError extends Error {
  * @group Errors
  */
 export class KeyExistsCacheError extends Error {
-    static create(key: IKey, cause?: unknown): KeyExistsCacheError {
-        return new KeyExistsCacheError(
-            `Key "${key.get()}" already exists`,
-            cause,
-        );
+    static create(key: string, cause?: unknown): KeyExistsCacheError {
+        return new KeyExistsCacheError(`Key "${key}" already exists`, cause);
     }
 
     /**

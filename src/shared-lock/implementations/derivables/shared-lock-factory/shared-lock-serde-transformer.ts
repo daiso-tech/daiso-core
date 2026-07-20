@@ -3,7 +3,6 @@
  */
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import {
     type ISharedLockAdapter,
@@ -22,7 +21,6 @@ import { getConstructorName, type OneOrMore } from "@/utilities/_module.js";
 export type SharedLockSerdeTransformerSettings = {
     adapter: ISharedLockAdapter;
     originalAdapter: SharedLockAdapterVariants;
-    namespace: INamespace;
     defaultRefreshTime: TimeSpan;
     serdeTransformerName: string;
     context: IReadableContext;
@@ -37,7 +35,6 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
 > {
     private readonly adapter: ISharedLockAdapter;
     private readonly originalAdapter: SharedLockAdapterVariants;
-    private readonly namespace: INamespace;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly context: IReadableContext;
@@ -46,7 +43,6 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
         const {
             adapter,
             originalAdapter,
-            namespace,
             defaultRefreshTime,
             serdeTransformerName,
             context,
@@ -56,7 +52,6 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this.originalAdapter = originalAdapter;
-        this.namespace = namespace;
         this.defaultRefreshTime = defaultRefreshTime;
     }
 
@@ -65,7 +60,6 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
             "shared-lock",
             this.serdeTransformerName,
             getConstructorName(this.originalAdapter),
-            this.namespace.toString(),
         ].filter((str) => str !== "");
     }
 
@@ -80,34 +74,25 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
         const isSerdTransformerNameMathcing =
             value._getSerdeTransformerName() === this.serdeTransformerName;
 
-        const isNamespaceMatching =
-            this.namespace.toString() === value._getNamespace().toString();
-
         const isAdapterMatching =
             getConstructorName(this.originalAdapter) ===
             getConstructorName(value._getAdapter());
 
-        return (
-            isSerdTransformerNameMathcing &&
-            isNamespaceMatching &&
-            isAdapterMatching
-        );
+        return isSerdTransformerNameMathcing && isAdapterMatching;
     }
 
     deserialize(serializedValue: ISerializedSharedLock): SharedLock {
         const { key, lockId, limit, ttlInMs } = serializedValue;
-        const keyObj = this.namespace.create(key);
         return new SharedLock({
             context: this.context,
             lockId,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
-            key: keyObj,
+            key,
             limit,
             serdeTransformerName: this.serdeTransformerName,
             ttl: ttlInMs === null ? null : TimeSpan.fromMilliseconds(ttlInMs),
             defaultRefreshTime: this.defaultRefreshTime,
-            namespace: this.namespace,
         });
     }
 

@@ -2,7 +2,6 @@
  * @module RateLimiter
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
 import { type RateLimiterState } from "@/rate-limiter/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { BlockedRateLimiterError } from "@/rate-limiter/contracts/rate-limiter.errors.js";
@@ -27,7 +26,7 @@ export type IRateLimiterStateMethods = {
      * The unique identifier for this rate limiter instance.
      * Multiple rate limiter instances with the same key share the same request quota.
      */
-    readonly key: IKey;
+    readonly key: string;
 
     /**
      * The maximum number of allowed requests within the rate limiting window.

@@ -5,8 +5,6 @@
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import {
     type IRateLimiter,
     type IRateLimiterAdapter,
@@ -34,16 +32,6 @@ import {
  * @group Derivables
  */
 export type RateLimiterFactorySettingsBase = {
-    /**
-     * @default
-     * ```ts
-     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
-     *
-     * new NoOpNamespace()
-     * ```
-     */
-    namespace?: INamespace;
-
     /**
      * You can set the default `ErrorPolicy`
      *
@@ -129,7 +117,6 @@ export type RateLimiterFactorySettings = RateLimiterFactorySettingsBase & {
  * @group Derivables
  */
 export class RateLimiterFactory implements IRateLimiterFactory {
-    private readonly namespace: INamespace;
     private readonly adapter: IRateLimiterAdapter;
     private readonly onlyError: boolean;
     private readonly defaultErrorPolicy: ErrorPolicy;
@@ -173,7 +160,6 @@ export class RateLimiterFactory implements IRateLimiterFactory {
     constructor(settings: RateLimiterFactorySettings) {
         const {
             enableAsyncTracking = true,
-            namespace = new NoOpNamespace(),
             adapter,
             onlyError = false,
             defaultErrorPolicy = () => true,
@@ -187,7 +173,6 @@ export class RateLimiterFactory implements IRateLimiterFactory {
         this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.enableAsyncTracking = enableAsyncTracking;
-        this.namespace = namespace;
         this.adapter = adapter;
         this.onlyError = onlyError;
         this.defaultErrorPolicy = defaultErrorPolicy;
@@ -200,7 +185,6 @@ export class RateLimiterFactory implements IRateLimiterFactory {
             context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
-            namespace: this.namespace,
             adapter: this.adapter,
             onlyError: this.onlyError,
             errorPolicy: this.defaultErrorPolicy,
@@ -226,11 +210,10 @@ export class RateLimiterFactory implements IRateLimiterFactory {
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             adapter: this.adapter,
-            key: this.namespace.create(key),
+            key,
             errorPolicy,
             onlyError,
             serdeTransformerName: this.serdeTransformerName,
-            namespace: this.namespace,
         });
     }
 }

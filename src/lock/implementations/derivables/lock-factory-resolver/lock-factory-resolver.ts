@@ -11,7 +11,6 @@ import {
     LockFactory,
     type LockFactorySettingsBase,
 } from "@/lock/implementations/derivables/lock-factory/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
@@ -80,13 +79,6 @@ export class LockFactoryResolver<
     constructor(
         private readonly settings: LockFactoryResolverSettings<TAdapters>,
     ) {}
-
-    setNamespace(namespace: INamespace): LockFactoryResolver<TAdapters> {
-        return new LockFactoryResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
 
     setCreateLockId(
         createId: Invokable<[], string>,

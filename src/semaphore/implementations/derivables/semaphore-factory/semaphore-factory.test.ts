@@ -2,7 +2,6 @@ import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { Namespace } from "@/namespace/implementations/_module.js";
 import { type ISemaphore } from "@/semaphore/contracts/_module.js";
 import {
     MemorySemaphoreAdapter,
@@ -20,7 +19,6 @@ describe("class: SemaphoreFactory", () => {
             const semaphoreFactory = new SemaphoreFactory({
                 serde,
                 adapter: new MemorySemaphoreAdapter(),
-                namespace: new Namespace("semaphore"),
             });
             return {
                 semaphoreFactory,
@@ -33,36 +31,8 @@ describe("class: SemaphoreFactory", () => {
         test,
     });
     describe("Serde tests:", () => {
-        test("Should differentiate between different namespaces", async () => {
+        test("Should differentiate between different adapters", async () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
-            const key = "a";
-            const ttl = null;
-            const limit = 1;
-
-            const lockProvider1 = new SemaphoreFactory({
-                adapter: new MemorySemaphoreAdapter(),
-                namespace: new Namespace("@lock-1"),
-                serde,
-            });
-            const lock1 = lockProvider1.create(key, { ttl, limit });
-            await lock1.acquire();
-
-            const lockProvider2 = new SemaphoreFactory({
-                adapter: new MemorySemaphoreAdapter(),
-                namespace: new Namespace("@lock-2"),
-                serde,
-            });
-
-            const lock2 = lockProvider2.create(key, { ttl, limit });
-            const deserializedSemaphore2 = serde.deserialize<ISemaphore>(
-                serde.serialize(lock2),
-            );
-            const result = await deserializedSemaphore2.acquire();
-            expect(result).toBe(true);
-        });
-        test("Should differentiate between different adapters that have same namespace", async () => {
-            const serde = new Serde(new SuperJsonSerdeAdapter());
-            const lockNamespace = new Namespace("@lock");
             const key = "a";
             const ttl = null;
             const limit = 1;
@@ -70,7 +40,6 @@ describe("class: SemaphoreFactory", () => {
             const adapter1 = new MemorySemaphoreAdapter();
             const lockProvider1 = new SemaphoreFactory({
                 adapter: adapter1,
-                namespace: lockNamespace,
                 serde,
             });
             const lock1 = lockProvider1.create(key, { ttl, limit });
@@ -87,7 +56,6 @@ describe("class: SemaphoreFactory", () => {
             await adapter2.init();
             const lockProvider2 = new SemaphoreFactory({
                 adapter: adapter2,
-                namespace: lockNamespace,
                 serde,
             });
 
@@ -101,14 +69,12 @@ describe("class: SemaphoreFactory", () => {
         });
         test("Should differentiate between different serdeTransformerNames", async () => {
             const serde = new Serde(new SuperJsonSerdeAdapter());
-            const lockNamespace = new Namespace("@lock");
             const key = "a";
             const ttl = null;
             const limit = 1;
 
             const lockProvider1 = new SemaphoreFactory({
                 adapter: new MemorySemaphoreAdapter(),
-                namespace: lockNamespace,
                 serdeTransformerName: "adapter1",
                 serde,
             });
@@ -117,7 +83,6 @@ describe("class: SemaphoreFactory", () => {
 
             const lockProvider2 = new SemaphoreFactory({
                 adapter: new MemorySemaphoreAdapter(),
-                namespace: lockNamespace,
                 serdeTransformerName: "adapter2",
                 serde,
             });

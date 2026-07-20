@@ -3,7 +3,6 @@
  */
 
 import { type CircuitBreakerState } from "@/circuit-breaker/contracts/_module.js";
-import { type IKey } from "@/namespace/contracts/_module.js";
 import { type AsyncLazy } from "@/utilities/_module.js";
 
 /**
@@ -25,7 +24,7 @@ export type ICircuitBreakerStateMethods = {
      * The unique identifier for this circuit breaker instance.
      * Multiple circuit breaker instances with the same key share the same failure tracking.
      */
-    readonly key: IKey;
+    readonly key: string;
 };
 
 /**

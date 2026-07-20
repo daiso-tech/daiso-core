@@ -2,7 +2,6 @@
  * @module Semaphore
  */
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
 import {
     type ISemaphoreFactoryResolver,
     type ISemaphoreFactory,
@@ -79,13 +78,6 @@ export class SemaphoreFactoryResolver<
     constructor(
         private readonly settings: SemaphoreFactoryResolverSettings<TAdapters>,
     ) {}
-
-    setNamespace(namespace: INamespace): SemaphoreFactoryResolver<TAdapters> {
-        return new SemaphoreFactoryResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
 
     setDefaultTtl(ttl: ITimeSpan | null): SemaphoreFactoryResolver<TAdapters> {
         return new SemaphoreFactoryResolver({

@@ -18,7 +18,10 @@ import { type InvokableFn, type OneOrMore } from "@/utilities/_module.js";
  * @group Contracts
  */
 export type InferMethodNames<TInstance> = {
-    [TKey in keyof TInstance]: TInstance[TKey] extends InvokableFn<any, any>
+    [TKey in keyof TInstance]: Exclude<
+        TInstance[TKey],
+        undefined
+    > extends InvokableFn<any, any>
         ? TKey
         : never;
 }[keyof TInstance];

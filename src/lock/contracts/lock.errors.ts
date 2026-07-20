@@ -2,7 +2,6 @@
  * @module Lock
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
 import { type InferInstance } from "@/utilities/_module.js";
 
 /**
@@ -12,9 +11,9 @@ import { type InferInstance } from "@/utilities/_module.js";
  * @group Errors
  */
 export class FailedAcquireLockError extends Error {
-    static create(key: IKey, cause?: unknown): FailedAcquireLockError {
+    static create(key: string, cause?: unknown): FailedAcquireLockError {
         return new FailedAcquireLockError(
-            `Key "${key.get()}" already acquired`,
+            `Key "${key}" already acquired`,
             cause,
         );
     }
@@ -38,12 +37,12 @@ export class FailedAcquireLockError extends Error {
  */
 export class FailedReleaseLockError extends Error {
     static create(
-        key: IKey,
+        key: string,
         lockId: string,
         cause?: unknown,
     ): FailedReleaseLockError {
         return new FailedReleaseLockError(
-            `Unonwed release on key "${key.get()}" by owner "${lockId}"`,
+            `Unonwed release on key "${key}" by owner "${lockId}"`,
             cause,
         );
     }
@@ -67,12 +66,12 @@ export class FailedReleaseLockError extends Error {
  */
 export class FailedRefreshLockError extends Error {
     static create(
-        key: IKey,
+        key: string,
         lockId: string,
         cause?: unknown,
     ): FailedRefreshLockError {
         return new FailedRefreshLockError(
-            `Unonwed refresh on key "${key.get()}" by owner "${lockId}"`,
+            `Unonwed refresh on key "${key}" by owner "${lockId}"`,
             cause,
         );
     }

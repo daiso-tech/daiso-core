@@ -11,7 +11,6 @@ import {
     Lock,
     type ISerializedLock,
 } from "@/lock/implementations/derivables/lock-factory/lock.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { getConstructorName, type OneOrMore } from "@/utilities/_module.js";
@@ -22,7 +21,6 @@ import { getConstructorName, type OneOrMore } from "@/utilities/_module.js";
 export type LockSerdeTransformerSettings = {
     adapter: ILockAdapter;
     originalAdapter: LockAdapterVariants;
-    namespace: INamespace;
     defaultRefreshTime: TimeSpan;
     serdeTransformerName: string;
     context: IReadableContext;
@@ -37,7 +35,6 @@ export class LockSerdeTransformer implements ISerdeTransformer<
 > {
     private readonly adapter: ILockAdapter;
     private readonly originalAdapter: LockAdapterVariants;
-    private readonly namespace: INamespace;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly context: IReadableContext;
@@ -46,7 +43,6 @@ export class LockSerdeTransformer implements ISerdeTransformer<
         const {
             adapter,
             originalAdapter,
-            namespace,
             defaultRefreshTime,
             serdeTransformerName,
             context,
@@ -56,7 +52,6 @@ export class LockSerdeTransformer implements ISerdeTransformer<
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this.originalAdapter = originalAdapter;
-        this.namespace = namespace;
         this.defaultRefreshTime = defaultRefreshTime;
     }
 
@@ -65,7 +60,6 @@ export class LockSerdeTransformer implements ISerdeTransformer<
             "lock",
             this.serdeTransformerName,
             getConstructorName(this.originalAdapter),
-            this.namespace.toString(),
         ].filter((str) => str !== "");
     }
 
@@ -79,30 +73,21 @@ export class LockSerdeTransformer implements ISerdeTransformer<
         const isSerdTransformerNameMathcing =
             this.serdeTransformerName === value._getSerdeTransformerName();
 
-        const isNamespaceMatching =
-            this.namespace.toString() === value._getNamespace().toString();
-
         const isAdapterMatching =
             getConstructorName(this.originalAdapter) ===
             getConstructorName(value._getAdapter());
 
-        return (
-            isSerdTransformerNameMathcing &&
-            isNamespaceMatching &&
-            isAdapterMatching
-        );
+        return isSerdTransformerNameMathcing && isAdapterMatching;
     }
 
     deserialize(serializedValue: ISerializedLock): Lock {
         const { key, ttlInMs, lockId } = serializedValue;
-        const keyObj = this.namespace.create(key);
 
         return new Lock({
             context: this.context,
-            namespace: this.namespace,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
-            key: keyObj,
+            key,
             lockId,
             serdeTransformerName: this.serdeTransformerName,
             ttl: ttlInMs === null ? null : TimeSpan.fromMilliseconds(ttlInMs),

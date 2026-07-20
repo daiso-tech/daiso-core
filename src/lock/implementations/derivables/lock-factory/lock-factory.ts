@@ -20,8 +20,6 @@ import {
 import { LockSerdeTransformer } from "@/lock/implementations/derivables/lock-factory/lock-serde-transformer.js";
 import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
 import { resolveLockAdapter } from "@/lock/implementations/derivables/lock-factory/resolve-lock-adapter.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
@@ -42,16 +40,6 @@ import {
  * @group Derivables
  */
 export type LockFactorySettingsBase = {
-    /**
-     * @default
-     * ```ts
-     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
-     *
-     * new NoOpNamespace()
-     * ```
-     */
-    namespace?: INamespace;
-
     /**
      * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link LockFactory | `LockFactory`} to register the lock's serialization and deserialization logic for the provided adapter.
      * @default
@@ -141,7 +129,6 @@ export type LockFactorySettings = LockFactorySettingsBase & {
 export class LockFactory implements ILockFactory {
     private readonly originalAdapter: LockAdapterVariants;
     private readonly adapter: ILockAdapter;
-    private readonly namespace: INamespace;
     private readonly creatLockId: Invokable<[], string>;
     private readonly defaultTtl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
@@ -182,7 +169,6 @@ export class LockFactory implements ILockFactory {
             defaultRefreshTime = TimeSpan.fromMinutes(5),
             createLockId = () => v4(),
             serde = new Serde(new NoOpSerdeAdapter()),
-            namespace = new NoOpNamespace(),
             adapter,
             serdeTransformerName = "",
             context = new ExecutionContext(new NoOpExecutionContextAdapter()),
@@ -192,7 +178,6 @@ export class LockFactory implements ILockFactory {
         this.serde = serde;
         this.defaultRefreshTime = TimeSpan.fromTimeSpan(defaultRefreshTime);
         this.creatLockId = createLockId;
-        this.namespace = namespace;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
         this.serdeTransformerName = serdeTransformerName;
@@ -208,7 +193,6 @@ export class LockFactory implements ILockFactory {
             originalAdapter: this.originalAdapter,
             adapter: this.adapter,
             defaultRefreshTime: this.defaultRefreshTime,
-            namespace: this.namespace,
             serdeTransformerName: this.serdeTransformerName,
         });
         for (const serde of resolveOneOrMore(this.serde)) {
@@ -240,14 +224,11 @@ export class LockFactory implements ILockFactory {
             lockId = callInvokable(this.creatLockId),
         } = settings;
 
-        const keyObj = this.namespace.create(key);
-
         return new Lock({
             context: this.context,
-            namespace: this.namespace,
             adapter: this.adapter,
             originalAdapter: this.originalAdapter,
-            key: keyObj,
+            key,
             lockId,
             ttl: ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
             serdeTransformerName: this.serdeTransformerName,

@@ -1,6 +1,11 @@
-pagination_label: Middleware usage
-tags: - Middleware - Utilities
-keywords: - Middleware - Function Interception - Middleware Pipeline
+---
+sidebar_label: Middleware
+pagination_label: Middleware
+tags:
+    - Middleware - Utilities
+keywords:
+    - Middleware - Function Interception - Middleware Pipeline
+---
 
 # Middleware
 

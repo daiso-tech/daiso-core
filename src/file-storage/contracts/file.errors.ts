@@ -2,7 +2,6 @@
  * @module FileStorage
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
 import { type InferInstance } from "@/utilities/_module.js";
 
 /**
@@ -12,11 +11,8 @@ import { type InferInstance } from "@/utilities/_module.js";
  * @group Errors
  */
 export class KeyNotFoundFileError extends Error {
-    static create(key: IKey, cause?: unknown): KeyNotFoundFileError {
-        return new KeyNotFoundFileError(
-            `Key "${key.get()}" is not found`,
-            cause,
-        );
+    static create(key: string, cause?: unknown): KeyNotFoundFileError {
+        return new KeyNotFoundFileError(`Key "${key}" is not found`, cause);
     }
 
     /**
@@ -37,11 +33,8 @@ export class KeyNotFoundFileError extends Error {
  * @group Errors
  */
 export class KeyExistsFileError extends Error {
-    static create(key: IKey, cause?: unknown): KeyExistsFileError {
-        return new KeyExistsFileError(
-            `Key "${key.get()}" already exists`,
-            cause,
-        );
+    static create(key: string, cause?: unknown): KeyExistsFileError {
+        return new KeyExistsFileError(`Key "${key}" already exists`, cause);
     }
 
     /**

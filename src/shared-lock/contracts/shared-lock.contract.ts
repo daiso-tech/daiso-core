@@ -2,7 +2,6 @@
  * @module SharedLock
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
 import { type ISharedLockState } from "@/shared-lock/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
@@ -146,7 +145,7 @@ export type ISharedLockStateMethods = {
     /**
      * The `key` of the `ISharedLock` instance.
      */
-    readonly key: IKey;
+    readonly key: string;
 
     /**
      * The `id` of the `ISharedLock` instance.

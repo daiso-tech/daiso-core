@@ -2,7 +2,6 @@
  * @module SharedLock
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
 import { type InferInstance } from "@/utilities/_module.js";
 
 /**
@@ -13,11 +12,11 @@ import { type InferInstance } from "@/utilities/_module.js";
  */
 export class LimitReachedReaderSemaphoreError extends Error {
     static create(
-        key: IKey,
+        key: string,
         cause?: unknown,
     ): LimitReachedReaderSemaphoreError {
         return new LimitReachedReaderSemaphoreError(
-            `Key "${key.get()}" has reached the limit`,
+            `Key "${key}" has reached the limit`,
             cause,
         );
     }
@@ -41,12 +40,12 @@ export class LimitReachedReaderSemaphoreError extends Error {
  */
 export class FailedRefreshReaderSemaphoreError extends Error {
     static create(
-        key: IKey,
+        key: string,
         slotId: string,
         cause?: unknown,
     ): FailedRefreshReaderSemaphoreError {
         return new FailedRefreshReaderSemaphoreError(
-            `Failed to refresh slot "${slotId}" of key "${key.get()}"`,
+            `Failed to refresh slot "${slotId}" of key "${key}"`,
             cause,
         );
     }
@@ -70,12 +69,12 @@ export class FailedRefreshReaderSemaphoreError extends Error {
  */
 export class FailedReleaseReaderSemaphoreError extends Error {
     static create(
-        key: IKey,
+        key: string,
         slotId: string,
         cause?: unknown,
     ): FailedReleaseReaderSemaphoreError {
         return new FailedReleaseReaderSemaphoreError(
-            `Failed to release slot "${slotId}" of key "${key.get()}"`,
+            `Failed to release slot "${slotId}" of key "${key}"`,
             cause,
         );
     }
@@ -131,9 +130,9 @@ export function isReaderSemaphoreError(
  * @group Errors
  */
 export class FailedAcquireWriterLockError extends Error {
-    static create(key: IKey, cause?: unknown): FailedAcquireWriterLockError {
+    static create(key: string, cause?: unknown): FailedAcquireWriterLockError {
         return new FailedAcquireWriterLockError(
-            `Key "${key.get()}" already acquired`,
+            `Key "${key}" already acquired`,
             cause,
         );
     }
@@ -157,12 +156,12 @@ export class FailedAcquireWriterLockError extends Error {
  */
 export class FailedReleaseWriterLockError extends Error {
     static create(
-        key: IKey,
+        key: string,
         lockId: string,
         cause?: unknown,
     ): FailedReleaseWriterLockError {
         return new FailedReleaseWriterLockError(
-            `Unonwed release on key "${key.get()}" by owner "${lockId}"`,
+            `Unonwed release on key "${key}" by owner "${lockId}"`,
             cause,
         );
     }
@@ -186,12 +185,12 @@ export class FailedReleaseWriterLockError extends Error {
  */
 export class FailedRefreshWriterLockError extends Error {
     static create(
-        _key: IKey,
+        key: string,
         lockId: string,
         cause?: unknown,
     ): FailedRefreshWriterLockError {
         return new FailedRefreshWriterLockError(
-            `Unonwed refresh on key "${_key.get()}" by owner "${lockId}"`,
+            `Unonwed refresh on key "${key}" by owner "${lockId}"`,
             cause,
         );
     }

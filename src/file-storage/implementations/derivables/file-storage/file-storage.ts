@@ -32,8 +32,6 @@ import {
 } from "@/lock/implementations/derivables/_module.js";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { use } from "@/middleware/implementations/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { NoOpNamespace } from "@/namespace/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
@@ -129,16 +127,6 @@ export type FileStorageSettingsBase = {
     keyValidator?: FileKeyValidator;
 
     /**
-     * @default
-     * ```ts
-     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
-     *
-     * new NoOpNamespace()
-     * ```
-     */
-    namespace?: INamespace;
-
-    /**
      * You can pass partial {@link IFileUrlAdapter | `IFileUrlAdapter`} that can overide generating public url, signed upload and download url of the file storage adapter.
      */
     urlAdapter?: Partial<IFileUrlAdapter>;
@@ -210,7 +198,6 @@ export type FileStorageSettings = FileStorageSettingsBase & {
 export class FileStorage implements IFileStorage {
     private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
-    private readonly namespace: INamespace;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
     private readonly defaultContentType: string;
@@ -242,7 +229,6 @@ export class FileStorage implements IFileStorage {
     constructor(settings: FileStorageSettings) {
         const {
             adapter,
-            namespace = new NoOpNamespace(),
             onlyLowercase = false,
             keyValidator = defaultKeyValidator,
             serde = new Serde(new NoOpSerdeAdapter()),
@@ -257,7 +243,7 @@ export class FileStorage implements IFileStorage {
             lockFactory = new NoOpLockAdapter(),
         } = settings;
 
-        this.lockFactory = resolveLockFactoryInput(namespace, lockFactory);
+        this.lockFactory = resolveLockFactoryInput(lockFactory);
         this.context = context;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
@@ -268,7 +254,6 @@ export class FileStorage implements IFileStorage {
         this.defaultCacheControl = defaultCacheControl;
         this.defaultContentLanguage = defaultContentLanguage;
         this.adapter = resolveFileStorageAdapter(adapter, urlAdapter);
-        this.namespace = namespace;
         this.serde = serde;
         this.serdeTransformerName = serdeTransformerName;
         this.registerToSerde();
@@ -287,7 +272,6 @@ export class FileStorage implements IFileStorage {
             defaultContentEncoding: this.defaultContentEncoding,
             defaultContentLanguage: this.defaultContentLanguage,
             adapter: this.adapter,
-            namespace: this.namespace,
             serdeTransformerName: this.serdeTransformerName,
         });
         for (const serde of resolveOneOrMore(this.serde)) {
@@ -308,33 +292,26 @@ export class FileStorage implements IFileStorage {
             defaultContentEncoding: this.defaultContentEncoding,
             defaultContentLanguage: this.defaultContentLanguage,
             adapter: this.adapter,
-            key: this.namespace.create(key),
+            key,
             originalKey: key,
             serdeTransformerName: this.serdeTransformerName,
-            namespace: this.namespace,
         });
     }
 
     async clear(): Promise<void> {
-        await this.adapter.removeByPrefix(
-            this.context,
-            this.namespace.toString(),
-        );
+        await this.adapter.removeByPrefix(this.context, "");
     }
 
-    async removeMany(files: Iterable<IFile>): Promise<boolean> {
-        const filesArr = [...files];
+    async removeMany(files: Array<IFile>): Promise<boolean> {
+        const keys = files.map((file) => {
+            return file.key;
+        });
         return use(async () => {
-            const keys = filesArr.map((file) => {
-                return file.key.toString();
-            });
             return await this.adapter.removeMany(this.context, keys);
         }, [
-            ...filesArr.map<MiddlewareFn<[], Promise<boolean>>>((file) => {
+            ...keys.map<MiddlewareFn<[], Promise<boolean>>>((key) => {
                 return async ({ next }) => {
-                    return await this.lockFactory
-                        .create(file.key.get())
-                        .runOrFail(next);
+                    return await this.lockFactory.create(key).runOrFail(next);
                 };
             }),
         ])();

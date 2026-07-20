@@ -419,7 +419,7 @@ const sharedLock = sharedLockFactory.create("resource", {
 });
 
 // Will return the key of the shared-lock which is "resource"
-console.log(sharedLock.key.toString());
+console.log(sharedLock.key);
 
 // Will return the id of the shared-lock
 console.log(sharedLock.id);
@@ -427,10 +427,6 @@ console.log(sharedLock.id);
 // Will return the ttl of the shared-lock
 console.log(sharedLock.ttl);
 ```
-
-:::info
-The `key` field is an object that implements [`IKey`](../namespace.md) contract.
-:::
 
 ### SharedLock id
 
@@ -455,59 +451,6 @@ Manually defining shared-lock id is primarily useful for debugging or implementi
 :::warning
 In most cases, setting a shared-lock id is unnecessary.
 :::
-
-### Namespacing
-
-You can use the `Namespace` class to group related shared-locks without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
-
-:::info
-For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
-:::
-
-```ts
-import { Namespace } from "@daiso-tech/core/namespace";
-import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
-import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
-import Redis from "ioredis";
-
-const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
-
-const sharedLockFactoryA = new SharedLockFactory({
-    namespace: new Namespace("@sharedLock-a"),
-    adapter: new RedisSharedLockAdapter(database),
-});
-const sharedLockFactoryB = new SharedLockFactory({
-    namespace: new Namespace("@sharedLock-b"),
-    adapter: new RedisSharedLockAdapter(database),
-});
-
-const sharedLockA = await sharedLockFactoryA.create("key", {
-    ttl: null,
-    limit: 1,
-});
-const sharedLockB = await sharedLockFactoryB.create("key", {
-    ttl: null,
-    limit: 1,
-});
-
-const hasAquiredA = await sharedLockA.acquireWriter();
-// Will log true
-console.log(hasAquiredA);
-
-const hasAquiredB = await sharedLockB.acquireWriter();
-// Will log true
-console.log(hasAquiredB);
-
-const hasReleasedB = await sharedLockB.releaseWriter();
-// Will log true
-console.log(hasReleasedB);
-
-// Will log { type: "WRITER_ACQUIRED", remainingTime: null }
-console.log(await sharedLockA.getState());
-
-// Will log { type: "EXPIRED" }
-console.log(await sharedLockB.getState());
-```
 
 ### Retrying acquiring shared-lock as writer by attempts
 
