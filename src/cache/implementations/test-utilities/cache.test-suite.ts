@@ -100,9 +100,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should return false when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = await cache.exists(key);
@@ -121,7 +119,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return true when key is unexpired", async () => {
                     const key = "a";
 
-                    await cache.add(key, 1, { ttl: LONG_TTL });
+                    await cache.add(key, 1, LONG_TTL);
 
                     const result = await cache.exists(key);
 
@@ -138,9 +136,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should return true when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = await cache.missing(key);
@@ -159,7 +155,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return false when key is unexpired", async () => {
                     const key = "a";
 
-                    await cache.add(key, 1, { ttl: LONG_TTL });
+                    await cache.add(key, 1, LONG_TTL);
 
                     const result = await cache.missing(key);
 
@@ -176,9 +172,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should return null when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = await cache.get(key);
@@ -199,7 +193,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 1;
-                    await cache.add(key, value, { ttl: LONG_TTL });
+                    await cache.add(key, value, LONG_TTL);
 
                     const result = await cache.get(key);
 
@@ -218,9 +212,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should throw KeyNotFoundCacheError when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = cache.getOrFail(key);
@@ -243,7 +235,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 1;
-                    await cache.add(key, value, { ttl: LONG_TTL });
+                    await cache.add(key, value, LONG_TTL);
 
                     const result = await cache.getOrFail(key);
 
@@ -261,9 +253,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should return default value when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const defaultValue = -1;
@@ -286,7 +276,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 1;
-                    await cache.add(key, value, { ttl: LONG_TTL });
+                    await cache.add(key, value, LONG_TTL);
 
                     const defaultValue = -1;
                     const result = await cache.getOr(key, defaultValue);
@@ -304,9 +294,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should return null when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = await cache.getAndRemove(key);
@@ -327,7 +315,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 1;
-                    await cache.add(key, value, { ttl: LONG_TTL });
+                    await cache.add(key, value, LONG_TTL);
 
                     const result = await cache.getAndRemove(key);
 
@@ -348,7 +336,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 1;
-                    await cache.add(key, value, { ttl: LONG_TTL });
+                    await cache.add(key, value, LONG_TTL);
 
                     await cache.getAndRemove(key);
 
@@ -376,9 +364,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should return value to add when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const valueToAdd = -1;
@@ -388,9 +374,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should persist value when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const valueToAdd = -1;
@@ -426,7 +410,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 1;
-                    await cache.add(key, value, { ttl: LONG_TTL });
+                    await cache.add(key, value, LONG_TTL);
 
                     const valueToAdd = -1;
                     const result = await cache.getOrAdd(key, valueToAdd);
@@ -437,7 +421,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 1;
-                    await cache.add(key, value, { ttl: LONG_TTL });
+                    await cache.add(key, value, LONG_TTL);
 
                     const valueToAdd = -1;
                     await cache.getOrAdd(key, valueToAdd);
@@ -467,9 +451,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return true when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -480,9 +462,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -506,7 +486,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = await cache.add(key, value2);
@@ -529,7 +509,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.add(key, value2);
@@ -559,9 +539,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should not throw error when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.addOrFail(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.addOrFail(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -572,9 +550,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.addOrFail(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.addOrFail(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -600,9 +576,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.addOrFail(key, value1, {
-                        ttl: LONG_TTL,
-                    });
+                    await cache.addOrFail(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = cache.addOrFail(key, value2);
@@ -633,9 +607,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.addOrFail(key, value1, {
-                        ttl: LONG_TTL,
-                    });
+                    await cache.addOrFail(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     try {
@@ -678,7 +650,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1);
 
                     const value2 = 2;
-                    await cache.put(key, value2, { ttl: TTL });
+                    await cache.put(key, value2, TTL);
 
                     await delayWithBuffer(TTL);
                     const result = await cache.get(key);
@@ -687,7 +659,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return true when key is unexpired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = await cache.put(key, value2);
@@ -697,7 +669,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should persist value when key is unexpired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.put(key, value2);
@@ -708,10 +680,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should persist ttl when key is unexpired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
-                    await cache.put(key, value2, { ttl: TTL });
+                    await cache.put(key, value2, TTL);
 
                     await delayWithBuffer(TTL);
                     const result = await cache.get(key);
@@ -738,7 +710,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 2;
-                    await cache.put(key, value, { ttl: TTL });
+                    await cache.put(key, value, TTL);
 
                     await delayWithBuffer(TTL);
                     const result = await cache.get(key);
@@ -766,9 +738,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return false when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -779,9 +749,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -805,7 +773,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = await cache.update(key, value2);
@@ -828,7 +796,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.update(key, value2);
@@ -866,9 +834,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should throw KeyNotFoundCacheError when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -881,9 +847,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -913,7 +877,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = cache.updateOrFail(key, value2);
@@ -936,7 +900,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.updateOrFail(key, value2);
@@ -966,9 +930,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return false when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -979,9 +941,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -1005,7 +965,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = await cache.increment(key, value2);
@@ -1028,7 +988,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.increment(key, value2);
@@ -1066,9 +1026,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should throw KeyNotFoundCacheError when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -1081,9 +1039,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -1113,7 +1069,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = cache.incrementOrFail(key, value2);
@@ -1136,7 +1092,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.incrementOrFail(key, value2);
@@ -1166,9 +1122,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return false when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -1179,9 +1133,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -1205,7 +1157,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = await cache.decrement(key, value2);
@@ -1228,7 +1180,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.decrement(key, value2);
@@ -1266,9 +1218,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should throw KeyNotFoundCacheError when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -1281,9 +1231,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -1313,7 +1261,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = cache.decrementOrFail(key, value2);
@@ -1336,7 +1284,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.decrementOrFail(key, value2);
@@ -1355,9 +1303,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should return false when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = await cache.remove(key);
@@ -1376,7 +1322,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return true when key is unexpired", async () => {
                     const key = "a";
 
-                    await cache.add(key, 1, { ttl: LONG_TTL });
+                    await cache.add(key, 1, LONG_TTL);
 
                     const result = await cache.remove(key);
 
@@ -1395,7 +1341,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should persist removal when key is unexpired", async () => {
                     const key = "a";
 
-                    await cache.add(key, 1, { ttl: LONG_TTL });
+                    await cache.add(key, 1, LONG_TTL);
 
                     await cache.remove(key);
 
@@ -1415,9 +1361,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should throw KeyNotFoundCacheError when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = cache.removeOrFail(key);
@@ -1438,7 +1382,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should not throw error when key is unexpired", async () => {
                     const key = "a";
 
-                    await cache.add(key, 1, { ttl: LONG_TTL });
+                    await cache.add(key, 1, LONG_TTL);
 
                     const result = cache.removeOrFail(key);
 
@@ -1457,7 +1401,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should persist removal when key is unexpired", async () => {
                     const key = "a";
 
-                    await cache.add(key, 1, { ttl: LONG_TTL });
+                    await cache.add(key, 1, LONG_TTL);
 
                     await cache.removeOrFail(key);
 
@@ -1470,7 +1414,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const keyA = "a";
                     const keyB = "b";
                     const keyC = "c";
-                    await cache.add(keyA, 1, { ttl: TTL });
+                    await cache.add(keyA, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = await cache.removeMany([keyA, keyB, keyC]);
@@ -1481,7 +1425,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const keyA = "a";
                     const keyB = "b";
                     const keyC = "c";
-                    await cache.add(keyA, 1, { ttl: TTL });
+                    await cache.add(keyA, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     await cache.add(keyC, 2);
@@ -1493,7 +1437,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const keyA = "a";
                     const keyB = "b";
                     const keyC = "c";
-                    await cache.add(keyA, 1, { ttl: TTL });
+                    await cache.add(keyA, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     await cache.add(keyC, 2);
