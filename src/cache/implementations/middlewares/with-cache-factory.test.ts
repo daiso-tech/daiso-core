@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { type GetOrAddSettings } from "@/cache/contracts/_module.js";
 import { NoOpCacheAdapter } from "@/cache/implementations/adapters/_module.js";
 import { Cache } from "@/cache/implementations/derivables/_module.js";
 import { withCacheFactory } from "@/cache/implementations/middlewares/with-cache-factory.js";
@@ -26,19 +25,16 @@ describe("function: withCacheFactory", () => {
 
         async function fn(_value: string): Promise<void> {}
         const key = "key";
-        const settings: GetOrAddSettings = {
-            jitter: 0.5,
-            ttl: TimeSpan.fromSeconds(20),
-        };
+        const ttl = TimeSpan.fromSeconds(20);
         await use(
             fn,
             withCache({
-                ...settings,
+                ttl,
                 key: (value) => value,
             }),
         )(key);
 
         expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(key, expect.any(Function), settings);
+        expect(spy).toHaveBeenCalledWith(key, expect.any(Function), ttl);
     });
 });
