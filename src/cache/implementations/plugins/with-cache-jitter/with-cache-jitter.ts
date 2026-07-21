@@ -34,7 +34,7 @@ export type WithCacheJitterSettings = {
  *
  * @param settings - Configuration for the jitter behaviour.
  * @param settings.defaultJitter - The jitter factor as a ratio of the original
- *                                 TTL (e.g., `0.2` means ±20 %).
+ *                                 TTL (e.g., `0.2` means ±20 %).
  *                                 @default 0.2
  * @returns A middleware plugin that wraps an `ICacheAdapter`.
  *
