@@ -11,18 +11,20 @@ keywords:
     - withSharedLockPrefix
 ---
 
-# SharedLock plugin
+# SharedLock Plugins
+
+## withSharedLockPrefix plugin
 
 The SharedLock prefix plugin intercepts calls to a shared-lock adapter and transparently prefixes all lock keys with a configurable string. This enables logical key namespacing without modifying the adapter implementation.
 
-## Use cases
+### Use cases
 
 - **Multi-tenant reader-writer locks** — Prefix lock keys with a tenant identifier to isolate shared lock state between tenants
 - **Resource scoping** — Organize shared locks by resource type or module
 - **Environment isolation** — Separate development, staging, and production shared lock state
 - **Read/write path scoping** — Apply consistent namespacing to both reader and writer lock operations
 
-## How it works
+### How it works
 
 The `withSharedLockPrefix` function returns a [`PluginFn`](/docs/components/middleware) that calls `enhance` on each adapter method that accepts a shared-lock key. When an enhanced method is invoked, the plugin intercepts the call, prepends the configured prefix to the key argument, and forwards the modified arguments to the original method.
 
@@ -40,11 +42,11 @@ The plugin prefixes keys for the following methods:
 | `forceReleaseAllReaders` | Second argument (`key`)      | `prefix + key` |
 | `refreshReader`          | Second argument (`key`)      | `prefix + key` |
 
-### Writer methods
+#### Writer methods
 
 All writer-related methods (`acquireWriter`, `forceReleaseWriter`, `refreshWriter`, `releaseWriter`) receive the key as a positional argument (second parameter). The plugin prefixes this key directly.
 
-### Reader methods
+#### Reader methods
 
 Reader methods that accept a key as a positional argument (`forceReleaseAllReaders`, `refreshReader`) have their key prefixed directly. The `acquireReader` method accepts a single settings object — the plugin destructures it, prefixes the `key` field, and reconstructs the object:
 
@@ -62,7 +64,7 @@ adapter.acquireReader({
 });
 ```
 
-## Usage
+### Usage
 
 ```ts
 import { withPlugin } from "@daiso-tech/core/middleware";
@@ -87,7 +89,7 @@ await prefixedAdapter.acquireReader({
 });
 ```
 
-### Using with SharedLockFactory
+#### Using with SharedLockFactory
 
 The plugin can be applied directly to the adapter passed to the `SharedLockFactory` constructor:
 
@@ -105,7 +107,7 @@ const factory = new SharedLockFactory({
 });
 ```
 
-## Before/after behavior
+### Before/after behavior
 
 **Before** — Shared lock keys are used as-is:
 

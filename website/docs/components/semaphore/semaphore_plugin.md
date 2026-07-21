@@ -11,18 +11,20 @@ keywords:
     - withSemaphorePrefix
 ---
 
-# Semaphore plugin
+# Semaphore Plugins
+
+## withSemaphorePrefix plugin
 
 The Semaphore prefix plugin intercepts calls to a semaphore adapter and transparently prefixes all semaphore keys with a configurable string. This enables logical key namespacing without modifying the adapter implementation.
 
-## Use cases
+### Use cases
 
 - **Multi-tenant semaphores** — Prefix semaphore keys with a tenant identifier to isolate concurrency limits between tenants
 - **Resource scoping** — Organize semaphores by resource type to avoid key collisions
 - **Environment isolation** — Separate development, staging, and production semaphore state
 - **Pool differentiation** — Prefix keys with a pool name to manage independent semaphore pools
 
-## How it works
+### How it works
 
 The `withSemaphorePrefix` function returns a [`PluginFn`](/docs/components/middleware) that calls `enhance` on each adapter method that accepts a semaphore key. When an enhanced method is invoked, the plugin intercepts the call, prepends the configured prefix to the key argument, and forwards the modified arguments to the original method.
 
@@ -36,7 +38,7 @@ The plugin prefixes keys for the following methods:
 | `refresh`         | Second argument (`key`)      | `prefix + key` |
 | `release`         | Second argument (`key`)      | `prefix + key` |
 
-### Special handling for `acquire`
+#### Special handling for `acquire`
 
 The `acquire` method accepts a single settings object rather than positional arguments. The plugin destructures the settings object, prefixes the `key` field, and reconstructs the object with all other fields preserved:
 
@@ -48,7 +50,7 @@ adapter.acquire({ context, key: "my-key", slotId: "s1", limit: 5, ttl });
 adapter.acquire({ context, key: "prefix:my-key", slotId: "s1", limit: 5, ttl });
 ```
 
-## Usage
+### Usage
 
 ```ts
 import { withPlugin } from "@daiso-tech/core/middleware";
@@ -70,7 +72,7 @@ const acquired = await prefixedAdapter.acquire({
 });
 ```
 
-### Using with SemaphoreFactory
+#### Using with SemaphoreFactory
 
 The plugin can be applied directly to the adapter passed to the `SemaphoreFactory` constructor:
 
@@ -88,7 +90,7 @@ const factory = new SemaphoreFactory({
 });
 ```
 
-## Before/after behavior
+### Before/after behavior
 
 **Before** — Semaphore keys are used as-is:
 
