@@ -9,6 +9,17 @@ import {
 import { type PluginFn } from "@/middleware/contracts/_module.js";
 
 /**
+ * Creates a plugin that prefixes all file keys passed to a file-storage adapter.
+ *
+ * Every method that accepts a file key (identifier/path) will have the given
+ * `prefix` prepended before the call is forwarded to the underlying adapter.
+ * This includes public URL generation, signed URL generation, existence checks,
+ * streaming, metadata, and all CRUD operations.
+ *
+ * @param prefix - The string to prepend to every file key.
+ * @returns A middleware plugin that wraps a file-storage adapter.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/file-storage/plugins"`
  * @group Plugins
  */
 export function withFileStoragePrefix(
