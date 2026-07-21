@@ -7,18 +7,21 @@ Refactored the built-in namespacing system into opt-in `with*Prefix` plugins acr
 ### What changed
 
 **Removed `@daiso-tech/core/namespace` module** — The following are no longer available:
+
 - `INamespace` contract — factory interface for creating namespaced keys
 - `IKey` interface — hierarchically-organized key with namespace awareness
 - `Namespace` class — configurable namespace with delimiter and root identifier support
 - `NoOpNamespace` class — namespace that passes keys through unchanged
 
 **Removed `namespace` setting** from component constructors:
+
 - `Cache` — `CacheSettingsBase.namespace`
 - `EventBus` — `EventBusSettingsBase.namespace`
 - `LockFactory` — `LockFactorySettingsBase.namespace`
 - `CircuitBreakerFactory`, `FileStorage`, `RateLimiterFactory`, `SemaphoreFactory`, `SharedLockFactory` — same pattern
 
 **Simplified key types** across all components:
+
 - Method parameters changed from `IKey` to `string`
 - `removeMany(keys: Iterable<string>)` → `removeMany(keys: Array<string>)`
 - Error classes (`KeyNotFoundCacheError`, `KeyExistsCacheError`, etc.) now accept `string` instead of `IKey`
@@ -28,15 +31,15 @@ Refactored the built-in namespacing system into opt-in `with*Prefix` plugins acr
 
 Key prefixing is now opt-in via middleware plugins. Available plugins:
 
-| Component | Plugin |
-|---|---|
-| cache | `withCachePrefix` |
+| Component       | Plugin                     |
+| --------------- | -------------------------- |
+| cache           | `withCachePrefix`          |
 | circuit-breaker | `withCircuitBreakerPrefix` |
-| file-storage | `withFileStoragePrefix` |
-| lock | `withLockPrefix` |
-| rate-limiter | `withRateLimiterPrefix` |
-| semaphore | `withSemaphorePrefix` |
-| shared-lock | `withSharedLockPrefix` |
+| file-storage    | `withFileStoragePrefix`    |
+| lock            | `withLockPrefix`           |
+| rate-limiter    | `withRateLimiterPrefix`    |
+| semaphore       | `withSemaphorePrefix`      |
+| shared-lock     | `withSharedLockPrefix`     |
 
 ### Usage
 
@@ -81,4 +84,3 @@ await prefixedAdapter.add(context, "my-key", "value");
 - **Environment isolation** — Separate dev, staging, and production data
 - **Versioning** — Prefix keys with a schema version
 - **Module scoping** — Organize keys by feature to avoid collisions
-
