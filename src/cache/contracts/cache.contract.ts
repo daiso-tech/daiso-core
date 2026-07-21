@@ -93,7 +93,7 @@ export type ICache<TType = unknown> = IReadableCache<TType> & {
     getOrAdd(
         key: string,
         valueToAdd: AsyncLazyable<NoneFunc<TType>>,
-        ttl?: ITimeSpan | null
+        ttl?: ITimeSpan | null,
     ): Promise<TType>;
 
     /**
