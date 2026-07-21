@@ -1,11 +1,22 @@
 /**
- * @module RateLimiter
+ * @module SharedLock
  */
 
 import { type PluginFn } from "@/middleware/contracts/_module.js";
 import { type ISharedLockAdapter } from "@/shared-lock/contracts/_module.js";
 
 /**
+ * Creates a plugin that prefixes all keys passed to a shared-lock adapter.
+ *
+ * Every method that accepts a lock key will have the given `prefix` prepended
+ * before the call is forwarded to the underlying adapter. This applies to both
+ * writer and reader operations, including acquire, release, refresh, and
+ * force-release methods.
+ *
+ * @param prefix - The string to prepend to every shared-lock key.
+ * @returns A middleware plugin that wraps an `ISharedLockAdapter`.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/shared-lock/plugins"`
  * @group Plugins
  */
 export function withSharedLockPrefix(
