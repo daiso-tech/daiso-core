@@ -6,6 +6,18 @@ import { type ICacheAdapter } from "@/cache/contracts/_module.js";
 import { type PluginFn } from "@/middleware/contracts/_module.js";
 
 /**
+ * Creates a plugin that prefixes all keys passed to a cache adapter.
+ *
+ * Every method that accepts a cache key will have the given `prefix` prepended
+ * before the call is forwarded to the underlying adapter. This is useful for
+ * namespacing cache entries when multiple independent consumers share the same
+ * cache backend.
+ *
+ * @param prefix - The string to prepend to every cache key.
+ * @returns A middleware plugin that wraps an `ICacheAdapter`.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
+ * @typeParam TType - The type of values stored in the cache.
  * @group Plugins
  */
 export function withCachePrefix<TType>(

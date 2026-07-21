@@ -7,6 +7,11 @@ import { type ILockFactory } from "@/lock/contracts/_module.js";
 import { type PluginFn } from "@/middleware/contracts/_module.js";
 
 /**
+ * Cache adapter methods that can be protected by a write lock.
+ *
+ * Only the mutable methods that modify cache state are eligible for write-lock
+ * protection.
+ *
  * @group Plugins
  */
 export type WithCacheWriteLockMethods = keyof Pick<
@@ -15,6 +20,8 @@ export type WithCacheWriteLockMethods = keyof Pick<
 >;
 
 /**
+ * Settings for the {@link withCacheWriteLock} plugin.
+ *
  * @group Plugins
  */
 export type WithCacheWriteLockSettings = {
@@ -30,6 +37,23 @@ export type WithCacheWriteLockSettings = {
 };
 
 /**
+ * Creates a plugin that acquires a distributed lock before executing mutating
+ * cache operations.
+ *
+ * This plugin wraps write operations (`add`, `put`, `update`, `increment`,
+ * `getAndRemove`, `removeMany`) with a lock acquired via {@link ILockFactory}.
+ * The lock key is derived from the cache key, ensuring that concurrent writes
+ * to the same cache entry are serialised. By default all mutating methods are
+ * protected; use `onlyMethods` to restrict which operations are locked.
+ *
+ * @param settings - Configuration for the write-lock behaviour.
+ * @param settings.lockFactory - A factory that creates named locks.
+ * @param settings.onlyMethods - The subset of methods to protect with a write
+ *                               lock. Defaults to all mutating methods.
+ * @returns A middleware plugin that wraps an `ICacheAdapter`.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
+ * @typeParam TType - The type of values stored in the cache.
  * @group Plugins
  */
 export function withCacheWriteLock<TType>(

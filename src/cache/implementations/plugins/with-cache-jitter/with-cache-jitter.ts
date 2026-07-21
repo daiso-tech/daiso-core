@@ -8,6 +8,8 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { withJitter } from "@/utilities/_module.js";
 
 /**
+ * Settings for the {@link withCacheJitter} plugin.
+ *
  * @group Plugins
  */
 export type WithCacheJitterSettings = {
@@ -23,6 +25,21 @@ export type WithCacheJitterSettings = {
 };
 
 /**
+ * Creates a plugin that adds random jitter to TTL values on cache `add` and
+ * `put` operations.
+ *
+ * Applying jitter to TTLs helps prevent cache stampedes / thundering-herd
+ * problems by staggering the expiration times of cache entries that were
+ * originally created with the same TTL.
+ *
+ * @param settings - Configuration for the jitter behaviour.
+ * @param settings.defaultJitter - The jitter factor as a ratio of the original
+ *                                 TTL (e.g., `0.2` means ±20 %).
+ *                                 @default 0.2
+ * @returns A middleware plugin that wraps an `ICacheAdapter`.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
+ * @typeParam TType - The type of values stored in the cache.
  * @group Plugins
  */
 export function withCacheJitter<TType>(
