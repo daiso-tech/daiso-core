@@ -98,6 +98,10 @@ adapter.get(context, "user:123")  →  looks up key "user:123"
 adapter.get(context, "user:123")  →  looks up key "tenant:user:123"
 ```
 
+:::danger
+Because `withPlugin` uses `enhance` under the hood, the same edge case applies: if one enhanced method internally calls another enhanced method via `this`, the middleware will apply **twice**. Be mindful of inter-method calls when applying plugins that enhance multiple methods on the same instance.
+:::
+
 :::info
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
 :::
@@ -187,6 +191,10 @@ await cache.add("my-key", data, TimeSpan.fromMinutes(1));
 | Option          | Type     | Default | Description                                                                |
 | --------------- | -------- | ------- | -------------------------------------------------------------------------- |
 | `defaultJitter` | `number` | `0.2`   | The jitter factor as a ratio of the original TTL (e.g., `0.2` means ±20 %) |
+
+:::danger
+Because `withPlugin` uses `enhance` under the hood, the same edge case applies: if one enhanced method internally calls another enhanced method via `this`, the middleware will apply **twice**. Be mindful of inter-method calls when applying plugins that enhance multiple methods on the same instance.
+:::
 
 :::info
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
@@ -303,6 +311,10 @@ await cache.add("user:1", {
 | `schema`               | `StandardSchemaV1<T>` | _(required)_ | A standard-schema compliant schema to validate values against   |
 | `shouldValidateOutput` | `boolean`             | `true`       | Whether to validate values returned by `get` and `getAndRemove` |
 
+:::danger
+Because `withPlugin` uses `enhance` under the hood, the same edge case applies: if one enhanced method internally calls another enhanced method via `this`, the middleware will apply **twice**. Be mindful of inter-method calls when applying plugins that enhance multiple methods on the same instance.
+:::
+
 :::info
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
 :::
@@ -397,6 +409,10 @@ await cache.add("my-key", data);
 | ------------- | ---------------------------------- | --------------------------------------------------------------------- | -------------------------------------------------- |
 | `lockFactory` | `ILockFactory`                     | _(required)_                                                          | A factory that creates named locks                 |
 | `onlyMethods` | `Array<WithCacheWriteLockMethods>` | `["getAndRemove", "add", "put", "update", "increment", "removeMany"]` | The subset of methods to protect with a write lock |
+
+:::danger
+Because `withPlugin` uses `enhance` under the hood, the same edge case applies: if one enhanced method internally calls another enhanced method via `this`, the middleware will apply **twice**. Be mindful of inter-method calls when applying plugins that enhance multiple methods on the same instance.
+:::
 
 :::info
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
