@@ -8,7 +8,7 @@ import { NoOpSemaphoreAdapter } from "@/semaphore/implementations/adapters/_modu
 import { withSemaphorePrefix } from "@/semaphore/implementations/plugins/with-semaphore-prefix/with-semaphore-prefix.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
-describe("function: withSemaphorePrefix", () => {
+describe("plugin: withSemaphorePrefix", () => {
     const context = new Context(new Map());
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
@@ -17,85 +17,99 @@ describe("function: withSemaphorePrefix", () => {
         vi.clearAllMocks();
     });
 
-    test("Should prefix keys for acquire", async () => {
-        const adapter = new NoOpSemaphoreAdapter();
-        const spy = vi.spyOn(adapter, "acquire");
+    describe("method: acquire", () => {
+        test("Should prefix the key", async () => {
+            const adapter = new NoOpSemaphoreAdapter();
+            const spy = vi.spyOn(adapter, "acquire");
 
-        const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
+            const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
 
-        await enhanced.acquire({
-            context,
-            key: "myKey",
-            slotId: "slot1",
-            limit: 5,
-            ttl: TimeSpan.fromSeconds(30),
+            await enhanced.acquire({
+                context,
+                key: "myKey",
+                slotId: "slot1",
+                limit: 5,
+                ttl: TimeSpan.fromSeconds(30),
+            });
+
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith({
+                context,
+                key: `${prefix}myKey`,
+                slotId: "slot1",
+                limit: 5,
+                ttl: TimeSpan.fromSeconds(30),
+            });
         });
+    });
 
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith({
-            context,
-            key: `${prefix}myKey`,
-            slotId: "slot1",
-            limit: 5,
-            ttl: TimeSpan.fromSeconds(30),
+    describe("method: forceReleaseAll", () => {
+        test("Should prefix the key", async () => {
+            const adapter = new NoOpSemaphoreAdapter();
+            const spy = vi.spyOn(adapter, "forceReleaseAll");
+
+            const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
+
+            await enhanced.forceReleaseAll(context, "myKey");
+
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
         });
     });
 
-    test("Should prefix keys for forceReleaseAll", async () => {
-        const adapter = new NoOpSemaphoreAdapter();
-        const spy = vi.spyOn(adapter, "forceReleaseAll");
+    describe("method: getState", () => {
+        test("Should prefix the key", async () => {
+            const adapter = new NoOpSemaphoreAdapter();
+            const spy = vi.spyOn(adapter, "getState");
 
-        const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
+            const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
 
-        await enhanced.forceReleaseAll(context, "myKey");
+            await enhanced.getState(context, "myKey");
 
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+        });
     });
 
-    test("Should prefix keys for getState", async () => {
-        const adapter = new NoOpSemaphoreAdapter();
-        const spy = vi.spyOn(adapter, "getState");
+    describe("method: refresh", () => {
+        test("Should prefix the key", async () => {
+            const adapter = new NoOpSemaphoreAdapter();
+            const spy = vi.spyOn(adapter, "refresh");
 
-        const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
+            const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
 
-        await enhanced.getState(context, "myKey");
+            await enhanced.refresh(
+                context,
+                "myKey",
+                "slot1",
+                TimeSpan.fromSeconds(30),
+            );
 
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith(
+                context,
+                `${prefix}myKey`,
+                "slot1",
+                TimeSpan.fromSeconds(30),
+            );
+        });
     });
 
-    test("Should prefix keys for refresh", async () => {
-        const adapter = new NoOpSemaphoreAdapter();
-        const spy = vi.spyOn(adapter, "refresh");
+    describe("method: release", () => {
+        test("Should prefix the key", async () => {
+            const adapter = new NoOpSemaphoreAdapter();
+            const spy = vi.spyOn(adapter, "release");
 
-        const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
+            const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
 
-        await enhanced.refresh(
-            context,
-            "myKey",
-            "slot1",
-            TimeSpan.fromSeconds(30),
-        );
+            await enhanced.release(context, "myKey", "slot1");
 
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(
-            context,
-            `${prefix}myKey`,
-            "slot1",
-            TimeSpan.fromSeconds(30),
-        );
-    });
-
-    test("Should prefix keys for release", async () => {
-        const adapter = new NoOpSemaphoreAdapter();
-        const spy = vi.spyOn(adapter, "release");
-
-        const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
-
-        await enhanced.release(context, "myKey", "slot1");
-
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`, "slot1");
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith(
+                context,
+                `${prefix}myKey`,
+                "slot1",
+            );
+        });
     });
 });

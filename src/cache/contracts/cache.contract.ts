@@ -13,35 +13,6 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * Configuration settings for cache write operations.
- *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
- * @group Contracts
- */
-export type CacheWriteSettings = {
-    /**
-     * Time-to-live (TTL) duration for cached entries.
-     * When set, entries will automatically expire after this duration.
-     * Pass `null` to cache entries without automatic expiration.
-     */
-    ttl?: ITimeSpan | null;
-
-    /**
-     * Random jitter factor (0-1) to add variance to expiration times.
-     * Prevents thundering herd problems when many entries expire simultaneously.
-     * A value of 0.1 adds ±10% randomness to the TTL.
-     */
-    jitter?: number;
-
-    /**
-     * Used internally for testing to control random number generation.
-     *
-     * @internal
-     */
-    _mathRandom?: () => number;
-};
-
-/**
  * The `IReadableCache` contract defines a read-only interface for accessing cached key-value pairs.
  * It provides methods to retrieve values independent of the underlying cache storage backend (Redis, Memcached, database, etc.).
  * Use this contract when you need read-only access to cache data without mutation capabilities.
@@ -100,24 +71,6 @@ export type IReadableCache<TType = unknown> = {
 };
 
 /**
- * Configuration settings for cache get-or-add operations.
- * Extends {@link CacheWriteSettings | `CacheWriteSettings`} to support atomic read-compute-write patterns.
- *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
- * @group Contracts
- */
-export type GetOrAddSettings = CacheWriteSettings & {
-    /**
-     * Enable distributed locking for the get-or-add operation.
-     * When enabled, uses a lock to ensure only one client computes and caches the value,
-     * preventing cache stampedes when multiple clients request the same missing key.
-     *
-     * @default false
-     */
-    enableLocking?: boolean;
-};
-
-/**
  * The `ICache` contract defines a way for storing and reading as key-value pairs independent of data storage.
  *
  * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
@@ -140,7 +93,7 @@ export type ICache<TType = unknown> = IReadableCache<TType> & {
     getOrAdd(
         key: string,
         valueToAdd: AsyncLazyable<NoneFunc<TType>>,
-        settings?: GetOrAddSettings,
+        ttl?: ITimeSpan | null,
     ): Promise<TType>;
 
     /**
@@ -151,11 +104,7 @@ export type ICache<TType = unknown> = IReadableCache<TType> & {
      * @returns Returns true when key doesn't exists otherwise false will be returned.
      * @throws {ValidationError}
      */
-    add(
-        key: string,
-        value: TType,
-        settings?: CacheWriteSettings,
-    ): Promise<boolean>;
+    add(key: string, value: TType, ttl?: ITimeSpan): Promise<boolean>;
 
     /**
      * The `addOrFail` method adds a `key` with given `value` when key doesn't exists.
@@ -164,11 +113,7 @@ export type ICache<TType = unknown> = IReadableCache<TType> & {
      * @throws {KeyExistsCacheError}
      * @throws {ValidationError}
      */
-    addOrFail(
-        key: string,
-        value: TType,
-        settings?: CacheWriteSettings,
-    ): Promise<void>;
+    addOrFail(key: string, value: TType, ttl?: ITimeSpan): Promise<void>;
 
     /**
      * The `put` methods upsert the given key and replaces the ttl when updated.
@@ -178,11 +123,7 @@ export type ICache<TType = unknown> = IReadableCache<TType> & {
      * @returns Returns true if the `key` where replaced otherwise false is returned.
      * @throws {ValidationError}
      */
-    put(
-        key: string,
-        value: TType,
-        settings?: CacheWriteSettings,
-    ): Promise<boolean>;
+    put(key: string, value: TType, ttl?: ITimeSpan): Promise<boolean>;
 
     /**
      * The `update` method updates the given `key` with given `value`.

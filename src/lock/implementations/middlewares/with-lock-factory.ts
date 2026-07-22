@@ -19,14 +19,14 @@ export type WithLockSettings<
     TParameters extends Array<unknown> = Array<unknown>,
 > = {
     /**
-     * A function or static value that produces the lock key from the wrapped
+     *  A function that produces the lock key from the wrapped
      * function's arguments. The lock is acquired on this key, ensuring mutual
      * exclusion across processes for the same key.
      */
     key: Invokable<TParameters, string>;
 
     /**
-     * A function or static value that produces a unique identifier for the
+     *  A function that produces a unique identifier for the
      * current lock acquisition attempt. The lock ID distinguishes competing
      * consumers trying to acquire the same lock.
      *

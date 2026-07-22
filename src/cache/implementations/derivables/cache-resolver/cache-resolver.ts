@@ -2,8 +2,6 @@
  * @module Cache
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
 import {
     type CacheAdapterVariants,
     type ICache,
@@ -14,7 +12,6 @@ import {
     type CacheSettingsBase,
 } from "@/cache/implementations/derivables/cache/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type LockFactoryInput } from "@/lock/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
@@ -36,20 +33,18 @@ export type CacheAdapters<TAdapters extends string = string> = Partial<
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */
-export type CacheResolverSettings<
-    TAdapters extends string = string,
-    TType = unknown,
-> = CacheSettingsBase<TType> & {
-    /**
-     * Named registry of cache adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
-     */
-    adapters: CacheAdapters<TAdapters>;
+export type CacheResolverSettings<TAdapters extends string = string> =
+    CacheSettingsBase & {
+        /**
+         * Named registry of cache adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
+         */
+        adapters: CacheAdapters<TAdapters>;
 
-    /**
-     * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
-     */
-    defaultAdapter?: NoInfer<TAdapters>;
-};
+        /**
+         * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
+         */
+        defaultAdapter?: NoInfer<TAdapters>;
+    };
 
 /**
  * The `CacheResolver` class is immutable.
@@ -84,9 +79,7 @@ export class CacheResolver<
      *   defaultAdapter: "memory",
      * });
      */
-    constructor(
-        private readonly settings: CacheResolverSettings<TAdapters, TType>,
-    ) {}
+    constructor(private readonly settings: CacheResolverSettings<TAdapters>) {}
 
     setDefaultTtl(ttl: ITimeSpan | null): CacheResolver<TAdapters, TType> {
         return new CacheResolver({
@@ -95,26 +88,8 @@ export class CacheResolver<
         });
     }
 
-    setSchema<TSchemaOutputType>(
-        schema: StandardSchemaV1<TSchemaOutputType>,
-    ): CacheResolver<TAdapters, TSchemaOutputType> {
-        return new CacheResolver({
-            ...this.settings,
-            schema,
-        });
-    }
-
     setType<TOutputType>(): CacheResolver<TAdapters, TOutputType> {
-        return new CacheResolver(
-            this.settings as CacheResolverSettings<TAdapters, TOutputType>,
-        );
-    }
-
-    setJitter(jitter: number): CacheResolver<TAdapters, TType> {
-        return new CacheResolver({
-            ...this.settings,
-            defaultJitter: jitter,
-        });
+        return new CacheResolver(this.settings);
     }
 
     setExecutionContext(
@@ -123,15 +98,6 @@ export class CacheResolver<
         return new CacheResolver({
             ...this.settings,
             context,
-        });
-    }
-
-    setLockFactory(
-        lockFactory: LockFactoryInput,
-    ): CacheResolver<TAdapters, TType> {
-        return new CacheResolver({
-            ...this.settings,
-            lockFactory,
         });
     }
 

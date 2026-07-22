@@ -11,18 +11,20 @@ keywords:
     - withLockPrefix
 ---
 
-# Lock plugin
+# Lock Plugins
+
+## withLockPrefix plugin
 
 The Lock prefix plugin intercepts calls to a lock adapter and transparently prefixes all lock keys with a configurable string. This enables logical key namespacing without modifying the adapter implementation.
 
-## Use cases
+### Use cases
 
 - **Multi-tenant locking** — Prefix lock keys with a tenant identifier to prevent cross-tenant lock contention
 - **Resource scoping** — Organize locks by resource type or module to avoid key collisions
 - **Environment isolation** — Separate development, staging, and production lock state
 - **Region isolation** — Prefix lock keys with a region identifier in multi-region deployments
 
-## How it works
+### How it works
 
 The `withLockPrefix` function returns a [`PluginFn`](/docs/components/middleware) that calls `enhance` on each adapter method that accepts a lock key. When an enhanced method is invoked, the plugin intercepts the call, prepends the configured prefix to the key argument, and forwards the modified arguments to the original method.
 
@@ -38,7 +40,7 @@ The plugin prefixes keys for the following methods:
 
 Every method on the `ILockAdapter` that operates on a specific lock key is prefixed.
 
-## Usage
+### Usage
 
 ```ts
 import { withPlugin } from "@daiso-tech/core/middleware";
@@ -59,7 +61,7 @@ const acquired = await prefixedAdapter.acquire(
 );
 ```
 
-### Using with LockFactory
+#### Using with LockFactory
 
 The plugin can be applied directly to the adapter passed to the `LockFactory` constructor:
 
@@ -79,7 +81,7 @@ const lockFactory = new LockFactory({
 // All locks acquired through lockFactory will use "worker:..." keys
 ```
 
-## Before/after behavior
+### Before/after behavior
 
 **Before** — Lock keys are used as-is:
 
@@ -94,6 +96,10 @@ adapter.acquire(context, "resource:42", "lock-id", ttl)
 adapter.acquire(context, "resource:42", "lock-id", ttl)
 → acquires lock on "prod:resource:42"
 ```
+
+:::danger
+Because `withPlugin` uses `enhance` under the hood, the same edge case applies: if one enhanced method internally calls another enhanced method via `this`, the middleware will apply **twice**. Be mindful of inter-method calls when applying plugins that enhance multiple methods on the same instance.
+:::
 
 :::info
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.

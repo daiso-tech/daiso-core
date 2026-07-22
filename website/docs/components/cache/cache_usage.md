@@ -46,7 +46,7 @@ Here is a complete list of settings for the [`Cache`](https://daiso-tech.github.
 You can add a key with a optional TTL to overide the default:
 
 ```ts
-await cache.add("a", "value", { ttl: TimeSpan.fromSeconds("1") });
+await cache.add("a", "value", TimeSpan.fromSeconds(1));
 ```
 
 The method returns true if the key does not exists.
@@ -97,7 +97,7 @@ You can perform an upsert that replaces the ttl when updated. True will be retur
 
 ```ts
 await cache.put("a", 2);
-await cache.put("a", 4, { ttl: TimeSpan.fromSeconds(3) });
+await cache.put("a", 4, TimeSpan.fromSeconds(3));
 ```
 
 ### Removing keys
@@ -206,11 +206,13 @@ const productCache = new Cache<IProduct>({
 
 ### Runtime type safety
 
-You can enforce runtime and compiletime type safety by passing [standard schema](https://standardschema.dev/) to the cache:
+You can enforce runtime and compiletime type safety by applying the [`withCacheSchema`](cache_plugin.md#withcacheschema-plugin) plugin to the adapter:
 
 ```ts
+import { withPlugin } from "@daiso-tech/core/middleware";
 import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
 import { Cache } from "@daiso-tech/core/cache";
+import { withCacheSchema } from "@daiso-tech/core/cache/plugins";
 import { z } from "zod";
 
 const userSchema = z.object({
@@ -219,10 +221,14 @@ const userSchema = z.object({
     age: z.number(),
 });
 
-// The type will be infered
+const adapter = withPlugin(
+    new MemoryCacheAdapter(),
+    withCacheSchema({ schema: userSchema }),
+);
+
+// The type will be infered from the schema
 const cache = new Cache({
-    adapter: new MemoryCacheAdapter(),
-    schema: userSchema,
+    adapter,
 });
 
 // A typescript and runtime error will occur because the type is not matching.
@@ -253,7 +259,7 @@ await cache.getOrAdd("ab", 1);
 You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as default values for both `getOr` and `getOrAdd` methods.
 :::
 
-You can retrieve the key and afterwards remove it and will return true if the value was found:
+You can retrieve the key and afterwards remove it:
 
 ```ts
 await cache.getAndRemove("ab");
@@ -293,57 +299,57 @@ await cache.removeOrFail("ab");
 
 TTL jitter adds a small random offset to expiration times, which resolves the [cache stampede](https://en.wikipedia.org/wiki/Cache_stampede). When many cache keys expire at the same time, every client simultaneously misses the cache and floods the data source with requests. By spreading out expiration times, jitter ensures cache misses are staggered, distributing the load on your data source evenly over time.
 
+Apply the [`withCacheJitter`](cache_plugin.md#withcachejitter-plugin) plugin to the adapter:
+
 ```ts
-await cache.add("a", 1, {
-    ttl: TimeSpan.fromMinutes(1),
-    jitter: 0.2,
+import { withPlugin } from "@daiso-tech/core/middleware";
+import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
+import { Cache } from "@daiso-tech/core/cache";
+import { withCacheJitter } from "@daiso-tech/core/cache/plugins";
+
+const adapter = withPlugin(new MemoryCacheAdapter(), withCacheJitter());
+
+const cache = new Cache({
+    adapter,
 });
+
+await cache.add("a", 1, TimeSpan.fromMinutes(1));
 ```
 
 :::info
-You can enable jitter in the following methods: `addOrFail`, `put` and `getOrAdd`.
+For more information about jitter configuration, see the [`withCacheJitter`](cache_plugin.md#withcachejitter-plugin) plugin documentation.
 :::
 
 ### Cache locking
 
-The `getOrAdd` method supports distributed locking via the `enableLocking` setting. When multiple clients simultaneously request a key that is missing, without locking they all compute the value and write it to the cache — this is known as a [cache stampede](https://en.wikipedia.org/wiki/Cache_stampede). Enabling locking ensures that only one client computes and stores the value while the others wait and then read the cached result.
-
-To use locking, pass a `lockFactory` to the `Cache` constructor:
+The `getOrAdd` method supports distributed locking to prevent cache stampedes. When multiple clients simultaneously request a key that is missing, without locking they all compute the value and write it to the cache. Apply the [`withCacheWriteLock`](cache_plugin.md#withcachewritelock-plugin) plugin to the adapter to ensure that only one client computes and stores the value while the others wait and then read the cached result.
 
 ```ts
-import { Cache } from "@daiso-tech/core/cache";
+import { withPlugin } from "@daiso-tech/core/middleware";
 import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
-import Redis from "ioredis";
+import { Cache } from "@daiso-tech/core/cache";
+import { withCacheWriteLock } from "@daiso-tech/core/cache/plugins";
+import { MemoryLockFactory } from "@daiso-tech/core/lock/memory-lock-factory";
+
+const lockFactory = new MemoryLockFactory();
+const adapter = withPlugin(
+    new MemoryCacheAdapter(),
+    withCacheWriteLock({ lockFactory }),
+);
 
 const cache = new Cache({
-    adapter: new MemoryCacheAdapter(),
-    lockFactory: new RedisLockAdapter(
-        new Redis("YOUR_REDIS_CONNECTION_STRING"),
-    ),
+    adapter,
+});
+
+// The lock is automatically acquired for mutating operations
+const value = await cache.getOrAdd("user:1", async () => {
+    // This expensive computation runs only once even under concurrent requests
+    return await fetchUserFromDatabase(1);
 });
 ```
 
-Then pass `enableLocking: true` to `getOrAdd`:
-
-```ts
-const value = await cache.getOrAdd(
-    "user:1",
-    async () => {
-        // This expensive computation runs only once even under concurrent requests
-        return await fetchUserFromDatabase(1);
-    },
-    { enableLocking: true },
-);
-```
-
 :::info
-You can pass `ILockFactoryBase`, `ILockAdapter`, and `IDatabaseLockAdapter` to `lockFactory` setting.
-For further information about `LockFactory` refer to the [`@daiso-tech/core/lock`](../lock/lock_usage.md) documentation.
-:::
-
-:::warning
-The `lockFactory` defaults to a `NoOpLockAdapter` implementation, so `enableLocking: true` has no effect unless you provide a real lock adapter.
+For further information about lock factories, refer to the [`@daiso-tech/core/lock`](../lock/lock_usage.md) documentation and the [`withCacheWriteLock`](cache_plugin.md#withcachewritelock-plugin) plugin documentation.
 :::
 
 ### Separating cache reading from manipulation
@@ -359,7 +365,7 @@ This separation makes it easy to visually distinguish the two contracts, making 
 ```ts
 import type { ICache, IReadableCache } from "@daiso-tech/core/cache/contracts";
 import { Cache } from "@daiso-tech/core/cache";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/adapter/memory-cache-adapter";
+import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
 
 async function readingFunc(cache: IReadableCache): Promise<void> {
     // You cannot access write methods like put, add and update

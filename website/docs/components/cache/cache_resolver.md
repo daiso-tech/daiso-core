@@ -25,6 +25,7 @@ import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
 import { Serde } from "@daiso-tech/core/serde";
 import type { ISerde } from "@daiso-tech/core/serde/contracts";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { TimeSpan } from "@daiso-tech/core/time-span";
 import Redis from "ioredis";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -71,24 +72,26 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 
 ### 3. Overriding default settings
 
-```ts
-import { z } from "zod";
+The `CacheResolver` provides chainable methods to override the base configuration per-use:
 
+```ts
 await cacheResolver
-    .setNamespace(new Namespace("@my-namespace"))
-    // You can overide the cache value type by calling setType or setSchema method again
-    .setType<string>()
-    .setSchema(
-        z.object({
-            name: z.string(),
-            age: z.number(),
-        }),
-    )
+    .setDefaultTtl(TimeSpan.fromMinutes(5))
+    .setExecutionContext(context)
     .use("redis")
     .add("user/jose@gmail.com", {
         name: "Jose",
         age: 20,
     });
+```
+
+You can also change the type parameter for compile-time type safety:
+
+```ts
+await cacheResolver
+    .setType<string>()
+    .use("redis")
+    .add("user/jose@gmail.com", "some-string-value");
 ```
 
 :::info

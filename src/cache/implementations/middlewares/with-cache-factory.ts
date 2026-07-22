@@ -2,11 +2,9 @@
  * @module Cache
  */
 
-import {
-    type CacheWriteSettings,
-    type ICache,
-} from "@/cache/contracts/_module.js";
+import { type ICache } from "@/cache/contracts/_module.js";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
+import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { callInvokable, type Invokable } from "@/utilities/_module.js";
 
 /**
@@ -17,9 +15,11 @@ import { callInvokable, type Invokable } from "@/utilities/_module.js";
  */
 export type WithCacheSettings<
     TParameters extends Array<unknown> = Array<unknown>,
-> = CacheWriteSettings & {
+> = {
+    ttl?: ITimeSpan | null;
+
     /**
-     * A function or static value that produces the cache key from the
+     *  A function that produces the cache key from the
      * wrapped function's arguments.
      */
     key: Invokable<TParameters, string>;
@@ -45,12 +45,12 @@ export function withCacheFactory(cache: Pick<ICache, "getOrAdd">) {
     return <TParameters extends Array<unknown>, TReturn>(
         settings: WithCacheSettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
-        const { key = (...args) => JSON.stringify(args), ...rest } = settings;
+        const { key = (...args) => JSON.stringify(args), ttl } = settings;
         return async ({ next, args }) => {
             return cache.getOrAdd(
                 callInvokable(key, ...args),
                 next,
-                rest,
+                ttl,
             ) as Promise<TReturn>;
         };
     };

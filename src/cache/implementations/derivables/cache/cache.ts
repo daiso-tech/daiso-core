@@ -2,41 +2,21 @@
  * @module Cache
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
 import {
     type ICache,
     type ICacheAdapter,
     KeyNotFoundCacheError,
     KeyExistsCacheError,
-    type CacheWriteSettings,
-    type GetOrAddSettings,
 } from "@/cache/contracts/_module.js";
 import { type CacheAdapterVariants } from "@/cache/contracts/types.js";
 import { resolveCacheAdapter } from "@/cache/implementations/derivables/cache/resolve-cache-adapter.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    type ILockFactory,
-    type LockFactoryInput,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ILockAdapter,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IDatabaseLockAdapter,
-} from "@/lock/contracts/_module.js";
-import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type LockFactory,
-    resolveLockFactoryInput,
-} from "@/lock/implementations/derivables/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     resolveAsyncLazyable,
-    validate,
-    withJitter,
     type AsyncLazyable,
     type NoneFunc,
 } from "@/utilities/_module.js";
@@ -48,30 +28,12 @@ import {
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */
-export type CacheSettingsBase<TType = unknown> = {
-    /**
-     * You can provide any [standard schema](https://standardschema.dev/) compliant object to validate all input and output data to ensure runtime type safety.
-     */
-    schema?: StandardSchemaV1<TType>;
-
-    /**
-     * You can enable validating cache values when retrieving them.
-     * @default true
-     */
-    shouldValidateOutput?: boolean;
-
+export type CacheSettingsBase = {
     /**
      * You can decide the default ttl value. If null is passed then no ttl will be used by default.
      * @default null
      */
     defaultTtl?: ITimeSpan | null;
-
-    /**
-     * You can pass jitter value to ensure the backoff will not execute at the same time.
-     * If you pas null you can disable the jitrter.
-     * @default 0.2
-     */
-    defaultJitter?: number | null;
 
     /**
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
@@ -84,18 +46,6 @@ export type CacheSettingsBase<TType = unknown> = {
      * ```
      */
     context?: IReadableContext;
-
-    /**
-     * You can provide an {@link ILockFactoryBase | `ILockFactoryBase`}, an {@link ILockAdapter | `ILockAdapter`} or an {@link IDatabaseLockAdapter | `IDatabaseLockAdapter`} instance to handle locking when {@link GetOrAddSettings | `GetOrAddSettings.enableLocking`} is set to true during a `getOrAdd` call.
-     * If you provide an adapter, it will be automatically wrapped in an {@link LockFactory | `LockFactory`} instance.
-     * @default
-     * ```ts
-     * import { NoOpLockAdapter } from "@daiso-tech/core/lock/no-op-lock-adapter";
-     *
-     * new NoOpLockAdapter()
-     * ```
-     */
-    lockFactory?: LockFactoryInput;
 };
 
 /**
@@ -105,7 +55,7 @@ export type CacheSettingsBase<TType = unknown> = {
  * IMPORT_PATH: `"@daiso-tech/core/cache"`
  * @group Derivables
  */
-export type CacheSettings<TType = unknown> = CacheSettingsBase<TType> & {
+export type CacheSettings = CacheSettingsBase & {
     /**
      * The underlying cache adapter that handles the actual storage operations.
      */
@@ -119,11 +69,7 @@ export type CacheSettings<TType = unknown> = CacheSettingsBase<TType> & {
 export class Cache<TType = unknown> implements ICache<TType> {
     private readonly adapter: ICacheAdapter<TType>;
     private readonly defaultTtl: TimeSpan | null;
-    private readonly schema: StandardSchemaV1<TType> | undefined;
-    private readonly shouldValidateOutput: boolean;
-    private readonly defaultJitter: number | null;
     private readonly context: IReadableContext;
-    private readonly lockFactory: ILockFactory;
 
     /**
      *
@@ -154,25 +100,17 @@ export class Cache<TType = unknown> implements ICache<TType> {
      * });
      * ```
      */
-    constructor(settings: CacheSettings<TType>) {
+    constructor(settings: CacheSettings) {
         const {
-            shouldValidateOutput = true,
-            schema,
             adapter,
             defaultTtl = null,
-            defaultJitter = 0.2,
             context = new ExecutionContext(new NoOpExecutionContextAdapter()),
-            lockFactory = new NoOpLockAdapter(),
         } = settings;
 
-        this.lockFactory = resolveLockFactoryInput(lockFactory);
         this.context = context;
-        this.shouldValidateOutput = shouldValidateOutput;
-        this.schema = schema;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
         this.adapter = resolveCacheAdapter(adapter);
-        this.defaultJitter = defaultJitter;
     }
 
     async exists(key: string): Promise<boolean> {
@@ -186,16 +124,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     }
 
     async get(key: string): Promise<TType | null> {
-        let value = await this.adapter.get(this.context, key);
-        if (
-            this.shouldValidateOutput &&
-            this.schema !== undefined &&
-            value !== null
-        ) {
-            value = await validate(this.schema, value);
-        }
-
-        return value;
+        return await this.adapter.get(this.context, key);
     }
 
     async getOrFail(key: string): Promise<TType> {
@@ -207,16 +136,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     }
 
     async getAndRemove(key: string): Promise<TType | null> {
-        let value = await this.adapter.getAndRemove(this.context, key);
-        if (
-            this.shouldValidateOutput &&
-            this.schema !== undefined &&
-            value !== null
-        ) {
-            value = await validate(this.schema, value);
-        }
-
-        return value;
+        return await this.adapter.getAndRemove(this.context, key);
     }
 
     async getOr(
@@ -232,88 +152,39 @@ export class Cache<TType = unknown> implements ICache<TType> {
         return value;
     }
 
-    private async _getOrAdd(
+    async getOrAdd(
         key: string,
         valueToAdd: AsyncLazyable<NoneFunc<TType>>,
-        settings?: GetOrAddSettings,
+        ttl: ITimeSpan | null = this.defaultTtl,
     ): Promise<TType> {
-        const ttl = this.resolveCacheWriteSettings(settings);
+        const value = await this.adapter.get(this.context, key);
 
-        let value = await this.adapter.get(this.context, key);
-        if (
-            this.shouldValidateOutput &&
-            this.schema !== undefined &&
-            value !== null
-        ) {
-            value = await validate(this.schema, value);
-        }
         if (value === null) {
-            let resolvedValueToAdd = await resolveAsyncLazyable(valueToAdd);
-            if (this.schema !== undefined) {
-                resolvedValueToAdd = (await validate(
-                    this.schema,
-                    resolvedValueToAdd,
-                )) as NoneFunc<TType>;
-            }
-            await this.adapter.add(this.context, key, resolvedValueToAdd, ttl);
+            const resolvedValueToAdd = await resolveAsyncLazyable(valueToAdd);
+
+            await this.adapter.add(
+                this.context,
+                key,
+                resolvedValueToAdd,
+                ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
+            );
             return resolvedValueToAdd;
         }
 
         return value;
     }
 
-    async getOrAdd(
-        key: string,
-        valueToAdd: AsyncLazyable<NoneFunc<TType>>,
-        settings?: GetOrAddSettings,
-    ): Promise<TType> {
-        const enableLocking = settings?.enableLocking ?? false;
-
-        if (enableLocking) {
-            return await this.lockFactory.create(key).runOrFail(async () => {
-                return await this._getOrAdd(key, valueToAdd, settings);
-            });
-        }
-        return await this._getOrAdd(key, valueToAdd, settings);
-    }
-
-    private resolveCacheWriteSettings(
-        settings: CacheWriteSettings = {},
-    ): TimeSpan | null {
-        const {
-            ttl = this.defaultTtl,
-            jitter = this.defaultJitter,
-            _mathRandom = Math.random,
-        } = settings;
-        if (ttl === null) {
-            return null;
-        }
-
-        const ttlAsTimeSpan = TimeSpan.fromTimeSpan(ttl);
-        if (jitter === null) {
-            return ttlAsTimeSpan;
-        }
-
-        return TimeSpan.fromMilliseconds(
-            withJitter({
-                jitter,
-                randomValue: _mathRandom(),
-                value: ttlAsTimeSpan.toMilliseconds(),
-            }),
-        );
-    }
-
     async add(
         key: string,
         value: TType,
-        settings?: CacheWriteSettings,
+        ttl: ITimeSpan | null = this.defaultTtl,
     ): Promise<boolean> {
-        const ttl = this.resolveCacheWriteSettings(settings);
-
-        if (this.schema !== undefined) {
-            value = await validate(this.schema, value);
-        }
-        const hasAdded = await this.adapter.add(this.context, key, value, ttl);
+        const hasAdded = await this.adapter.add(
+            this.context,
+            key,
+            value,
+            ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
+        );
 
         return hasAdded;
     }
@@ -321,9 +192,9 @@ export class Cache<TType = unknown> implements ICache<TType> {
     async addOrFail(
         key: string,
         value: TType,
-        settings?: CacheWriteSettings,
+        ttl: ITimeSpan | null = this.defaultTtl,
     ): Promise<void> {
-        const isNotFound = await this.add(key, value, settings);
+        const isNotFound = await this.add(key, value, ttl);
         if (!isNotFound) {
             throw KeyExistsCacheError.create(key);
         }
@@ -332,26 +203,18 @@ export class Cache<TType = unknown> implements ICache<TType> {
     async put(
         key: string,
         value: TType,
-        settings?: CacheWriteSettings,
+        ttl: ITimeSpan | null = this.defaultTtl,
     ): Promise<boolean> {
-        const ttl = this.resolveCacheWriteSettings(settings);
-
-        if (this.schema !== undefined) {
-            value = await validate(this.schema, value);
-        }
         const hasUpdated = await this.adapter.put(
             this.context,
             key,
             value,
-            ttl,
+            ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
         );
         return hasUpdated;
     }
 
     async update(key: string, value: TType): Promise<boolean> {
-        if (this.schema !== undefined) {
-            value = await validate(this.schema, value);
-        }
         const hasUpdated = await this.adapter.update(this.context, key, value);
 
         return hasUpdated;

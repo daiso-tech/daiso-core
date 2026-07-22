@@ -11,18 +11,20 @@ keywords:
     - withCircuitBreakerPrefix
 ---
 
-# CircuitBreaker plugin
+# CircuitBreaker Plugins
+
+## withCircuitBreakerPrefix plugin
 
 The CircuitBreaker prefix plugin intercepts calls to a circuit-breaker adapter and transparently prefixes all circuit keys with a configurable string. This enables logical key namespacing without modifying the adapter implementation.
 
-## Use cases
+### Use cases
 
 - **Multi-tenant systems** — Prefix circuit keys with a tenant identifier to isolate circuit state between tenants
 - **Service versioning** — Separate circuit state for different API versions
 - **Environment isolation** — Keep development, staging, and production circuit state separate
 - **Region scoping** — Prefix keys with a region identifier in multi-region deployments
 
-## How it works
+### How it works
 
 The `withCircuitBreakerPrefix` function returns a [`PluginFn`](/docs/components/middleware) that calls `enhance` on each adapter method that accepts a circuit key. When an enhanced method is invoked, the plugin intercepts the call, prepends the configured prefix to the key argument, and forwards the modified arguments to the original method.
 
@@ -39,10 +41,9 @@ The plugin prefixes keys for the following methods:
 
 Every method on the `ICircuitBreakerAdapter` that operates on a specific circuit key is prefixed.
 
-## Usage
+### Usage
 
 ```ts
-import { enhance } from "@daiso-tech/core/middleware";
 import { withPlugin } from "@daiso-tech/core/middleware";
 import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
 import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
@@ -62,7 +63,7 @@ const prefixedAdapter = withPlugin(
 const state = await prefixedAdapter.getState(context, "api:users");
 ```
 
-### Using with CircuitBreakerFactory
+#### Using with CircuitBreakerFactory
 
 The plugin can be applied directly to the adapter passed to the `CircuitBreakerFactory` constructor:
 
@@ -80,7 +81,7 @@ const factory = new CircuitBreakerFactory({
 });
 ```
 
-## Before/after behavior
+### Before/after behavior
 
 **Before** — Circuit keys are used as-is:
 
@@ -93,6 +94,10 @@ adapter.getState(context, "api:users")  →  looks up circuit "api:users"
 ```
 adapter.getState(context, "api:users")  →  looks up circuit "env:api:users"
 ```
+
+:::danger
+Because `withPlugin` uses `enhance` under the hood, the same edge case applies: if one enhanced method internally calls another enhanced method via `this`, the middleware will apply **twice**. Be mindful of inter-method calls when applying plugins that enhance multiple methods on the same instance.
+:::
 
 :::info
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
