@@ -362,6 +362,10 @@ alice.say("Hello!");
 - If the target property is not a function, a `TypeError` is thrown.
 - Multiple middlewares can be provided (as an array or single value).
 
+:::danger
+Because `enhance` mutates the object **in-place**, when one enhanced method internally calls another enhanced method via `this`, the internal call goes through the already-enhanced wrapper again, causing the middleware to apply **twice**. Be mindful of inter-method calls when using `enhance` on multiple methods of the same instance.
+:::
+
 This pattern is useful for adding cross-cutting concerns (logging, validation, authorization, etc.) to class methods in a reusable and declarative way.
 
 ### Applying Plugins with `withPlugin` {#plugin}
@@ -508,6 +512,10 @@ const enhancedService = withPlugin(service, new MetricsPlugin(client));
 - Each plugin is invoked in order, receiving the copied target and the `enhance` function.
 - The `enhance` function wraps the specified method with a middleware pipeline in-place on the copy.
 - The enhanced copy is returned, leaving the original untouched.
+
+:::danger
+Because `withPlugin` uses `enhance` under the hood, the same edge case applies: if one enhanced method internally calls another enhanced method via `this`, the middleware will apply **twice**. Be mindful of inter-method calls when applying plugins that enhance multiple methods on the same instance.
+:::
 
 :::info
 This pattern is ideal for building reusable feature packs (logging, monitoring) that can be composed and applied to any class instance or object literal.
