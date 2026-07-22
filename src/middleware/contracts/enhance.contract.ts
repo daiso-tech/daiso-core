@@ -121,3 +121,35 @@ export type Enhance = <TInstance, TField extends InferMethodNames<TInstance>>(
         >
     >,
 ) => void;
+
+/*
+```ts
+class Example {
+    a(arg: string): void {}
+
+    b(arg: string): void {
+        this.a(arg);
+    }
+}
+
+const instance = new Example(); 
+function withPrefix<TReturn>(prefix: string): MiddlewareFn<[key: string], TReturn> {
+    return ({ args: [key], next }) => {
+        return next([prefix + key])
+    }
+}
+enhance(instance, "a", withPrefix("@/"));
+enhance(instance, "b", withPrefix("@/"));
+``` 
+
+When calling instance a:
+
+```ts
+// Key will be "@/test"
+instance.a("test");
+
+// Key will be "@/test"
+// But the underlying key pased to method `a` will be doubled prefixed "@/@/test"
+instance.b("test");
+```
+*/
