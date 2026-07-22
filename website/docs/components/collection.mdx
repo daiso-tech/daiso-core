@@ -333,6 +333,7 @@ For the remaining of the documentation, we'll discuss each method available on t
         <ol><a href="#flatmap">flatMap</a></ol>
         <ol><a href="#foreach">forEach</a></ol>
         <ol><a href="#get">get</a></ol>
+        <ol><a href="#getor">getOr</a></ol>
         <ol><a href="#getorfail">getOrFail</a></ol>
         <ol><a href="#groupby">groupBy</a></ol>
     </li>
@@ -791,6 +792,18 @@ import { ListCollection } from "@daiso-tech/core/collection";
 const collection = new ListCollection([1, 4, 2, 8, -2]);
 collection.get(2); // 2
 collection.get(5); // null
+```
+
+### getOr
+
+The `getOr` method returns the item by index. If the item is not found, a default value will be returned.
+
+```ts
+import { ListCollection } from "@daiso-tech/core/collection";
+
+const collection = new ListCollection([1, 4, 2, 8, -2]);
+collection.getOr(2, -1); // 2
+collection.getOr(5, -1); // -1
 ```
 
 ### getOrFail

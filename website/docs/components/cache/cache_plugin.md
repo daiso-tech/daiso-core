@@ -179,7 +179,7 @@ const cache = new Cache({
 });
 
 // TTLs passed through the Cache class will also be jittered
-await cache.add("my-key", data, { ttl: TimeSpan.fromMinutes(1) });
+await cache.add("my-key", data, TimeSpan.fromMinutes(1));
 ```
 
 ### Settings
@@ -206,8 +206,6 @@ The Cache schema plugin validates cache values against a [standard schema](https
 ### How it works
 
 The `withCacheSchema` function returns a [`PluginFn`](/docs/components/middleware) that calls `enhance` on the `add`, `put`, `update`, `get`, and `getAndRemove` methods. For write operations (`add`, `put`, `update`), the value is validated before being passed to the underlying method. For read operations (`get`, `getAndRemove`), the returned value is validated after retrieval.
-
-Validation is performed using the [`validate`](/docs/components/utilities#validate) utility, which checks the value against the provided `StandardSchemaV1` compliant schema.
 
 | Method         | When validation occurs     | Configurable                         |
 | -------------- | -------------------------- | ------------------------------------ |
@@ -311,7 +309,7 @@ For more information about the `withPlugin` function and applying plugins to ada
 
 ## withCacheWriteLock plugin
 
-The Cache write lock plugin acquires a distributed lock before executing mutating cache operations. It wraps write operations (`add`, `put`, `update`, `increment`, `getAndRemove`, `removeMany`) with a lock acquired via an [`ILockFactory`](/docs/components/lock), ensuring that concurrent writes to the same cache entry are serialised.
+The Cache write lock plugin acquires a distributed lock before executing mutating cache operations. It wraps write operations (`add`, `put`, `update`, `increment`, `getAndRemove`, `removeMany`) with a lock acquired via an [`ILockFactory`](../lock/lock_usage.md), ensuring that concurrent writes to the same cache entry are serialised.
 
 ### Use cases
 
@@ -402,5 +400,5 @@ await cache.add("my-key", data);
 
 :::info
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
-For more information about lock factories, see the [Lock](/docs/components/lock) documentation.
+For more information about lock factories, see the [Lock](../lock/lock_usage.md) documentation.
 :::

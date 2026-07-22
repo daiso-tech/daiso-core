@@ -22,7 +22,8 @@ The Cache middleware intercepts function calls and caches their return values us
 import { withCacheFactory } from "@daiso-tech/core/cache/middlewares";
 import { Cache } from "@daiso-tech/core/cache";
 import { use } from "@daiso-tech/core/middleware";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/adapter/memory-cache-adapter";
+import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
+import { TimeSpan } from "@daiso-tech/core/time-span";
 
 const cache = new Cache({
     adapter: new MemoryCacheAdapter(),
@@ -39,7 +40,7 @@ const cachedFetchUser = use(
     fetchUser,
     withCache({
         key: (userId) => `user:${userId}`,
-        ttl: new TimeSpan("10m"), // Cache for 10 minutes
+        ttl: TimeSpan.fromMinutes(10), // Cache for 10 minutes
     }),
 );
 

@@ -364,7 +364,7 @@ alice.say("Hello!");
 
 This pattern is useful for adding cross-cutting concerns (logging, validation, authorization, etc.) to class methods in a reusable and declarative way.
 
-### Applying Plugins with `withPlugin`
+### Applying Plugins with `withPlugin` {#plugin}
 
 The `withPlugin` function provides a way to apply one or more plugins to a class instance or object literal, where each plugin can use the `enhance` function to wrap methods with middleware. This is useful for encapsulating cross-cutting concerns into reusable plugin units.
 

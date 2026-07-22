@@ -66,7 +66,7 @@ import { MyDatabaseCacheAdapter } from "./MyDatabaseCacheAdapter.js";
 describe("class: MyDatabaseCacheAdapter", () => {
     databaseCacheAdapterTestSuite({
         createAdapter: async () => {
-            return new MyDatabaseCacheAdapter(),
+            return new MyDatabaseCacheAdapter();
         },
         test,
         beforeEach,
@@ -82,10 +82,10 @@ In some cases, you may need to implement a custom [`Cache`](https://daiso-tech.g
 
 ## Testing your custom ICache class
 
-We provide a complete test suite to verify your custom event-bus class implementation. Simply use the [`cacheTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Cache.cacheTestSuite.html) function:
+We provide a complete test suite to verify your custom cache class implementation. Simply use the [`cacheTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Cache.cacheTestSuite.html) function:
 
 - Preconfigured Vitest test cases
-- Standardized event-bus behavior validation
+- Standardized cache behavior validation
 - Common edge case coverage
 
 Usage example:
