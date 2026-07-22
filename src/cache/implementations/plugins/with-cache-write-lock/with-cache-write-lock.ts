@@ -135,7 +135,7 @@ export function withCacheWriteLock<TType>(
                 "removeMany",
                 ({ args: [_context, keys], next }) => {
                     let fn = () => next();
-                    for (const key of keys) {
+                    for (const key of [...new Set(keys)].reverse()) {
                         const prevFn = fn;
                         fn = () => lockFactory.create(key).runOrFail(prevFn);
                     }

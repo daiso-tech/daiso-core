@@ -19,14 +19,14 @@ export type WithSemaphoreSettings<
     TParameters extends Array<unknown> = Array<unknown>,
 > = {
     /**
-     * A function or static value that produces the semaphore key from the
+     *  A function that produces the semaphore key from the
      * wrapped function's arguments. All consumers using the same key share
      * the same semaphore limit.
      */
     key: Invokable<TParameters, string>;
 
     /**
-     * A function or static value that produces a unique slot identifier for
+     *  A function that produces a unique slot identifier for
      * the current acquisition attempt. Each concurrent consumer needs a
      * distinct slot ID.
      *

@@ -176,6 +176,48 @@ describe("function: withCacheWriteLock", () => {
             expect(createSpy).toHaveBeenCalledWith("key3");
             expect(runSpy).toHaveBeenCalledTimes(3);
         });
+
+        test("Should deduplicate keys when acquiring locks", async () => {
+            const adapter = new NoOpCacheAdapter<string>();
+            const spy = vi.spyOn(adapter, "removeMany");
+            const lockFactory = createLockFactory();
+            const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
+            const createSpy = vi.spyOn(lockFactory, "create");
+
+            const enhanced = withPlugin(
+                adapter,
+                withCacheWriteLock({ lockFactory }),
+            );
+
+            await enhanced.removeMany(context, [
+                "key1",
+                "key2",
+                "key1",
+                "key3",
+            ]);
+
+            expect(spy).toHaveBeenCalledOnce();
+            expect(createSpy).toHaveBeenCalledTimes(3);
+            expect(createSpy).toHaveBeenCalledWith("key1");
+            expect(createSpy).toHaveBeenCalledWith("key2");
+            expect(createSpy).toHaveBeenCalledWith("key3");
+            expect(runSpy).toHaveBeenCalledTimes(3);
+        });
+
+        test("Should pass through the underlying adapter response", async () => {
+            const adapter = new NoOpCacheAdapter<string>();
+            vi.spyOn(adapter, "removeMany").mockResolvedValue(true);
+            const lockFactory = createLockFactory();
+
+            const enhanced = withPlugin(
+                adapter,
+                withCacheWriteLock({ lockFactory }),
+            );
+
+            const result = await enhanced.removeMany(context, ["key1", "key2"]);
+
+            expect(result).toBe(true);
+        });
     });
 
     describe("options", () => {

@@ -153,6 +153,19 @@ describe("function: withCacheSchema", () => {
 
             await expect(enhanced.get(context, "myKey")).rejects.toThrow();
         });
+
+        test("Should pass null through without validation when key is not found", async () => {
+            const adapter = new NoOpCacheAdapter<string>();
+            vi.spyOn(adapter, "get").mockResolvedValue(null);
+            const enhanced = withPlugin(
+                adapter,
+                withCacheSchema({ schema: passingSchema }),
+            );
+
+            const result = await enhanced.get(context, "myKey");
+
+            expect(result).toBeNull();
+        });
     });
 
     describe("method: getAndRemove", () => {
@@ -180,6 +193,19 @@ describe("function: withCacheSchema", () => {
             await expect(
                 enhanced.getAndRemove(context, "myKey"),
             ).rejects.toThrow();
+        });
+
+        test("Should pass null through without validation when key is not found", async () => {
+            const adapter = new NoOpCacheAdapter<string>();
+            vi.spyOn(adapter, "getAndRemove").mockResolvedValue(null);
+            const enhanced = withPlugin(
+                adapter,
+                withCacheSchema({ schema: passingSchema }),
+            );
+
+            const result = await enhanced.getAndRemove(context, "myKey");
+
+            expect(result).toBeNull();
         });
     });
 

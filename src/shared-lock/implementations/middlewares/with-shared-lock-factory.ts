@@ -40,14 +40,14 @@ export type WithSharedLockFactorySettings<
     TParameters extends Array<unknown> = Array<unknown>,
 > = {
     /**
-     * A function or static value that produces the lock key from the wrapped
+     *  A function that produces the lock key from the wrapped
      * function's arguments. All consumers using the same key share the same
      * lock state.
      */
     key: Invokable<TParameters, string>;
 
     /**
-     * A function or static value that produces a unique identifier for the
+     *  A function that produces a unique identifier for the
      * current lock acquisition attempt. The lock ID distinguishes competing
      * consumers trying to acquire the same lock.
      *

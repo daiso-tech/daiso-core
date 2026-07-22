@@ -19,7 +19,7 @@ export type WithCacheSettings<
     ttl?: ITimeSpan | null;
 
     /**
-     * A function or static value that produces the cache key from the
+     *  A function that produces the cache key from the
      * wrapped function's arguments.
      */
     key: Invokable<TParameters, string>;

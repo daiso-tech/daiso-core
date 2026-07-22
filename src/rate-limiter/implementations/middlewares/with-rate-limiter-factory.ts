@@ -20,7 +20,7 @@ export type WithRateLimiterSettings<
     TParameters extends Array<unknown> = Array<unknown>,
 > = ErrorPolicySettings & {
     /**
-     * A function or static value that produces the rate-limiter key from the
+     *  A function that produces the rate-limiter key from the
      * wrapped function's arguments. Each unique key gets its own rate-limit
      * counter.
      */

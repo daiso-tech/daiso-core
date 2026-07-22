@@ -24,7 +24,7 @@ export type WithCircuitBreakerSettings<
     TParameters extends Array<unknown> = Array<unknown>,
 > = ErrorPolicySettings & {
     /**
-     * A function or static value that produces a unique identifier for the
+     *  A function that produces a unique identifier for the
      * circuit from the wrapped function's arguments. Each unique key gets its
      * own circuit state.
      */

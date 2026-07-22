@@ -89,5 +89,12 @@ export function withSharedLockPrefix(
                 return next([context, withPrefix(key), ...rest]);
             },
         );
+        enhance(
+            adapter,
+            "releaseReader",
+            ({ args: [context, key, ...rest], next }) => {
+                return next([context, withPrefix(key), ...rest]);
+            },
+        );
     };
 }

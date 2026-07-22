@@ -188,4 +188,22 @@ describe("plugin: withSharedLockPrefix", () => {
             );
         });
     });
+
+    describe("method: releaseReader", () => {
+        test("Should prefix the key", async () => {
+            const adapter = new NoOpSharedLockAdapter();
+            const spy = vi.spyOn(adapter, "releaseReader");
+
+            const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
+
+            await enhanced.releaseReader(context, "myKey", "lockId");
+
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith(
+                context,
+                `${prefix}myKey`,
+                "lockId",
+            );
+        });
+    });
 });

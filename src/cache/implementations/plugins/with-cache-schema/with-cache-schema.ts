@@ -51,12 +51,20 @@ export function withCacheSchema<TType>(
     return (adapter, enhance) => {
         if (shouldValidateOutput) {
             enhance(adapter, "get", async ({ next }) => {
-                return validate(schema, await next());
+                const value = await next();
+                if (value === null) {
+                    return value;
+                }
+                return validate(schema, value);
             });
         }
         if (shouldValidateOutput) {
             enhance(adapter, "getAndRemove", async ({ next }) => {
-                return validate(schema, await next());
+                const value = await next();
+                if (value === null) {
+                    return value;
+                }
+                return validate(schema, value);
             });
         }
         enhance(
