@@ -342,13 +342,10 @@ const cache = new Cache({
 });
 
 // The lock is automatically acquired for mutating operations
-const value = await cache.getOrAdd(
-    "user:1",
-    async () => {
-        // This expensive computation runs only once even under concurrent requests
-        return await fetchUserFromDatabase(1);
-    },
-);
+const value = await cache.getOrAdd("user:1", async () => {
+    // This expensive computation runs only once even under concurrent requests
+    return await fetchUserFromDatabase(1);
+});
 ```
 
 :::info
