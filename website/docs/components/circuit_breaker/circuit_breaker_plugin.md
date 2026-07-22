@@ -95,6 +95,10 @@ adapter.getState(context, "api:users")  →  looks up circuit "api:users"
 adapter.getState(context, "api:users")  →  looks up circuit "env:api:users"
 ```
 
+:::danger
+Because `withPlugin` uses `enhance` under the hood, the same edge case applies: if one enhanced method internally calls another enhanced method via `this`, the middleware will apply **twice**. Be mindful of inter-method calls when applying plugins that enhance multiple methods on the same instance.
+:::
+
 :::info
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
 :::
