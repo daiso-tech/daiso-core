@@ -21,6 +21,13 @@ declare module "ioredis" {
             key: string,
             number: string,
         ): Result<number, Context>;
+
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        daiso_cache_get_or_add(
+            key: string,
+            value: string,
+            ttlInMs: number,
+        ): Result<string, Context>;
     }
 }
 
@@ -87,6 +94,48 @@ export class RedisCacheAdapter<
         this.database = database;
         this.serde = new RedisCacheAdapterSerde(serde);
         this.initIncrementCommand();
+        this.initGetOrAddCommand();
+    }
+
+    private initGetOrAddCommand(): void {
+        if (typeof this.database.daiso_cache_get_or_add === "function") {
+            return;
+        }
+
+        this.database.defineCommand("daiso_cache_get_or_add", {
+            numberOfKeys: 1,
+            lua: `
+                local key = KEYS[1]
+                local newValue = ARGV[1]
+                local ttl = tonumber(ARGV[2])
+                local existing = redis.call("get", key)
+                if existing then
+                    return existing
+                end
+                if ttl == -1 then
+                    redis.call("set", key, newValue)
+                else
+                    redis.call("set", key, newValue, "PX", ttl)
+                end
+                return newValue
+                `,
+        });
+    }
+
+    async getOrAdd(
+        _context: IReadableContext,
+        key: string,
+        valueToAdd: TType,
+        ttl: TimeSpan | null,
+    ): Promise<TType> {
+        const serializedValue = this.serde.serialize(valueToAdd);
+        const ttlInMs = ttl?.toMilliseconds() ?? -1;
+        const result = await this.database.daiso_cache_get_or_add(
+            key,
+            serializedValue,
+            ttlInMs,
+        );
+        return await this.serde.deserialize(result);
     }
 
     private initIncrementCommand(): void {

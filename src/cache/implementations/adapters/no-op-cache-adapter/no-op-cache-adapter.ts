@@ -18,6 +18,15 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  * @group Adapters
  */
 export class NoOpCacheAdapter<TType = unknown> implements ICacheAdapter<TType> {
+    getOrAdd(
+        _context: IReadableContext,
+        _key: string,
+        valueToAdd: TType,
+        _ttl: TimeSpan | null,
+    ): Promise<TType> {
+        return Promise.resolve(valueToAdd);
+    }
+
     get(_context: IReadableContext, _key: string): Promise<TType | null> {
         return Promise.resolve(null);
     }
