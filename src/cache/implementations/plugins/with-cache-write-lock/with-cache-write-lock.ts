@@ -16,7 +16,13 @@ import { type PluginFn } from "@/middleware/contracts/_module.js";
  */
 export type WithCacheWriteLockMethods = keyof Pick<
     ICacheAdapter,
-    "getAndRemove" | "add" | "put" | "update" | "increment" | "removeMany"
+    | "getAndRemove"
+    | "add"
+    | "put"
+    | "update"
+    | "increment"
+    | "removeMany"
+    | "getOrAdd"
 >;
 
 /**
@@ -78,6 +84,7 @@ export function withCacheWriteLock<TType>(
             "update",
             "increment",
             "removeMany",
+            "getOrAdd",
         ],
     } = settings;
     return (adapter, enhance) => {
@@ -150,6 +157,20 @@ export function withCacheWriteLock<TType>(
                         fn = () => lockFactory.create(key).runOrFail(prevFn);
                     }
                     return fn();
+                },
+            );
+        }
+
+        if (
+            onlyMethods.includes("getOrAdd" satisfies WithCacheWriteLockMethods)
+        ) {
+            enhance(
+                adapter,
+                "getOrAdd",
+                async ({ args: [_context, key], next }) => {
+                    return lockFactory.create(key).runOrFail(async () => {
+                        return next();
+                    });
                 },
             );
         }

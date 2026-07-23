@@ -8,8 +8,6 @@ import {
     KeyNotFoundCacheError,
     KeyExistsCacheError,
 } from "@/cache/contracts/_module.js";
-import { type CacheAdapterVariants } from "@/cache/contracts/types.js";
-import { resolveCacheAdapter } from "@/cache/implementations/derivables/cache/resolve-cache-adapter.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
@@ -59,7 +57,7 @@ export type CacheSettings = CacheSettingsBase & {
     /**
      * The underlying cache adapter that handles the actual storage operations.
      */
-    adapter: CacheAdapterVariants<any>;
+    adapter: ICacheAdapter<any>;
 };
 
 /**
@@ -110,7 +108,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         this.context = context;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
-        this.adapter = resolveCacheAdapter(adapter);
+        this.adapter = adapter;
     }
 
     async exists(key: string): Promise<boolean> {
@@ -154,24 +152,15 @@ export class Cache<TType = unknown> implements ICache<TType> {
 
     async getOrAdd(
         key: string,
-        valueToAdd: AsyncLazyable<NoneFunc<TType>>,
+        valueToAdd: TType,
         ttl: ITimeSpan | null = this.defaultTtl,
     ): Promise<TType> {
-        const value = await this.adapter.get(this.context, key);
-
-        if (value === null) {
-            const resolvedValueToAdd = await resolveAsyncLazyable(valueToAdd);
-
-            await this.adapter.add(
-                this.context,
-                key,
-                resolvedValueToAdd,
-                ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
-            );
-            return resolvedValueToAdd;
-        }
-
-        return value;
+        return await this.adapter.getOrAdd(
+            this.context,
+            key,
+            valueToAdd,
+            ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
+        );
     }
 
     async add(

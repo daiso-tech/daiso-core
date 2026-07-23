@@ -78,5 +78,12 @@ export function withCacheJitter<TType>(
                 return next([context, key, value, ttlWithJitter(ttl)]);
             },
         );
+        enhance(
+            adapter,
+            "getOrAdd",
+            ({ args: [context, key, value, ttl], next }) => {
+                return next([context, key, value, ttlWithJitter(ttl)]);
+            },
+        );
     };
 }

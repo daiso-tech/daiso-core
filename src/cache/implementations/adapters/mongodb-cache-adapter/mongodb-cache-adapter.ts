@@ -158,6 +158,73 @@ export class MongodbCacheAdapter<TType = unknown>
         this.serde = new MongodbCacheAdapterSerde(serde);
     }
 
+    async getOrAdd(
+        _context: IReadableContext,
+        key: string,
+        valueToAdd: TType,
+        ttl: TimeSpan | null,
+    ): Promise<TType> {
+        const hasExpirationQuery = {
+            $ne: ["$expiration", null],
+        };
+        const hasExpiredQuery = {
+            $lte: ["$expiration", new Date()],
+        };
+        const hasExpirationAndExpiredQuery = {
+            $and: [hasExpirationQuery, hasExpiredQuery],
+        };
+        const serializedValue = this.serde.serialize(valueToAdd);
+        const document = await this.collection.findOneAndUpdate(
+            {
+                key,
+            },
+            [
+                {
+                    $set: {
+                        value: {
+                            $cond: {
+                                if: hasExpirationAndExpiredQuery,
+                                then: serializedValue,
+                                else: "$value",
+                            },
+                        },
+                        expiration: {
+                            $cond: {
+                                if: hasExpirationAndExpiredQuery,
+                                then: ttl?.toEndDate() ?? null,
+                                else: "$expiration",
+                            },
+                        },
+                    },
+                },
+            ],
+            {
+                upsert: true,
+                projection: {
+                    _id: 0,
+                    value: 1,
+                    expiration: 1,
+                },
+            },
+        );
+
+        if (document === null) {
+            return valueToAdd;
+        }
+
+        const { expiration, value } = document;
+        if (expiration === null) {
+            return this.serde.deserialize(value);
+        }
+
+        const hasExpired = expiration.getTime() <= new Date().getTime();
+        if (hasExpired) {
+            return valueToAdd;
+        }
+
+        return this.serde.deserialize(value);
+    }
+
     /**
      * Creates all related indexes.
      * Note the `init` method needs to be called once before using the adapter.
