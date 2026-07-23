@@ -36,7 +36,7 @@ export type WithCacheWriteLockSettings = {
     /**
      * @default
      * ```ts
-     * ["getAndRemove", "add", "put", "update", "increment", "removeMany"]
+     * ["getAndRemove", "add", "put", "update", "increment", "removeMany", "getOrAdd"]
      * ```
      */
     onlyMethods?: Array<WithCacheWriteLockMethods>;
@@ -74,6 +74,7 @@ export function withCacheWriteLock<TType>(
             "update",
             "increment",
             "removeMany",
+            "getOrAdd",
         ],
     } = settings;
     return (adapter, enhance) => {
