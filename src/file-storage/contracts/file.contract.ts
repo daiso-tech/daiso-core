@@ -2,8 +2,6 @@
  * @module FileStorage
  */
 
-import { type Readable } from "node:stream";
-
 import { type IFileSize } from "@/file-size/contracts/_module.js";
 import { type FileSize } from "@/file-size/implementations/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -143,21 +141,6 @@ export type IReadableFile = {
     getBytesOrFail(): Promise<Uint8Array>;
 
     /**
-     * Retrieves file content as a Node.js Buffer.
-     *
-     * @returns The file content as buffer, or null if not found
-     */
-    getBuffer(): Promise<Buffer | null>;
-
-    /**
-     * Retrieves file content as a Node.js Buffer.
-     *
-     * @returns The file content as buffer
-     * @throws {KeyNotFoundFileError} If the file is not found
-     */
-    getBufferOrFail(): Promise<Buffer>;
-
-    /**
      * Retrieves file content as an ArrayBuffer (standard JavaScript).
      *
      * @returns The file content as ArrayBuffer, or null if not found
@@ -171,23 +154,6 @@ export type IReadableFile = {
      * @throws {KeyNotFoundFileError} If the file is not found
      */
     getArrayBufferOrFail(): Promise<ArrayBuffer>;
-
-    /**
-     * Retrieves file content as a Node.js Readable stream.
-     * Suitable for streaming large files without loading entire content into memory.
-     *
-     * @returns A readable stream, or null if not found
-     */
-    getReadable(): Promise<Readable | null>;
-
-    /**
-     * Retrieves file content as a Node.js Readable stream.
-     * Suitable for streaming large files without loading entire content into memory.
-     *
-     * @returns A readable stream
-     * @throws {KeyNotFoundFileError} If the file is not found
-     */
-    getReadableOrFail(): Promise<Readable>;
 
     /**
      * Retrieves file content as a standard Web Streams API ReadableStream.
