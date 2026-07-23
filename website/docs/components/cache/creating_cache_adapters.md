@@ -5,11 +5,9 @@ pagination_label: Creating cache adapters
 tags:
     - Cache
     - Creating adapters
-    - Creating database adapters
 keywords:
     - Cache
     - Creating adapters
-    - Creating database adapters
 ---
 
 # Creating cache adapters
@@ -37,37 +35,6 @@ import { MemoryCacheAdapter } from "./MemoryCacheAdapter.js";
 describe("class: MyCacheAdapter", () => {
     cacheAdapterTestSuite({
         createAdapter: () => new MemoryCacheAdapter(),
-        test,
-        beforeEach,
-        expect,
-        describe,
-    });
-});
-```
-
-## Implementing your custom IDatabaseCacheAdapter
-
-We provide an additional contract [`IDatabaseCacheAdapter`](https://daiso-tech.github.io/daiso-core/types/Cache.IDatabaseCacheAdapter.html) for building custom cache adapters tailored to databases.
-
-## Testing your custom IDatabaseCacheAdapter
-
-We provide a complete test suite to test your database cache adapter implementation. Simply use the [`databaseCacheAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Cache.databaseCacheAdapterTestSuite.html) function:
-
-- Preconfigured Vitest test cases
-- Common edge case coverage
-
-Usage example:
-
-```ts
-import { beforeEach, describe, expect, test } from "vitest";
-import { databaseCacheAdapterTestSuite } from "@daiso-tech/core/cache/test-utilities";
-import { MyDatabaseCacheAdapter } from "./MyDatabaseCacheAdapter.js";
-
-describe("class: MyDatabaseCacheAdapter", () => {
-    databaseCacheAdapterTestSuite({
-        createAdapter: async () => {
-            return new MyDatabaseCacheAdapter();
-        },
         test,
         beforeEach,
         expect,
