@@ -14,7 +14,6 @@ import {
     type FileKeyValidator,
     type FileStorageSettingsBase,
 } from "@/file-storage/implementations/derivables/file-storage/_module.js";
-import { type LockFactoryInput } from "@/lock/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
@@ -153,15 +152,6 @@ export class FileStorageResolver<
         return new FileStorageResolver({
             ...this.settings,
             context,
-        });
-    }
-
-    setLockFactory(
-        lockFactory: LockFactoryInput,
-    ): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            lockFactory,
         });
     }
 

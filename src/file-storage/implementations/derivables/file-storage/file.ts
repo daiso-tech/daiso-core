@@ -2,9 +2,6 @@
  * @module FileStorage
  */
 
-import { Buffer } from "node:buffer";
-import { Readable } from "stream";
-
 import { lookup } from "mime-types";
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
@@ -19,7 +16,6 @@ import {
     KeyNotFoundFileError,
     type FileDownloadUrlOptions,
     FILE_WRITE_ENUM,
-    type FileWriteEnum,
     type WritableFileContent,
     type FileStorageAdapterVariants,
     InvalidKeyFileError,
@@ -27,9 +23,6 @@ import {
 } from "@/file-storage/contracts/_module.js";
 import { resolveFileContent } from "@/file-storage/implementations/derivables/file-storage/resolve-file-content.js";
 import { ResolveFileStream } from "@/file-storage/implementations/derivables/file-storage/resolve-file-stream.js";
-import { type ILockFactory } from "@/lock/contracts/_module.js";
-import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
-import { use } from "@/middleware/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { type InvokableFn } from "@/utilities/_module.js";
 
@@ -38,7 +31,6 @@ import { type InvokableFn } from "@/utilities/_module.js";
  */
 export type FileSettings = {
     originalKey: string;
-    lockFactory: ILockFactory;
     onlyLowercase: boolean;
     keyValidator: InvokableFn<[key: string], string | null>;
     defaultContentType: string;
@@ -87,7 +79,6 @@ export class File implements IFile {
     private readonly onlyLowercase: boolean;
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
     private readonly context: IReadableContext;
-    private readonly lockFactory: ILockFactory;
     private readonly originalKey: string;
 
     constructor(settings: FileSettings) {
@@ -104,12 +95,10 @@ export class File implements IFile {
             defaultContentLanguage,
             originalAdapter,
             context,
-            lockFactory,
             originalKey,
         } = settings;
 
         this.originalKey = originalKey;
-        this.lockFactory = lockFactory;
         this.context = context;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
@@ -172,28 +161,12 @@ export class File implements IFile {
         return bytes;
     }
 
-    async getBuffer(): Promise<Buffer | null> {
+    async getArrayBuffer(): Promise<ArrayBuffer | null> {
         const bytes = await this.getBytes();
         if (bytes === null) {
             return null;
         }
-        return Buffer.from(bytes);
-    }
-
-    async getBufferOrFail(): Promise<Buffer> {
-        const buffer = await this.getBuffer();
-        if (buffer === null) {
-            throw KeyNotFoundFileError.create(this._key);
-        }
-        return buffer;
-    }
-
-    async getArrayBuffer(): Promise<ArrayBuffer | null> {
-        const bytes = await this.getBuffer();
-        if (bytes === null) {
-            return null;
-        }
-        return new Uint8Array(Buffer.from(bytes)).buffer;
+        return new Uint8Array(bytes).buffer;
     }
 
     async getArrayBufferOrFail(): Promise<ArrayBuffer> {
@@ -202,25 +175,6 @@ export class File implements IFile {
             throw KeyNotFoundFileError.create(this._key);
         }
         return arrayBuffer;
-    }
-
-    async getReadable(): Promise<Readable | null> {
-        const stream = await this.adapter.getStream(
-            this.context,
-            this._key.toString(),
-        );
-        if (stream === null) {
-            return null;
-        }
-        return Readable.from(stream);
-    }
-
-    async getReadableOrFail(): Promise<Readable> {
-        const stream = await this.getReadable();
-        if (stream === null) {
-            throw KeyNotFoundFileError.create(this._key);
-        }
-        return stream;
     }
 
     async getReadableStream(): Promise<ReadableStream<Uint8Array> | null> {
@@ -274,33 +228,18 @@ export class File implements IFile {
         return !(await this.exists());
     }
 
-    private lock<TParameters extends Array<unknown>, TReturn>(): MiddlewareFn<
-        TParameters,
-        Promise<TReturn>
-    > {
-        return async ({ next }) => {
-            return await this.lockFactory
-                .create(this.originalKey)
-                .runOrFail(async () => {
-                    return await next();
-                });
-        };
-    }
-
-    add(content: WritableFileContent): Promise<boolean> {
+    async add(content: WritableFileContent): Promise<boolean> {
         const { data, contentType = this.getContentType(this._key) } = content;
         const resolvedData = resolveFileContent(data);
-        return use(async () => {
-            return await this.adapter.add(this.context, this._key.toString(), {
-                data: resolvedData,
-                contentType,
-                contentDisposition: this.defaultContentDisposition,
-                contentEncoding: this.defaultContentEncoding,
-                cacheControl: this.defaultCacheControl,
-                contentLanguage: this.defaultContentLanguage,
-                fileSizeInBytes: resolvedData.length,
-            });
-        }, this.lock())();
+        return await this.adapter.add(this.context, this._key.toString(), {
+            data: resolvedData,
+            contentType,
+            contentDisposition: this.defaultContentDisposition,
+            contentEncoding: this.defaultContentEncoding,
+            cacheControl: this.defaultCacheControl,
+            contentLanguage: this.defaultContentLanguage,
+            fileSizeInBytes: resolvedData.length,
+        });
     }
 
     async addOrFail(content: WritableFileContent): Promise<void> {
@@ -318,28 +257,26 @@ export class File implements IFile {
         return resolvedContentType;
     }
 
-    addStream(stream: WritableFileStream): Promise<boolean> {
+    async addStream(stream: WritableFileStream): Promise<boolean> {
         const {
             data,
             fileSize = null,
             contentType = this.getContentType(this._key),
         } = stream;
 
-        return use(async () => {
-            return await this.adapter.addStream(
-                this.context,
-                this._key.toString(),
-                {
-                    data: new ResolveFileStream(data),
-                    fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
-                    contentType,
-                    contentDisposition: this.defaultContentDisposition,
-                    contentEncoding: this.defaultContentEncoding,
-                    cacheControl: this.defaultCacheControl,
-                    contentLanguage: this.defaultContentLanguage,
-                },
-            );
-        }, this.lock())();
+        return await this.adapter.addStream(
+            this.context,
+            this._key.toString(),
+            {
+                data: new ResolveFileStream(data),
+                fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
+                contentType,
+                contentDisposition: this.defaultContentDisposition,
+                contentEncoding: this.defaultContentEncoding,
+                cacheControl: this.defaultCacheControl,
+                contentLanguage: this.defaultContentLanguage,
+            },
+        );
     }
 
     async addStreamOrFail(stream: WritableFileStream): Promise<void> {
@@ -349,24 +286,18 @@ export class File implements IFile {
         }
     }
 
-    update(content: WritableFileContent): Promise<boolean> {
+    async update(content: WritableFileContent): Promise<boolean> {
         const { data, contentType = this.getContentType(this._key) } = content;
         const resolvedData = resolveFileContent(data);
-        return use(async () => {
-            return await this.adapter.update(
-                this.context,
-                this._key.toString(),
-                {
-                    data: resolvedData,
-                    contentType,
-                    contentDisposition: this.defaultContentDisposition,
-                    contentEncoding: this.defaultContentEncoding,
-                    cacheControl: this.defaultCacheControl,
-                    contentLanguage: this.defaultContentLanguage,
-                    fileSizeInBytes: resolvedData.length,
-                },
-            );
-        }, this.lock())();
+        return await this.adapter.update(this.context, this._key.toString(), {
+            data: resolvedData,
+            contentType,
+            contentDisposition: this.defaultContentDisposition,
+            contentEncoding: this.defaultContentEncoding,
+            cacheControl: this.defaultCacheControl,
+            contentLanguage: this.defaultContentLanguage,
+            fileSizeInBytes: resolvedData.length,
+        });
     }
 
     async updateOrFail(content: WritableFileContent): Promise<void> {
@@ -376,27 +307,25 @@ export class File implements IFile {
         }
     }
 
-    updateStream(stream: WritableFileStream): Promise<boolean> {
+    async updateStream(stream: WritableFileStream): Promise<boolean> {
         const {
             data,
             fileSize = null,
             contentType = this.getContentType(this._key),
         } = stream;
-        return use(async () => {
-            return await this.adapter.updateStream(
-                this.context,
-                this._key.toString(),
-                {
-                    data: new ResolveFileStream(data),
-                    fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
-                    contentType,
-                    contentDisposition: this.defaultContentDisposition,
-                    contentEncoding: this.defaultContentEncoding,
-                    cacheControl: this.defaultCacheControl,
-                    contentLanguage: this.defaultContentLanguage,
-                },
-            );
-        }, this.lock())();
+        return await this.adapter.updateStream(
+            this.context,
+            this._key.toString(),
+            {
+                data: new ResolveFileStream(data),
+                fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
+                contentType,
+                contentDisposition: this.defaultContentDisposition,
+                contentEncoding: this.defaultContentEncoding,
+                cacheControl: this.defaultCacheControl,
+                contentLanguage: this.defaultContentLanguage,
+            },
+        );
     }
 
     async updateStreamOrFail(stream: WritableFileStream): Promise<void> {
@@ -406,49 +335,43 @@ export class File implements IFile {
         }
     }
 
-    put(content: WritableFileContent): Promise<boolean> {
+    async put(content: WritableFileContent): Promise<boolean> {
         const { data, contentType = this.getContentType(this._key) } = content;
         const resolvedData = resolveFileContent(data);
-        return use(async () => {
-            return await this.adapter.put(this.context, this._key.toString(), {
-                data: resolvedData,
-                contentType,
-                contentDisposition: this.defaultContentDisposition,
-                contentEncoding: this.defaultContentEncoding,
-                cacheControl: this.defaultCacheControl,
-                contentLanguage: this.defaultContentLanguage,
-                fileSizeInBytes: resolvedData.length,
-            });
-        }, this.lock())();
+        return await this.adapter.put(this.context, this._key.toString(), {
+            data: resolvedData,
+            contentType,
+            contentDisposition: this.defaultContentDisposition,
+            contentEncoding: this.defaultContentEncoding,
+            cacheControl: this.defaultCacheControl,
+            contentLanguage: this.defaultContentLanguage,
+            fileSizeInBytes: resolvedData.length,
+        });
     }
 
-    putStream(stream: WritableFileStream): Promise<boolean> {
+    async putStream(stream: WritableFileStream): Promise<boolean> {
         const {
             data,
             fileSize = null,
             contentType = this.getContentType(this._key),
         } = stream;
-        return use(async () => {
-            return await this.adapter.putStream(
-                this.context,
-                this._key.toString(),
-                {
-                    data: new ResolveFileStream(data),
-                    fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
-                    contentType,
-                    contentDisposition: this.defaultContentDisposition,
-                    contentEncoding: this.defaultContentEncoding,
-                    cacheControl: this.defaultCacheControl,
-                    contentLanguage: this.defaultContentLanguage,
-                },
-            );
-        }, this.lock())();
+        return await this.adapter.putStream(
+            this.context,
+            this._key.toString(),
+            {
+                data: new ResolveFileStream(data),
+                fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
+                contentType,
+                contentDisposition: this.defaultContentDisposition,
+                contentEncoding: this.defaultContentEncoding,
+                cacheControl: this.defaultCacheControl,
+                contentLanguage: this.defaultContentLanguage,
+            },
+        );
     }
 
-    remove(): Promise<boolean> {
-        return use(async () => {
-            return await this.adapter.removeMany(this.context, [this._key]);
-        }, this.lock())();
+    async remove(): Promise<boolean> {
+        return await this.adapter.removeMany(this.context, [this._key]);
     }
 
     async removeOrFail(): Promise<void> {
@@ -458,23 +381,21 @@ export class File implements IFile {
         }
     }
 
-    private async _copy(destination: string): Promise<FileWriteEnum> {
-        return use(async () => {
-            return await this.adapter.copy(
-                this.context,
-                this._key.toString(),
-                destination,
-            );
-        }, this.lock())();
-    }
-
     async copy(destination: string): Promise<boolean> {
-        const result = await this._copy(destination);
+        const result = await this.adapter.copy(
+            this.context,
+            this._key.toString(),
+            destination,
+        );
         return result === FILE_WRITE_ENUM.SUCCESS;
     }
 
     async copyOrFail(destination: string): Promise<void> {
-        const result = await this._copy(destination);
+        const result = await this.adapter.copy(
+            this.context,
+            this._key.toString(),
+            destination,
+        );
         if (result === FILE_WRITE_ENUM.KEY_EXISTS) {
             throw KeyExistsFileError.create(this._key);
         }
@@ -483,14 +404,12 @@ export class File implements IFile {
         }
     }
 
-    copyAndReplace(destination: string): Promise<boolean> {
-        return use(async () => {
-            return await this.adapter.copyAndReplace(
-                this.context,
-                this._key.toString(),
-                destination,
-            );
-        }, this.lock())();
+    async copyAndReplace(destination: string): Promise<boolean> {
+        return await this.adapter.copyAndReplace(
+            this.context,
+            this._key.toString(),
+            destination,
+        );
     }
 
     async copyAndReplaceOrFail(destination: string): Promise<void> {
@@ -499,23 +418,22 @@ export class File implements IFile {
             throw KeyNotFoundFileError.create(this._key);
         }
     }
-    private _move(destination: string): Promise<FileWriteEnum> {
-        return use(async () => {
-            return await this.adapter.move(
-                this.context,
-                this._key.toString(),
-                destination,
-            );
-        }, this.lock())();
-    }
 
     async move(destination: string): Promise<boolean> {
-        const result = await this._move(destination);
+        const result = await this.adapter.move(
+            this.context,
+            this._key.toString(),
+            destination,
+        );
         return result === FILE_WRITE_ENUM.SUCCESS;
     }
 
     async moveOrFail(destination: string): Promise<void> {
-        const result = await this._move(destination);
+        const result = await this.adapter.move(
+            this.context,
+            this._key.toString(),
+            destination,
+        );
         if (result === FILE_WRITE_ENUM.KEY_EXISTS) {
             throw KeyExistsFileError.create(this._key);
         }
@@ -524,14 +442,12 @@ export class File implements IFile {
         }
     }
 
-    moveAndReplace(destination: string): Promise<boolean> {
-        return use(async () => {
-            return await this.adapter.moveAndReplace(
-                this.context,
-                this._key.toString(),
-                destination,
-            );
-        }, this.lock())();
+    async moveAndReplace(destination: string): Promise<boolean> {
+        return await this.adapter.moveAndReplace(
+            this.context,
+            this._key.toString(),
+            destination,
+        );
     }
 
     async moveAndReplaceOrFail(destination: string): Promise<void> {

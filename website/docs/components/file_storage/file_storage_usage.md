@@ -266,14 +266,6 @@ const content = await fileStorage.create("file.txt").getBytes();
 console.log(content);
 ```
 
-The file can be read as node js `Buffer`:
-
-```ts
-const content = await fileStorage.create("file.txt").getBuffer();
-
-console.log(content);
-```
-
 The file can be read as web `ArrayBuffer`:
 
 ```ts
@@ -282,13 +274,9 @@ const content = await fileStorage.create("file.txt").getArrayBuffer();
 console.log(content);
 ```
 
-The file can be read as node js stream:
-
-```ts
-const content = await fileStorage.create("file.txt").getReadable();
-
 console.log(content);
-```
+
+````
 
 The file can be read as web stream:
 
@@ -296,7 +284,7 @@ The file can be read as web stream:
 const content = await fileStorage.create("file.txt").getReadableStream();
 
 console.log(content);
-```
+````
 
 :::info
 Note all this methods return null if the file doesnt exists.
@@ -355,9 +343,7 @@ These variants are equivalent to the standard methods but throw an error if the 
 
 - `getTextOfFail`
 - `getBytesOrFail`
-- `getBufferOrFail`
 - `getArrayBufferOrFail`
-- `getReadableOrFail`
 - `getReadableStreamOrFail`
 - `addOrFail`
 - `addStreamOrFail`
@@ -591,29 +577,6 @@ await eventBus.addListener("sending-file-over-network", ({ file }) => {
     console.log("file:", file);
 });
 ```
-
-### File locking on write operations
-
-The `FileStorage` instance method supports distributed locking via the `lockFactory` settings passed into `FileStorage` constructor. Data races will occur when multiple clients simultaneously perform write operation to same file and file will be corrupted.
-
-```ts
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
-import { FileStorage } from "@daiso-tech/core/FileStorage";
-import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
-
-const fileStorage = new FileStorage({
-    adapter: new MemoryFileStorageAdapter(),
-    lockFactory: new MemoryLockAdapter(),
-});
-
-// Write operations on the same file key will now be protected by a lock
-await fileStorage.create("file.txt").add({ data: "CONTENT" });
-```
-
-:::info
-You can pass `ILockFactoryBase`, `ILockAdapter`, and `IDatabaseLockAdapter` to `lockFactory` setting.
-For further information about `LockFactory` refer to the [`@daiso-tech/core/lock`](../lock/lock_usage.md) documentation.
-:::
 
 ### Separating file creation from manipulation
 

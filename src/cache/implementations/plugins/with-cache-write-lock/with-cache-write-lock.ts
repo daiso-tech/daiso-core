@@ -28,12 +28,22 @@ export type WithCacheWriteLockMethods = keyof Pick<
 /**
  * Settings for the {@link withCacheWriteLock} plugin.
  *
+ * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
  * @group Plugins
  */
 export type WithCacheWriteLockSettings = {
+    /**
+     * A factory that creates named locks.
+     * Each lock is keyed by the cache key to ensure concurrent writes
+     * to the same cache entry are serialised while writes to different
+     * entries can proceed in parallel.
+     */
     lockFactory: ILockFactory;
 
     /**
+     * The subset of mutating methods to protect with a write lock.
+     * When omitted, all mutating methods are protected.
+     *
      * @default
      * ```ts
      * ["getAndRemove", "add", "put", "update", "increment", "removeMany", "getOrAdd"]

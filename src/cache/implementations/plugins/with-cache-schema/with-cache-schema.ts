@@ -11,13 +11,24 @@ import { validate } from "@/utilities/_module.js";
 /**
  * Settings for the {@link withCacheSchema} plugin.
  *
+ * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
  * @typeParam TType - The type to validate against.
  * @group Plugins
  */
 export type WithCacheSchemaSettings<TType = unknown> = {
+    /**
+     * A standard-schema-compliant schema used to validate cache values.
+     * Compatible with libraries such as Zod, ArkType, Valibot, and others
+     * that implement the `StandardSchemaV1` specification.
+     */
     schema: StandardSchemaV1<TType>;
 
     /**
+     * Whether to validate values returned by `get` and `getAndRemove`
+     * on retrieval, in addition to validating values on write.
+     * When `true`, malformed data in the cache is caught at read time
+     * rather than silently returned.
+     *
      * @default true
      */
     shouldValidateOutput?: boolean;
