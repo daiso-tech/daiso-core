@@ -5,11 +5,9 @@ pagination_label: Creating Semaphore adapters
 tags:
     - Semaphore
     - Creating adapters
-    - Creating database adapters
 keywords:
     - Semaphore
     - Creating adapters
-    - Creating database adapters
 ---
 
 # Creating Semaphore adapters
@@ -37,37 +35,6 @@ import { MemorySemaphoreAdapter } from "./MemorySemaphoreAdapter.js";
 describe("class: MySemaphoreAdapter", () => {
     semaphoreAdapterTestSuite({
         createAdapter: () => new MemorySemaphoreAdapter(),
-        test,
-        beforeEach,
-        expect,
-        describe,
-    });
-});
-```
-
-## Implementing your custom IDatabaseSemaphoreAdapter
-
-We provide an additional contract [`IDatabaseSemaphoreAdapter`](https://daiso-tech.github.io/daiso-core/types/Semaphore.IDatabaseSemaphoreAdapter.html) for building custom semaphore adapters tailored to databases.
-
-## Testing your custom IDatabaseSemaphoreAdapter
-
-We provide a complete test suite to test your database semaphore adapter implementation. Simply use the [`databaseSemaphoreAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Semaphore.databaseSemaphoreAdapterTestSuite.html) function:
-
-- Preconfigured Vitest test cases
-- Common edge case coverage
-
-Usage example:
-
-```ts
-import { beforeEach, describe, expect, test } from "vitest";
-import { databaseSemaphoreAdapterTestSuite } from "@daiso-tech/core/semaphore/test-utilities";
-import { MyDatabaseSemaphoreAdapter } from "./MyDatabaseSemaphoreAdapter.js";
-
-describe("class: MyDatabaseSemaphoreAdapter", () => {
-    databaseSemaphoreAdapterTestSuite({
-        createAdapter: async () => {
-            return new MyDatabaseSemaphoreAdapter(),
-        },
         test,
         beforeEach,
         expect,
