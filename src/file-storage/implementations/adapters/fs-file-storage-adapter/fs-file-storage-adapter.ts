@@ -304,7 +304,7 @@ export class FsFileStorageAdapter
         return isFound;
     }
 
-    async copy(
+    private async _copy(
         _context: IReadableContext,
         source: string,
         destination: string,
@@ -331,7 +331,15 @@ export class FsFileStorageAdapter
         }
     }
 
-    async copyAndReplace(
+    async copy(
+        context: IReadableContext,
+        source: string,
+        destination: string,
+    ): Promise<FileWriteEnum> {
+        return this._copy(context, source, destination);
+    }
+
+    private async _copyAndReplace(
         _context: IReadableContext,
         source: string,
         destination: string,
@@ -350,35 +358,15 @@ export class FsFileStorageAdapter
         }
     }
 
-    async move(
-        context: IReadableContext,
-        source: string,
-        destination: string,
-    ): Promise<FileWriteEnum> {
-        const result = await this.copy(context, source, destination);
-        if (result === FILE_WRITE_ENUM.SUCCESS) {
-            await this.removeMany(context, [source]);
-        }
-        return result;
-    }
-
-    async moveAndReplace(
+    async copyAndReplace(
         context: IReadableContext,
         source: string,
         destination: string,
     ): Promise<boolean> {
-        const hasMoved = await this.copyAndReplace(
-            context,
-            source,
-            destination,
-        );
-        if (hasMoved) {
-            await this.removeMany(context, [source]);
-        }
-        return hasMoved;
+        return this._copyAndReplace(context, source, destination);
     }
 
-    async removeMany(
+    private async _removeMany(
         _context: IReadableContext,
         keys: Array<string>,
     ): Promise<boolean> {
@@ -406,6 +394,41 @@ export class FsFileStorageAdapter
             }
         }
         return false;
+    }
+
+    async move(
+        context: IReadableContext,
+        source: string,
+        destination: string,
+    ): Promise<FileWriteEnum> {
+        const result = await this._copy(context, source, destination);
+        if (result === FILE_WRITE_ENUM.SUCCESS) {
+            await this._removeMany(context, [source]);
+        }
+        return result;
+    }
+
+    async moveAndReplace(
+        context: IReadableContext,
+        source: string,
+        destination: string,
+    ): Promise<boolean> {
+        const hasMoved = await this.copyAndReplace(
+            context,
+            source,
+            destination,
+        );
+        if (hasMoved) {
+            await this._removeMany(context, [source]);
+        }
+        return hasMoved;
+    }
+
+    async removeMany(
+        context: IReadableContext,
+        keys: Array<string>,
+    ): Promise<boolean> {
+        return this._removeMany(context, keys);
     }
 
     async removeByPrefix(
