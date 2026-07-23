@@ -133,26 +133,26 @@ The lock key is derived directly from the file key, ensuring that concurrent ope
 
 All methods are protected by default:
 
-| Method                 | Lock key source     | Behaviour                                              |
-| ---------------------- | ------------------- | ------------------------------------------------------ |
-| `exists`               | Single key          | Acquires lock for the key before checking existence    |
-| `getStream`            | Single key          | Acquires lock for the key before reading the stream    |
-| `getBytes`             | Single key          | Acquires lock for the key before reading bytes         |
-| `getMetaData`          | Single key          | Acquires lock for the key before reading metadata      |
-| `add`                  | Single key          | Acquires lock for the key before adding                |
-| `addStream`            | Single key          | Acquires lock for the key before adding a stream       |
-| `update`               | Single key          | Acquires lock for the key before updating              |
-| `updateStream`         | Single key          | Acquires lock for the key before updating a stream     |
-| `put`                  | Single key          | Acquires lock for the key before putting               |
-| `putStream`            | Single key          | Acquires lock for the key before putting a stream      |
-| `copy`                 | Source key          | Acquires lock on the source file before copying        |
-| `copyAndReplace`       | Source key          | Acquires lock on the source file before copying        |
-| `move`                 | Source key          | Acquires lock on the source file before moving         |
-| `moveAndReplace`       | Source key          | Acquires lock on the source file before moving         |
-| `removeMany`           | Multiple keys       | Acquires locks for each key sequentially (deduplicated)|
-| `getPublicUrl`         | Single key          | Acquires lock for the key before generating the URL    |
-| `getSignedDownloadUrl` | Single key          | Acquires lock for the key before generating the URL    |
-| `getSignedUploadUrl`   | Single key          | Acquires lock for the key before generating the URL    |
+| Method                 | Lock key source | Behaviour                                               |
+| ---------------------- | --------------- | ------------------------------------------------------- |
+| `exists`               | Single key      | Acquires lock for the key before checking existence     |
+| `getStream`            | Single key      | Acquires lock for the key before reading the stream     |
+| `getBytes`             | Single key      | Acquires lock for the key before reading bytes          |
+| `getMetaData`          | Single key      | Acquires lock for the key before reading metadata       |
+| `add`                  | Single key      | Acquires lock for the key before adding                 |
+| `addStream`            | Single key      | Acquires lock for the key before adding a stream        |
+| `update`               | Single key      | Acquires lock for the key before updating               |
+| `updateStream`         | Single key      | Acquires lock for the key before updating a stream      |
+| `put`                  | Single key      | Acquires lock for the key before putting                |
+| `putStream`            | Single key      | Acquires lock for the key before putting a stream       |
+| `copy`                 | Source key      | Acquires lock on the source file before copying         |
+| `copyAndReplace`       | Source key      | Acquires lock on the source file before copying         |
+| `move`                 | Source key      | Acquires lock on the source file before moving          |
+| `moveAndReplace`       | Source key      | Acquires lock on the source file before moving          |
+| `removeMany`           | Multiple keys   | Acquires locks for each key sequentially (deduplicated) |
+| `getPublicUrl`         | Single key      | Acquires lock for the key before generating the URL     |
+| `getSignedDownloadUrl` | Single key      | Acquires lock for the key before generating the URL     |
+| `getSignedUploadUrl`   | Single key      | Acquires lock for the key before generating the URL     |
 
 ### Usage
 
@@ -189,10 +189,10 @@ const adapter = withPlugin(
 
 ### Settings
 
-| Option        | Type                               | Default                                                                                                                               | Description                                        |
-| ------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| `lockFactory` | `ILockFactory`                     | _(required)_                                                                                                                          | A factory that creates named locks                 |
-| `onlyMethods` | `Array<keyof ISignedFileStorageAdapter>` | All methods                                                                                                                      | The subset of methods to protect with a lock       |
+| Option        | Type                                     | Default      | Description                                  |
+| ------------- | ---------------------------------------- | ------------ | -------------------------------------------- |
+| `lockFactory` | `ILockFactory`                           | _(required)_ | A factory that creates named locks           |
+| `onlyMethods` | `Array<keyof ISignedFileStorageAdapter>` | All methods  | The subset of methods to protect with a lock |
 
 :::danger
 Because `withPlugin` uses `enhance` under the hood, the same edge case applies: if one enhanced method internally calls another enhanced method via `this`, the middleware will apply **twice**. Be mindful of inter-method calls when applying plugins that enhance multiple methods on the same instance.
@@ -202,4 +202,7 @@ Because `withPlugin` uses `enhance` under the hood, the same edge case applies: 
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
 For more information about lock factories, see the [Lock](../lock/lock_usage.md) documentation.
 :::
+
+```
+
 ```

@@ -275,7 +275,8 @@ console.log(content);
 ```
 
 console.log(content);
-```
+
+````
 
 The file can be read as web stream:
 
@@ -283,7 +284,7 @@ The file can be read as web stream:
 const content = await fileStorage.create("file.txt").getReadableStream();
 
 console.log(content);
-```
+````
 
 :::info
 Note all this methods return null if the file doesnt exists.
