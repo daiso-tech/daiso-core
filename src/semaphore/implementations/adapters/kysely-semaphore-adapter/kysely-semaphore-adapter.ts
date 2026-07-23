@@ -279,13 +279,9 @@ export class KyselySemaphoreAdapter
                 .insertInto("semaphore")
                 .values({ key, limit })
                 .$if(!this.isMysql, (eb) =>
-                    eb.onConflict((eb_) =>
-                        eb_.column("key").doNothing(),
-                    ),
+                    eb.onConflict((eb_) => eb_.column("key").doNothing()),
                 )
-                .$if(this.isMysql, (eb) =>
-                    eb.onDuplicateKeyUpdate({ key }),
-                )
+                .$if(this.isMysql, (eb) => eb.onDuplicateKeyUpdate({ key }))
                 .execute();
 
             // Read the stored semaphore to get the authoritative limit.
@@ -312,14 +308,11 @@ export class KyselySemaphoreAdapter
                 .select((eb) => eb.fn.countAll<number>().as("count"))
                 .executeTakeFirst();
 
-            const currentCount = countResult
-                ? Number(countResult.count)
-                : 0;
+            const currentCount = countResult ? Number(countResult.count) : 0;
 
             // When no slots are held the limit may be updated; otherwise the
             // stored limit is authoritative.
-            const effectiveLimit =
-                currentCount === 0 ? limit : semaphore.limit;
+            const effectiveLimit = currentCount === 0 ? limit : semaphore.limit;
 
             if (currentCount >= effectiveLimit) {
                 return false;
@@ -342,7 +335,9 @@ export class KyselySemaphoreAdapter
                 .values({ key, id: slotId, expiration })
                 .$if(!this.isMysql, (eb) =>
                     eb.onConflict((eb_) =>
-                        eb_.column("id").doUpdateSet({ key, id: slotId, expiration }),
+                        eb_
+                            .column("id")
+                            .doUpdateSet({ key, id: slotId, expiration }),
                     ),
                 )
                 .$if(this.isMysql, (eb) =>
