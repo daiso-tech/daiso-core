@@ -31,4 +31,3 @@ Custom `IDatabaseSharedLockAdapter` implementations should migrate to `ISharedLo
 - `getState(context, key): Promise<ISharedLockAdapterState | null>`
 
 Use `sharedLockAdapterTestSuite` instead of `databaseSharedLockAdapterTestSuite` for testing. Replace custom `DatabaseSharedLockAdapter` subclasses with direct `ISharedLockAdapter` implementations.
-
