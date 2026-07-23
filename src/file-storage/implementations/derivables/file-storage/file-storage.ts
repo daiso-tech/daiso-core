@@ -15,23 +15,6 @@ import {
 import { FileSerdeTransformer } from "@/file-storage/implementations/derivables/file-storage/file-serde-transformer.js";
 import { File } from "@/file-storage/implementations/derivables/file-storage/file.js";
 import { resolveFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/resolve-file-storage-adapter.js";
-import {
-    type ILockFactory,
-    type LockFactoryInput,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IDatabaseLockAdapter,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ILockAdapter,
-} from "@/lock/contracts/_module.js";
-// eslint-disable-next-line import/order
-import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type LockFactory,
-    resolveLockFactoryInput,
-} from "@/lock/implementations/derivables/_module.js";
-import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
-import { use } from "@/middleware/implementations/_module.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
@@ -160,18 +143,6 @@ export type FileStorageSettingsBase = {
      * ```
      */
     context?: IReadableContext;
-
-    /**
-     * You can provide an {@link ILockFactoryBase | `ILockFactoryBase`}, an {@link ILockAdapter | `ILockAdapter`} or an {@link IDatabaseLockAdapter | `IDatabaseLockAdapter`} instance to handle locking when write methods are called.
-     * If you provide an adapter, it will be automatically wrapped in an {@link LockFactory | `LockFactory`} instance.
-     * @default
-     * ```ts
-     * import { NoOpLockAdapter } from "@daiso-tech/core/lock/no-op-lock-adapter";
-     *
-     * new NoOpLockAdapter()
-     * ```
-     */
-    lockFactory?: LockFactoryInput;
 };
 
 /**
@@ -208,7 +179,6 @@ export class FileStorage implements IFileStorage {
     private readonly onlyLowercase: boolean;
     private readonly keyValidator: InvokableFn<[key: string], string | null>;
     private readonly context: IReadableContext;
-    private readonly lockFactory: ILockFactory;
 
     /**
      * @example
@@ -240,10 +210,8 @@ export class FileStorage implements IFileStorage {
             defaultContentLanguage = null,
             urlAdapter = {},
             context = new ExecutionContext(new NoOpExecutionContextAdapter()),
-            lockFactory = new NoOpLockAdapter(),
         } = settings;
 
-        this.lockFactory = resolveLockFactoryInput(lockFactory);
         this.context = context;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
@@ -261,7 +229,6 @@ export class FileStorage implements IFileStorage {
 
     private registerToSerde(): void {
         const transformer = new FileSerdeTransformer({
-            lockFactory: this.lockFactory,
             context: this.context,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,
@@ -281,7 +248,6 @@ export class FileStorage implements IFileStorage {
 
     create(key: string): IFile {
         return new File({
-            lockFactory: this.lockFactory,
             context: this.context,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,
@@ -306,14 +272,6 @@ export class FileStorage implements IFileStorage {
         const keys = files.map((file) => {
             return file.key;
         });
-        return use(async () => {
-            return await this.adapter.removeMany(this.context, keys);
-        }, [
-            ...keys.map<MiddlewareFn<[], Promise<boolean>>>((key) => {
-                return async ({ next }) => {
-                    return await this.lockFactory.create(key).runOrFail(next);
-                };
-            }),
-        ])();
+        return await this.adapter.removeMany(this.context, keys);
     }
 }

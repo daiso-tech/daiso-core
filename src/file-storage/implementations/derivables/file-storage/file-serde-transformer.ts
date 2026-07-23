@@ -11,7 +11,6 @@ import {
     File,
     type ISerializedFile,
 } from "@/file-storage/implementations/derivables/file-storage/file.js";
-import { type ILockFactory } from "@/lock/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import {
     getConstructorName,
@@ -23,7 +22,6 @@ import {
  * @internal
  */
 export type FileSerdeTransformerSettings = {
-    lockFactory: ILockFactory;
     defaultContentType: string;
     defaultContentDisposition: string | null;
     defaultContentEncoding: string | null;
@@ -55,11 +53,9 @@ export class FileSerdeTransformer implements ISerdeTransformer<
     private readonly defaultCacheControl: string | null;
     private readonly defaultContentLanguage: string | null;
     private readonly context: IReadableContext;
-    private readonly lockFactory: ILockFactory;
 
     constructor(settings: FileSerdeTransformerSettings) {
         const {
-            lockFactory,
             onlyLowercase,
             keyValidator,
             adapter,
@@ -73,7 +69,6 @@ export class FileSerdeTransformer implements ISerdeTransformer<
             context,
         } = settings;
 
-        this.lockFactory = lockFactory;
         this.context = context;
         this.onlyLowercase = onlyLowercase;
         this.keyValidator = keyValidator;
@@ -117,7 +112,6 @@ export class FileSerdeTransformer implements ISerdeTransformer<
 
         return new File({
             originalKey: key,
-            lockFactory: this.lockFactory,
             context: this.context,
             onlyLowercase: this.onlyLowercase,
             keyValidator: this.keyValidator,
