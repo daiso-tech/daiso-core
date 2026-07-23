@@ -5,11 +5,9 @@ pagination_label: Creating Lock adapters
 tags:
     - Lock
     - Creating adapters
-    - Creating database adapters
 keywords:
     - Lock
     - Creating adapters
-    - Creating database adapters
 ---
 
 # Creating Lock adapters
