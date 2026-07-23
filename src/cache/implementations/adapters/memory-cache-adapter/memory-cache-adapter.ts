@@ -35,6 +35,7 @@ export class MemoryCacheAdapter<
      * ```
      */
     constructor(private readonly map: Map<string, unknown> = new Map()) {}
+
     get(context: IReadableContext, key: string): Promise<TType | null> {
         return this._get(context, key);
     }
