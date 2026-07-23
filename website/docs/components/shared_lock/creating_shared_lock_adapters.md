@@ -5,11 +5,9 @@ pagination_label: Creating SharedLock adapters
 tags:
     - SharedLock
     - Creating adapters
-    - Creating database adapters
 keywords:
     - SharedLock
     - Creating adapters
-    - Creating database adapters
 ---
 
 # Creating SharedLock adapters
@@ -37,37 +35,6 @@ import { MemorySharedLockAdapter } from "./MemorySharedLockAdapter.js";
 describe("class: MySharedLockAdapter", () => {
     sharedLockAdapterTestSuite({
         createAdapter: () => new MemorySharedLockAdapter(),
-        test,
-        beforeEach,
-        expect,
-        describe,
-    });
-});
-```
-
-## Implementing your custom IDatabaseSharedLockAdapter
-
-We provide an additional contract [`IDatabaseSharedLockAdapter`](https://daiso-tech.github.io/daiso-core/types/SharedLock.IDatabaseSharedLockAdapter.html) for building custom shared-lock adapters tailored to databases.
-
-## Testing your custom IDatabaseSharedLockAdapter
-
-We provide a complete test suite to test your database shared-lock adapter implementation. Simply use the [`databaseSharedLockAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/SharedLock.databaseSharedLockAdapterTestSuite.html) function:
-
-- Preconfigured Vitest test cases
-- Common edge case coverage
-
-Usage example:
-
-```ts
-import { beforeEach, describe, expect, test } from "vitest";
-import { databaseSharedLockAdapterTestSuite } from "@daiso-tech/core/shared-lock/test-utilities";
-import { MyDatabaseSharedLockAdapter } from "./MyDatabaseSharedLockAdapter.js";
-
-describe("class: MyDatabaseSharedLockAdapter", () => {
-    databaseSharedLockAdapterTestSuite({
-        createAdapter: async () => {
-            return new MyDatabaseSharedLockAdapter(),
-        },
         test,
         beforeEach,
         expect,
