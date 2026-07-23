@@ -5,7 +5,7 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
 import {
     type ISemaphoreFactoryResolver,
     type ISemaphoreFactory,
-    type SemaphoreAdapterVariants,
+    type ISemaphoreAdapter,
 } from "@/semaphore/contracts/_module.js";
 import {
     SemaphoreFactory,
@@ -22,7 +22,7 @@ import {
  * @group Derivables
  */
 export type SemaphoreAdapters<TAdapters extends string> = Partial<
-    Record<TAdapters, SemaphoreAdapterVariants>
+    Record<TAdapters, ISemaphoreAdapter>
 >;
 
 /**

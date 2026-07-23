@@ -5,4 +5,3 @@ export type * from "@/semaphore/contracts/semaphore-factory.contract.js";
 export * from "@/semaphore/contracts/semaphore-state.contract.js";
 export type * from "@/semaphore/contracts/semaphore.contract.js";
 export * from "@/semaphore/contracts/semaphore.errors.js";
-export type * from "@/semaphore/contracts/types.js";

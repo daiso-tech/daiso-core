@@ -5,11 +5,9 @@ pagination_label: Creating FileStorage adapters
 tags:
     - FileStorage
     - Creating adapters
-    - Creating database adapters
 keywords:
     - FileStorage
     - Creating adapters
-    - Creating database adapters
 ---
 
 # Creating FileStorage adapters

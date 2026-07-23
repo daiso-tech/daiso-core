@@ -5,7 +5,6 @@
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type ISemaphoreAdapter,
-    type SemaphoreAdapterVariants,
     type ISemaphore,
     FailedRefreshSemaphoreError,
     LimitReachedSemaphoreError,
@@ -36,7 +35,6 @@ export type SemaphoreSettings = {
     limit: number;
     serdeTransformerName: string;
     adapter: ISemaphoreAdapter;
-    originalAdapter: SemaphoreAdapterVariants;
     key: string;
     ttl: TimeSpan | null;
     defaultRefreshTime: TimeSpan;
@@ -63,7 +61,6 @@ export class Semaphore implements ISemaphore {
     private readonly slotId: string;
     private readonly limit: number;
     private readonly adapter: ISemaphoreAdapter;
-    private readonly originalAdapter: SemaphoreAdapterVariants;
     private readonly _key: string;
     private _ttl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
@@ -75,7 +72,6 @@ export class Semaphore implements ISemaphore {
             slotId,
             limit,
             adapter,
-            originalAdapter,
             key,
             ttl,
             serdeTransformerName,
@@ -91,15 +87,14 @@ export class Semaphore implements ISemaphore {
         this._key = key;
         this._ttl = ttl;
         this.defaultRefreshTime = defaultRefreshTime;
-        this.originalAdapter = originalAdapter;
     }
 
     _getSerdeTransformerName(): string {
         return this.serdeTransformerName;
     }
 
-    _getAdapter(): SemaphoreAdapterVariants {
-        return this.originalAdapter;
+    _getAdapter(): ISemaphoreAdapter {
+        return this.adapter;
     }
 
     async runOrFail<TValue = void>(

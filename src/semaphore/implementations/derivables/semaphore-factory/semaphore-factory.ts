@@ -12,11 +12,9 @@ import {
     type IDatabaseSemaphoreAdapter,
     type ISemaphore,
     type ISemaphoreAdapter,
-    type SemaphoreAdapterVariants,
     type SemaphoreFactoryCreateSettings,
     type ISemaphoreFactory,
 } from "@/semaphore/contracts/_module.js";
-import { resolveSemaphoreAdapter } from "@/semaphore/implementations/derivables/semaphore-factory/resolve-semaphore-adapter.js";
 import { SemaphoreSerdeTransformer } from "@/semaphore/implementations/derivables/semaphore-factory/semaphore-serde-transformer.js";
 import { Semaphore } from "@/semaphore/implementations/derivables/semaphore-factory/semaphore.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
@@ -113,7 +111,7 @@ export type SemaphoreFactorySettings = SemaphoreFactorySettingsBase & {
     /**
      * The underlying semaphore adapter that handles the actual slot acquisition operations.
      */
-    adapter: SemaphoreAdapterVariants;
+    adapter: ISemaphoreAdapter;
 };
 
 /**
@@ -128,7 +126,6 @@ export type SemaphoreFactorySettings = SemaphoreFactorySettingsBase & {
  */
 export class SemaphoreFactory implements ISemaphoreFactory {
     private readonly adapter: ISemaphoreAdapter;
-    private readonly originalAdapter: SemaphoreAdapterVariants;
     private readonly defaultTtl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
@@ -182,8 +179,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
         this.serdeTransformerName = serdeTransformerName;
 
-        this.originalAdapter = adapter;
-        this.adapter = resolveSemaphoreAdapter(adapter);
+        this.adapter = adapter;
 
         this.registerToSerde();
     }
@@ -192,7 +188,6 @@ export class SemaphoreFactory implements ISemaphoreFactory {
         const transformer = new SemaphoreSerdeTransformer({
             context: this.context,
             adapter: this.adapter,
-            originalAdapter: this.originalAdapter,
             defaultRefreshTime: this.defaultRefreshTime,
             serdeTransformerName: this.serdeTransformerName,
         });
@@ -214,7 +209,6 @@ export class SemaphoreFactory implements ISemaphoreFactory {
             slotId,
             limit,
             adapter: this.adapter,
-            originalAdapter: this.originalAdapter,
             key,
             ttl: ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
             serdeTransformerName: this.serdeTransformerName,

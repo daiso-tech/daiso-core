@@ -13,7 +13,7 @@ import {
     KyselySemaphoreAdapter,
     type KyselySemaphoreTables,
 } from "@/semaphore/implementations/adapters/kysely-semaphore-adapter/_module.js";
-import { databaseSemaphoreAdapterTestSuite } from "@/semaphore/implementations/test-utilities/_module.js";
+import { semaphoreAdapterTestSuite } from "@/semaphore/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("sqlite class: KyselySemaphoreAdapter", () => {
@@ -30,7 +30,7 @@ describe("sqlite class: KyselySemaphoreAdapter", () => {
     afterEach(() => {
         database.close();
     });
-    databaseSemaphoreAdapterTestSuite({
+    semaphoreAdapterTestSuite({
         createAdapter: async () => {
             const adapter = new KyselySemaphoreAdapter({
                 kysely,
@@ -56,60 +56,58 @@ describe("sqlite class: KyselySemaphoreAdapter", () => {
             await adapter.init();
 
             const limit = 3;
-            const expiration = TimeSpan.fromMinutes(2).toStartDate();
+            const expiredTtl = TimeSpan.fromMilliseconds(-1);
             const key1 = "1";
             const key2 = "2";
-            const slotId1 = "1";
-            const slotId2 = "2";
-            const slotId3 = "3";
 
-            await adapter.transaction(noOpContext, async (trx) => {
-                await trx.upsertSemaphore(noOpContext, key1, limit);
-                await trx.upsertSlot(noOpContext, key1, slotId1, expiration);
-                await trx.upsertSlot(noOpContext, key1, slotId2, expiration);
-                await trx.upsertSlot(noOpContext, key1, slotId3, expiration);
+            await adapter.acquire({
+                context: noOpContext,
+                key: key1,
+                slotId: "1",
+                limit,
+                ttl: expiredTtl,
+            });
+            await adapter.acquire({
+                context: noOpContext,
+                key: key1,
+                slotId: "2",
+                limit,
+                ttl: expiredTtl,
+            });
+            await adapter.acquire({
+                context: noOpContext,
+                key: key1,
+                slotId: "3",
+                limit,
+                ttl: expiredTtl,
+            });
 
-                await trx.upsertSemaphore(noOpContext, key2, limit);
-                await trx.upsertSlot(noOpContext, key2, slotId1, expiration);
-                await trx.upsertSlot(noOpContext, key2, slotId2, expiration);
-                await trx.upsertSlot(noOpContext, key2, slotId3, expiration);
+            await adapter.acquire({
+                context: noOpContext,
+                key: key2,
+                slotId: "1",
+                limit,
+                ttl: expiredTtl,
+            });
+            await adapter.acquire({
+                context: noOpContext,
+                key: key2,
+                slotId: "2",
+                limit,
+                ttl: expiredTtl,
+            });
+            await adapter.acquire({
+                context: noOpContext,
+                key: key2,
+                slotId: "3",
+                limit,
+                ttl: expiredTtl,
             });
 
             await adapter.removeAllExpired();
 
-            const result1 = await adapter.transaction(
-                noOpContext,
-                async (trx) => {
-                    return await trx.findSemaphore(noOpContext, key1);
-                },
-            );
-            expect(result1).toBeNull();
-
-            const result2 = await adapter.transaction(
-                noOpContext,
-                async (trx) => {
-                    return await trx.findSlots(noOpContext, key1);
-                },
-            );
-            expect(result2).toEqual([]);
-            expect(result2.length).toBe(0);
-
-            const result3 = await adapter.transaction(
-                noOpContext,
-                async (trx) => {
-                    return await trx.findSlots(noOpContext, key2);
-                },
-            );
-            expect(result3).toEqual([]);
-            expect(result3.length).toBe(0);
-
-            const result4 = await adapter.transaction(
-                noOpContext,
-                async (trx) => {
-                    return await trx.findSemaphore(noOpContext, key2);
-                },
-            );
-            expect(result4).toBeNull();
+            expect(await adapter.getState(noOpContext, key1)).toBeNull();
+            expect(await adapter.getState(noOpContext, key2)).toBeNull();
         });
     });
     describe("method: init", () => {
