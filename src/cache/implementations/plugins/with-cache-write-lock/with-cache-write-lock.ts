@@ -16,13 +16,7 @@ import { type PluginFn } from "@/middleware/contracts/_module.js";
  */
 export type WithCacheWriteLockMethods = keyof Pick<
     ICacheAdapter,
-    | "getAndRemove"
-    | "add"
-    | "put"
-    | "update"
-    | "increment"
-    | "removeMany"
-    | "getOrAdd"
+    "getAndRemove" | "add" | "put" | "update" | "increment" | "removeMany"
 >;
 
 /**
