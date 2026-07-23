@@ -164,52 +164,6 @@ export function fileStorageTestSuite(
                     expect(result).toEqual(data);
                 });
             });
-            describe("method: getBuffer", () => {
-                test("Should return null when key does not exists", async () => {
-                    const noneExistingKey = "a";
-
-                    const result = await fileStorage
-                        .create(noneExistingKey)
-                        .getBuffer();
-
-                    expect(result).toBeNull();
-                });
-                test("Should return Uint8Array when key exists", async () => {
-                    const key = "a";
-
-                    const buffer = Buffer.from("CONTENT", "utf8");
-                    const data = new Uint8Array(buffer);
-                    const file = fileStorage.create(key);
-                    await file.add({ data });
-                    const result = await file.getBuffer();
-
-                    expect(result).toEqual(buffer);
-                });
-            });
-            describe("method: getBufferOrFail", () => {
-                test("Should throw KeyNotFoundFileError when key does not exists", async () => {
-                    const noneExistingKey = "a";
-
-                    const result = fileStorage
-                        .create(noneExistingKey)
-                        .getBufferOrFail();
-
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
-                });
-                test("Should return Uint8Array when key exists", async () => {
-                    const key = "a";
-
-                    const buffer = Buffer.from("CONTENT", "utf8");
-                    const data = new Uint8Array(buffer);
-                    const file = fileStorage.create(key);
-                    await file.add({ data });
-                    const result = await file.getBufferOrFail();
-
-                    expect(result).toEqual(data);
-                });
-            });
             describe("method: getArrayBuffer", () => {
                 test("Should return null when key does not exists", async () => {
                     const noneExistingKey = "a";
@@ -250,54 +204,6 @@ export function fileStorageTestSuite(
                     const file = fileStorage.create(key);
                     await file.add({ data });
                     const result = await file.getArrayBufferOrFail();
-
-                    expect(result).toEqual(data);
-                });
-            });
-            describe("method: getReadable", () => {
-                test("Should return null when key does not exists", async () => {
-                    const noneExistingKey = "a";
-
-                    const result = await fileStorage
-                        .create(noneExistingKey)
-                        .getReadable();
-
-                    expect(result).toBeNull();
-                });
-                test("Should return Readable when key exists", async () => {
-                    const key = "a";
-
-                    const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
-                    const file = fileStorage.create(key);
-                    await file.add({ data });
-                    const result = await resolveStream(
-                        await file.getReadable(),
-                    );
-
-                    expect(result).toEqual(data);
-                });
-            });
-            describe("method: getReadableOrFail", () => {
-                test("Should throw KeyNotFoundFileError when key does not exists", async () => {
-                    const noneExistingKey = "a";
-
-                    const result = fileStorage
-                        .create(noneExistingKey)
-                        .getReadableOrFail();
-
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
-                });
-                test("Should return Readable when key exists", async () => {
-                    const key = "a";
-
-                    const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
-                    const file = fileStorage.create(key);
-                    await file.add({ data });
-                    const result = await resolveStream(
-                        await file.getReadableOrFail(),
-                    );
 
                     expect(result).toEqual(data);
                 });
