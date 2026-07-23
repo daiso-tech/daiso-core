@@ -3,10 +3,7 @@
  */
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ISemaphoreAdapter,
-    type SemaphoreAdapterVariants,
-} from "@/semaphore/contracts/_module.js";
+import { type ISemaphoreAdapter } from "@/semaphore/contracts/_module.js";
 import {
     Semaphore,
     type ISerializedSemaphore,
@@ -20,7 +17,6 @@ import { type OneOrMore, getConstructorName } from "@/utilities/_module.js";
  */
 export type SemaphoreSerdeTransformerSettings = {
     adapter: ISemaphoreAdapter;
-    originalAdapter: SemaphoreAdapterVariants;
     defaultRefreshTime: TimeSpan;
     serdeTransformerName: string;
     context: IReadableContext;
@@ -34,24 +30,17 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
     ISerializedSemaphore
 > {
     private readonly adapter: ISemaphoreAdapter;
-    private readonly originalAdapter: SemaphoreAdapterVariants;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly context: IReadableContext;
 
     constructor(settings: SemaphoreSerdeTransformerSettings) {
-        const {
-            adapter,
-            originalAdapter,
-            defaultRefreshTime,
-            serdeTransformerName,
-            context,
-        } = settings;
+        const { adapter, defaultRefreshTime, serdeTransformerName, context } =
+            settings;
 
         this.context = context;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
-        this.originalAdapter = originalAdapter;
         this.defaultRefreshTime = defaultRefreshTime;
     }
 
@@ -59,7 +48,7 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
         return [
             "semaphore",
             this.serdeTransformerName,
-            getConstructorName(this.originalAdapter),
+            getConstructorName(this.adapter),
         ].filter((str) => str !== "");
     }
 
@@ -75,7 +64,7 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
             value._getSerdeTransformerName() === this.serdeTransformerName;
 
         const isAdapterMatching =
-            getConstructorName(this.originalAdapter) ===
+            getConstructorName(this.adapter) ===
             getConstructorName(value._getAdapter());
 
         return isSerdTransformerNameMathcing && isAdapterMatching;
@@ -87,7 +76,6 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
             context: this.context,
             slotId,
             adapter: this.adapter,
-            originalAdapter: this.originalAdapter,
             key,
             limit,
             serdeTransformerName: this.serdeTransformerName,
