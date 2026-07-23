@@ -88,5 +88,18 @@ export function withCacheSchema<TType>(
                 return next([context, key, await validate(schema, value)]);
             },
         );
+        enhance(
+            adapter,
+            "getOrAdd",
+            async ({ args: [context, key, valueToAdd, ttl], next }) => {
+                const valueToReturn = await next([
+                    context,
+                    key,
+                    await validate(schema, valueToAdd),
+                    ttl,
+                ]);
+                return await validate(schema, valueToReturn);
+            },
+        );
     };
 }
