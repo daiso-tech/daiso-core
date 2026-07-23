@@ -16,7 +16,6 @@ import {
     type ISharedLockAdapterState,
     type ISharedLockExpiredState,
     type ISharedLockState,
-    type SharedLockAdapterVariants,
 } from "@/shared-lock/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -48,7 +47,6 @@ export type SharedLockSettings = {
     key: string;
     serdeTransformerName: string;
     adapter: ISharedLockAdapter;
-    originalAdapter: SharedLockAdapterVariants;
     limit: number;
     lockId: string;
     ttl: TimeSpan | null;
@@ -74,7 +72,6 @@ export class SharedLock implements ISharedLock {
     }
 
     private readonly adapter: ISharedLockAdapter;
-    private readonly originalAdapter: SharedLockAdapterVariants;
     private readonly _key: string;
     private readonly lockId: string;
     private _ttl: TimeSpan | null;
@@ -86,7 +83,6 @@ export class SharedLock implements ISharedLock {
     constructor(settings: SharedLockSettings) {
         const {
             adapter,
-            originalAdapter,
             lockId,
             ttl,
             serdeTransformerName,
@@ -99,7 +95,6 @@ export class SharedLock implements ISharedLock {
         this._key = key;
         this.context = context;
         this.limit = limit;
-        this.originalAdapter = originalAdapter;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this.lockId = lockId;
@@ -111,8 +106,8 @@ export class SharedLock implements ISharedLock {
         return this.serdeTransformerName;
     }
 
-    _getAdapter(): SharedLockAdapterVariants {
-        return this.originalAdapter;
+    _getAdapter(): ISharedLockAdapter {
+        return this.adapter;
     }
 
     async runReaderOrFail<TValue = void>(
