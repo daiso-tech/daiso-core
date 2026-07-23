@@ -11,11 +11,30 @@ import { type ILockFactory } from "@/lock/contracts/_module.js";
 import { type PluginFn } from "@/middleware/contracts/_module.js";
 
 /**
- * Settings for the {@link withFileStorageLock} plugin.
+ * All methods of {@link ISignedFileStorageAdapter | `ISignedFileStorageAdapter`} that can be protected by a lock,
+ * excluding `removeByPrefix` (which operates on key patterns rather than concrete keys).
  *
  * @group Plugins
  */
+export type WithFileStorageLockMethods = keyof Omit<
+    ISignedFileStorageAdapter,
+    "removeByPrefix"
+>;
+
+/**
+ * Configuration for the {@link withFileStorageLock} plugin.
+ * Requires a lock factory and optionally restricts which methods are protected.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/file-storage/plugins"`
+ * @group Plugins
+ */
 export type WithFileStorageLockSettings = {
+    /**
+     * A factory that creates named locks.
+     * Each lock is keyed by the file key to ensure concurrent operations
+     * on the same file are serialised while operations on different files
+     * can proceed in parallel.
+     */
     lockFactory: ILockFactory;
 
     /**
@@ -37,14 +56,40 @@ export type WithFileStorageLockSettings = {
      *   "move",
      *   "moveAndReplace",
      *   "removeMany",
-     *   "removeByPrefix",
      *   "getPublicUrl",
      *   "getSignedDownloadUrl",
      *   "getSignedUploadUrl",
      * ]
      * ```
      */
-    onlyMethods?: Array<keyof ISignedFileStorageAdapter>;
+    /**
+     * The subset of methods to protect with a lock.
+     * When omitted, all methods except `removeByPrefix` are protected by default.
+     * @default
+     * ```ts
+     * [
+     *   "exists",
+     *   "getStream",
+     *   "getBytes",
+     *   "getMetaData",
+     *   "add",
+     *   "addStream",
+     *   "update",
+     *   "updateStream",
+     *   "put",
+     *   "putStream",
+     *   "copy",
+     *   "copyAndReplace",
+     *   "move",
+     *   "moveAndReplace",
+     *   "removeMany",
+     *   "getPublicUrl",
+     *   "getSignedDownloadUrl",
+     *   "getSignedUploadUrl",
+     * ]
+     * ```
+     */
+    onlyMethods?: Array<WithFileStorageLockMethods>;
 };
 
 /**
@@ -331,7 +376,27 @@ function withFileStorageRemovalLock(
 }
 
 /**
- * @internal
+ * Creates a plugin that acquires a distributed lock before executing any
+ * operation on a file-storage adapter.
+ *
+ * This plugin wraps all methods (reads, writes, copy/move, removal, and URL
+ * generation) with a lock acquired via {@link ILockFactory | `ILockFactory`}.
+ * The lock key is derived from the file key (or source key for `copy`/`move`),
+ * ensuring that concurrent operations on the same file are serialised while
+ * operations on different files can proceed in parallel.
+ *
+ * By default all methods are protected. Use `onlyMethods` to restrict which
+ * operations are locked.
+ *
+ * @param settings - Configuration for the lock behaviour.
+ * @param settings.lockFactory - A factory that creates named locks.
+ * @param settings.onlyMethods - The subset of methods to protect with a lock.
+ *                               Defaults to all methods (except `removeByPrefix`).
+ * @returns A middleware plugin that wraps an `ISignedFileStorageAdapter`.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/file-storage/plugins"`
+ * @typeParam TType - The type of values stored in the file storage.
+ * @group Plugins
  */
 export function withFileStorageLock(
     settings: WithFileStorageLockSettings,
