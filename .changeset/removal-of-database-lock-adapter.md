@@ -18,6 +18,7 @@ The `IDatabaseLockAdapter` contract has been removed in favor of the simpler `IL
 ### Migration:
 
 Custom `IDatabaseLockAdapter` implementations should migrate to `ILockAdapter`. The new contract expects methods with the following signatures:
+
 - `acquire(context, key, lockId, ttl): Promise<boolean>`
 - `release(context, key, lockId): Promise<boolean>`
 - `forceRelease(context, key): Promise<boolean>`

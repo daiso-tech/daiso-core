@@ -17,6 +17,7 @@ The `IDatabaseSemaphoreAdapter` contract (`database-semaphore-adapter.contract.t
 ### Migration:
 
 Custom `IDatabaseSemaphoreAdapter` implementations should migrate to `ISemaphoreAdapter`. The new contract expects methods with the following signatures:
+
 - `acquire(settings: SemaphoreAcquireSettings): Promise<boolean>`
 - `release(context, key, slotId): Promise<boolean>`
 - `forceReleaseAll(context, key): Promise<boolean>`
@@ -24,5 +25,3 @@ Custom `IDatabaseSemaphoreAdapter` implementations should migrate to `ISemaphore
 - `getState(context, key): Promise<ISemaphoreAdapterState | null>`
 
 Use `semaphoreAdapterTestSuite` instead of `databaseSemaphoreAdapterTestSuite` for testing. Replace custom `IDatabaseSemaphoreAdapter` subclasses with direct `ISemaphoreAdapter` implementations.
-
-
