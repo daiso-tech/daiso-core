@@ -14,7 +14,6 @@ import {
     type ILockExpiredState,
     type ILockAcquiredState,
     type ILockUnavailableState,
-    type LockAdapterVariants,
 } from "@/lock/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -36,7 +35,6 @@ export type ISerializedLock = {
 export type LockSettings = {
     serdeTransformerName: string;
     adapter: ILockAdapter;
-    originalAdapter: LockAdapterVariants;
     key: string;
     lockId: string;
     ttl: TimeSpan | null;
@@ -61,7 +59,6 @@ export class Lock implements ILock {
     }
 
     private readonly adapter: ILockAdapter;
-    private readonly originalAdapter: LockAdapterVariants;
     private readonly _key: string;
     private readonly lockId: string;
     private _ttl: TimeSpan | null;
@@ -72,7 +69,6 @@ export class Lock implements ILock {
     constructor(settings: LockSettings) {
         const {
             adapter,
-            originalAdapter,
             key,
             lockId,
             ttl,
@@ -82,7 +78,6 @@ export class Lock implements ILock {
         } = settings;
 
         this.context = context;
-        this.originalAdapter = originalAdapter;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this._key = key;
@@ -95,8 +90,8 @@ export class Lock implements ILock {
         return this.serdeTransformerName;
     }
 
-    _getAdapter(): LockAdapterVariants {
-        return this.originalAdapter;
+    _getAdapter(): ILockAdapter {
+        return this.adapter;
     }
 
     async runOrFail<TValue = void>(

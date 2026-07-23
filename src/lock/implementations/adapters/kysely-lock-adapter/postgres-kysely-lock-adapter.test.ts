@@ -17,7 +17,7 @@ import {
     KyselyLockAdapter,
     type KyselyLockTables,
 } from "@/lock/implementations/adapters/kysely-lock-adapter/_module.js";
-import { databaseLockAdapterTestSuite } from "@/lock/implementations/test-utilities/_module.js";
+import { lockAdapterTestSuite } from "@/lock/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 const timeout = TimeSpan.fromMinutes(2);
@@ -47,7 +47,7 @@ describe("postgres class: KyselyLockAdapter", () => {
         await database.end();
         await container.stop();
     }, timeout.toMilliseconds());
-    databaseLockAdapterTestSuite({
+    lockAdapterTestSuite({
         createAdapter: async () => {
             const adapter = new KyselyLockAdapter({
                 kysely,
@@ -69,32 +69,30 @@ describe("postgres class: KyselyLockAdapter", () => {
             });
             await adapter.init();
 
-            await adapter.transaction(noOpContext, async (trx) => {
-                await trx.upsert(
-                    noOpContext,
-                    "a",
-                    "owner",
-                    TimeSpan.fromMilliseconds(50).toStartDate(),
-                );
-                await trx.upsert(
-                    noOpContext,
-                    "b",
-                    "owner",
-                    TimeSpan.fromMilliseconds(50).toStartDate(),
-                );
-                await trx.upsert(
-                    noOpContext,
-                    "c",
-                    "owner",
-                    TimeSpan.fromMilliseconds(50).toEndDate(),
-                );
-            });
+            await adapter.acquire(
+                noOpContext,
+                "a",
+                "owner",
+                TimeSpan.fromMilliseconds(-1),
+            );
+            await adapter.acquire(
+                noOpContext,
+                "b",
+                "owner",
+                TimeSpan.fromMilliseconds(-1),
+            );
+            await adapter.acquire(
+                noOpContext,
+                "c",
+                "owner",
+                TimeSpan.fromMinutes(5),
+            );
 
             await adapter.removeAllExpired();
 
-            expect(await adapter.find(noOpContext, "a")).toBeNull();
-            expect(await adapter.find(noOpContext, "b")).toBeNull();
-            expect(await adapter.find(noOpContext, "c")).not.toBeNull();
+            expect(await adapter.getState(noOpContext, "a")).toBeNull();
+            expect(await adapter.getState(noOpContext, "b")).toBeNull();
+            expect(await adapter.getState(noOpContext, "c")).not.toBeNull();
         });
     });
     describe("method: init", () => {
