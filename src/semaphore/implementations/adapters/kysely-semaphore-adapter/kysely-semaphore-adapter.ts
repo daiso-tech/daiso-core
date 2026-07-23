@@ -273,27 +273,33 @@ export class KyselySemaphoreAdapter
         const { context: _context, key, slotId, limit, ttl } = settings;
 
         return await this._transaction(async (trx) => {
-            // Upsert the semaphore to ensure it exists with the given limit
+            // Create the semaphore if it doesn't exist (never overwrite limit
+            // when slots are still held — the stored limit governs admission).
             await trx
                 .insertInto("semaphore")
                 .values({ key, limit })
                 .$if(!this.isMysql, (eb) =>
                     eb.onConflict((eb_) =>
-                        eb_.column("key").doUpdateSet({
-                            key,
-                            limit,
-                        }),
+                        eb_.column("key").doNothing(),
                     ),
                 )
                 .$if(this.isMysql, (eb) =>
-                    eb.onDuplicateKeyUpdate({
-                        key,
-                        limit,
-                    }),
+                    eb.onDuplicateKeyUpdate({ key }),
                 )
                 .execute();
 
-            // Count current non-expired slots
+            // Read the stored semaphore to get the authoritative limit.
+            const semaphore = await trx
+                .selectFrom("semaphore")
+                .where("semaphore.key", "=", key)
+                .select("semaphore.limit")
+                .executeTakeFirst();
+
+            if (!semaphore) {
+                return false;
+            }
+
+            // Count current non-expired slots.
             const countResult = await trx
                 .selectFrom("semaphoreSlot")
                 .where("semaphoreSlot.key", "=", key)
@@ -306,34 +312,41 @@ export class KyselySemaphoreAdapter
                 .select((eb) => eb.fn.countAll<number>().as("count"))
                 .executeTakeFirst();
 
-            if (countResult && Number(countResult.count) >= limit) {
+            const currentCount = countResult
+                ? Number(countResult.count)
+                : 0;
+
+            // When no slots are held the limit may be updated; otherwise the
+            // stored limit is authoritative.
+            const effectiveLimit =
+                currentCount === 0 ? limit : semaphore.limit;
+
+            if (currentCount >= effectiveLimit) {
                 return false;
+            }
+
+            // Update the stored limit when the caller provides a new one
+            // and no slots are held.
+            if (currentCount === 0 && limit !== semaphore.limit) {
+                await trx
+                    .updateTable("semaphore")
+                    .where("semaphore.key", "=", key)
+                    .set({ limit })
+                    .execute();
             }
 
             // Upsert the slot
             const expiration = ttl?.toEndDate().getTime() ?? null;
             await trx
                 .insertInto("semaphoreSlot")
-                .values({
-                    key,
-                    id: slotId,
-                    expiration,
-                })
+                .values({ key, id: slotId, expiration })
                 .$if(!this.isMysql, (eb) =>
                     eb.onConflict((eb_) =>
-                        eb_.column("id").doUpdateSet({
-                            key,
-                            id: slotId,
-                            expiration,
-                        }),
+                        eb_.column("id").doUpdateSet({ key, id: slotId, expiration }),
                     ),
                 )
                 .$if(this.isMysql, (eb) =>
-                    eb.onDuplicateKeyUpdate({
-                        key,
-                        id: slotId,
-                        expiration,
-                    }),
+                    eb.onDuplicateKeyUpdate({ key, id: slotId, expiration }),
                 )
                 .execute();
 
@@ -482,7 +495,6 @@ export class KyselySemaphoreAdapter
 
         const acquiredSlots = new Map<string, Date | null>();
         for (const slot of slots) {
-            // Skip expired slots
             if (
                 slot.expiration !== null &&
                 Number(slot.expiration) <= Date.now()
@@ -495,6 +507,12 @@ export class KyselySemaphoreAdapter
                     ? null
                     : new Date(Number(slot.expiration)),
             );
+        }
+
+        // Return null when there are no non-expired slots — the semaphore
+        // is effectively dead and should appear as non-existent.
+        if (acquiredSlots.size === 0) {
+            return null;
         }
 
         return {
