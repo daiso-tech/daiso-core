@@ -63,5 +63,12 @@ export function withCachePrefix<TType>(
                 return next([context, withPrefix(key), ...rest]);
             },
         );
+        enhance(
+            adapter,
+            "getOrAdd",
+            ({ args: [context, key, ...rest], next }) => {
+                return next([context, withPrefix(key), ...rest]);
+            },
+        );
     };
 }

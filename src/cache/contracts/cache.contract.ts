@@ -85,14 +85,19 @@ export type ICache<TType = unknown> = IReadableCache<TType> & {
     getAndRemove(key: string): Promise<TType | null>;
 
     /**
-     * The `getOrAdd` method will retrieve the given `key` if found otherwise `valueToAdd` will be added and returned.
+     * The `getOrAdd` method retrieves the value for the given `key` if it exists,
+     * otherwise adds the `valueToAdd` to the cache and returns it.
      *
-     * @param valueToAdd - can be regular value, sync or async {@link Invokable | `Invokable`} value and {@link Promise | `Promise`} value.
+     * @param key - The cache key to retrieve or add.
+     * @param valueToAdd - The value to store if the key is not found.
+     * @param ttl - Optional time-to-live for the cached item. If `null` is passed, the item will not expire.
+     *
+     * @returns The cached value if the key exists, or the newly added value.
      * @throws {ValidationError}
      */
     getOrAdd(
         key: string,
-        valueToAdd: AsyncLazyable<NoneFunc<TType>>,
+        valueToAdd: TType,
         ttl?: ITimeSpan | null,
     ): Promise<TType>;
 

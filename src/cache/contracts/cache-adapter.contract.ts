@@ -50,6 +50,23 @@ export type ICacheAdapter<TType = unknown> = {
     ): Promise<boolean>;
 
     /**
+     * The `getOrAdd` method retrieves the value for the given `key` if it exists,
+     * otherwise adds the `valueToAdd` to the cache and returns it.
+     *
+     * @param key - The cache key to retrieve or add.
+     * @param valueToAdd - The value to store if the key is not found.
+     * @param ttl - Optional time-to-live for the cached item. If `null` is passed, the item will not expire.
+     *
+     * @returns The cached value if the key exists, or the newly added value.
+     */
+    getOrAdd(
+        context: IReadableContext,
+        key: string,
+        valueToAdd: TType,
+        ttl: TimeSpan | null,
+    ): Promise<TType>;
+
+    /**
      * Creates a new cache entry or updates an existing one (upsert).
      * Also updates the TTL when overwriting an existing entry.
      *

@@ -155,6 +155,114 @@ export function cacheAdapterTestSuite(
                 expect(await adapter.get(context, "a")).toBeNull();
             });
         });
+        describe("method: getOrAdd", () => {
+            test("Should return value to add when key does not exists", async () => {
+                const key = "a";
+
+                const valueToAdd = -1;
+                const result = await adapter.getOrAdd(
+                    context,
+                    key,
+                    valueToAdd,
+                    null,
+                );
+
+                expect(result).toBe(valueToAdd);
+            });
+            test("Should persist value when key does not exists", async () => {
+                const key = "a";
+
+                const valueToAdd = -1;
+                await adapter.getOrAdd(context, key, valueToAdd, null);
+
+                const result = await adapter.get(context, key);
+                expect(result).toBe(valueToAdd);
+            });
+            test("Should return value to add when key is expired", async () => {
+                const key = "a";
+                await adapter.add(context, key, 1, TTL);
+                await delayWithBuffer(TTL);
+
+                const valueToAdd = -1;
+                const result = await adapter.getOrAdd(
+                    context,
+                    key,
+                    valueToAdd,
+                    null,
+                );
+
+                expect(result).toBe(valueToAdd);
+            });
+            test("Should persist value when key is expired", async () => {
+                const key = "a";
+                await adapter.add(context, key, 1, TTL);
+                await delayWithBuffer(TTL);
+
+                const valueToAdd = -1;
+                await adapter.getOrAdd(context, key, valueToAdd, null);
+
+                const result = await adapter.get(context, key);
+                expect(result).toBe(valueToAdd);
+            });
+            test("Should return value when key exists", async () => {
+                const key = "a";
+
+                const value = 1;
+                await adapter.add(context, key, value, null);
+
+                const valueToAdd = -1;
+                const result = await adapter.getOrAdd(
+                    context,
+                    key,
+                    valueToAdd,
+                    null,
+                );
+
+                expect(result).toBe(value);
+            });
+            test("Should not persist value when key exists", async () => {
+                const key = "a";
+
+                const value = 1;
+                await adapter.add(context, key, value, null);
+
+                const valueToAdd = -1;
+                await adapter.getOrAdd(context, key, valueToAdd, null);
+
+                const result = await adapter.get(context, key);
+                expect(result).toBe(value);
+            });
+            test("Should return value when key is unexpired", async () => {
+                const key = "a";
+                const longTtl = TimeSpan.fromMinutes(5);
+
+                const value = 1;
+                await adapter.add(context, key, value, longTtl);
+
+                const valueToAdd = -1;
+                const result = await adapter.getOrAdd(
+                    context,
+                    key,
+                    valueToAdd,
+                    null,
+                );
+
+                expect(result).toBe(value);
+            });
+            test("Should not persist when key is unexpired", async () => {
+                const key = "a";
+                const longTtl = TimeSpan.fromMinutes(5);
+
+                const value = 1;
+                await adapter.add(context, key, value, longTtl);
+
+                const valueToAdd = -1;
+                await adapter.getOrAdd(context, key, valueToAdd, null);
+
+                const result = await adapter.get(context, key);
+                expect(result).toBe(value);
+            });
+        });
         describe("method: add", () => {
             test("Should return true when key doesnt exists", async () => {
                 const result = await adapter.add(context, "a", 1, null);

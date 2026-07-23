@@ -36,7 +36,37 @@ export class MemoryCacheAdapter<
      */
     constructor(private readonly map: Map<string, unknown> = new Map()) {}
 
-    get(_context: IReadableContext, key: string): Promise<TType | null> {
+    get(context: IReadableContext, key: string): Promise<TType | null> {
+        return this._get(context, key);
+    }
+
+    add(
+        context: IReadableContext,
+        key: string,
+        value: TType,
+        ttl: TimeSpan | null,
+    ): Promise<boolean> {
+        return this._add(context, key, value, ttl);
+    }
+
+    async getOrAdd(
+        context: IReadableContext,
+        key: string,
+        valueToAdd: TType,
+        ttl: TimeSpan | null,
+    ): Promise<TType> {
+        const value = await this._get(context, key);
+        if (value === null) {
+            await this._add(context, key, valueToAdd, ttl);
+            return valueToAdd;
+        }
+        return value;
+    }
+
+    private _get(
+        _context: IReadableContext,
+        key: string,
+    ): Promise<TType | null> {
         return Promise.resolve(
             this.map.get(key) ?? null,
         ) as Promise<TType | null>;
@@ -46,12 +76,12 @@ export class MemoryCacheAdapter<
         context: IReadableContext,
         key: string,
     ): Promise<TType | null> {
-        const value = await this.get(context, key);
-        await this.remove(key);
+        const value = await this._get(context, key);
+        await this._remove(key);
         return value;
     }
 
-    add(
+    private _add(
         _context: IReadableContext,
         key: string,
         value: TType,
@@ -79,8 +109,8 @@ export class MemoryCacheAdapter<
         value: TType,
         ttl: TimeSpan | null,
     ): Promise<boolean> {
-        const hasKey = await this.remove(key);
-        await this.add(context, key, value, ttl);
+        const hasKey = await this._remove(key);
+        await this._add(context, key, value, ttl);
         return hasKey;
     }
 
@@ -115,7 +145,7 @@ export class MemoryCacheAdapter<
         return Promise.resolve(hasKey);
     }
 
-    remove(key: string): Promise<boolean> {
+    private _remove(key: string): Promise<boolean> {
         clearTimeout(this.timeoutMap.get(key));
         this.timeoutMap.delete(key);
         return Promise.resolve(this.map.delete(key));

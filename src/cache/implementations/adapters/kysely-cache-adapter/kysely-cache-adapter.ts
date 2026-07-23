@@ -4,12 +4,7 @@
 
 import { MysqlAdapter, Transaction, type Kysely } from "kysely";
 
-import {
-    type ICacheData,
-    type ICacheDataExpiration,
-    type IDatabaseCacheAdapter,
-    type IDatabaseCacheTransaction,
-} from "@/cache/contracts/_module.js";
+import { type ICacheAdapter } from "@/cache/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -88,84 +83,6 @@ export type KyselyCacheAdapterSettings = {
 };
 
 /**
- * @internal
- */
-export class DatabaseCacheTransaction<
-    TType,
-> implements IDatabaseCacheTransaction<TType> {
-    private readonly isMysql: boolean;
-
-    constructor(
-        private readonly kysely: Kysely<KyselyCacheTables>,
-        private readonly serde: ISerde<string>,
-    ) {
-        this.isMysql =
-            this.kysely.getExecutor().adapter instanceof MysqlAdapter;
-    }
-
-    async find(
-        _context: IReadableContext,
-        key: string,
-    ): Promise<ICacheData<TType> | null> {
-        const cacheData = await this.kysely
-            .selectFrom("cache")
-            .where("cache.key", "=", key)
-            .select(["cache.expiration", "cache.value"])
-            .executeTakeFirst();
-
-        if (cacheData === undefined) {
-            return null;
-        }
-        return {
-            value: this.serde.deserialize(cacheData.value),
-            expiration:
-                cacheData.expiration === null
-                    ? null
-                    : new Date(Number(cacheData.expiration)),
-        };
-    }
-
-    async upsert(
-        _context: IReadableContext,
-        key: string,
-        value: TType,
-        expiration?: Date | null,
-    ): Promise<void> {
-        let expirationAsMs: number | null | undefined;
-        if (expiration instanceof Date) {
-            expirationAsMs = expiration.getTime();
-        } else {
-            expirationAsMs = expiration;
-        }
-        const serializedValue = this.serde.serialize(value);
-        await this.kysely
-            .insertInto("cache")
-            .values({
-                key,
-                value: serializedValue,
-                expiration: expirationAsMs,
-            })
-            .$if(!this.isMysql, (eb) =>
-                eb.onConflict((eb_) =>
-                    eb_.column("key").doUpdateSet({
-                        key,
-                        value: serializedValue,
-                        expiration: expirationAsMs,
-                    }),
-                ),
-            )
-            .$if(this.isMysql, (eb) =>
-                eb.onDuplicateKeyUpdate({
-                    key,
-                    value: serializedValue,
-                    expiration: expirationAsMs,
-                }),
-            )
-            .execute();
-    }
-}
-
-/**
  * To utilize the `KyselyCacheAdapter`, you must install the [`"kysely"`](https://www.npmjs.com/package/kysely) package and configure a `Kysely` class instance.
  * The adapter have been tested with `sqlite`, `postgres` and `mysql` databases.
  *
@@ -173,11 +90,7 @@ export class DatabaseCacheTransaction<
  * @group Adapters
  */
 export class KyselyCacheAdapter<TType = unknown>
-    implements
-        IDatabaseCacheAdapter<TType>,
-        IInitizable,
-        IDeinitizable,
-        IPrunable
+    implements ICacheAdapter<TType>, IInitizable, IDeinitizable, IPrunable
 {
     private readonly isMysql: boolean;
     private readonly serde: ISerde<string>;
@@ -293,28 +206,6 @@ export class KyselyCacheAdapter<TType = unknown>
         }
     }
 
-    async find(
-        _context: IReadableContext,
-        key: string,
-    ): Promise<ICacheData<TType> | null> {
-        const cacheData = await this.kysely
-            .selectFrom("cache")
-            .where("cache.key", "=", key)
-            .select(["cache.expiration", "cache.value"])
-            .executeTakeFirst();
-
-        if (cacheData === undefined) {
-            return null;
-        }
-        return {
-            value: this.serde.deserialize(cacheData.value),
-            expiration:
-                cacheData.expiration === null
-                    ? null
-                    : new Date(Number(cacheData.expiration)),
-        };
-    }
-
     private _transaction<TValue>(
         _context: IReadableContext,
         trxFn: InvokableFn<[trx: Kysely<KyselyCacheTables>], Promise<TValue>>,
@@ -327,98 +218,299 @@ export class KyselyCacheAdapter<TType = unknown>
         return trxFn(this.kysely);
     }
 
-    async transaction<TValue>(
+    async get(_context: IReadableContext, key: string): Promise<TType | null> {
+        const row = await this.kysely
+            .selectFrom("cache")
+            .where("cache.key", "=", key)
+            .select(["cache.value", "cache.expiration"])
+            .executeTakeFirst();
+
+        if (!row) {
+            return null;
+        }
+
+        if (row.expiration !== null && Number(row.expiration) <= Date.now()) {
+            return null;
+        }
+
+        return this.serde.deserialize(row.value);
+    }
+
+    async getAndRemove(
         _context: IReadableContext,
-        trxFn: InvokableFn<
-            [trx: IDatabaseCacheTransaction<TType>],
-            Promise<TValue>
-        >,
-    ): Promise<TValue> {
-        return await this._transaction(_context, (trx) =>
-            trxFn(new DatabaseCacheTransaction(trx, this.serde)),
-        );
+        key: string,
+    ): Promise<TType | null> {
+        if (this.isMysql) {
+            return await this._transaction(_context, async (trx) => {
+                const row = await trx
+                    .selectFrom("cache")
+                    .where("cache.key", "=", key)
+                    .select(["cache.value", "cache.expiration"])
+                    .executeTakeFirst();
+
+                if (!row) {
+                    return null;
+                }
+
+                await trx
+                    .deleteFrom("cache")
+                    .where("cache.key", "=", key)
+                    .execute();
+
+                if (
+                    row.expiration !== null &&
+                    Number(row.expiration) <= Date.now()
+                ) {
+                    return null;
+                }
+
+                return this.serde.deserialize(row.value);
+            });
+        }
+
+        const row = await this.kysely
+            .deleteFrom("cache")
+            .where("cache.key", "=", key)
+            .returning(["cache.value", "cache.expiration"])
+            .executeTakeFirst();
+
+        if (!row) {
+            return null;
+        }
+
+        if (row.expiration !== null && Number(row.expiration) <= Date.now()) {
+            return null;
+        }
+
+        return this.serde.deserialize(row.value);
+    }
+
+    async add(
+        _context: IReadableContext,
+        key: string,
+        value: TType,
+        ttl: TimeSpan | null,
+    ): Promise<boolean> {
+        return await this._transaction(_context, async (trx) => {
+            const existing = await trx
+                .selectFrom("cache")
+                .where("cache.key", "=", key)
+                .select("cache.expiration")
+                .executeTakeFirst();
+
+            if (existing) {
+                const isExpired =
+                    existing.expiration !== null &&
+                    Number(existing.expiration) <= Date.now();
+                if (!isExpired) {
+                    return false;
+                }
+            }
+
+            const serializedValue = this.serde.serialize(value);
+            const expiration = ttl?.toEndDate().getTime() ?? null;
+
+            await trx
+                .insertInto("cache")
+                .values({ key, value: serializedValue, expiration })
+                .$if(!this.isMysql, (eb) =>
+                    eb.onConflict((oc) =>
+                        oc.column("key").doUpdateSet({
+                            key,
+                            value: serializedValue,
+                            expiration,
+                        }),
+                    ),
+                )
+                .$if(this.isMysql, (eb) =>
+                    eb.onDuplicateKeyUpdate({
+                        key,
+                        value: serializedValue,
+                        expiration,
+                    }),
+                )
+                .execute();
+
+            return true;
+        });
+    }
+
+    async getOrAdd(
+        _context: IReadableContext,
+        key: string,
+        valueToAdd: TType,
+        ttl: TimeSpan | null,
+    ): Promise<TType> {
+        return await this._transaction(_context, async (trx) => {
+            const existing = await trx
+                .selectFrom("cache")
+                .where("cache.key", "=", key)
+                .select(["cache.value", "cache.expiration"])
+                .executeTakeFirst();
+
+            if (existing) {
+                const isExpired =
+                    existing.expiration !== null &&
+                    Number(existing.expiration) <= Date.now();
+                if (!isExpired) {
+                    return this.serde.deserialize(existing.value);
+                }
+            }
+
+            const serializedValue = this.serde.serialize(valueToAdd);
+            const expiration = ttl?.toEndDate().getTime() ?? null;
+
+            await trx
+                .insertInto("cache")
+                .values({ key, value: serializedValue, expiration })
+                .$if(!this.isMysql, (eb) =>
+                    eb.onConflict((oc) =>
+                        oc.column("key").doUpdateSet({
+                            key,
+                            value: serializedValue,
+                            expiration,
+                        }),
+                    ),
+                )
+                .$if(this.isMysql, (eb) =>
+                    eb.onDuplicateKeyUpdate({
+                        key,
+                        value: serializedValue,
+                        expiration,
+                    }),
+                )
+                .execute();
+
+            return valueToAdd;
+        });
+    }
+
+    async put(
+        _context: IReadableContext,
+        key: string,
+        value: TType,
+        ttl: TimeSpan | null,
+    ): Promise<boolean> {
+        return await this._transaction(_context, async (trx) => {
+            const existing = await trx
+                .selectFrom("cache")
+                .where("cache.key", "=", key)
+                .select("cache.expiration")
+                .executeTakeFirst();
+
+            let keyExistedAndNotExpired = false;
+            if (existing) {
+                const isExpired =
+                    existing.expiration !== null &&
+                    Number(existing.expiration) <= Date.now();
+                keyExistedAndNotExpired = !isExpired;
+            }
+
+            const serializedValue = this.serde.serialize(value);
+            const expiration = ttl?.toEndDate().getTime() ?? null;
+
+            await trx
+                .insertInto("cache")
+                .values({ key, value: serializedValue, expiration })
+                .$if(!this.isMysql, (eb) =>
+                    eb.onConflict((oc) =>
+                        oc.column("key").doUpdateSet({
+                            key,
+                            value: serializedValue,
+                            expiration,
+                        }),
+                    ),
+                )
+                .$if(this.isMysql, (eb) =>
+                    eb.onDuplicateKeyUpdate({
+                        key,
+                        value: serializedValue,
+                        expiration,
+                    }),
+                )
+                .execute();
+
+            return keyExistedAndNotExpired;
+        });
     }
 
     async update(
-        context: IReadableContext,
+        _context: IReadableContext,
         key: string,
         value: TType,
-    ): Promise<ICacheDataExpiration | null> {
-        let row: Pick<KyselyCacheTable, "expiration"> | undefined;
+    ): Promise<boolean> {
         const serializedValue = this.serde.serialize(value);
-        if (this.isMysql) {
-            row = await this._transaction(context, async (trx) => {
-                const rows = await trx
-                    .selectFrom("cache")
-                    .where("cache.key", "=", key)
-                    .select("cache.expiration")
-                    .executeTakeFirst();
-                await trx
-                    .updateTable("cache")
-                    .where("cache.key", "=", key)
-                    .set({
-                        value: serializedValue,
-                    })
-                    .execute();
-                return rows;
-            });
-        } else {
-            row = await this.kysely
+        const result = await this.kysely
+            .updateTable("cache")
+            .where("cache.key", "=", key)
+            .where((eb) =>
+                eb.or([
+                    eb("cache.expiration", "is", null),
+                    eb("cache.expiration", ">", Date.now()),
+                ]),
+            )
+            .set({ value: serializedValue })
+            .execute();
+
+        return Number(result[0]?.numUpdatedRows ?? 0n) > 0;
+    }
+
+    async increment(
+        _context: IReadableContext,
+        key: string,
+        value: number,
+    ): Promise<boolean> {
+        return await this._transaction(_context, async (trx) => {
+            const existing = await trx
+                .selectFrom("cache")
+                .where("cache.key", "=", key)
+                .where((eb) =>
+                    eb.or([
+                        eb("cache.expiration", "is", null),
+                        eb("cache.expiration", ">", Date.now()),
+                    ]),
+                )
+                .select("cache.value")
+                .executeTakeFirst();
+
+            if (!existing) {
+                return false;
+            }
+
+            const currentValue = this.serde.deserialize(existing.value);
+
+            if (typeof currentValue !== "number" || isNaN(currentValue)) {
+                throw new TypeError(
+                    `Unable to increment or decrement none number type key "${key}"`,
+                );
+            }
+
+            const newValue = currentValue + value;
+
+            await trx
                 .updateTable("cache")
                 .where("cache.key", "=", key)
-                .set({
-                    value: serializedValue,
-                })
-                .returning("cache.expiration")
-                .executeTakeFirst();
-        }
-        if (row === undefined) {
-            return null;
-        }
-        return {
-            expiration:
-                row.expiration === null
-                    ? null
-                    : new Date(Number(row.expiration)),
-        };
+                .set({ value: this.serde.serialize(newValue) })
+                .execute();
+
+            return true;
+        });
     }
 
     async removeMany(
-        context: IReadableContext,
+        _context: IReadableContext,
         keys: Array<string>,
-    ): Promise<Array<ICacheDataExpiration>> {
-        let rows: Array<Pick<KyselyCacheTable, "expiration">>;
+    ): Promise<boolean> {
         if (keys.length === 0) {
-            return [];
+            return false;
         }
-        if (this.isMysql) {
-            rows = await this._transaction(context, async (trx) => {
-                const rows_ = await trx
-                    .selectFrom("cache")
-                    .where("cache.key", "in", keys)
-                    .select("cache.expiration")
-                    .execute();
-                await trx
-                    .deleteFrom("cache")
-                    .where("cache.key", "in", keys)
-                    .execute();
-                return rows_;
-            });
-        } else {
-            rows = await this.kysely
-                .deleteFrom("cache")
-                .where("cache.key", "in", keys)
-                .returning("cache.expiration")
-                .execute();
-        }
-        return rows.map<ICacheDataExpiration>((row) => {
-            return {
-                expiration:
-                    row.expiration === null
-                        ? null
-                        : new Date(Number(row.expiration)),
-            };
-        });
+
+        const result = await this.kysely
+            .deleteFrom("cache")
+            .where("cache.key", "in", keys)
+            .execute();
+
+        return Number(result[0]?.numDeletedRows ?? 0n) > 0;
     }
 
     async removeAll(_context: IReadableContext): Promise<void> {
