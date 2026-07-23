@@ -3,10 +3,7 @@
  */
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ILockAdapter,
-    type LockAdapterVariants,
-} from "@/lock/contracts/_module.js";
+import { type ILockAdapter } from "@/lock/contracts/_module.js";
 import {
     Lock,
     type ISerializedLock,
@@ -20,7 +17,6 @@ import { getConstructorName, type OneOrMore } from "@/utilities/_module.js";
  */
 export type LockSerdeTransformerSettings = {
     adapter: ILockAdapter;
-    originalAdapter: LockAdapterVariants;
     defaultRefreshTime: TimeSpan;
     serdeTransformerName: string;
     context: IReadableContext;
@@ -34,24 +30,17 @@ export class LockSerdeTransformer implements ISerdeTransformer<
     ISerializedLock
 > {
     private readonly adapter: ILockAdapter;
-    private readonly originalAdapter: LockAdapterVariants;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly context: IReadableContext;
 
     constructor(settings: LockSerdeTransformerSettings) {
-        const {
-            adapter,
-            originalAdapter,
-            defaultRefreshTime,
-            serdeTransformerName,
-            context,
-        } = settings;
+        const { adapter, defaultRefreshTime, serdeTransformerName, context } =
+            settings;
 
         this.context = context;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
-        this.originalAdapter = originalAdapter;
         this.defaultRefreshTime = defaultRefreshTime;
     }
 
@@ -59,7 +48,7 @@ export class LockSerdeTransformer implements ISerdeTransformer<
         return [
             "lock",
             this.serdeTransformerName,
-            getConstructorName(this.originalAdapter),
+            getConstructorName(this.adapter),
         ].filter((str) => str !== "");
     }
 
@@ -74,7 +63,7 @@ export class LockSerdeTransformer implements ISerdeTransformer<
             this.serdeTransformerName === value._getSerdeTransformerName();
 
         const isAdapterMatching =
-            getConstructorName(this.originalAdapter) ===
+            getConstructorName(this.adapter) ===
             getConstructorName(value._getAdapter());
 
         return isSerdTransformerNameMathcing && isAdapterMatching;
@@ -86,7 +75,6 @@ export class LockSerdeTransformer implements ISerdeTransformer<
         return new Lock({
             context: this.context,
             adapter: this.adapter,
-            originalAdapter: this.originalAdapter,
             key,
             lockId,
             serdeTransformerName: this.serdeTransformerName,

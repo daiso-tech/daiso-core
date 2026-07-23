@@ -15,11 +15,9 @@ import {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type IDatabaseLockAdapter,
-    type LockAdapterVariants,
 } from "@/lock/contracts/_module.js";
 import { LockSerdeTransformer } from "@/lock/implementations/derivables/lock-factory/lock-serde-transformer.js";
 import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
-import { resolveLockAdapter } from "@/lock/implementations/derivables/lock-factory/resolve-lock-adapter.js";
 import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
@@ -113,7 +111,7 @@ export type LockFactorySettings = LockFactorySettingsBase & {
     /**
      * The underlying lock adapter that handles the actual locking operations.
      */
-    adapter: LockAdapterVariants;
+    adapter: ILockAdapter;
 };
 
 /**
@@ -127,7 +125,6 @@ export type LockFactorySettings = LockFactorySettingsBase & {
  * @group Derivables
  */
 export class LockFactory implements ILockFactory {
-    private readonly originalAdapter: LockAdapterVariants;
     private readonly adapter: ILockAdapter;
     private readonly creatLockId: Invokable<[], string>;
     private readonly defaultTtl: TimeSpan | null;
@@ -182,15 +179,13 @@ export class LockFactory implements ILockFactory {
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
         this.serdeTransformerName = serdeTransformerName;
 
-        this.originalAdapter = adapter;
-        this.adapter = resolveLockAdapter(adapter);
+        this.adapter = adapter;
         this.registerToSerde();
     }
 
     private registerToSerde(): void {
         const transformer = new LockSerdeTransformer({
             context: this.context,
-            originalAdapter: this.originalAdapter,
             adapter: this.adapter,
             defaultRefreshTime: this.defaultRefreshTime,
             serdeTransformerName: this.serdeTransformerName,
@@ -227,7 +222,6 @@ export class LockFactory implements ILockFactory {
         return new Lock({
             context: this.context,
             adapter: this.adapter,
-            originalAdapter: this.originalAdapter,
             key,
             lockId,
             ttl: ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
