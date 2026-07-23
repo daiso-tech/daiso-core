@@ -16,7 +16,7 @@ import { withJitter } from "@/utilities/_module.js";
 export type WithCacheJitterSettings = {
     /**
      * The jitter factor as a ratio of the original TTL.
-     * For example, `0.2` means the TTL will be randomly adjusted by ±20 %.
+     * For example, `0.2` means the TTL will be randomly adjusted by 20 %.
      * A value of `0` disables jitter entirely.
      *
      * @default 0.2
