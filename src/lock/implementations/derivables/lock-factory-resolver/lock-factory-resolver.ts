@@ -5,7 +5,7 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
 import {
     type ILockFactoryResolver,
     type ILockFactory,
-    type LockAdapterVariants,
+    type ILockAdapter,
 } from "@/lock/contracts/_module.js";
 import {
     LockFactory,
@@ -23,7 +23,7 @@ import {
  * @group Derivables
  */
 export type LockAdapters<TAdapters extends string> = Partial<
-    Record<TAdapters, LockAdapterVariants>
+    Record<TAdapters, ILockAdapter>
 >;
 
 /**

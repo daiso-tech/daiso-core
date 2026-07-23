@@ -45,37 +45,6 @@ describe("class: MyLockAdapter", () => {
 });
 ```
 
-## Implementing your custom IDatabaseLockAdapter
-
-We provide an additional contract [`IDatabaseLockAdapter`](https://daiso-tech.github.io/daiso-core/types/Lock.IDatabaseLockAdapter.html) for building custom lock adapters tailored to databases.
-
-## Testing your custom IDatabaseLockAdapter
-
-We provide a complete test suite to test your database lock adapter implementation. Simply use the [`databaseLockAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Lock.databaseLockAdapterTestSuite.html) function:
-
-- Preconfigured Vitest test cases
-- Common edge case coverage
-
-Usage example:
-
-```ts
-import { beforeEach, describe, expect, test } from "vitest";
-import { databaseLockAdapterTestSuite } from "@daiso-tech/core/lock/test-utilities";
-import { MyDatabaseLockAdapter } from "./MyDatabaseLockAdapter.js";
-
-describe("class: MyDatabaseLockAdapter", () => {
-    databaseLockAdapterTestSuite({
-        createAdapter: async () => {
-            return new MyDatabaseLockAdapter(),
-        },
-        test,
-        beforeEach,
-        expect,
-        describe,
-    });
-});
-```
-
 ## Implementing your custom ILockFactory class
 
 In some cases, you may need to implement a custom [`LockFactory`](https://daiso-tech.github.io/daiso-core/classes/Lock.LockFactory.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ILockFactory`](https://daiso-tech.github.io/daiso-core/types/Lock.ILockFactory.html) contract.
