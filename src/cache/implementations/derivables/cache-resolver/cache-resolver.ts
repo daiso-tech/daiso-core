@@ -3,8 +3,8 @@
  */
 
 import {
-    type CacheAdapterVariants,
     type ICache,
+    type ICacheAdapter,
     type ICacheResolver,
 } from "@/cache/contracts/_module.js";
 import {
@@ -23,7 +23,7 @@ import {
  * @group Derivables
  */
 export type CacheAdapters<TAdapters extends string = string> = Partial<
-    Record<TAdapters, CacheAdapterVariants<any>>
+    Record<TAdapters, ICacheAdapter<any>>
 >;
 
 /**
