@@ -4,10 +4,7 @@
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
-import {
-    type ISharedLockAdapter,
-    type SharedLockAdapterVariants,
-} from "@/shared-lock/contracts/_module.js";
+import { type ISharedLockAdapter } from "@/shared-lock/contracts/_module.js";
 import {
     SharedLock,
     type ISerializedSharedLock,
@@ -20,7 +17,6 @@ import { getConstructorName, type OneOrMore } from "@/utilities/_module.js";
  */
 export type SharedLockSerdeTransformerSettings = {
     adapter: ISharedLockAdapter;
-    originalAdapter: SharedLockAdapterVariants;
     defaultRefreshTime: TimeSpan;
     serdeTransformerName: string;
     context: IReadableContext;
@@ -34,24 +30,17 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
     ISerializedSharedLock
 > {
     private readonly adapter: ISharedLockAdapter;
-    private readonly originalAdapter: SharedLockAdapterVariants;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly context: IReadableContext;
 
     constructor(settings: SharedLockSerdeTransformerSettings) {
-        const {
-            adapter,
-            originalAdapter,
-            defaultRefreshTime,
-            serdeTransformerName,
-            context,
-        } = settings;
+        const { adapter, defaultRefreshTime, serdeTransformerName, context } =
+            settings;
 
         this.context = context;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
-        this.originalAdapter = originalAdapter;
         this.defaultRefreshTime = defaultRefreshTime;
     }
 
@@ -59,7 +48,7 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
         return [
             "shared-lock",
             this.serdeTransformerName,
-            getConstructorName(this.originalAdapter),
+            getConstructorName(this.adapter),
         ].filter((str) => str !== "");
     }
 
@@ -75,7 +64,7 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
             value._getSerdeTransformerName() === this.serdeTransformerName;
 
         const isAdapterMatching =
-            getConstructorName(this.originalAdapter) ===
+            getConstructorName(this.adapter) ===
             getConstructorName(value._getAdapter());
 
         return isSerdTransformerNameMathcing && isAdapterMatching;
@@ -87,7 +76,6 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
             context: this.context,
             lockId,
             adapter: this.adapter,
-            originalAdapter: this.originalAdapter,
             key,
             limit,
             serdeTransformerName: this.serdeTransformerName,

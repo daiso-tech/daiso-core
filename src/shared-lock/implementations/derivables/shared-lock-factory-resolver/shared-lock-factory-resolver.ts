@@ -5,7 +5,7 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
 import {
     type ISharedLockFactoryResolver,
     type ISharedLockFactory,
-    type SharedLockAdapterVariants,
+    type ISharedLockAdapter,
 } from "@/shared-lock/contracts/_module.js";
 import {
     SharedLockFactory,
@@ -23,7 +23,7 @@ import {
  * @group Derivables
  */
 export type SharedLockAdapters<TAdapters extends string> = Partial<
-    Record<TAdapters, SharedLockAdapterVariants>
+    Record<TAdapters, ISharedLockAdapter>
 >;
 
 /**

@@ -15,9 +15,7 @@ import {
     type ISharedLockAdapter,
     type SharedLockFactoryCreateSettings,
     type ISharedLockFactory,
-    type SharedLockAdapterVariants,
 } from "@/shared-lock/contracts/_module.js";
-import { resolveSharedLockAdapter } from "@/shared-lock/implementations/derivables/shared-lock-factory/resolve-shared-lock-adapter.js";
 import { SharedLockSerdeTransformer } from "@/shared-lock/implementations/derivables/shared-lock-factory/shared-lock-serde-transformer.js";
 import { SharedLock } from "@/shared-lock/implementations/derivables/shared-lock-factory/shared-lock.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -110,7 +108,7 @@ export type SharedLockFactorySettings = SharedLockFactorySettingsBase & {
     /**
      * The underlying shared-lock adapter that handles the actual locking operations.
      */
-    adapter: SharedLockAdapterVariants;
+    adapter: ISharedLockAdapter;
 };
 
 /**
@@ -124,7 +122,6 @@ export type SharedLockFactorySettings = SharedLockFactorySettingsBase & {
  * @group Derivables
  */
 export class SharedLockFactory implements ISharedLockFactory {
-    private readonly originalAdapter: SharedLockAdapterVariants;
     private readonly adapter: ISharedLockAdapter;
     private readonly creatLockId: Invokable<[], string>;
     private readonly defaultTtl: TimeSpan | null;
@@ -179,15 +176,13 @@ export class SharedLockFactory implements ISharedLockFactory {
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
         this.serdeTransformerName = serdeTransformerName;
 
-        this.originalAdapter = adapter;
-        this.adapter = resolveSharedLockAdapter(adapter);
+        this.adapter = adapter;
         this.registerToSerde();
     }
 
     private registerToSerde(): void {
         const transformer = new SharedLockSerdeTransformer({
             context: this.context,
-            originalAdapter: this.originalAdapter,
             adapter: this.adapter,
             defaultRefreshTime: this.defaultRefreshTime,
             serdeTransformerName: this.serdeTransformerName,
@@ -229,7 +224,6 @@ export class SharedLockFactory implements ISharedLockFactory {
             context: this.context,
             limit,
             adapter: this.adapter,
-            originalAdapter: this.originalAdapter,
             key,
             lockId,
             ttl: ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
