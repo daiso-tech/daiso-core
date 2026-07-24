@@ -1,5 +1,338 @@
 # @daiso-tech/core
 
+## 0.56.0
+
+### Minor Changes
+
+- 5c28ea2: ## Architectural Shift: Composable Cache Plugins
+
+    The cache module has undergone a significant architectural refactoring. Behaviours that were previously hard-coded into the `Cache` and `CacheResolver` implementations — schema validation, TTL jitter, and write-lock serialisation — have been extracted into standalone, composable plugins. The core `Cache` class is now a thin passthrough that delegates operations directly to the underlying `ICacheAdapter`, while optional capabilities are layered on via the middleware plugin system (`PluginFn`/`withPlugin`).
+
+    ### Motivation
+
+    The previous architecture baked cross-cutting concerns like schema validation, TTL jittering, and distributed write locking directly into the `Cache` and `CacheResolver` classes. This had several drawbacks:
+
+    - **Tight coupling**: Users who wanted only one feature (e.g., schema validation) still paid the overhead of the other features.
+    - **Difficult to extend**: Adding new cross-cutting behaviours required modifying the core `Cache` class, increasing complexity and risk.
+    - **No composability**: Behaviours could not be mixed, matched, or reordered independently.
+    - **Testing complexity**: Core cache tests had to account for all combined behaviours.
+
+    The new plugin-based architecture solves these problems by keeping the `Cache` class focused on a single responsibility — delegating to an `ICacheAdapter` — and providing each cross-cutting behaviour as an independent `PluginFn<ICacheAdapter>` that can be composed via `withPlugin(adapter, ...plugins)`.
+
+    ### New Plugin-Based Capabilities
+
+    The following behaviours are no longer built into `Cache` or `CacheResolver`. They are available as opt-in plugins that operate at the `ICacheAdapter` level:
+
+    **`withCacheJitter`** — Adds random jitter to TTL values on `add` and `put` operations to help prevent cache stampedes (thundering-herd problems).
+
+    - Configurable via `defaultJitter` (default ±20 %).
+    - Applied as a middleware that intercepts TTL parameters before they reach the adapter.
+    - `WITHOUT` this plugin, TTLs are stored as-is — no jitter is applied.
+    - Import path: `@daiso-tech/core/cache/plugins`
+
+    **`withCacheSchema`** — Validates cache values against a `StandardSchemaV1`-compliant schema before storing (`add`, `put`, `update`) and optionally on retrieval (`get`, `getAndRemove`).
+
+    - Controlled via `shouldValidateOutput` (default `true`).
+    - `WITHOUT` this plugin, no schema validation occurs — any value type is accepted.
+    - Import path: `@daiso-tech/core/cache/plugins`
+
+    **`withCacheWriteLock`** — Acquires a distributed lock via `ILockFactory` before executing mutating cache operations (`add`, `put`, `update`, `increment`, `getAndRemove`, `removeMany`), ensuring concurrent writes to the same cache entry are serialised.
+
+    - The set of protected methods is configurable via `onlyMethods`.
+    - `WITHOUT` this plugin, concurrent writes proceed without locking — the adapter's own concurrency guarantees apply.
+    - Import path: `@daiso-tech/core/cache/plugins`
+
+    ### How the New Architecture Works
+
+    The `Cache` class (`src/cache/implementations/derivables/cache/cache.ts`) has been simplified to a thin wrapper that:
+
+    1. Accepts an `ICacheAdapter` (optionally enhanced by plugins) via `CacheSettings.adapter`.
+    2. Delegates every operation ( `get`, `add`, `put`, `update`, `increment`, `remove`, `clear`, etc.) directly to the adapter.
+    3. No longer performs schema validation, TTL jittering, or write-lock acquisition internally.
+
+    The `CacheResolver` class (`src/cache/implementations/derivables/cache-resolver/cache-resolver.ts`) has been similarly streamlined:
+
+    - Its `use()` method creates a plain `Cache` instance with no built-in plugins.
+    - `CacheResolverSettings` extends `CacheSettingsBase`, which now only contains `defaultTtl` and `context`.
+    - To use plugins with `CacheResolver`, users must apply plugins to the adapter _before_ registering it, or wrap the adapter at registration time.
+
+    The `ICache` contract (`src/cache/contracts/cache.contract.ts`) now uses inline `ttl?: ITimeSpan | null` parameters instead of the removed `CacheWriteSettings` object for `add`, `put`, `getOrAdd`, and related methods. This simplifies the API surface and aligns with the plugin philosophy — TTL manipulation is handled at the plugin/adapter level.
+
+    ### Plugin Composition Pattern
+
+    Plugins are applied to an `ICacheAdapter` before passing it to `Cache`:
+
+    ```ts
+    import { withPlugin } from "@daiso-tech/core/middleware";
+    import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
+    import { Cache } from "@daiso-tech/core/cache";
+    import { withCacheSchema } from "@daiso-tech/core/cache/plugins";
+    import { withCacheJitter } from "@daiso-tech/core/cache/plugins";
+    import { withCacheWriteLock } from "@daiso-tech/core/cache/plugins";
+    import { z } from "zod";
+
+    // Compose multiple plugins on the adapter
+    const adapter = withPlugin(
+        new MemoryCacheAdapter(),
+        withCacheSchema({ schema: z.string() }),
+        withCacheJitter({ defaultJitter: 0.1 }),
+        withCacheWriteLock({ lockFactory }),
+    );
+
+    // Pass the enhanced adapter to the thin Cache class
+    const cache = new Cache({ adapter });
+    ```
+
+    Plugins are applied in order and wrap the adapter's methods using the `Enhance` utility. `withPluginFactory(enhanceFactory(useFactory()))` is the standard way to create a `withPlugin` function that supports method interception.
+
+    ### Migration Path
+
+    Users who relied on the previous built-in schema validation, TTL jitter, or write-lock behaviour must now explicitly compose the corresponding plugins.
+
+    | Previous behaviour                      | New requirement                                               |
+    | --------------------------------------- | ------------------------------------------------------------- |
+    | Schema validation on cache reads/writes | Apply `withCacheSchema({ schema })` to the adapter            |
+    | TTL jitter to prevent stampedes         | Apply `withCacheJitter({ defaultJitter })` to the adapter     |
+    | Distributed write locking               | Apply `withCacheWriteLock({ lockFactory })` to the adapter    |
+    | All three behaviours combined           | Apply all three plugins via `withPlugin(adapter, p1, p2, p3)` |
+
+    **Before (built-in behaviour):**
+
+    ```ts
+    // Schema validation and jitter were built into Cache/CacheResolver
+    const cache = new Cache({ adapter, schema: mySchema });
+    ```
+
+    **After (explicit plugin composition):**
+
+    ```ts
+    const enhancedAdapter = withPlugin(
+        adapter,
+        withCacheSchema({ schema: mySchema }),
+        withCacheJitter(),
+    );
+    const cache = new Cache({ adapter: enhancedAdapter });
+    ```
+
+    If you do not apply any plugins, the cache behaves as a pure passthrough — no validation, no jitter, no locking. This reduces overhead when these features are not needed.
+
+    ### Refactoring Details
+    - **`CacheSettingsBase`**: Removed `schema` and `lockFactory` options. Now only contains `defaultTtl` and `context`.
+    - **`CacheResolverSettings`**: Simplified to extend the lean `CacheSettingsBase`. No longer carries schema or write-lock configuration.
+    - **`CacheWriteSettings`**: Removed. TTL is now passed as an inline `ITimeSpan | null` parameter directly on `add`, `put`, `getOrAdd`, etc.
+    - **`withCacheFactory`**: Updated to accept inline TTL parameter instead of `CacheWriteSettings`.
+    - **`ICache` contract**: `getOrAdd` now accepts `ttl?: ITimeSpan | null` as its third parameter instead of a `CacheWriteSettings` object.
+
+    ### Fixes
+    - Added missing trailing comma to `getOrAdd` method signature in `ICache`.
+
+    ### Tests
+    - Restructured `with*Prefix` test suites across all components (cache, circuit-breaker, file-storage, lock, rate-limiter, semaphore, shared-lock) for improved readability and consistency.
+    - New dedicated test suites for each plugin (`with-cache-jitter.test.ts`, `with-cache-schema.test.ts`, `with-cache-write-lock.test.ts`) verifying isolation and composition correctness.
+
+- 6594c43: Removed `IDatabaseCacheAdapter`, `IDatabaseCacheTransaction`, and `ICacheData` contracts, along with their `databaseCacheAdapterTestSuite`.
+
+    The `IDatabaseCacheAdapter` contract (`database-cache-adapter.contract.ts`) has been removed in favor of the simpler `ICacheAdapter` contract. This simplifies the cache adapter interface by eliminating the transaction-based database abstraction layer.
+
+    ### Changes:
+    - **Removed**: `IDatabaseCacheAdapter` type contract
+    - **Removed**: `IDatabaseCacheTransaction` type contract
+    - **Removed**: `ICacheData` and `ICacheDataExpiration` types
+    - **Removed**: `databaseCacheAdapterTestSuite` test utility
+    - **Refactored**: `KyselyCacheAdapter` (at `@daiso-tech/core/cache/kysely-cache-adapter`) now implements `ICacheAdapter` directly instead of `IDatabaseCacheAdapter`
+
+    ### Migration:
+
+    Custom `IDatabaseCacheAdapter` implementations should migrate to `ICacheAdapter`. The contract expects methods to return primitive values (`TType | null`, `boolean`, `void`) directly instead of wrapping results in `ICacheData` / `ICacheDataExpiration` objects. Use `cacheAdapterTestSuite` instead of `databaseCacheAdapterTestSuite` for testing.
+
+- 1f6cbd6: Removed `IDatabaseLockAdapter`, `IDatabaseLockTransaction`, and `ILockData` contracts, along with their `databaseLockAdapterTestSuite`.
+
+    The `IDatabaseLockAdapter` contract has been removed in favor of the simpler `ILockAdapter` contract. This simplifies the lock adapter interface by eliminating the transaction-based database abstraction layer.
+
+    ### Changes:
+    - **Removed**: `IDatabaseLockAdapter` type contract
+    - **Removed**: `IDatabaseLockTransaction` type contract
+    - **Removed**: `ILockData` and `ILockExpirationData` types
+    - **Removed**: `databaseLockAdapterTestSuite` test utility
+    - **Removed**: `DatabaseLockAdapter` derivable class
+    - **Refactored**: `KyselyLockAdapter` (at `@daiso-tech/core/lock/kysely-lock-adapter`) now implements `ILockAdapter` directly with `acquire`, `release`, `forceRelease`, `refresh`, and `getState` methods
+
+    ### Migration:
+
+    Custom `IDatabaseLockAdapter` implementations should migrate to `ILockAdapter`. The new contract expects methods with the following signatures:
+
+    - `acquire(context, key, lockId, ttl): Promise<boolean>`
+    - `release(context, key, lockId): Promise<boolean>`
+    - `forceRelease(context, key): Promise<boolean>`
+    - `refresh(context, key, lockId, ttl): Promise<boolean>`
+    - `getState(context, key): Promise<ILockAdapterState | null>`
+
+    Use `lockAdapterTestSuite` instead of `databaseLockAdapterTestSuite` for testing. Replace custom `DatabaseLockAdapter` subclasses with direct `ILockAdapter` implementations.
+
+- 69c0ddf: Removed `IDatabaseSemaphoreAdapter`, `IDatabaseSemaphoreTransaction`, `ISemaphoreData`, `ISemaphoreSlotData`, and `ISemaphoreSlotExpirationData` contracts, along with their `databaseSemaphoreAdapterTestSuite`.
+
+    The `IDatabaseSemaphoreAdapter` contract (`database-semaphore-adapter.contract.ts`) has been removed in favor of the simpler `ISemaphoreAdapter` contract. This simplifies the semaphore adapter interface by eliminating the transaction-based database abstraction layer.
+
+    ### Changes:
+    - **Removed**: `IDatabaseSemaphoreAdapter` type contract
+    - **Removed**: `IDatabaseSemaphoreTransaction` type contract
+    - **Removed**: `ISemaphoreData`, `ISemaphoreSlotData`, and `ISemaphoreSlotExpirationData` types
+    - **Removed**: `databaseSemaphoreAdapterTestSuite` test utility
+    - **Refactored**: `KyselySemaphoreAdapter` (at `@daiso-tech/core/semaphore/new-kysely-semaphore-adapter`) now implements `ISemaphoreAdapter` directly with `acquire`, `release`, `forceReleaseAll`, `refresh`, and `getState` methods
+
+    ### Migration:
+
+    Custom `IDatabaseSemaphoreAdapter` implementations should migrate to `ISemaphoreAdapter`. The new contract expects methods with the following signatures:
+
+    - `acquire(settings: SemaphoreAcquireSettings): Promise<boolean>`
+    - `release(context, key, slotId): Promise<boolean>`
+    - `forceReleaseAll(context, key): Promise<boolean>`
+    - `refresh(context, key, slotId, ttl): Promise<boolean>`
+    - `getState(context, key): Promise<ISemaphoreAdapterState | null>`
+
+    Use `semaphoreAdapterTestSuite` instead of `databaseSemaphoreAdapterTestSuite` for testing. Replace custom `IDatabaseSemaphoreAdapter` subclasses with direct `ISemaphoreAdapter` implementations.
+
+- 69c0ddf: Removed `IDatabaseSharedLockAdapter`, `IDatabaseSharedLockTransaction`, `IWriterLockData`, `IWriterLockExpirationData`, `IReaderSemaphoreSlotExpirationData`, `IReaderSemaphoreSlotData`, and `IReaderSemaphoreData` contracts, along with their `databaseSharedLockAdapterTestSuite`.
+
+    The `IDatabaseSharedLockAdapter` contract (`database-shared-lock-adapter.contract.ts`) has been removed in favor of the simpler `ISharedLockAdapter` contract. This simplifies the shared-lock adapter interface by eliminating the transaction-based database abstraction layer.
+
+    ### Changes:
+    - **Removed**: `IDatabaseSharedLockAdapter` type contract
+    - **Removed**: `IDatabaseSharedLockTransaction` type contract
+    - **Removed**: `IWriterLockData`, `IWriterLockExpirationData`, `IReaderSemaphoreSlotExpirationData`, `IReaderSemaphoreSlotData`, and `IReaderSemaphoreData` types
+    - **Removed**: `databaseSharedLockAdapterTestSuite` test utility
+    - **Removed**: `DatabaseSharedLockAdapter` derivable class
+    - **Refactored**: `KyselySharedLockAdapter` (at `@daiso-tech/core/shared-lock/kysely-shared-lock-adapter`) now implements `ISharedLockAdapter` directly with `acquireWriter`, `releaseWriter`, `forceReleaseWriter`, `refreshWriter`, `acquireReader`, `releaseReader`, `forceReleaseAllReaders`, `refreshReader`, `forceRelease`, and `getState` methods
+
+    ### Migration:
+
+    Custom `IDatabaseSharedLockAdapter` implementations should migrate to `ISharedLockAdapter`. The new contract expects methods with the following signatures:
+
+    - `acquireWriter(context, key, lockId, ttl): Promise<boolean>`
+    - `releaseWriter(context, key, lockId): Promise<boolean>`
+    - `forceReleaseWriter(context, key): Promise<boolean>`
+    - `refreshWriter(context, key, lockId, ttl): Promise<boolean>`
+    - `acquireReader(settings: SharedLockAcquireSettings): Promise<boolean>`
+    - `releaseReader(context, key, slotId): Promise<boolean>`
+    - `forceReleaseAllReaders(context, key): Promise<boolean>`
+    - `refreshReader(context, key, slotId, ttl): Promise<boolean>`
+    - `forceRelease(context, key): Promise<boolean>`
+    - `getState(context, key): Promise<ISharedLockAdapterState | null>`
+
+    Use `sharedLockAdapterTestSuite` instead of `databaseSharedLockAdapterTestSuite` for testing. Replace custom `DatabaseSharedLockAdapter` subclasses with direct `ISharedLockAdapter` implementations.
+
+- 2e8ee5d: Updated the `IFileStorage` contract — removed node js read methods and extracted built-in locking into a standalone plugin.
+
+    ### Changes
+    - **Removed** `IFile.getBuffer` — use `IFile.getBytes` instead (returns `Uint8Array | null`).
+    - **Removed** `IFile.getBufferOrFail` — use `IFile.getBytesOrFail` instead (returns `Uint8Array` or throws).
+    - **Removed** `IFile.getReadable` — use `IFile.getStream` instead (returns a readable stream).
+    - **Removed** `IFile.getReadableOrFail` — use `IFile.getStreamOrFail` instead (returns a readable stream or throws).
+    - **Removed** built-in locking from the `FileStorage` class — locking is now provided by the standalone `withFileStorageLock` plugin.
+
+    Now the `FileStorage` class will work in none `Node.js` environment like `cloudflare` workers without `Node.js` compatibility.
+
+    ### Migration
+    - Replace all calls to `fileStorage.getBuffer(key)` with `fileStorage.getBytes(key)`.
+    - Replace all calls to `fileStorage.getBufferOrFail(key)` with `fileStorage.getBytesOrFail(key)`.
+    - Replace all calls to `fileStorage.getReadable(key)` with `fileStorage.getStream(key)`.
+    - Replace all calls to `fileStorage.getReadableOrFail(key)` with `fileStorage.getStreamOrFail(key)`.
+    - If you relied on the built-in locking in `FileStorage`, apply the `withFileStorageLock` plugin to your file storage adapter instead:
+
+    ```ts
+    import { withPlugin } from "@daiso-tech/core/middleware";
+    import { withFileStorageLock } from "@daiso-tech/core/file-storage/plugins";
+    import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
+    import { MemoryLockFactory } from "@daiso-tech/core/lock/memory-lock-factory";
+
+    const adapter = withPlugin(
+        new MemoryFileStorageAdapter(),
+        withFileStorageLock({ lockFactory: new MemoryLockFactory() }),
+    );
+    ```
+
+- 65e14ba: Refactored the built-in namespacing system into opt-in `with*Prefix` plugins across all affected components. The `@daiso-tech/core/namespace` module (`INamespace`, `IKey`, `Namespace` class, `NoOpNamespace` class) has been removed. Key management is now simplified to plain strings, and prefixing is handled via middleware plugins when needed.
+
+    ### What changed
+
+    **Removed `@daiso-tech/core/namespace` module** — The following are no longer available:
+
+    - `INamespace` contract — factory interface for creating namespaced keys
+    - `IKey` interface — hierarchically-organized key with namespace awareness
+    - `Namespace` class — configurable namespace with delimiter and root identifier support
+    - `NoOpNamespace` class — namespace that passes keys through unchanged
+
+    **Removed `namespace` setting** from component constructors:
+
+    - `Cache` — `CacheSettingsBase.namespace`
+    - `EventBus` — `EventBusSettingsBase.namespace`
+    - `LockFactory` — `LockFactorySettingsBase.namespace`
+    - `CircuitBreakerFactory`, `FileStorage`, `RateLimiterFactory`, `SemaphoreFactory`, `SharedLockFactory` — same pattern
+
+    **Simplified key types** across all components:
+
+    - Method parameters changed from `IKey` to `string`
+    - `removeMany(keys: Iterable<string>)` → `removeMany(keys: Array<string>)`
+    - Error classes (`KeyNotFoundCacheError`, `KeyExistsCacheError`, etc.) now accept `string` instead of `IKey`
+    - `ILockState.key` changed from `IKey` to `string`
+
+    ### Replacement: `with*Prefix` plugins
+
+    Key prefixing is now opt-in via middleware plugins. Available plugins:
+
+    | Component       | Plugin                     |
+    | --------------- | -------------------------- |
+    | cache           | `withCachePrefix`          |
+    | circuit-breaker | `withCircuitBreakerPrefix` |
+    | file-storage    | `withFileStoragePrefix`    |
+    | lock            | `withLockPrefix`           |
+    | rate-limiter    | `withRateLimiterPrefix`    |
+    | semaphore       | `withSemaphorePrefix`      |
+    | shared-lock     | `withSharedLockPrefix`     |
+
+    ### Usage
+
+    ```ts
+    import { withPlugin } from "@daiso-tech/core/middleware";
+    import { withCachePrefix } from "@daiso-tech/core/cache/plugins";
+
+    const adapter = new MemoryCacheAdapter();
+    const prefixedAdapter = withPlugin(adapter, withCachePrefix("tenant-42:"));
+
+    // Keys are automatically prefixed:
+    await prefixedAdapter.add(context, "my-key", "value");
+    // Internally calls adapter.add(context, "tenant-42:my-key", "value")
+    ```
+
+    ### Migration
+
+    **If you used `Namespace` directly** — replace with a `with*Prefix` plugin on the adapter:
+
+    ```diff
+    -import { Cache, Namespace } from "@daiso-tech/core";
+    -
+    -const cache = new Cache({
+    -    adapter: new MemoryCacheAdapter(),
+    -    namespace: new Namespace("my-app"),
+    -});
+    +import { Cache } from "@daiso-tech/core";
+    +import { withPlugin } from "@daiso-tech/core/middleware";
+    +import { withCachePrefix } from "@daiso-tech/core/cache/plugins";
+    +
+    +const adapter = withPlugin(new MemoryCacheAdapter(), withCachePrefix("my-app:"));
+    +const cache = new Cache({ adapter });
+    ```
+
+    **If you imported `INamespace` or `IKey` types** — update to use plain `string` instead.
+
+    **If you were using `NoOpNamespace`** — simply omit the `namespace` setting (it was the default).
+
+    ### Use cases
+    - **Multi-tenant systems** — Prefix keys with a tenant identifier to isolate data
+    - **Environment isolation** — Separate dev, staging, and production data
+    - **Versioning** — Prefix keys with a schema version
+    - **Module scoping** — Organize keys by feature to avoid collisions
+
 ## 0.55.0
 
 ### Minor Changes
@@ -1219,8 +1552,8 @@
 - 3ca9190: Renamed `FallbackSettings.fallbackPolicy` to `FallbackSettings.errorPolicy`
 - 3ca9190: - Removed the following types:
 
-                                                                                                                              - `AsyncFactoryable`
-                                                                                                                              - `Factoryable`
+                                                                                                                                - `AsyncFactoryable`
+                                                                                                                                - `Factoryable`
 
     - Updated remaining factory types to use the new `InvokableFn` and `InvokableObject` contracts:
         - Synchronous factories:
