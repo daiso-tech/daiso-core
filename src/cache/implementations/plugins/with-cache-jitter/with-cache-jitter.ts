@@ -43,8 +43,9 @@ export type WithCacheJitterSettings = {
  *                                 @default 0.2
  * @returns A middleware plugin that wraps an `ICacheAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
  * @typeParam TType - The type of values stored in the cache.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
  * @group Plugins
  */
 export function withCacheJitter<TType>(

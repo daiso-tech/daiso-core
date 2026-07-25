@@ -11,8 +11,9 @@ import { validate } from "@/utilities/_module.js";
 /**
  * Settings for the {@link withCacheSchema} plugin.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
  * @typeParam TType - The type to validate against.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
  * @group Plugins
  */
 export type WithCacheSchemaSettings<TType = unknown> = {
@@ -50,8 +51,9 @@ export type WithCacheSchemaSettings<TType = unknown> = {
  *                                        @default true
  * @returns A middleware plugin that wraps an `ICacheAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
  * @typeParam TType - The type of values stored in the cache.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
  * @group Plugins
  */
 export function withCacheSchema<TType>(
