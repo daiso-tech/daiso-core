@@ -24,7 +24,7 @@ export function withPluginFactory(enhance_: Enhance): WithPlugin {
         plugins: OneOrMore<Plugin<TInstance>>,
     ): TInstance => {
         const copyOfInstance = copyObj(instance);
-        for (const plugin of resolveOneOrMore(plugins)) {
+        for (const plugin of resolveOneOrMore(plugins).reverse()) {
             callInvokable(plugin, copyOfInstance, enhance_);
         }
         return copyOfInstance;

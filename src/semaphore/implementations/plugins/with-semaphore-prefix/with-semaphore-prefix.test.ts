@@ -8,7 +8,7 @@ import { NoOpSemaphoreAdapter } from "@/semaphore/implementations/adapters/_modu
 import { withSemaphorePrefix } from "@/semaphore/implementations/plugins/with-semaphore-prefix/with-semaphore-prefix.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
-describe("plugin: withSemaphorePrefix", () => {
+describe("function: withSemaphorePrefix", () => {
     const context = new Context(new Map());
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));

@@ -116,35 +116,6 @@ await eventBus.addListener("addd", (event) => {
 });
 ```
 
-### Runtime type safety
-
-You can enforce runtime and compiletime type safety by passing [standard schema](https://standardschema.dev/) to the cache:
-
-```ts
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { z } from "zod";
-
-const eventMapSchema = {
-    add: z.object({
-        a: z.number(),
-        b: z.number(),
-    }),
-};
-
-// The event type will be infered
-const eventBus = new EventBus({
-    adapter: new MemoryEventBusAdapter(),
-    eventMapSchema,
-});
-
-// A typescript and runtime error will show up because the event fields doesnt match
-await eventBus.dispatch("add", {
-    nbr1: 1,
-    nbr2: 2,
-});
-```
-
 ### Subscribe method
 
 The subscription pattern provides automatic cleanup through an unsubscribe function:

@@ -8,7 +8,7 @@ import { NoOpSharedLockAdapter } from "@/shared-lock/implementations/adapters/_m
 import { withSharedLockPrefix } from "@/shared-lock/implementations/plugins/with-shared-lock-prefix/with-shared-lock-prefix.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
-describe("plugin: withSharedLockPrefix", () => {
+describe("function: withSharedLockPrefix", () => {
     const context = new Context(new Map());
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));

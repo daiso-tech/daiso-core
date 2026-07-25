@@ -11,7 +11,6 @@ import {
 import {
     EventBus,
     type EventBusSettingsBase,
-    type EventMapSchema,
 } from "@/event-bus/implementations/derivables/event-bus/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
@@ -34,20 +33,18 @@ export type EventBusAdapters<TAdapters extends string = string> = Partial<
  * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
  * @group Derivables
  */
-export type EventBusResolverSettings<
-    TAdapters extends string = string,
-    TEventMap extends BaseEventMap = BaseEventMap,
-> = EventBusSettingsBase<TEventMap> & {
-    /**
-     * Named registry of event-bus adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
-     */
-    adapters: EventBusAdapters<TAdapters>;
+export type EventBusResolverSettings<TAdapters extends string = string> =
+    EventBusSettingsBase & {
+        /**
+         * Named registry of event-bus adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
+         */
+        adapters: EventBusAdapters<TAdapters>;
 
-    /**
-     * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
-     */
-    defaultAdapter?: NoInfer<TAdapters>;
-};
+        /**
+         * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
+         */
+        defaultAdapter?: NoInfer<TAdapters>;
+    };
 
 /**
  * The `EventBusResolver` class is immutable.
@@ -88,10 +85,7 @@ export class EventBusResolver<
      * ```
      */
     constructor(
-        private readonly settings: EventBusResolverSettings<
-            TAdapters,
-            TEventMap
-        >,
+        private readonly settings: EventBusResolverSettings<TAdapters>,
     ) {}
 
     setEventMapType<TEventMap_ extends BaseEventMap>(): EventBusResolver<
@@ -100,15 +94,6 @@ export class EventBusResolver<
     > {
         return new EventBusResolver({
             ...this.settings,
-        } as EventBusResolverSettings<TAdapters, TEventMap_>);
-    }
-
-    setEventMapSchema<TEventMap_ extends BaseEventMap>(
-        eventMapSchema: EventMapSchema<TEventMap_>,
-    ): EventBusResolver<TAdapters, TEventMap_> {
-        return new EventBusResolver({
-            ...this.settings,
-            eventMapSchema,
         });
     }
 

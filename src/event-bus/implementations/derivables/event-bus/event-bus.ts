@@ -2,8 +2,6 @@
  * @module EventBus
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
 import {
     type IEventBus,
     type IEventBusAdapter,
@@ -19,23 +17,11 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
-    validate,
     resolveInvokable,
     type OneOrArray,
     type InvokableFn,
     resolveOneOrMore,
 } from "@/utilities/_module.js";
-
-/**
- * Maps each event name in `TEventMap` to a [standard schema](https://standardschema.dev/)
- * validator for its payload type. Used to validate event data at runtime.
- *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
- * @group Derivables
- */
-export type EventMapSchema<TEventMap extends BaseEventMap = BaseEventMap> = {
-    [TEventName in keyof TEventMap]: StandardSchemaV1<TEventMap[TEventName]>;
-};
 
 /**
  * Base configuration shared by all `EventBus` variants.
@@ -44,20 +30,7 @@ export type EventMapSchema<TEventMap extends BaseEventMap = BaseEventMap> = {
  * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
  * @group Derivables
  */
-export type EventBusSettingsBase<
-    TEventMap extends BaseEventMap = BaseEventMap,
-> = {
-    /**
-     * You can provide any [standard schema](https://standardschema.dev/) compliant object to validate all input and output data to ensure runtime type safety.
-     */
-    eventMapSchema?: EventMapSchema<TEventMap>;
-
-    /**
-     * You can enable validating events in listeners.
-     * @default true
-     */
-    shouldValidateOutput?: boolean;
-
+export type EventBusSettingsBase = {
     /**
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
@@ -78,19 +51,18 @@ export type EventBusSettingsBase<
  * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
  * @group Derivables
  */
-export type EventBusSettings<TEventMap extends BaseEventMap = BaseEventMap> =
-    EventBusSettingsBase<TEventMap> & {
-        /**
-         * The underlying event-bus adapter that handles message dispatching and subscription.
-         */
-        adapter: IEventBusAdapter;
+export type EventBusSettings = EventBusSettingsBase & {
+    /**
+     * The underlying event-bus adapter that handles message dispatching and subscription.
+     */
+    adapter: IEventBusAdapter;
 
-        /**
-         * Thist settings is only used for testing, dont use it in your code !
-         * @internal
-         */
-        _onUncaughtRejection?: (error: unknown) => void;
-    };
+    /**
+     * Thist settings is only used for testing, dont use it in your code !
+     * @internal
+     */
+    _onUncaughtRejection?: (error: unknown) => void;
+};
 
 /**
  * `EventBus` class can be derived from any {@link IEventBusAdapter | `IEventBusAdapter`}.
@@ -101,10 +73,8 @@ export type EventBusSettings<TEventMap extends BaseEventMap = BaseEventMap> =
 export class EventBus<
     TEventMap extends BaseEventMap = BaseEventMap,
 > implements IEventBus<TEventMap> {
-    private readonly shouldValidateOutput: boolean;
     private readonly store = new ListenerStore();
     private readonly adapter: IEventBusAdapter;
-    private readonly eventMapSchema: EventMapSchema<TEventMap> | undefined;
     private readonly context: IReadableContext;
 
     /**
@@ -123,22 +93,18 @@ export class EventBus<
      * });
      * ```
      */
-    constructor(settings: EventBusSettings<TEventMap>) {
+    constructor(settings: EventBusSettings) {
         const {
             _onUncaughtRejection = (error) => {
                 console.error(
                     `An error of type "${String(error)}" occurred in event listener`,
                 );
             },
-            shouldValidateOutput = true,
-            eventMapSchema,
             adapter,
             context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
         this.context = context;
-        this.shouldValidateOutput = shouldValidateOutput;
-        this.eventMapSchema = eventMapSchema;
         this.adapter = adapter;
         this._onUncaughtRejection = _onUncaughtRejection;
     }
@@ -149,15 +115,6 @@ export class EventBus<
     ) {
         return async (event: InferEvent<TEventMap, TEventName>) => {
             try {
-                if (
-                    this.shouldValidateOutput &&
-                    this.eventMapSchema !== undefined
-                ) {
-                    event = (await validate(
-                        this.eventMapSchema[eventName],
-                        event,
-                    )) as InferEvent<TEventMap, TEventName>;
-                }
                 await resolveInvokable(listener)({
                     ...event,
                     type: eventName,
@@ -244,15 +201,6 @@ export class EventBus<
             event_: InferEvent<TEventMap, TEventName>,
         ) => {
             try {
-                if (
-                    this.shouldValidateOutput &&
-                    this.eventMapSchema !== undefined
-                ) {
-                    event_ = (await validate(
-                        this.eventMapSchema[eventName],
-                        event_ as any,
-                    )) as InferEvent<TEventMap, TEventName>;
-                }
                 const resolvedListener = resolveInvokable(listener);
                 await resolvedListener(event_);
             } catch (error: unknown) {
@@ -333,9 +281,6 @@ export class EventBus<
     ): Promise<void> {
         if (typeof eventName !== "string") {
             throw new TypeError("!!__MESSAGE__!!");
-        }
-        if (this.eventMapSchema !== undefined) {
-            event = await validate(this.eventMapSchema[eventName], event);
         }
         await this.adapter.dispatch(this.context, eventName, event);
     }
