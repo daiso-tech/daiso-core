@@ -96,6 +96,29 @@ describe("function: useFactory", () => {
             "fn",
         ]);
     });
+    test("Should execute middlewares in array order (first runs first) with default priority", () => {
+        const order: Array<string> = [];
+        const use = useFactory();
+        const fn = use(() => {
+            order.push("fn");
+            return "done";
+        }, [
+            ({ args, next }) => {
+                order.push("first");
+                return next(args);
+            },
+            ({ args, next }) => {
+                order.push("second");
+                return next(args);
+            },
+            ({ args, next }) => {
+                order.push("third");
+                return next(args);
+            },
+        ]);
+        fn();
+        expect(order).toEqual(["first", "second", "third", "fn"]);
+    });
     describe("MiddlewareArgs passed to middleware handlers", () => {
         test("Should pass correct args to middleware", () => {
             const use = useFactory();

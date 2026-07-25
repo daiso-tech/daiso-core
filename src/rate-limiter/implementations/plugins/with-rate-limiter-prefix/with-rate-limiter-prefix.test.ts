@@ -7,7 +7,7 @@ import { withPluginFactory } from "@/middleware/implementations/with-plugin-fact
 import { NoOpRateLimiterAdapter } from "@/rate-limiter/implementations/adapters/_module.js";
 import { withRateLimiterPrefix } from "@/rate-limiter/implementations/plugins/with-rate-limiter-prefix/with-rate-limiter-prefix.js";
 
-describe("plugin: withRateLimiterPrefix", () => {
+describe("function: withRateLimiterPrefix", () => {
     const context = new Context(new Map());
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));

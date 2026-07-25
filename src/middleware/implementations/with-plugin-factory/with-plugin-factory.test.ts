@@ -278,4 +278,84 @@ describe("function: withPluginFactory", () => {
         expect(copiedInstance.getAge()).toBe(instance.getAge());
         expect(copiedInstance.getGreeting()).toBe(instance.getGreeting());
     });
+    test("Should call plugins in reverse order when provided as an array", () => {
+        const enhance = vi.fn() as Enhance;
+        const withPlugin = withPluginFactory(enhance);
+
+        const obj = {
+            method(_value: string): void {},
+        };
+
+        const callOrder: Array<number> = [];
+
+        const pluginA: PluginFn<typeof obj> = () => {
+            callOrder.push(1);
+        };
+        const pluginB: PluginFn<typeof obj> = () => {
+            callOrder.push(2);
+        };
+        const pluginC: PluginFn<typeof obj> = () => {
+            callOrder.push(3);
+        };
+
+        withPlugin(obj, [pluginA, pluginB, pluginC]);
+
+        expect(callOrder).toEqual([3, 2, 1]);
+    });
+    test("Should execute middleware from first plugin outermost when multiple plugins enhance the same method", () => {
+        const use = useFactory();
+        const enhance = enhanceFactory(use);
+        const withPlugin = withPluginFactory(enhance);
+
+        const obj = {
+            method(_value: string): string {
+                return "original";
+            },
+        };
+
+        const executionOrder: Array<string> = [];
+
+        const pluginA: PluginFn<typeof obj> = (instance, enhanceFn) => {
+            enhanceFn(instance, "method", ({ args, next }) => {
+                executionOrder.push("middlewareA before");
+                const result = next(args);
+                executionOrder.push("middlewareA after");
+                return result;
+            });
+        };
+
+        const pluginB: PluginFn<typeof obj> = (instance, enhanceFn) => {
+            enhanceFn(instance, "method", ({ args, next }) => {
+                executionOrder.push("middlewareB before");
+                const result = next(args);
+                executionOrder.push("middlewareB after");
+                return result;
+            });
+        };
+
+        const enhanced = withPlugin(obj, [pluginA, pluginB]);
+        enhanced.method("test");
+
+        expect(executionOrder).toEqual([
+            "middlewareA before",
+            "middlewareB before",
+            "middlewareB after",
+            "middlewareA after",
+        ]);
+    });
+    test("Should call a single plugin when provided directly (not wrapped in an array)", () => {
+        const enhance = vi.fn() as Enhance;
+        const withPlugin = withPluginFactory(enhance);
+
+        const obj = {
+            method(_value: string): void {},
+        };
+
+        const plugin = vi.fn<PluginFn<typeof obj>>();
+
+        withPlugin(obj, plugin);
+
+        expect(plugin).toHaveBeenCalledOnce();
+        expect(plugin).toHaveBeenCalledWith(obj, enhance);
+    });
 });

@@ -8,7 +8,7 @@ import { useFactory } from "@/middleware/implementations/use-factory/_module.js"
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
-describe("plugin: withLockPrefix", () => {
+describe("function: withLockPrefix", () => {
     const context = new Context(new Map());
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));

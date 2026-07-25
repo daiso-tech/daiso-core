@@ -55,11 +55,9 @@ function resolveMiddlewares<TParameters extends Array<unknown>, TReturn>(
     middlewares: OneOrMore<Middleware<TParameters, TReturn>>,
     defaultPriority: number,
 ): Array<IMiddlewareObject<TParameters, TReturn>> {
-    return [
-        ...resolveOneOrMore(middlewares).map((middleware) =>
-            resolveMiddleware(middleware, defaultPriority),
-        ),
-    ].sort((a, b) => a.priority - b.priority);
+    return resolveOneOrMore(middlewares)
+        .map((middleware) => resolveMiddleware(middleware, defaultPriority))
+        .sort((a, b) => a.priority - b.priority);
 }
 
 /**
@@ -75,12 +73,11 @@ export function useFactory(): Use {
         invokable: Invokable<TParameters, TReturn>,
         middlewares: OneOrMore<Middleware<TParameters, TReturn>>,
     ): InvokableFn<TParameters, TReturn> => {
-        const resolvedMiddlewares = resolveMiddlewares(
+        let func = resolveInvokable(invokable);
+        for (const middleware of resolveMiddlewares(
             middlewares,
             DEFAULT_PRIORITY,
-        );
-        let func = resolveInvokable(invokable);
-        for (const middleware of [...resolvedMiddlewares].reverse()) {
+        ).reverse()) {
             const prevFunc = func;
             func = (...args_: TParameters): TReturn => {
                 const next: NextFn<TParameters, TReturn> = (args = args_) => {
