@@ -137,4 +137,38 @@ describe("function: enhanceFactory", () => {
 
         expect(middlewareA).not.toBeCalled();
     });
+
+    test("Should execute middlewares in last-in-first-out order when enhancing the same method multiple times", () => {
+        const enhance = enhanceFactory(useFactory());
+        const obj = {
+            method(_value: string): string {
+                return "original";
+            },
+        };
+
+        const executionOrder: Array<string> = [];
+
+        enhance(obj, "method", ({ args, next }) => {
+            executionOrder.push("first before");
+            const result = next(args);
+            executionOrder.push("first after");
+            return result;
+        });
+
+        enhance(obj, "method", ({ args, next }) => {
+            executionOrder.push("second before");
+            const result = next(args);
+            executionOrder.push("second after");
+            return result;
+        });
+
+        obj.method("test");
+
+        expect(executionOrder).toEqual([
+            "second before",
+            "first before",
+            "first after",
+            "second after",
+        ]);
+    });
 });
