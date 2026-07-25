@@ -210,6 +210,10 @@
             "types": "./dist/event-bus/implementations/derivables/_module-exports.d.ts",
             "import": "./dist/event-bus/implementations/derivables/_module-exports.js"
         },
+        "./event-bus/plugins": {
+            "types": "./dist/event-bus/implementations/plugins/_module-exports.d.ts",
+            "import": "./dist/event-bus/implementations/plugins/_module-exports.js"
+        },
         "./event-bus/contracts": {
             "types": "./dist/event-bus/contracts/_module-exports.d.ts",
             "import": "./dist/event-bus/contracts/_module-exports.js"
