@@ -293,7 +293,7 @@ const validatedAdapter = withPlugin(
     withCacheSchema({ schema: UserSchema }),
 );
 
-const cache = new Cache({
+const cache = new Cache<z.infer<typeof UserSchema>>({
     adapter: validatedAdapter,
 });
 

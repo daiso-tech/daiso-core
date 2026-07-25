@@ -69,14 +69,12 @@ export type WithCacheWriteLockSettings = {
  *                               lock. Defaults to all mutating methods.
  * @returns A middleware plugin that wraps an `ICacheAdapter`.
  *
- * @typeParam TType - The type of values stored in the cache.
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
  * @group Plugins
  */
-export function withCacheWriteLock<TType>(
+export function withCacheWriteLock(
     settings: WithCacheWriteLockSettings,
-): PluginFn<ICacheAdapter<TType>> {
+): PluginFn<ICacheAdapter> {
     const {
         lockFactory,
         onlyMethods = [
