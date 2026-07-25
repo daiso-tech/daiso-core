@@ -229,16 +229,16 @@ When combining `withEventBusSchema` with `withEventBusPrefix`, the schema must c
 
 ```ts
 // ✅ Correct: schema is first in array → outermost → validates original "user.created"
-const enhanced = withPlugin(
-    adapter,
-    [withEventBusSchema({ eventMapSchema }), withEventBusPrefix("app:")],
-);
+const enhanced = withPlugin(adapter, [
+    withEventBusSchema({ eventMapSchema }),
+    withEventBusPrefix("app:"),
+]);
 
 // ❌ Wrong: prefix is first in array → outermost → schema receives "app:user.created"
-const enhanced = withPlugin(
-    adapter,
-    [withEventBusPrefix("app:"), withEventBusSchema({ eventMapSchema })],
-);
+const enhanced = withPlugin(adapter, [
+    withEventBusPrefix("app:"),
+    withEventBusSchema({ eventMapSchema }),
+]);
 ```
 
 :::danger
