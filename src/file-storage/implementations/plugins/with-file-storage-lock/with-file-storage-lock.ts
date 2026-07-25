@@ -14,6 +14,7 @@ import { type PluginFn } from "@/middleware/contracts/_module.js";
  * All methods of {@link ISignedFileStorageAdapter | `ISignedFileStorageAdapter`} that can be protected by a lock,
  * excluding `removeByPrefix` (which operates on key patterns rather than concrete keys).
  *
+ * IMPORT_PATH: `"@daiso-tech/core/file-storage/plugins"`
  * @group Plugins
  */
 export type WithFileStorageLockMethods = keyof Omit<
@@ -394,8 +395,9 @@ function withFileStorageRemovalLock(
  *                               Defaults to all methods (except `removeByPrefix`).
  * @returns A middleware plugin that wraps an `ISignedFileStorageAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/plugins"`
  * @typeParam TType - The type of values stored in the file storage.
+ *
+ * IMPORT_PATH: `"@daiso-tech/core/file-storage/plugins"`
  * @group Plugins
  */
 export function withFileStorageLock(
