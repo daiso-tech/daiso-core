@@ -11,18 +11,16 @@ import { validate } from "@/utilities/_module.js";
 /**
  * Settings for the {@link withCacheSchema} plugin.
  *
- * @typeParam TType - The type to validate against.
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
  * @group Plugins
  */
-export type WithCacheSchemaSettings<TType = unknown> = {
+export type WithCacheSchemaSettings = {
     /**
      * A standard-schema-compliant schema used to validate cache values.
      * Compatible with libraries such as Zod, ArkType, Valibot, and others
      * that implement the `StandardSchemaV1` specification.
      */
-    schema: StandardSchemaV1<TType>;
+    schema: StandardSchemaV1;
 
     /**
      * Whether to validate values returned by `get` and `getAndRemove`
@@ -51,14 +49,12 @@ export type WithCacheSchemaSettings<TType = unknown> = {
  *                                        @default true
  * @returns A middleware plugin that wraps an `ICacheAdapter`.
  *
- * @typeParam TType - The type of values stored in the cache.
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
  * @group Plugins
  */
-export function withCacheSchema<TType>(
-    settings: WithCacheSchemaSettings<TType>,
-): PluginFn<ICacheAdapter<TType>> {
+export function withCacheSchema(
+    settings: WithCacheSchemaSettings,
+): PluginFn<ICacheAdapter> {
     const { schema, shouldValidateOutput = true } = settings;
 
     return (adapter, enhance) => {

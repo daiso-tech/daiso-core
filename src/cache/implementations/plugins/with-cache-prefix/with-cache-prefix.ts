@@ -16,14 +16,10 @@ import { type PluginFn } from "@/middleware/contracts/_module.js";
  * @param prefix - The string to prepend to every cache key.
  * @returns A middleware plugin that wraps an `ICacheAdapter`.
  *
- * @typeParam TType - The type of values stored in the cache.
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
  * @group Plugins
  */
-export function withCachePrefix<TType>(
-    prefix: string,
-): PluginFn<ICacheAdapter<TType>> {
+export function withCachePrefix(prefix: string): PluginFn<ICacheAdapter> {
     function withPrefix(key: string): string {
         return prefix + key;
     }

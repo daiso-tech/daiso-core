@@ -43,14 +43,12 @@ export type WithCacheJitterSettings = {
  *                                 @default 0.2
  * @returns A middleware plugin that wraps an `ICacheAdapter`.
  *
- * @typeParam TType - The type of values stored in the cache.
- *
  * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
  * @group Plugins
  */
-export function withCacheJitter<TType>(
+export function withCacheJitter(
     settings: WithCacheJitterSettings = {},
-): PluginFn<ICacheAdapter<TType>> {
+): PluginFn<ICacheAdapter> {
     const { defaultJitter = 0.2, _mathRandom = () => Math.random() } = settings;
     function ttlWithJitter(ttl: TimeSpan | null): TimeSpan | null {
         if (ttl === null) {
