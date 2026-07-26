@@ -1,4 +1,3 @@
-export type * from "@/lock/contracts/database-lock-adapter.contract.js";
 export type * from "@/lock/contracts/lock-adapter.contract.js";
 export type * from "@/lock/contracts/lock-factory-resolver.contract.js";
 export type * from "@/lock/contracts/lock-factory.contract.js";
