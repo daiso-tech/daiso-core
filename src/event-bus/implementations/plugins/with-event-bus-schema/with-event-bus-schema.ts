@@ -96,16 +96,16 @@ export function withEventBusSchema(
         enhance(
             adapter,
             "dispatch",
-            async ({ args: [context, eventName, eventData], next }) => {
+            async ({ args: [eventName, eventData, context], next }) => {
                 const schema = eventMapSchema[eventName];
                 if (schema) {
                     return next([
-                        context,
                         eventName,
                         await validate(schema, eventData),
+                        context,
                     ]);
                 }
-                return next([context, eventName, eventData]);
+                return next([eventName, eventData, context]);
             },
         );
 
@@ -113,7 +113,7 @@ export function withEventBusSchema(
             enhance(
                 adapter,
                 "addListener",
-                async ({ args: [context, eventName, listener], next }) => {
+                async ({ args: [eventName, listener, context], next }) => {
                     const schema = eventMapSchema[eventName];
                     if (schema) {
                         const wrappedListener: EventListenerFn<
@@ -121,9 +121,9 @@ export function withEventBusSchema(
                         > = async (event) => {
                             return listener(await validate(schema, event));
                         };
-                        return next([context, eventName, wrappedListener]);
+                        return next([eventName, wrappedListener, context]);
                     }
-                    return next([context, eventName, listener]);
+                    return next([eventName, listener, context]);
                 },
             );
         }
@@ -132,12 +132,12 @@ export function withEventBusSchema(
             enhance(
                 adapter,
                 "removeListener",
-                async ({ args: [context, eventName, listener], next }) => {
+                async ({ args: [eventName, listener, context], next }) => {
                     const schema = eventMapSchema[eventName];
                     if (schema) {
-                        return next([context, eventName, listener]);
+                        return next([eventName, listener, context]);
                     }
-                    return next([context, eventName, listener]);
+                    return next([eventName, listener, context]);
                 },
             );
         }
