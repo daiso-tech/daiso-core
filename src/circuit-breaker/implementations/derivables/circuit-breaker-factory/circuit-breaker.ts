@@ -110,29 +110,29 @@ export class CircuitBreaker implements ICircuitBreaker {
     }
 
     async getState(): Promise<CircuitBreakerState> {
-        return this.adapter.getState(this._key.toString(), this.context);
+        return this.adapter.getState(this._key, this.context);
     }
 
     private async trackFailure(): Promise<void> {
         if (this.enableAsyncTracking) {
             callInvokable(
                 this.waitUntil,
-                this.adapter.trackFailure(this._key.toString(), this.context),
+                this.adapter.trackFailure(this._key, this.context),
             );
             return;
         }
-        await this.adapter.trackFailure(this._key.toString(), this.context);
+        await this.adapter.trackFailure(this._key, this.context);
     }
 
     private async trackSuccess(): Promise<void> {
         if (this.enableAsyncTracking) {
             callInvokable(
                 this.waitUntil,
-                this.adapter.trackSuccess(this._key.toString(), this.context),
+                this.adapter.trackSuccess(this._key, this.context),
             );
             return;
         }
-        await this.adapter.trackSuccess(this._key.toString(), this.context);
+        await this.adapter.trackSuccess(this._key, this.context);
     }
 
     private async trackErrorWrapper<TValue = void>(
@@ -191,7 +191,7 @@ export class CircuitBreaker implements ICircuitBreaker {
 
     private async guard(): Promise<void> {
         const transition = await this.adapter.updateState(
-            this._key.toString(),
+            this._key,
             this.context,
         );
 
@@ -219,10 +219,10 @@ export class CircuitBreaker implements ICircuitBreaker {
     }
 
     async reset(): Promise<void> {
-        await this.adapter.reset(this._key.toString(), this.context);
+        await this.adapter.reset(this._key, this.context);
     }
 
     async isolate(): Promise<void> {
-        await this.adapter.isolate(this._key.toString(), this.context);
+        await this.adapter.isolate(this._key, this.context);
     }
 }
