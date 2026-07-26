@@ -12,11 +12,9 @@ keywords:
     - AOP
 ---
 
-# RateLimiter middleware
+# RateLimiter middlewares
 
 The RateLimiter middleware wraps function calls with a rate limiter, controlling how many times a function can be invoked within a configured policy window. Each unique key (derived from the function's arguments) gets its own rate limit counter. Once the limit is reached, further invocations are blocked until the policy permits attempts again.
-
-This is useful for preventing abuse, controlling API rate limits, or throttling expensive operations.
 
 ## Usage
 
