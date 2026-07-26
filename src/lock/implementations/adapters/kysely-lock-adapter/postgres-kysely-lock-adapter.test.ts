@@ -70,29 +70,29 @@ describe("postgres class: KyselyLockAdapter", () => {
             await adapter.init();
 
             await adapter.acquire(
-                noOpContext,
                 "a",
                 "owner",
                 TimeSpan.fromMilliseconds(-1),
+                noOpContext,
             );
             await adapter.acquire(
-                noOpContext,
                 "b",
                 "owner",
                 TimeSpan.fromMilliseconds(-1),
+                noOpContext,
             );
             await adapter.acquire(
-                noOpContext,
                 "c",
                 "owner",
                 TimeSpan.fromMinutes(5),
+                noOpContext,
             );
 
             await adapter.removeAllExpired();
 
-            expect(await adapter.getState(noOpContext, "a")).toBeNull();
-            expect(await adapter.getState(noOpContext, "b")).toBeNull();
-            expect(await adapter.getState(noOpContext, "c")).not.toBeNull();
+            expect(await adapter.getState("a", noOpContext)).toBeNull();
+            expect(await adapter.getState("b", noOpContext)).toBeNull();
+            expect(await adapter.getState("c", noOpContext)).not.toBeNull();
         });
     });
     describe("method: init", () => {
