@@ -26,18 +26,14 @@ export function withRateLimiterPrefix(
         return prefix + key;
     }
     return (adapter, enhance) => {
-        enhance(adapter, "getState", ({ args: [context, key], next }) => {
-            return next([context, withPrefix(key)]);
+        enhance(adapter, "getState", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
         });
-        enhance(adapter, "reset", ({ args: [context, key], next }) => {
-            return next([context, withPrefix(key)]);
+        enhance(adapter, "reset", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
         });
-        enhance(
-            adapter,
-            "updateState",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
-            },
-        );
+        enhance(adapter, "updateState", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
     };
 }
