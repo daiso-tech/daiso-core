@@ -19,62 +19,62 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  */
 export class NoOpCacheAdapter<TType = unknown> implements ICacheAdapter<TType> {
     getOrAdd(
-        _context: IReadableContext,
         _key: string,
         valueToAdd: TType,
         _ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<TType> {
         return Promise.resolve(valueToAdd);
     }
 
-    get(_context: IReadableContext, _key: string): Promise<TType | null> {
+    get(_key: string, _context: IReadableContext): Promise<TType | null> {
         return Promise.resolve(null);
     }
 
     getAndRemove(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<TType | null> {
         return Promise.resolve(null);
     }
 
     add(
-        _context: IReadableContext,
         _key: string,
         _value: TType,
         _ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     put(
-        _context: IReadableContext,
         _key: string,
         _value: TType,
         _ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     update(
-        _context: IReadableContext,
         _key: string,
         _value: TType,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     increment(
-        _context: IReadableContext,
         _key: string,
         _value: number,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     removeMany(
-        _context: IReadableContext,
         _keys: Array<string>,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
@@ -84,8 +84,8 @@ export class NoOpCacheAdapter<TType = unknown> implements ICacheAdapter<TType> {
     }
 
     removeByKeyPrefix(
-        _context: IReadableContext,
         _prefix: string,
+        _context: IReadableContext,
     ): Promise<void> {
         return Promise.resolve();
     }
