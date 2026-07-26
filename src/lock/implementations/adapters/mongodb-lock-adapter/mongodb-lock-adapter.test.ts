@@ -116,7 +116,7 @@ describe("class: MongodbLockAdapter", () => {
             const lockId = "1";
             const ttl = null;
 
-            await adapter.acquire(noOpContext, key, lockId, ttl);
+            await adapter.acquire(key, lockId, ttl, noOpContext);
 
             const doc = await collection.findOne({
                 key,
@@ -144,7 +144,7 @@ describe("class: MongodbLockAdapter", () => {
             const ttl = TimeSpan.fromMinutes(5);
             const expiration = ttl.toEndDate();
 
-            await adapter.acquire(noOpContext, key, lockId, ttl);
+            await adapter.acquire(key, lockId, ttl, noOpContext);
 
             const doc = await collection.findOne({
                 key,
