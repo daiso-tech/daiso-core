@@ -6,7 +6,7 @@ import { type SemaphoreFactoryCreateSettings } from "@/semaphore/contracts/_modu
 import { NoOpSemaphoreAdapter } from "@/semaphore/implementations/adapters/_module.js";
 import { SemaphoreFactory } from "@/semaphore/implementations/derivables/_module.js";
 import { Semaphore } from "@/semaphore/implementations/derivables/semaphore-factory/semaphore.js";
-import { withSemaphoreFactory } from "@/semaphore/implementations/middlewares/with-semaphore-factory.js";
+import { withSemaphoreFactory } from "@/semaphore/implementations/middlewares/with-semaphore/with-semaphore-factory.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withSemaphoreFactory", () => {
@@ -38,8 +38,8 @@ describe("function: withSemaphoreFactory", () => {
             fn,
             withSemaphore({
                 ...settings,
-                key: (value) => value,
-                slotId: (value) => value,
+                key: (value: string) => value,
+                slotId: (value: string) => value,
             }),
         )(argValue);
 
@@ -57,7 +57,7 @@ describe("function: withSemaphoreFactory", () => {
         await use(
             fn,
             withSemaphore({
-                key: (value) => value,
+                key: (value: string) => value,
                 limit,
             }),
         )(argValue);

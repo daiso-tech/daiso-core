@@ -9,7 +9,7 @@ import { SharedLock } from "@/shared-lock/implementations/derivables/shared-lock
 import {
     SHARED_LOCK_WHEN,
     withSharedLockFactory,
-} from "@/shared-lock/implementations/middlewares/with-shared-lock-factory.js";
+} from "@/shared-lock/implementations/middlewares/with-shared-lock/with-shared-lock-factory.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withSharedLockFactory", () => {
@@ -42,8 +42,8 @@ describe("function: withSharedLockFactory", () => {
                 fn,
                 withSharedLock({
                     ...settings,
-                    key: (value) => value,
-                    lockId: (value) => value,
+                    key: (value: string) => value,
+                    lockId: (value: string) => value,
                     when: SHARED_LOCK_WHEN.WRITER,
                 }),
             )(argValue);
@@ -62,7 +62,7 @@ describe("function: withSharedLockFactory", () => {
             await use(
                 fn,
                 withSharedLock({
-                    key: (value) => value,
+                    key: (value: string) => value,
                     limit,
                     when: SHARED_LOCK_WHEN.WRITER,
                 }),
@@ -89,8 +89,8 @@ describe("function: withSharedLockFactory", () => {
                 fn,
                 withSharedLock({
                     ...settings,
-                    key: (value) => value,
-                    lockId: (value) => value,
+                    key: (value: string) => value,
+                    lockId: (value: string) => value,
                     when: SHARED_LOCK_WHEN.READER,
                 }),
             )(argValue);
@@ -109,7 +109,7 @@ describe("function: withSharedLockFactory", () => {
             await use(
                 fn,
                 withSharedLock({
-                    key: (value) => value,
+                    key: (value: string) => value,
                     limit,
                     when: SHARED_LOCK_WHEN.READER,
                 }),

@@ -5,7 +5,7 @@ import { type LockFactoryCreateSettings } from "@/lock/contracts/_module.js";
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
 import { LockFactory } from "@/lock/implementations/derivables/_module.js";
 import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
-import { withLockFactory } from "@/lock/implementations/middlewares/with-lock-factory.js";
+import { withLockFactory } from "@/lock/implementations/middlewares/with-lock/with-lock-factory.js";
 import { use } from "@/middleware/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
@@ -36,8 +36,8 @@ describe("function: withLockFactory", () => {
             fn,
             withLock({
                 ...settings,
-                key: (value) => value,
-                lockId: (value) => value,
+                key: (value: string) => value,
+                lockId: (value: string) => value,
             }),
         )(argValue);
 
@@ -54,7 +54,7 @@ describe("function: withLockFactory", () => {
         await use(
             fn,
             withLock({
-                key: (value) => value,
+                key: (value: string) => value,
             }),
         )(argValue);
 

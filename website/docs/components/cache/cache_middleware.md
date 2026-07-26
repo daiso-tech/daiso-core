@@ -12,11 +12,13 @@ keywords:
     - AOP
 ---
 
-# Cache middleware
+# Cache middlewares
+
+## withCacheFactory middleware
 
 The Cache middleware intercepts function calls and caches their return values using a configurable cache store. When the wrapped function is invoked, the middleware derives a cache key from the function's arguments. If the key exists in the cache, the cached value is returned immediately without executing the function. Otherwise, the function runs, its result is stored in the cache, and the result is returned.
 
-## Usage
+### Usage
 
 ```ts
 import { withCacheFactory } from "@daiso-tech/core/cache/middlewares";
@@ -52,6 +54,6 @@ const userAgain = await cachedFetchUser("123"); // Cache hit — returns immedia
 Here is a complete list of settings for the [`withCache`](https://daiso-tech.github.io/daiso-core/types/Cache.WithCacheSettings.html) function.
 :::
 
-## Further information
+### Further information
 
 For further information refer to [`@daiso-tech/core/cache`](https://daiso-tech.github.io/daiso-core/modules/Cache.html) API docs.

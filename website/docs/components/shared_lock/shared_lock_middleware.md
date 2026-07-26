@@ -12,14 +12,9 @@ keywords:
     - AOP
 ---
 
-# SharedLock middleware
+# SharedLock middlewares
 
-The SharedLock middleware wraps function calls with a distributed shared lock (reader-writer lock), providing concurrency control with two access modes:
-
-- **Reader mode** (`"READER"`) — Multiple callers can execute the wrapped function concurrently. Readers share access as long as no writer holds the lock.
-- **Writer mode** (`"WRITER"`) — Exclusive access. No other reader or writer can hold the lock at the same time.
-
-This middleware is ideal for scenarios where read operations are safe to run concurrently but write operations need exclusive access, such as coordinating access to shared data structures, cached resources, or files.
+The SharedLock middleware wraps function calls with a distributed shared lock (reader-writer lock), providing concurrency control with two access modes: **Reader mode** (`"READER"`) allows multiple callers to execute the wrapped function concurrently as long as no writer holds the lock, while **Writer mode** (`"WRITER"`) grants exclusive access. Before executing the wrapped function, the appropriate lock is acquired on a key derived from the function's arguments.
 
 ## Usage
 

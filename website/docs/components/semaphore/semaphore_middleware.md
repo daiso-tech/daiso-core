@@ -12,11 +12,9 @@ keywords:
     - AOP
 ---
 
-# Semaphore middleware
+# Semaphore middlewares
 
 The Semaphore middleware wraps function calls with a distributed semaphore, limiting the number of concurrent executions across processes. Before executing the wrapped function, a slot is acquired on a key derived from the function's arguments. If the maximum number of concurrent slots (`limit`) has already been reached, the call waits (or fails immediately for non-blocking semaphores) until a slot becomes available.
-
-This is useful for controlling concurrency for resource-limited operations, such as database connection pooling, external API throttling, or rate-limited batch processing.
 
 ## Usage
 
