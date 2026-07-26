@@ -73,19 +73,19 @@ export function eventBusAdapterTestSuite(
             test("Should be null when listener added and event is not triggered", async () => {
                 const handlerFn = vi.fn((_event: BaseEvent) => {});
 
-                await adapter.addListener(context, "event", handlerFn);
+                await adapter.addListener("event", handlerFn, context);
 
                 await delay(TTL);
                 expect(handlerFn).not.toHaveBeenCalled();
             });
             test("Should be TestEvent when listener added and event is triggered", async () => {
                 const handlerFn = vi.fn((_event: BaseEvent) => {});
-                await adapter.addListener(context, "event", handlerFn);
+                await adapter.addListener("event", handlerFn, context);
 
                 const event = {
                     type: "event",
                 };
-                await adapter.dispatch(context, "event", event);
+                await adapter.dispatch("event", event, context);
                 await delay(TTL);
 
                 expect(handlerFn).toHaveBeenCalledTimes(1);
@@ -94,13 +94,13 @@ export function eventBusAdapterTestSuite(
             test("Should be null when listener removed and event is triggered", async () => {
                 const handlerFn = vi.fn((_event: BaseEvent) => {});
 
-                await adapter.addListener(context, "event", handlerFn);
-                await adapter.removeListener(context, "event", handlerFn);
+                await adapter.addListener("event", handlerFn, context);
+                await adapter.removeListener("event", handlerFn, context);
                 const event = {
                     type: "event",
                 };
 
-                await adapter.dispatch(context, "event", event);
+                await adapter.dispatch("event", event, context);
 
                 await delay(TTL);
                 expect(handlerFn).not.toHaveBeenCalled();
