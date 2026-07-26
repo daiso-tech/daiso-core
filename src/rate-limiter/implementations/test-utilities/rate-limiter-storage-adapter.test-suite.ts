@@ -95,10 +95,10 @@ export function rateLimiterStorageAdapterTestSuite(
                     new Date("2026-01-01"),
                 );
 
-                const data = await adapter.transaction(context, async (trx) => {
-                    await trx.upsert(context, key, value, expiration);
-                    return await trx.find(context, key);
-                });
+                const data = await adapter.transaction(async (trx) => {
+                    await trx.upsert(key, value, expiration, context);
+                    return await trx.find(key, context);
+                }, context);
 
                 expect(data).toEqual({
                     state: value,
@@ -112,18 +112,18 @@ export function rateLimiterStorageAdapterTestSuite(
                     new Date("2026-01-01"),
                 );
 
-                const data = await adapter.transaction(context, async (trx) => {
+                const data = await adapter.transaction(async (trx) => {
                     await trx.upsert(
-                        context,
                         "a",
                         "b",
                         TimeSpan.fromMinutes(5).toEndDate(
                             new Date("2026-01-01"),
                         ),
+                        context,
                     );
-                    await trx.upsert(context, key, value, expiration);
-                    return await trx.find(context, key);
-                });
+                    await trx.upsert(key, value, expiration, context);
+                    return await trx.find(key, context);
+                }, context);
 
                 expect(data).toEqual({
                     state: value,
@@ -135,9 +135,9 @@ export function rateLimiterStorageAdapterTestSuite(
             test("Should return null when key doesnt exists", async () => {
                 const noneExistingKey = "a";
 
-                const data = await adapter.transaction(context, async (trx) => {
-                    return await trx.find(context, noneExistingKey);
-                });
+                const data = await adapter.transaction(async (trx) => {
+                    return await trx.find(noneExistingKey, context);
+                }, context);
 
                 expect(data).toBeNull();
             });
@@ -146,7 +146,7 @@ export function rateLimiterStorageAdapterTestSuite(
             test("Should return null when key doesnt exists", async () => {
                 const noneExistingKey = "a";
 
-                const data = await adapter.find(context, noneExistingKey);
+                const data = await adapter.find(noneExistingKey, context);
 
                 expect(data).toBeNull();
             });
@@ -159,11 +159,11 @@ export function rateLimiterStorageAdapterTestSuite(
                     new Date("2026-01-01"),
                 );
 
-                await adapter.transaction(context, async (trx) => {
-                    await trx.upsert(context, key, value, expiration);
-                });
-                await adapter.remove(context, key);
-                const item = await adapter.find(context, key);
+                await adapter.transaction(async (trx) => {
+                    await trx.upsert(key, value, expiration, context);
+                }, context);
+                await adapter.remove(key, context);
+                const item = await adapter.find(key, context);
 
                 expect(item).toBeNull();
             });
