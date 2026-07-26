@@ -17,14 +17,30 @@ The previous architecture baked cross-cutting concerns like schema validation, T
 
 The new plugin-based architecture solves these problems by keeping the `Cache` class focused on a single responsibility — delegating to an `ICacheAdapter` — and providing each cross-cutting behaviour as an independent `PluginFn<ICacheAdapter>` that can be composed via `withPlugin(adapter, ...plugins)`.
 
+### Breaking Changes
+
+**Removed from `CacheSettingsBase`:**
+
+- `schema` — use the `withCacheSchema` plugin instead.
+- `lockFactory` — use the `withCacheWriteLock` plugin instead.
+
+**Removed types:**
+
+- `CacheWriteSettings` — TTL is now passed as an inline `ITimeSpan | null` parameter on `add`, `put`, `getOrAdd`, and related methods.
+
+**Changed API signatures:**
+
+- `Cache` constructor no longer accepts `schema` or `lockFactory` settings.
+- `CacheResolver` no longer carries schema or write-lock configuration.
+- `ICache.getOrAdd` now accepts `ttl?: ITimeSpan | null` as its third parameter instead of a `CacheWriteSettings` object.
+
 ### New Plugin-Based Capabilities
 
-The following behaviours are no longer built into `Cache` or `CacheResolver`. They are available as opt-in plugins that operate at the `ICacheAdapter` level:
+The following behaviours are no longer built into `Cache` or `CacheResolver`. They are available as opt-in plugins:
 
 **`withCacheJitter`** — Adds random jitter to TTL values on `add` and `put` operations to help prevent cache stampedes (thundering-herd problems).
 
-- Configurable via `defaultJitter` (default ±20 %).
-- Applied as a middleware that intercepts TTL parameters before they reach the adapter.
+- Configurable via `defaultJitter` (default ±20 %).
 - `WITHOUT` this plugin, TTLs are stored as-is — no jitter is applied.
 - Import path: `@daiso-tech/core/cache/plugins`
 
@@ -42,48 +58,13 @@ The following behaviours are no longer built into `Cache` or `CacheResolver`. Th
 
 ### How the New Architecture Works
 
-The `Cache` class (`src/cache/implementations/derivables/cache/cache.ts`) has been simplified to a thin wrapper that:
+The `Cache` class has been simplified to a thin wrapper that:
 
 1. Accepts an `ICacheAdapter` (optionally enhanced by plugins) via `CacheSettings.adapter`.
-2. Delegates every operation ( `get`, `add`, `put`, `update`, `increment`, `remove`, `clear`, etc.) directly to the adapter.
+2. Delegates every operation (`get`, `add`, `put`, `update`, `increment`, `remove`, `clear`, etc.) directly to the adapter.
 3. No longer performs schema validation, TTL jittering, or write-lock acquisition internally.
 
-The `CacheResolver` class (`src/cache/implementations/derivables/cache-resolver/cache-resolver.ts`) has been similarly streamlined:
-
-- Its `use()` method creates a plain `Cache` instance with no built-in plugins.
-- `CacheResolverSettings` extends `CacheSettingsBase`, which now only contains `defaultTtl` and `context`.
-- To use plugins with `CacheResolver`, users must apply plugins to the adapter _before_ registering it, or wrap the adapter at registration time.
-
-The `ICache` contract (`src/cache/contracts/cache.contract.ts`) now uses inline `ttl?: ITimeSpan | null` parameters instead of the removed `CacheWriteSettings` object for `add`, `put`, `getOrAdd`, and related methods. This simplifies the API surface and aligns with the plugin philosophy — TTL manipulation is handled at the plugin/adapter level.
-
-### Plugin Composition Pattern
-
-Plugins are applied to an `ICacheAdapter` before passing it to `Cache`:
-
-```ts
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { Cache } from "@daiso-tech/core/cache";
-import { withCacheSchema } from "@daiso-tech/core/cache/plugins";
-import { withCacheJitter } from "@daiso-tech/core/cache/plugins";
-import { withCacheWriteLock } from "@daiso-tech/core/cache/plugins";
-import { z } from "zod";
-
-// Compose multiple plugins on the adapter
-const adapter = withPlugin(
-    new MemoryCacheAdapter(),
-    withCacheSchema({ schema: z.string() }),
-    withCacheJitter({ defaultJitter: 0.1 }),
-    withCacheWriteLock({ lockFactory }),
-);
-
-// Pass the enhanced adapter to the thin Cache class
-const cache = new Cache({ adapter });
-```
-
-Plugins are applied in order and wrap the adapter's methods using the `Enhance` utility. `withPluginFactory(enhanceFactory(useFactory()))` is the standard way to create a `withPlugin` function that supports method interception.
-
-### Migration Path
+### Migration
 
 Users who relied on the previous built-in schema validation, TTL jitter, or write-lock behaviour must now explicitly compose the corresponding plugins.
 
@@ -97,36 +78,20 @@ Users who relied on the previous built-in schema validation, TTL jitter, or writ
 **Before (built-in behaviour):**
 
 ```ts
-// Schema validation and jitter were built into Cache/CacheResolver
 const cache = new Cache({ adapter, schema: mySchema });
 ```
 
 **After (explicit plugin composition):**
 
 ```ts
-const enhancedAdapter = withPlugin(
-    adapter,
+import { withPlugin } from "@daiso-tech/core/middleware";
+import { withCacheSchema } from "@daiso-tech/core/cache/plugins";
+
+const adapter = withPlugin(
+    new MemoryCacheAdapter(),
     withCacheSchema({ schema: mySchema }),
-    withCacheJitter(),
 );
-const cache = new Cache({ adapter: enhancedAdapter });
+const cache = new Cache({ adapter });
 ```
 
 If you do not apply any plugins, the cache behaves as a pure passthrough — no validation, no jitter, no locking. This reduces overhead when these features are not needed.
-
-### Refactoring Details
-
-- **`CacheSettingsBase`**: Removed `schema` and `lockFactory` options. Now only contains `defaultTtl` and `context`.
-- **`CacheResolverSettings`**: Simplified to extend the lean `CacheSettingsBase`. No longer carries schema or write-lock configuration.
-- **`CacheWriteSettings`**: Removed. TTL is now passed as an inline `ITimeSpan | null` parameter directly on `add`, `put`, `getOrAdd`, etc.
-- **`withCacheFactory`**: Updated to accept inline TTL parameter instead of `CacheWriteSettings`.
-- **`ICache` contract**: `getOrAdd` now accepts `ttl?: ITimeSpan | null` as its third parameter instead of a `CacheWriteSettings` object.
-
-### Fixes
-
-- Added missing trailing comma to `getOrAdd` method signature in `ICache`.
-
-### Tests
-
-- Restructured `with*Prefix` test suites across all components (cache, circuit-breaker, file-storage, lock, rate-limiter, semaphore, shared-lock) for improved readability and consistency.
-- New dedicated test suites for each plugin (`with-cache-jitter.test.ts`, `with-cache-schema.test.ts`, `with-cache-write-lock.test.ts`) verifying isolation and composition correctness.
