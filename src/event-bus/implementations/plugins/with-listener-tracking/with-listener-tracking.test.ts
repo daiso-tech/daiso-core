@@ -35,13 +35,13 @@ describe("function: withListenerTracking", () => {
         const listener = vi.fn();
         const payload = { value: 42 };
 
-        await enhancedAdapter.addListener(context, "test.event", listener);
-        await enhancedAdapter.dispatch(context, "test.event", payload);
+        await enhancedAdapter.addListener("test.event", listener, context);
+        await enhancedAdapter.dispatch("test.event", payload, context);
         expect(listener).toHaveBeenCalledOnce();
         expect(listener).toHaveBeenCalledWith(payload);
 
-        await enhancedAdapter.removeListener(context, "test.event", listener);
-        await enhancedAdapter.dispatch(context, "test.event", payload);
+        await enhancedAdapter.removeListener("test.event", listener, context);
+        await enhancedAdapter.dispatch("test.event", payload, context);
         expect(listener).toHaveBeenCalledTimes(1);
     });
     test("Should pass through removeListener unchanged for a listener that was never added", async () => {
@@ -59,9 +59,9 @@ describe("function: withListenerTracking", () => {
 
         const listener = vi.fn();
 
-        await enhancedAdapter.removeListener(context, "ghost.event", listener);
+        await enhancedAdapter.removeListener("ghost.event", listener, context);
 
-        await enhancedAdapter.dispatch(context, "ghost.event", {});
+        await enhancedAdapter.dispatch("ghost.event", {}, context);
         expect(listener).not.toHaveBeenCalled();
     });
     test("Should independently track multiple distinct listeners for the same event", async () => {
@@ -78,20 +78,20 @@ describe("function: withListenerTracking", () => {
         const listenerB = vi.fn();
         const payload = { data: true };
 
-        await enhancedAdapter.addListener(context, "shared.event", listenerA);
-        await enhancedAdapter.addListener(context, "shared.event", listenerB);
+        await enhancedAdapter.addListener("shared.event", listenerA, context);
+        await enhancedAdapter.addListener("shared.event", listenerB, context);
 
-        await enhancedAdapter.dispatch(context, "shared.event", payload);
+        await enhancedAdapter.dispatch("shared.event", payload, context);
         expect(listenerA).toHaveBeenCalledOnce();
         expect(listenerB).toHaveBeenCalledOnce();
 
         await enhancedAdapter.removeListener(
-            context,
             "shared.event",
             listenerA,
+            context,
         );
 
-        await enhancedAdapter.dispatch(context, "shared.event", payload);
+        await enhancedAdapter.dispatch("shared.event", payload, context);
         expect(listenerA).toHaveBeenCalledTimes(1);
         expect(listenerB).toHaveBeenCalledTimes(2);
     });
@@ -107,21 +107,29 @@ describe("function: withListenerTracking", () => {
 
         const listener = vi.fn();
 
-        await enhancedAdapter.addListener(context, "event.alpha", listener);
-        await enhancedAdapter.addListener(context, "event.beta", listener);
+        await enhancedAdapter.addListener("event.alpha", listener, context);
+        await enhancedAdapter.addListener("event.beta", listener, context);
 
-        await enhancedAdapter.dispatch(context, "event.alpha", {
-            key: "alpha",
-        });
+        await enhancedAdapter.dispatch(
+            "event.alpha",
+            {
+                key: "alpha",
+            },
+            context,
+        );
         expect(listener).toHaveBeenCalledTimes(1);
 
-        await enhancedAdapter.removeListener(context, "event.alpha", listener);
-        await enhancedAdapter.dispatch(context, "event.alpha", {
-            key: "alpha",
-        });
+        await enhancedAdapter.removeListener("event.alpha", listener, context);
+        await enhancedAdapter.dispatch(
+            "event.alpha",
+            {
+                key: "alpha",
+            },
+            context,
+        );
         expect(listener).toHaveBeenCalledTimes(1);
 
-        await enhancedAdapter.dispatch(context, "event.beta", { key: "beta" });
+        await enhancedAdapter.dispatch("event.beta", { key: "beta" }, context);
         expect(listener).toHaveBeenCalledTimes(2);
     });
     test("Should chain multiple withListenerTracking calls correctly", async () => {
@@ -135,12 +143,12 @@ describe("function: withListenerTracking", () => {
         const listener = vi.fn();
         const payload = { value: true };
 
-        await enhancedAdapter.addListener(context, "chain.event", listener);
-        await enhancedAdapter.dispatch(context, "chain.event", payload);
+        await enhancedAdapter.addListener("chain.event", listener, context);
+        await enhancedAdapter.dispatch("chain.event", payload, context);
         expect(listener).toHaveBeenCalledOnce();
 
-        await enhancedAdapter.removeListener(context, "chain.event", listener);
-        await enhancedAdapter.dispatch(context, "chain.event", payload);
+        await enhancedAdapter.removeListener("chain.event", listener, context);
+        await enhancedAdapter.dispatch("chain.event", payload, context);
         expect(listener).toHaveBeenCalledTimes(1);
     });
     test("Should chain multiple withListenerTracking calls with multiple distinct listeners", async () => {
@@ -154,20 +162,20 @@ describe("function: withListenerTracking", () => {
         const listenerA = vi.fn();
         const listenerB = vi.fn();
 
-        await enhancedAdapter.addListener(context, "multi.listener", listenerA);
-        await enhancedAdapter.addListener(context, "multi.listener", listenerB);
+        await enhancedAdapter.addListener("multi.listener", listenerA, context);
+        await enhancedAdapter.addListener("multi.listener", listenerB, context);
 
-        await enhancedAdapter.dispatch(context, "multi.listener", { n: 1 });
+        await enhancedAdapter.dispatch("multi.listener", { n: 1 }, context);
         expect(listenerA).toHaveBeenCalledOnce();
         expect(listenerB).toHaveBeenCalledOnce();
 
         await enhancedAdapter.removeListener(
-            context,
             "multi.listener",
             listenerA,
+            context,
         );
 
-        await enhancedAdapter.dispatch(context, "multi.listener", { n: 2 });
+        await enhancedAdapter.dispatch("multi.listener", { n: 2 }, context);
         expect(listenerA).toHaveBeenCalledTimes(1);
         expect(listenerB).toHaveBeenCalledTimes(2);
     });
@@ -184,14 +192,14 @@ describe("function: withListenerTracking", () => {
         const listener = vi.fn();
         const payload = { id: 1 };
 
-        await enhancedAdapter.addListener(context, "test.event", listener);
-        await enhancedAdapter.dispatch(context, "test.event", payload);
+        await enhancedAdapter.addListener("test.event", listener, context);
+        await enhancedAdapter.dispatch("test.event", payload, context);
         expect(listener).toHaveBeenCalledOnce();
 
-        await enhancedAdapter.removeListener(context, "test.event", listener);
-        await enhancedAdapter.removeListener(context, "test.event", listener);
+        await enhancedAdapter.removeListener("test.event", listener, context);
+        await enhancedAdapter.removeListener("test.event", listener, context);
 
-        await enhancedAdapter.dispatch(context, "test.event", payload);
+        await enhancedAdapter.dispatch("test.event", payload, context);
         expect(listener).toHaveBeenCalledTimes(1);
     });
 });
