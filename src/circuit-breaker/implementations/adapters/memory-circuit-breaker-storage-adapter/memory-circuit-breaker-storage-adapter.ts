@@ -47,32 +47,32 @@ export class MemoryCircuitBreakerStorageAdapter<TType = unknown>
     }
 
     private upsert(
-        _context: IReadableContext,
         key: string,
         state: TType,
+        _context: IReadableContext,
     ): Promise<void> {
         this.map.set(key, state);
         return Promise.resolve();
     }
 
     async transaction<TValue>(
-        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: ICircuitBreakerStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
+        _context: IReadableContext,
     ): Promise<TValue> {
         return await fn({
-            upsert: (context, key, state) => this.upsert(context, key, state),
-            find: (context, key) => this.find(context, key),
+            upsert: (key, state, context) => this.upsert(key, state, context),
+            find: (key, context) => this.find(key, context),
         });
     }
 
-    async find(_context: IReadableContext, key: string): Promise<TType | null> {
+    async find(key: string, _context: IReadableContext): Promise<TType | null> {
         return Promise.resolve(this.map.get(key) ?? null);
     }
 
-    async remove(_context: IReadableContext, key: string): Promise<void> {
+    async remove(key: string, _context: IReadableContext): Promise<void> {
         this.map.delete(key);
         return Promise.resolve();
     }

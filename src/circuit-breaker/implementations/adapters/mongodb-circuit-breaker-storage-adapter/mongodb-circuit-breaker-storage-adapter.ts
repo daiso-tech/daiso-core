@@ -166,9 +166,9 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
     }
 
     private async upsert<TType_>(
-        _context: IReadableContext,
         key: string,
         state: TType_,
+        _context: IReadableContext,
         session?: ClientSession,
     ): Promise<void> {
         await this.collection.updateOne(
@@ -201,24 +201,24 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
     }
 
     async transaction<TValue>(
-        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: ICircuitBreakerStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
+        _context: IReadableContext,
     ): Promise<TValue> {
         return await this._transaction(async (session) => {
             return await fn({
-                upsert: (context, key, state) =>
-                    this.upsert(context, key, state, session),
-                find: (context, key) => this.find(context, key, session),
+                upsert: (key, state, context) =>
+                    this.upsert(key, state, context, session),
+                find: (key, context) => this.find(key, context, session),
             });
         });
     }
 
     async find(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
         session?: ClientSession,
     ): Promise<TType | null> {
         const doc = await this.collection.findOne(
@@ -234,8 +234,8 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
     }
 
     async remove(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
         session?: ClientSession,
     ): Promise<void> {
         await this.collection.deleteOne(
