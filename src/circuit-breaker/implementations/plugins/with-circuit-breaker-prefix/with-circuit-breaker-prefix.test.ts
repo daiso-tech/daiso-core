@@ -3,13 +3,13 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { type ICircuitBreakerAdapter } from "@/circuit-breaker/contracts/_module.js";
 import { NoOpCircuitBreakerAdapter } from "@/circuit-breaker/implementations/adapters/_module.js";
 import { withCircuitBreakerPrefix } from "@/circuit-breaker/implementations/plugins/with-circuit-breaker-prefix/with-circuit-breaker-prefix.js";
-import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
+import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
 
 describe("function: withCircuitBreakerPrefix", () => {
-    const context = new Context(new Map());
+    const noOpContext = new NoOpContext();
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
@@ -27,12 +27,12 @@ describe("function: withCircuitBreakerPrefix", () => {
                 withCircuitBreakerPrefix(prefix),
             );
 
-            await enhanced.getState("myKey", context);
+            await enhanced.getState("myKey", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ICircuitBreakerAdapter["getState"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`, noOpContext);
         });
     });
     describe("method: isolate", () => {
@@ -45,12 +45,12 @@ describe("function: withCircuitBreakerPrefix", () => {
                 withCircuitBreakerPrefix(prefix),
             );
 
-            await enhanced.isolate("myKey", context);
+            await enhanced.isolate("myKey", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ICircuitBreakerAdapter["isolate"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`, noOpContext);
         });
     });
     describe("method: reset", () => {
@@ -63,12 +63,12 @@ describe("function: withCircuitBreakerPrefix", () => {
                 withCircuitBreakerPrefix(prefix),
             );
 
-            await enhanced.reset("myKey", context);
+            await enhanced.reset("myKey", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ICircuitBreakerAdapter["reset"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`, noOpContext);
         });
     });
     describe("method: trackFailure", () => {
@@ -81,12 +81,12 @@ describe("function: withCircuitBreakerPrefix", () => {
                 withCircuitBreakerPrefix(prefix),
             );
 
-            await enhanced.trackFailure("myKey", context);
+            await enhanced.trackFailure("myKey", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ICircuitBreakerAdapter["trackFailure"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`, noOpContext);
         });
     });
     describe("method: trackSuccess", () => {
@@ -99,12 +99,12 @@ describe("function: withCircuitBreakerPrefix", () => {
                 withCircuitBreakerPrefix(prefix),
             );
 
-            await enhanced.trackSuccess("myKey", context);
+            await enhanced.trackSuccess("myKey", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ICircuitBreakerAdapter["trackSuccess"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`, noOpContext);
         });
     });
     describe("method: updateState", () => {
@@ -117,12 +117,12 @@ describe("function: withCircuitBreakerPrefix", () => {
                 withCircuitBreakerPrefix(prefix),
             );
 
-            await enhanced.updateState("myKey", context);
+            await enhanced.updateState("myKey", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ICircuitBreakerAdapter["updateState"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`, noOpContext);
         });
     });
 });
