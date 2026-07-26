@@ -107,10 +107,10 @@ export class Lock implements ILock {
 
     async acquire(): Promise<boolean> {
         return await this.adapter.acquire(
-            this.context,
-            this._key.toString(),
+            this._key,
             this.lockId,
             this._ttl,
+            this.context,
         );
     }
 
@@ -122,11 +122,7 @@ export class Lock implements ILock {
     }
 
     async release(): Promise<boolean> {
-        return await this.adapter.release(
-            this.context,
-            this._key.toString(),
-            this.lockId,
-        );
+        return await this.adapter.release(this._key, this.lockId, this.context);
     }
 
     async releaseOrFail(): Promise<void> {
@@ -137,18 +133,15 @@ export class Lock implements ILock {
     }
 
     async forceRelease(): Promise<boolean> {
-        return await this.adapter.forceRelease(
-            this.context,
-            this._key.toString(),
-        );
+        return await this.adapter.forceRelease(this._key, this.context);
     }
 
     async refresh(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
         const hasRefreshed = await this.adapter.refresh(
-            this.context,
-            this._key.toString(),
+            this._key,
             this.lockId,
             TimeSpan.fromTimeSpan(ttl),
+            this.context,
         );
         if (hasRefreshed) {
             this._ttl = TimeSpan.fromTimeSpan(ttl);
@@ -176,10 +169,7 @@ export class Lock implements ILock {
     }
 
     async getState(): Promise<ILockState> {
-        const state = await this.adapter.getState(
-            this.context,
-            this._key.toString(),
-        );
+        const state = await this.adapter.getState(this._key, this.context);
         if (state === null) {
             return {
                 type: LOCK_STATE.EXPIRED,
