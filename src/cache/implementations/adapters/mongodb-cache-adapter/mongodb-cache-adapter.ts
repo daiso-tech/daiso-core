@@ -159,10 +159,10 @@ export class MongodbCacheAdapter<TType = unknown>
     }
 
     async getOrAdd(
-        _context: IReadableContext,
         key: string,
         valueToAdd: TType,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<TType> {
         const hasExpirationQuery = {
             $ne: ["$expiration", null],
@@ -285,7 +285,7 @@ export class MongodbCacheAdapter<TType = unknown>
         return this.serde.deserialize(value);
     }
 
-    async get(_context: IReadableContext, key: string): Promise<TType | null> {
+    async get(key: string, _context: IReadableContext): Promise<TType | null> {
         const document = await this.collection.findOne(
             {
                 key,
@@ -302,8 +302,8 @@ export class MongodbCacheAdapter<TType = unknown>
     }
 
     async getAndRemove(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<TType | null> {
         const document = await this.collection.findOneAndDelete(
             {
@@ -333,10 +333,10 @@ export class MongodbCacheAdapter<TType = unknown>
     }
 
     async add(
-        _context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const hasExpirationQuery = {
             $ne: ["$expiration", null],
@@ -384,10 +384,10 @@ export class MongodbCacheAdapter<TType = unknown>
     }
 
     async put(
-        _context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const document = await this.collection.findOneAndUpdate(
             {
@@ -411,9 +411,9 @@ export class MongodbCacheAdapter<TType = unknown>
     }
 
     async update(
-        _context: IReadableContext,
         key: string,
         value: TType,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const updateResult = await this.collection.updateOne(
             MongodbCacheAdapter.filterUnexpiredKeys([key]),
@@ -430,9 +430,9 @@ export class MongodbCacheAdapter<TType = unknown>
     }
 
     async increment(
-        _context: IReadableContext,
         key: string,
         value: number,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             const updateResult = await this.collection.updateOne(
@@ -460,8 +460,8 @@ export class MongodbCacheAdapter<TType = unknown>
     }
 
     async removeMany(
-        _context: IReadableContext,
         keys: Array<string>,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const deleteResult = await this.collection.deleteMany(
             MongodbCacheAdapter.filterUnexpiredKeys(keys),
@@ -480,8 +480,8 @@ export class MongodbCacheAdapter<TType = unknown>
     }
 
     async removeByKeyPrefix(
-        _context: IReadableContext,
         prefix: string,
+        _context: IReadableContext,
     ): Promise<void> {
         const mongodbResult = await this.collection.deleteMany({
             key: {
