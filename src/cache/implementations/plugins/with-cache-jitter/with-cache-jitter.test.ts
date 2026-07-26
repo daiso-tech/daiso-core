@@ -1,16 +1,16 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { type ICacheAdapter } from "@/cache/contracts/cache-adapter.contract.js";
+import { type ICacheAdapter } from "@/cache/contracts/_module.js";
 import { NoOpCacheAdapter } from "@/cache/implementations/adapters/_module.js";
 import { withCacheJitter } from "@/cache/implementations/plugins/with-cache-jitter/with-cache-jitter.js";
-import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
+import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withCacheJitter", () => {
-    const context = new Context(new Map());
+    const noOpContext = new NoOpContext();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
     afterEach(() => {
@@ -34,14 +34,14 @@ describe("function: withCacheJitter", () => {
             const ttl = TimeSpan.fromMinutes(1);
             const expectedMs = (1 - 0.2 * 0.5) * ttl.toMilliseconds();
 
-            await enhanced.add("myKey", "value", ttl, context);
+            await enhanced.add("myKey", "value", ttl, noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["add"]>>(
                 "myKey",
                 "value",
                 TimeSpan.fromMilliseconds(expectedMs),
-                context,
+                noOpContext,
             );
         });
         test("Should not apply jitter when TTL is null", async () => {
@@ -54,10 +54,10 @@ describe("function: withCacheJitter", () => {
                 withCacheJitter({ _mathRandom: mathRandom }),
             );
 
-            await enhanced.add("myKey", "value", null, context);
+            await enhanced.add("myKey", "value", null, noOpContext);
 
             expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["add"]>>(
-                ...["myKey", "value", null, context],
+                ...["myKey", "value", null, noOpContext],
             );
         });
         test("Should use default jitter of 0.2 when not specified", async () => {
@@ -73,13 +73,13 @@ describe("function: withCacheJitter", () => {
             const ttl = TimeSpan.fromMinutes(1);
             const expectedMs = (1 - 0.2 * 0.5) * ttl.toMilliseconds();
 
-            await enhanced.add("myKey", "value", ttl, context);
+            await enhanced.add("myKey", "value", ttl, noOpContext);
 
             expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["add"]>>(
                 "myKey",
                 "value",
                 TimeSpan.fromMilliseconds(expectedMs),
-                context,
+                noOpContext,
             );
         });
     });
@@ -100,14 +100,14 @@ describe("function: withCacheJitter", () => {
             const ttl = TimeSpan.fromMinutes(1);
             const expectedMs = (1 - 0.5 * 0.3) * ttl.toMilliseconds();
 
-            await enhanced.put("myKey", "value", ttl, context);
+            await enhanced.put("myKey", "value", ttl, noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["put"]>>(
                 "myKey",
                 "value",
                 TimeSpan.fromMilliseconds(expectedMs),
-                context,
+                noOpContext,
             );
         });
         test("Should not apply jitter when TTL is null", async () => {
@@ -120,13 +120,13 @@ describe("function: withCacheJitter", () => {
                 withCacheJitter({ _mathRandom: mathRandom }),
             );
 
-            await enhanced.put("myKey", "value", null, context);
+            await enhanced.put("myKey", "value", null, noOpContext);
 
             expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["put"]>>(
                 "myKey",
                 "value",
                 null,
-                context,
+                noOpContext,
             );
         });
     });

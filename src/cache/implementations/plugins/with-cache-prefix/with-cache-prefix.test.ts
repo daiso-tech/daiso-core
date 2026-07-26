@@ -1,16 +1,16 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { type ICacheAdapter } from "@/cache/contracts/cache-adapter.contract.js";
+import { type ICacheAdapter } from "@/cache/contracts/_module.js";
 import { NoOpCacheAdapter } from "@/cache/implementations/adapters/_module.js";
 import { withCachePrefix } from "@/cache/implementations/plugins/with-cache-prefix/with-cache-prefix.js";
-import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
+import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withCachePrefix", () => {
-    const context = new Context(new Map());
+    const noOpContext = new NoOpContext();
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
@@ -29,7 +29,7 @@ describe("function: withCachePrefix", () => {
                 "myKey",
                 "value",
                 TimeSpan.fromMinutes(5),
-                context,
+                noOpContext,
             );
 
             expect(spy).toHaveBeenCalledOnce();
@@ -37,7 +37,7 @@ describe("function: withCachePrefix", () => {
                 `${prefix}myKey`,
                 "value",
                 TimeSpan.fromMinutes(5),
-                context,
+                noOpContext,
             );
         });
     });
@@ -48,12 +48,12 @@ describe("function: withCachePrefix", () => {
 
             const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-            await enhanced.get("myKey", context);
+            await enhanced.get("myKey", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["get"]>>(
                 `${prefix}myKey`,
-                context,
+                noOpContext,
             );
         });
     });
@@ -64,12 +64,12 @@ describe("function: withCachePrefix", () => {
 
             const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-            await enhanced.getAndRemove("myKey", context);
+            await enhanced.getAndRemove("myKey", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ICacheAdapter["getAndRemove"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`, noOpContext);
         });
     });
     describe("method: increment", () => {
@@ -79,12 +79,12 @@ describe("function: withCachePrefix", () => {
 
             const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-            await enhanced.increment("myKey", 5, context);
+            await enhanced.increment("myKey", 5, noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ICacheAdapter["increment"]>
-            >(`${prefix}myKey`, 5, context);
+            >(`${prefix}myKey`, 5, noOpContext);
         });
     });
     describe("method: put", () => {
@@ -98,7 +98,7 @@ describe("function: withCachePrefix", () => {
                 "myKey",
                 "value",
                 TimeSpan.fromMinutes(5),
-                context,
+                noOpContext,
             );
 
             expect(spy).toHaveBeenCalledOnce();
@@ -106,7 +106,7 @@ describe("function: withCachePrefix", () => {
                 `${prefix}myKey`,
                 "value",
                 TimeSpan.fromMinutes(5),
-                context,
+                noOpContext,
             );
         });
     });
@@ -117,12 +117,12 @@ describe("function: withCachePrefix", () => {
 
             const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-            await enhanced.removeByKeyPrefix("myKey", context);
+            await enhanced.removeByKeyPrefix("myKey", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ICacheAdapter["removeByKeyPrefix"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`, noOpContext);
         });
     });
     describe("method: removeMany", () => {
@@ -132,12 +132,12 @@ describe("function: withCachePrefix", () => {
 
             const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-            await enhanced.removeMany(["key1", "key2"], context);
+            await enhanced.removeMany(["key1", "key2"], noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ICacheAdapter["removeMany"]>
-            >([`${prefix}key1`, `${prefix}key2`], context);
+            >([`${prefix}key1`, `${prefix}key2`], noOpContext);
         });
     });
     describe("method: update", () => {
@@ -147,12 +147,12 @@ describe("function: withCachePrefix", () => {
 
             const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-            await enhanced.update("myKey", "newValue", context);
+            await enhanced.update("myKey", "newValue", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ICacheAdapter["update"]>
-            >(`${prefix}myKey`, "newValue", context);
+            >(`${prefix}myKey`, "newValue", noOpContext);
         });
     });
 });
