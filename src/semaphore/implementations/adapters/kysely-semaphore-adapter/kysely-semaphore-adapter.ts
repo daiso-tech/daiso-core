@@ -350,9 +350,9 @@ export class KyselySemaphoreAdapter
     }
 
     async release(
-        _context: IReadableContext,
         key: string,
         slotId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
             return await this._transaction(async (trx) => {
@@ -400,8 +400,8 @@ export class KyselySemaphoreAdapter
     }
 
     async forceReleaseAll(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
             return await this._transaction(async (trx) => {
@@ -446,10 +446,10 @@ export class KyselySemaphoreAdapter
     }
 
     async refresh(
-        _context: IReadableContext,
         key: string,
         slotId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const expiration = ttl.toEndDate().getTime();
         const result = await this.kysely
@@ -469,8 +469,8 @@ export class KyselySemaphoreAdapter
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ISemaphoreAdapterState | null> {
         const semaphore = await this.kysely
             .selectFrom("semaphore")
