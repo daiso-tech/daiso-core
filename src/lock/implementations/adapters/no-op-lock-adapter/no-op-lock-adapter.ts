@@ -19,38 +19,38 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  */
 export class NoOpLockAdapter implements ILockAdapter {
     acquire(
-        _context: IReadableContext,
         _key: string,
         _lockId: string,
         _ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     release(
-        _context: IReadableContext,
         _key: string,
         _lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    forceRelease(_context: IReadableContext, _key: string): Promise<boolean> {
+    forceRelease(_key: string, _context: IReadableContext): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     refresh(
-        _context: IReadableContext,
         _key: string,
         _lockId: string,
         _ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     getState(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<ILockAdapterState | null> {
         return Promise.resolve(null);
     }
