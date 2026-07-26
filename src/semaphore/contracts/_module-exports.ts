@@ -1,4 +1,3 @@
-export type * from "@/semaphore/contracts/database-semaphore-adapter.contract.js";
 export type * from "@/semaphore/contracts/semaphore-adapter.contract.js";
 export type * from "@/semaphore/contracts/semaphore-factory-resolver.contract.js";
 export type * from "@/semaphore/contracts/semaphore-factory.contract.js";

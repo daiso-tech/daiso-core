@@ -8,8 +8,6 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IDatabaseSemaphoreAdapter,
     type ISemaphore,
     type ISemaphoreAdapter,
     type SemaphoreFactoryCreateSettings,
@@ -115,7 +113,7 @@ export type SemaphoreFactorySettings = SemaphoreFactorySettingsBase & {
 };
 
 /**
- * `SemaphoreFactory` class can be derived from any {@link ISemaphoreAdapter | `ISemaphoreAdapter`} or {@link IDatabaseSemaphoreAdapter | `IDatabaseSemaphoreAdapter`}.
+ * `SemaphoreFactory` class can be derived from any {@link ISemaphoreAdapter | `ISemaphoreAdapter`}.
  *
  * Note the {@link ISemaphore | `ISemaphore`} instances created by the `SemaphoreFactory` class are serializable and deserializable,
  * allowing them to be seamlessly transferred across different servers, processes, and databases.
