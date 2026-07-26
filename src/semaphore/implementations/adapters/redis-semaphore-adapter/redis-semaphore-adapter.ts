@@ -406,9 +406,9 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
     }
 
     async release(
-        _context: IReadableContext,
         key: string,
         slotId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.daiso_semaphore_release(
             key,
@@ -419,8 +419,8 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
     }
 
     async forceReleaseAll(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const hasDeleted =
             await this.database.daiso_semaphore_force_release_all(
@@ -431,10 +431,10 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
     }
 
     async refresh(
-        _context: IReadableContext,
         key: string,
         slotId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.daiso_semaphore_refresh(
             key,
@@ -446,8 +446,8 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ISemaphoreAdapterState | null> {
         const json = JSON.parse(
             await this.database.daiso_semaphore_get_state(key, Date.now()),
