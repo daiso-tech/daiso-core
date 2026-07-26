@@ -359,9 +359,9 @@ export class MongodbSemaphoreAdapter
     }
 
     async release(
-        _context: IReadableContext,
         key: string,
         slotId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const semaphoreData = await this.collection.findOneAndUpdate(
             {
@@ -408,8 +408,8 @@ export class MongodbSemaphoreAdapter
     }
 
     async forceReleaseAll(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const semaphoreData = await this.collection.findOneAndDelete(
             {
@@ -430,10 +430,10 @@ export class MongodbSemaphoreAdapter
     }
 
     async refresh(
-        _context: IReadableContext,
         key: string,
         slotId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const isExpireableQuery = {
             $ne: ["$$slot.expiration", null],
@@ -497,8 +497,8 @@ export class MongodbSemaphoreAdapter
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ISemaphoreAdapterState | null> {
         const semaphore = await this.collection.findOne(
             { key },
