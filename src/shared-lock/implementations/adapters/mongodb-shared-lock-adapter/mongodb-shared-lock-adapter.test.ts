@@ -115,7 +115,7 @@ describe("class: MongodbSharedLockAdapter", () => {
             const lockId = "1";
             const ttl = null;
 
-            await adapter.acquireWriter(noOpContext, key, lockId, ttl);
+            await adapter.acquireWriter(key, lockId, ttl, noOpContext);
 
             const doc = await collection.findOne({
                 key,
@@ -143,7 +143,7 @@ describe("class: MongodbSharedLockAdapter", () => {
             const ttl = TimeSpan.fromMinutes(5);
             const expiration = ttl.toEndDate();
 
-            await adapter.acquireWriter(noOpContext, key, lockId, ttl);
+            await adapter.acquireWriter(key, lockId, ttl, noOpContext);
 
             const doc = await collection.findOne({
                 key,
@@ -419,8 +419,8 @@ describe("class: MongodbSharedLockAdapter", () => {
                 limit,
             });
 
-            await adapter.releaseReader(noOpContext, key, lockId1);
-            await adapter.releaseReader(noOpContext, key, lockId2);
+            await adapter.releaseReader(key, lockId1, noOpContext);
+            await adapter.releaseReader(key, lockId2, noOpContext);
 
             const doc = await collection.findOne({ key });
             expect(doc?.expiration?.getTime()).toBeLessThan(Date.now());

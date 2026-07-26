@@ -122,10 +122,10 @@ export function sharedLockAdapterTestSuite(
                 const ttl = null;
 
                 const result = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId,
                     ttl,
+                    context,
                 );
 
                 expect(result).toBe(true);
@@ -135,14 +135,14 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
                 await delayWithBuffer(ttl);
 
                 const result = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId,
                     null,
+                    context,
                 );
                 expect(result).toBe(true);
             });
@@ -151,12 +151,12 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId = "b";
                 const ttl = null;
 
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
                 const result = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId,
                     ttl,
+                    context,
                 );
 
                 expect(result).toBe(true);
@@ -166,12 +166,12 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
                 const result = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId,
                     ttl,
+                    context,
                 );
 
                 expect(result).toBe(true);
@@ -181,13 +181,13 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId1 = "b";
                 const ttl = null;
 
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
                 const sharedLockId2 = "c";
                 const result = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId2,
                     ttl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -197,13 +197,13 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
                 const sharedLockId2 = "c";
                 const result = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId2,
                     ttl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -215,18 +215,18 @@ export function sharedLockAdapterTestSuite(
                 const ttl = null;
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
                 });
 
                 const result = await adapter.acquireWriter(
-                    context,
                     key,
                     lockId,
                     ttl,
+                    context,
                 );
                 expect(result).toBe(false);
             });
@@ -237,16 +237,16 @@ export function sharedLockAdapterTestSuite(
                 const ttl = null;
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
                 });
 
-                await adapter.acquireWriter(context, key, lockId, ttl);
+                await adapter.acquireWriter(key, lockId, ttl, context);
 
-                const state = await adapter.getState(context, key);
+                const state = await adapter.getState(key, context);
 
                 expect({
                     ...state,
@@ -273,9 +273,9 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId = "b";
 
                 const result = await adapter.releaseWriter(
-                    context,
                     key,
                     sharedLockId,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -284,13 +284,13 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId1 = "b";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
 
                 const sharedLockId2 = "c";
                 const result = await adapter.releaseWriter(
-                    context,
                     key,
                     sharedLockId2,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -299,13 +299,13 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
 
                 const sharedLockId2 = "c";
                 const result = await adapter.releaseWriter(
-                    context,
                     key,
                     sharedLockId2,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -314,14 +314,14 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
                 await delayWithBuffer(ttl);
 
                 const sharedLockId2 = "c";
                 const result = await adapter.releaseWriter(
-                    context,
                     key,
                     sharedLockId2,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -330,13 +330,13 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
                 await delayWithBuffer(ttl);
 
                 const result = await adapter.releaseWriter(
-                    context,
                     key,
                     sharedLockId,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -345,12 +345,12 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId = "b";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
 
                 const result = await adapter.releaseWriter(
-                    context,
                     key,
                     sharedLockId,
+                    context,
                 );
 
                 expect(result).toBe(true);
@@ -359,12 +359,12 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
 
                 const result = await adapter.releaseWriter(
-                    context,
                     key,
                     sharedLockId,
+                    context,
                 );
 
                 expect(result).toBe(true);
@@ -373,15 +373,15 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId1 = "b";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
                 const sharedLockId2 = "c";
 
-                await adapter.releaseWriter(context, key, sharedLockId2);
+                await adapter.releaseWriter(key, sharedLockId2, context);
                 const result = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId2,
                     ttl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -390,15 +390,15 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
 
                 const sharedLockId2 = "c";
-                await adapter.releaseWriter(context, key, sharedLockId2);
+                await adapter.releaseWriter(key, sharedLockId2, context);
                 const result = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId2,
                     ttl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -407,15 +407,15 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId1 = "b";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
-                await adapter.releaseWriter(context, key, sharedLockId1);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
+                await adapter.releaseWriter(key, sharedLockId1, context);
 
                 const sharedLockId2 = "c";
                 const result = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId2,
                     ttl,
+                    context,
                 );
 
                 expect(result).toBe(true);
@@ -424,15 +424,15 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
-                await adapter.releaseWriter(context, key, sharedLockId1);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
+                await adapter.releaseWriter(key, sharedLockId1, context);
 
                 const sharedLockId2 = "c";
                 const result = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId2,
                     ttl,
+                    context,
                 );
 
                 expect(result).toBe(true);
@@ -444,17 +444,17 @@ export function sharedLockAdapterTestSuite(
                 const ttl = TimeSpan.fromSeconds(10);
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
                 });
 
                 const result = await adapter.releaseWriter(
-                    context,
                     key,
                     lockId,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -466,16 +466,16 @@ export function sharedLockAdapterTestSuite(
                 const ttl = null;
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
                 });
 
-                await adapter.releaseWriter(context, key, lockId);
+                await adapter.releaseWriter(key, lockId, context);
 
-                const state = await adapter.getState(context, key);
+                const state = await adapter.getState(key, context);
 
                 expect({
                     ...state,
@@ -500,7 +500,7 @@ export function sharedLockAdapterTestSuite(
             test("Should return false when key doesnt exists", async () => {
                 const key = "a";
 
-                const result = await adapter.forceReleaseWriter(context, key);
+                const result = await adapter.forceReleaseWriter(key, context);
 
                 expect(result).toBe(false);
             });
@@ -509,10 +509,10 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
                 await delayWithBuffer(ttl);
 
-                const result = await adapter.forceReleaseWriter(context, key);
+                const result = await adapter.forceReleaseWriter(key, context);
 
                 expect(result).toBe(false);
             });
@@ -521,9 +521,9 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
 
-                const result = await adapter.forceReleaseWriter(context, key);
+                const result = await adapter.forceReleaseWriter(key, context);
 
                 expect(result).toBe(true);
             });
@@ -532,9 +532,9 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId = "b";
                 const ttl = null;
 
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
 
-                const result = await adapter.forceReleaseWriter(context, key);
+                const result = await adapter.forceReleaseWriter(key, context);
 
                 expect(result).toBe(true);
             });
@@ -542,16 +542,16 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId1 = "b";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
 
-                await adapter.forceReleaseWriter(context, key);
+                await adapter.forceReleaseWriter(key, context);
 
                 const sharedLockId2 = "c";
                 const result = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId2,
                     ttl,
+                    context,
                 );
                 expect(result).toBe(true);
             });
@@ -562,14 +562,14 @@ export function sharedLockAdapterTestSuite(
                 const ttl = TimeSpan.fromSeconds(10);
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
                 });
 
-                const result = await adapter.forceReleaseWriter(context, key);
+                const result = await adapter.forceReleaseWriter(key, context);
 
                 expect(result).toBe(false);
             });
@@ -580,16 +580,16 @@ export function sharedLockAdapterTestSuite(
                 const ttl = null;
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
                 });
 
-                await adapter.forceReleaseWriter(context, key);
+                await adapter.forceReleaseWriter(key, context);
 
-                const state = await adapter.getState(context, key);
+                const state = await adapter.getState(key, context);
 
                 expect({
                     ...state,
@@ -617,10 +617,10 @@ export function sharedLockAdapterTestSuite(
 
                 const newTtl = TimeSpan.fromMinutes(1);
                 const result = await adapter.refreshWriter(
-                    context,
                     key,
                     sharedLockId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -629,15 +629,15 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId1 = "b";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
 
                 const newTtl = TimeSpan.fromMinutes(1);
                 const sharedLockId2 = "c";
                 const result = await adapter.refreshWriter(
-                    context,
                     key,
                     sharedLockId2,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -646,15 +646,15 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
 
                 const newTtl = TimeSpan.fromMinutes(1);
                 const sharedLockId2 = "c";
                 const result = await adapter.refreshWriter(
-                    context,
                     key,
                     sharedLockId2,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -663,16 +663,16 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
                 await delayWithBuffer(ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
                 const sharedLockId2 = "c";
                 const result = await adapter.refreshWriter(
-                    context,
                     key,
                     sharedLockId2,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -681,15 +681,15 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
                 await delayWithBuffer(ttl);
 
                 const newTtl = TimeSpan.fromMinutes(1);
                 const result = await adapter.refreshWriter(
-                    context,
                     key,
                     sharedLockId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -698,14 +698,14 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId = "b";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
 
                 const newTtl = TimeSpan.fromMinutes(1);
                 const result = await adapter.refreshWriter(
-                    context,
                     key,
                     sharedLockId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -714,14 +714,14 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
 
                 const newTtl = TimeSpan.fromMinutes(1);
                 const result = await adapter.refreshWriter(
-                    context,
                     key,
                     sharedLockId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(true);
@@ -730,22 +730,22 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId1 = "1";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
 
                 const newTtl = TimeSpan.fromMilliseconds(50);
                 await adapter.refreshWriter(
-                    context,
                     key,
                     sharedLockId1,
                     newTtl,
+                    context,
                 );
                 await delayWithBuffer(newTtl);
                 const sharedLockId2 = "2";
                 const result = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId2,
                     ttl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -754,32 +754,32 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId1 = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 await adapter.refreshWriter(
-                    context,
                     key,
                     sharedLockId1,
                     newTtl,
+                    context,
                 );
                 await delayWithBuffer(newTtl.divide(2));
 
                 const sharedLockId2 = "c";
                 const result1 = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId2,
                     ttl,
+                    context,
                 );
                 expect(result1).toBe(false);
 
                 await delayWithBuffer(newTtl.divide(2));
                 const result2 = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId2,
                     ttl,
+                    context,
                 );
                 expect(result2).toBe(true);
             });
@@ -790,8 +790,8 @@ export function sharedLockAdapterTestSuite(
                 const ttl = TimeSpan.fromSeconds(10);
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
@@ -799,10 +799,10 @@ export function sharedLockAdapterTestSuite(
 
                 const newTtl = TimeSpan.fromSeconds(20);
                 const result = await adapter.refreshWriter(
-                    context,
                     key,
                     lockId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -814,17 +814,17 @@ export function sharedLockAdapterTestSuite(
                 const ttl = null;
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
                 });
 
                 const newTtl = TimeSpan.fromSeconds(20);
-                await adapter.refreshWriter(context, key, lockId, newTtl);
+                await adapter.refreshWriter(key, lockId, newTtl, context);
 
-                const state = await adapter.getState(context, key);
+                const state = await adapter.getState(key, context);
 
                 expect({
                     ...state,
@@ -853,8 +853,8 @@ export function sharedLockAdapterTestSuite(
                 const ttl = null;
 
                 const result = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
@@ -869,8 +869,8 @@ export function sharedLockAdapterTestSuite(
                 const ttl = TimeSpan.fromMilliseconds(50);
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
@@ -878,8 +878,8 @@ export function sharedLockAdapterTestSuite(
                 await delayWithBuffer(ttl);
 
                 const result = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
@@ -894,16 +894,16 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId1 = "1";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl,
                 });
                 const lockId2 = "2";
                 const result = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     limit,
                     ttl,
@@ -918,24 +918,24 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId1 = "1";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl,
                 });
                 const lockId2 = "2";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     limit,
                     ttl,
                 });
                 const lockId3 = "3";
                 const result = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId3,
                     limit,
                     ttl,
@@ -950,8 +950,8 @@ export function sharedLockAdapterTestSuite(
                 const lockId1 = "1";
                 const ttl1 = null;
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl: ttl1,
@@ -959,8 +959,8 @@ export function sharedLockAdapterTestSuite(
                 const lockId2 = "2";
                 const ttl2 = TimeSpan.fromMilliseconds(50);
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     limit,
                     ttl: ttl2,
@@ -970,8 +970,8 @@ export function sharedLockAdapterTestSuite(
                 const lockId3 = "3";
                 const ttl3 = null;
                 const result = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId3,
                     limit,
                     ttl: ttl3,
@@ -986,15 +986,15 @@ export function sharedLockAdapterTestSuite(
                 const ttl = null;
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
                 });
                 const result = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
@@ -1009,15 +1009,15 @@ export function sharedLockAdapterTestSuite(
                 const ttl = TimeSpan.fromMilliseconds(50);
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
                 });
                 const result = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
@@ -1032,15 +1032,15 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId1 = "1";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl,
                 });
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl,
@@ -1048,8 +1048,8 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId2 = "2";
                 const result = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     limit,
                     ttl,
@@ -1064,15 +1064,15 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId1 = "1";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl,
                 });
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl,
@@ -1080,8 +1080,8 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId2 = "2";
                 const result = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     limit,
                     ttl,
@@ -1096,8 +1096,8 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId1 = "1";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl,
@@ -1105,20 +1105,20 @@ export function sharedLockAdapterTestSuite(
                 const lockId2 = "2";
                 const newLimit = 3;
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     limit: newLimit,
                     ttl,
                 });
                 const lockId3 = "3";
 
-                const result1 = await adapter.getState(context, key);
+                const result1 = await adapter.getState(key, context);
                 expect(result1?.reader?.limit).toBe(limit);
 
                 const result2 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId3,
                     limit: newLimit,
                     ttl,
@@ -1129,12 +1129,12 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const lockId = "1";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, lockId, ttl);
+                await adapter.acquireWriter(key, lockId, ttl, context);
 
                 const limit = 3;
                 const result = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     ttl,
                     limit,
@@ -1146,18 +1146,18 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const lockId = "1";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, lockId, ttl);
+                await adapter.acquireWriter(key, lockId, ttl, context);
 
                 const limit = 3;
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     ttl,
                     limit,
                 });
 
-                const state = await adapter.getState(context, key);
+                const state = await adapter.getState(key, context);
 
                 expect(state).toEqual({
                     writer: {
@@ -1175,8 +1175,8 @@ export function sharedLockAdapterTestSuite(
                 const limit = 2;
                 const ttl = null;
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
@@ -1184,9 +1184,9 @@ export function sharedLockAdapterTestSuite(
 
                 const noneExistingKey = "c";
                 const result = await adapter.releaseReader(
-                    context,
                     noneExistingKey,
                     lockId,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -1198,8 +1198,8 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId = "1";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     ttl,
                     limit,
@@ -1207,9 +1207,9 @@ export function sharedLockAdapterTestSuite(
 
                 const noneExistingLockId = "2";
                 const result = await adapter.releaseReader(
-                    context,
                     key,
                     noneExistingLockId,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -1221,8 +1221,8 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId = "1";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     ttl,
                     limit,
@@ -1230,9 +1230,9 @@ export function sharedLockAdapterTestSuite(
                 await delayWithBuffer(ttl);
 
                 const result = await adapter.releaseReader(
-                    context,
                     key,
                     lockId,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -1244,16 +1244,16 @@ export function sharedLockAdapterTestSuite(
                 const limit = 2;
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     ttl,
                     limit,
                 });
                 const result = await adapter.releaseReader(
-                    context,
                     key,
                     lockId,
+                    context,
                 );
 
                 expect(result).toBe(true);
@@ -1265,16 +1265,16 @@ export function sharedLockAdapterTestSuite(
                 const limit = 2;
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     ttl,
                     limit,
                 });
                 const result = await adapter.releaseReader(
-                    context,
                     key,
                     lockId,
+                    context,
                 );
 
                 expect(result).toBe(true);
@@ -1286,40 +1286,40 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId1 = "1";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl,
                 });
                 const lockId2 = "2";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     limit,
                     ttl,
                 });
-                await adapter.releaseReader(context, key, lockId1);
-                await adapter.releaseReader(context, key, lockId2);
+                await adapter.releaseReader(key, lockId1, context);
+                await adapter.releaseReader(key, lockId2, context);
 
                 const newLimit = 3;
                 const lockId3 = "3";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId3,
                     limit: newLimit,
                     ttl,
                 });
 
-                const result1 = await adapter.getState(context, key);
+                const result1 = await adapter.getState(key, context);
                 expect(result1?.reader?.limit).toBe(newLimit);
 
                 const lockId4 = "4";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId4,
                     limit: newLimit,
                     ttl,
@@ -1327,8 +1327,8 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId5 = "5";
                 const result2 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId5,
                     limit: newLimit,
                     ttl,
@@ -1337,8 +1337,8 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId6 = "6";
                 const result3 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId6,
                     limit,
                     ttl,
@@ -1352,31 +1352,31 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId1 = "1";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl,
                 });
                 const lockId2 = "2";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     limit,
                     ttl,
                 });
-                await adapter.releaseReader(context, key, lockId1);
+                await adapter.releaseReader(key, lockId1, context);
 
-                const result1 = await adapter.getState(context, key);
+                const result1 = await adapter.getState(key, context);
                 expect(result1?.reader?.acquiredSlots.size).toBe(1);
 
-                await adapter.releaseReader(context, key, lockId2);
+                await adapter.releaseReader(key, lockId2, context);
 
                 const lockId3 = "3";
                 const result2 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId3,
                     limit,
                     ttl,
@@ -1385,8 +1385,8 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId4 = "4";
                 const result3 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId4,
                     limit,
                     ttl,
@@ -1397,12 +1397,12 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const lockId = "1";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, lockId, ttl);
+                await adapter.acquireWriter(key, lockId, ttl, context);
 
                 const result = await adapter.releaseReader(
-                    context,
                     key,
                     lockId,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -1411,11 +1411,11 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const lockId = "1";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, lockId, ttl);
+                await adapter.acquireWriter(key, lockId, ttl, context);
 
-                await adapter.releaseReader(context, key, lockId);
+                await adapter.releaseReader(key, lockId, context);
 
-                const state = await adapter.getState(context, key);
+                const state = await adapter.getState(key, context);
 
                 expect(state).toEqual({
                     writer: {
@@ -1433,8 +1433,8 @@ export function sharedLockAdapterTestSuite(
                 const limit = 2;
                 const ttl = null;
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
@@ -1442,8 +1442,8 @@ export function sharedLockAdapterTestSuite(
 
                 const noneExistingKey = "c";
                 const result = await adapter.forceReleaseAllReaders(
-                    context,
                     noneExistingKey,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -1455,8 +1455,8 @@ export function sharedLockAdapterTestSuite(
                 const lockId = "1";
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
@@ -1464,8 +1464,8 @@ export function sharedLockAdapterTestSuite(
                 await delayWithBuffer(ttl);
 
                 const result = await adapter.forceReleaseAllReaders(
-                    context,
                     key,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -1477,26 +1477,26 @@ export function sharedLockAdapterTestSuite(
                 const limit = 2;
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl,
                 });
                 const lockId2 = "2";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     limit,
                     ttl,
                 });
-                await adapter.releaseReader(context, key, lockId1);
-                await adapter.releaseReader(context, key, lockId2);
+                await adapter.releaseReader(key, lockId1, context);
+                await adapter.releaseReader(key, lockId2, context);
 
                 const result = await adapter.forceReleaseAllReaders(
-                    context,
                     key,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -1508,16 +1508,16 @@ export function sharedLockAdapterTestSuite(
                 const lockId = "1";
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
                 });
 
                 const result = await adapter.forceReleaseAllReaders(
-                    context,
                     key,
+                    context,
                 );
 
                 expect(result).toBe(true);
@@ -1528,8 +1528,8 @@ export function sharedLockAdapterTestSuite(
                 const lockId1 = "1";
                 const ttl1 = null;
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl: ttl1,
@@ -1537,20 +1537,20 @@ export function sharedLockAdapterTestSuite(
                 const lockId2 = "2";
                 const ttl2 = TimeSpan.fromMilliseconds(50);
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     limit,
                     ttl: ttl2,
                 });
 
-                await adapter.forceReleaseAllReaders(context, key);
+                await adapter.forceReleaseAllReaders(key, context);
 
                 const lockId3 = "3";
                 const ttl3 = null;
                 const result1 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId3,
                     limit,
                     ttl: ttl3,
@@ -1559,8 +1559,8 @@ export function sharedLockAdapterTestSuite(
                 const lockId4 = "4";
                 const ttl4 = null;
                 const result2 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId4,
                     limit,
                     ttl: ttl4,
@@ -1574,39 +1574,39 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId1 = "1";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl,
                 });
                 const lockId2 = "2";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     limit,
                     ttl,
                 });
-                await adapter.forceReleaseAllReaders(context, key);
+                await adapter.forceReleaseAllReaders(key, context);
 
                 const newLimit = 3;
                 const lockId3 = "3";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId3,
                     limit: newLimit,
                     ttl,
                 });
 
-                const result1 = await adapter.getState(context, key);
+                const result1 = await adapter.getState(key, context);
                 expect(result1?.reader?.limit).toBe(newLimit);
 
                 const lockId4 = "4";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId4,
                     limit: newLimit,
                     ttl,
@@ -1614,8 +1614,8 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId5 = "5";
                 const result2 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId5,
                     limit: newLimit,
                     ttl,
@@ -1624,8 +1624,8 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId6 = "6";
                 const result3 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId6,
                     limit,
                     ttl,
@@ -1636,11 +1636,11 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const lockId = "1";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, lockId, ttl);
+                await adapter.acquireWriter(key, lockId, ttl, context);
 
                 const result = await adapter.forceReleaseAllReaders(
-                    context,
                     key,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -1649,11 +1649,11 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const lockId = "1";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, lockId, ttl);
+                await adapter.acquireWriter(key, lockId, ttl, context);
 
-                await adapter.forceReleaseAllReaders(context, key);
+                await adapter.forceReleaseAllReaders(key, context);
 
-                const state = await adapter.getState(context, key);
+                const state = await adapter.getState(key, context);
 
                 expect(state).toEqual({
                     writer: {
@@ -1671,8 +1671,8 @@ export function sharedLockAdapterTestSuite(
                 const limit = 2;
                 const ttl = null;
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
@@ -1681,10 +1681,10 @@ export function sharedLockAdapterTestSuite(
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 const noneExistingKey = "c";
                 const result = await adapter.refreshReader(
-                    context,
                     noneExistingKey,
                     lockId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -1696,8 +1696,8 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId = "b";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     ttl,
                     limit,
@@ -1706,10 +1706,10 @@ export function sharedLockAdapterTestSuite(
                 const noneExistingLockId = "c";
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 const result = await adapter.refreshReader(
-                    context,
                     key,
                     noneExistingLockId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -1720,8 +1720,8 @@ export function sharedLockAdapterTestSuite(
                 const limit = 2;
                 const ttl = TimeSpan.fromMilliseconds(50);
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
@@ -1730,10 +1730,10 @@ export function sharedLockAdapterTestSuite(
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 const result = await adapter.refreshReader(
-                    context,
                     key,
                     lockId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -1745,18 +1745,18 @@ export function sharedLockAdapterTestSuite(
                 const limit = 2;
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     ttl,
                     limit,
                 });
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 const result = await adapter.refreshReader(
-                    context,
                     key,
                     lockId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -1768,18 +1768,18 @@ export function sharedLockAdapterTestSuite(
                 const limit = 2;
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     ttl,
                     limit,
                 });
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 const result = await adapter.refreshReader(
-                    context,
                     key,
                     lockId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(true);
@@ -1791,8 +1791,8 @@ export function sharedLockAdapterTestSuite(
                 const ttl1 = null;
                 const lockId1 = "1";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     ttl: ttl1,
                     limit,
@@ -1801,21 +1801,21 @@ export function sharedLockAdapterTestSuite(
                 const ttl2 = null;
                 const lockId2 = "2";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     ttl: ttl2,
                     limit,
                 });
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
-                await adapter.refreshReader(context, key, lockId2, newTtl);
+                await adapter.refreshReader(key, lockId2, newTtl, context);
                 await delayWithBuffer(newTtl);
 
                 const lockId3 = "3";
                 const result1 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId3,
                     ttl: ttl2,
                     limit,
@@ -1829,8 +1829,8 @@ export function sharedLockAdapterTestSuite(
                 const ttl1 = null;
                 const lockId1 = "1";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     ttl: ttl1,
                     limit,
@@ -1839,21 +1839,21 @@ export function sharedLockAdapterTestSuite(
                 const ttl2 = TimeSpan.fromMilliseconds(50);
                 const lockId2 = "2";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     ttl: ttl2,
                     limit,
                 });
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
-                await adapter.refreshReader(context, key, lockId2, newTtl);
+                await adapter.refreshReader(key, lockId2, newTtl, context);
                 await delayWithBuffer(newTtl.divide(2));
 
                 const lockId3 = "3";
                 const result1 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId3,
                     ttl: ttl2,
                     limit,
@@ -1862,8 +1862,8 @@ export function sharedLockAdapterTestSuite(
 
                 await delayWithBuffer(newTtl.divide(2));
                 const result2 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId3,
                     ttl: ttl2,
                     limit,
@@ -1874,14 +1874,14 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const lockId = "1";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, lockId, ttl);
+                await adapter.acquireWriter(key, lockId, ttl, context);
 
                 const newTtl = TimeSpan.fromSeconds(20);
                 const result = await adapter.refreshReader(
-                    context,
                     key,
                     lockId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -1890,12 +1890,12 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const lockId = "1";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, lockId, ttl);
+                await adapter.acquireWriter(key, lockId, ttl, context);
 
                 const newTtl = TimeSpan.fromSeconds(20);
-                await adapter.refreshReader(context, key, lockId, newTtl);
+                await adapter.refreshReader(key, lockId, newTtl, context);
 
-                const state = await adapter.getState(context, key);
+                const state = await adapter.getState(key, context);
 
                 expect(state).toEqual({
                     writer: {
@@ -1910,7 +1910,7 @@ export function sharedLockAdapterTestSuite(
             test("Should return false when key doesnt exists", async () => {
                 const key = "a";
 
-                const result = await adapter.forceRelease(context, key);
+                const result = await adapter.forceRelease(key, context);
 
                 expect(result).toBe(false);
             });
@@ -1919,10 +1919,10 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
                 await delayWithBuffer(ttl);
 
-                const result = await adapter.forceRelease(context, key);
+                const result = await adapter.forceRelease(key, context);
 
                 expect(result).toBe(false);
             });
@@ -1931,9 +1931,9 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
 
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
 
-                const result = await adapter.forceRelease(context, key);
+                const result = await adapter.forceRelease(key, context);
 
                 expect(result).toBe(true);
             });
@@ -1942,9 +1942,9 @@ export function sharedLockAdapterTestSuite(
                 const sharedLockId = "b";
                 const ttl = null;
 
-                await adapter.acquireWriter(context, key, sharedLockId, ttl);
+                await adapter.acquireWriter(key, sharedLockId, ttl, context);
 
-                const result = await adapter.forceRelease(context, key);
+                const result = await adapter.forceRelease(key, context);
 
                 expect(result).toBe(true);
             });
@@ -1952,16 +1952,16 @@ export function sharedLockAdapterTestSuite(
                 const key = "a";
                 const sharedLockId1 = "b";
                 const ttl = null;
-                await adapter.acquireWriter(context, key, sharedLockId1, ttl);
+                await adapter.acquireWriter(key, sharedLockId1, ttl, context);
 
-                await adapter.forceRelease(context, key);
+                await adapter.forceRelease(key, context);
 
                 const sharedLockId2 = "c";
                 const result = await adapter.acquireWriter(
-                    context,
                     key,
                     sharedLockId2,
                     ttl,
+                    context,
                 );
                 expect(result).toBe(true);
             });
@@ -1972,15 +1972,15 @@ export function sharedLockAdapterTestSuite(
                 const lockId = "1";
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
                 });
                 await delayWithBuffer(ttl);
 
-                const result = await adapter.forceRelease(context, key);
+                const result = await adapter.forceRelease(key, context);
 
                 expect(result).toBe(false);
             });
@@ -1991,24 +1991,24 @@ export function sharedLockAdapterTestSuite(
                 const limit = 2;
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl,
                 });
                 const lockId2 = "2";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     limit,
                     ttl,
                 });
-                await adapter.releaseReader(context, key, lockId1);
-                await adapter.releaseReader(context, key, lockId2);
+                await adapter.releaseReader(key, lockId1, context);
+                await adapter.releaseReader(key, lockId2, context);
 
-                const result = await adapter.forceRelease(context, key);
+                const result = await adapter.forceRelease(key, context);
 
                 expect(result).toBe(false);
             });
@@ -2019,14 +2019,14 @@ export function sharedLockAdapterTestSuite(
                 const lockId = "1";
 
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId,
                     limit,
                     ttl,
                 });
 
-                const result = await adapter.forceRelease(context, key);
+                const result = await adapter.forceRelease(key, context);
 
                 expect(result).toBe(true);
             });
@@ -2036,8 +2036,8 @@ export function sharedLockAdapterTestSuite(
                 const lockId1 = "1";
                 const ttl1 = null;
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl: ttl1,
@@ -2045,20 +2045,20 @@ export function sharedLockAdapterTestSuite(
                 const lockId2 = "2";
                 const ttl2 = TimeSpan.fromMilliseconds(50);
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     limit,
                     ttl: ttl2,
                 });
 
-                await adapter.forceRelease(context, key);
+                await adapter.forceRelease(key, context);
 
                 const lockId3 = "3";
                 const ttl3 = null;
                 const result1 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId3,
                     limit,
                     ttl: ttl3,
@@ -2067,8 +2067,8 @@ export function sharedLockAdapterTestSuite(
                 const lockId4 = "4";
                 const ttl4 = null;
                 const result2 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId4,
                     limit,
                     ttl: ttl4,
@@ -2082,39 +2082,39 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId1 = "1";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId1,
                     limit,
                     ttl,
                 });
                 const lockId2 = "2";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId2,
                     limit,
                     ttl,
                 });
-                await adapter.forceRelease(context, key);
+                await adapter.forceRelease(key, context);
 
                 const newLimit = 3;
                 const lockId3 = "3";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId3,
                     limit: newLimit,
                     ttl,
                 });
 
-                const result1 = await adapter.getState(context, key);
+                const result1 = await adapter.getState(key, context);
                 expect(result1?.reader?.limit).toBe(newLimit);
 
                 const lockId4 = "4";
                 await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId4,
                     limit: newLimit,
                     ttl,
@@ -2122,8 +2122,8 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId5 = "5";
                 const result2 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId5,
                     limit: newLimit,
                     ttl,
@@ -2132,8 +2132,8 @@ export function sharedLockAdapterTestSuite(
 
                 const lockId6 = "6";
                 const result3 = await adapter.acquireReader({
-                    context,
                     key,
+                    context,
                     lockId: lockId6,
                     limit,
                     ttl,
@@ -2145,7 +2145,7 @@ export function sharedLockAdapterTestSuite(
             test("Should return null when key doesnt exists", async () => {
                 const key = "a";
 
-                const sharedLockData = await adapter.getState(context, key);
+                const sharedLockData = await adapter.getState(key, context);
 
                 expect(sharedLockData).toBeNull();
             });
@@ -2155,14 +2155,14 @@ export function sharedLockAdapterTestSuite(
                     const sharedLockId = "b";
                     const ttl = TimeSpan.fromMilliseconds(50);
                     await adapter.acquireWriter(
-                        context,
                         key,
                         sharedLockId,
                         ttl,
+                        context,
                     );
                     await delayWithBuffer(ttl);
 
-                    const sharedLockData = await adapter.getState(context, key);
+                    const sharedLockData = await adapter.getState(key, context);
 
                     expect(sharedLockData).toBeNull();
                 });
@@ -2171,15 +2171,15 @@ export function sharedLockAdapterTestSuite(
                     const ttl = null;
                     const sharedLockId = "1";
                     await adapter.acquireWriter(
-                        context,
                         key,
                         sharedLockId,
                         ttl,
+                        context,
                     );
 
-                    await adapter.forceReleaseWriter(context, key);
+                    await adapter.forceReleaseWriter(key, context);
 
-                    const sharedLockData = await adapter.getState(context, key);
+                    const sharedLockData = await adapter.getState(key, context);
 
                     expect(sharedLockData).toBeNull();
                 });
@@ -2188,15 +2188,15 @@ export function sharedLockAdapterTestSuite(
                     const ttl = null;
                     const sharedLockId = "1";
                     await adapter.acquireWriter(
-                        context,
                         key,
                         sharedLockId,
                         ttl,
+                        context,
                     );
 
-                    await adapter.forceRelease(context, key);
+                    await adapter.forceRelease(key, context);
 
-                    const sharedLockData = await adapter.getState(context, key);
+                    const sharedLockData = await adapter.getState(key, context);
 
                     expect(sharedLockData).toBeNull();
                 });
@@ -2205,15 +2205,15 @@ export function sharedLockAdapterTestSuite(
                     const ttl = null;
                     const sharedLockId = "1";
                     await adapter.acquireWriter(
-                        context,
                         key,
                         sharedLockId,
                         ttl,
+                        context,
                     );
 
-                    await adapter.releaseWriter(context, key, sharedLockId);
+                    await adapter.releaseWriter(key, sharedLockId, context);
 
-                    const sharedLockData = await adapter.getState(context, key);
+                    const sharedLockData = await adapter.getState(key, context);
 
                     expect(sharedLockData).toBeNull();
                 });
@@ -2222,13 +2222,13 @@ export function sharedLockAdapterTestSuite(
                     const ttl = null;
                     const sharedLockId = "1";
                     await adapter.acquireWriter(
-                        context,
                         key,
                         sharedLockId,
                         ttl,
+                        context,
                     );
 
-                    const state = await adapter.getState(context, key);
+                    const state = await adapter.getState(key, context);
 
                     expect(state).toEqual({
                         reader: null,
@@ -2248,16 +2248,16 @@ export function sharedLockAdapterTestSuite(
                         vi.useFakeTimers();
                         expiration = ttl.toEndDate();
                         await adapter.acquireWriter(
-                            context,
                             key,
                             sharedLockId,
                             ttl,
+                            context,
                         );
                     } finally {
                         vi.useRealTimers();
                     }
 
-                    const state = await adapter.getState(context, key);
+                    const state = await adapter.getState(key, context);
 
                     expect(state).toEqual({
                         reader: null,
@@ -2284,13 +2284,13 @@ export function sharedLockAdapterTestSuite(
                     const keyB = "a";
                     const sharedLockId = "2";
                     await adapter.acquireWriter(
-                        context,
                         keyB,
                         sharedLockId,
                         ttl,
+                        context,
                     );
 
-                    const state = await adapter.getState(context, keyB);
+                    const state = await adapter.getState(keyB, context);
 
                     expect({
                         ...state,
@@ -2326,7 +2326,7 @@ export function sharedLockAdapterTestSuite(
                     });
                     await delayWithBuffer(ttl);
 
-                    const result = await adapter.getState(context, key);
+                    const result = await adapter.getState(key, context);
 
                     expect(result).toBeNull();
                 });
@@ -2354,9 +2354,9 @@ export function sharedLockAdapterTestSuite(
                         ttl: ttl2,
                     });
 
-                    await adapter.forceReleaseAllReaders(context, key);
+                    await adapter.forceReleaseAllReaders(key, context);
 
-                    const result = await adapter.getState(context, key);
+                    const result = await adapter.getState(key, context);
 
                     expect(result).toBeNull();
                 });
@@ -2384,9 +2384,9 @@ export function sharedLockAdapterTestSuite(
                         ttl: ttl2,
                     });
 
-                    await adapter.forceRelease(context, key);
+                    await adapter.forceRelease(key, context);
 
-                    const result = await adapter.getState(context, key);
+                    const result = await adapter.getState(key, context);
 
                     expect(result).toBeNull();
                 });
@@ -2414,10 +2414,10 @@ export function sharedLockAdapterTestSuite(
                         ttl: ttl2,
                     });
 
-                    await adapter.releaseReader(context, key, lockId1);
-                    await adapter.releaseReader(context, key, lockId2);
+                    await adapter.releaseReader(key, lockId1, context);
+                    await adapter.releaseReader(key, lockId2, context);
 
-                    const result = await adapter.getState(context, key);
+                    const result = await adapter.getState(key, context);
 
                     expect(result).toBeNull();
                 });
@@ -2435,7 +2435,7 @@ export function sharedLockAdapterTestSuite(
                         ttl,
                     });
 
-                    const state = await adapter.getState(context, key);
+                    const state = await adapter.getState(key, context);
 
                     expect(state?.reader?.limit).toBe(limit);
                 });
@@ -2463,7 +2463,7 @@ export function sharedLockAdapterTestSuite(
                         ttl: ttl2,
                     });
 
-                    const state = await adapter.getState(context, key);
+                    const state = await adapter.getState(key, context);
 
                     expect(state?.reader?.acquiredSlots.size).toBe(2);
                 });
@@ -2481,7 +2481,7 @@ export function sharedLockAdapterTestSuite(
                         ttl,
                     });
 
-                    const state = await adapter.getState(context, key);
+                    const state = await adapter.getState(key, context);
 
                     expect({
                         ...state,
@@ -2522,7 +2522,7 @@ export function sharedLockAdapterTestSuite(
                         vi.useRealTimers();
                     }
 
-                    const state = await adapter.getState(context, key);
+                    const state = await adapter.getState(key, context);
 
                     expect({
                         ...state,
@@ -2548,10 +2548,10 @@ export function sharedLockAdapterTestSuite(
                     const keyB = "a";
                     const sharedLockId = "2";
                     await adapter.acquireWriter(
-                        context,
                         keyB,
                         sharedLockId,
                         ttl,
+                        context,
                     );
 
                     const keyA = "a";
@@ -2565,7 +2565,7 @@ export function sharedLockAdapterTestSuite(
                         ttl,
                     });
 
-                    const state = await adapter.getState(context, keyB);
+                    const state = await adapter.getState(keyB, context);
 
                     expect(state).toEqual({
                         writer: {

@@ -364,10 +364,10 @@ export class KyselySharedLockAdapter
     }
 
     async acquireWriter(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return await this._transaction(async (trx) => {
             // Check if a non-expired writer lock exists held by a different owner
@@ -435,9 +435,9 @@ export class KyselySharedLockAdapter
     }
 
     async releaseWriter(
-        _context: IReadableContext,
         key: string,
         lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
             return await this._transaction(async (trx) => {
@@ -493,8 +493,8 @@ export class KyselySharedLockAdapter
     }
 
     async forceReleaseWriter(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
             return await this._transaction(async (trx) => {
@@ -547,10 +547,10 @@ export class KyselySharedLockAdapter
     }
 
     async refreshWriter(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const expiration = ttl.toEndDate().getTime();
         const result = await this.kysely
@@ -703,9 +703,9 @@ export class KyselySharedLockAdapter
     }
 
     async releaseReader(
-        _context: IReadableContext,
         key: string,
         slotId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
             return await this._transaction(async (trx) => {
@@ -761,8 +761,8 @@ export class KyselySharedLockAdapter
     }
 
     async forceReleaseAllReaders(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
             return await this._transaction(async (trx) => {
@@ -815,10 +815,10 @@ export class KyselySharedLockAdapter
     }
 
     async refreshReader(
-        _context: IReadableContext,
         key: string,
         slotId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const expiration = ttl.toEndDate().getTime();
         const result = await this.kysely
@@ -944,8 +944,8 @@ export class KyselySharedLockAdapter
     }
 
     async forceRelease(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const writerReleased = await this.deleteNonExpiredWriter(key);
         const readerReleased = await this.deleteNonExpiredReaderSlots(key);
@@ -1031,8 +1031,8 @@ export class KyselySharedLockAdapter
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ISharedLockAdapterState | null> {
         const [writer, reader] = await Promise.all([
             this.getWriterState(key),

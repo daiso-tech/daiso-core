@@ -4,6 +4,7 @@ import { Context } from "@/execution-context/implementations/derivables/executio
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
+import { type ISharedLockAdapter } from "@/shared-lock/contracts/_module.js";
 import { NoOpSharedLockAdapter } from "@/shared-lock/implementations/adapters/_module.js";
 import { withSharedLockPrefix } from "@/shared-lock/implementations/plugins/with-shared-lock-prefix/with-shared-lock-prefix.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -24,10 +25,12 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.forceRelease(context, "myKey");
+            await enhanced.forceRelease("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISharedLockAdapter["forceRelease"]>
+            >(`${prefix}myKey`, context);
         });
     });
 
@@ -38,10 +41,12 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.getState(context, "myKey");
+            await enhanced.getState("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISharedLockAdapter["getState"]>
+            >(`${prefix}myKey`, context);
         });
     });
 
@@ -53,19 +58,16 @@ describe("function: withSharedLockPrefix", () => {
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
             await enhanced.acquireWriter(
-                context,
                 "myKey",
                 "lockId",
                 TimeSpan.fromSeconds(30),
+                context,
             );
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}myKey`,
-                "lockId",
-                TimeSpan.fromSeconds(30),
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISharedLockAdapter["acquireWriter"]>
+            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
         });
     });
 
@@ -76,10 +78,12 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.forceReleaseWriter(context, "myKey");
+            await enhanced.forceReleaseWriter("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISharedLockAdapter["forceReleaseWriter"]>
+            >(`${prefix}myKey`, context);
         });
     });
 
@@ -91,19 +95,16 @@ describe("function: withSharedLockPrefix", () => {
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
             await enhanced.refreshWriter(
-                context,
                 "myKey",
                 "lockId",
                 TimeSpan.fromSeconds(30),
+                context,
             );
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}myKey`,
-                "lockId",
-                TimeSpan.fromSeconds(30),
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISharedLockAdapter["refreshWriter"]>
+            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
         });
     });
 
@@ -114,14 +115,12 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.releaseWriter(context, "myKey", "lockId");
+            await enhanced.releaseWriter("myKey", "lockId", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}myKey`,
-                "lockId",
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISharedLockAdapter["releaseWriter"]>
+            >(`${prefix}myKey`, "lockId", context);
         });
     });
 
@@ -141,7 +140,9 @@ describe("function: withSharedLockPrefix", () => {
             });
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith({
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISharedLockAdapter["acquireReader"]>
+            >({
                 context,
                 key: `${prefix}myKey`,
                 lockId: "lock1",
@@ -158,10 +159,12 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.forceReleaseAllReaders(context, "myKey");
+            await enhanced.forceReleaseAllReaders("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISharedLockAdapter["forceReleaseAllReaders"]>
+            >(`${prefix}myKey`, context);
         });
     });
 
@@ -173,19 +176,16 @@ describe("function: withSharedLockPrefix", () => {
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
             await enhanced.refreshReader(
-                context,
                 "myKey",
                 "lockId",
                 TimeSpan.fromSeconds(30),
+                context,
             );
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}myKey`,
-                "lockId",
-                TimeSpan.fromSeconds(30),
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISharedLockAdapter["refreshReader"]>
+            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
         });
     });
 
@@ -196,14 +196,12 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.releaseReader(context, "myKey", "lockId");
+            await enhanced.releaseReader("myKey", "lockId", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}myKey`,
-                "lockId",
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISharedLockAdapter["releaseReader"]>
+            >(`${prefix}myKey`, "lockId", context);
         });
     });
 });

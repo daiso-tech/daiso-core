@@ -20,34 +20,34 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  */
 export class NoOpSharedLockAdapter implements ISharedLockAdapter {
     acquireWriter(
-        _context: IReadableContext,
         _key: string,
         _lockId: string,
         _ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     releaseWriter(
-        _context: IReadableContext,
         _key: string,
         _lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     forceReleaseWriter(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     refreshWriter(
-        _context: IReadableContext,
         _key: string,
         _lockId: string,
         _ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
@@ -57,36 +57,36 @@ export class NoOpSharedLockAdapter implements ISharedLockAdapter {
     }
 
     releaseReader(
-        _context: IReadableContext,
         _key: string,
         _lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     forceReleaseAllReaders(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     refreshReader(
-        _context: IReadableContext,
         _key: string,
         _lockId: string,
         _ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    forceRelease(_context: IReadableContext, _key: string): Promise<boolean> {
+    forceRelease(_key: string, _context: IReadableContext): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     getState(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<ISharedLockAdapterState | null> {
         return Promise.resolve(null);
     }
