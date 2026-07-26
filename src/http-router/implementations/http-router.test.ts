@@ -8,6 +8,8 @@ import { SmartRouter } from "hono/router/smart-router";
 import { TrieRouter } from "hono/router/trie-router";
 import { describe, expect, test, vi } from "vitest";
 
+import { contextToken } from "@/execution-context/contracts/execution-context.contract.js";
+import { type HttpMiddlewareFn } from "@/http-router/contracts/_module.js";
 import { HttpError } from "@/http-router/contracts/http.errors.js";
 import {
     HttpRouter,
@@ -50,10 +52,8 @@ describe("class: HttpRouter", () => {
             router.endpoint({
                 url: "/test",
                 method: ["GET"],
-                handler: async () => {
-                    return {
-                        buildWebRes: () => new Response("ok", { status: 200 }),
-                    } as never;
+                handler: async ({ res }) => {
+                    return res.setStatus("200").setBody("ok");
                 },
             });
 
@@ -68,7 +68,7 @@ describe("class: HttpRouter", () => {
             const result = router.endpoint({
                 url: "/test",
                 method: ["GET"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
             expect(result).toBe(router["httpRouterBase"]);
         });
@@ -77,7 +77,7 @@ describe("class: HttpRouter", () => {
     describe("method: use", () => {
         test("Should register middleware on the base router", () => {
             const router = createRouter();
-            const mw = vi.fn() as unknown as never;
+            const mw = vi.fn<HttpMiddlewareFn>();
             const result = router.use(mw);
             expect(result).toBeDefined();
         });
@@ -94,7 +94,7 @@ describe("class: HttpRouter", () => {
         test("Should throw TypeError for invalid arguments", () => {
             const router = createRouter();
             expect(() =>
-                (router as never as { group: (arg: unknown) => unknown }).group(
+                (router as { group: (arg: unknown) => unknown }).group(
                     undefined,
                 ),
             ).toThrow(TypeError);
@@ -147,17 +147,9 @@ describe("class: HttpRouter", () => {
             router.endpoint({
                 url: "/users/:id",
                 method: ["GET"],
-                handler: async ({ req }) => {
+                handler: async ({ req, json }) => {
                     const params = req.rawParams();
-                    return {
-                        buildWebRes: () =>
-                            new Response(JSON.stringify(params), {
-                                status: 200,
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                            }),
-                    } as never;
+                    return json(params).setStatus(200);
                 },
             });
 
@@ -173,17 +165,9 @@ describe("class: HttpRouter", () => {
             router.endpoint({
                 url: "/orgs/:orgId/repos/:repoId",
                 method: ["GET"],
-                handler: async ({ req }) => {
+                handler: async ({ req, json }) => {
                     const params = req.rawParams();
-                    return {
-                        buildWebRes: () =>
-                            new Response(JSON.stringify(params), {
-                                status: 200,
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                            }),
-                    } as never;
+                    return json(params).setStatus(200);
                 },
             });
 
@@ -478,7 +462,7 @@ describe("class: HttpRouter", () => {
             router.endpoint({
                 url: "/test",
                 method: ["GET"],
-                handler: handlerSpy as never,
+                handler: handlerSpy,
             });
 
             const request = new Request("https://test.local/test");
@@ -536,14 +520,13 @@ describe("class: HttpRouter", () => {
                 },
             });
 
+            const requestId = contextToken<string>("request-id");
             router.endpoint({
                 url: "/context",
                 method: ["GET"],
                 handler: async ({ context, text }) => {
-                    context.add({ id: "request-id" } as never, "abc-123");
-                    return text(
-                        context.get({ id: "request-id" } as never) as string,
-                    );
+                    context.add(requestId, "abc-123");
+                    return text(context.getOrFail(requestId));
                 },
             });
 
@@ -689,17 +672,9 @@ describe("class: HttpRouter", () => {
             router.endpoint({
                 url: "/search",
                 method: ["GET"],
-                handler: async ({ req }) => {
+                handler: async ({ req, json }) => {
                     const sp = req.rawSearchParams();
-                    return {
-                        buildWebRes: () =>
-                            new Response(JSON.stringify(sp), {
-                                status: 200,
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                            }),
-                    } as never;
+                    return json(sp).setStatus(200);
                 },
             });
 

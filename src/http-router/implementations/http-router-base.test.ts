@@ -49,7 +49,7 @@ describe("class: HttpRouterBase", () => {
 
             base.endpoint({
                 url: "/users",
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
 
             expect(addSpy).toHaveBeenCalled();
@@ -75,7 +75,7 @@ describe("class: HttpRouterBase", () => {
             base.endpoint({
                 url: "/health",
                 method: ["GET"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
 
             const endpointCalls = addSpy.mock.calls.filter(
@@ -101,7 +101,7 @@ describe("class: HttpRouterBase", () => {
             base.endpoint({
                 url: "/test",
                 method: ["GET"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
                 middlewares: (builder) => builder.use(epMw),
             });
 
@@ -118,7 +118,7 @@ describe("class: HttpRouterBase", () => {
             const base = new HttpRouterBase("/", [], router);
             const result = base.endpoint({
                 url: "/test",
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
             expect(result).toBe(base);
         });
@@ -139,7 +139,7 @@ describe("class: HttpRouterBase", () => {
             base.endpoint({
                 url: "/resource",
                 method: ["PUT"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
 
             const endpointMethods = addSpy.mock.calls
@@ -162,7 +162,7 @@ describe("class: HttpRouterBase", () => {
             base.endpoint({
                 url: "/resource",
                 method: ["DELETE"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
 
             const endpointMethods = addSpy.mock.calls
@@ -185,7 +185,7 @@ describe("class: HttpRouterBase", () => {
             base.endpoint({
                 url: "/all-methods",
                 method: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
 
             const endpointMethods = addSpy.mock.calls
@@ -214,7 +214,7 @@ describe("class: HttpRouterBase", () => {
             base.endpoint({
                 url: "/cache",
                 method: ["PURGE"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
 
             const endpointMethods = addSpy.mock.calls
@@ -237,7 +237,7 @@ describe("class: HttpRouterBase", () => {
             base.endpoint({
                 url: "/wild/*/card",
                 method: ["GET"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
 
             const endpointCalls = addSpy.mock.calls.filter(
@@ -260,7 +260,7 @@ describe("class: HttpRouterBase", () => {
             base.endpoint({
                 url: "/api/animal/:type?",
                 method: ["GET"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
 
             const endpointCalls = addSpy.mock.calls.filter(
@@ -283,7 +283,7 @@ describe("class: HttpRouterBase", () => {
             base.endpoint({
                 url: "/users/:id/posts/:postId",
                 method: ["GET"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
 
             const endpointCalls = addSpy.mock.calls.filter(
@@ -306,7 +306,7 @@ describe("class: HttpRouterBase", () => {
             base.endpoint({
                 url: "/post/:date{[0-9]+}/:title{[a-z]+}",
                 method: ["GET"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
 
             const endpointCalls = addSpy.mock.calls.filter(
@@ -331,7 +331,7 @@ describe("class: HttpRouterBase", () => {
             base.endpoint({
                 url: "/posts/:filename{.+\\.png}",
                 method: ["GET"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
 
             const endpointCalls = addSpy.mock.calls.filter(
@@ -354,7 +354,7 @@ describe("class: HttpRouterBase", () => {
             base.endpoint({
                 url: "/static/*",
                 method: ["GET"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
 
             const endpointCalls = addSpy.mock.calls.filter(
@@ -377,7 +377,7 @@ describe("class: HttpRouterBase", () => {
             base.endpoint({
                 url: "/test",
                 method: ["GET", "POST"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
                 middlewares: (builder) =>
                     builder.use(vi.fn() as unknown as HttpMiddleware),
             });
@@ -409,7 +409,7 @@ describe("class: HttpRouterBase", () => {
             base.endpoint({
                 url: "/shared",
                 method: ["GET", "POST"],
-                handler: vi.fn() as never,
+                handler: vi.fn(),
             });
 
             const middlewareCalls = addSpy.mock.calls.filter(
@@ -456,9 +456,7 @@ describe("class: HttpRouterBase", () => {
             const base = new HttpRouterBase("/", [], router);
 
             expect(() =>
-                (base as never as { group: (arg: unknown) => unknown }).group(
-                    undefined,
-                ),
+                (base as { group: (arg: unknown) => unknown }).group(undefined),
             ).toThrow(TypeError);
         });
 
@@ -477,7 +475,7 @@ describe("class: HttpRouterBase", () => {
                 subRouter.endpoint({
                     url: "/nested",
                     method: ["GET"],
-                    handler: vi.fn() as never,
+                    handler: vi.fn(),
                 });
             });
 
