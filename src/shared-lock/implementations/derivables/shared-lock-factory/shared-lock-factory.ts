@@ -112,7 +112,7 @@ export type SharedLockFactorySettings = SharedLockFactorySettingsBase & {
 };
 
 /**
- * `SharedLockFactory` class can be derived from any {@link ISharedLockAdapter | `ISharedLockAdapter`} or {@link IDatabaseSharedLockAdapter | `IDatabaseSharedLockAdapter`}.
+ * `SharedLockFactory` class can be derived from any {@link ISharedLockAdapter | `ISharedLockAdapter`}.
  *
  * Note the {@link ISharedLock | `ISharedLock`} instances created by the `SharedLockFactory` class are serializable and deserializable,
  * allowing them to be seamlessly transferred across different servers, processes, and databases.

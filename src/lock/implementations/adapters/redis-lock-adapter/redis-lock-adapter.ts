@@ -202,10 +202,10 @@ export class RedisLockAdapter implements ILockAdapter {
     }
 
     async acquire(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.daiso_lock_acquire(
             key,
@@ -216,27 +216,27 @@ export class RedisLockAdapter implements ILockAdapter {
     }
 
     async release(
-        _context: IReadableContext,
         key: string,
         lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.daiso_lock_release(key, lockId);
         return result === 1;
     }
 
     async forceRelease(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.del(key);
         return result > 0;
     }
 
     async refresh(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.daiso_lock_refresh(
             key,
@@ -247,8 +247,8 @@ export class RedisLockAdapter implements ILockAdapter {
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ILockAdapterState | null> {
         const json = JSON.parse(
             await this.database.daiso_lock_get_state(key),

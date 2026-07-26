@@ -141,10 +141,10 @@ export class MongodbLockAdapter
     }
 
     async acquire(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const expiration = ttl?.toEndDate() ?? null;
         const isExpiredQuery = {
@@ -209,9 +209,9 @@ export class MongodbLockAdapter
     }
 
     async release(
-        _context: IReadableContext,
         key: string,
         lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const isUnexpirableQuery = {
             expiration: {
@@ -246,8 +246,8 @@ export class MongodbLockAdapter
     }
 
     async forceRelease(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const lockData = await this.collection.findOneAndDelete({ key });
         if (lockData === null) {
@@ -261,10 +261,10 @@ export class MongodbLockAdapter
     }
 
     async refresh(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const isUnexpiredQuery = {
             $and: [
@@ -316,8 +316,8 @@ export class MongodbLockAdapter
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ILockAdapterState | null> {
         const lockData = await this.collection.findOne({
             key,

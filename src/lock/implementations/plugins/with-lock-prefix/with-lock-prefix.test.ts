@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
+import { type ILockAdapter } from "@/lock/contracts/lock-adapter.contract.js";
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
 import { withLockPrefix } from "@/lock/implementations/plugins/with-lock-prefix/with-lock-prefix.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
@@ -25,19 +26,16 @@ describe("function: withLockPrefix", () => {
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
 
             await enhanced.acquire(
-                context,
                 "myKey",
                 "lockId",
                 TimeSpan.fromSeconds(30),
+                context,
             );
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}myKey`,
-                "lockId",
-                TimeSpan.fromSeconds(30),
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ILockAdapter["acquire"]>
+            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
         });
     });
 
@@ -48,10 +46,12 @@ describe("function: withLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
 
-            await enhanced.forceRelease(context, "myKey");
+            await enhanced.forceRelease("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ILockAdapter["forceRelease"]>
+            >(`${prefix}myKey`, context);
         });
     });
 
@@ -62,10 +62,12 @@ describe("function: withLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
 
-            await enhanced.getState(context, "myKey");
+            await enhanced.getState("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ILockAdapter["getState"]>
+            >(`${prefix}myKey`, context);
         });
     });
 
@@ -77,19 +79,16 @@ describe("function: withLockPrefix", () => {
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
 
             await enhanced.refresh(
-                context,
                 "myKey",
                 "lockId",
                 TimeSpan.fromSeconds(30),
+                context,
             );
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}myKey`,
-                "lockId",
-                TimeSpan.fromSeconds(30),
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ILockAdapter["refresh"]>
+            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
         });
     });
 
@@ -100,14 +99,12 @@ describe("function: withLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
 
-            await enhanced.release(context, "myKey", "lockId");
+            await enhanced.release("myKey", "lockId", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}myKey`,
-                "lockId",
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ILockAdapter["release"]>
+            >(`${prefix}myKey`, "lockId", context);
         });
     });
 });

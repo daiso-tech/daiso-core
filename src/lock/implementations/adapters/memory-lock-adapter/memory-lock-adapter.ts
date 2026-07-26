@@ -68,10 +68,10 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     }
 
     async acquire(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         let lock = this.map.get(key);
         if (lock !== undefined) {
@@ -101,9 +101,9 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     }
 
     async release(
-        _context: IReadableContext,
         key: string,
         lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const lock = this.map.get(key);
         if (lock === undefined) {
@@ -126,8 +126,8 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     }
 
     async forceRelease(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const lock = this.map.get(key);
 
@@ -149,10 +149,10 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     }
 
     async refresh(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const lock = this.map.get(key);
         if (lock === undefined) {
@@ -182,8 +182,8 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ILockAdapterState | null> {
         const lockData = this.map.get(key);
         if (lockData === undefined) {

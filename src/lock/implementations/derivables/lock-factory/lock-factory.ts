@@ -12,9 +12,6 @@ import {
     type LockFactoryCreateSettings,
     type ILockFactory,
     type ILockAdapter,
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IDatabaseLockAdapter,
 } from "@/lock/contracts/_module.js";
 import { LockSerdeTransformer } from "@/lock/implementations/derivables/lock-factory/lock-serde-transformer.js";
 import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
@@ -115,7 +112,7 @@ export type LockFactorySettings = LockFactorySettingsBase & {
 };
 
 /**
- * `LockFactory` class can be derived from any {@link ILockAdapter | `ILockAdapter`} or {@link IDatabaseLockAdapter | `IDatabaseLockAdapter`}.
+ * `LockFactory` class can be derived from any {@link ILockAdapter | `ILockAdapter`}.
  *
  * Note the {@link ILock | `ILock`} instances created by the `LockFactory` class are serializable and deserializable,
  * allowing them to be seamlessly transferred across different servers, processes, and databases.

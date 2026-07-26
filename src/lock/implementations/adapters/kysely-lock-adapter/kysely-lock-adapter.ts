@@ -245,10 +245,10 @@ export class KyselyLockAdapter
     }
 
     async acquire(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return await this._transaction(async (trx) => {
             const existing = await trx
@@ -295,9 +295,9 @@ export class KyselyLockAdapter
     }
 
     async release(
-        _context: IReadableContext,
         key: string,
         lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
             return await this._transaction(async (trx) => {
@@ -345,8 +345,8 @@ export class KyselyLockAdapter
     }
 
     async forceRelease(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
             return await this._transaction(async (trx) => {
@@ -391,10 +391,10 @@ export class KyselyLockAdapter
     }
 
     async refresh(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const expiration = ttl.toEndDate().getTime();
         const result = await this.kysely
@@ -414,8 +414,8 @@ export class KyselyLockAdapter
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ILockAdapterState | null> {
         return await this._find(key);
     }

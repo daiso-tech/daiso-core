@@ -30,19 +30,19 @@ describe("class: MemoryLockAdapter", () => {
     });
     describe("method: deInit", () => {
         test("Should clear map", async () => {
-            await adapter.acquire(noOpContext, "a", "1", null);
+            await adapter.acquire("a", "1", null, noOpContext);
             await adapter.acquire(
-                noOpContext,
                 "a",
                 "2",
                 TimeSpan.fromMilliseconds(100),
-            );
-            await adapter.acquire(noOpContext, "b", "1", null);
-            await adapter.acquire(
                 noOpContext,
+            );
+            await adapter.acquire("b", "1", null, noOpContext);
+            await adapter.acquire(
                 "b",
                 "2",
                 TimeSpan.fromMilliseconds(100),
+                noOpContext,
             );
 
             await adapter.deInit();
