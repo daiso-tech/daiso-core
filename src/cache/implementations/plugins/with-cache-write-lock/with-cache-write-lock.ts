@@ -93,19 +93,15 @@ export function withCacheWriteLock(
                 "getAndRemove" satisfies WithCacheWriteLockMethods,
             )
         ) {
-            enhance(
-                adapter,
-                "getAndRemove",
-                ({ args: [_context, key], next }) => {
-                    return lockFactory.create(key).runOrFail(() => {
-                        return next();
-                    });
-                },
-            );
+            enhance(adapter, "getAndRemove", ({ args: [key], next }) => {
+                return lockFactory.create(key).runOrFail(() => {
+                    return next();
+                });
+            });
         }
 
         if (onlyMethods.includes("add" satisfies WithCacheWriteLockMethods)) {
-            enhance(adapter, "add", ({ args: [_context, key], next }) => {
+            enhance(adapter, "add", ({ args: [key], next }) => {
                 return lockFactory.create(key).runOrFail(() => {
                     return next();
                 });
@@ -113,7 +109,7 @@ export function withCacheWriteLock(
         }
 
         if (onlyMethods.includes("put" satisfies WithCacheWriteLockMethods)) {
-            enhance(adapter, "put", ({ args: [_context, key], next }) => {
+            enhance(adapter, "put", ({ args: [key], next }) => {
                 return lockFactory.create(key).runOrFail(() => {
                     return next();
                 });
@@ -123,7 +119,7 @@ export function withCacheWriteLock(
         if (
             onlyMethods.includes("update" satisfies WithCacheWriteLockMethods)
         ) {
-            enhance(adapter, "update", ({ args: [_context, key], next }) => {
+            enhance(adapter, "update", ({ args: [key], next }) => {
                 return lockFactory.create(key).runOrFail(() => {
                     return next();
                 });
@@ -135,7 +131,7 @@ export function withCacheWriteLock(
                 "increment" satisfies WithCacheWriteLockMethods,
             )
         ) {
-            enhance(adapter, "increment", ({ args: [_context, key], next }) => {
+            enhance(adapter, "increment", ({ args: [key], next }) => {
                 return lockFactory.create(key).runOrFail(() => {
                     return next();
                 });
@@ -147,32 +143,24 @@ export function withCacheWriteLock(
                 "removeMany" satisfies WithCacheWriteLockMethods,
             )
         ) {
-            enhance(
-                adapter,
-                "removeMany",
-                ({ args: [_context, keys], next }) => {
-                    let fn = () => next();
-                    for (const key of [...new Set(keys)].reverse()) {
-                        const prevFn = fn;
-                        fn = () => lockFactory.create(key).runOrFail(prevFn);
-                    }
-                    return fn();
-                },
-            );
+            enhance(adapter, "removeMany", ({ args: [keys], next }) => {
+                let fn = () => next();
+                for (const key of [...new Set(keys)].reverse()) {
+                    const prevFn = fn;
+                    fn = () => lockFactory.create(key).runOrFail(prevFn);
+                }
+                return fn();
+            });
         }
 
         if (
             onlyMethods.includes("getOrAdd" satisfies WithCacheWriteLockMethods)
         ) {
-            enhance(
-                adapter,
-                "getOrAdd",
-                async ({ args: [_context, key], next }) => {
-                    return lockFactory.create(key).runOrFail(async () => {
-                        return next();
-                    });
-                },
-            );
+            enhance(adapter, "getOrAdd", async ({ args: [key], next }) => {
+                return lockFactory.create(key).runOrFail(async () => {
+                    return next();
+                });
+            });
         }
     };
 }
