@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import { type ICacheAdapter } from "@/cache/contracts/cache-adapter.contract.js";
 import { NoOpCacheAdapter } from "@/cache/implementations/adapters/_module.js";
 import { withCachePrefix } from "@/cache/implementations/plugins/with-cache-prefix/with-cache-prefix.js";
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
@@ -17,112 +18,141 @@ describe("function: withCachePrefix", () => {
         vi.clearAllMocks();
     });
 
-    test("Should prefix keys for add", async () => {
-        const adapter = new NoOpCacheAdapter<string>();
-        const spy = vi.spyOn(adapter, "add");
+    describe("method: add", () => {
+        test("Should prefix keys", async () => {
+            const adapter = new NoOpCacheAdapter<string>();
+            const spy = vi.spyOn(adapter, "add");
 
-        const enhanced = withPlugin(adapter, withCachePrefix(prefix));
+            const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-        await enhanced.add(context, "myKey", "value", TimeSpan.fromMinutes(5));
+            await enhanced.add(
+                "myKey",
+                "value",
+                TimeSpan.fromMinutes(5),
+                context,
+            );
 
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(
-            context,
-            `${prefix}myKey`,
-            "value",
-            TimeSpan.fromMinutes(5),
-        );
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["add"]>>(
+                `${prefix}myKey`,
+                "value",
+                TimeSpan.fromMinutes(5),
+                context,
+            );
+        });
     });
+    describe("method: get", () => {
+        test("Should prefix keys", async () => {
+            const adapter = new NoOpCacheAdapter<string>();
+            const spy = vi.spyOn(adapter, "get");
 
-    test("Should prefix keys for get", async () => {
-        const adapter = new NoOpCacheAdapter<string>();
-        const spy = vi.spyOn(adapter, "get");
+            const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-        const enhanced = withPlugin(adapter, withCachePrefix(prefix));
+            await enhanced.get("myKey", context);
 
-        await enhanced.get(context, "myKey");
-
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["get"]>>(
+                `${prefix}myKey`,
+                context,
+            );
+        });
     });
+    describe("method: getAndRemove", () => {
+        test("Should prefix keys", async () => {
+            const adapter = new NoOpCacheAdapter<string>();
+            const spy = vi.spyOn(adapter, "getAndRemove");
 
-    test("Should prefix keys for getAndRemove", async () => {
-        const adapter = new NoOpCacheAdapter<string>();
-        const spy = vi.spyOn(adapter, "getAndRemove");
+            const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-        const enhanced = withPlugin(adapter, withCachePrefix(prefix));
+            await enhanced.getAndRemove("myKey", context);
 
-        await enhanced.getAndRemove(context, "myKey");
-
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ICacheAdapter["getAndRemove"]>
+            >(`${prefix}myKey`, context);
+        });
     });
+    describe("method: increment", () => {
+        test("Should prefix keys", async () => {
+            const adapter = new NoOpCacheAdapter<number>();
+            const spy = vi.spyOn(adapter, "increment");
 
-    test("Should prefix keys for increment", async () => {
-        const adapter = new NoOpCacheAdapter<number>();
-        const spy = vi.spyOn(adapter, "increment");
+            const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-        const enhanced = withPlugin(adapter, withCachePrefix(prefix));
+            await enhanced.increment("myKey", 5, context);
 
-        await enhanced.increment(context, "myKey", 5);
-
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`, 5);
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ICacheAdapter["increment"]>
+            >(`${prefix}myKey`, 5, context);
+        });
     });
+    describe("method: put", () => {
+        test("Should prefix keys", async () => {
+            const adapter = new NoOpCacheAdapter<string>();
+            const spy = vi.spyOn(adapter, "put");
 
-    test("Should prefix keys for put", async () => {
-        const adapter = new NoOpCacheAdapter<string>();
-        const spy = vi.spyOn(adapter, "put");
+            const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-        const enhanced = withPlugin(adapter, withCachePrefix(prefix));
+            await enhanced.put(
+                "myKey",
+                "value",
+                TimeSpan.fromMinutes(5),
+                context,
+            );
 
-        await enhanced.put(context, "myKey", "value", TimeSpan.fromMinutes(5));
-
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(
-            context,
-            `${prefix}myKey`,
-            "value",
-            TimeSpan.fromMinutes(5),
-        );
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["put"]>>(
+                `${prefix}myKey`,
+                "value",
+                TimeSpan.fromMinutes(5),
+                context,
+            );
+        });
     });
+    describe("method: removeByKeyPrefix", () => {
+        test("Should prefix keys", async () => {
+            const adapter = new NoOpCacheAdapter<string>();
+            const spy = vi.spyOn(adapter, "removeByKeyPrefix");
 
-    test("Should prefix keys for removeByKeyPrefix", async () => {
-        const adapter = new NoOpCacheAdapter<string>();
-        const spy = vi.spyOn(adapter, "removeByKeyPrefix");
+            const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-        const enhanced = withPlugin(adapter, withCachePrefix(prefix));
+            await enhanced.removeByKeyPrefix("myKey", context);
 
-        await enhanced.removeByKeyPrefix(context, "myKey");
-
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ICacheAdapter["removeByKeyPrefix"]>
+            >(`${prefix}myKey`, context);
+        });
     });
+    describe("method: removeMany", () => {
+        test("Should prefix keys", async () => {
+            const adapter = new NoOpCacheAdapter<string>();
+            const spy = vi.spyOn(adapter, "removeMany");
 
-    test("Should prefix keys for removeMany", async () => {
-        const adapter = new NoOpCacheAdapter<string>();
-        const spy = vi.spyOn(adapter, "removeMany");
+            const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-        const enhanced = withPlugin(adapter, withCachePrefix(prefix));
+            await enhanced.removeMany(["key1", "key2"], context);
 
-        await enhanced.removeMany(context, ["key1", "key2"]);
-
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(context, [
-            `${prefix}key1`,
-            `${prefix}key2`,
-        ]);
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ICacheAdapter["removeMany"]>
+            >([`${prefix}key1`, `${prefix}key2`], context);
+        });
     });
+    describe("method: update", () => {
+        test("Should prefix keys", async () => {
+            const adapter = new NoOpCacheAdapter<string>();
+            const spy = vi.spyOn(adapter, "update");
 
-    test("Should prefix keys for update", async () => {
-        const adapter = new NoOpCacheAdapter<string>();
-        const spy = vi.spyOn(adapter, "update");
+            const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-        const enhanced = withPlugin(adapter, withCachePrefix(prefix));
+            await enhanced.update("myKey", "newValue", context);
 
-        await enhanced.update(context, "myKey", "newValue");
-
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`, "newValue");
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ICacheAdapter["update"]>
+            >(`${prefix}myKey`, "newValue", context);
+        });
     });
 });

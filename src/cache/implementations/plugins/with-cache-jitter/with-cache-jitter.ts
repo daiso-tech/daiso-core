@@ -66,22 +66,22 @@ export function withCacheJitter(
         enhance(
             adapter,
             "add",
-            ({ args: [context, key, value, ttl], next }) => {
-                return next([context, key, value, ttlWithJitter(ttl)]);
+            ({ args: [key, value, ttl, context], next }) => {
+                return next([key, value, ttlWithJitter(ttl), context]);
             },
         );
         enhance(
             adapter,
             "put",
-            ({ args: [context, key, value, ttl], next }) => {
-                return next([context, key, value, ttlWithJitter(ttl)]);
+            ({ args: [key, value, ttl, context], next }) => {
+                return next([key, value, ttlWithJitter(ttl), context]);
             },
         );
         enhance(
             adapter,
             "getOrAdd",
-            ({ args: [context, key, value, ttl], next }) => {
-                return next([context, key, value, ttlWithJitter(ttl)]);
+            ({ args: [key, value, ttl, context], next }) => {
+                return next([key, value, ttlWithJitter(ttl), context]);
             },
         );
     };

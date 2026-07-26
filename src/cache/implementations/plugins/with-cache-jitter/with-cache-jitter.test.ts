@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import { type ICacheAdapter } from "@/cache/contracts/cache-adapter.contract.js";
 import { NoOpCacheAdapter } from "@/cache/implementations/adapters/_module.js";
 import { withCacheJitter } from "@/cache/implementations/plugins/with-cache-jitter/with-cache-jitter.js";
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
@@ -33,17 +34,16 @@ describe("function: withCacheJitter", () => {
             const ttl = TimeSpan.fromMinutes(1);
             const expectedMs = (1 - 0.2 * 0.5) * ttl.toMilliseconds();
 
-            await enhanced.add(context, "myKey", "value", ttl);
+            await enhanced.add("myKey", "value", ttl, context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
+            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["add"]>>(
                 "myKey",
                 "value",
                 TimeSpan.fromMilliseconds(expectedMs),
+                context,
             );
         });
-
         test("Should not apply jitter when TTL is null", async () => {
             const adapter = new NoOpCacheAdapter<string>();
             const spy = vi.spyOn(adapter, "add");
@@ -54,11 +54,12 @@ describe("function: withCacheJitter", () => {
                 withCacheJitter({ _mathRandom: mathRandom }),
             );
 
-            await enhanced.add(context, "myKey", "value", null);
+            await enhanced.add("myKey", "value", null, context);
 
-            expect(spy).toHaveBeenCalledWith(context, "myKey", "value", null);
+            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["add"]>>(
+                ...["myKey", "value", null, context],
+            );
         });
-
         test("Should use default jitter of 0.2 when not specified", async () => {
             const adapter = new NoOpCacheAdapter<string>();
             const spy = vi.spyOn(adapter, "add");
@@ -72,17 +73,16 @@ describe("function: withCacheJitter", () => {
             const ttl = TimeSpan.fromMinutes(1);
             const expectedMs = (1 - 0.2 * 0.5) * ttl.toMilliseconds();
 
-            await enhanced.add(context, "myKey", "value", ttl);
+            await enhanced.add("myKey", "value", ttl, context);
 
-            expect(spy).toHaveBeenCalledWith(
-                context,
+            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["add"]>>(
                 "myKey",
                 "value",
                 TimeSpan.fromMilliseconds(expectedMs),
+                context,
             );
         });
     });
-
     describe("method: put", () => {
         test("Should apply jitter to TTL", async () => {
             const adapter = new NoOpCacheAdapter<string>();
@@ -100,17 +100,16 @@ describe("function: withCacheJitter", () => {
             const ttl = TimeSpan.fromMinutes(1);
             const expectedMs = (1 - 0.5 * 0.3) * ttl.toMilliseconds();
 
-            await enhanced.put(context, "myKey", "value", ttl);
+            await enhanced.put("myKey", "value", ttl, context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
+            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["put"]>>(
                 "myKey",
                 "value",
                 TimeSpan.fromMilliseconds(expectedMs),
+                context,
             );
         });
-
         test("Should not apply jitter when TTL is null", async () => {
             const adapter = new NoOpCacheAdapter<string>();
             const spy = vi.spyOn(adapter, "put");
@@ -121,9 +120,14 @@ describe("function: withCacheJitter", () => {
                 withCacheJitter({ _mathRandom: mathRandom }),
             );
 
-            await enhanced.put(context, "myKey", "value", null);
+            await enhanced.put("myKey", "value", null, context);
 
-            expect(spy).toHaveBeenCalledWith(context, "myKey", "value", null);
+            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["put"]>>(
+                "myKey",
+                "value",
+                null,
+                context,
+            );
         });
     });
 });

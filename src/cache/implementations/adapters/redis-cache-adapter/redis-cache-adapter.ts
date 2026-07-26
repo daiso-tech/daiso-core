@@ -123,10 +123,10 @@ export class RedisCacheAdapter<
     }
 
     async getOrAdd(
-        _context: IReadableContext,
         key: string,
         valueToAdd: TType,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<TType> {
         const serializedValue = this.serde.serialize(valueToAdd);
         const ttlInMs = ttl?.toMilliseconds() ?? -1;
@@ -157,7 +157,7 @@ export class RedisCacheAdapter<
         });
     }
 
-    async get(_context: IReadableContext, key: string): Promise<TType | null> {
+    async get(key: string, _context: IReadableContext): Promise<TType | null> {
         const value = await this.database.get(key);
         if (value === null) {
             return null;
@@ -166,8 +166,8 @@ export class RedisCacheAdapter<
     }
 
     async getAndRemove(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<TType | null> {
         const value = await this.database.getdel(key);
         if (value === null) {
@@ -177,10 +177,10 @@ export class RedisCacheAdapter<
     }
 
     async add(
-        _context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (ttl === null) {
             const result = await this.database.set(
@@ -201,10 +201,10 @@ export class RedisCacheAdapter<
     }
 
     async put(
-        _context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (ttl === null) {
             const result = await this.database.set(
@@ -225,9 +225,9 @@ export class RedisCacheAdapter<
     }
 
     async update(
-        _context: IReadableContext,
         key: string,
         value: TType,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.set(
             key,
@@ -238,9 +238,9 @@ export class RedisCacheAdapter<
     }
 
     async increment(
-        _context: IReadableContext,
         key: string,
         value: number,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             const redisResult = await this.database.daiso_cache_increment(
@@ -260,8 +260,8 @@ export class RedisCacheAdapter<
     }
 
     async removeMany(
-        _context: IReadableContext,
         keys: Array<string>,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const deleteResult = await this.database.del(...keys);
         return deleteResult > 0;
@@ -272,8 +272,8 @@ export class RedisCacheAdapter<
     }
 
     async removeByKeyPrefix(
-        _context: IReadableContext,
         prefix: string,
+        _context: IReadableContext,
     ): Promise<void> {
         for await (const _ of new ClearIterable(this.database, prefix)) {
             /* Empty */

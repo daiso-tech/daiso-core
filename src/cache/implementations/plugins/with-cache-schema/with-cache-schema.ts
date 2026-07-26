@@ -79,33 +79,33 @@ export function withCacheSchema(
         enhance(
             adapter,
             "add",
-            async ({ args: [context, key, value, ttl], next }) => {
-                return next([context, key, await validate(schema, value), ttl]);
+            async ({ args: [key, value, ...rest], next }) => {
+                return next([key, await validate(schema, value), ...rest]);
             },
         );
         enhance(
             adapter,
             "put",
-            async ({ args: [context, key, value, ttl], next }) => {
-                return next([context, key, await validate(schema, value), ttl]);
+            async ({ args: [key, value, ...rest], next }) => {
+                return next([key, await validate(schema, value), ...rest]);
             },
         );
         enhance(
             adapter,
             "update",
-            async ({ args: [context, key, value], next }) => {
-                return next([context, key, await validate(schema, value)]);
+            async ({ args: [key, value, ...rest], next }) => {
+                return next([key, await validate(schema, value), ...rest]);
             },
         );
         enhance(
             adapter,
             "getOrAdd",
-            async ({ args: [context, key, valueToAdd, ttl], next }) => {
+            async ({ args: [key, valueToAdd, ttl, ...rest], next }) => {
                 const valueToReturn = await next([
-                    context,
                     key,
                     await validate(schema, valueToAdd),
                     ttl,
+                    ...rest,
                 ]);
                 return await validate(schema, valueToReturn);
             },

@@ -122,7 +122,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     }
 
     async get(key: string): Promise<TType | null> {
-        return await this.adapter.get(this.context, key);
+        return await this.adapter.get(key, this.context);
     }
 
     async getOrFail(key: string): Promise<TType> {
@@ -134,7 +134,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     }
 
     async getAndRemove(key: string): Promise<TType | null> {
-        return await this.adapter.getAndRemove(this.context, key);
+        return await this.adapter.getAndRemove(key, this.context);
     }
 
     async getOr(
@@ -156,10 +156,10 @@ export class Cache<TType = unknown> implements ICache<TType> {
         ttl: ITimeSpan | null = this.defaultTtl,
     ): Promise<TType> {
         return await this.adapter.getOrAdd(
-            this.context,
             key,
             valueToAdd,
             ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
+            this.context,
         );
     }
 
@@ -169,10 +169,10 @@ export class Cache<TType = unknown> implements ICache<TType> {
         ttl: ITimeSpan | null = this.defaultTtl,
     ): Promise<boolean> {
         const hasAdded = await this.adapter.add(
-            this.context,
             key,
             value,
             ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
+            this.context,
         );
 
         return hasAdded;
@@ -195,16 +195,16 @@ export class Cache<TType = unknown> implements ICache<TType> {
         ttl: ITimeSpan | null = this.defaultTtl,
     ): Promise<boolean> {
         const hasUpdated = await this.adapter.put(
-            this.context,
             key,
             value,
             ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
+            this.context,
         );
         return hasUpdated;
     }
 
     async update(key: string, value: TType): Promise<boolean> {
-        const hasUpdated = await this.adapter.update(this.context, key, value);
+        const hasUpdated = await this.adapter.update(key, value, this.context);
 
         return hasUpdated;
     }
@@ -221,9 +221,9 @@ export class Cache<TType = unknown> implements ICache<TType> {
         value = 1 as Extract<TType, number>,
     ): Promise<boolean> {
         const hasUpdated = await this.adapter.increment(
-            this.context,
             key,
             value,
+            this.context,
         );
 
         return hasUpdated;
@@ -257,7 +257,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     }
 
     async remove(key: string): Promise<boolean> {
-        const hasRemoved = await this.adapter.removeMany(this.context, [key]);
+        const hasRemoved = await this.adapter.removeMany([key], this.context);
 
         return hasRemoved;
     }
@@ -275,13 +275,13 @@ export class Cache<TType = unknown> implements ICache<TType> {
             return true;
         }
         const hasRemovedAtLeastOne = await this.adapter.removeMany(
-            this.context,
             keys,
+            this.context,
         );
         return hasRemovedAtLeastOne;
     }
 
     async clear(): Promise<void> {
-        await this.adapter.removeByKeyPrefix(this.context, "");
+        await this.adapter.removeByKeyPrefix("", this.context);
     }
 }
