@@ -24,25 +24,21 @@ export function withEventBusPrefix(prefix: string): PluginFn<IEventBusAdapter> {
         return prefix + key;
     }
     return (adapter, enhance) => {
-        enhance(
-            adapter,
-            "dispatch",
-            ({ args: [context, eventName, eventData], next }) => {
-                return next([context, withPrefix(eventName), eventData]);
-            },
-        );
+        enhance(adapter, "dispatch", ({ args: [eventName, ...rest], next }) => {
+            return next([withPrefix(eventName), ...rest]);
+        });
         enhance(
             adapter,
             "addListener",
-            ({ args: [context, eventName, listener], next }) => {
-                return next([context, withPrefix(eventName), listener]);
+            ({ args: [eventName, ...rest], next }) => {
+                return next([withPrefix(eventName), ...rest]);
             },
         );
         enhance(
             adapter,
             "removeListener",
-            ({ args: [context, eventName, listener], next }) => {
-                return next([context, withPrefix(eventName), listener]);
+            ({ args: [eventName, ...rest], next }) => {
+                return next([withPrefix(eventName), ...rest]);
             },
         );
     };
