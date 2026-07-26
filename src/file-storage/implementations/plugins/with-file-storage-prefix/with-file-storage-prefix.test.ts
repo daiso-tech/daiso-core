@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
-import { type WritableFileAdapterContent } from "@/file-storage/contracts/_module.js";
+import {
+    type ISignedFileStorageAdapter,
+    type WritableFileAdapterContent,
+} from "@/file-storage/contracts/_module.js";
 import { NoOpFileStorageAdapter } from "@/file-storage/implementations/adapters/no-op-file-storage-adapter/_module.js";
 import { withFileStoragePrefix } from "@/file-storage/implementations/plugins/with-file-storage-prefix/with-file-storage-prefix.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
@@ -16,7 +19,6 @@ describe("function: withFileStoragePrefix", () => {
     afterEach(() => {
         vi.clearAllMocks();
     });
-
     describe("method: getPublicUrl", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -24,13 +26,14 @@ describe("function: withFileStoragePrefix", () => {
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.getPublicUrl(context, "myKey");
+            await enhanced.getPublicUrl("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["getPublicUrl"]>
+            >(`${prefix}myKey`, context);
         });
     });
-
     describe("method: getSignedDownloadUrl", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -38,21 +41,30 @@ describe("function: withFileStoragePrefix", () => {
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.getSignedDownloadUrl(context, "myKey", {
-                expirationInSeconds: 3600,
-                contentType: null,
-                contentDisposition: null,
-            });
+            await enhanced.getSignedDownloadUrl(
+                "myKey",
+                {
+                    expirationInSeconds: 3600,
+                    contentType: null,
+                    contentDisposition: null,
+                },
+                context,
+            );
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`, {
-                expirationInSeconds: 3600,
-                contentType: null,
-                contentDisposition: null,
-            });
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["getSignedDownloadUrl"]>
+            >(
+                `${prefix}myKey`,
+                {
+                    expirationInSeconds: 3600,
+                    contentType: null,
+                    contentDisposition: null,
+                },
+                context,
+            );
         });
     });
-
     describe("method: getSignedUploadUrl", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -60,19 +72,28 @@ describe("function: withFileStoragePrefix", () => {
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.getSignedUploadUrl(context, "myKey", {
-                expirationInSeconds: 3600,
-                contentType: null,
-            });
+            await enhanced.getSignedUploadUrl(
+                "myKey",
+                {
+                    expirationInSeconds: 3600,
+                    contentType: null,
+                },
+                context,
+            );
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`, {
-                expirationInSeconds: 3600,
-                contentType: null,
-            });
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["getSignedUploadUrl"]>
+            >(
+                `${prefix}myKey`,
+                {
+                    expirationInSeconds: 3600,
+                    contentType: null,
+                },
+                context,
+            );
         });
     });
-
     describe("method: exists", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -80,13 +101,14 @@ describe("function: withFileStoragePrefix", () => {
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.exists(context, "myKey");
+            await enhanced.exists("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["exists"]>
+            >(`${prefix}myKey`, context);
         });
     });
-
     describe("method: getStream", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -94,13 +116,14 @@ describe("function: withFileStoragePrefix", () => {
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.getStream(context, "myKey");
+            await enhanced.getStream("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["getStream"]>
+            >(`${prefix}myKey`, context);
         });
     });
-
     describe("method: getBytes", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -108,13 +131,14 @@ describe("function: withFileStoragePrefix", () => {
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.getBytes(context, "myKey");
+            await enhanced.getBytes("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["getBytes"]>
+            >(`${prefix}myKey`, context);
         });
     });
-
     describe("method: getMetaData", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -122,13 +146,14 @@ describe("function: withFileStoragePrefix", () => {
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.getMetaData(context, "myKey");
+            await enhanced.getMetaData("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["getMetaData"]>
+            >(`${prefix}myKey`, context);
         });
     });
-
     describe("method: add", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -145,17 +170,14 @@ describe("function: withFileStoragePrefix", () => {
             };
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.add(context, "myKey", content);
+            await enhanced.add("myKey", content, context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}myKey`,
-                content,
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["add"]>
+            >(`${prefix}myKey`, content, context);
         });
     });
-
     describe("method: addStream", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -172,29 +194,38 @@ describe("function: withFileStoragePrefix", () => {
                         }),
                 }),
             };
-            await enhanced.addStream(context, "myKey", {
-                data: stream,
-                fileSizeInBytes: null,
-                contentType: "text/plain",
-                contentLanguage: null,
-                contentEncoding: null,
-                contentDisposition: null,
-                cacheControl: null,
-            });
+            await enhanced.addStream(
+                "myKey",
+                {
+                    data: stream,
+                    fileSizeInBytes: null,
+                    contentType: "text/plain",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                },
+                context,
+            );
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`, {
-                data: stream,
-                fileSizeInBytes: null,
-                contentType: "text/plain",
-                contentLanguage: null,
-                contentEncoding: null,
-                contentDisposition: null,
-                cacheControl: null,
-            });
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["addStream"]>
+            >(
+                `${prefix}myKey`,
+                {
+                    data: stream,
+                    fileSizeInBytes: null,
+                    contentType: "text/plain",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                },
+                context,
+            );
         });
     });
-
     describe("method: update", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -211,17 +242,14 @@ describe("function: withFileStoragePrefix", () => {
             };
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.update(context, "myKey", content);
+            await enhanced.update("myKey", content, context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}myKey`,
-                content,
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["update"]>
+            >(`${prefix}myKey`, content, context);
         });
     });
-
     describe("method: updateStream", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -238,29 +266,38 @@ describe("function: withFileStoragePrefix", () => {
                         }),
                 }),
             };
-            await enhanced.updateStream(context, "myKey", {
-                data: stream2,
-                fileSizeInBytes: null,
-                contentType: "text/plain",
-                contentLanguage: null,
-                contentEncoding: null,
-                contentDisposition: null,
-                cacheControl: null,
-            });
+            await enhanced.updateStream(
+                "myKey",
+                {
+                    data: stream2,
+                    fileSizeInBytes: null,
+                    contentType: "text/plain",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                },
+                context,
+            );
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`, {
-                data: stream2,
-                fileSizeInBytes: null,
-                contentType: "text/plain",
-                contentLanguage: null,
-                contentEncoding: null,
-                contentDisposition: null,
-                cacheControl: null,
-            });
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["updateStream"]>
+            >(
+                `${prefix}myKey`,
+                {
+                    data: stream2,
+                    fileSizeInBytes: null,
+                    contentType: "text/plain",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                },
+                context,
+            );
         });
     });
-
     describe("method: put", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -277,17 +314,14 @@ describe("function: withFileStoragePrefix", () => {
             };
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.put(context, "myKey", content);
+            await enhanced.put("myKey", content, context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}myKey`,
-                content,
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["put"]>
+            >(`${prefix}myKey`, content, context);
         });
     });
-
     describe("method: putStream", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -304,29 +338,38 @@ describe("function: withFileStoragePrefix", () => {
                         }),
                 }),
             };
-            await enhanced.putStream(context, "myKey", {
-                data: stream3,
-                fileSizeInBytes: null,
-                contentType: "text/plain",
-                contentLanguage: null,
-                contentEncoding: null,
-                contentDisposition: null,
-                cacheControl: null,
-            });
+            await enhanced.putStream(
+                "myKey",
+                {
+                    data: stream3,
+                    fileSizeInBytes: null,
+                    contentType: "text/plain",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                },
+                context,
+            );
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`, {
-                data: stream3,
-                fileSizeInBytes: null,
-                contentType: "text/plain",
-                contentLanguage: null,
-                contentEncoding: null,
-                contentDisposition: null,
-                cacheControl: null,
-            });
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["putStream"]>
+            >(
+                `${prefix}myKey`,
+                {
+                    data: stream3,
+                    fileSizeInBytes: null,
+                    contentType: "text/plain",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                },
+                context,
+            );
         });
     });
-
     describe("method: copy", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -334,17 +377,14 @@ describe("function: withFileStoragePrefix", () => {
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.copy(context, "sourceKey", "destKey");
+            await enhanced.copy("sourceKey", "destKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}sourceKey`,
-                "destKey",
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["copy"]>
+            >(`${prefix}sourceKey`, `${prefix}destKey`, context);
         });
     });
-
     describe("method: copyAndReplace", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -352,17 +392,14 @@ describe("function: withFileStoragePrefix", () => {
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.copyAndReplace(context, "sourceKey", "destKey");
+            await enhanced.copyAndReplace("sourceKey", "destKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}sourceKey`,
-                "destKey",
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["copyAndReplace"]>
+            >(`${prefix}sourceKey`, `${prefix}destKey`, context);
         });
     });
-
     describe("method: move", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -370,17 +407,14 @@ describe("function: withFileStoragePrefix", () => {
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.move(context, "sourceKey", "destKey");
+            await enhanced.move("sourceKey", "destKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}sourceKey`,
-                "destKey",
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["move"]>
+            >(`${prefix}sourceKey`, `${prefix}destKey`, context);
         });
     });
-
     describe("method: moveAndReplace", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -388,17 +422,14 @@ describe("function: withFileStoragePrefix", () => {
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.moveAndReplace(context, "sourceKey", "destKey");
+            await enhanced.moveAndReplace("sourceKey", "destKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                `${prefix}sourceKey`,
-                "destKey",
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["moveAndReplace"]>
+            >(`${prefix}sourceKey`, `${prefix}destKey`, context);
         });
     });
-
     describe("method: removeMany", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -406,16 +437,14 @@ describe("function: withFileStoragePrefix", () => {
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.removeMany(context, ["key1", "key2"]);
+            await enhanced.removeMany(["key1", "key2"], context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, [
-                `${prefix}key1`,
-                `${prefix}key2`,
-            ]);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["removeMany"]>
+            >([`${prefix}key1`, `${prefix}key2`], context);
         });
     });
-
     describe("method: removeByPrefix", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpFileStorageAdapter();
@@ -423,10 +452,12 @@ describe("function: withFileStoragePrefix", () => {
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.removeByPrefix(context, "myKey");
+            await enhanced.removeByPrefix("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ISignedFileStorageAdapter["removeByPrefix"]>
+            >(`${prefix}myKey`, context);
         });
     });
 });

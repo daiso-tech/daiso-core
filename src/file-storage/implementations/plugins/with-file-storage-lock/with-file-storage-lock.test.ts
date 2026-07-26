@@ -36,7 +36,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.getPublicUrl(context, "myKey");
+                await enhanced.getPublicUrl("myKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -55,7 +55,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                const result = await enhanced.getPublicUrl(context, "myKey");
+                const result = await enhanced.getPublicUrl("myKey", context);
 
                 expect(result).toBe("https://example.com/file");
             });
@@ -74,7 +74,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.exists(context, "myKey");
+                await enhanced.exists("myKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -95,7 +95,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.getStream(context, "myKey");
+                await enhanced.getStream("myKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -116,7 +116,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.getBytes(context, "myKey");
+                await enhanced.getBytes("myKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -137,7 +137,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.getMetaData(context, "myKey");
+                await enhanced.getMetaData("myKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -158,11 +158,15 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.getSignedDownloadUrl(context, "myKey", {
-                    expirationInSeconds: 3600,
-                    contentType: null,
-                    contentDisposition: null,
-                });
+                await enhanced.getSignedDownloadUrl(
+                    "myKey",
+                    {
+                        expirationInSeconds: 3600,
+                        contentType: null,
+                        contentDisposition: null,
+                    },
+                    context,
+                );
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -183,10 +187,14 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.getSignedUploadUrl(context, "myKey", {
-                    expirationInSeconds: 3600,
-                    contentType: null,
-                });
+                await enhanced.getSignedUploadUrl(
+                    "myKey",
+                    {
+                        expirationInSeconds: 3600,
+                        contentType: null,
+                    },
+                    context,
+                );
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -209,15 +217,19 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.add(context, "myKey", {
-                    data: new Uint8Array(),
-                    fileSizeInBytes: 0,
-                    contentType: "application/octet-stream",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                });
+                await enhanced.add(
+                    "myKey",
+                    {
+                        data: new Uint8Array(),
+                        fileSizeInBytes: 0,
+                        contentType: "application/octet-stream",
+                        contentLanguage: null,
+                        contentEncoding: null,
+                        contentDisposition: null,
+                        cacheControl: null,
+                    },
+                    context,
+                );
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -238,15 +250,19 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.addStream(context, "myKey", {
-                    data: (async function* () {})() as unknown as ReadableStream,
-                    fileSizeInBytes: null,
-                    contentType: "application/octet-stream",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                });
+                await enhanced.addStream(
+                    "myKey",
+                    {
+                        data: (async function* () {})() as unknown as ReadableStream,
+                        fileSizeInBytes: null,
+                        contentType: "application/octet-stream",
+                        contentLanguage: null,
+                        contentEncoding: null,
+                        contentDisposition: null,
+                        cacheControl: null,
+                    },
+                    context,
+                );
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -267,15 +283,19 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.update(context, "myKey", {
-                    data: new Uint8Array(),
-                    fileSizeInBytes: 0,
-                    contentType: "application/octet-stream",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                });
+                await enhanced.update(
+                    "myKey",
+                    {
+                        data: new Uint8Array(),
+                        fileSizeInBytes: 0,
+                        contentType: "application/octet-stream",
+                        contentLanguage: null,
+                        contentEncoding: null,
+                        contentDisposition: null,
+                        cacheControl: null,
+                    },
+                    context,
+                );
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -296,15 +316,19 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.updateStream(context, "myKey", {
-                    data: (async function* () {})() as unknown as ReadableStream,
-                    fileSizeInBytes: null,
-                    contentType: "application/octet-stream",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                });
+                await enhanced.updateStream(
+                    "myKey",
+                    {
+                        data: (async function* () {})() as unknown as ReadableStream,
+                        fileSizeInBytes: null,
+                        contentType: "application/octet-stream",
+                        contentLanguage: null,
+                        contentEncoding: null,
+                        contentDisposition: null,
+                        cacheControl: null,
+                    },
+                    context,
+                );
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -325,15 +349,19 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.put(context, "myKey", {
-                    data: new Uint8Array(),
-                    fileSizeInBytes: 0,
-                    contentType: "application/octet-stream",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                });
+                await enhanced.put(
+                    "myKey",
+                    {
+                        data: new Uint8Array(),
+                        fileSizeInBytes: 0,
+                        contentType: "application/octet-stream",
+                        contentLanguage: null,
+                        contentEncoding: null,
+                        contentDisposition: null,
+                        cacheControl: null,
+                    },
+                    context,
+                );
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -354,15 +382,19 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.putStream(context, "myKey", {
-                    data: (async function* () {})() as unknown as ReadableStream,
-                    fileSizeInBytes: null,
-                    contentType: "application/octet-stream",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                });
+                await enhanced.putStream(
+                    "myKey",
+                    {
+                        data: (async function* () {})() as unknown as ReadableStream,
+                        fileSizeInBytes: null,
+                        contentType: "application/octet-stream",
+                        contentLanguage: null,
+                        contentEncoding: null,
+                        contentDisposition: null,
+                        cacheControl: null,
+                    },
+                    context,
+                );
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -385,7 +417,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.copy(context, "sourceKey", "destKey");
+                await enhanced.copy("sourceKey", "destKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("sourceKey");
@@ -406,7 +438,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.copyAndReplace(context, "sourceKey", "destKey");
+                await enhanced.copyAndReplace("sourceKey", "destKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("sourceKey");
@@ -427,7 +459,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.move(context, "sourceKey", "destKey");
+                await enhanced.move("sourceKey", "destKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("sourceKey");
@@ -448,7 +480,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.moveAndReplace(context, "sourceKey", "destKey");
+                await enhanced.moveAndReplace("sourceKey", "destKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("sourceKey");
@@ -470,7 +502,7 @@ describe("function: withFileStorageLock", () => {
                 withFileStorageLock({ lockFactory }),
             );
 
-            await enhanced.removeMany(context, ["key1", "key2", "key3"]);
+            await enhanced.removeMany(["key1", "key2", "key3"], context);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("key1");
@@ -491,12 +523,10 @@ describe("function: withFileStorageLock", () => {
                 withFileStorageLock({ lockFactory }),
             );
 
-            await enhanced.removeMany(context, [
-                "key1",
-                "key2",
-                "key1",
-                "key3",
-            ]);
+            await enhanced.removeMany(
+                ["key1", "key2", "key1", "key3"],
+                context,
+            );
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledTimes(3);
@@ -516,7 +546,7 @@ describe("function: withFileStorageLock", () => {
                 withFileStorageLock({ lockFactory }),
             );
 
-            const result = await enhanced.removeMany(context, ["key1", "key2"]);
+            const result = await enhanced.removeMany(["key1", "key2"], context);
 
             expect(result).toBe(true);
         });
@@ -538,12 +568,12 @@ describe("function: withFileStorageLock", () => {
                 }),
             );
 
-            await enhanced.exists(context, "myKey");
+            await enhanced.exists("myKey", context);
             expect(createSpy).toHaveBeenCalledWith("myKey");
             expect(runSpy).toHaveBeenCalledTimes(1);
 
             vi.clearAllMocks();
-            await enhanced.getBytes(context, "myKey");
+            await enhanced.getBytes("myKey", context);
             expect(createSpy).not.toHaveBeenCalled();
             expect(runSpy).not.toHaveBeenCalled();
             expect(existsSpy).not.toHaveBeenCalled();

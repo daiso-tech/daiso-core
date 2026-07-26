@@ -29,98 +29,86 @@ export function withFileStoragePrefix(
         return prefix + key;
     }
     return (adapter, enhance) => {
-        enhance(
-            adapter,
-            "getPublicUrl",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
-            },
-        );
+        enhance(adapter, "getPublicUrl", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
         enhance(
             adapter,
             "getSignedDownloadUrl",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
+            ({ args: [key, ...rest], next }) => {
+                return next([withPrefix(key), ...rest]);
             },
         );
         enhance(
             adapter,
             "getSignedUploadUrl",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
+            ({ args: [key, ...rest], next }) => {
+                return next([withPrefix(key), ...rest]);
             },
         );
-        enhance(adapter, "exists", ({ args: [context, key], next }) => {
-            return next([context, withPrefix(key)]);
+        enhance(adapter, "exists", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
         });
-        enhance(adapter, "getStream", ({ args: [context, key], next }) => {
-            return next([context, withPrefix(key)]);
+        enhance(adapter, "getStream", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
         });
-        enhance(adapter, "getBytes", ({ args: [context, key], next }) => {
-            return next([context, withPrefix(key)]);
+        enhance(adapter, "getBytes", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
         });
-        enhance(adapter, "getMetaData", ({ args: [context, key], next }) => {
-            return next([context, withPrefix(key)]);
+        enhance(adapter, "getMetaData", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
         });
-        enhance(adapter, "add", ({ args: [context, key, ...rest], next }) => {
-            return next([context, withPrefix(key), ...rest]);
+        enhance(adapter, "add", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
+        enhance(adapter, "addStream", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
+        enhance(adapter, "update", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
+        enhance(adapter, "updateStream", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
+        enhance(adapter, "put", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
+        enhance(adapter, "putStream", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
         });
         enhance(
             adapter,
-            "addStream",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
+            "copy",
+            ({ args: [srcKey, destKey, ...rest], next }) => {
+                return next([withPrefix(srcKey), withPrefix(destKey), ...rest]);
             },
         );
-        enhance(
-            adapter,
-            "update",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
-            },
-        );
-        enhance(
-            adapter,
-            "updateStream",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
-            },
-        );
-        enhance(adapter, "put", ({ args: [context, key, ...rest], next }) => {
-            return next([context, withPrefix(key), ...rest]);
-        });
-        enhance(
-            adapter,
-            "putStream",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
-            },
-        );
-        enhance(adapter, "copy", ({ args: [context, key, ...rest], next }) => {
-            return next([context, withPrefix(key), ...rest]);
-        });
         enhance(
             adapter,
             "copyAndReplace",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
+            ({ args: [srcKey, destKey, ...rest], next }) => {
+                return next([withPrefix(srcKey), withPrefix(destKey), ...rest]);
             },
         );
-        enhance(adapter, "move", ({ args: [context, key, ...rest], next }) => {
-            return next([context, withPrefix(key), ...rest]);
-        });
+        enhance(
+            adapter,
+            "move",
+            ({ args: [srcKey, destKey, ...rest], next }) => {
+                return next([withPrefix(srcKey), withPrefix(destKey), ...rest]);
+            },
+        );
         enhance(
             adapter,
             "moveAndReplace",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
+            ({ args: [srcKey, destKey, ...rest], next }) => {
+                return next([withPrefix(srcKey), withPrefix(destKey), ...rest]);
             },
         );
-        enhance(adapter, "removeMany", ({ args: [context, keys], next }) => {
-            return next([context, keys.map(withPrefix)]);
+        enhance(adapter, "removeMany", ({ args: [keys, ...rest], next }) => {
+            return next([keys.map(withPrefix), ...rest]);
         });
-        enhance(adapter, "removeByPrefix", ({ args: [context, key], next }) => {
-            return next([context, withPrefix(key)]);
+        enhance(adapter, "removeByPrefix", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
         });
     };
 }
