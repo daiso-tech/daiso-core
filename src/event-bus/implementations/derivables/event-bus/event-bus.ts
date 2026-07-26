@@ -139,9 +139,9 @@ export class EventBus<
         );
         try {
             await this.adapter.addListener(
-                this.context,
                 eventName,
                 resolvedListener as EventListenerFn<BaseEvent>,
+                this.context,
             );
         } catch (error: unknown) {
             this.store.getAndRemove(eventName, listener);
@@ -171,9 +171,9 @@ export class EventBus<
         }
         try {
             await this.adapter.removeListener(
-                this.context,
                 eventName,
                 resolvedListener as EventListenerFn<BaseEvent>,
+                this.context,
             );
         } catch (error: unknown) {
             this.store.getOrAdd(eventName, listener, resolvedListener);
@@ -217,9 +217,9 @@ export class EventBus<
         );
         try {
             await this.adapter.addListener(
-                this.context,
                 eventName,
                 resolvedListener as EventListenerFn<BaseEvent>,
+                this.context,
             );
         } catch (error: unknown) {
             this.store.getAndRemove(eventName, listener);
@@ -282,6 +282,6 @@ export class EventBus<
         if (typeof eventName !== "string") {
             throw new TypeError("!!__MESSAGE__!!");
         }
-        await this.adapter.dispatch(this.context, eventName, event);
+        await this.adapter.dispatch(eventName, event, this.context);
     }
 }
