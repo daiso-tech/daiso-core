@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
-import { type ILockAdapter } from "@/lock/contracts/lock-adapter.contract.js";
+import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
+import { type ILockAdapter } from "@/lock/contracts/_module.js";
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
 import { withLockPrefix } from "@/lock/implementations/plugins/with-lock-prefix/with-lock-prefix.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
@@ -10,7 +10,7 @@ import { withPluginFactory } from "@/middleware/implementations/with-plugin-fact
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withLockPrefix", () => {
-    const context = new Context(new Map());
+    const noOpContext = new NoOpContext();
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
@@ -29,13 +29,18 @@ describe("function: withLockPrefix", () => {
                 "myKey",
                 "lockId",
                 TimeSpan.fromSeconds(30),
-                context,
+                noOpContext,
             );
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ILockAdapter["acquire"]>
-            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
+            >(
+                `${prefix}myKey`,
+                "lockId",
+                TimeSpan.fromSeconds(30),
+                noOpContext,
+            );
         });
     });
 
@@ -46,12 +51,12 @@ describe("function: withLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
 
-            await enhanced.forceRelease("myKey", context);
+            await enhanced.forceRelease("myKey", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ILockAdapter["forceRelease"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`, noOpContext);
         });
     });
 
@@ -62,12 +67,12 @@ describe("function: withLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
 
-            await enhanced.getState("myKey", context);
+            await enhanced.getState("myKey", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ILockAdapter["getState"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`, noOpContext);
         });
     });
 
@@ -82,13 +87,18 @@ describe("function: withLockPrefix", () => {
                 "myKey",
                 "lockId",
                 TimeSpan.fromSeconds(30),
-                context,
+                noOpContext,
             );
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ILockAdapter["refresh"]>
-            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
+            >(
+                `${prefix}myKey`,
+                "lockId",
+                TimeSpan.fromSeconds(30),
+                noOpContext,
+            );
         });
     });
 
@@ -99,12 +109,12 @@ describe("function: withLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
 
-            await enhanced.release("myKey", "lockId", context);
+            await enhanced.release("myKey", "lockId", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ILockAdapter["release"]>
-            >(`${prefix}myKey`, "lockId", context);
+            >(`${prefix}myKey`, "lockId", noOpContext);
         });
     });
 });
