@@ -81,32 +81,32 @@ describe("mysql class: KyselyRateLimiterStorageAdapter", () => {
             });
             await adapter.init();
 
-            await adapter.transaction(noOpContext, async (trx) => {
+            await adapter.transaction(async (trx) => {
                 await trx.upsert(
-                    noOpContext,
                     "a",
                     "owner",
                     TimeSpan.fromMilliseconds(50).toStartDate(),
+                    noOpContext,
                 );
                 await trx.upsert(
-                    noOpContext,
                     "b",
                     "owner",
                     TimeSpan.fromMilliseconds(50).toStartDate(),
+                    noOpContext,
                 );
                 await trx.upsert(
-                    noOpContext,
                     "c",
                     "owner",
                     TimeSpan.fromMilliseconds(50).toEndDate(),
+                    noOpContext,
                 );
-            });
+            }, noOpContext);
 
             await adapter.removeAllExpired();
 
-            expect(await adapter.find(noOpContext, "a")).toBeNull();
-            expect(await adapter.find(noOpContext, "b")).toBeNull();
-            expect(await adapter.find(noOpContext, "c")).not.toBeNull();
+            expect(await adapter.find("a", noOpContext)).toBeNull();
+            expect(await adapter.find("b", noOpContext)).toBeNull();
+            expect(await adapter.find("c", noOpContext)).not.toBeNull();
         });
     });
     describe("method: init", () => {
