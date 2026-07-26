@@ -4,6 +4,7 @@ import { Context } from "@/execution-context/implementations/derivables/executio
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
+import { type IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
 import { NoOpRateLimiterAdapter } from "@/rate-limiter/implementations/adapters/_module.js";
 import { withRateLimiterPrefix } from "@/rate-limiter/implementations/plugins/with-rate-limiter-prefix/with-rate-limiter-prefix.js";
 
@@ -23,13 +24,14 @@ describe("function: withRateLimiterPrefix", () => {
 
             const enhanced = withPlugin(adapter, withRateLimiterPrefix(prefix));
 
-            await enhanced.getState(context, "myKey");
+            await enhanced.getState("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<IRateLimiterAdapter["getState"]>
+            >(`${prefix}myKey`, context);
         });
     });
-
     describe("method: reset", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpRateLimiterAdapter();
@@ -37,13 +39,14 @@ describe("function: withRateLimiterPrefix", () => {
 
             const enhanced = withPlugin(adapter, withRateLimiterPrefix(prefix));
 
-            await enhanced.reset(context, "myKey");
+            await enhanced.reset("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<IRateLimiterAdapter["reset"]>
+            >(`${prefix}myKey`, context);
         });
     });
-
     describe("method: updateState", () => {
         test("Should prefix the key", async () => {
             const adapter = new NoOpRateLimiterAdapter();
@@ -51,10 +54,12 @@ describe("function: withRateLimiterPrefix", () => {
 
             const enhanced = withPlugin(adapter, withRateLimiterPrefix(prefix));
 
-            await enhanced.updateState(context, "myKey", 10);
+            await enhanced.updateState("myKey", 10, context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, `${prefix}myKey`, 10);
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<IRateLimiterAdapter["updateState"]>
+            >(`${prefix}myKey`, 10, context);
         });
     });
 });
