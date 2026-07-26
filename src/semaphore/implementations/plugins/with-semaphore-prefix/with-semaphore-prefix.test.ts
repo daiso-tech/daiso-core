@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
+import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
@@ -10,7 +10,7 @@ import { withSemaphorePrefix } from "@/semaphore/implementations/plugins/with-se
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withSemaphorePrefix", () => {
-    const context = new Context(new Map());
+    const noOpContext = new NoOpContext();
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
@@ -26,7 +26,7 @@ describe("function: withSemaphorePrefix", () => {
             const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
 
             await enhanced.acquire({
-                context,
+                context: noOpContext,
                 key: "myKey",
                 slotId: "slot1",
                 limit: 5,
@@ -37,7 +37,7 @@ describe("function: withSemaphorePrefix", () => {
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ISemaphoreAdapter["acquire"]>
             >({
-                context,
+                context: noOpContext,
                 key: `${prefix}myKey`,
                 slotId: "slot1",
                 limit: 5,
@@ -53,12 +53,12 @@ describe("function: withSemaphorePrefix", () => {
 
             const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
 
-            await enhanced.forceReleaseAll("myKey", context);
+            await enhanced.forceReleaseAll("myKey", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ISemaphoreAdapter["forceReleaseAll"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`, noOpContext);
         });
     });
 
@@ -69,12 +69,12 @@ describe("function: withSemaphorePrefix", () => {
 
             const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
 
-            await enhanced.getState("myKey", context);
+            await enhanced.getState("myKey", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ISemaphoreAdapter["getState"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`, noOpContext);
         });
     });
 
@@ -89,13 +89,13 @@ describe("function: withSemaphorePrefix", () => {
                 "myKey",
                 "slot1",
                 TimeSpan.fromSeconds(30),
-                context,
+                noOpContext,
             );
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ISemaphoreAdapter["refresh"]>
-            >(`${prefix}myKey`, "slot1", TimeSpan.fromSeconds(30), context);
+            >(`${prefix}myKey`, "slot1", TimeSpan.fromSeconds(30), noOpContext);
         });
     });
 
@@ -106,12 +106,12 @@ describe("function: withSemaphorePrefix", () => {
 
             const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
 
-            await enhanced.release("myKey", "slot1", context);
+            await enhanced.release("myKey", "slot1", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ISemaphoreAdapter["release"]>
-            >(`${prefix}myKey`, "slot1", context);
+            >(`${prefix}myKey`, "slot1", noOpContext);
         });
     });
 });
