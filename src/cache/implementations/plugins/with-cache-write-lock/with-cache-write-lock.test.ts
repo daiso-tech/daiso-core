@@ -38,10 +38,10 @@ describe("function: withCacheWriteLock", () => {
 
             console.log("1.");
             await enhanced.add(
-                context,
                 "myKey",
                 "value",
                 TimeSpan.fromMinutes(5),
+                context,
             );
             console.log("2.");
 
@@ -65,10 +65,10 @@ describe("function: withCacheWriteLock", () => {
             );
 
             await enhanced.put(
-                context,
                 "myKey",
                 "value",
                 TimeSpan.fromMinutes(5),
+                context,
             );
 
             expect(spy).toHaveBeenCalledOnce();
@@ -90,7 +90,7 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.update(context, "myKey", "newValue");
+            await enhanced.update("myKey", "newValue", context);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -111,7 +111,7 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.increment(context, "myKey", 5);
+            await enhanced.increment("myKey", 5, context);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -132,7 +132,7 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.getAndRemove(context, "myKey");
+            await enhanced.getAndRemove("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -149,7 +149,7 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            const result = await enhanced.getAndRemove(context, "myKey");
+            const result = await enhanced.getAndRemove("myKey", context);
 
             expect(result).toBe("storedValue");
         });
@@ -168,7 +168,7 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.removeMany(context, ["key1", "key2", "key3"]);
+            await enhanced.removeMany(["key1", "key2", "key3"], context);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("key1");
@@ -189,12 +189,10 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.removeMany(context, [
-                "key1",
-                "key2",
-                "key1",
-                "key3",
-            ]);
+            await enhanced.removeMany(
+                ["key1", "key2", "key1", "key3"],
+                context,
+            );
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledTimes(3);
@@ -214,7 +212,7 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            const result = await enhanced.removeMany(context, ["key1", "key2"]);
+            const result = await enhanced.removeMany(["key1", "key2"], context);
 
             expect(result).toBe(true);
         });
@@ -237,16 +235,16 @@ describe("function: withCacheWriteLock", () => {
             );
 
             await enhanced.add(
-                context,
                 "myKey",
                 "value",
                 TimeSpan.fromMinutes(5),
+                context,
             );
             expect(createSpy).toHaveBeenCalledWith("myKey");
             expect(runSpy).toHaveBeenCalledTimes(1);
 
             vi.clearAllMocks();
-            await enhanced.get(context, "myKey");
+            await enhanced.get("myKey", context);
             expect(createSpy).not.toHaveBeenCalled();
             expect(runSpy).not.toHaveBeenCalled();
             expect(getSpy).toHaveBeenCalledOnce();
