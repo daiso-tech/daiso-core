@@ -29,19 +29,19 @@ describe("class: MemorySharedLockAdapter", () => {
     });
     describe("method: deInit", () => {
         test("Should clear map", async () => {
-            await adapter.acquireWriter(noOpContext, "a", "1", null);
+            await adapter.acquireWriter("a", "1", null, noOpContext);
             await adapter.acquireWriter(
-                noOpContext,
                 "a",
                 "2",
                 TimeSpan.fromMilliseconds(100),
-            );
-            await adapter.acquireWriter(noOpContext, "b", "1", null);
-            await adapter.acquireWriter(
                 noOpContext,
+            );
+            await adapter.acquireWriter("b", "1", null, noOpContext);
+            await adapter.acquireWriter(
                 "b",
                 "2",
                 TimeSpan.fromMilliseconds(100),
+                noOpContext,
             );
 
             await adapter.acquireReader({
