@@ -218,7 +218,7 @@ export class KyselyCacheAdapter<TType = unknown>
         return trxFn(this.kysely);
     }
 
-    async get(_context: IReadableContext, key: string): Promise<TType | null> {
+    async get(key: string, _context: IReadableContext): Promise<TType | null> {
         const row = await this.kysely
             .selectFrom("cache")
             .where("cache.key", "=", key)
@@ -237,8 +237,8 @@ export class KyselyCacheAdapter<TType = unknown>
     }
 
     async getAndRemove(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<TType | null> {
         if (this.isMysql) {
             return await this._transaction(_context, async (trx) => {
@@ -286,10 +286,10 @@ export class KyselyCacheAdapter<TType = unknown>
     }
 
     async add(
-        _context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return await this._transaction(_context, async (trx) => {
             const existing = await trx
@@ -336,10 +336,10 @@ export class KyselyCacheAdapter<TType = unknown>
     }
 
     async getOrAdd(
-        _context: IReadableContext,
         key: string,
         valueToAdd: TType,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<TType> {
         return await this._transaction(_context, async (trx) => {
             const existing = await trx
@@ -386,10 +386,10 @@ export class KyselyCacheAdapter<TType = unknown>
     }
 
     async put(
-        _context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return await this._transaction(_context, async (trx) => {
             const existing = await trx
@@ -435,9 +435,9 @@ export class KyselyCacheAdapter<TType = unknown>
     }
 
     async update(
-        _context: IReadableContext,
         key: string,
         value: TType,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const serializedValue = this.serde.serialize(value);
         const result = await this.kysely
@@ -456,9 +456,9 @@ export class KyselyCacheAdapter<TType = unknown>
     }
 
     async increment(
-        _context: IReadableContext,
         key: string,
         value: number,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return await this._transaction(_context, async (trx) => {
             const existing = await trx
@@ -498,8 +498,8 @@ export class KyselyCacheAdapter<TType = unknown>
     }
 
     async removeMany(
-        _context: IReadableContext,
         keys: Array<string>,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (keys.length === 0) {
             return false;
@@ -518,8 +518,8 @@ export class KyselyCacheAdapter<TType = unknown>
     }
 
     async removeByKeyPrefix(
-        _context: IReadableContext,
         prefix: string,
+        _context: IReadableContext,
     ): Promise<void> {
         await this.kysely
             .deleteFrom("cache")
