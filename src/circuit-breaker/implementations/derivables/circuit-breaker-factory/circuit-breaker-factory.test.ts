@@ -26,27 +26,27 @@ import { delay } from "@/utilities/_module.js";
 describe("class: CircuitBreakerFactory", () => {
     const adapter: ICircuitBreakerAdapter = {
         getState(
-            _context: IReadableContext,
             _key: string,
+            _context: IReadableContext,
         ): Promise<CircuitBreakerState> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
         updateState(
-            _context: IReadableContext,
             _key: string,
+            _context: IReadableContext,
         ): Promise<CircuitBreakerStateTransition> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        isolate(_context: IReadableContext, _key: string): Promise<void> {
+        isolate(_key: string, _context: IReadableContext): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        trackFailure(_context: IReadableContext, _key: string): Promise<void> {
+        trackFailure(_key: string, _context: IReadableContext): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        trackSuccess(_context: IReadableContext, _key: string): Promise<void> {
+        trackSuccess(_key: string, _context: IReadableContext): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        reset(_context: IReadableContext, _key: string): Promise<void> {
+        reset(_key: string, _context: IReadableContext): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
     };
@@ -557,34 +557,34 @@ describe("class: CircuitBreakerFactory", () => {
                 ) {}
 
                 getState(
-                    context: IReadableContext,
                     key: string,
+                    context: IReadableContext,
                 ): Promise<CircuitBreakerState> {
-                    return this.adapter_.getState(context, key);
+                    return this.adapter_.getState(key, context);
                 }
                 updateState(
-                    context: IReadableContext,
                     key: string,
+                    context: IReadableContext,
                 ): Promise<CircuitBreakerStateTransition> {
-                    return this.adapter_.updateState(context, key);
+                    return this.adapter_.updateState(key, context);
                 }
-                isolate(context: IReadableContext, key: string): Promise<void> {
-                    return this.adapter_.isolate(context, key);
+                isolate(key: string, context: IReadableContext): Promise<void> {
+                    return this.adapter_.isolate(key, context);
                 }
                 trackFailure(
-                    context: IReadableContext,
                     key: string,
+                    context: IReadableContext,
                 ): Promise<void> {
-                    return this.adapter_.trackFailure(context, key);
+                    return this.adapter_.trackFailure(key, context);
                 }
                 trackSuccess(
-                    context: IReadableContext,
                     key: string,
+                    context: IReadableContext,
                 ): Promise<void> {
-                    return this.adapter_.trackSuccess(context, key);
+                    return this.adapter_.trackSuccess(key, context);
                 }
-                reset(context: IReadableContext, key: string): Promise<void> {
-                    return this.adapter_.reset(context, key);
+                reset(key: string, context: IReadableContext): Promise<void> {
+                    return this.adapter_.reset(key, context);
                 }
             }
 
