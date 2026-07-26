@@ -62,13 +62,13 @@ export class MemoryFileStorageAdapter
         return Promise.resolve();
     }
 
-    exists(_context: IReadableContext, key: string): Promise<boolean> {
+    exists(key: string, _context: IReadableContext): Promise<boolean> {
         return Promise.resolve(this.map.has(key));
     }
 
     getStream(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<FileAdapterStream | null> {
         const file = this.map.get(key);
         if (file === undefined) {
@@ -82,8 +82,8 @@ export class MemoryFileStorageAdapter
     }
 
     getBytes(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<Uint8Array | null> {
         const file = this.map.get(key);
         if (file === undefined) {
@@ -93,8 +93,8 @@ export class MemoryFileStorageAdapter
     }
 
     getMetaData(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<FileAdapterMetadata | null> {
         const file = this.map.get(key);
         if (file === undefined) {
@@ -111,9 +111,9 @@ export class MemoryFileStorageAdapter
     }
 
     add(
-        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (this.map.has(key)) {
             return Promise.resolve(false);
@@ -133,9 +133,9 @@ export class MemoryFileStorageAdapter
     }
 
     async addStream(
-        _context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (this.map.has(key)) {
             return Promise.resolve(false);
@@ -156,9 +156,9 @@ export class MemoryFileStorageAdapter
     }
 
     update(
-        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        _context: IReadableContext,
     ): Promise<boolean> {
         let file = this.map.get(key);
         if (file === undefined) {
@@ -181,9 +181,9 @@ export class MemoryFileStorageAdapter
     }
 
     async updateStream(
-        _context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        _context: IReadableContext,
     ): Promise<boolean> {
         let file = this.map.get(key);
         if (file === undefined) {
@@ -206,9 +206,9 @@ export class MemoryFileStorageAdapter
     }
 
     put(
-        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const contentData = Buffer.from(content.data);
         const copiedBuffer = Buffer.alloc(contentData.byteLength);
@@ -226,9 +226,9 @@ export class MemoryFileStorageAdapter
     }
 
     async putStream(
-        _context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        _context: IReadableContext,
     ): Promise<boolean> {
         let totalData = Buffer.from([]);
         for await (const chunk of stream.data) {
@@ -247,9 +247,9 @@ export class MemoryFileStorageAdapter
     }
 
     private _copy(
-        _context: IReadableContext,
         source: string,
         destination: string,
+        _context: IReadableContext,
     ): Promise<FileWriteEnum> {
         const sourceFile = this.map.get(source);
         if (sourceFile === undefined) {
@@ -268,17 +268,17 @@ export class MemoryFileStorageAdapter
     }
 
     copy(
-        context: IReadableContext,
         source: string,
         destination: string,
+        context: IReadableContext,
     ): Promise<FileWriteEnum> {
-        return this._copy(context, source, destination);
+        return this._copy(source, destination, context);
     }
 
     private _copyAndReplace(
-        _context: IReadableContext,
         source: string,
         destination: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const sourceFile = this.map.get(source);
         if (sourceFile === undefined) {
@@ -294,16 +294,16 @@ export class MemoryFileStorageAdapter
     }
 
     copyAndReplace(
-        context: IReadableContext,
         source: string,
         destination: string,
+        context: IReadableContext,
     ): Promise<boolean> {
-        return this._copyAndReplace(context, source, destination);
+        return this._copyAndReplace(source, destination, context);
     }
 
     private _removeMany(
-        _context: IReadableContext,
         keys: Array<string>,
+        _context: IReadableContext,
     ): Promise<boolean> {
         let hasDeleted = false;
         for (const key of keys) {
@@ -316,41 +316,41 @@ export class MemoryFileStorageAdapter
     }
 
     async move(
-        context: IReadableContext,
         source: string,
         destination: string,
+        context: IReadableContext,
     ): Promise<FileWriteEnum> {
-        const result = await this._copy(context, source, destination);
+        const result = await this._copy(source, destination, context);
         if (result === FILE_WRITE_ENUM.SUCCESS) {
-            await this._removeMany(context, [source]);
+            await this._removeMany([source], context);
         }
         return result;
     }
 
     async moveAndReplace(
-        context: IReadableContext,
         source: string,
         destination: string,
+        context: IReadableContext,
     ): Promise<boolean> {
         const hasMoved = await this._copyAndReplace(
-            context,
             source,
             destination,
+            context,
         );
         if (hasMoved) {
-            await this._removeMany(context, [source]);
+            await this._removeMany([source], context);
         }
         return hasMoved;
     }
 
     removeMany(
-        context: IReadableContext,
         keys: Array<string>,
+        context: IReadableContext,
     ): Promise<boolean> {
-        return this._removeMany(context, keys);
+        return this._removeMany(keys, context);
     }
 
-    removeByPrefix(_context: IReadableContext, prefix: string): Promise<void> {
+    removeByPrefix(prefix: string, _context: IReadableContext): Promise<void> {
         for (const [key] of this.map) {
             if (!key.startsWith(prefix)) {
                 continue;

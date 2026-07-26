@@ -18,42 +18,42 @@ export class MergedFileUrlAdapter implements IFileUrlAdapter {
     constructor(private readonly adapter: Partial<IFileUrlAdapter>) {}
 
     async getPublicUrl(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<string | null> {
         if (this.adapter.getPublicUrl === undefined) {
-            return this.noOpUrlAdapter.getPublicUrl(context, key);
+            return this.noOpUrlAdapter.getPublicUrl(key, context);
         }
-        return this.adapter.getPublicUrl(context, key);
+        return this.adapter.getPublicUrl(key, context);
     }
 
     async getSignedDownloadUrl(
-        context: IReadableContext,
         key: string,
         settings: FileAdapterSignedDownloadUrlSettings,
+        context: IReadableContext,
     ): Promise<string | null> {
         if (this.adapter.getSignedDownloadUrl === undefined) {
             return this.noOpUrlAdapter.getSignedDownloadUrl(
-                context,
                 key,
                 settings,
+                context,
             );
         }
-        return this.adapter.getSignedDownloadUrl(context, key, settings);
+        return this.adapter.getSignedDownloadUrl(key, settings, context);
     }
 
     async getSignedUploadUrl(
-        context: IReadableContext,
         key: string,
         settings: FileAdapterSignedUploadUrlSettings,
+        context: IReadableContext,
     ): Promise<string> {
         if (this.adapter.getSignedUploadUrl === undefined) {
             return this.noOpUrlAdapter.getSignedUploadUrl(
-                context,
                 key,
                 settings,
+                context,
             );
         }
-        return this.adapter.getSignedUploadUrl(context, key, settings);
+        return this.adapter.getSignedUploadUrl(key, settings, context);
     }
 }

@@ -145,14 +145,14 @@ export class FsFileStorageAdapter
         return join(this.location, this.codec.encode(key));
     }
 
-    async exists(_context: IReadableContext, key: string): Promise<boolean> {
+    async exists(key: string, _context: IReadableContext): Promise<boolean> {
         const normalizeKey = this.normalizeKey(key);
         return FsFileStorageAdapter.isFileFound(normalizeKey);
     }
 
     async getStream(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<FileAdapterStream | null> {
         const normalizeKey = this.normalizeKey(key);
         if (!(await FsFileStorageAdapter.isFileFound(normalizeKey))) {
@@ -162,8 +162,8 @@ export class FsFileStorageAdapter
     }
 
     async getBytes(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<Uint8Array | null> {
         try {
             const normalizeKey = this.normalizeKey(key);
@@ -178,8 +178,8 @@ export class FsFileStorageAdapter
     }
 
     async getMetaData(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<FileAdapterMetadata | null> {
         try {
             const normalizeKey = this.normalizeKey(key);
@@ -203,9 +203,9 @@ export class FsFileStorageAdapter
     }
 
     async add(
-        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             const normalizeKey = this.normalizeKey(key);
@@ -222,9 +222,9 @@ export class FsFileStorageAdapter
     }
 
     async addStream(
-        _context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             const normalizeKey = this.normalizeKey(key);
@@ -242,9 +242,9 @@ export class FsFileStorageAdapter
     }
 
     async update(
-        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             const normalizeKey = this.normalizeKey(key);
@@ -262,9 +262,9 @@ export class FsFileStorageAdapter
     }
 
     async updateStream(
-        _context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             const normalizeKey = this.normalizeKey(key);
@@ -282,9 +282,9 @@ export class FsFileStorageAdapter
     }
 
     async put(
-        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const normalizeKey = this.normalizeKey(key);
         const isFound = await FsFileStorageAdapter.isFileFound(normalizeKey);
@@ -293,9 +293,9 @@ export class FsFileStorageAdapter
     }
 
     async putStream(
-        _context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const normalizeKey = this.normalizeKey(key);
         const isFound = await FsFileStorageAdapter.isFileFound(normalizeKey);
@@ -305,9 +305,9 @@ export class FsFileStorageAdapter
     }
 
     private async _copy(
-        _context: IReadableContext,
         source: string,
         destination: string,
+        _context: IReadableContext,
     ): Promise<FileWriteEnum> {
         try {
             const normalizeSource = this.normalizeKey(source);
@@ -332,17 +332,17 @@ export class FsFileStorageAdapter
     }
 
     async copy(
-        context: IReadableContext,
         source: string,
         destination: string,
+        context: IReadableContext,
     ): Promise<FileWriteEnum> {
-        return this._copy(context, source, destination);
+        return this._copy(source, destination, context);
     }
 
     private async _copyAndReplace(
-        _context: IReadableContext,
         source: string,
         destination: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             const normalizeSource = this.normalizeKey(source);
@@ -359,11 +359,11 @@ export class FsFileStorageAdapter
     }
 
     async copyAndReplace(
-        context: IReadableContext,
         source: string,
         destination: string,
+        context: IReadableContext,
     ): Promise<boolean> {
-        return this._copyAndReplace(context, source, destination);
+        return this._copyAndReplace(source, destination, context);
     }
 
     private async _removeMany(
@@ -397,11 +397,11 @@ export class FsFileStorageAdapter
     }
 
     async move(
-        context: IReadableContext,
         source: string,
         destination: string,
+        context: IReadableContext,
     ): Promise<FileWriteEnum> {
-        const result = await this._copy(context, source, destination);
+        const result = await this._copy(source, destination, context);
         if (result === FILE_WRITE_ENUM.SUCCESS) {
             await this._removeMany(context, [source]);
         }
@@ -409,14 +409,14 @@ export class FsFileStorageAdapter
     }
 
     async moveAndReplace(
-        context: IReadableContext,
         source: string,
         destination: string,
+        context: IReadableContext,
     ): Promise<boolean> {
         const hasMoved = await this.copyAndReplace(
-            context,
             source,
             destination,
+            context,
         );
         if (hasMoved) {
             await this._removeMany(context, [source]);
@@ -425,15 +425,15 @@ export class FsFileStorageAdapter
     }
 
     async removeMany(
-        context: IReadableContext,
         keys: Array<string>,
+        context: IReadableContext,
     ): Promise<boolean> {
         return this._removeMany(context, keys);
     }
 
     async removeByPrefix(
-        _context: IReadableContext,
         prefix: string,
+        _context: IReadableContext,
     ): Promise<void> {
         const encodedFiles = await fs.readdir(normalize(this.location), {
             recursive: true,

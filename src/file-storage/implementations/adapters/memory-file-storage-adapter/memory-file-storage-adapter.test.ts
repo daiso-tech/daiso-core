@@ -40,10 +40,10 @@ describe("class: MemoryFileStorageAdapter", () => {
                 contentDisposition: null,
                 cacheControl: null,
             };
-            await adapter.add(noOpContext, "a", content);
-            await adapter.add(noOpContext, "a", content);
-            await adapter.add(noOpContext, "b", content);
-            await adapter.add(noOpContext, "b", content);
+            await adapter.add("a", content, noOpContext);
+            await adapter.add("a", content, noOpContext);
+            await adapter.add("b", content, noOpContext);
+            await adapter.add("b", content, noOpContext);
 
             await adapter.deInit();
 
