@@ -131,10 +131,7 @@ export class RateLimiter implements IRateLimiter {
     }
 
     async getState(): Promise<RateLimiterState> {
-        const state = await this.adapter.getState(
-            this.context,
-            this._key.toString(),
-        );
+        const state = await this.adapter.getState(this._key, this.context);
 
         return this.toRateLimiterState(state);
     }
@@ -151,7 +148,7 @@ export class RateLimiter implements IRateLimiter {
         asyncFn: AsyncLazy<TValue>,
     ): Promise<TValue> {
         const state = this.toRateLimiterState(
-            await this.adapter.getState(this.context, this._key.toString()),
+            await this.adapter.getState(this._key, this.context),
         );
 
         if (state.type === RATE_LIMITER_STATE.BLOCKED) {
@@ -170,9 +167,9 @@ export class RateLimiter implements IRateLimiter {
             if (isErrorMatching) {
                 const fn = async () => {
                     await this.adapter.updateState(
-                        this.context,
-                        this._key.toString(),
+                        this._key,
                         this.limit,
+                        this.context,
                     );
                 };
                 if (this.enableAsyncTracking) {
@@ -190,11 +187,7 @@ export class RateLimiter implements IRateLimiter {
         asyncFn: AsyncLazy<TValue>,
     ): Promise<TValue> {
         const state = this.toRateLimiterState(
-            await this.adapter.updateState(
-                this.context,
-                this._key.toString(),
-                this.limit,
-            ),
+            await this.adapter.updateState(this._key, this.limit, this.context),
         );
 
         if (state.type === RATE_LIMITER_STATE.BLOCKED) {
@@ -215,6 +208,6 @@ export class RateLimiter implements IRateLimiter {
     }
 
     async reset(): Promise<void> {
-        await this.adapter.reset(this.context, this._key.toString());
+        await this.adapter.reset(this._key, this.context);
     }
 }
