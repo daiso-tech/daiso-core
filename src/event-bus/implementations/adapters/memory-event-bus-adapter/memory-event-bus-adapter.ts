@@ -44,27 +44,27 @@ export class MemoryEventBusAdapter implements IEventBusAdapter {
     }
 
     addListener(
-        _context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
+        _context: IReadableContext,
     ): Promise<void> {
         this.eventEmitter.on(eventName, listener);
         return Promise.resolve();
     }
 
     removeListener(
-        _context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
+        _context: IReadableContext,
     ): Promise<void> {
         this.eventEmitter.off(eventName, listener);
         return Promise.resolve();
     }
 
     dispatch(
-        _context: IReadableContext,
         eventName: string,
         eventData: BaseEvent,
+        _context: IReadableContext,
     ): Promise<void> {
         this.eventEmitter.emit(eventName, eventData);
         return Promise.resolve();
