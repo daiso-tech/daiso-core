@@ -37,28 +37,28 @@ export function withListenerTracking(
         enhance(
             adapter,
             "addListener",
-            async ({ args: [context, eventName, listener], next }) => {
+            async ({ args: [eventName, listener, context], next }) => {
                 const wrappedListener = listenerStore.getOrAdd(
                     eventName,
                     listener,
                     (event) => listener(event),
                 );
-                return next([context, eventName, wrappedListener]);
+                return next([eventName, wrappedListener, context]);
             },
         );
 
         enhance(
             adapter,
             "removeListener",
-            async ({ args: [context, eventName, listener], next }) => {
+            async ({ args: [eventName, listener, context], next }) => {
                 const wrappedListener = listenerStore.getAndRemove(
                     eventName,
                     listener,
                 );
                 if (wrappedListener) {
-                    return next([context, eventName, wrappedListener]);
+                    return next([eventName, wrappedListener, context]);
                 }
-                return next([context, eventName, listener]);
+                return next([eventName, listener, context]);
             },
         );
     };

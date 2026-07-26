@@ -19,25 +19,25 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
  */
 export class NoOpEventBusAdapter implements IEventBusAdapter {
     addListener(
-        _context: IReadableContext,
         _eventName: string,
         _listener: EventListenerFn<BaseEvent>,
+        _context: IReadableContext,
     ): Promise<void> {
         return Promise.resolve();
     }
 
     removeListener(
-        _context: IReadableContext,
         _eventName: string,
         _listener: EventListenerFn<BaseEvent>,
+        _context: IReadableContext,
     ): Promise<void> {
         return Promise.resolve();
     }
 
     dispatch(
-        _context: IReadableContext,
         _eventName: string,
         _eventData: BaseEvent,
+        _context: IReadableContext,
     ): Promise<void> {
         return Promise.resolve();
     }

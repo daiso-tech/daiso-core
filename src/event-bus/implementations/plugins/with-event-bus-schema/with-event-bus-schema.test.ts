@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
+import { type IEventBusAdapter } from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { withEventBusSchema } from "@/event-bus/implementations/plugins/with-event-bus-schema/with-event-bus-schema.js";
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
@@ -27,14 +28,24 @@ describe("function: withEventBusSchema", () => {
                 }),
             );
 
-            await enhanced.dispatch(context, "user.created", {
-                userId: "123",
-            });
+            await enhanced.dispatch(
+                "user.created",
+                {
+                    userId: "123",
+                },
+                context,
+            );
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, "user.created", {
-                userId: "123",
-            });
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<IEventBusAdapter["dispatch"]>
+            >(
+                "user.created",
+                {
+                    userId: "123",
+                },
+                context,
+            );
         });
         test("Should throw when dispatch event data validation fails", async () => {
             const enhanced = withPlugin(
@@ -49,9 +60,13 @@ describe("function: withEventBusSchema", () => {
             );
 
             await expect(
-                enhanced.dispatch(context, "user.created", {
-                    userId: 123,
-                } as never),
+                enhanced.dispatch(
+                    "user.created",
+                    {
+                        userId: 123,
+                    },
+                    context,
+                ),
             ).rejects.toThrow();
         });
         test("Should pass through without validation when no schema exists for event name", async () => {
@@ -67,14 +82,48 @@ describe("function: withEventBusSchema", () => {
                 }),
             );
 
-            await enhanced.dispatch(context, "unknown.event", {
-                anyData: "anything",
-            });
+            await enhanced.dispatch(
+                "unknown.event",
+                {
+                    anyData: "anything",
+                },
+                context,
+            );
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, "unknown.event", {
-                anyData: "anything",
-            });
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<IEventBusAdapter["dispatch"]>
+            >(
+                "unknown.event",
+                {
+                    anyData: "anything",
+                },
+                context,
+            );
+        });
+        test("Should still validate dispatch when shouldValidateListeners is false", async () => {
+            const spy = vi.spyOn(adapter, "dispatch");
+            const enhanced = withPlugin(
+                adapter,
+                withEventBusSchema({
+                    eventMapSchema: {
+                        "user.created": z.object({
+                            userId: z.string(),
+                        }),
+                    },
+                    shouldValidateListeners: false,
+                }),
+            );
+
+            await enhanced.dispatch(
+                "user.created",
+                {
+                    userId: "123",
+                },
+                context,
+            );
+
+            expect(spy).toHaveBeenCalledOnce();
         });
     });
     describe("method: addListener", () => {
@@ -92,10 +141,10 @@ describe("function: withEventBusSchema", () => {
                 }),
             );
 
-            await enhanced.addListener(context, "user.created", listener);
+            await enhanced.addListener("user.created", listener, context);
 
             expect(addListenerSpy).toHaveBeenCalledOnce();
-            const wrappedListener = addListenerSpy.mock.calls[0]?.[2];
+            const wrappedListener = addListenerSpy.mock.calls[0]?.[1];
 
             // Calling the wrapped listener with valid data should succeed
             await expect(
@@ -118,15 +167,13 @@ describe("function: withEventBusSchema", () => {
                 }),
             );
 
-            await enhanced.addListener(context, "user.created", listener);
+            await enhanced.addListener("user.created", listener, context);
 
             expect(addListenerSpy).toHaveBeenCalledOnce();
-            const wrappedListener = addListenerSpy.mock.calls[0]?.[2];
+            const wrappedListener = addListenerSpy.mock.calls[0]?.[1];
 
             // Calling the wrapped listener with invalid data should throw
-            await expect(
-                wrappedListener?.({ userId: 123 } as never),
-            ).rejects.toThrow();
+            await expect(wrappedListener?.({ userId: 123 })).rejects.toThrow();
             expect(listener).not.toHaveBeenCalled();
         });
         test("Should pass listener through without wrapping when no schema exists for event name", async () => {
@@ -143,17 +190,13 @@ describe("function: withEventBusSchema", () => {
                 }),
             );
 
-            await enhanced.addListener(context, "unknown.event", listener);
+            await enhanced.addListener("unknown.event", listener, context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(
-                context,
-                "unknown.event",
-                listener,
-            );
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<IEventBusAdapter["addListener"]>
+            >("unknown.event", listener, context);
         });
-    });
-    describe("options", () => {
         test("Should skip listener wrapping when shouldValidateListeners is false", async () => {
             const spy = vi.spyOn(adapter, "addListener");
             const listener = vi.fn();
@@ -169,30 +212,12 @@ describe("function: withEventBusSchema", () => {
                 }),
             );
 
-            await enhanced.addListener(context, "user.created", listener);
+            await enhanced.addListener("user.created", listener, context);
 
             expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(context, "user.created", listener);
-        });
-        test("Should still validate dispatch when shouldValidateListeners is false", async () => {
-            const spy = vi.spyOn(adapter, "dispatch");
-            const enhanced = withPlugin(
-                adapter,
-                withEventBusSchema({
-                    eventMapSchema: {
-                        "user.created": z.object({
-                            userId: z.string(),
-                        }),
-                    },
-                    shouldValidateListeners: false,
-                }),
-            );
-
-            await enhanced.dispatch(context, "user.created", {
-                userId: "123",
-            });
-
-            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<IEventBusAdapter["addListener"]>
+            >("user.created", listener, context);
         });
     });
 });

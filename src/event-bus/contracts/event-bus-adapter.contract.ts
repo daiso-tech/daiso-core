@@ -26,9 +26,9 @@ export type IEventBusDispatcherAdapter = {
      * The `dispatch` method is used for dispatching one or multiple `events`.
      */
     dispatch(
-        context: IReadableContext,
         eventName: string,
         eventData: BaseEvent,
+        context: IReadableContext,
     ): Promise<void>;
 };
 
@@ -41,18 +41,18 @@ export type IEventBusListenableAdapter = {
      * The `addListener` method is used for adding {@link EventListenerFn | `EventListenerFn`} for certain `eventName`.
      */
     addListener(
-        context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
+        context: IReadableContext,
     ): Promise<void>;
 
     /**
      * The `removeListener` method is used for removing {@link EventListenerFn | `EventListenerFn`} for certain `eventName`.
      */
     removeListener(
-        context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
+        context: IReadableContext,
     ): Promise<void>;
 };
 

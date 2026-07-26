@@ -76,9 +76,9 @@ export class RedisPubSubEventBusAdapter implements IEventBusAdapter {
     };
 
     async addListener(
-        _context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
+        _context: IReadableContext,
     ): Promise<void> {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.eventEmitter.on(eventName, listener);
@@ -90,9 +90,9 @@ export class RedisPubSubEventBusAdapter implements IEventBusAdapter {
     }
 
     async removeListener(
-        _context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
+        _context: IReadableContext,
     ): Promise<void> {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.eventEmitter.off(eventName, listener);
@@ -101,9 +101,9 @@ export class RedisPubSubEventBusAdapter implements IEventBusAdapter {
     }
 
     async dispatch(
-        _context: IReadableContext,
         eventName: string,
         eventData: BaseEvent,
+        _context: IReadableContext,
     ): Promise<void> {
         await this.dispatcherClient.publish(
             eventName,
