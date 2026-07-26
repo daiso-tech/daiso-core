@@ -93,32 +93,28 @@ export class RateLimiterStorage<TMetrics = unknown> {
         args: AtomicUpdateArgs<TMetrics>,
     ): Promise<IRateLimiterStorageState> {
         const currentDate = new Date();
-        const state = await this.adapter.transaction(
-            args.context,
-            async (trx) => {
-                let currentState = RateLimiterStorage.resolveStorageData(
-                    await trx.find(args.context, args.key),
-                );
-                if (currentState === null) {
-                    currentState =
-                        this.rateLimiterPolicy.initialState(currentDate);
-                }
+        const state = await this.adapter.transaction(async (trx) => {
+            let currentState = RateLimiterStorage.resolveStorageData(
+                await trx.find(args.key, args.context),
+            );
+            if (currentState === null) {
+                currentState = this.rateLimiterPolicy.initialState(currentDate);
+            }
 
-                const newState = args.update(currentState);
+            const newState = args.update(currentState);
 
-                await trx.upsert(
-                    args.context,
-                    args.key,
-                    newState,
-                    this.rateLimiterPolicy.getExpiration(newState, {
-                        backoffPolicy: this.backoffPolicy,
-                        currentDate,
-                    }),
-                );
+            await trx.upsert(
+                args.key,
+                newState,
+                this.rateLimiterPolicy.getExpiration(newState, {
+                    backoffPolicy: this.backoffPolicy,
+                    currentDate,
+                }),
+                args.context,
+            );
 
-                return newState;
-            },
-        );
+            return newState;
+        }, args.context);
         return this.toAdapterState(state);
     }
 
@@ -127,7 +123,7 @@ export class RateLimiterStorage<TMetrics = unknown> {
         key: string,
     ): Promise<IRateLimiterStorageState | null> {
         const state = RateLimiterStorage.resolveStorageData(
-            await this.adapter.find(context, key),
+            await this.adapter.find(key, context),
         );
         if (state === null) {
             return null;
@@ -136,6 +132,6 @@ export class RateLimiterStorage<TMetrics = unknown> {
     }
 
     async remove(context: IReadableContext, key: string): Promise<void> {
-        await this.adapter.remove(context, key);
+        await this.adapter.remove(key, context);
     }
 }
