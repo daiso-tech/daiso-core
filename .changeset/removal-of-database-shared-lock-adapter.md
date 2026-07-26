@@ -2,20 +2,39 @@
 "@daiso-tech/core": minor
 ---
 
-Removed `IDatabaseSharedLockAdapter`, `IDatabaseSharedLockTransaction`, `IWriterLockData`, `IWriterLockExpirationData`, `IReaderSemaphoreSlotExpirationData`, `IReaderSemaphoreSlotData`, and `IReaderSemaphoreData` contracts, along with their `databaseSharedLockAdapterTestSuite`.
+## Simplified Shared Lock Adapter Contract
 
-The `IDatabaseSharedLockAdapter` contract (`database-shared-lock-adapter.contract.ts`) has been removed in favor of the simpler `ISharedLockAdapter` contract. This simplifies the shared-lock adapter interface by eliminating the transaction-based database abstraction layer.
+The `IDatabaseSharedLockAdapter`, `IDatabaseSharedLockTransaction`, and related data contracts have been removed in favor of the simpler `ISharedLockAdapter` contract. This eliminates the transaction-based database abstraction layer, making the shared-lock adapter interface more straightforward.
 
-### Changes:
+### Motivation
 
-- **Removed**: `IDatabaseSharedLockAdapter` type contract
-- **Removed**: `IDatabaseSharedLockTransaction` type contract
-- **Removed**: `IWriterLockData`, `IWriterLockExpirationData`, `IReaderSemaphoreSlotExpirationData`, `IReaderSemaphoreSlotData`, and `IReaderSemaphoreData` types
-- **Removed**: `databaseSharedLockAdapterTestSuite` test utility
-- **Removed**: `DatabaseSharedLockAdapter` derivable class
-- **Refactored**: `KyselySharedLockAdapter` (at `@daiso-tech/core/shared-lock/kysely-shared-lock-adapter`) now implements `ISharedLockAdapter` directly with `acquireWriter`, `releaseWriter`, `forceReleaseWriter`, `refreshWriter`, `acquireReader`, `releaseReader`, `forceReleaseAllReaders`, `refreshReader`, `forceRelease`, and `getState` methods
+The `IDatabaseSharedLockAdapter` contract introduced unnecessary complexity by wrapping results in `IWriterLockData`, `IReaderSemaphoreData`, and related objects, while requiring transaction support. The simpler `ISharedLockAdapter` contract returns primitive values directly, reducing boilerplate for adapter implementors and improving runtime performance.
 
-### Migration:
+### Breaking Changes
+
+**Removed types:**
+
+- `IDatabaseSharedLockAdapter`
+- `IDatabaseSharedLockTransaction`
+- `IWriterLockData`
+- `IWriterLockExpirationData`
+- `IReaderSemaphoreSlotExpirationData`
+- `IReaderSemaphoreSlotData`
+- `IReaderSemaphoreData`
+
+**Removed test utility:**
+
+- `databaseSharedLockAdapterTestSuite` — use `sharedLockAdapterTestSuite` instead.
+
+**Removed classes:**
+
+- `DatabaseSharedLockAdapter` derivable class
+
+**Refactored adapters:**
+
+- `KyselySharedLockAdapter` now implements `ISharedLockAdapter` directly with `acquireWriter`, `releaseWriter`, `forceReleaseWriter`, `refreshWriter`, `acquireReader`, `releaseReader`, `forceReleaseAllReaders`, `refreshReader`, `forceRelease`, and `getState` methods.
+
+### Migration
 
 Custom `IDatabaseSharedLockAdapter` implementations should migrate to `ISharedLockAdapter`. The new contract expects methods with the following signatures:
 

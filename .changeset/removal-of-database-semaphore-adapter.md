@@ -2,19 +2,33 @@
 "@daiso-tech/core": minor
 ---
 
-Removed `IDatabaseSemaphoreAdapter`, `IDatabaseSemaphoreTransaction`, `ISemaphoreData`, `ISemaphoreSlotData`, and `ISemaphoreSlotExpirationData` contracts, along with their `databaseSemaphoreAdapterTestSuite`.
+## Simplified Semaphore Adapter Contract
 
-The `IDatabaseSemaphoreAdapter` contract (`database-semaphore-adapter.contract.ts`) has been removed in favor of the simpler `ISemaphoreAdapter` contract. This simplifies the semaphore adapter interface by eliminating the transaction-based database abstraction layer.
+The `IDatabaseSemaphoreAdapter`, `IDatabaseSemaphoreTransaction`, and related data contracts have been removed in favor of the simpler `ISemaphoreAdapter` contract. This eliminates the transaction-based database abstraction layer, making the semaphore adapter interface more straightforward.
 
-### Changes:
+### Motivation
 
-- **Removed**: `IDatabaseSemaphoreAdapter` type contract
-- **Removed**: `IDatabaseSemaphoreTransaction` type contract
-- **Removed**: `ISemaphoreData`, `ISemaphoreSlotData`, and `ISemaphoreSlotExpirationData` types
-- **Removed**: `databaseSemaphoreAdapterTestSuite` test utility
-- **Refactored**: `KyselySemaphoreAdapter` (at `@daiso-tech/core/semaphore/new-kysely-semaphore-adapter`) now implements `ISemaphoreAdapter` directly with `acquire`, `release`, `forceReleaseAll`, `refresh`, and `getState` methods
+The `IDatabaseSemaphoreAdapter` contract introduced unnecessary complexity by wrapping results in `ISemaphoreData`, `ISemaphoreSlotData`, and `ISemaphoreSlotExpirationData` objects and requiring transaction support. The simpler `ISemaphoreAdapter` contract returns primitive values directly, reducing boilerplate for adapter implementors and improving runtime performance.
 
-### Migration:
+### Breaking Changes
+
+**Removed types:**
+
+- `IDatabaseSemaphoreAdapter`
+- `IDatabaseSemaphoreTransaction`
+- `ISemaphoreData`
+- `ISemaphoreSlotData`
+- `ISemaphoreSlotExpirationData`
+
+**Removed test utility:**
+
+- `databaseSemaphoreAdapterTestSuite` — use `semaphoreAdapterTestSuite` instead.
+
+**Refactored adapters:**
+
+- `KyselySemaphoreAdapter` now implements `ISemaphoreAdapter` directly with `acquire`, `release`, `forceReleaseAll`, `refresh`, and `getState` methods.
+
+### Migration
 
 Custom `IDatabaseSemaphoreAdapter` implementations should migrate to `ISemaphoreAdapter`. The new contract expects methods with the following signatures:
 

@@ -2,20 +2,36 @@
 "@daiso-tech/core": minor
 ---
 
-Removed `IDatabaseLockAdapter`, `IDatabaseLockTransaction`, and `ILockData` contracts, along with their `databaseLockAdapterTestSuite`.
+## Simplified Lock Adapter Contract
 
-The `IDatabaseLockAdapter` contract has been removed in favor of the simpler `ILockAdapter` contract. This simplifies the lock adapter interface by eliminating the transaction-based database abstraction layer.
+The `IDatabaseLockAdapter`, `IDatabaseLockTransaction`, and `ILockData` contracts have been removed in favor of the simpler `ILockAdapter` contract. This eliminates the transaction-based database abstraction layer, making the lock adapter interface more straightforward.
 
-### Changes:
+### Motivation
 
-- **Removed**: `IDatabaseLockAdapter` type contract
-- **Removed**: `IDatabaseLockTransaction` type contract
-- **Removed**: `ILockData` and `ILockExpirationData` types
-- **Removed**: `databaseLockAdapterTestSuite` test utility
-- **Removed**: `DatabaseLockAdapter` derivable class
-- **Refactored**: `KyselyLockAdapter` (at `@daiso-tech/core/lock/kysely-lock-adapter`) now implements `ILockAdapter` directly with `acquire`, `release`, `forceRelease`, `refresh`, and `getState` methods
+The `IDatabaseLockAdapter` contract introduced unnecessary complexity by wrapping results in `ILockData` / `ILockExpirationData` objects and requiring transaction support. The simpler `ILockAdapter` contract returns primitive values directly, reducing boilerplate for adapter implementors and improving runtime performance.
 
-### Migration:
+### Breaking Changes
+
+**Removed types:**
+
+- `IDatabaseLockAdapter`
+- `IDatabaseLockTransaction`
+- `ILockData`
+- `ILockExpirationData`
+
+**Removed test utility:**
+
+- `databaseLockAdapterTestSuite` — use `lockAdapterTestSuite` instead.
+
+**Removed classes:**
+
+- `DatabaseLockAdapter` derivable class
+
+**Refactored adapters:**
+
+- `KyselyLockAdapter` now implements `ILockAdapter` directly with `acquire`, `release`, `forceRelease`, `refresh`, and `getState` methods.
+
+### Migration
 
 Custom `IDatabaseLockAdapter` implementations should migrate to `ILockAdapter`. The new contract expects methods with the following signatures:
 

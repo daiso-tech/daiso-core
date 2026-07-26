@@ -2,25 +2,32 @@
 "@daiso-tech/core": minor
 ---
 
-Updated the `IFileStorage` contract — removed node js read methods and extracted built-in locking into a standalone plugin.
+## Cross-Platform File Storage and Extracted Locking
 
-### Changes
+The `IFileStorage` contract has been updated to remove Node.js-specific read methods and extract built-in locking into a standalone plugin. The `FileStorage` class now works in non-Node.js environments such as Cloudflare Workers without requiring Node.js compatibility.
 
-- **Removed** `IFile.getBuffer` — use `IFile.getBytes` instead (returns `Uint8Array | null`).
-- **Removed** `IFile.getBufferOrFail` — use `IFile.getBytesOrFail` instead (returns `Uint8Array` or throws).
-- **Removed** `IFile.getReadable` — use `IFile.getStream` instead (returns a readable stream).
-- **Removed** `IFile.getReadableOrFail` — use `IFile.getStreamOrFail` instead (returns a readable stream or throws).
-- **Removed** built-in locking from the `FileStorage` class — locking is now provided by the standalone `withFileStorageLock` plugin.
+### Motivation
 
-Now the `FileStorage` class will work in none `Node.js` environment like `cloudflare` workers without `Node.js` compatibility.
+The previous `IFileStorage` contract included Node.js-specific methods (`getBuffer`, `getReadable`) that prevented the component from working in edge-runtime environments. Additionally, built-in locking coupled the `FileStorage` class to the lock infrastructure even for users who didn't need it. By extracting locking into a plugin and replacing Node-specific APIs with runtime-agnostic alternatives, the file-storage module is now portable across environments.
 
-### Migration
+### Breaking Changes
 
-- Replace all calls to `fileStorage.getBuffer(key)` with `fileStorage.getBytes(key)`.
-- Replace all calls to `fileStorage.getBufferOrFail(key)` with `fileStorage.getBytesOrFail(key)`.
-- Replace all calls to `fileStorage.getReadable(key)` with `fileStorage.getStream(key)`.
-- Replace all calls to `fileStorage.getReadableOrFail(key)` with `fileStorage.getStreamOrFail(key)`.
-- If you relied on the built-in locking in `FileStorage`, apply the `withFileStorageLock` plugin to your file storage adapter instead:
+**Removed methods from `IFile`:**
+
+- `IFile.getBuffer` — use `IFile.getBytes` instead (returns `Uint8Array | null`).
+- `IFile.getBufferOrFail` — use `IFile.getBytesOrFail` instead (returns `Uint8Array` or throws).
+- `IFile.getReadable` — use `IFile.getStream` instead (returns a readable stream).
+- `IFile.getReadableOrFail` — use `IFile.getStreamOrFail` instead (returns a readable stream or throws).
+
+**Removed behaviour:**
+
+- Built-in locking from the `FileStorage` class — locking is now provided by the standalone `withFileStorageLock` plugin.
+
+### New Plugin-Based Capabilities
+
+**`withFileStorageLock`** — Adds distributed locking to file storage operations.
+
+- Import path: `@daiso-tech/core/file-storage/plugins`
 
 ```ts
 import { withPlugin } from "@daiso-tech/core/middleware";
@@ -33,3 +40,11 @@ const adapter = withPlugin(
     withFileStorageLock({ lockFactory: new MemoryLockFactory() }),
 );
 ```
+
+### Migration
+
+- Replace all calls to `getBuffer(key)` with `getBytes(key)`.
+- Replace all calls to `getBufferOrFail(key)` with `getBytesOrFail(key)`.
+- Replace all calls to `getReadable(key)` with `getStream(key)`.
+- Replace all calls to `getReadableOrFail(key)` with `getStreamOrFail(key)`.
+- If you relied on the built-in locking, apply the `withFileStorageLock` plugin to your file storage adapter as shown above.
