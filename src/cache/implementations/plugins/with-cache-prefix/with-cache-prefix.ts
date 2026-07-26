@@ -24,48 +24,36 @@ export function withCachePrefix(prefix: string): PluginFn<ICacheAdapter> {
         return prefix + key;
     }
     return (adapter, enhance) => {
-        enhance(adapter, "add", ({ args: [context, key, ...rest], next }) => {
-            return next([context, withPrefix(key), ...rest]);
+        enhance(adapter, "add", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
         });
-        enhance(adapter, "get", ({ args: [context, key], next }) => {
-            return next([context, withPrefix(key)]);
+        enhance(adapter, "get", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
         });
-        enhance(adapter, "getAndRemove", ({ args: [context, key], next }) => {
-            return next([context, withPrefix(key)]);
+        enhance(adapter, "getAndRemove", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
         });
-        enhance(
-            adapter,
-            "increment",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
-            },
-        );
-        enhance(adapter, "put", ({ args: [context, key, ...rest], next }) => {
-            return next([context, withPrefix(key), ...rest]);
+        enhance(adapter, "increment", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
+        enhance(adapter, "put", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
         });
         enhance(
             adapter,
             "removeByKeyPrefix",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
+            ({ args: [key, ...rest], next }) => {
+                return next([withPrefix(key), ...rest]);
             },
         );
-        enhance(adapter, "removeMany", ({ args: [context, keys], next }) => {
-            return next([context, keys.map(withPrefix)]);
+        enhance(adapter, "removeMany", ({ args: [keys, ...rest], next }) => {
+            return next([keys.map(withPrefix), ...rest]);
         });
-        enhance(
-            adapter,
-            "update",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
-            },
-        );
-        enhance(
-            adapter,
-            "getOrAdd",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
-            },
-        );
+        enhance(adapter, "update", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
+        enhance(adapter, "getOrAdd", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
     };
 }
