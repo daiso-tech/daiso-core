@@ -19,8 +19,8 @@ import { TimeSpan } from "@/time-span/implementations/time-span.js";
  */
 export class NoOpRateLimiterAdapter implements IRateLimiterAdapter {
     getState(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<IRateLimiterAdapterState> {
         return Promise.resolve({
             success: true,
@@ -30,9 +30,9 @@ export class NoOpRateLimiterAdapter implements IRateLimiterAdapter {
     }
 
     updateState(
-        _context: IReadableContext,
         _key: string,
         limit: number,
+        _context: IReadableContext,
     ): Promise<IRateLimiterAdapterState> {
         return Promise.resolve({
             success: true,
@@ -42,7 +42,7 @@ export class NoOpRateLimiterAdapter implements IRateLimiterAdapter {
         });
     }
 
-    reset(_context: IReadableContext, _key: string): Promise<void> {
+    reset(_key: string, _context: IReadableContext): Promise<void> {
         return Promise.resolve();
     }
 }
