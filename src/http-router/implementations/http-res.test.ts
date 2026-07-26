@@ -59,7 +59,7 @@ describe("class: HttpRes", () => {
 
         test("Should overwrite an existing header with the same key", () => {
             const res = new HttpRes();
-            const setSpy = vi.spyOn(res as never, "setHeader");
+            const setSpy = vi.spyOn(res, "setHeader");
             res.setHeader("X-Custom", "first");
             res.setHeader("X-Custom", "second");
 
