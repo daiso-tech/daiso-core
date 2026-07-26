@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { NoOpCacheAdapter } from "@/cache/implementations/adapters/_module.js";
 import { withCacheWriteLock } from "@/cache/implementations/plugins/with-cache-write-lock/with-cache-write-lock.js";
-import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
+import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/no-op-lock-adapter/no-op-lock-adapter.js";
 import { LockFactory } from "@/lock/implementations/derivables/lock-factory/lock-factory.js";
 import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
@@ -12,7 +12,7 @@ import { withPluginFactory } from "@/middleware/implementations/with-plugin-fact
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withCacheWriteLock", () => {
-    const context = new Context(new Map());
+    const noOpContext = new NoOpContext();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
     afterEach(() => {
@@ -41,7 +41,7 @@ describe("function: withCacheWriteLock", () => {
                 "myKey",
                 "value",
                 TimeSpan.fromMinutes(5),
-                context,
+                noOpContext,
             );
             console.log("2.");
 
@@ -68,7 +68,7 @@ describe("function: withCacheWriteLock", () => {
                 "myKey",
                 "value",
                 TimeSpan.fromMinutes(5),
-                context,
+                noOpContext,
             );
 
             expect(spy).toHaveBeenCalledOnce();
@@ -90,7 +90,7 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.update("myKey", "newValue", context);
+            await enhanced.update("myKey", "newValue", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -111,7 +111,7 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.increment("myKey", 5, context);
+            await enhanced.increment("myKey", 5, noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -132,7 +132,7 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.getAndRemove("myKey", context);
+            await enhanced.getAndRemove("myKey", noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -149,7 +149,7 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            const result = await enhanced.getAndRemove("myKey", context);
+            const result = await enhanced.getAndRemove("myKey", noOpContext);
 
             expect(result).toBe("storedValue");
         });
@@ -168,7 +168,7 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.removeMany(["key1", "key2", "key3"], context);
+            await enhanced.removeMany(["key1", "key2", "key3"], noOpContext);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("key1");
@@ -191,7 +191,7 @@ describe("function: withCacheWriteLock", () => {
 
             await enhanced.removeMany(
                 ["key1", "key2", "key1", "key3"],
-                context,
+                noOpContext,
             );
 
             expect(spy).toHaveBeenCalledOnce();
@@ -212,7 +212,10 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            const result = await enhanced.removeMany(["key1", "key2"], context);
+            const result = await enhanced.removeMany(
+                ["key1", "key2"],
+                noOpContext,
+            );
 
             expect(result).toBe(true);
         });
@@ -238,13 +241,13 @@ describe("function: withCacheWriteLock", () => {
                 "myKey",
                 "value",
                 TimeSpan.fromMinutes(5),
-                context,
+                noOpContext,
             );
             expect(createSpy).toHaveBeenCalledWith("myKey");
             expect(runSpy).toHaveBeenCalledTimes(1);
 
             vi.clearAllMocks();
-            await enhanced.get("myKey", context);
+            await enhanced.get("myKey", noOpContext);
             expect(createSpy).not.toHaveBeenCalled();
             expect(runSpy).not.toHaveBeenCalled();
             expect(getSpy).toHaveBeenCalledOnce();
