@@ -1,8 +1,6 @@
 on:
-    push:
-        branches: [main]
-
-    workflow_dispatch:
+    release:
+        types: [published]
 
 permissions:
     contents: read
@@ -50,3 +48,7 @@ jobs:
             - name: Deploy
               id: deployment
               uses: actions/deploy-pages@v4
+
+            - name: Trigger Vercel Deployment
+              run: |
+                curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
