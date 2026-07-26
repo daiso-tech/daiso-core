@@ -110,7 +110,7 @@ export class Semaphore implements ISemaphore {
     async acquire(): Promise<boolean> {
         return await this.adapter.acquire({
             context: this.context,
-            key: this._key.toString(),
+            key: this._key,
             slotId: this.slotId,
             limit: this.limit,
             ttl: this._ttl,
@@ -125,11 +125,7 @@ export class Semaphore implements ISemaphore {
     }
 
     async release(): Promise<boolean> {
-        return await this.adapter.release(
-            this.context,
-            this._key.toString(),
-            this.slotId,
-        );
+        return await this.adapter.release(this._key, this.slotId, this.context);
     }
 
     async releaseOrFail(): Promise<void> {
@@ -140,18 +136,15 @@ export class Semaphore implements ISemaphore {
     }
 
     async forceReleaseAll(): Promise<boolean> {
-        return await this.adapter.forceReleaseAll(
-            this.context,
-            this._key.toString(),
-        );
+        return await this.adapter.forceReleaseAll(this._key, this.context);
     }
 
     async refresh(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
         const hasRefreshed = await this.adapter.refresh(
-            this.context,
-            this._key.toString(),
+            this._key,
             this.slotId,
             TimeSpan.fromTimeSpan(ttl),
+            this.context,
         );
         if (hasRefreshed) {
             this._ttl = TimeSpan.fromTimeSpan(ttl);
@@ -179,10 +172,7 @@ export class Semaphore implements ISemaphore {
     }
 
     async getState(): Promise<ISemaphoreState> {
-        const state = await this.adapter.getState(
-            this.context,
-            this._key.toString(),
-        );
+        const state = await this.adapter.getState(this._key, this.context);
         if (state === null) {
             return {
                 type: SEMAPHORE_STATE.EXPIRED,

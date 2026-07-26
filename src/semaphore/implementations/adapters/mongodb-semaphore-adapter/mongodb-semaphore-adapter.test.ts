@@ -365,8 +365,8 @@ describe("class: MongodbSemaphoreAdapter", () => {
                 limit,
             });
 
-            await adapter.release(noOpContext, key, slotId1);
-            await adapter.release(noOpContext, key, slotId2);
+            await adapter.release(key, slotId1, noOpContext);
+            await adapter.release(key, slotId2, noOpContext);
 
             const doc = await collection.findOne({ key });
 

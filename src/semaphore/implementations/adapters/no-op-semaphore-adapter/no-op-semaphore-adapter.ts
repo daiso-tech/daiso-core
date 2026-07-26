@@ -20,8 +20,8 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  */
 export class NoOpSemaphoreAdapter implements ISemaphoreAdapter {
     getState(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<ISemaphoreAdapterState | null> {
         return Promise.resolve({
             limit: Infinity,
@@ -34,25 +34,25 @@ export class NoOpSemaphoreAdapter implements ISemaphoreAdapter {
     }
 
     release(
-        _context: IReadableContext,
         _key: string,
         _slotId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     forceReleaseAll(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     refresh(
-        _context: IReadableContext,
         _key: string,
         _slotId: string,
         _ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }

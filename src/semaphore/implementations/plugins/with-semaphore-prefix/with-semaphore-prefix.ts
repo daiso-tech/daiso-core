@@ -26,42 +26,29 @@ export function withSemaphorePrefix(
         return prefix + key;
     }
     return (adapter, enhance) => {
-        enhance(
-            adapter,
-            "acquire",
-            ({ args: [{ context, key, ...rest }], next }) => {
-                return next([
-                    {
-                        context,
-                        key: withPrefix(key),
-                        ...rest,
-                    },
-                ]);
-            },
-        );
-        enhance(
-            adapter,
-            "forceReleaseAll",
-            ({ args: [context, key], next }) => {
-                return next([context, withPrefix(key)]);
-            },
-        );
-        enhance(adapter, "getState", ({ args: [context, key], next }) => {
-            return next([context, withPrefix(key)]);
+        enhance(adapter, "acquire", ({ args: [{ key, ...rest }], next }) => {
+            return next([
+                {
+                    key: withPrefix(key),
+                    ...rest,
+                },
+            ]);
         });
         enhance(
             adapter,
-            "refresh",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
+            "forceReleaseAll",
+            ({ args: [key, ...rest], next }) => {
+                return next([withPrefix(key), ...rest]);
             },
         );
-        enhance(
-            adapter,
-            "release",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
-            },
-        );
+        enhance(adapter, "getState", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
+        enhance(adapter, "refresh", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
+        enhance(adapter, "release", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
     };
 }
