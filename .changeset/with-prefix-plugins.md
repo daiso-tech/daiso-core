@@ -39,22 +39,25 @@ The new approach removes the namespace abstraction entirely. Key prefixing is no
 
 Key prefixing is now opt-in via middleware plugins. Available plugins:
 
-| Component       | Plugin                     | Import path                              |
-| --------------- | -------------------------- | ---------------------------------------- |
-| cache           | `withCachePrefix`          | `@daiso-tech/core/cache/plugins`         |
+| Component       | Plugin                     | Import path                                |
+| --------------- | -------------------------- | ------------------------------------------ |
+| cache           | `withCachePrefix`          | `@daiso-tech/core/cache/plugins`           |
 | circuit-breaker | `withCircuitBreakerPrefix` | `@daiso-tech/core/circuit-breaker/plugins` |
-| file-storage    | `withFileStoragePrefix`    | `@daiso-tech/core/file-storage/plugins`  |
-| lock            | `withLockPrefix`           | `@daiso-tech/core/lock/plugins`          |
-| rate-limiter    | `withRateLimiterPrefix`    | `@daiso-tech/core/rate-limiter/plugins`  |
-| semaphore       | `withSemaphorePrefix`      | `@daiso-tech/core/semaphore/plugins`     |
-| shared-lock     | `withSharedLockPrefix`    | `@daiso-tech/core/shared-lock/plugins`   |
-| event-bus       | `withEventBusPrefix`       | `@daiso-tech/core/event-bus/plugins`     |
+| file-storage    | `withFileStoragePrefix`    | `@daiso-tech/core/file-storage/plugins`    |
+| lock            | `withLockPrefix`           | `@daiso-tech/core/lock/plugins`            |
+| rate-limiter    | `withRateLimiterPrefix`    | `@daiso-tech/core/rate-limiter/plugins`    |
+| semaphore       | `withSemaphorePrefix`      | `@daiso-tech/core/semaphore/plugins`       |
+| shared-lock     | `withSharedLockPrefix`     | `@daiso-tech/core/shared-lock/plugins`     |
+| event-bus       | `withEventBusPrefix`       | `@daiso-tech/core/event-bus/plugins`       |
 
 ```ts
 import { withPlugin } from "@daiso-tech/core/middleware";
 import { withCachePrefix } from "@daiso-tech/core/cache/plugins";
 
-const adapter = withPlugin(new MemoryCacheAdapter(), withCachePrefix("tenant-42:"));
+const adapter = withPlugin(
+    new MemoryCacheAdapter(),
+    withCachePrefix("tenant-42:"),
+);
 
 // Keys are automatically prefixed:
 await adapter.add(context, "my-key", "value");

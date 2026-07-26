@@ -99,9 +99,7 @@ const eventMapSchema = defineEventMapSchema({
 });
 const adapter = withPlugin(
     new MemoryEventBusAdapter(),
-    withListenerTracking(
-        withEventBusSchema({ eventMapSchema }),
-    ),
+    withListenerTracking(withEventBusSchema({ eventMapSchema })),
 );
 ```
 
