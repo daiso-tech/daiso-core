@@ -204,8 +204,8 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<CircuitBreakerState> {
         const value = await this.database.get(key);
         if (value === null) {
@@ -216,8 +216,8 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
     }
 
     async updateState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<CircuitBreakerStateTransition> {
         const value = await this.database.daiso_circuit_breaker_update_state(
             key,
@@ -230,7 +230,7 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
         return JSON.parse(value) as CircuitBreakerStateTransition;
     }
 
-    async isolate(_context: IReadableContext, key: string): Promise<void> {
+    async isolate(key: string, _context: IReadableContext): Promise<void> {
         await this.database.set(
             key,
             JSON.stringify({
@@ -239,7 +239,7 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
         );
     }
 
-    async trackFailure(_context: IReadableContext, key: string): Promise<void> {
+    async trackFailure(key: string, _context: IReadableContext): Promise<void> {
         await this.database.daiso_circuit_breaker_track_failure(
             key,
             JSON.stringify(serializeBackoffSettingsEnum(this.backoff)),
@@ -250,7 +250,7 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
         );
     }
 
-    async trackSuccess(_context: IReadableContext, key: string): Promise<void> {
+    async trackSuccess(key: string, _context: IReadableContext): Promise<void> {
         await this.database.daiso_circuit_breaker_track_success(
             key,
             JSON.stringify(serializeBackoffSettingsEnum(this.backoff)),
@@ -261,7 +261,7 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
         );
     }
 
-    async reset(_context: IReadableContext, key: string): Promise<void> {
+    async reset(key: string, _context: IReadableContext): Promise<void> {
         await this.database.del(key);
     }
 }

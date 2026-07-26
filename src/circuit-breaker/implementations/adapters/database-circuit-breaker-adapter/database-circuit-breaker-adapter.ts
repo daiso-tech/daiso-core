@@ -103,49 +103,49 @@ export class DatabaseCircuitBreakerAdapter<
     }
 
     async getState(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<CircuitBreakerState> {
-        const state = await this.circuitBreakerStorage.find(context, key);
+        const state = await this.circuitBreakerStorage.find(key, context);
         return state.type;
     }
 
     async updateState(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<CircuitBreakerStateTransition> {
         return await this.circuitBreakerStorage.atomicUpdate(
-            context,
             key,
             this.circuitBreakerStateManager.updateState,
+            context,
         );
     }
 
-    async trackFailure(context: IReadableContext, key: string): Promise<void> {
+    async trackFailure(key: string, context: IReadableContext): Promise<void> {
         await this.circuitBreakerStorage.atomicUpdate(
-            context,
             key,
             this.circuitBreakerStateManager.trackFailure,
+            context,
         );
     }
 
-    async trackSuccess(context: IReadableContext, key: string): Promise<void> {
+    async trackSuccess(key: string, context: IReadableContext): Promise<void> {
         await this.circuitBreakerStorage.atomicUpdate(
-            context,
             key,
             this.circuitBreakerStateManager.trackSuccess,
+            context,
         );
     }
 
-    async reset(context: IReadableContext, key: string): Promise<void> {
-        await this.circuitBreakerStorage.remove(context, key);
+    async reset(key: string, context: IReadableContext): Promise<void> {
+        await this.circuitBreakerStorage.remove(key, context);
     }
 
-    async isolate(context: IReadableContext, key: string): Promise<void> {
+    async isolate(key: string, context: IReadableContext): Promise<void> {
         await this.circuitBreakerStorage.atomicUpdate(
-            context,
             key,
             this.circuitBreakerStateManager.isolate,
+            context,
         );
     }
 }

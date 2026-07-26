@@ -100,9 +100,9 @@ class KyselyCircuitBreakerStorageAdapterTransaction<
     }
 
     async upsert(
-        _context: IReadableContext,
         key: string,
         state: TType,
+        _context: IReadableContext,
     ): Promise<void> {
         const serializedState = this.serde.serialize(state);
         await this.kysely
@@ -126,7 +126,7 @@ class KyselyCircuitBreakerStorageAdapterTransaction<
             .execute();
     }
 
-    async find(_context: IReadableContext, key: string): Promise<TType | null> {
+    async find(key: string, _context: IReadableContext): Promise<TType | null> {
         return find(key, {
             serde: this.serde,
             kysely: this.kysely,
@@ -230,11 +230,11 @@ export class KyselyCircuitBreakerStorageAdapter<TType>
     }
 
     async transaction<TValue>(
-        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: ICircuitBreakerStorageAdapterTransaction],
             Promise<TValue>
         >,
+        _context: IReadableContext,
     ): Promise<TValue> {
         return await this._transaction(async (trx) => {
             return await fn(
@@ -246,14 +246,14 @@ export class KyselyCircuitBreakerStorageAdapter<TType>
         });
     }
 
-    async find(_context: IReadableContext, key: string): Promise<TType | null> {
+    async find(key: string, _context: IReadableContext): Promise<TType | null> {
         return find(key, {
             serde: this.serde,
             kysely: this.kysely,
         });
     }
 
-    async remove(_context: IReadableContext, key: string): Promise<void> {
+    async remove(key: string, _context: IReadableContext): Promise<void> {
         await this.kysely
             .deleteFrom("circuitBreaker")
             .where("circuitBreaker.key", "=", key)

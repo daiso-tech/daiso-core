@@ -13,10 +13,10 @@ describe("class: MemoryCircuitBreakerStorageAdapter", () => {
             );
             const map = new Map<string, unknown>();
             const adapter = new MemoryCircuitBreakerStorageAdapter(map);
-            await adapter.transaction(noOpContext, async (trx) => {
-                await trx.upsert(noOpContext, "a", "1");
-                await trx.upsert(noOpContext, "b", "1");
-            });
+            await adapter.transaction(async (trx) => {
+                await trx.upsert("a", "1", noOpContext);
+                await trx.upsert("b", "1", noOpContext);
+            }, noOpContext);
             await adapter.deInit();
 
             expect(map.size).toBe(0);
