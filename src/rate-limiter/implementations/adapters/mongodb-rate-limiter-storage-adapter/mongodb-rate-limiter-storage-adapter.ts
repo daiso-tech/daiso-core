@@ -173,10 +173,10 @@ export class MongodbRateLimiterStorageAdapter<TType>
     }
 
     private async upsert(
-        _context: IReadableContext,
         key: string,
         state: TType,
         expiration: Date,
+        _context: IReadableContext,
         session?: ClientSession,
     ): Promise<void> {
         await this.collection.updateOne(
@@ -207,24 +207,24 @@ export class MongodbRateLimiterStorageAdapter<TType>
     }
 
     async transaction<TValue>(
-        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
+        _context: IReadableContext,
     ): Promise<TValue> {
         return await this._transaction(async (session) => {
             return await fn({
-                upsert: (context, key, state, exiration) =>
-                    this.upsert(context, key, state, exiration, session),
-                find: (context, key) => this.find(context, key, session),
+                upsert: (key, state, expiration, context) =>
+                    this.upsert(key, state, expiration, context, session),
+                find: (key, context) => this.find(key, context, session),
             });
         });
     }
 
     async find(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
         session?: ClientSession,
     ): Promise<IRateLimiterData<TType> | null> {
         const doc = await this.collection.findOne(
@@ -245,8 +245,8 @@ export class MongodbRateLimiterStorageAdapter<TType>
     }
 
     async remove(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
         session?: ClientSession,
     ): Promise<void> {
         await this.collection.deleteOne(
