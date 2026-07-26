@@ -20,128 +20,128 @@ import { SignedFileStorageAdapter } from "@/file-storage/implementations/derivab
 describe("class: SignedFileStorageAdapter", () => {
     let signedFileStorageAdapter: SignedFileStorageAdapter;
     const fileStorageAdapter: IFileStorageAdapter = {
-        exists(_context: IReadableContext, _key: string): Promise<boolean> {
+        exists(_key: string, _context: IReadableContext): Promise<boolean> {
             return Promise.resolve(false);
         },
         getStream(
-            _context: IReadableContext,
             _key: string,
+            _context: IReadableContext,
         ): Promise<FileAdapterStream | null> {
             return Promise.resolve(null);
         },
         getBytes(
-            _context: IReadableContext,
             _key: string,
+            _context: IReadableContext,
         ): Promise<Uint8Array | null> {
             return Promise.resolve(null);
         },
         getMetaData(
-            _context: IReadableContext,
             _key: string,
+            _context: IReadableContext,
         ): Promise<FileAdapterMetadata | null> {
             return Promise.resolve(null);
         },
         add(
-            _context: IReadableContext,
             _key: string,
             _content: WritableFileAdapterContent,
+            _context: IReadableContext,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         addStream(
-            _context: IReadableContext,
             _key: string,
             _stream: WritableFileAdapterStream,
+            _context: IReadableContext,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         update(
-            _context: IReadableContext,
             _key: string,
             _content: WritableFileAdapterContent,
+            _context: IReadableContext,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         updateStream(
-            _context: IReadableContext,
             _key: string,
             _stream: WritableFileAdapterStream,
+            _context: IReadableContext,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         put(
-            _context: IReadableContext,
             _key: string,
             _content: WritableFileAdapterContent,
+            _context: IReadableContext,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         putStream(
-            _context: IReadableContext,
             _key: string,
             _stream: WritableFileAdapterStream,
+            _context: IReadableContext,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         copy(
-            _context: IReadableContext,
             _source: string,
             _destination: string,
+            _context: IReadableContext,
         ): Promise<FileWriteEnum> {
             return Promise.resolve(FILE_WRITE_ENUM.NOT_FOUND);
         },
         copyAndReplace(
-            _context: IReadableContext,
             _source: string,
             _destination: string,
+            _context: IReadableContext,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         move(
-            _context: IReadableContext,
             _source: string,
             _destination: string,
+            _context: IReadableContext,
         ): Promise<FileWriteEnum> {
             return Promise.resolve(FILE_WRITE_ENUM.NOT_FOUND);
         },
         moveAndReplace(
-            _context: IReadableContext,
             _source: string,
             _destination: string,
+            _context: IReadableContext,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         removeMany(
-            _context: IReadableContext,
             _keys: Array<string>,
+            _context: IReadableContext,
         ): Promise<boolean> {
             return Promise.resolve(false);
         },
         removeByPrefix(
-            _context: IReadableContext,
             _prefix: string,
+            _context: IReadableContext,
         ): Promise<void> {
             return Promise.resolve();
         },
     };
     const fileUrlAdapter: IFileUrlAdapter = {
         getPublicUrl(
-            _context: IReadableContext,
             _key: string,
+            _context: IReadableContext,
         ): Promise<string | null> {
             return Promise.resolve(null);
         },
         getSignedDownloadUrl(
-            _context: IReadableContext,
             _key: string,
             _settings: FileAdapterSignedDownloadUrlSettings,
+            _context: IReadableContext,
         ): Promise<string | null> {
             return Promise.resolve(null);
         },
         getSignedUploadUrl(
-            _context: IReadableContext,
             _key: string,
             _settings: FileAdapterSignedUploadUrlSettings,
+            _context: IReadableContext,
         ): Promise<string> {
             return Promise.resolve("");
         },
@@ -159,7 +159,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.exists", async () => {
             const existsSpy = vi.spyOn(fileStorageAdapter, "exists");
 
-            await signedFileStorageAdapter.exists(noOpContext, "a");
+            await signedFileStorageAdapter.exists("a", noOpContext);
 
             expect(existsSpy).toHaveBeenCalledOnce();
         });
@@ -168,7 +168,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.getStream", async () => {
             const getStreamSpy = vi.spyOn(fileStorageAdapter, "getStream");
 
-            await signedFileStorageAdapter.getStream(noOpContext, "a");
+            await signedFileStorageAdapter.getStream("a", noOpContext);
 
             expect(getStreamSpy).toHaveBeenCalledOnce();
         });
@@ -177,7 +177,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.getBytes", async () => {
             const getBytesSpy = vi.spyOn(fileStorageAdapter, "getBytes");
 
-            await signedFileStorageAdapter.getBytes(noOpContext, "a");
+            await signedFileStorageAdapter.getBytes("a", noOpContext);
 
             expect(getBytesSpy).toHaveBeenCalledOnce();
         });
@@ -186,7 +186,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.getMetaData", async () => {
             const getMetaDataSpy = vi.spyOn(fileStorageAdapter, "getMetaData");
 
-            await signedFileStorageAdapter.getMetaData(noOpContext, "a");
+            await signedFileStorageAdapter.getMetaData("a", noOpContext);
 
             expect(getMetaDataSpy).toHaveBeenCalledOnce();
         });
@@ -195,15 +195,19 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.add", async () => {
             const addSpy = vi.spyOn(fileStorageAdapter, "add");
 
-            await signedFileStorageAdapter.add(noOpContext, "a", {
-                contentType: "",
-                contentLanguage: null,
-                contentEncoding: null,
-                contentDisposition: null,
-                cacheControl: null,
-                data: new Uint8Array(Buffer.from("CONTENT", "utf8")),
-                fileSizeInBytes: 0,
-            });
+            await signedFileStorageAdapter.add(
+                "a",
+                {
+                    contentType: "",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                    data: new Uint8Array(Buffer.from("CONTENT", "utf8")),
+                    fileSizeInBytes: 0,
+                },
+                noOpContext,
+            );
 
             expect(addSpy).toHaveBeenCalledOnce();
         });
@@ -212,21 +216,25 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.addStream", async () => {
             const addStreamSpy = vi.spyOn(fileStorageAdapter, "addStream");
 
-            await signedFileStorageAdapter.addStream(noOpContext, "a", {
-                contentType: "",
-                contentLanguage: null,
-                contentEncoding: null,
-                contentDisposition: null,
-                cacheControl: null,
-                data: {
-                    async *[Symbol.asyncIterator](): AsyncIterator<Uint8Array> {
-                        yield Promise.resolve(
-                            new Uint8Array(Buffer.from("CONTENT", "utf8")),
-                        );
+            await signedFileStorageAdapter.addStream(
+                "a",
+                {
+                    contentType: "",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                    data: {
+                        async *[Symbol.asyncIterator](): AsyncIterator<Uint8Array> {
+                            yield Promise.resolve(
+                                new Uint8Array(Buffer.from("CONTENT", "utf8")),
+                            );
+                        },
                     },
+                    fileSizeInBytes: 0,
                 },
-                fileSizeInBytes: 0,
-            });
+                noOpContext,
+            );
             expect(addStreamSpy).toHaveBeenCalledOnce();
         });
     });
@@ -234,15 +242,19 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.update", async () => {
             const updateSpy = vi.spyOn(fileStorageAdapter, "update");
 
-            await signedFileStorageAdapter.update(noOpContext, "a", {
-                contentType: "",
-                contentLanguage: null,
-                contentEncoding: null,
-                contentDisposition: null,
-                cacheControl: null,
-                data: new Uint8Array(Buffer.from("CONTENT", "utf8")),
-                fileSizeInBytes: 0,
-            });
+            await signedFileStorageAdapter.update(
+                "a",
+                {
+                    contentType: "",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                    data: new Uint8Array(Buffer.from("CONTENT", "utf8")),
+                    fileSizeInBytes: 0,
+                },
+                noOpContext,
+            );
 
             expect(updateSpy).toHaveBeenCalledOnce();
         });
@@ -254,21 +266,25 @@ describe("class: SignedFileStorageAdapter", () => {
                 "updateStream",
             );
 
-            await signedFileStorageAdapter.updateStream(noOpContext, "a", {
-                contentType: "",
-                contentLanguage: null,
-                contentEncoding: null,
-                contentDisposition: null,
-                cacheControl: null,
-                data: {
-                    async *[Symbol.asyncIterator](): AsyncIterator<Uint8Array> {
-                        yield Promise.resolve(
-                            new Uint8Array(Buffer.from("CONTENT", "utf8")),
-                        );
+            await signedFileStorageAdapter.updateStream(
+                "a",
+                {
+                    contentType: "",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                    data: {
+                        async *[Symbol.asyncIterator](): AsyncIterator<Uint8Array> {
+                            yield Promise.resolve(
+                                new Uint8Array(Buffer.from("CONTENT", "utf8")),
+                            );
+                        },
                     },
+                    fileSizeInBytes: 0,
                 },
-                fileSizeInBytes: 0,
-            });
+                noOpContext,
+            );
 
             expect(updateStreamSpy).toHaveBeenCalledOnce();
         });
@@ -277,15 +293,19 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.put", async () => {
             const putSpy = vi.spyOn(fileStorageAdapter, "put");
 
-            await signedFileStorageAdapter.put(noOpContext, "a", {
-                contentType: "",
-                contentLanguage: null,
-                contentEncoding: null,
-                contentDisposition: null,
-                cacheControl: null,
-                data: new Uint8Array(Buffer.from("CONTENT", "utf8")),
-                fileSizeInBytes: 0,
-            });
+            await signedFileStorageAdapter.put(
+                "a",
+                {
+                    contentType: "",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                    data: new Uint8Array(Buffer.from("CONTENT", "utf8")),
+                    fileSizeInBytes: 0,
+                },
+                noOpContext,
+            );
 
             expect(putSpy).toHaveBeenCalledOnce();
         });
@@ -294,21 +314,25 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.putStream", async () => {
             const putStreamSpy = vi.spyOn(fileStorageAdapter, "putStream");
 
-            await signedFileStorageAdapter.putStream(noOpContext, "a", {
-                contentType: "",
-                contentLanguage: null,
-                contentEncoding: null,
-                contentDisposition: null,
-                cacheControl: null,
-                data: {
-                    async *[Symbol.asyncIterator](): AsyncIterator<Uint8Array> {
-                        yield Promise.resolve(
-                            new Uint8Array(Buffer.from("CONTENT", "utf8")),
-                        );
+            await signedFileStorageAdapter.putStream(
+                "a",
+                {
+                    contentType: "",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                    data: {
+                        async *[Symbol.asyncIterator](): AsyncIterator<Uint8Array> {
+                            yield Promise.resolve(
+                                new Uint8Array(Buffer.from("CONTENT", "utf8")),
+                            );
+                        },
                     },
+                    fileSizeInBytes: 0,
                 },
-                fileSizeInBytes: 0,
-            });
+                noOpContext,
+            );
 
             expect(putStreamSpy).toHaveBeenCalledOnce();
         });
@@ -317,7 +341,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.copy", async () => {
             const copySpy = vi.spyOn(fileStorageAdapter, "copy");
 
-            await signedFileStorageAdapter.copy(noOpContext, "a", "b");
+            await signedFileStorageAdapter.copy("a", "b", noOpContext);
 
             expect(copySpy).toHaveBeenCalledOnce();
         });
@@ -330,9 +354,9 @@ describe("class: SignedFileStorageAdapter", () => {
             );
 
             await signedFileStorageAdapter.copyAndReplace(
-                noOpContext,
                 "a",
                 "b",
+                noOpContext,
             );
 
             expect(copyAndReplaceSpy).toHaveBeenCalledOnce();
@@ -342,7 +366,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.move", async () => {
             const moveSpy = vi.spyOn(fileStorageAdapter, "move");
 
-            await signedFileStorageAdapter.move(noOpContext, "a", "b");
+            await signedFileStorageAdapter.move("a", "b", noOpContext);
 
             expect(moveSpy).toHaveBeenCalledOnce();
         });
@@ -355,9 +379,9 @@ describe("class: SignedFileStorageAdapter", () => {
             );
 
             await signedFileStorageAdapter.moveAndReplace(
-                noOpContext,
                 "a",
                 "b",
+                noOpContext,
             );
 
             expect(moveAndReplaceSpy).toHaveBeenCalledOnce();
@@ -367,7 +391,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileStorageAdapter.removeMany", async () => {
             const removeManySpy = vi.spyOn(fileStorageAdapter, "removeMany");
 
-            await signedFileStorageAdapter.removeMany(noOpContext, ["a"]);
+            await signedFileStorageAdapter.removeMany(["a"], noOpContext);
 
             expect(removeManySpy).toHaveBeenCalledOnce();
         });
@@ -379,7 +403,7 @@ describe("class: SignedFileStorageAdapter", () => {
                 "removeByPrefix",
             );
 
-            await signedFileStorageAdapter.removeByPrefix(noOpContext, "a");
+            await signedFileStorageAdapter.removeByPrefix("a", noOpContext);
 
             expect(removeManySpy).toHaveBeenCalledOnce();
         });
@@ -388,7 +412,7 @@ describe("class: SignedFileStorageAdapter", () => {
         test("Should call IFileUrlAdapter.getPublicUrl", async () => {
             const getPublicUrlSpy = vi.spyOn(fileUrlAdapter, "getPublicUrl");
 
-            await signedFileStorageAdapter.getPublicUrl(noOpContext, "a");
+            await signedFileStorageAdapter.getPublicUrl("a", noOpContext);
 
             expect(getPublicUrlSpy).toHaveBeenCalledOnce();
         });
@@ -401,13 +425,13 @@ describe("class: SignedFileStorageAdapter", () => {
             );
 
             await signedFileStorageAdapter.getSignedDownloadUrl(
-                noOpContext,
                 "a",
                 {
                     contentDisposition: null,
                     contentType: null,
                     expirationInSeconds: 5000,
                 },
+                noOpContext,
             );
 
             expect(getSignedDownloadUrlSpy).toHaveBeenCalledOnce();
@@ -421,12 +445,12 @@ describe("class: SignedFileStorageAdapter", () => {
             );
 
             await signedFileStorageAdapter.getSignedUploadUrl(
-                noOpContext,
                 "a",
                 {
                     contentType: null,
                     expirationInSeconds: 5000,
                 },
+                noOpContext,
             );
 
             expect(getSignedUploadUrlSpy).toHaveBeenCalledOnce();
