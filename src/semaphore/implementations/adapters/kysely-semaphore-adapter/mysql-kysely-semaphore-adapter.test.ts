@@ -131,8 +131,8 @@ describe("mysql class: KyselySemaphoreAdapter", () => {
 
             await adapter.removeAllExpired();
 
-            expect(await adapter.getState(noOpContext, key1)).toBeNull();
-            expect(await adapter.getState(noOpContext, key2)).toBeNull();
+            expect(await adapter.getState(key1, noOpContext)).toBeNull();
+            expect(await adapter.getState(key2, noOpContext)).toBeNull();
         });
     });
     describe("method: init", () => {
