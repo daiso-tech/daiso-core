@@ -115,9 +115,9 @@ export class MemorySemaphoreAdapter
         return Promise.resolve(true);
     }
     async release(
-        _context: IReadableContext,
         key: string,
         slotId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const semaphore = this.map.get(key);
         if (!semaphore) {
@@ -147,8 +147,8 @@ export class MemorySemaphoreAdapter
         return Promise.resolve(true);
     }
     async forceReleaseAll(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const semaphore = this.map.get(key);
         if (semaphore === undefined) {
@@ -168,10 +168,10 @@ export class MemorySemaphoreAdapter
     }
 
     async refresh(
-        _context: IReadableContext,
         key: string,
         slotId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const semaphore = this.map.get(key);
         if (!semaphore) {
@@ -205,8 +205,8 @@ export class MemorySemaphoreAdapter
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ISemaphoreAdapterState | null> {
         const semaphore = this.map.get(key);
         if (semaphore === undefined) {
