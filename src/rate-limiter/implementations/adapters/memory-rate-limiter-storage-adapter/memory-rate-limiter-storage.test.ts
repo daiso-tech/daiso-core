@@ -24,26 +24,26 @@ describe("class: MemoryRateLimiterStorageAdapter", () => {
         test("Should clear rate limiter data", async () => {
             const map = new Map<string, MemoryRateLimiterData>();
             const adapter = new MemoryRateLimiterStorageAdapter(map);
-            await adapter.transaction(noOpContext, async (trx) => {
+            await adapter.transaction(async (trx) => {
                 await trx.upsert(
-                    noOpContext,
                     "a",
                     1,
                     TimeSpan.fromSeconds(2).toEndDate(),
+                    noOpContext,
                 );
                 await trx.upsert(
-                    noOpContext,
                     "b",
                     2,
                     TimeSpan.fromSeconds(2).toEndDate(),
+                    noOpContext,
                 );
                 await trx.upsert(
-                    noOpContext,
                     "c",
                     3,
                     TimeSpan.fromSeconds(2).toEndDate(),
+                    noOpContext,
                 );
-            });
+            }, noOpContext);
             await adapter.deInit();
 
             expect(map.size).toBe(0);
