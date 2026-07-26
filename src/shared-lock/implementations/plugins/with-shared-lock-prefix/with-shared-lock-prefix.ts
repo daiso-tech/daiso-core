@@ -26,49 +26,36 @@ export function withSharedLockPrefix(
         return prefix + key;
     }
     return (adapter, enhance) => {
-        enhance(adapter, "forceRelease", ({ args: [context, key], next }) => {
-            return next([context, withPrefix(key)]);
+        enhance(adapter, "forceRelease", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
         });
-        enhance(adapter, "getState", ({ args: [context, key], next }) => {
-            return next([context, withPrefix(key)]);
+        enhance(adapter, "getState", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
         });
 
-        enhance(
-            adapter,
-            "acquireWriter",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
-            },
-        );
+        enhance(adapter, "acquireWriter", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
         enhance(
             adapter,
             "forceReleaseWriter",
-            ({ args: [context, key], next }) => {
-                return next([context, withPrefix(key)]);
+            ({ args: [key, ...rest], next }) => {
+                return next([withPrefix(key), ...rest]);
             },
         );
-        enhance(
-            adapter,
-            "refreshWriter",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
-            },
-        );
-        enhance(
-            adapter,
-            "releaseWriter",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
-            },
-        );
+        enhance(adapter, "refreshWriter", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
+        enhance(adapter, "releaseWriter", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
 
         enhance(
             adapter,
             "acquireReader",
-            ({ args: [{ context, key, ...rest }], next }) => {
+            ({ args: [{ key, ...rest }], next }) => {
                 return next([
                     {
-                        context,
                         key: withPrefix(key),
                         ...rest,
                     },
@@ -78,23 +65,15 @@ export function withSharedLockPrefix(
         enhance(
             adapter,
             "forceReleaseAllReaders",
-            ({ args: [context, key], next }) => {
-                return next([context, withPrefix(key)]);
+            ({ args: [key, ...rest], next }) => {
+                return next([withPrefix(key), ...rest]);
             },
         );
-        enhance(
-            adapter,
-            "refreshReader",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
-            },
-        );
-        enhance(
-            adapter,
-            "releaseReader",
-            ({ args: [context, key, ...rest], next }) => {
-                return next([context, withPrefix(key), ...rest]);
-            },
-        );
+        enhance(adapter, "refreshReader", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
+        enhance(adapter, "releaseReader", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
     };
 }
