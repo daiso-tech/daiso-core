@@ -101,8 +101,8 @@ export class DatabaseRateLimiterAdapter<
     }
 
     async getState(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<IRateLimiterAdapterState | null> {
         const state = await this.rateLimiterStorage.find(context, key);
         if (state === null) {
@@ -118,9 +118,9 @@ export class DatabaseRateLimiterAdapter<
     }
 
     async updateState(
-        context: IReadableContext,
         key: string,
         limit: number,
+        context: IReadableContext,
     ): Promise<IRateLimiterAdapterState> {
         const currentDate = new Date();
         const track = this.rateLimiterStateManager.track(currentDate);
@@ -146,7 +146,7 @@ export class DatabaseRateLimiterAdapter<
         };
     }
 
-    async reset(context: IReadableContext, key: string): Promise<void> {
+    async reset(key: string, context: IReadableContext): Promise<void> {
         await this.rateLimiterStorage.remove(context, key);
     }
 }

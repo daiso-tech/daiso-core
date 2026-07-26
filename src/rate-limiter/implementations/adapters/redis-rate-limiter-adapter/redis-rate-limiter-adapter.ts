@@ -182,8 +182,8 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<IRateLimiterAdapterState | null> {
         const json = await this.database.daiso_rate_limiter_get_state(
             key,
@@ -205,9 +205,9 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
     }
 
     async updateState(
-        _context: IReadableContext,
         key: string,
         limit: number,
+        _context: IReadableContext,
     ): Promise<IRateLimiterAdapterState> {
         const json = await this.database.daiso_rate_limiter_update_state(
             key,
@@ -226,7 +226,7 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
         };
     }
 
-    async reset(_context: IReadableContext, key: string): Promise<void> {
+    async reset(key: string, _context: IReadableContext): Promise<void> {
         await this.database.del(key);
     }
 }

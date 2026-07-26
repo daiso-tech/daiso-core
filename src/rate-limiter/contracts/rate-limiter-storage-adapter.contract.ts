@@ -44,16 +44,16 @@ export type IRateLimiterStorageAdapterTransaction<TType = unknown> = {
      * Used when recording a new attempt or updating metrics after evaluation.
      * Implementations should use database UPSERT semantics if available.
      *
-     * @param context Readable execution context for the operation
      * @param key Unique identifier for the rate limiter
      * @param state The new metrics/state object from the policy
      * @param expiration The calculated expiration date for this state
+     * @param context Readable execution context for the operation
      */
     upsert(
-        context: IReadableContext,
         key: string,
         state: TType,
         expiration: Date,
+        context: IReadableContext,
     ): Promise<void>;
 
     /**
@@ -61,13 +61,14 @@ export type IRateLimiterStorageAdapterTransaction<TType = unknown> = {
      * Used to load existing state when evaluating subsequent attempts.
      * Returns null if the rate limiter hasn't been initialized yet.
      *
-     * @param context Readable execution context for the operation
      * @param key Unique identifier for the rate limiter
+     * @param context Readable execution context for the operation
+     *
      * @returns The stored rate limiter data if found, otherwise null
      */
     find(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<IRateLimiterData<TType> | null>;
 };
 
@@ -92,16 +93,17 @@ export type IRateLimiterStorageAdapter<TType = unknown> = {
      * All database operations within the transaction function should succeed or fail atomically.
      * If the transaction function throws, the transaction should be rolled back.
      *
-     * @param context Readable execution context for the operation
      * @param fn Callback function receiving transaction object, should return a Promise
+     * @param context Readable execution context for the operation
+     *
      * @returns The value returned by the fn callback
      */
     transaction<TValue>(
-        context: IReadableContext,
         fn: InvokableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
+        context: IReadableContext,
     ): Promise<TValue>;
 
     /**
@@ -109,13 +111,14 @@ export type IRateLimiterStorageAdapter<TType = unknown> = {
      * Useful for read-only operations or standalone state checks.
      * Returns null if the rate limiter hasn't been initialized.
      *
-     * @param context Readable execution context for the operation
      * @param key Unique identifier for the rate limiter
+     * @param context Readable execution context for the operation
+     *
      * @returns The stored rate limiter data if found, otherwise null
      */
     find(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<IRateLimiterData<TType> | null>;
 
     /**
@@ -123,8 +126,8 @@ export type IRateLimiterStorageAdapter<TType = unknown> = {
      * Called when explicitly resetting a rate limiter or cleaning up expired entries.
      * Safe to call even if the rate limiter doesn't exist.
      *
-     * @param context Readable execution context for the operation
      * @param key Unique identifier for the rate limiter to remove
+     * @param context Readable execution context for the operation
      */
-    remove(context: IReadableContext, key: string): Promise<void>;
+    remove(key: string, context: IReadableContext): Promise<void>;
 };

@@ -20,17 +20,17 @@ class NoOpRateLimiterStorageAdapterTransaction<
     TType,
 > implements IRateLimiterStorageAdapterTransaction<TType> {
     upsert(
-        _context: IReadableContext,
         _key: string,
         _state: TType,
         _expiration: Date,
+        _context: IReadableContext,
     ): Promise<void> {
         return Promise.resolve();
     }
 
     find(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<IRateLimiterData<TType> | null> {
         return Promise.resolve(null);
     }
@@ -46,11 +46,11 @@ export class NoOpRateLimiterStorageAdapter<
     TType,
 > implements IRateLimiterStorageAdapter<TType> {
     transaction<TValue>(
-        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
+        _context: IReadableContext,
     ): Promise<TValue> {
         return Promise.resolve(
             fn(new NoOpRateLimiterStorageAdapterTransaction()),
@@ -58,13 +58,13 @@ export class NoOpRateLimiterStorageAdapter<
     }
 
     find(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<IRateLimiterData<TType> | null> {
         return Promise.resolve(null);
     }
 
-    remove(_context: IReadableContext, _key: string): Promise<void> {
+    remove(_key: string, _context: IReadableContext): Promise<void> {
         return Promise.resolve();
     }
 }

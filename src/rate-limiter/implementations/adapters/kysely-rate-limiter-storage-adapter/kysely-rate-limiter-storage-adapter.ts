@@ -80,10 +80,10 @@ class KyselyRateLimiterStorageAdapterTransaction<
     }
 
     async upsert(
-        _context: IReadableContext,
         key: string,
         state: TType,
         expiration: Date,
+        _context: IReadableContext,
     ): Promise<void> {
         const expirationAsMs = expiration.getTime();
         const serializedState = this.serde.serialize(state);
@@ -114,8 +114,8 @@ class KyselyRateLimiterStorageAdapterTransaction<
     }
 
     async find(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<IRateLimiterData<TType> | null> {
         return await find(this.kysely, this.serde, key);
     }
@@ -310,11 +310,11 @@ export class KyselyRateLimiterStorageAdapter<TType>
     }
 
     async transaction<TValue>(
-        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
+        _context: IReadableContext,
     ): Promise<TValue> {
         return await this._transaction(async (trx) => {
             return await fn(
@@ -324,13 +324,13 @@ export class KyselyRateLimiterStorageAdapter<TType>
     }
 
     async find(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<IRateLimiterData<TType> | null> {
         return await find(this.kysely, this.serde, key);
     }
 
-    async remove(_context: IReadableContext, key: string): Promise<void> {
+    async remove(key: string, _context: IReadableContext): Promise<void> {
         await this.kysely
             .deleteFrom("rateLimiter")
             .where("rateLimiter.key", "=", key)

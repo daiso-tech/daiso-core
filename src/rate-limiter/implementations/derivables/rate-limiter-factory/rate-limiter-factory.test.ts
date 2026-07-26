@@ -25,19 +25,19 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 describe("class: RateLimiterFactory", () => {
     const adapter: IRateLimiterAdapter = {
         getState(
-            _context: IReadableContext,
             _key: string,
+            _context: IReadableContext,
         ): Promise<IRateLimiterAdapterState | null> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
         updateState(
-            _context: IReadableContext,
             _key: string,
             _limit: number,
+            _context: IReadableContext,
         ): Promise<IRateLimiterAdapterState> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        reset(_context: IReadableContext, _key: string): Promise<void> {
+        reset(_key: string, _context: IReadableContext): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
     };
@@ -422,22 +422,22 @@ describe("class: RateLimiterFactory", () => {
                 constructor(private readonly adapter_: IRateLimiterAdapter) {}
 
                 getState(
-                    context: IReadableContext,
                     key: string,
+                    context: IReadableContext,
                 ): Promise<IRateLimiterAdapterState | null> {
-                    return this.adapter_.getState(context, key);
+                    return this.adapter_.getState(key, context);
                 }
 
                 updateState(
-                    context: IReadableContext,
                     key: string,
                     limit: number,
+                    context: IReadableContext,
                 ): Promise<IRateLimiterAdapterState> {
-                    return this.adapter_.updateState(context, key, limit);
+                    return this.adapter_.updateState(key, limit, context);
                 }
 
-                reset(context: IReadableContext, key: string): Promise<void> {
-                    return this.adapter_.reset(context, key);
+                reset(key: string, context: IReadableContext): Promise<void> {
+                    return this.adapter_.reset(key, context);
                 }
             }
 

@@ -52,13 +52,14 @@ export type IRateLimiterAdapter = {
      * Retrieves the current rate limiter state without modifying it.
      * Returns the tracking metrics if the rate limiter exists, otherwise null.
      *
-     * @param context Readable execution context for the operation
      * @param key Unique identifier for the rate limiter
+     * @param context Readable execution context for the operation
+     *
      * @returns Current adapter state if found, or null if not yet initialized
      */
     getState(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<IRateLimiterAdapterState | null>;
 
     /**
@@ -66,15 +67,16 @@ export type IRateLimiterAdapter = {
      * Increments attempt counter and determines if the request should be allowed or blocked.
      * The decision logic is handled by the policy interface configured for this adapter.
      *
-     * @param context Readable execution context for the operation
      * @param key Unique identifier for the rate limiter
      * @param limit Maximum allowed attempts in the current window
+     * @param context Readable execution context for the operation
+     *
      * @returns Updated state with incremented attempt and success flag
      */
     updateState(
-        context: IReadableContext,
         key: string,
         limit: number,
+        context: IReadableContext,
     ): Promise<IRateLimiterAdapterState>;
 
     /**
@@ -82,8 +84,8 @@ export type IRateLimiterAdapter = {
      * Clears all attempt tracking and lifts any blocking status.
      * Can be called even if the rate limiter has expired or was never initialized.
      *
-     * @param context Readable execution context for the operation
      * @param key Unique identifier for the rate limiter to reset
+     * @param context Readable execution context for the operation
      */
-    reset(context: IReadableContext, key: string): Promise<void>;
+    reset(key: string, context: IReadableContext): Promise<void>;
 };

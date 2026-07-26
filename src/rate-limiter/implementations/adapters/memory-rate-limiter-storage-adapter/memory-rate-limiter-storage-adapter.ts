@@ -53,18 +53,18 @@ export class MemoryRateLimiterStorageAdapter<TType>
     }
 
     async transaction<TValue>(
-        _context: IReadableContext,
         fn: InvokableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
+        _context: IReadableContext,
     ): Promise<TValue> {
         return await fn({
             upsert: (
-                _nestedContext: IReadableContext,
                 key: string,
                 state: TType,
                 expiration: Date,
+                _nestedContext: IReadableContext,
             ): Promise<void> => {
                 const ttl = expiration.getTime() - Date.now();
                 const timeoutId = setTimeout(() => {
@@ -78,17 +78,17 @@ export class MemoryRateLimiterStorageAdapter<TType>
                 return Promise.resolve();
             },
             find: (
-                context: IReadableContext,
                 key: string,
+                _nestedContext: IReadableContext,
             ): Promise<IRateLimiterData<TType> | null> => {
-                return this.find(context, key);
+                return this.find(key, _nestedContext);
             },
         });
     }
 
     find(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<IRateLimiterData<TType> | null> {
         const data = this.map.get(key);
         if (data === undefined) {
@@ -100,7 +100,7 @@ export class MemoryRateLimiterStorageAdapter<TType>
         });
     }
 
-    remove(_context: IReadableContext, key: string): Promise<void> {
+    remove(key: string, _context: IReadableContext): Promise<void> {
         const data = this.map.get(key);
         if (data === undefined) {
             return Promise.resolve();
