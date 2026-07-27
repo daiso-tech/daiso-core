@@ -450,6 +450,29 @@ export const devToolingItems: ComponentItemProps[] = [
     },
 ];
 
+// ─── Control Plane ──────────────────────────────────────────────
+
+export const controlPlaneItems: ComponentItemProps[] = [
+    {
+        icon: <Server size="1.5rem" strokeWidth={1.5} />,
+        title: "Daiso Platform",
+        description:
+            "A commercial control plane and runtime platform for deploying, managing, and monitoring Daiso-powered applications in production.",
+    },
+    {
+        icon: <Activity size="1.5rem" strokeWidth={1.5} />,
+        title: "Dashboard & Observability",
+        description:
+            "Real-time dashboards for monitoring component health, job queues, event throughput, and system metrics across all Daiso services.",
+    },
+    {
+        icon: <Globe size="1.5rem" strokeWidth={1.5} />,
+        title: "Multi-Tenancy",
+        description:
+            "Built-in tenant isolation, resource quotas, and per-tenant configuration for SaaS applications running on the Daiso platform.",
+    },
+];
+
 // ─── Homepage preview subset ─────────────────────────────────────
 
 export const upcomingItems: ComponentItemProps[] = [
@@ -458,4 +481,5 @@ export const upcomingItems: ComponentItemProps[] = [
     ...securityItems,
     ...integrationsItems,
     ...devToolingItems,
+    ...controlPlaneItems,
 ];

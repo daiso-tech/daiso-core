@@ -10,6 +10,7 @@ import {
   securityItems,
   integrationsItems,
   devToolingItems,
+  controlPlaneItems,
 } from "./index";
 import type { ComponentItemProps } from "./index";
 import {
@@ -167,6 +168,14 @@ export function DevToolingSection() {
   return (
     <section className={styles.futureSection}>
       <PlannedCardGrid items={devToolingItems} />
+    </section>
+  );
+}
+
+export function ControlPlaneSection() {
+  return (
+    <section className={styles.futureSection}>
+      <PlannedCardGrid items={controlPlaneItems} />
     </section>
   );
 }
