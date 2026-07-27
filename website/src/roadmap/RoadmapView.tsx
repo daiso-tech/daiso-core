@@ -13,61 +13,21 @@ import {
 } from "./index";
 import type { ComponentItemProps } from "./index";
 import {
-  CheckCircle,
-  Box,
-  RefreshCw,
-  Server,
-  Lock,
-  Puzzle,
-  Wrench,
   Layers,
+  RefreshCw,
+  Lock,
+  Radio,
+  Globe,
 } from "lucide-react";
 import Link from "@docusaurus/Link";
 import styles from "./roadmap.module.css";
 
-const sectionConfig: {
-  heading: string;
-  items: ComponentItemProps[];
-  icon: React.ReactNode;
-  description?: string;
-}[] = [
-  {
-    heading: "Foundation & Runtime",
-    items: foundationRuntimeItems,
-    icon: <Box size="1.15rem" strokeWidth={2} />,
-    description: "The core structural building blocks — DI, execution control, and transaction orchestration.",
-  },
-  {
-    heading: "Reliability & Messaging",
-    items: reliabilityMessagingItems,
-    icon: <RefreshCw size="1.15rem" strokeWidth={2} />,
-    description: "Guaranteed message delivery, job scheduling, and idempotency — built on Transaction Context.",
-  },
-  {
-    heading: "Security",
-    items: securityItems,
-    icon: <Lock size="1.15rem" strokeWidth={2} />,
-    description: "Authentication, authorization, and session management — end-to-end security.",
-  },
-  {
-    heading: "Integrations",
-    items: integrationsItems,
-    icon: <Puzzle size="1.15rem" strokeWidth={2} />,
-    description: "Connect Daiso to the rest of your stack — search engines, ORMs, and API specifications.",
-  },
-  {
-    heading: "Dev Tooling",
-    items: devToolingItems,
-    icon: <Wrench size="1.15rem" strokeWidth={2} />,
-    description: "Plugins, autodiscovery, and runtime introspection — everything you need to build with Daiso.",
-  },
-];
 
 function AvailableCategory({ label, items }: { label: string; items: ComponentItemProps[] }) {
   if (items.length === 0) return null;
   return (
     <div style={{ marginBottom: "1.5rem" }}>
-      <h4 style={{ fontSize: "0.82rem", fontWeight: 700, margin: "0 0 0.5rem", color: "var(--ifm-color-emphasis-600)", textTransform: "uppercase", letterSpacing: "0.04em" }}>{label}</h4>
+      <div style={{ fontSize: "0.82rem", fontWeight: 700, margin: "0 0 0.5rem", color: "var(--ifm-color-emphasis-600)", textTransform: "uppercase", letterSpacing: "0.04em" }}>{label}</div>
       <div className={styles.availableGrid}>
         {items.map((item, i) => {
           const card = (
@@ -103,25 +63,12 @@ function AvailableCategory({ label, items }: { label: string; items: ComponentIt
   );
 }
 
-function AvailableToday() {
-  const total = foundationExistingItems.length + storageExistingItems.length + reliabilityExistingItems.length + concurrencyExistingItems.length + messagingExistingItems.length + webExistingItems.length;
-
+export function AvailableComponents() {
   return (
     <section className={styles.availableSection}>
-      <div className={styles.availableHeader}>
-        <span className={styles.availableIcon}>
-          <CheckCircle size="1.2rem" strokeWidth={2.5} />
-        </span>
-        <h2 className={styles.availableTitle}>Available Today</h2>
-      </div>
-      <p className={styles.availableSubtitle}>
-        The Daiso ecosystem already ships <strong>{total} ready components</strong> —
-        tested, fully documented, and available now.
-      </p>
-
       <AvailableCategory label="Foundation" items={foundationExistingItems} />
       <AvailableCategory label="Storage" items={storageExistingItems} />
-      <AvailableCategory label="Reliability" items={reliabilityExistingItems} />
+      <AvailableCategory label="Resilience" items={reliabilityExistingItems} />
       <AvailableCategory label="Concurrency" items={concurrencyExistingItems} />
       <AvailableCategory label="Messaging" items={messagingExistingItems} />
       <AvailableCategory label="Web" items={webExistingItems} />
@@ -129,80 +76,97 @@ function AvailableToday() {
   );
 }
 
-function ArchitectureOverview() {
+function PlannedCardGrid({ items }: { items: ComponentItemProps[] }) {
+  return (
+    <div className={styles.availableGrid}>
+      {items.map((item, i) => (
+        <div key={i} className={styles.plannedCard}>
+          <span className={styles.plannedCardIcon}>{item.icon}</span>
+          <div className={styles.plannedCardBody}>
+            <div className={styles.plannedCardTitle}>{item.title}</div>
+            <p className={styles.plannedCardDesc}>{item.description}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function ArchitectureOverview() {
   return (
     <div className={styles.architectureBox}>
-      <h3 className={styles.architectureTitle}>How the ecosystem fits together</h3>
-      <p className={styles.architectureDesc}>
-        Every planned component plugs into an existing layer — nothing is built in isolation.
-      </p>
       <div className={styles.architectureLayers}>
         <div className={styles.archLayer}>
           <span className={styles.archLayerIcon}><Layers size="0.9rem" strokeWidth={2} /></span>
           <span className={styles.archLayerLabel}>Foundation</span>
-          <span className={styles.archLayerComponents}>Middleware · Serde · Execution Context · Config · DI</span>
+          <span className={styles.archLayerComponents}>Middleware · Collection · Serde · Codec · Execution Context · Config · Env</span>
+        </div>
+        <div className={styles.archLayer}>
+          <span className={styles.archLayerIcon}><Globe size="0.9rem" strokeWidth={2} /></span>
+          <span className={styles.archLayerLabel}>Storage</span>
+          <span className={styles.archLayerComponents}>Cache · File Storage</span>
         </div>
         <div className={styles.archLayer}>
           <span className={styles.archLayerIcon}><RefreshCw size="0.9rem" strokeWidth={2} /></span>
-          <span className={styles.archLayerLabel}>Reliability</span>
-          <span className={styles.archLayerComponents}>Cache · Circuit Breaker · Locks · Scheduler · Outbox/Inbox</span>
+          <span className={styles.archLayerLabel}>Resilience</span>
+          <span className={styles.archLayerComponents}>Circuit Breaker · Rate Limiter · Resilience</span>
         </div>
         <div className={styles.archLayer}>
           <span className={styles.archLayerIcon}><Lock size="0.9rem" strokeWidth={2} /></span>
-          <span className={styles.archLayerLabel}>Security</span>
-          <span className={styles.archLayerComponents}>Authentication · Authorization · Sessions</span>
+          <span className={styles.archLayerLabel}>Concurrency</span>
+          <span className={styles.archLayerComponents}>Lock · Shared Lock · Semaphore</span>
         </div>
         <div className={styles.archLayer}>
-          <span className={styles.archLayerIcon}><Puzzle size="0.9rem" strokeWidth={2} /></span>
-          <span className={styles.archLayerLabel}>Integrations</span>
-          <span className={styles.archLayerComponents}>OpenAPI · Search · MikroORM · Notifications</span>
+          <span className={styles.archLayerIcon}><Radio size="0.9rem" strokeWidth={2} /></span>
+          <span className={styles.archLayerLabel}>Messaging</span>
+          <span className={styles.archLayerComponents}>Event Bus</span>
+        </div>
+        <div className={styles.archLayer}>
+          <span className={styles.archLayerIcon}><Globe size="0.9rem" strokeWidth={2} /></span>
+          <span className={styles.archLayerLabel}>Web</span>
+          <span className={styles.archLayerComponents}>HTTP Router</span>
         </div>
       </div>
     </div>
   );
 }
 
-function FutureSection({ section }: { section: typeof sectionConfig[number] }) {
+export function FoundationRuntimeSection() {
   return (
     <section className={styles.futureSection}>
-      <div className={styles.futureHeader}>
-        <span className={styles.sectionIcon}>{section.icon}</span>
-        <div>
-          <h2 className={styles.sectionHeading}>{section.heading}</h2>
-          {section.description && (
-            <p style={{ fontSize: "0.82rem", color: "var(--ifm-color-emphasis-500)", margin: "0.05rem 0 0", lineHeight: 1.4 }}>
-              {section.description}
-            </p>
-          )}
-        </div>
-      </div>
-      <div className={styles.futureContent}>
-        <div className={styles.availableGrid}>
-          {section.items.map((item, i) => (
-            <div key={i} className={styles.plannedCard}>
-              <span className={styles.plannedCardIcon}>{item.icon}</span>
-              <div className={styles.plannedCardBody}>
-                <div className={styles.plannedCardTitle}>{item.title}</div>
-                <p className={styles.plannedCardDesc}>{item.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <PlannedCardGrid items={foundationRuntimeItems} />
     </section>
   );
 }
 
-export function RoadmapView() {
+export function ReliabilityMessagingSection() {
   return (
-    <>
-      <AvailableToday />
-      <ArchitectureOverview />
-      {sectionConfig.map((section, si) =>
-        section.items.length > 0 && (
-          <FutureSection key={si} section={section} />
-        ),
-      )}
-    </>
+    <section className={styles.futureSection}>
+      <PlannedCardGrid items={reliabilityMessagingItems} />
+    </section>
+  );
+}
+
+export function SecuritySection() {
+  return (
+    <section className={styles.futureSection}>
+      <PlannedCardGrid items={securityItems} />
+    </section>
+  );
+}
+
+export function IntegrationsSection() {
+  return (
+    <section className={styles.futureSection}>
+      <PlannedCardGrid items={integrationsItems} />
+    </section>
+  );
+}
+
+export function DevToolingSection() {
+  return (
+    <section className={styles.futureSection}>
+      <PlannedCardGrid items={devToolingItems} />
+    </section>
   );
 }

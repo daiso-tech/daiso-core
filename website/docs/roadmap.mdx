@@ -30,6 +30,57 @@ Daiso is pre-v1. Priorities may shift as the ecosystem is tested against real wo
 
 ---
 
-import { RoadmapView } from "../src/roadmap/RoadmapView";
+import {
+  AvailableComponents,
+  ArchitectureOverview,
+  FoundationRuntimeSection,
+  ReliabilityMessagingSection,
+  SecuritySection,
+  IntegrationsSection,
+  DevToolingSection,
+} from "../src/roadmap/RoadmapView";
 
-<RoadmapView />
+## 🟢 Available Components
+
+The Daiso ecosystem already ships **17 ready components** —
+tested, fully documented, and available now.
+
+<AvailableComponents />
+
+### How the ecosystem fits together
+
+Every planned component plugs into an existing layer — nothing is built in isolation.
+
+<ArchitectureOverview />
+
+## 🚀 Upcoming Components
+
+### Foundation & Runtime
+
+The core structural building blocks — DI, execution control, and transaction orchestration.
+
+<FoundationRuntimeSection />
+
+### Reliability & Messaging
+
+Guaranteed message delivery, job scheduling, and idempotency — built on Transaction Context.
+
+<ReliabilityMessagingSection />
+
+### Security
+
+Authentication, authorization, and session management — end-to-end security.
+
+<SecuritySection />
+
+### Integrations
+
+Connect Daiso to the rest of your stack — search engines, ORMs, and API specifications.
+
+<IntegrationsSection />
+
+### Dev Tooling
+
+Plugins, autodiscovery, and runtime introspection — everything you need to build with Daiso.
+
+<DevToolingSection />
