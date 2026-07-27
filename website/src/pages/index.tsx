@@ -1,4 +1,6 @@
 import { SiTypescript, SiVitest } from "@icons-pack/react-simple-icons";
+import type { ComponentItemProps } from "../roadmap";
+import { upcomingItems } from "../roadmap";
 import {
     Package,
     ShieldCheck,
@@ -134,19 +136,25 @@ function FeatureSection({ items }: { items: FeatureItemProps[] }) {
 
 // --- Components ---
 
-type ComponentItemProps = {
-    icon?: ReactNode;
-    title: ReactNode;
-    description: ReactNode;
-    href?: string;
-};
-
 function ComponentItem(props: ComponentItemProps) {
     const card = (
         <div className="daiso-component-card card">
             <div className="card__header">
                 <div className="daiso-component-icon">{props.icon}</div>
-                <h3>{props.title}</h3>
+                <h3
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                    }}
+                >
+                    {props.title}
+                    {props.badges?.map((b, i) => (
+                        <span className="daiso-badge" key={i}>
+                            {b}
+                        </span>
+                    ))}
+                </h3>
             </div>
             <div className="card__body">
                 <p>{props.description}</p>
@@ -285,6 +293,21 @@ function UpcomingSection({ items }: { items: ComponentItemProps[] }) {
                     {items.map((item, idx) => (
                         <ComponentItem key={idx} {...item} />
                     ))}
+                </div>
+                <div className="text--center margin-top--lg">
+                    <Link
+                        className="button button--outline button--secondary"
+                        to="/docs/roadmap"
+                    >
+                        View full roadmap{" "}
+                        <ArrowRight
+                            size="1rem"
+                            style={{
+                                marginLeft: "0.4rem",
+                                verticalAlign: "middle",
+                            }}
+                        />
+                    </Link>
                 </div>
             </div>
         </section>
@@ -490,122 +513,6 @@ const componentItems: ComponentItemProps[] = [
         description:
             "Route HTTP requests with a universal WinterTC-compatible fetch handler. Works with any framework or runtime that is WinterTC-compatible like Cloudflare Workers, AWS Lambda (via Hono), Next.js and more.",
         href: "/docs/components/http_router/http_router_usage",
-    },
-];
-
-const upcomingItems: ComponentItemProps[] = [
-    {
-        icon: <Clock size="1.5rem" strokeWidth={1.5} />,
-        title: "Job scheduler",
-        description:
-            "Schedule work with full flexibility — immediate dispatch, delayed execution, and recurring jobs.",
-    },
-    {
-        icon: <GitBranch size="1.5rem" strokeWidth={1.5} />,
-        title: "Structured cancellations",
-        description:
-            "Planning to support running async tasks in structured scopes where child tasks are tied to their parent's lifetime — with automatic cancellation, error propagation, and resource cleanup.",
-    },
-    {
-        icon: <Layers size="1.5rem" strokeWidth={1.5} />,
-        title: "Promise queue",
-        description:
-            "Planning to add a configurable promise queue to control the number of concurrently executing promises and prevent resource exhaustion.",
-    },
-    {
-        icon: <Box size="1.5rem" strokeWidth={1.5} />,
-        title: "DI container",
-        description:
-            "Planning to build a lightweight, type-safe dependency injection container for wiring application components without tight coupling.",
-    },
-    {
-        icon: <Bell size="1.5rem" strokeWidth={1.5} />,
-        title: "Notifications",
-        description:
-            "Planning to support sending notifications through multiple channels — synchronous dispatching, immediate enqueueing, delayed enqueueing, and recurring messages. Planned adapters include Slack, Discord, email, SMS, and WebSocket (browser push).",
-    },
-    {
-        icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
-        title: "Transaction context",
-        description:
-            "Planning to support coordinating database transactions across components with the after-commit, outbox, and inbox patterns for reliable, exactly-once message delivery.",
-    },
-    {
-        icon: <Copy size="1.5rem" strokeWidth={1.5} />,
-        title: "Idempotent cache",
-        description:
-            "Planning to add built-in idempotency support for the Job Scheduler and Event Bus to prevent duplicate job execution and event processing.",
-    },
-    {
-        icon: <Database size="1.5rem" strokeWidth={1.5} />,
-        title: "MikroORM",
-        description: (
-            <>
-                Planning first-class integration with{" "}
-                <a href="https://mikro-orm.io/">MikroORM</a> as the primary
-                database layer — full ORM support across PostgreSQL, MongoDB,
-                SQLite, and more, with deep integration across all components.
-            </>
-        ),
-    },
-    {
-        icon: <Search size="1.5rem" strokeWidth={1.5} />,
-        title: "Text search",
-        description:
-            "Planning to support synchronising your database — synchronously or asynchronously — with an external search engine via a unified interface. First-class integrations with MikroORM, PostgreSQL (via Kysely), and MongoDB planned.",
-    },
-    {
-        icon: <Server size="1.5rem" strokeWidth={1.5} />,
-        title: "OpenAPI",
-        description:
-            "Planning first-class OpenAPI support — define your API schema alongside your handlers and get spec generation, validation, and documentation out of the box.",
-    },
-    {
-        icon: <Users size="1.5rem" strokeWidth={1.5} />,
-        title: "Session management",
-        description:
-            "Planning to support managing user sessions securely with a pluggable, adapter-driven API.",
-    },
-    {
-        icon: <Lock size="1.5rem" strokeWidth={1.5} />,
-        title: "Authorization gates",
-        description:
-            "Planning to implement gate primitives for fine-grained, policy-based access control.",
-    },
-    {
-        icon: <Lightbulb size="1.5rem" strokeWidth={1.5} />,
-        title: "Apache Casbin integration",
-        description: (
-            <>
-                Planning integration with{" "}
-                <a href="https://casbin.org/">Casbin</a> for advanced
-                authorization using attribute-based, role-based, and
-                relationship-based access control models.
-            </>
-        ),
-    },
-    {
-        icon: <Plug size="1.5rem" strokeWidth={1.5} />,
-        title: "Authentication",
-        description: (
-            <>
-                Planning first-class support for username/password, email
-                verification, OAuth, and WebAuthn — with a{" "}
-                <a href="https://www.better-auth.com/">Better Auth</a>{" "}
-                integration for batteries-included setups.
-            </>
-        ),
-    },
-    {
-        icon: <Server size="1.5rem" strokeWidth={1.5} />,
-        title: <>Logging &amp; OpenTelemetry</>,
-        description: (
-            <>
-                Planned support for flexible logging and{" "}
-                <a href="https://opentelemetry.io/">OpenTelemetry</a>{" "}
-                integration to make debugging and observability seamless.
-            </>
-        ),
     },
 ];
 

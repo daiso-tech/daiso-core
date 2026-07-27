@@ -348,6 +348,20 @@ html[data-theme='dark'] {
   line-height: 1.65;
 }
 
+.daiso-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.15em 0.55em;
+  border-radius: 0.375rem;
+  background: var(--ifm-color-primary);
+  color: #fff;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
 /* ================================================================
    GITHUB STAR BANNER
    ================================================================ */
