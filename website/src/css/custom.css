@@ -416,7 +416,7 @@ html[data-theme='dark'] {
 }
 
 .daiso-segmented-control-wrapper {
-  text-align: center;
+  text-align: left;
 }
 
 .daiso-segmented-option {
@@ -494,6 +494,45 @@ html[data-theme='dark'] {
   font-size: 0.8rem;
   height: 320px;
   overflow-y: auto;
+}
+
+/* ================================================================
+   FRAMEWORK COMPARISON (CodeShowcase-style)
+   ================================================================ */
+
+.daiso-comparison-sides {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.daiso-comp-instead p,
+.daiso-comp-daiso p {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  margin: 0;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.daiso-comp-daiso p {
+  color: var(--ifm-color-emphasis-900);
+}
+
+.daiso-comp-label-instead,
+.daiso-comp-label-daiso {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.35rem;
+}
+
+.daiso-comp-label-instead {
+  color: var(--ifm-color-emphasis-500);
+}
+
+.daiso-comp-label-daiso {
+  color: var(--ifm-color-primary);
 }
 
 /* ================================================================
@@ -641,3 +680,7 @@ html[data-theme='dark'] {
   color: var(--ifm-color-primary);
   font-weight: 700;
 }
+
+/* ================================================================
+   WHO IS THIS FOR
+   ================================================================ */

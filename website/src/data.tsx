@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { SiTypescript, SiVitest } from "@icons-pack/react-simple-icons";
 import {
     Box,
     ShieldCheck,
@@ -32,7 +33,10 @@ import {
     Leaf,
     Image,
     Activity,
+    Package,
 } from "lucide-react";
+
+export const INSTALL_CMD = "npm install @daiso-tech/core";
 
 export type ComponentItemProps = {
     icon?: ReactNode;
@@ -523,6 +527,320 @@ export const upcomingItems: ComponentItemProps[] = [
         title: "Job Scheduler",
         description:
             "Schedule work with full flexibility — immediate dispatch, delayed execution, and recurring jobs. Uses Transaction Context for reliable execution.",
+    },
+];
+
+// ─── Homepage Data ─────────────────────────────────────────────
+
+export type FeatureItemProps = {
+    icon?: ReactNode;
+    title: ReactNode;
+    description: ReactNode;
+};
+
+export const featureItems: FeatureItemProps[] = [
+    {
+        icon: <Zap size="1.5rem" strokeWidth={1.5} />,
+        title: "Switch infrastructure without rewriting business logic",
+        description:
+            "The adapter pattern keeps your code decoupled from vendors. Use Redis today, Postgres tomorrow — no refactoring required.",
+    },
+    {
+        icon: <SiVitest size="1.5rem" />,
+        title: "Test everything without Docker",
+        description:
+            "Every component ships with an in-memory adapter and built-in Vitest helpers. Write fast, isolated tests — no external services needed.",
+    },
+    {
+        icon: <Plug size="1.5rem" strokeWidth={1.5} />,
+        title: "Bring your own framework",
+        description:
+            "No DI container required. Plug directly into Express, NestJS, AdonisJS, Next.js, Nuxt, or TanStack Start — it just works.",
+    },
+    {
+        icon: <SiTypescript size="1.5rem" />,
+        title: "Type-safe from day one",
+        description:
+            "Full TypeScript support with precise generics, rich intellisense, and auto-import friendly APIs — errors caught at compile time, not runtime.",
+    },
+    {
+        icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
+        title: "Standard schema validation built in",
+        description: (
+            <>
+                First-class integration with{" "}
+                <a href="https://standardschema.dev/">Standard Schema</a>. Use{" "}
+                <a href="https://zod.dev/">Zod</a>, Valibot, or ArkType to
+                enforce both compile-time and runtime data safety.
+            </>
+        ),
+    },
+    {
+        icon: <Package size="1.5rem" strokeWidth={1.5} />,
+        title: "ESM native. No CommonJS baggage.",
+        description:
+            "Built on modern JavaScript primitives. Fully compatible with Node.js, Bun, Deno, and the modern bundler ecosystem.",
+    },
+];
+
+export type WhoIsThisForItem = {
+    title: string;
+    description: string;
+};
+
+export const whoIsThisForData = {
+    perfectFor: [
+        {
+            title: "SaaS applications.",
+            description:
+                "Multi-tenant platforms, subscription services, and B2B tools that need to swap between Redis, Postgres, or S3 without a rewrite.",
+        },
+        {
+            title: "Internal tools & admin panels.",
+            description:
+                "Back-office dashboards and operational tooling where you want to move fast with in-memory adapters in dev and swap to real infrastructure in production.",
+        },
+        {
+            title: "REST & GraphQL APIs.",
+            description:
+                "Framework-agnostic primitives that plug into Express, Fastify, Hono, or any Node.js HTTP server — no vendor lock-in.",
+        },
+        {
+            title: "Enterprise backend services.",
+            description:
+                "Distributed locking, circuit breakers, rate limiting, and resilience patterns that work across processes and machines.",
+        },
+        {
+            title: "Modular monoliths.",
+            description:
+                "Start with one deployable, compose components as you grow — extract services later without changing business logic.",
+        },
+        {
+            title: "Microservices.",
+            description:
+                "Each service gets the same adapter abstraction — Redis in one, Postgres in another, in-memory for tests — all the same API.",
+        },
+        {
+            title: "Teams avoiding vendor lock-in.",
+            description:
+                "Every component is adapter-first. Switch your cache, lock, event bus, or file storage backend anytime — zero code changes to your domain logic.",
+        },
+    ],
+    notIdealFor: [
+        {
+            title: "Frontend-only applications.",
+            description:
+                "@daiso-tech/core runs on the server. If you're building a React or Vue SPA with no backend, there's nothing here for you.",
+        },
+        {
+            title: "Browser-only libraries.",
+            description:
+                "The library uses Node.js APIs and server-side primitives — it won't work in the browser.",
+        },
+        {
+            title: "Non-TypeScript projects.",
+            description:
+                "The entire API surface is typed with generics and inference. Plain JavaScript won't get you the full developer experience — intellisense, auto-complete, and compile-time safety are core features.",
+        },
+        {
+            title: "Serverless-only architectures without long-running processes.",
+            description:
+                "Components like locks, event buses, and schedulers assume a persistent Node.js process. Pure Lambda-style architectures may not benefit from the full feature set.",
+        },
+    ],
+};
+
+// ─── Code Showcase ────────────────────────────────────────────
+
+export type CodeFile = {
+    name: string;
+    code: string;
+};
+
+export type CodeExample = {
+    label: string;
+    heading: string;
+    description: string;
+    bullets: string[];
+    files: CodeFile[];
+};
+
+export const CODE_EXAMPLES: CodeExample[] = [
+    {
+        label: "Cache",
+        heading: "Cache anything. Swap backends anytime.",
+        description:
+            "Speed up your application by caching expensive database queries and API responses. Use Redis in production, in-memory for tests — same API, zero rewrites.",
+        bullets: [
+            "Memory, Redis, Kysely & MongoDB adapters",
+            "TTL policies with automatic eviction",
+            "Stampede protection built in",
+        ],
+        files: [
+            {
+                name: "cache.ts",
+                code: `import { createCache } from "@daiso-tech/core";
+import { RedisCacheAdapter } from "@daiso-tech/core/cache";
+
+const cache = createCache({
+    adapter: new RedisCacheAdapter({ client: redis }),
+});
+
+await cache.set("user:42", { name: "Alice" });
+const user = await cache.get("user:42");
+// { name: "Alice" }`,
+            },
+            {
+                name: "cache.test.ts",
+                code: `import { createCache } from "@daiso-tech/core";
+import { MemoryCacheAdapter } from "@daiso-tech/core/cache";
+
+// Tests: in-memory — no Docker needed
+const cache = createCache({
+    adapter: new MemoryCacheAdapter(),
+});
+
+// Same API, same assertions — zero changes`,
+            },
+        ],
+    },
+    {
+        label: "Lock",
+        heading: "Distributed locking. No race conditions.",
+        description:
+            "Guarantee mutual exclusion across multiple processes. Prevent duplicate payment processing, job execution, or any critical section — with automatic lease management and deadlock protection.",
+        bullets: [
+            "Blocking & non-blocking acquisition",
+            "Automatic lease renewal & release",
+            "Works across processes and machines",
+        ],
+        files: [
+            {
+                name: "payment.service.ts",
+                code: `import { createLock, type ILock } from "@daiso-tech/core";
+import { RedisLockAdapter } from "@daiso-tech/core/lock";
+
+const lock: ILock = createLock({
+    adapter: new RedisLockAdapter({ client: redis }),
+});
+
+export async function processOrderPayment(order: Order) {
+    const acquired = await lock.acquire(
+        \`payment:order-\${order.id}\`,
+        { ttl: "30s" },
+    );
+
+    if (!acquired) throw new Error("Payment already in progress");
+
+    try {
+        await chargeCustomer(order);
+    } finally {
+        await lock.release(\`payment:order-\${order.id}\`);
+    }
+}`,
+            },
+            {
+                name: "payment.test.ts",
+                code: `import { createLock } from "@daiso-tech/core";
+import { MemoryLockAdapter } from "@daiso-tech/core/lock";
+
+// Tests: in-memory — no Redis, no Docker
+const lock = createLock({
+    adapter: new MemoryLockAdapter(),
+});
+
+// Same API, same behavior — zero changes`,
+            },
+        ],
+    },
+    {
+        label: "File Storage",
+        heading: "Upload once. Store anywhere.",
+        description:
+            "Manage files with a unified API across local disk, in-memory, and AWS S3. Build photo upload services and document management — swap the storage backend without touching business logic.",
+        bullets: [
+            "Local filesystem, in-memory & S3 adapters",
+            "Streaming uploads & downloads",
+            "Metadata & lifecycle management",
+        ],
+        files: [
+            {
+                name: "storage.ts",
+                code: `import { createFileStorage } from "@daiso-tech/core";
+import { S3FileStorageAdapter } from "@daiso-tech/core/file-storage";
+
+const storage = createFileStorage({
+    adapter: new S3FileStorageAdapter({
+        bucket: "uploads",
+        region: "eu-west-1",
+    }),
+});
+
+await storage.put("avatars/alice.png", buffer);
+const file = await storage.get("avatars/alice.png");`,
+            },
+            {
+                name: "storage.dev.ts",
+                code: `import { createFileStorage } from "@daiso-tech/core";
+import { LocalFileStorageAdapter } from "@daiso-tech/core/file-storage";
+
+// Dev: local disk — same API, zero code changes
+const storage = createFileStorage({
+    adapter: new LocalFileStorageAdapter({
+        basePath: "./uploads",
+    }),
+});`,
+            },
+        ],
+    },
+    {
+        label: "Event Bus",
+        heading: "Publish events. Decouple services.",
+        description:
+            "Publish and subscribe to events across distributed server instances. Fire-and-forget or guaranteed delivery — with pluggable transport backends that swap without changing your handlers.",
+        bullets: [
+            "In-memory, Redis & more transports",
+            "Topic routing & wildcard patterns",
+            "Guaranteed delivery semantics",
+        ],
+        files: [
+            {
+                name: "bus.ts",
+                code: `import { createEventBus } from "@daiso-tech/core";
+import { RedisEventBusAdapter } from "@daiso-tech/core/event-bus";
+
+const bus = createEventBus({
+    adapter: new RedisEventBusAdapter({
+        client: redis,
+    }),
+});
+
+bus.subscribe("order.placed", async (event) => {
+    await sendEmail(event.payload.userId);
+});`,
+            },
+            {
+                name: "publish.ts",
+                code: `import { bus } from "./bus";
+
+await bus.publish("order.placed", {
+    userId: 42,
+    total: 99.95,
+});`,
+            },
+            {
+                name: "bus.test.ts",
+                code: `import { createEventBus } from "@daiso-tech/core";
+import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus";
+
+// Tests: in-memory — no Docker
+const bus = createEventBus({
+    adapter: new MemoryEventBusAdapter(),
+});
+
+// Same API, same behavior — zero changes`,
+            },
+        ],
     },
 ];
 

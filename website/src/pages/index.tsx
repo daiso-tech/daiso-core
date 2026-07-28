@@ -1,4 +1,3 @@
-import { SiTypescript, SiVitest } from "@icons-pack/react-simple-icons";
 import {
     upcomingItems,
     foundationExistingItems,
@@ -7,6 +6,13 @@ import {
     concurrencyExistingItems,
     messagingExistingItems,
     webExistingItems,
+    featureItems,
+    type FeatureItemProps,
+    whoIsThisForData,
+    type CodeExample,
+    type CodeFile,
+    CODE_EXAMPLES,
+    INSTALL_CMD,
 } from "../data";
 import { AvailableCategory } from "../roadmap/components/AvailableCategory";
 import { PlannedCardGrid } from "../roadmap/components/PlannedCardGrid";
@@ -27,8 +33,6 @@ import Layout from "@theme/Layout";
 import CodeBlock from "@theme/CodeBlock";
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
-
-const INSTALL_CMD = "npm install @daiso-tech/core";
 
 function InstallCommand() {
     const [copied, setCopied] = useState(false);
@@ -86,200 +90,6 @@ function StatsBar() {
     );
 }
 
-// --- Code Showcase ---
-
-type CodeFile = {
-    name: string;
-    code: string;
-};
-
-type CodeExample = {
-    label: string;
-    heading: string;
-    description: string;
-    bullets: string[];
-    files: CodeFile[];
-};
-
-const CODE_EXAMPLES: CodeExample[] = [
-    {
-        label: "Cache",
-        heading: "Cache anything. Swap backends anytime.",
-        description:
-            "Speed up your application by caching expensive database queries and API responses. Use Redis in production, in-memory for tests — same API, zero rewrites.",
-        bullets: [
-            "Memory, Redis, Kysely & MongoDB adapters",
-            "TTL policies with automatic eviction",
-            "Stampede protection built in",
-        ],
-        files: [
-            {
-                name: "cache.ts",
-                code: `import { createCache } from "@daiso-tech/core";
-import { RedisCacheAdapter } from "@daiso-tech/core/cache";
-
-const cache = createCache({
-    adapter: new RedisCacheAdapter({ client: redis }),
-});
-
-await cache.set("user:42", { name: "Alice" });
-const user = await cache.get("user:42");
-// { name: "Alice" }`,
-            },
-            {
-                name: "cache.test.ts",
-                code: `import { createCache } from "@daiso-tech/core";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache";
-
-// Tests: in-memory — no Docker needed
-const cache = createCache({
-    adapter: new MemoryCacheAdapter(),
-});
-
-// Same API, same assertions — zero changes`,
-            },
-        ],
-    },
-    {
-        label: "Lock",
-        heading: "Distributed locking. No race conditions.",
-        description:
-            "Guarantee mutual exclusion across multiple processes. Prevent duplicate payment processing, job execution, or any critical section — with automatic lease management and deadlock protection.",
-        bullets: [
-            "Blocking & non-blocking acquisition",
-            "Automatic lease renewal & release",
-            "Works across processes and machines",
-        ],
-        files: [
-            {
-                name: "payment.service.ts",
-                code: `import { createLock, type ILock } from "@daiso-tech/core";
-import { RedisLockAdapter } from "@daiso-tech/core/lock";
-
-const lock: ILock = createLock({
-    adapter: new RedisLockAdapter({ client: redis }),
-});
-
-export async function processOrderPayment(order: Order) {
-    const acquired = await lock.acquire(
-        \`payment:order-\${order.id}\`,
-        { ttl: "30s" },
-    );
-
-    if (!acquired) throw new Error("Payment already in progress");
-
-    try {
-        await chargeCustomer(order);
-    } finally {
-        await lock.release(\`payment:order-\${order.id}\`);
-    }
-}`,
-            },
-            {
-                name: "payment.test.ts",
-                code: `import { createLock } from "@daiso-tech/core";
-import { MemoryLockAdapter } from "@daiso-tech/core/lock";
-
-// Tests: in-memory — no Redis, no Docker
-const lock = createLock({
-    adapter: new MemoryLockAdapter(),
-});
-
-// Same API, same behavior — zero changes`,
-            },
-        ],
-    },
-    {
-        label: "File Storage",
-        heading: "Upload once. Store anywhere.",
-        description:
-            "Manage files with a unified API across local disk, in-memory, and AWS S3. Build photo upload services and document management — swap the storage backend without touching business logic.",
-        bullets: [
-            "Local filesystem, in-memory & S3 adapters",
-            "Streaming uploads & downloads",
-            "Metadata & lifecycle management",
-        ],
-        files: [
-            {
-                name: "storage.ts",
-                code: `import { createFileStorage } from "@daiso-tech/core";
-import { S3FileStorageAdapter } from "@daiso-tech/core/file-storage";
-
-const storage = createFileStorage({
-    adapter: new S3FileStorageAdapter({
-        bucket: "uploads",
-        region: "eu-west-1",
-    }),
-});
-
-await storage.put("avatars/alice.png", buffer);
-const file = await storage.get("avatars/alice.png");`,
-            },
-            {
-                name: "storage.dev.ts",
-                code: `import { createFileStorage } from "@daiso-tech/core";
-import { LocalFileStorageAdapter } from "@daiso-tech/core/file-storage";
-
-// Dev: local disk — same API, zero code changes
-const storage = createFileStorage({
-    adapter: new LocalFileStorageAdapter({
-        basePath: "./uploads",
-    }),
-});`,
-            },
-        ],
-    },
-    {
-        label: "Event Bus",
-        heading: "Publish events. Decouple services.",
-        description:
-            "Publish and subscribe to events across distributed server instances. Fire-and-forget or guaranteed delivery — with pluggable transport backends that swap without changing your handlers.",
-        bullets: [
-            "In-memory, Redis & more transports",
-            "Topic routing & wildcard patterns",
-            "Guaranteed delivery semantics",
-        ],
-        files: [
-            {
-                name: "bus.ts",
-                code: `import { createEventBus } from "@daiso-tech/core";
-import { RedisEventBusAdapter } from "@daiso-tech/core/event-bus";
-
-const bus = createEventBus({
-    adapter: new RedisEventBusAdapter({
-        client: redis,
-    }),
-});
-
-bus.subscribe("order.placed", async (event) => {
-    await sendEmail(event.payload.userId);
-});`,
-            },
-            {
-                name: "publish.ts",
-                code: `import { bus } from "./bus";
-
-await bus.publish("order.placed", {
-    userId: 42,
-    total: 99.95,
-});`,
-            },
-            {
-                name: "bus.test.ts",
-                code: `import { createEventBus } from "@daiso-tech/core";
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus";
-
-// Tests: in-memory — no Docker
-const bus = createEventBus({
-    adapter: new MemoryEventBusAdapter(),
-});
-
-// Same API, same behavior — zero changes`,
-            },
-        ],
-    },
-];
-
 function CodeShowcase() {
     const [activeIndex, setActiveIndex] = useState(0);
     const [fading, setFading] = useState(false);
@@ -316,7 +126,15 @@ function CodeShowcase() {
                         <div
                             className={`daiso-carousel-text${fading ? " daiso-carousel-text--fading" : ""}`}
                         >
-                            <h3 className="daiso-section-subtitle" style={{ textAlign: "left", fontWeight: 700, color: "var(--ifm-color-emphasis-900)", fontSize: "1.25rem" }}>
+                            <h3
+                                className="daiso-section-subtitle"
+                                style={{
+                                    textAlign: "left",
+                                    fontWeight: 700,
+                                    color: "var(--ifm-color-emphasis-900)",
+                                    fontSize: "1.25rem",
+                                }}
+                            >
                                 {CODE_EXAMPLES[activeIndex].heading}
                             </h3>
                             <p
@@ -372,14 +190,6 @@ function CodeShowcase() {
     );
 }
 
-// --- Features ---
-
-type FeatureItemProps = {
-    icon?: ReactNode;
-    title: ReactNode;
-    description: ReactNode;
-};
-
 function FeatureItem(props: FeatureItemProps) {
     return (
         <div className="col col--6 margin-bottom--lg">
@@ -416,9 +226,8 @@ function FeatureSection({ items }: { items: FeatureItemProps[] }) {
     );
 }
 
-// --- Who is this for ---
-
 function WhoIsThisFor() {
+    const { perfectFor, notIdealFor } = whoIsThisForData;
     return (
         <section className="padding-vert--xl">
             <div className="container">
@@ -446,57 +255,12 @@ function WhoIsThisFor() {
                                 Perfect for
                             </h3>
                             <ul className="daiso-who-list">
-                                <li>
-                                    <strong>SaaS applications.</strong>{" "}
-                                    Multi-tenant platforms, subscription
-                                    services, and B2B tools that need to swap
-                                    between Redis, Postgres, or S3 without a
-                                    rewrite.
-                                </li>
-                                <li>
-                                    <strong>
-                                        Internal tools &amp; admin panels.
-                                    </strong>{" "}
-                                    Back-office dashboards and operational
-                                    tooling where you want to move fast with
-                                    in-memory adapters in dev and swap to real
-                                    infrastructure in production.
-                                </li>
-                                <li>
-                                    <strong>REST &amp; GraphQL APIs.</strong>{" "}
-                                    Framework-agnostic primitives that plug into
-                                    Express, Fastify, Hono, or any Node.js HTTP
-                                    server — no vendor lock-in.
-                                </li>
-                                <li>
-                                    <strong>
-                                        Enterprise backend services.
-                                    </strong>{" "}
-                                    Distributed locking, circuit breakers, rate
-                                    limiting, and resilience patterns that work
-                                    across processes and machines.
-                                </li>
-                                <li>
-                                    <strong>Modular monoliths.</strong> Start
-                                    with one deployable, compose components as
-                                    you grow — extract services later without
-                                    changing business logic.
-                                </li>
-                                <li>
-                                    <strong>Microservices.</strong> Each service
-                                    gets the same adapter abstraction — Redis in
-                                    one, Postgres in another, in-memory for
-                                    tests — all the same API.
-                                </li>
-                                <li>
-                                    <strong>
-                                        Teams avoiding vendor lock-in.
-                                    </strong>{" "}
-                                    Every component is adapter-first. Switch
-                                    your cache, lock, event bus, or file storage
-                                    backend anytime — zero code changes to your
-                                    domain logic.
-                                </li>
+                                {perfectFor.map((item, i) => (
+                                    <li key={i}>
+                                        <strong>{item.title}</strong>{" "}
+                                        {item.description}
+                                    </li>
+                                ))}
                             </ul>
                         </div>
                     </div>
@@ -515,35 +279,12 @@ function WhoIsThisFor() {
                                 Not ideal for
                             </h3>
                             <ul className="daiso-who-list">
-                                <li>
-                                    <strong>Frontend-only applications.</strong>{" "}
-                                    @daiso-tech/core runs on the server. If
-                                    you're building a React or Vue SPA with no
-                                    backend, there's nothing here for you.
-                                </li>
-                                <li>
-                                    <strong>Browser-only libraries.</strong> The
-                                    library uses Node.js APIs and server-side
-                                    primitives — it won't work in the browser.
-                                </li>
-                                <li>
-                                    <strong>Non-TypeScript projects.</strong>{" "}
-                                    The entire API surface is typed with
-                                    generics and inference. Plain JavaScript
-                                    won't get you the full developer experience
-                                    — intellisense, auto-complete, and
-                                    compile-time safety are core features.
-                                </li>
-                                <li>
-                                    <strong>
-                                        Serverless-only architectures without
-                                        long-running processes.
-                                    </strong>{" "}
-                                    Components like locks, event buses, and
-                                    schedulers assume a persistent Node.js
-                                    process. Pure Lambda-style architectures may
-                                    not benefit from the full feature set.
-                                </li>
+                                {notIdealFor.map((item, i) => (
+                                    <li key={i}>
+                                        <strong>{item.title}</strong>{" "}
+                                        {item.description}
+                                    </li>
+                                ))}
                             </ul>
                         </div>
                     </div>
@@ -727,6 +468,47 @@ function UpcomingSection() {
 // --- Framework Comparison ---
 
 function FrameworkComparison() {
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    const comparisons = [
+        {
+            label: "Vendor lock-in",
+            heading: "Swap infrastructure without rewriting code.",
+            instead: "Tied to a specific vendor (Redis, S3). Changing a vendor means rewriting integration code — your cache, lock, or file storage logic is coupled to a specific provider.",
+            daiso: "Adapter pattern built into every component. Swap Redis ↔ Postgres ↔ S3 ↔ in-memory anytime — zero changes to your application logic. The same API works across all backends.",
+        },
+        {
+            label: "DI container",
+            heading: "Optional DI. Not forced.",
+            instead: "DI container required (NestJS, Inversify). Every service must be registered in a module, decorated, and injected through the framework's DI system — adding boilerplate and framework coupling.",
+            daiso: "Plain TypeScript classes — instantiate directly with `new` or a factory function. No decorators, no modules, no forced DI. Use a container when you want one, not because you have to.",
+        },
+        {
+            label: "Testing",
+            heading: "Zero-dependency integration tests.",
+            instead: "Docker required for integration tests. Want to test with Redis or S3? Spin up containers, wait for them to be ready, and clean up after — slowing down every test run.",
+            daiso: "In-memory adapters built into every component. Your test suite runs without Docker, without external services, without network calls. Same API, same assertions, instant feedback.",
+        },
+        {
+            label: "Learning curve",
+            heading: "One API. Every component.",
+            instead: "Different APIs for each library. Redis has one client API, S3 has another, Bull has its own, node-cron has yet another — your team must learn and maintain each one.",
+            daiso: "Unified `createX` pattern across all components. Cache, Lock, Event Bus, File Storage, Scheduler — all share the same conventions, adapter interfaces, and configuration style.",
+        },
+        {
+            label: "Wiring",
+            heading: "Seamless integration, zero glue code.",
+            instead: "Wiring libraries together manually. Need caching + locking + event bus? Import each library, configure each separately, and write adapter code to connect them yourself.",
+            daiso: "Components integrate seamlessly out of the box. Shared execution context, serde layer, adapter conventions — use two components or ten, they just work together.",
+        },
+        {
+            label: "Frameworks",
+            heading: "Works with everything. Locks you into nothing.",
+            instead: "Framework-specific solutions. NestJS decorators don't work in Express. Express middleware doesn't work in Fastify. Choose a framework and you're locked into its ecosystem.",
+            daiso: "Framework agnostic. Same components work in Express, Fastify, Hono, Next.js, Nuxt, NestJS, or any Node.js server — no framework-specific wrappers or adapters needed.",
+        },
+    ];
+
     return (
         <section className="padding-vert--xl">
             <div className="container">
@@ -740,244 +522,69 @@ function FrameworkComparison() {
                         already using, without taking over your architecture.
                     </p>
                 </div>
-                <div className="daiso-comparison-table-wrapper">
-                    <table className="daiso-comparison-table">
-                        <thead>
-                            <tr>
-                                <th>Capability</th>
-                                <th>
-                                    <span className="daiso-comparison-highlight">
-                                        @daiso-tech/core
-                                    </span>
-                                </th>
-                                <th>NestJS</th>
-                                <th>AdonisJS</th>
-                                <th>Express / Fastify / Hono</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <strong>Type</strong>
-                                </td>
-                                <td className="daiso-comparison-highlight">
-                                    Library
-                                </td>
-                                <td>Framework</td>
-                                <td>Framework</td>
-                                <td>Library / Micro-framework</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <strong>Framework lock-in</strong>
-                                </td>
-                                <td className="daiso-comparison-highlight">
-                                    None — works with any framework
-                                </td>
-                                <td>Locked into NestJS patterns</td>
-                                <td>Locked into AdonisJS conventions</td>
-                                <td>Low — but you wire everything yourself</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <strong>Adapter pattern</strong>
-                                </td>
-                                <td className="daiso-comparison-highlight">
-                                    Built into every component — swap Redis ↔
-                                    Postgres ↔ S3 anytime
-                                </td>
-                                <td>
-                                    Module-based, but no unified adapter
-                                    abstraction
-                                </td>
-                                <td>
-                                    Built-in providers, but limited to Adonis
-                                    ecosystem
-                                </td>
-                                <td>None — you bring your own</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <strong>DI container</strong>
-                                </td>
-                                <td className="daiso-comparison-highlight">
-                                    Optional — plain classes work, DI available
-                                    when needed
-                                </td>
-                                <td>Required — core of the framework</td>
-                                <td>Required — baked into the framework</td>
-                                <td>None — up to you</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <strong>In-memory testing</strong>
-                                </td>
-                                <td className="daiso-comparison-highlight">
-                                    Built-in — every component ships with
-                                    in-memory adapters for zero-dependency tests
-                                </td>
-                                <td>Often requires Docker or mocks</td>
-                                <td>Often requires Docker or mocks</td>
-                                <td>You build it yourself</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <strong>Caching</strong>
-                                </td>
-                                <td className="daiso-comparison-highlight">
-                                    Built-in — multi-backend with Redis,
-                                    in-memory, Kysely, MongoDB adapters
-                                </td>
-                                <td>
-                                    Add via cache-manager or custom providers
-                                </td>
-                                <td>Built-in Redis cache driver</td>
-                                <td>Add yourself</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <strong>Distributed locking</strong>
-                                </td>
-                                <td className="daiso-comparison-highlight">
-                                    Built-in — blocking & non-blocking, lease
-                                    management
-                                </td>
-                                <td>Add yourself (e.g., redlock)</td>
-                                <td>Add yourself</td>
-                                <td>Add yourself</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <strong>
-                                        Circuit breaker / Rate limiter
-                                    </strong>
-                                </td>
-                                <td className="daiso-comparison-highlight">
-                                    Built-in with pluggable backends
-                                </td>
-                                <td>Add via external libraries</td>
-                                <td>
-                                    Rate limiter built-in, circuit breaker via
-                                    external libs
-                                </td>
-                                <td>Add yourself</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <strong>Event bus</strong>
-                                </td>
-                                <td className="daiso-comparison-highlight">
-                                    Built-in — pub/sub with Redis, in-memory,
-                                    and more transports
-                                </td>
-                                <td>Built-in EventEmitter or CQRS module</td>
-                                <td>Built-in EventEmitter</td>
-                                <td>Add yourself</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <strong>HTTP layer</strong>
-                                </td>
-                                <td className="daiso-comparison-highlight">
-                                    Lightweight router — or use Express,
-                                    Fastify, Hono, or any server
-                                </td>
-                                <td>
-                                    Built-in (Express or Fastify under the hood)
-                                </td>
-                                <td>Built-in HTTP server</td>
-                                <td>Yes — that's the point</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <strong>TypeScript experience</strong>
-                                </td>
-                                <td className="daiso-comparison-highlight">
-                                    First-class — generics, inference, Standard
-                                    Schema integration
-                                </td>
-                                <td>First-class — decorators, metadata</td>
-                                <td>First-class</td>
-                                <td>
-                                    Varies — Hono is great, Express needs @types
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <strong>Best for</strong>
-                                </td>
-                                <td className="daiso-comparison-highlight">
-                                    Teams that want backend primitives without a
-                                    framework takeover — reusable across
-                                    projects regardless of stack
-                                </td>
-                                <td>
-                                    Large enterprise apps that benefit from
-                                    structured architecture
-                                </td>
-                                <td>
-                                    Fullstack apps that want a Rails-like
-                                    experience in Node.js
-                                </td>
-                                <td>
-                                    Simple APIs, microservices, or when you want
-                                    total control
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div className="daiso-segmented-control-wrapper">
+                    <div className="daiso-segmented-control">
+                        {comparisons.map((comp, i) => (
+                            <button
+                                key={comp.label}
+                                className={`daiso-segmented-option${i === activeIndex ? " daiso-segmented-option--active" : ""}`}
+                                onClick={() => setActiveIndex(i)}
+                            >
+                                {comp.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col col--6">
+                        <div className="daiso-carousel-text">
+                            <h2 className="daiso-section-title">
+                                {comparisons[activeIndex].heading}
+                            </h2>
+                            <div className="daiso-comparison-sides">
+                                <div className="daiso-comp-instead">
+                                    <div className="daiso-comp-label-instead">Instead of</div>
+                                    <p>{comparisons[activeIndex].instead}</p>
+                                </div>
+                                <div className="daiso-comp-daiso">
+                                    <div className="daiso-comp-label-daiso">@daiso-tech/core</div>
+                                    <p>{comparisons[activeIndex].daiso}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col col--6">
+                        <div className="daiso-carousel" style={{ padding: "2rem" }}>
+                            <div className="daiso-carousel-body text--center">
+                                <ShieldCheck
+                                    size="3.5rem"
+                                    strokeWidth={1.5}
+                                    style={{ color: "var(--ifm-color-primary)", marginBottom: "1rem" }}
+                                />
+                                <h3 style={{ margin: "0 0 0.75rem", fontWeight: 700, fontSize: "1.1rem" }}>
+                                    {activeIndex === 0 && "No vendor lock-in."}
+                                    {activeIndex === 1 && "No forced framework."}
+                                    {activeIndex === 2 && "No Docker required."}
+                                    {activeIndex === 3 && "Learn once, use everywhere."}
+                                    {activeIndex === 4 && "Plug and play."}
+                                    {activeIndex === 5 && "Bring your own server."}
+                                </h3>
+                                <p style={{ fontSize: "0.9rem", color: "var(--ifm-color-emphasis-600)", lineHeight: 1.6, margin: 0 }}>
+                                    {activeIndex === 0 && "Switch between Redis, S3, Postgres, or in-memory without changing a single line of business logic."}
+                                    {activeIndex === 1 && "Use plain classes, factory functions, or your preferred DI container — @daiso-tech/core doesn't care."}
+                                    {activeIndex === 2 && "Every component ships with an in-memory adapter so you can test without Docker, without mocks, without waiting."}
+                                    {activeIndex === 3 && "The same `createX` pattern, the same adapter interface, the same configuration — across 17+ components."}
+                                    {activeIndex === 4 && "Execution Context, Serde, and adapter conventions are shared across all components — no glue code needed."}
+                                    {activeIndex === 5 && "Works with Express, Fastify, Hono, Next.js, Nuxt, NestJS — and every other Node.js framework or server."}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
     );
 }
-
-// --- Data ---
-
-const featureItems: FeatureItemProps[] = [
-    {
-        icon: <Zap size="1.5rem" strokeWidth={1.5} />,
-        title: "Switch infrastructure without rewriting business logic",
-        description:
-            "The adapter pattern keeps your code decoupled from vendors. Use Redis today, Postgres tomorrow — no refactoring required.",
-    },
-    {
-        icon: <SiVitest size="1.5rem" />,
-        title: "Test everything without Docker",
-        description:
-            "Every component ships with an in-memory adapter and built-in Vitest helpers. Write fast, isolated tests — no external services needed.",
-    },
-    {
-        icon: <Plug size="1.5rem" strokeWidth={1.5} />,
-        title: "Bring your own framework",
-        description:
-            "No DI container required. Plug directly into Express, NestJS, AdonisJS, Next.js, Nuxt, or TanStack Start — it just works.",
-    },
-    {
-        icon: <SiTypescript size="1.5rem" />,
-        title: "Type-safe from day one",
-        description:
-            "Full TypeScript support with precise generics, rich intellisense, and auto-import friendly APIs — errors caught at compile time, not runtime.",
-    },
-    {
-        icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
-        title: "Standard schema validation built in",
-        description: (
-            <>
-                First-class integration with{" "}
-                <a href="https://standardschema.dev/">Standard Schema</a>. Use{" "}
-                <a href="https://zod.dev/">Zod</a>, Valibot, or ArkType to
-                enforce both compile-time and runtime data safety.
-            </>
-        ),
-    },
-    {
-        icon: <Package size="1.5rem" strokeWidth={1.5} />,
-        title: "ESM native. No CommonJS baggage.",
-        description:
-            "Built on modern JavaScript primitives. Fully compatible with Node.js, Bun, Deno, and the modern bundler ecosystem.",
-    },
-];
 
 // --- Page ---
 
