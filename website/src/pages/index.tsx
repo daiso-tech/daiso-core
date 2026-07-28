@@ -7,9 +7,8 @@ import {
     concurrencyExistingItems,
     messagingExistingItems,
     webExistingItems,
-} from "../roadmap";
+} from "../data";
 import { AvailableCategory } from "../roadmap/components/AvailableCategory";
-import { ArchitectureOverview } from "../roadmap/components/ArchitectureOverview";
 import { PlannedCardGrid } from "../roadmap/components/PlannedCardGrid";
 import {
     ShieldCheck,
@@ -76,7 +75,10 @@ function StatsBar() {
                 <div className="daiso-stats-inner">
                     <StatItem value="17" label="Production-ready components" />
                     <StatItem value="100%" label="TypeScript" />
-                    <StatItem value="4,640+" label="Integration & behavior tests" />
+                    <StatItem
+                        value="4,640+"
+                        label="Integration & behavior tests"
+                    />
                     <StatItem value="0" label="Docker needed for tests" />
                 </div>
             </div>
@@ -297,6 +299,7 @@ function CodeShowcase() {
     return (
         <section className="padding-vert--xl">
             <div className="container">
+                <h2 className="daiso-section-title">Title</h2>
                 <div className="daiso-segmented-control">
                     {CODE_EXAMPLES.map((ex, i) => (
                         <button
@@ -313,9 +316,9 @@ function CodeShowcase() {
                         <div
                             className={`daiso-carousel-text${fading ? " daiso-carousel-text--fading" : ""}`}
                         >
-                            <h2 className="daiso-section-title">
+                            <h3 className="daiso-section-subtitle" style={{ textAlign: "left", fontWeight: 700, color: "var(--ifm-color-emphasis-900)", fontSize: "1.25rem" }}>
                                 {CODE_EXAMPLES[activeIndex].heading}
-                            </h2>
+                            </h3>
                             <p
                                 className="daiso-section-subtitle"
                                 style={{
@@ -393,7 +396,7 @@ function FeatureSection({ items }: { items: FeatureItemProps[] }) {
     return (
         <section className="padding-vert--xl daiso-section-alt">
             <div className="container">
-                <div className="text--center margin-bottom--xl">
+                <div className="margin-bottom--xl">
                     <h2 className="daiso-section-title">
                         Why @daiso-tech/core?
                     </h2>
@@ -419,7 +422,7 @@ function WhoIsThisFor() {
     return (
         <section className="padding-vert--xl">
             <div className="container">
-                <div className="text--center margin-bottom--xl">
+                <div className="margin-bottom--xl">
                     <h2 className="daiso-section-title">Who is this for?</h2>
                     <p className="daiso-section-subtitle">
                         @daiso-tech/core is built for backend and fullstack
@@ -428,27 +431,119 @@ function WhoIsThisFor() {
                     </p>
                 </div>
                 <div className="row">
-                    <div className="col col--6">
+                    <div className="col col--6 margin-bottom--lg">
                         <div className="daiso-who-card daiso-who-yes">
-                            <h3>✅ Perfect for</h3>
-                            <ul>
-                                <li>SaaS applications</li>
-                                <li>Internal tools &amp; admin panels</li>
-                                <li>REST &amp; GraphQL APIs</li>
-                                <li>Enterprise backend services</li>
-                                <li>Modular monoliths</li>
-                                <li>Microservices</li>
-                                <li>Teams that want to avoid vendor lock-in</li>
+                            <h3>
+                                <Check
+                                    size="1.25rem"
+                                    strokeWidth={2.5}
+                                    style={{
+                                        marginRight: "0.5rem",
+                                        verticalAlign: "middle",
+                                        color: "var(--ifm-color-primary)",
+                                    }}
+                                />
+                                Perfect for
+                            </h3>
+                            <ul className="daiso-who-list">
+                                <li>
+                                    <strong>SaaS applications.</strong>{" "}
+                                    Multi-tenant platforms, subscription
+                                    services, and B2B tools that need to swap
+                                    between Redis, Postgres, or S3 without a
+                                    rewrite.
+                                </li>
+                                <li>
+                                    <strong>
+                                        Internal tools &amp; admin panels.
+                                    </strong>{" "}
+                                    Back-office dashboards and operational
+                                    tooling where you want to move fast with
+                                    in-memory adapters in dev and swap to real
+                                    infrastructure in production.
+                                </li>
+                                <li>
+                                    <strong>REST &amp; GraphQL APIs.</strong>{" "}
+                                    Framework-agnostic primitives that plug into
+                                    Express, Fastify, Hono, or any Node.js HTTP
+                                    server — no vendor lock-in.
+                                </li>
+                                <li>
+                                    <strong>
+                                        Enterprise backend services.
+                                    </strong>{" "}
+                                    Distributed locking, circuit breakers, rate
+                                    limiting, and resilience patterns that work
+                                    across processes and machines.
+                                </li>
+                                <li>
+                                    <strong>Modular monoliths.</strong> Start
+                                    with one deployable, compose components as
+                                    you grow — extract services later without
+                                    changing business logic.
+                                </li>
+                                <li>
+                                    <strong>Microservices.</strong> Each service
+                                    gets the same adapter abstraction — Redis in
+                                    one, Postgres in another, in-memory for
+                                    tests — all the same API.
+                                </li>
+                                <li>
+                                    <strong>
+                                        Teams avoiding vendor lock-in.
+                                    </strong>{" "}
+                                    Every component is adapter-first. Switch
+                                    your cache, lock, event bus, or file storage
+                                    backend anytime — zero code changes to your
+                                    domain logic.
+                                </li>
                             </ul>
                         </div>
                     </div>
                     <div className="col col--6">
                         <div className="daiso-who-card daiso-who-no">
-                            <h3>❌ Not ideal for</h3>
-                            <ul>
-                                <li>Frontend-only applications</li>
-                                <li>Browser-only libraries</li>
-                                <li>Projects that don't use TypeScript</li>
+                            <h3>
+                                <Star
+                                    size="1.25rem"
+                                    strokeWidth={2}
+                                    style={{
+                                        marginRight: "0.5rem",
+                                        verticalAlign: "middle",
+                                        opacity: 0.7,
+                                    }}
+                                />
+                                Not ideal for
+                            </h3>
+                            <ul className="daiso-who-list">
+                                <li>
+                                    <strong>Frontend-only applications.</strong>{" "}
+                                    @daiso-tech/core runs on the server. If
+                                    you're building a React or Vue SPA with no
+                                    backend, there's nothing here for you.
+                                </li>
+                                <li>
+                                    <strong>Browser-only libraries.</strong> The
+                                    library uses Node.js APIs and server-side
+                                    primitives — it won't work in the browser.
+                                </li>
+                                <li>
+                                    <strong>Non-TypeScript projects.</strong>{" "}
+                                    The entire API surface is typed with
+                                    generics and inference. Plain JavaScript
+                                    won't get you the full developer experience
+                                    — intellisense, auto-complete, and
+                                    compile-time safety are core features.
+                                </li>
+                                <li>
+                                    <strong>
+                                        Serverless-only architectures without
+                                        long-running processes.
+                                    </strong>{" "}
+                                    Components like locks, event buses, and
+                                    schedulers assume a persistent Node.js
+                                    process. Pure Lambda-style architectures may
+                                    not benefit from the full feature set.
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -464,15 +559,15 @@ function ComponentSection() {
     return (
         <section className="padding-vert--xl daiso-section-alt">
             <div className="container">
-                <div className="text--center margin-bottom--xl">
+                <div className="margin-bottom--xl">
                     <h2 className="daiso-section-title">
                         Production-Ready Components
                     </h2>
                     <p className="daiso-section-subtitle">
                         A growing collection of officially maintained
-                        components. Every component ships with multiple
-                        built-in adapters — swap infrastructure without
-                        changing a single line of business logic.
+                        components. Every component ships with multiple built-in
+                        adapters — swap infrastructure without changing a single
+                        line of business logic.
                     </p>
                 </div>
                 <AvailableCategory
@@ -495,10 +590,7 @@ function ComponentSection() {
                     label="Messaging"
                     items={messagingExistingItems}
                 />
-                <AvailableCategory
-                    label="Web"
-                    items={webExistingItems}
-                />
+                <AvailableCategory label="Web" items={webExistingItems} />
                 <div className="text--center margin-top--lg">
                     <Link
                         className="button button--outline button--secondary"
@@ -514,106 +606,6 @@ function ComponentSection() {
                         />
                     </Link>
                 </div>
-            </div>
-        </section>
-    );
-}
-
-// --- Comparison Section ---
-
-function ComparisonSection() {
-    return (
-        <section className="padding-vert--xl">
-            <div className="container">
-                <div className="text--center margin-bottom--xl">
-                    <h2 className="daiso-section-title">
-                        Why not just combine existing libraries?
-                    </h2>
-                    <p className="daiso-section-subtitle">
-                        You could piece together separate libraries. Here's what
-                        you get with a unified toolkit instead.
-                    </p>
-                </div>
-                <div className="daiso-comparison-table-wrapper">
-                    <table className="daiso-comparison-table">
-                        <thead>
-                            <tr>
-                                <th>Instead of</th>
-                                <th>
-                                    <span className="daiso-comparison-highlight">
-                                        @daiso-tech/core
-                                    </span>{" "}
-                                    gives
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Tied to a specific vendor (Redis, S3)</td>
-                                <td>
-                                    Adapter abstraction — swap infrastructure
-                                    anytime
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>DI container required (NestJS, Inversify)</td>
-                                <td>
-                                    Plain TypeScript classes — instantiate
-                                    directly
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Docker required for integration tests</td>
-                                <td>
-                                    In-memory adapters — fast, isolated tests
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Different APIs for each library</td>
-                                <td>
-                                    Unified interfaces — learn once, use
-                                    everywhere
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Wiring libraries together manually</td>
-                                <td>
-                                    Components integrate seamlessly — shared
-                                    execution context, serde, adapters
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Framework-specific solutions</td>
-                                <td>
-                                    Framework agnostic — works with Express,
-                                    Next.js, Nuxt, NestJS, and more
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-    );
-}
-
-// --- Architecture Diagram ---
-
-function ArchitectureSection() {
-    return (
-        <section className="padding-vert--xl daiso-section-alt">
-            <div className="container">
-                <div className="text--center margin-bottom--xl">
-                    <h2 className="daiso-section-title">
-                        How it fits together
-                    </h2>
-                    <p className="daiso-section-subtitle">
-                        Every component is self-contained with zero hard
-                        dependencies — but when used together, they share
-                        conventions, adapters, and context.
-                    </p>
-                </div>
-                <ArchitectureOverview />
             </div>
         </section>
     );
@@ -702,7 +694,7 @@ function UpcomingSection() {
     return (
         <section className="padding-vert--xl daiso-section-alt">
             <div className="container">
-                <div className="text--center margin-bottom--xl">
+                <div className="margin-bottom--xl">
                     <h2 className="daiso-section-title">
                         🔮 Upcoming Components
                     </h2>
@@ -732,47 +724,208 @@ function UpcomingSection() {
     );
 }
 
-// --- Vision ---
+// --- Framework Comparison ---
 
-type VisionItemProps = {
-    title: string;
-    comingSoon?: boolean;
-    description: ReactNode;
-};
-
-function VisionItem({ title, comingSoon, description }: VisionItemProps) {
-    return (
-        <div className="col col--6 margin-bottom--lg">
-            <div className="daiso-feature-card" style={{ height: "100%" }}>
-                <h3 style={{ marginTop: 0 }}>{title}</h3>
-                <p style={{ margin: 0 }}>{description}</p>
-            </div>
-        </div>
-    );
-}
-
-function VisionSection({ items }: { items: VisionItemProps[] }) {
+function FrameworkComparison() {
     return (
         <section className="padding-vert--xl">
             <div className="container">
-                <div className="text--center margin-bottom--xl">
-                    <h2 className="daiso-section-title">🌟 Vision</h2>
-                    <p
-                        className="daiso-section-subtitle"
-                        style={{ textAlign: "left" }}
-                    >
-                        @daiso-tech/core will be built around one core idea:{" "}
-                        <strong>
-                            production-grade backend primitives that work great
-                            standalone, but are even better together
-                        </strong>{" "}
-                        — all inside your existing fullstack TypeScript app.
+                <div className="margin-bottom--xl">
+                    <h2 className="daiso-section-title">
+                        How @daiso-tech/core compares
+                    </h2>
+                    <p className="daiso-section-subtitle">
+                        A library, not a framework — @daiso-tech/core gives you
+                        backend primitives that plug into whatever you're
+                        already using, without taking over your architecture.
                     </p>
                 </div>
-                <div className="row">
-                    {items.map((item, idx) => (
-                        <VisionItem key={idx} {...item} />
-                    ))}
+                <div className="daiso-comparison-table-wrapper">
+                    <table className="daiso-comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Capability</th>
+                                <th>
+                                    <span className="daiso-comparison-highlight">
+                                        @daiso-tech/core
+                                    </span>
+                                </th>
+                                <th>NestJS</th>
+                                <th>AdonisJS</th>
+                                <th>Express / Fastify / Hono</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Type</strong>
+                                </td>
+                                <td className="daiso-comparison-highlight">
+                                    Library
+                                </td>
+                                <td>Framework</td>
+                                <td>Framework</td>
+                                <td>Library / Micro-framework</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Framework lock-in</strong>
+                                </td>
+                                <td className="daiso-comparison-highlight">
+                                    None — works with any framework
+                                </td>
+                                <td>Locked into NestJS patterns</td>
+                                <td>Locked into AdonisJS conventions</td>
+                                <td>Low — but you wire everything yourself</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Adapter pattern</strong>
+                                </td>
+                                <td className="daiso-comparison-highlight">
+                                    Built into every component — swap Redis ↔
+                                    Postgres ↔ S3 anytime
+                                </td>
+                                <td>
+                                    Module-based, but no unified adapter
+                                    abstraction
+                                </td>
+                                <td>
+                                    Built-in providers, but limited to Adonis
+                                    ecosystem
+                                </td>
+                                <td>None — you bring your own</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>DI container</strong>
+                                </td>
+                                <td className="daiso-comparison-highlight">
+                                    Optional — plain classes work, DI available
+                                    when needed
+                                </td>
+                                <td>Required — core of the framework</td>
+                                <td>Required — baked into the framework</td>
+                                <td>None — up to you</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>In-memory testing</strong>
+                                </td>
+                                <td className="daiso-comparison-highlight">
+                                    Built-in — every component ships with
+                                    in-memory adapters for zero-dependency tests
+                                </td>
+                                <td>Often requires Docker or mocks</td>
+                                <td>Often requires Docker or mocks</td>
+                                <td>You build it yourself</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Caching</strong>
+                                </td>
+                                <td className="daiso-comparison-highlight">
+                                    Built-in — multi-backend with Redis,
+                                    in-memory, Kysely, MongoDB adapters
+                                </td>
+                                <td>
+                                    Add via cache-manager or custom providers
+                                </td>
+                                <td>Built-in Redis cache driver</td>
+                                <td>Add yourself</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Distributed locking</strong>
+                                </td>
+                                <td className="daiso-comparison-highlight">
+                                    Built-in — blocking & non-blocking, lease
+                                    management
+                                </td>
+                                <td>Add yourself (e.g., redlock)</td>
+                                <td>Add yourself</td>
+                                <td>Add yourself</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>
+                                        Circuit breaker / Rate limiter
+                                    </strong>
+                                </td>
+                                <td className="daiso-comparison-highlight">
+                                    Built-in with pluggable backends
+                                </td>
+                                <td>Add via external libraries</td>
+                                <td>
+                                    Rate limiter built-in, circuit breaker via
+                                    external libs
+                                </td>
+                                <td>Add yourself</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Event bus</strong>
+                                </td>
+                                <td className="daiso-comparison-highlight">
+                                    Built-in — pub/sub with Redis, in-memory,
+                                    and more transports
+                                </td>
+                                <td>Built-in EventEmitter or CQRS module</td>
+                                <td>Built-in EventEmitter</td>
+                                <td>Add yourself</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>HTTP layer</strong>
+                                </td>
+                                <td className="daiso-comparison-highlight">
+                                    Lightweight router — or use Express,
+                                    Fastify, Hono, or any server
+                                </td>
+                                <td>
+                                    Built-in (Express or Fastify under the hood)
+                                </td>
+                                <td>Built-in HTTP server</td>
+                                <td>Yes — that's the point</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>TypeScript experience</strong>
+                                </td>
+                                <td className="daiso-comparison-highlight">
+                                    First-class — generics, inference, Standard
+                                    Schema integration
+                                </td>
+                                <td>First-class — decorators, metadata</td>
+                                <td>First-class</td>
+                                <td>
+                                    Varies — Hono is great, Express needs @types
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Best for</strong>
+                                </td>
+                                <td className="daiso-comparison-highlight">
+                                    Teams that want backend primitives without a
+                                    framework takeover — reusable across
+                                    projects regardless of stack
+                                </td>
+                                <td>
+                                    Large enterprise apps that benefit from
+                                    structured architecture
+                                </td>
+                                <td>
+                                    Fullstack apps that want a Rails-like
+                                    experience in Node.js
+                                </td>
+                                <td>
+                                    Simple APIs, microservices, or when you want
+                                    total control
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -823,61 +976,6 @@ const featureItems: FeatureItemProps[] = [
         title: "ESM native. No CommonJS baggage.",
         description:
             "Built on modern JavaScript primitives. Fully compatible with Node.js, Bun, Deno, and the modern bundler ecosystem.",
-    },
-];
-
-const visionItems: VisionItemProps[] = [
-    {
-        title: "Composable by design, not by requirement",
-        description:
-            "Every component will be self-contained and will have zero hard dependencies on the others. You will be able to drop the Cache, the Lock, or the EventBus into any project in isolation. But when you use them together, they will integrate seamlessly — sharing the same execution context, serde layer, adapters, and conventions without any extra wiring.",
-    },
-    {
-        title: "No DI container required — but supported when you want it",
-        comingSoon: true,
-        description:
-            "Components will remain plain classes you instantiate yourself. There will be no forced dependency injection framework. The DI container will become a first-class citizen that understands every component in the library — so when you do want a container, it will work with no adapters and no boilerplate.",
-    },
-    {
-        title: "One server, one app",
-        description: (
-            <>
-                The library's HTTP primitives will be built on the standard Web
-                platform <code>Request</code>/<code>Response</code> API, which
-                will allow your route handlers to run natively inside{" "}
-                <strong>
-                    Next.js, SvelteKit, Nuxt, SolidStart, Analog (Angular),
-                    TanStack Start, Cloudflare Workers, Vercel Functions,
-                    Netlify Functions, and many more platforms via Hono
-                </strong>{" "}
-                — with no separate backend server to host, deploy, or maintain.
-                Your fullstack app will become your backend.
-            </>
-        ),
-    },
-    {
-        title: "A cohesive experience for the JavaScript ecosystem",
-        description:
-            "The long-term vision will be to give TypeScript developers a cohesive, batteries-included experience — authentication, authorization, job scheduling, notifications, queues, caching, file storage, and more — designed from the ground up for the modern JavaScript fullstack world. There will be no framework lock-in, no vendor lock-in, just great primitives that fit together.",
-    },
-    {
-        title: "The framework experience",
-        description: (
-            <>
-                On top of the agnostic core, a separate opinionated,
-                batteries-included framework layer will be introduced. Unlike
-                the core library, it will not be agnostic — it will make
-                deliberate choices so you will not have to. It will be delivered
-                as a <strong>Vite plugin</strong> that can be dropped into most
-                modern frontend frameworks — Next.js, SvelteKit, Nuxt,
-                SolidStart, TanStack Start, Analog, and more — and will lean
-                heavily on <strong>code generation</strong> to eliminate
-                boilerplate, auto-wire components, and provide a truly
-                integrated developer experience with a
-                convention-over-configuration feel directly inside your existing
-                fullstack app.
-            </>
-        ),
     },
 ];
 
@@ -938,10 +1036,8 @@ export default function Home(): ReactNode {
                 <FeatureSection items={featureItems} />
                 <WhoIsThisFor />
                 <ComponentSection />
-                <ComparisonSection />
-                <ArchitectureSection />
                 <UpcomingSection />
-                <VisionSection items={visionItems} />
+                <FrameworkComparison />
                 <GitHubStarBanner />
                 <CtaSection />
             </main>

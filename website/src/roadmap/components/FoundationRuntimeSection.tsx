@@ -1,4 +1,4 @@
-import { foundationRuntimeItems } from "../index";
+import { foundationRuntimeItems } from "../../data";
 import { PlannedCardGrid } from "./PlannedCardGrid";
 import styles from "../roadmap.module.css";
 

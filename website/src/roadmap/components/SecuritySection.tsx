@@ -1,4 +1,4 @@
-import { securityItems } from "../index";
+import { securityItems } from "../../data";
 import { PlannedCardGrid } from "./PlannedCardGrid";
 import styles from "../roadmap.module.css";
 

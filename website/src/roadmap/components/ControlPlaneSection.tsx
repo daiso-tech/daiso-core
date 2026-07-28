@@ -1,4 +1,4 @@
-import { controlPlaneItems } from "../index";
+import { controlPlaneItems } from "../../data";
 import { PlannedCardGrid } from "./PlannedCardGrid";
 import styles from "../roadmap.module.css";
 

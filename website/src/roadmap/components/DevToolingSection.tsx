@@ -1,4 +1,4 @@
-import { devToolingItems } from "../index";
+import { devToolingItems } from "../../data";
 import { PlannedCardGrid } from "./PlannedCardGrid";
 import styles from "../roadmap.module.css";
 

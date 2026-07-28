@@ -1,4 +1,4 @@
-import { reliabilityMessagingItems } from "../index";
+import { reliabilityMessagingItems } from "../../data";
 import { PlannedCardGrid } from "./PlannedCardGrid";
 import styles from "../roadmap.module.css";
 

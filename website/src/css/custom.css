@@ -211,13 +211,13 @@ html[data-theme='dark'] {
   font-size: 2rem;
   font-weight: 800;
   margin-bottom: 0.5rem;
+  text-align: left;
 }
 
 .daiso-section-subtitle {
   font-size: 1.05rem;
   color: var(--ifm-color-emphasis-700);
   max-width: 580px;
-  margin: 0 auto;
   line-height: 1.65;
 }
 
@@ -227,10 +227,14 @@ html[data-theme='dark'] {
 
 .daiso-section-alt {
   background: var(--ifm-color-emphasis-100);
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
 }
 
 [data-theme='dark'] .daiso-section-alt {
   background: var(--ifm-background-surface-color);
+  border-top-color: var(--ifm-color-emphasis-300);
+  border-bottom-color: var(--ifm-color-emphasis-300);
 }
 
 /* ================================================================
@@ -238,51 +242,54 @@ html[data-theme='dark'] {
    ================================================================ */
 
 .daiso-feature-card {
-  background: var(--daiso-card-bg);
-  border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: 0.75rem;
-  padding: 1.75rem;
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.04) 0%, transparent 100%);
+  border: 1px solid rgba(46, 204, 113, 0.18);
+  border-radius: 0.65rem;
+  padding: 1.25rem 1.35rem;
   height: 100%;
-  transition: box-shadow 0.2s ease, transform 0.2s ease, background 0.2s;
-  box-shadow: 0 1px 6px 0 rgba(46,133,85,0.05), 0 1px 2px 0 rgba(0,0,0,0.03);
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .daiso-feature-card:hover {
-  box-shadow: 0 6px 18px rgba(46,133,85,0.10), 0 2px 6px rgba(0,0,0,0.06);
-  transform: translateY(-4px);
-  background: var(--daiso-card-bg-hover);
+  border-color: rgba(46, 204, 113, 0.35);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.08) 0%, transparent 100%);
 }
 
 [data-theme='dark'] .daiso-feature-card {
-  box-shadow: 0 1px 6px 0 rgba(0,0,0,0.14), 0 1px 2px 0 rgba(0,0,0,0.08);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.06) 0%, transparent 100%);
+  box-shadow: none;
 }
+
 [data-theme='dark'] .daiso-feature-card:hover {
-  box-shadow: 0 6px 18px rgba(0,0,0,0.24), 0 2px 6px rgba(0,0,0,0.14);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.12) 0%, transparent 100%);
 }
 
 .daiso-feature-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.6rem;
-  background: var(--daiso-icon-bg);
-  color: var(--daiso-icon-color);
-  margin-bottom: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 0.45rem;
+  background: rgba(46, 204, 113, 0.12);
+  color: #27ae60;
+  margin-bottom: 0.85rem;
 }
 
 .daiso-feature-card h3 {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   margin: 0 0 0.5rem;
+  color: var(--ifm-color-emphasis-900);
+  line-height: 1.4;
 }
 
 .daiso-feature-card p {
-  font-size: 0.95rem;
-  color: var(--ifm-color-emphasis-700);
+  font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-600);
   margin: 0;
-  line-height: 1.65;
+  line-height: 1.6;
 }
 
 /* ================================================================
@@ -494,10 +501,17 @@ html[data-theme='dark'] {
    ================================================================ */
 
 .daiso-who-card {
-  border-radius: 0.75rem;
-  padding: 1.75rem 2rem;
+  border-radius: 0.65rem;
+  padding: 1.25rem 1.35rem;
   height: 100%;
-  border: 1px solid var(--ifm-color-emphasis-200);
+  border: 1px solid rgba(46, 204, 113, 0.18);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.04) 0%, transparent 100%);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.daiso-who-card:hover {
+  border-color: rgba(46, 204, 113, 0.35);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.08) 0%, transparent 100%);
 }
 
 .daiso-who-card h3 {
@@ -513,29 +527,67 @@ html[data-theme='dark'] {
 }
 
 .daiso-who-card li {
-  padding: 0.35rem 0;
-  font-size: 0.95rem;
+  padding: 0.45rem 0;
+  font-size: 0.93rem;
   color: var(--ifm-color-emphasis-700);
+  line-height: 1.6;
+}
+
+.daiso-who-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.daiso-who-list li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--ifm-color-emphasis-100);
+}
+
+.daiso-who-list li:last-child {
+  border-bottom: none;
+}
+
+.daiso-who-list li strong {
+  color: var(--ifm-color-emphasis-900);
 }
 
 .daiso-who-yes {
-  background: linear-gradient(180deg, #f0faf4 0%, #f6fbf7 100%);
-  border-color: rgba(46, 133, 85, 0.18);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, transparent 100%);
+  border-color: rgba(46, 204, 113, 0.2);
+}
+
+.daiso-who-yes:hover {
+  border-color: rgba(46, 204, 113, 0.4);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, transparent 100%);
 }
 
 [data-theme='dark'] .daiso-who-yes {
-  background: linear-gradient(180deg, rgba(25, 70, 45, 0.35) 0%, rgba(21, 48, 40, 0.2) 100%);
-  border-color: rgba(37, 194, 160, 0.2);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.08) 0%, transparent 100%);
+  border-color: rgba(46, 204, 113, 0.18);
+}
+
+[data-theme='dark'] .daiso-who-yes:hover {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.15) 0%, transparent 100%);
 }
 
 .daiso-who-no {
-  background: linear-gradient(180deg, #fef8f6 0%, #fdfaf9 100%);
-  border-color: rgba(200, 80, 60, 0.14);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.04) 0%, transparent 100%);
+  border-color: rgba(245, 158, 11, 0.18);
+}
+
+.daiso-who-no:hover {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, transparent 100%);
 }
 
 [data-theme='dark'] .daiso-who-no {
-  background: linear-gradient(180deg, rgba(70, 30, 25, 0.3) 0%, rgba(48, 27, 24, 0.15) 100%);
-  border-color: rgba(200, 100, 80, 0.18);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.06) 0%, transparent 100%);
+  border-color: rgba(245, 158, 11, 0.16);
+}
+
+[data-theme='dark'] .daiso-who-no:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, transparent 100%);
 }
 
 /* ================================================================
@@ -544,23 +596,25 @@ html[data-theme='dark'] {
 
 .daiso-comparison-table-wrapper {
   overflow-x: auto;
-  max-width: 760px;
+  max-width: 960px;
   margin: 0 auto;
+  border-radius: 0.75rem;
 }
 
 .daiso-comparison-table {
   width: 100%;
+  min-width: 720px;
   border-collapse: separate;
   border-spacing: 0;
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: 0.75rem;
   overflow: hidden;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .daiso-comparison-table thead th {
   background: var(--ifm-color-emphasis-100);
-  padding: 0.85rem 1.25rem;
+  padding: 0.75rem 0.9rem;
   text-align: left;
   font-weight: 700;
   font-size: 0.9rem;
@@ -570,7 +624,7 @@ html[data-theme='dark'] {
 }
 
 .daiso-comparison-table tbody td {
-  padding: 0.8rem 1.25rem;
+  padding: 0.6rem 0.9rem;
   border-bottom: 1px solid var(--ifm-color-emphasis-100);
   color: var(--ifm-color-emphasis-800);
 }

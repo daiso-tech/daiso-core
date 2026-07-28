@@ -1,4 +1,4 @@
-import type { ComponentItemProps } from "../index";
+import type { ComponentItemProps } from "../../data";
 import Link from "@docusaurus/Link";
 import styles from "../roadmap.module.css";
 
