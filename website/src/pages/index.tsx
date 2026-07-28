@@ -1,40 +1,33 @@
 import { SiTypescript, SiVitest } from "@icons-pack/react-simple-icons";
-import type { ComponentItemProps } from "../roadmap";
-import { upcomingItems } from "../roadmap";
 import {
-    Package,
+    upcomingItems,
+    foundationExistingItems,
+    storageExistingItems,
+    reliabilityExistingItems,
+    concurrencyExistingItems,
+    messagingExistingItems,
+    webExistingItems,
+} from "../roadmap";
+import { AvailableCategory } from "../roadmap/components/AvailableCategory";
+import { ArchitectureOverview } from "../roadmap/components/ArchitectureOverview";
+import { PlannedCardGrid } from "../roadmap/components/PlannedCardGrid";
+import {
     ShieldCheck,
-    Lock,
-    Database,
-    HardDrive,
-    Radio,
-    Layers,
-    Users,
-    Webhook,
-    CircuitBoard,
-    ArrowLeftRight,
-    List,
     ArrowRight,
     Zap,
     Plug,
-    Share2,
+    Package,
     Copy,
     Check,
     Star,
-    Clock,
-    Bell,
-    Box,
-    Search,
-    Globe,
-    GitBranch,
-    Lightbulb,
-    Server,
-    Key,
 } from "lucide-react";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import { type ReactNode, useState, useCallback } from "react";
 import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
+import CodeBlock from "@theme/CodeBlock";
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
 const INSTALL_CMD = "npm install @daiso-tech/core";
 
@@ -81,13 +74,298 @@ function StatsBar() {
         <div className="daiso-stats-bar">
             <div className="container">
                 <div className="daiso-stats-inner">
-                    <StatItem value="10+" label="Battle-tested components" />
+                    <StatItem value="17" label="Production-ready components" />
                     <StatItem value="100%" label="TypeScript" />
-                    <StatItem value="4+" label="Adapters per component" />
+                    <StatItem value="4,640+" label="Integration & behavior tests" />
                     <StatItem value="0" label="Docker needed for tests" />
                 </div>
             </div>
         </div>
+    );
+}
+
+// --- Code Showcase ---
+
+type CodeFile = {
+    name: string;
+    code: string;
+};
+
+type CodeExample = {
+    label: string;
+    heading: string;
+    description: string;
+    bullets: string[];
+    files: CodeFile[];
+};
+
+const CODE_EXAMPLES: CodeExample[] = [
+    {
+        label: "Cache",
+        heading: "Cache anything. Swap backends anytime.",
+        description:
+            "Speed up your application by caching expensive database queries and API responses. Use Redis in production, in-memory for tests — same API, zero rewrites.",
+        bullets: [
+            "Memory, Redis, Kysely & MongoDB adapters",
+            "TTL policies with automatic eviction",
+            "Stampede protection built in",
+        ],
+        files: [
+            {
+                name: "cache.ts",
+                code: `import { createCache } from "@daiso-tech/core";
+import { RedisCacheAdapter } from "@daiso-tech/core/cache";
+
+const cache = createCache({
+    adapter: new RedisCacheAdapter({ client: redis }),
+});
+
+await cache.set("user:42", { name: "Alice" });
+const user = await cache.get("user:42");
+// { name: "Alice" }`,
+            },
+            {
+                name: "cache.test.ts",
+                code: `import { createCache } from "@daiso-tech/core";
+import { MemoryCacheAdapter } from "@daiso-tech/core/cache";
+
+// Tests: in-memory — no Docker needed
+const cache = createCache({
+    adapter: new MemoryCacheAdapter(),
+});
+
+// Same API, same assertions — zero changes`,
+            },
+        ],
+    },
+    {
+        label: "Lock",
+        heading: "Distributed locking. No race conditions.",
+        description:
+            "Guarantee mutual exclusion across multiple processes. Prevent duplicate payment processing, job execution, or any critical section — with automatic lease management and deadlock protection.",
+        bullets: [
+            "Blocking & non-blocking acquisition",
+            "Automatic lease renewal & release",
+            "Works across processes and machines",
+        ],
+        files: [
+            {
+                name: "payment.service.ts",
+                code: `import { createLock, type ILock } from "@daiso-tech/core";
+import { RedisLockAdapter } from "@daiso-tech/core/lock";
+
+const lock: ILock = createLock({
+    adapter: new RedisLockAdapter({ client: redis }),
+});
+
+export async function processOrderPayment(order: Order) {
+    const acquired = await lock.acquire(
+        \`payment:order-\${order.id}\`,
+        { ttl: "30s" },
+    );
+
+    if (!acquired) throw new Error("Payment already in progress");
+
+    try {
+        await chargeCustomer(order);
+    } finally {
+        await lock.release(\`payment:order-\${order.id}\`);
+    }
+}`,
+            },
+            {
+                name: "payment.test.ts",
+                code: `import { createLock } from "@daiso-tech/core";
+import { MemoryLockAdapter } from "@daiso-tech/core/lock";
+
+// Tests: in-memory — no Redis, no Docker
+const lock = createLock({
+    adapter: new MemoryLockAdapter(),
+});
+
+// Same API, same behavior — zero changes`,
+            },
+        ],
+    },
+    {
+        label: "File Storage",
+        heading: "Upload once. Store anywhere.",
+        description:
+            "Manage files with a unified API across local disk, in-memory, and AWS S3. Build photo upload services and document management — swap the storage backend without touching business logic.",
+        bullets: [
+            "Local filesystem, in-memory & S3 adapters",
+            "Streaming uploads & downloads",
+            "Metadata & lifecycle management",
+        ],
+        files: [
+            {
+                name: "storage.ts",
+                code: `import { createFileStorage } from "@daiso-tech/core";
+import { S3FileStorageAdapter } from "@daiso-tech/core/file-storage";
+
+const storage = createFileStorage({
+    adapter: new S3FileStorageAdapter({
+        bucket: "uploads",
+        region: "eu-west-1",
+    }),
+});
+
+await storage.put("avatars/alice.png", buffer);
+const file = await storage.get("avatars/alice.png");`,
+            },
+            {
+                name: "storage.dev.ts",
+                code: `import { createFileStorage } from "@daiso-tech/core";
+import { LocalFileStorageAdapter } from "@daiso-tech/core/file-storage";
+
+// Dev: local disk — same API, zero code changes
+const storage = createFileStorage({
+    adapter: new LocalFileStorageAdapter({
+        basePath: "./uploads",
+    }),
+});`,
+            },
+        ],
+    },
+    {
+        label: "Event Bus",
+        heading: "Publish events. Decouple services.",
+        description:
+            "Publish and subscribe to events across distributed server instances. Fire-and-forget or guaranteed delivery — with pluggable transport backends that swap without changing your handlers.",
+        bullets: [
+            "In-memory, Redis & more transports",
+            "Topic routing & wildcard patterns",
+            "Guaranteed delivery semantics",
+        ],
+        files: [
+            {
+                name: "bus.ts",
+                code: `import { createEventBus } from "@daiso-tech/core";
+import { RedisEventBusAdapter } from "@daiso-tech/core/event-bus";
+
+const bus = createEventBus({
+    adapter: new RedisEventBusAdapter({
+        client: redis,
+    }),
+});
+
+bus.subscribe("order.placed", async (event) => {
+    await sendEmail(event.payload.userId);
+});`,
+            },
+            {
+                name: "publish.ts",
+                code: `import { bus } from "./bus";
+
+await bus.publish("order.placed", {
+    userId: 42,
+    total: 99.95,
+});`,
+            },
+            {
+                name: "bus.test.ts",
+                code: `import { createEventBus } from "@daiso-tech/core";
+import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus";
+
+// Tests: in-memory — no Docker
+const bus = createEventBus({
+    adapter: new MemoryEventBusAdapter(),
+});
+
+// Same API, same behavior — zero changes`,
+            },
+        ],
+    },
+];
+
+function CodeShowcase() {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [fading, setFading] = useState(false);
+
+    const goTo = useCallback(
+        (index: number) => {
+            if (index === activeIndex) return;
+            setFading(true);
+            setTimeout(() => {
+                setActiveIndex(index);
+                setFading(false);
+            }, 180);
+        },
+        [activeIndex],
+    );
+
+    return (
+        <section className="padding-vert--xl">
+            <div className="container">
+                <div className="daiso-segmented-control">
+                    {CODE_EXAMPLES.map((ex, i) => (
+                        <button
+                            key={ex.label}
+                            className={`daiso-segmented-option${i === activeIndex ? " daiso-segmented-option--active" : ""}`}
+                            onClick={() => goTo(i)}
+                        >
+                            {ex.label}
+                        </button>
+                    ))}
+                </div>
+                <div className="row">
+                    <div className="col col--6">
+                        <div
+                            className={`daiso-carousel-text${fading ? " daiso-carousel-text--fading" : ""}`}
+                        >
+                            <h2 className="daiso-section-title">
+                                {CODE_EXAMPLES[activeIndex].heading}
+                            </h2>
+                            <p
+                                className="daiso-section-subtitle"
+                                style={{
+                                    margin: "0 0 1.25rem",
+                                    textAlign: "left",
+                                }}
+                            >
+                                {CODE_EXAMPLES[activeIndex].description}
+                            </p>
+                            <ul className="daiso-check-list">
+                                {CODE_EXAMPLES[activeIndex].bullets.map(
+                                    (b, i) => (
+                                        <li key={i}>
+                                            <Check
+                                                size="1rem"
+                                                strokeWidth={2.5}
+                                            />{" "}
+                                            {b}
+                                        </li>
+                                    ),
+                                )}
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="col col--6">
+                        <div className="daiso-carousel">
+                            <div
+                                className={`daiso-carousel-body${fading ? " daiso-carousel-body--fading" : ""}`}
+                            >
+                                <Tabs key={activeIndex}>
+                                    {CODE_EXAMPLES[activeIndex].files.map(
+                                        (f) => (
+                                            <TabItem
+                                                key={f.name}
+                                                value={f.name}
+                                                label={f.name}
+                                            >
+                                                <CodeBlock language="typescript">
+                                                    {f.code}
+                                                </CodeBlock>
+                                            </TabItem>
+                                        ),
+                                    )}
+                                </Tabs>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     );
 }
 
@@ -121,7 +399,8 @@ function FeatureSection({ items }: { items: FeatureItemProps[] }) {
                     </h2>
                     <p className="daiso-section-subtitle">
                         Designed from the ground up for real-world backend
-                        challenges.
+                        challenges — no vendor lock-in, no Docker required for
+                        testing, no DI container overhead.
                     </p>
                 </div>
                 <div className="row">
@@ -134,64 +413,207 @@ function FeatureSection({ items }: { items: FeatureItemProps[] }) {
     );
 }
 
-// --- Components ---
+// --- Who is this for ---
 
-function ComponentItem(props: ComponentItemProps) {
-    const card = (
-        <div className="daiso-component-card card">
-            <div className="card__header">
-                <div className="daiso-component-icon">{props.icon}</div>
-                <h3
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                    }}
-                >
-                    {props.title}
-                    {props.badges?.map((b, i) => (
-                        <span className="daiso-badge" key={i}>
-                            {b}
-                        </span>
-                    ))}
-                </h3>
-            </div>
-            <div className="card__body">
-                <p>{props.description}</p>
-            </div>
-        </div>
-    );
-    return (
-        <div className="col col--4 margin-bottom--lg">
-            {props.href ? (
-                <Link to={props.href} className="daiso-component-link">
-                    {card}
-                </Link>
-            ) : (
-                card
-            )}
-        </div>
-    );
-}
-
-function ComponentSection({ items }: { items: ComponentItemProps[] }) {
+function WhoIsThisFor() {
     return (
         <section className="padding-vert--xl">
             <div className="container">
                 <div className="text--center margin-bottom--xl">
-                    <h2 className="daiso-section-title">Components</h2>
+                    <h2 className="daiso-section-title">Who is this for?</h2>
                     <p className="daiso-section-subtitle">
-                        A growing collection of officially maintained,
-                        production-ready components. Every component ships with
-                        multiple built-in adapters — swap infrastructure without
-                        changing a single line of business logic.
+                        @daiso-tech/core is built for backend and fullstack
+                        TypeScript developers who value flexibility and
+                        testability.
                     </p>
                 </div>
                 <div className="row">
-                    {items.map((item, idx) => (
-                        <ComponentItem key={idx} {...item} />
-                    ))}
+                    <div className="col col--6">
+                        <div className="daiso-who-card daiso-who-yes">
+                            <h3>✅ Perfect for</h3>
+                            <ul>
+                                <li>SaaS applications</li>
+                                <li>Internal tools &amp; admin panels</li>
+                                <li>REST &amp; GraphQL APIs</li>
+                                <li>Enterprise backend services</li>
+                                <li>Modular monoliths</li>
+                                <li>Microservices</li>
+                                <li>Teams that want to avoid vendor lock-in</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="col col--6">
+                        <div className="daiso-who-card daiso-who-no">
+                            <h3>❌ Not ideal for</h3>
+                            <ul>
+                                <li>Frontend-only applications</li>
+                                <li>Browser-only libraries</li>
+                                <li>Projects that don't use TypeScript</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </section>
+    );
+}
+
+// --- Components (Available Today) ---
+
+function ComponentSection() {
+    return (
+        <section className="padding-vert--xl daiso-section-alt">
+            <div className="container">
+                <div className="text--center margin-bottom--xl">
+                    <h2 className="daiso-section-title">
+                        Production-Ready Components
+                    </h2>
+                    <p className="daiso-section-subtitle">
+                        A growing collection of officially maintained
+                        components. Every component ships with multiple
+                        built-in adapters — swap infrastructure without
+                        changing a single line of business logic.
+                    </p>
+                </div>
+                <AvailableCategory
+                    label="Foundation"
+                    items={foundationExistingItems}
+                />
+                <AvailableCategory
+                    label="Storage"
+                    items={storageExistingItems}
+                />
+                <AvailableCategory
+                    label="Resilience"
+                    items={reliabilityExistingItems}
+                />
+                <AvailableCategory
+                    label="Concurrency"
+                    items={concurrencyExistingItems}
+                />
+                <AvailableCategory
+                    label="Messaging"
+                    items={messagingExistingItems}
+                />
+                <AvailableCategory
+                    label="Web"
+                    items={webExistingItems}
+                />
+                <div className="text--center margin-top--lg">
+                    <Link
+                        className="button button--outline button--secondary"
+                        to="/docs/components/collection"
+                    >
+                        View all component docs{" "}
+                        <ArrowRight
+                            size="1rem"
+                            style={{
+                                marginLeft: "0.4rem",
+                                verticalAlign: "middle",
+                            }}
+                        />
+                    </Link>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+// --- Comparison Section ---
+
+function ComparisonSection() {
+    return (
+        <section className="padding-vert--xl">
+            <div className="container">
+                <div className="text--center margin-bottom--xl">
+                    <h2 className="daiso-section-title">
+                        Why not just combine existing libraries?
+                    </h2>
+                    <p className="daiso-section-subtitle">
+                        You could piece together separate libraries. Here's what
+                        you get with a unified toolkit instead.
+                    </p>
+                </div>
+                <div className="daiso-comparison-table-wrapper">
+                    <table className="daiso-comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Instead of</th>
+                                <th>
+                                    <span className="daiso-comparison-highlight">
+                                        @daiso-tech/core
+                                    </span>{" "}
+                                    gives
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tied to a specific vendor (Redis, S3)</td>
+                                <td>
+                                    Adapter abstraction — swap infrastructure
+                                    anytime
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>DI container required (NestJS, Inversify)</td>
+                                <td>
+                                    Plain TypeScript classes — instantiate
+                                    directly
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Docker required for integration tests</td>
+                                <td>
+                                    In-memory adapters — fast, isolated tests
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Different APIs for each library</td>
+                                <td>
+                                    Unified interfaces — learn once, use
+                                    everywhere
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Wiring libraries together manually</td>
+                                <td>
+                                    Components integrate seamlessly — shared
+                                    execution context, serde, adapters
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Framework-specific solutions</td>
+                                <td>
+                                    Framework agnostic — works with Express,
+                                    Next.js, Nuxt, NestJS, and more
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+// --- Architecture Diagram ---
+
+function ArchitectureSection() {
+    return (
+        <section className="padding-vert--xl daiso-section-alt">
+            <div className="container">
+                <div className="text--center margin-bottom--xl">
+                    <h2 className="daiso-section-title">
+                        How it fits together
+                    </h2>
+                    <p className="daiso-section-subtitle">
+                        Every component is self-contained with zero hard
+                        dependencies — but when used together, they share
+                        conventions, adapters, and context.
+                    </p>
+                </div>
+                <ArchitectureOverview />
             </div>
         </section>
     );
@@ -276,7 +698,7 @@ function CtaSection() {
 
 // --- Upcoming Components ---
 
-function UpcomingSection({ items }: { items: ComponentItemProps[] }) {
+function UpcomingSection() {
     return (
         <section className="padding-vert--xl daiso-section-alt">
             <div className="container">
@@ -289,11 +711,7 @@ function UpcomingSection({ items }: { items: ComponentItemProps[] }) {
                         available in any release.
                     </p>
                 </div>
-                <div className="row">
-                    {items.map((item, idx) => (
-                        <ComponentItem key={idx} {...item} />
-                    ))}
-                </div>
+                <PlannedCardGrid items={upcomingItems} />
                 <div className="text--center margin-top--lg">
                     <Link
                         className="button button--outline button--secondary"
@@ -365,26 +783,32 @@ function VisionSection({ items }: { items: VisionItemProps[] }) {
 
 const featureItems: FeatureItemProps[] = [
     {
+        icon: <Zap size="1.5rem" strokeWidth={1.5} />,
+        title: "Switch infrastructure without rewriting business logic",
+        description:
+            "The adapter pattern keeps your code decoupled from vendors. Use Redis today, Postgres tomorrow — no refactoring required.",
+    },
+    {
+        icon: <SiVitest size="1.5rem" />,
+        title: "Test everything without Docker",
+        description:
+            "Every component ships with an in-memory adapter and built-in Vitest helpers. Write fast, isolated tests — no external services needed.",
+    },
+    {
+        icon: <Plug size="1.5rem" strokeWidth={1.5} />,
+        title: "Bring your own framework",
+        description:
+            "No DI container required. Plug directly into Express, NestJS, AdonisJS, Next.js, Nuxt, or TanStack Start — it just works.",
+    },
+    {
         icon: <SiTypescript size="1.5rem" />,
-        title: "Type safe by default",
+        title: "Type-safe from day one",
         description:
             "Full TypeScript support with precise generics, rich intellisense, and auto-import friendly APIs — errors caught at compile time, not runtime.",
     },
     {
-        icon: <Package size="1.5rem" strokeWidth={1.5} />,
-        title: "ESM ready",
-        description:
-            "Built on modern JavaScript primitives including ES modules. No CommonJS baggage — fully compatible with the modern Node.js and bundler ecosystem.",
-    },
-    {
-        icon: <SiVitest size="1.5rem" />,
-        title: "Easily testable",
-        description:
-            "Every component ships with an in-memory adapter and built-in Vitest helpers. Write fast, isolated tests without Docker or external services.",
-    },
-    {
         icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
-        title: "Standard schema support",
+        title: "Standard schema validation built in",
         description: (
             <>
                 First-class integration with{" "}
@@ -395,124 +819,10 @@ const featureItems: FeatureItemProps[] = [
         ),
     },
     {
-        icon: <Plug size="1.5rem" strokeWidth={1.5} />,
-        title: "Framework agnostic",
+        icon: <Package size="1.5rem" strokeWidth={1.5} />,
+        title: "ESM native. No CommonJS baggage.",
         description:
-            "No DI container required. Plug directly into Express, NestJS, AdonisJS, Next.js, Nuxt, or TanStack Start — it just works.",
-    },
-    {
-        icon: <Zap size="1.5rem" strokeWidth={1.5} />,
-        title: "Adapter pattern",
-        description:
-            "Swap infrastructure at will — Redis today, DynamoDB tomorrow. The adapter pattern keeps your business logic free from vendor lock-in.",
-    },
-];
-
-const componentItems: ComponentItemProps[] = [
-    {
-        icon: <Database size="1.5rem" strokeWidth={1.5} />,
-        title: "Cache",
-        description:
-            "Speed up your application by storing frequently accessed data in a pluggable cache store — Memory, Redis, Kysely, and MongoDB adapters included.",
-        href: "/docs/components/cache/cache_usage",
-    },
-    {
-        icon: <HardDrive size="1.5rem" strokeWidth={1.5} />,
-        title: "File storage",
-        description:
-            "Manage files with a unified API across local filesystem, in-memory, and cloud providers like AWS S3.",
-        href: "/docs/components/file_storage/file_storage_usage",
-    },
-    {
-        icon: <Radio size="1.5rem" strokeWidth={1.5} />,
-        title: "EventBus",
-        description:
-            "Publish and subscribe to events across distributed server instances or entirely in-memory for local testing.",
-        href: "/docs/components/event_bus/event_bus_usage",
-    },
-    {
-        icon: <CircuitBoard size="1.5rem" strokeWidth={1.5} />,
-        title: "Circuit-breaker",
-        description:
-            "Prevent cascading failures with an automatic circuit-breaker primitive that stops calls to a consistently failing service.",
-        href: "/docs/components/circuit_breaker/circuit_breaker_usage",
-    },
-    {
-        icon: <Lock size="1.5rem" strokeWidth={1.5} />,
-        title: "Lock",
-        description:
-            "Guarantee mutual exclusion across multiple processes with a distributed lock, eliminating race conditions on shared resources.",
-        href: "/docs/components/lock/lock_usage",
-    },
-    {
-        icon: <Layers size="1.5rem" strokeWidth={1.5} />,
-        title: "Semaphore",
-        description:
-            "Limit concurrent access to a resource or code section across processes with a configurable distributed semaphore.",
-        href: "/docs/components/semaphore/semaphore_usage",
-    },
-    {
-        icon: <Users size="1.5rem" strokeWidth={1.5} />,
-        title: "Shared lock",
-        description:
-            "Coordinate readers and writers efficiently — allow concurrent reads while ensuring exclusive, safe writes across processes.",
-        href: "/docs/components/shared_lock/shared_lock_usage",
-    },
-    {
-        icon: <ArrowLeftRight size="1.5rem" strokeWidth={1.5} />,
-        title: "Serde",
-        description:
-            "Add custom serialization and deserialization logic that integrates transparently with every other component in the library.",
-        href: "/docs/components/serde",
-    },
-    {
-        icon: <List size="1.5rem" strokeWidth={1.5} />,
-        title: "Collection",
-        description:
-            "Effortlessly work with Arrays, Iterables, and AsyncIterables using a rich, composable, and lazy collection API.",
-        href: "/docs/components/collection",
-    },
-    {
-        icon: <Webhook size="1.5rem" strokeWidth={1.5} />,
-        title: "Middleware",
-        description:
-            "Intercept, compose and extend any sync or async function with a priority-based middleware pipeline useful for AOP (Aspect Oriented Programming). Built-in retry, fallback, timeout, lock, semaphore, shared-lock, cache, rate-limiter, circuit-breaker  middlewares for handling transient failures.",
-        href: "/docs/components/middleware",
-    },
-    {
-        icon: <Share2 size="1.5rem" strokeWidth={1.5} />,
-        title: "Execution context",
-        description:
-            "Propagate request-scoped data — user info, trace IDs, tenant context — across async boundaries. Integrates transparently with all components and adapters.",
-        href: "/docs/components/execution_context",
-    },
-    {
-        icon: <Zap size="1.5rem" strokeWidth={1.5} />,
-        title: "Resilience",
-        description:
-            "Robust async flows with built-in middlewares: retry, fallback, and timeout for reliability and fault tolerance.",
-        href: "/docs/components/resilience",
-    },
-    {
-        icon: <Box size="1.5rem" strokeWidth={1.5} />,
-        title: "Typed config access",
-        description:
-            "ConfigAccessor reads typed application config values through a small accessor with optional schema validation.",
-        href: "/docs/components/config_accessor",
-    },
-    {
-        icon: <Key size="1.5rem" strokeWidth={1.5} />,
-        title: "Typed env access",
-        description:
-            "EnvAccessor loads and validates environment variables from one or more sources with type-safe access.",
-        href: "/docs/components/env_accessor",
-    },
-    {
-        icon: <Globe size="1.5rem" strokeWidth={1.5} />,
-        title: "HTTP Router",
-        description:
-            "Route HTTP requests with a universal WinterTC-compatible fetch handler. Works with any framework or runtime that is WinterTC-compatible like Cloudflare Workers, AWS Lambda (via Hono), Next.js and more.",
-        href: "/docs/components/http_router/http_router_usage",
+            "Built on modern JavaScript primitives. Fully compatible with Node.js, Bun, Deno, and the modern bundler ecosystem.",
     },
 ];
 
@@ -581,16 +891,18 @@ export default function Home(): ReactNode {
             <header className="daiso-hero hero hero--primary">
                 <div className="container">
                     <p className="daiso-hero-badge margin-bottom--md">
-                        Backend server SDK for TypeScript
+                        The adapter-first backend toolkit for TypeScript
                     </p>
                     <h1 className="hero__title">{siteConfig.title}</h1>
                     <p className="hero__subtitle daiso-hero-tagline">
-                        {siteConfig.tagline}
+                        Write business logic once.
+                        <br />
+                        Replace infrastructure anytime.
                     </p>
                     <p className="daiso-hero-subtext">
-                        The library contains 4,640 tests — the majority are
-                        integration and behavior tests, ensuring reliability in
-                        real-world scenarios.
+                        Swap Redis, S3, Postgres, and more — without rewriting
+                        your application. 4,640+ integration and behavior tests
+                        ensure reliability in real-world scenarios.
                     </p>
                     <div className="margin-bottom--xl">
                         <InstallCommand />
@@ -622,9 +934,13 @@ export default function Home(): ReactNode {
             <StatsBar />
 
             <main>
+                <CodeShowcase />
                 <FeatureSection items={featureItems} />
-                <ComponentSection items={componentItems} />
-                <UpcomingSection items={upcomingItems} />
+                <WhoIsThisFor />
+                <ComponentSection />
+                <ComparisonSection />
+                <ArchitectureSection />
+                <UpcomingSection />
                 <VisionSection items={visionItems} />
                 <GitHubStarBanner />
                 <CtaSection />

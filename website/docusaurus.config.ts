@@ -16,7 +16,7 @@ import { ogGenerator } from "./utilities/og-generator";
 const config: Config = {
     title: "@daiso-tech/core",
     tagline:
-        "@daiso-tech/core is a SDK of backend server components designed for maximum flexibility.",
+        "Write business logic once. Replace infrastructure anytime. The adapter-first backend toolkit for TypeScript.",
     favicon: "img/favicon.ico",
 
     // Set the production url of your site here
@@ -161,7 +161,7 @@ const config: Config = {
             {
                 name: "Descriptions",
                 content:
-                    "Node Js, JavaScript, TypeScript backend server component library",
+                    "Write business logic once. Replace infrastructure anytime. The adapter-first backend toolkit for TypeScript with interchangeable components — cache, locks, file storage, event bus, and more.",
             },
             { name: "robots", content: "index, follow" },
         ],
