@@ -904,6 +904,7 @@ describe("class: Container", () => {
                 resolvedConfig = await resolver.resolveOrFail(ICONFIG);
             });
 
+            await container.init();
             await container.deInit();
 
             expect(resolvedConfig).toEqual({
@@ -928,6 +929,7 @@ describe("class: Container", () => {
         });
 
         test("Should deinitialize without error when no hooks are registered", async () => {
+            await container.init();
             await expect(container.deInit()).resolves.toBeUndefined();
         });
 
@@ -1071,6 +1073,7 @@ describe("class: Container", () => {
             container.registerValue({ token: TOKEN_A, value: "value-a" });
             container.registerValue({ token: TOKEN_B, value: "value-b" });
 
+            await container.init();
             const a = await container.resolveOrFail(TOKEN_A);
             const b = await container.resolveOrFail(TOKEN_B);
 
@@ -1088,6 +1091,7 @@ describe("class: Container", () => {
                 })
                 .singleton();
 
+            await container.init();
             const logger = await container.resolveOrFail(ConsoleLogger);
             expect(logger).toBeInstanceOf(ConsoleLogger);
         });
@@ -1106,6 +1110,7 @@ describe("class: Container", () => {
                 })
                 .singleton();
 
+            await container.init();
             const logger = await container.resolveOrFail(ILOGGER);
             expect(logger).toBeDefined();
             expect(typeof logger.log).toBe("function");
