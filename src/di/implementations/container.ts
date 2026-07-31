@@ -6,6 +6,7 @@ import {
     type DiToken,
     type FactoryRegistration,
     type IContainer,
+    type IDynamicServiceRegister,
     type IServiceLifetime,
     type RunSettings,
     type ServiceFactory,
@@ -15,13 +16,13 @@ import {
 import {
     eagerInitialization,
     Graph,
+    LIFESPAN,
     type TEdge,
     type TLifespan,
     type TNode,
 } from "@/di/implementations/graph.js";
-import { LIFESPAN } from "@/di/implementations/ref/graph2_ref.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { callInvokable, isInvokableObject } from "@/utilities/_module.js";
+import { callInvokable } from "@/utilities/_module.js";
 
 /**
  * @group Implementations
@@ -67,12 +68,12 @@ export async function initEagerlySingletons<T>(args: {
     getAllNeighbors: (nodeId: T) => Array<T>;
     getValue: (nodeId: T) => unknown;
     getArgIndexOfNode(nodeId: T, depsId: T): number;
-    getPredecessors: (nodeId: T) => Array<T>;
+    getSingletonPredecessors: (nodeId: T) => Array<T>;
     singletonNodeIds: Array<T>;
 }): Promise<void> {
-    await eagerInitialization({
+    await eagerInitialization<T>({
         getSuccessors: args.getSingletonNeighbors,
-        getPredecessors: args.getPredecessors,
+        getPredecessors: args.getSingletonPredecessors,
         initNode: async (nodeId) => {
             const neighborNodeIds = args
                 .getSingletonNeighbors(nodeId)
@@ -113,13 +114,13 @@ export async function initEagerlyTransients<T>(args: {
     getAllNeighbors: (nodeId: T) => Array<T>;
     getTransientNeighbors: (nodeId: T) => Array<T>;
     getArgIndexOfNode(nodeId: T, depsId: T): number;
-    getPredecessors: (nodeId: T) => Array<T>;
+    getTransientPredecessors: (nodeId: T) => Array<T>;
 
     transientNodeIds: Array<T>;
 }): Promise<void> {
     await eagerInitialization({
         getSuccessors: args.getTransientNeighbors,
-        getPredecessors: args.getPredecessors,
+        getPredecessors: args.getTransientPredecessors,
         initNode: (nodeId) => {
             const allNeighbors = args.getAllNeighbors(nodeId);
 
@@ -155,14 +156,14 @@ export async function initEagerlyScoped<T>(args: {
     getAllNeighbors: (nodeId: T) => Array<T>;
     getScopedNeighbors: (nodeId: T) => Array<T>;
     getArgIndexOfNode(nodeId: T, depsId: T): number;
-    getPredecessors: (nodeId: T) => Array<T>;
+    getScopedPredecessors: (nodeId: T) => Array<T>;
 
     scopedNodeIds: Array<T>;
 }): Promise<void> {
     await eagerInitialization({
         getSuccessors: args.getScopedNeighbors,
-        getPredecessors: args.getPredecessors,
-        initNode: (nodeId) => {
+        getPredecessors: args.getScopedPredecessors,
+        initNode: async (nodeId) => {
             const singletonNeighbors = args.getAllNeighbors(nodeId);
 
             const singletonValuesWithIndex = singletonNeighbors.map(
@@ -178,7 +179,7 @@ export async function initEagerlyScoped<T>(args: {
                 .sort((itemA, itemB) => itemA.index - itemB.index)
                 .map((item) => item.value);
 
-            const func = args.createScopedValue(
+            const func = await args.createScopedValue(
                 nodeId,
                 correctlySortedArgsGetter,
             );
@@ -189,7 +190,7 @@ export async function initEagerlyScoped<T>(args: {
     });
 }
 
-export type ValueResult =
+export type RegistryValue =
     | {
           type: "direct";
           value: unknown;
@@ -201,16 +202,20 @@ export type ValueResult =
           lifespan: Extract<TLifespan, typeof LIFESPAN.TRANSIENT>;
       };
 
+type JustRegistryValueOf<T extends TLifespan> = Extract<
+    RegistryValue,
+    { lifespan: T }
+>;
+
 export function createRegistryValueGetter<T>(args: {
     getLifespan: (nodeId: T) => TLifespan;
-
     getSingletonValueOrThrowIfNotExist: (nodeId: T) => unknown;
     getScopedValueOrThrowIfNotExist: (nodeId: T) => unknown;
     getDynamicValueOrThrowIfNotExist: (nodeId: T) => unknown;
     getTransientFactoryValueOrThrowIfNotExist: (
         nodeId: T,
     ) => () => Promise<unknown>;
-}): (nodeId: T) => ValueResult {
+}): (nodeId: T) => RegistryValue {
     return (nodeId: T) => {
         switch (args.getLifespan(nodeId)) {
             case LIFESPAN.SINGLETON: {
@@ -249,6 +254,7 @@ export function createRegistryValueGetter<T>(args: {
         }
     };
 }
+
 type TGetter = () => Promise<unknown>;
 function createGetterCache() {
     const functionCache = new Map<TNode, TGetter>();
@@ -290,7 +296,7 @@ export function createNeighborFilter(
 }
 
 export function getArgIndexOfNode(graph: Graph<NodeProps, EdgeProps>) {
-    return (nodeId: TNode, depsId: TNode) => {
+    return (nodeId: TNode, depsId: TNode): number => {
         const edges = graph
             .getSuccessorEdgesOf(nodeId)
             .filter(
@@ -366,112 +372,221 @@ export function createNodeFilter(
     lifeSpan: TLifespan,
 ): Array<TNode> {
     const nodes = graph
-        .nodeEntriesOrThrowIfNull()
-        .filter(([_, value]) => value.lifespan === lifeSpan)
-        .map(([nodeId]) => nodeId);
+        .nodes()
+        .filter(
+            (nodeId) =>
+                graph.getNodePropertyOrThrow(nodeId).lifespan === lifeSpan,
+        );
+
     return nodes;
 }
 
-class DynamicMapRef {
-    private map = new Map<DiToken, unknown>();
-    constructor(private parent?: DynamicMapRef) {}
+function throwIfNodeHaveIncorrectLifespan(
+    node: NodeProps,
+    correctLifespans: Array<TLifespan>,
+) {
+    if (!correctLifespans.includes(node.lifespan)) {
+        throw new Error();
+    }
+}
+
+class Registry<T> {
+    private map = new Map<DiToken, T>();
+
+    constructor(private parent?: Registry<T> | (() => Registry<T>)) {}
+
+    private getParent(): Registry<T> | undefined {
+        if (this.parent === undefined) {
+            return undefined;
+        } else if (this.parent instanceof Registry) {
+            return this.parent;
+        } else {
+            return this.parent();
+        }
+    }
 
     /** Whether the token exists in this layer only (ignores parent). */
-    public hasAtCurrentLayer(token: DiToken): boolean {
-        return this.map.has(token);
-    }
+    // private hasAtCurrentLayer(token: DiToken): boolean {
+    //     return this.map.has(token);
+    // }
 
     /** Whether the token exists in this layer or any parent layer. */
     public has(token: DiToken): boolean {
-        return this.map.has(token) || (this.parent?.has(token) ?? false);
+        return this.map.has(token) || (this.getParent()?.has(token) ?? false);
     }
 
     /** Returns the value for the token from the nearest layer.
      * Checks the current layer first; if not found, delegates to the parent.
      * Returns `null` if the token is not found in any layer.
      * Always converts `undefined` to `null`. */
-    public get(token: DiToken): unknown {
-        if (this.hasAtCurrentLayer(token)) {
+    public get(token: DiToken): T | null {
+        if (this.map.has(token)) {
             const value = this.map.get(token);
             return value === undefined ? null : value;
         }
-        return this.parent?.get(token) ?? null;
+        return this.getParent()?.get(token) ?? null;
+    }
+
+    public getOrThrow(token: DiToken): T {
+        if (!this.has(token)) {
+            throw new Error();
+        }
+
+        const value = this.get(token);
+
+        if (value === null) {
+            throw new Error();
+        }
+
+        return value;
     }
 
     /** Returns the value from this layer only, or `null` if not set.
      * Does NOT consult parent layers.
      * Always converts `undefined` to `null`. */
-    public getFromCurrentLayer(token: DiToken): unknown {
-        const value = this.map.get(token);
-        return value === undefined ? null : value;
-    }
+    // private getFromCurrentLayer(token: DiToken): T | null {
+    //     const value = this.map.get(token);
+    //     return value === undefined ? null : value;
+    // }
 
     /** Sets the value for the token in this layer. */
-    public addToCurrentLayer(token: DiToken, value: unknown): void {
+    public set(token: DiToken, value: T): void {
         this.map.set(token, value);
     }
 }
 
-const DYNAMIC_VALUE_REGISTRY_KEY = genericToken<DynamicMapRef>("");
+type TCurrentRegistry<T> = {
+    get(): Registry<T> | null;
+    set(registry: Registry<T>): void;
+};
+
+type TCurrentLevel = {
+    get(): number | null;
+    set(registry: number): void;
+};
+
+class RegistryManger<T> {
+    public baseRegistry: Registry<T> = new Registry<T>();
+    public overrideRegistry: Registry<T>;
+
+    public currentScopedOrBaseRegistry(): Registry<T> {
+        const scopedRegistry = this.args.currentScopedRegistry.get();
+        const noScopedRegistry = scopedRegistry === null;
+        if (noScopedRegistry) {
+            return this.baseRegistry;
+        }
+
+        return scopedRegistry;
+    }
+
+    public currentScopeDepthOrZero(): number {
+        const scopeDepth = this.args.currentScopeDepth.get();
+        const scopeDepthIsZero = scopeDepth === null;
+
+        if (scopeDepthIsZero) {
+            return 0;
+        }
+        return scopeDepth;
+    }
+
+    constructor(
+        private args: {
+            currentScopedRegistry: TCurrentRegistry<T>;
+            currentScopeDepth: TCurrentLevel;
+        },
+    ) {
+        this.overrideRegistry = new Registry<T>(() =>
+            this.currentScopedOrBaseRegistry(),
+        );
+    }
+
+    // inside new run
+    public initNewScope(): void {
+        const oldLayer: Registry<T> = this.currentScopedOrBaseRegistry();
+
+        const level = this.currentScopeDepthOrZero();
+
+        const newLayer = new Registry(oldLayer);
+        this.args.currentScopedRegistry.set(newLayer);
+        this.args.currentScopeDepth.set(level + 1);
+    }
+}
+
+type RegistryObject<T> = ReturnType<typeof setUpRegistryManger<T>>;
+
+function setUpRegistryManger<T>(executionContext: IExecutionContext) {
+    const SCOPE_DEPTH_KEY = genericToken<number>(
+        "the depth level associated with current scope",
+    );
+    const REGISTRY_KEY = genericToken<Registry<T>>(
+        "the registry  associated with current scope",
+    );
+
+    const manger = new RegistryManger<T>({
+        currentScopeDepth: {
+            get: () => executionContext.get(SCOPE_DEPTH_KEY),
+            set: (depth) => executionContext.put(SCOPE_DEPTH_KEY, depth),
+        },
+
+        currentScopedRegistry: {
+            get: () => executionContext.get(REGISTRY_KEY),
+            set: (registry) => executionContext.put(REGISTRY_KEY, registry),
+        },
+    });
+
+    return {
+        manger,
+        keys: {
+            SCOPE_DEPTH_KEY,
+            REGISTRY_KEY,
+        },
+    };
+}
+const REGISTER_VALUE_TYPE = {
+    DIRECT: "value",
+    FUNC: "func",
+} as const;
+
+type TRegisterValue =
+    | {
+          type: typeof REGISTER_VALUE_TYPE.DIRECT;
+          value: unknown;
+      }
+    | {
+          type: typeof REGISTER_VALUE_TYPE.FUNC;
+          value: () => Promise<unknown>;
+      };
+
+type TRegisterValueType =
+    (typeof REGISTER_VALUE_TYPE)[keyof typeof REGISTER_VALUE_TYPE];
+
+function throwIfValueIsStoredIncorrect(
+    registerValue: TRegisterValue,
+    correctValueType: TRegisterValueType,
+) {
+    if (registerValue.type !== correctValueType) {
+        throw new Error();
+    }
+}
+
+class GraphManger<TNodeProps, TEdgeProps> {
+    public baseGraph = new Graph<TNodeProps, TEdgeProps>();
+    public overrideGraph = new Graph<TNodeProps, TEdgeProps>({
+        parentGraph: this.baseGraph,
+    });
+}
 
 export class Container implements IContainer {
-    private graph = Graph.empty<NodeProps, EdgeProps>();
-    private overrideServices = Graph.empty<OverriddenNodeProps, EdgeProps>();
+    private graphManger = new GraphManger<NodeProps, EdgeProps>();
 
-    private scopedValueRegistry = new Map<DiToken, unknown>();
-    private singletonValueRegistry = new Map<DiToken, unknown>();
-    private getDynamicNodeValueRegistry = () =>
-        this.settings.executionContext.getOrFail(DYNAMIC_VALUE_REGISTRY_KEY);
-    private nodeTransientServiceFactory = new Map<
-        DiToken,
-        () => Promise<unknown>
-    >();
+    private registry: RegistryObject<TRegisterValue>;
     private initHandler: DiHook | null = null;
     private deInitHandler: DiHook | null = null;
     private state: TState = BEFORE_READY;
 
-    private getValue = createRegistryValueGetter<TNode>({
-        getLifespan: (nodeId) =>
-            this.graph.getNodePropertyOrThrow(nodeId).lifespan,
-
-        getDynamicValueOrThrowIfNotExist: (nodeId) => {
-            if (!this.getDynamicNodeValueRegistry().has(nodeId)) {
-                throw new Error();
-            }
-
-            return this.getDynamicNodeValueRegistry().get(nodeId);
-        },
-        getScopedValueOrThrowIfNotExist: (nodeId) => {
-            if (!this.scopedValueRegistry.has(nodeId)) {
-                throw new Error();
-            }
-
-            return this.scopedValueRegistry.get(nodeId);
-        },
-        getSingletonValueOrThrowIfNotExist: (nodeId) => {
-            if (!this.singletonValueRegistry.has(nodeId)) {
-                throw new Error();
-            }
-
-            return this.singletonValueRegistry.get(nodeId);
-        },
-        getTransientFactoryValueOrThrowIfNotExist: (nodeId) => {
-            if (!this.nodeTransientServiceFactory.has(nodeId)) {
-                throw new Error();
-            }
-            const value = this.nodeTransientServiceFactory.get(nodeId);
-            if (value === undefined) {
-                throw new Error();
-            }
-
-            return value;
-        },
-    });
-
     constructor(private readonly settings: ContainerSettings) {
-        this.settings.executionContext.put(
-            DYNAMIC_VALUE_REGISTRY_KEY,
-            new DynamicMapRef(),
+        this.registry = setUpRegistryManger<TRegisterValue>(
+            this.settings.executionContext,
         );
     }
 
@@ -493,91 +608,120 @@ export class Container implements IContainer {
     }
 
     private throwIfTokenAlreadyRegistered(token: DiToken) {
-        if (this.graph.hasNodeProperty(token)) {
+        if (this.graphManger.overrideGraph.hasNodeProperty(token)) {
             throw new Error("double registered node");
         }
     }
 
     private throwIfTokenNotRegistered(token: DiToken) {
-        if (!this.graph.hasNodeProperty(token)) {
+        if (!this.graphManger.overrideGraph.hasNodeProperty(token)) {
             throw new Error("no such token exist");
         }
     }
 
     private async initSingletonsValues() {
-        const singletonNodes = createNodeFilter(this.graph, LIFESPAN.SINGLETON);
+        const singletonNodes = createNodeFilter(
+            this.graphManger.overrideGraph,
+            LIFESPAN.SINGLETON,
+        );
 
         const getSingletonNeighbors = createNeighborFilter(
-            this.graph,
+            this.graphManger.overrideGraph,
             LIFESPAN.SINGLETON,
         );
 
         await initEagerlySingletons<TNode>({
-            getPredecessors: (nodeId) => {
-                return this.graph
+            getSingletonPredecessors: (nodeId) => {
+                return this.graphManger.overrideGraph
                     .getPredecessorsOf(nodeId)
                     .filter(
                         (p) =>
-                            this.graph.getNodePropertyOrThrow(p).lifespan ===
-                            LIFESPAN.SINGLETON,
+                            this.graphManger.overrideGraph.getNodePropertyOrThrow(
+                                p,
+                            ).lifespan === LIFESPAN.SINGLETON,
                     );
             },
             createSingletonNodeValue: async (nodeId, args) => {
-                const nodeProp = this.graph.getNodePropertyOrThrow(nodeId);
+                const nodeProp =
+                    this.graphManger.overrideGraph.getNodePropertyOrThrow(
+                        nodeId,
+                    );
                 if (nodeProp.lifespan !== LIFESPAN.SINGLETON) {
                     throw new Error();
                 }
 
                 return await callInvokable(
                     nodeProp.service,
-                    ...args,
+                    args,
                     this.settings.executionContext,
                 );
             },
             singletonNodeIds: singletonNodes,
             getValue: (nodeId) => {
-                const result = this.getValue(nodeId);
-                if (result.lifespan !== LIFESPAN.SINGLETON) {
+                const entry =
+                    this.registry.manger.overrideRegistry.getOrThrow(nodeId);
+
+                const node =
+                    this.graphManger.overrideGraph.getNodePropertyOrThrow(
+                        nodeId,
+                    );
+                throwIfNodeHaveIncorrectLifespan(node, [LIFESPAN.SINGLETON]);
+
+                if (entry.type !== REGISTER_VALUE_TYPE.DIRECT) {
                     throw new Error();
                 }
 
-                return result.value;
+                return entry.value;
             },
             saveSingletonValue: (nodeId, value) => {
-                this.singletonValueRegistry.set(nodeId, value);
+                this.registry.manger.currentScopedOrBaseRegistry().set(nodeId, {
+                    value,
+                    type: REGISTER_VALUE_TYPE.DIRECT,
+                });
             },
             getAllNeighbors: (nodeId) => {
-                return this.graph.getSuccessorsOf(nodeId);
+                return this.graphManger.overrideGraph.getSuccessorsOf(nodeId);
             },
             getSingletonNeighbors,
-            getArgIndexOfNode: getArgIndexOfNode(this.graph),
+            getArgIndexOfNode: getArgIndexOfNode(
+                this.graphManger.overrideGraph,
+            ),
         });
     }
 
     private async initTransientFactories() {
-        const transientNodes = createNodeFilter(this.graph, LIFESPAN.TRANSIENT);
+        const transientNodes = createNodeFilter(
+            this.graphManger.overrideGraph,
+            LIFESPAN.TRANSIENT,
+        );
 
         const getTransientNeighbors = createNeighborFilter(
-            this.graph,
+            this.graphManger.overrideGraph,
             LIFESPAN.TRANSIENT,
         );
 
         const reuse = createGetterCache();
 
         await initEagerlyTransients<TNode>({
-            getPredecessors: (nodeId) => {
-                return this.graph
+            getTransientPredecessors: (nodeId) => {
+                return this.graphManger.overrideGraph
                     .getPredecessorsOf(nodeId)
                     .filter(
                         (p) =>
-                            this.graph.getNodePropertyOrThrow(p).lifespan ===
-                            LIFESPAN.TRANSIENT,
+                            this.graphManger.overrideGraph.getNodePropertyOrThrow(
+                                p,
+                            ).lifespan === LIFESPAN.TRANSIENT,
                     );
             },
             transientNodeIds: transientNodes,
-            getArgIndexOfNode: getArgIndexOfNode(this.graph),
+            getArgIndexOfNode: getArgIndexOfNode(
+                this.graphManger.overrideGraph,
+            ),
             createTransientFactoryFunc: (nodeId, inputFuncs) => {
-                const nodeProp = this.graph.getNodePropertyOrThrow(nodeId);
+                const nodeProp =
+                    this.graphManger.overrideGraph.getNodePropertyOrThrow(
+                        nodeId,
+                    );
                 if (nodeProp.lifespan !== LIFESPAN.TRANSIENT) {
                     throw new Error();
                 }
@@ -588,7 +732,7 @@ export class Container implements IContainer {
                     );
                     return await callInvokable(
                         nodeProp.service,
-                        ...resolvedInputs,
+                        resolvedInputs,
                         this.settings.executionContext,
                     );
                 };
@@ -597,89 +741,119 @@ export class Container implements IContainer {
             },
             getTransientNeighbors,
             getAllNeighbors: (nodeId) => {
-                return this.graph.getSuccessorsOf(nodeId);
+                return this.graphManger.overrideGraph.getSuccessorsOf(nodeId);
             },
             getValueGetter: (nodeId) => {
-                const result = this.getValue(nodeId);
-                const lifespan = result.lifespan;
-                const validDependency =
-                    lifespan === LIFESPAN.SINGLETON ||
-                    lifespan === LIFESPAN.SCOPED ||
-                    lifespan === LIFESPAN.TRANSIENT;
+                const result =
+                    this.registry.manger.overrideRegistry.getOrThrow(nodeId);
 
-                if (!validDependency) {
-                    throw new Error();
-                }
+                const node =
+                    this.graphManger.overrideGraph.getNodePropertyOrThrow(
+                        nodeId,
+                    );
 
-                if (result.lifespan !== LIFESPAN.TRANSIENT) {
+                throwIfNodeHaveIncorrectLifespan(node, [
+                    LIFESPAN.SCOPED,
+                    LIFESPAN.TRANSIENT,
+                    LIFESPAN.SINGLETON,
+                ]);
+
+                if (node.lifespan !== LIFESPAN.TRANSIENT) {
                     return reuse({
                         nodeId,
                         newFunc: () => Promise.resolve(result.value),
                     });
                 }
+
+                if (result.type !== REGISTER_VALUE_TYPE.FUNC) {
+                    throw new Error();
+                }
                 return result.value;
             },
 
             saveTransientFactoryFunc: (nodeId, factoryFunc) => {
-                this.nodeTransientServiceFactory.set(nodeId, factoryFunc);
+                this.registry.manger.currentScopedOrBaseRegistry().set(nodeId, {
+                    value: factoryFunc,
+                    type: REGISTER_VALUE_TYPE.FUNC,
+                });
             },
         });
     }
 
     private async initScopedValues() {
-        const scopedNodes = createNodeFilter(this.graph, LIFESPAN.SCOPED);
+        const scopedNodes = createNodeFilter(
+            this.graphManger.overrideGraph,
+            LIFESPAN.SCOPED,
+        );
 
         const getScopedNeighbors = createNeighborFilter(
-            this.graph,
+            this.graphManger.overrideGraph,
             LIFESPAN.SCOPED,
         );
 
         await initEagerlyScoped<TNode>({
-            getPredecessors: (nodeId) => {
-                return this.graph
+            getScopedPredecessors: (nodeId) => {
+                return this.graphManger.overrideGraph
                     .getPredecessorsOf(nodeId)
                     .filter(
                         (p) =>
-                            this.graph.getNodePropertyOrThrow(p).lifespan ===
-                            LIFESPAN.SCOPED,
+                            this.graphManger.overrideGraph.getNodePropertyOrThrow(
+                                p,
+                            ).lifespan === LIFESPAN.SCOPED,
                     );
             },
             createScopedValue: async (nodeId, args) => {
-                const nodeProp = this.graph.getNodePropertyOrThrow(nodeId);
+                const nodeProp =
+                    this.graphManger.overrideGraph.getNodePropertyOrThrow(
+                        nodeId,
+                    );
                 if (nodeProp.lifespan !== LIFESPAN.SCOPED) {
                     throw new Error();
                 }
 
+                throwIfNodeHaveIncorrectLifespan(nodeProp, [LIFESPAN.SCOPED]);
                 return await callInvokable(
                     nodeProp.service,
-                    ...args,
+                    args,
                     this.settings.executionContext,
                 );
             },
+
             scopedNodeIds: scopedNodes,
+
             getValue: (nodeId) => {
-                const result = this.getValue(nodeId);
-                const lifespan = result.lifespan;
+                const node =
+                    this.graphManger.overrideGraph.getNodePropertyOrThrow(
+                        nodeId,
+                    );
+                const result =
+                    this.registry.manger.overrideRegistry.getOrThrow(nodeId);
 
-                const validDependency =
-                    lifespan === LIFESPAN.SINGLETON ||
-                    lifespan === LIFESPAN.SCOPED ||
-                    lifespan === LIFESPAN.DYNAMIC;
+                throwIfNodeHaveIncorrectLifespan(node, [
+                    LIFESPAN.SINGLETON,
+                    LIFESPAN.SCOPED,
+                    LIFESPAN.DYNAMIC,
+                ]);
 
-                if (!validDependency) {
-                    throw new Error();
-                }
+                throwIfValueIsStoredIncorrect(
+                    result,
+                    REGISTER_VALUE_TYPE.DIRECT,
+                );
 
                 return result.value;
             },
             saveScopedValue: (nodeId, value) => {
-                this.scopedValueRegistry.set(nodeId, value);
+                this.registry.manger
+                    .currentScopedOrBaseRegistry()
+                    .set(nodeId, { value, type: REGISTER_VALUE_TYPE.DIRECT });
             },
             getAllNeighbors: (nodeId) => {
-                return this.graph.getSuccessorsOf(nodeId);
+                return this.graphManger.overrideGraph.getSuccessorsOf(nodeId);
             },
             getScopedNeighbors,
-            getArgIndexOfNode: getArgIndexOfNode(this.graph),
+            getArgIndexOfNode: getArgIndexOfNode(
+                this.graphManger.overrideGraph,
+            ),
         });
     }
 
@@ -717,20 +891,36 @@ export class Container implements IContainer {
         this.deInitHandler = handler;
     }
 
-    run<TValue = void>(settings: RunSettings<TValue>): Promise<void> {
+    async run<TValue = void>(settings: RunSettings<TValue>): Promise<void> {
         this.throwIfStateNotReady();
-        //throw new Error("Method not implemented.");
 
-        const currentLayer = this.settings.executionContext.getOrFail(
-            DYNAMIC_VALUE_REGISTRY_KEY,
-        );
+        await this.settings.executionContext.run(async () => {
+            const dynamicServiceRegister: IDynamicServiceRegister = {
+                set: (dynSettings): Promise<void> => {
+                    this.registry.manger
+                        .currentScopedOrBaseRegistry()
+                        .set(dynSettings.token, {
+                            value: dynSettings.value,
+                            type: REGISTER_VALUE_TYPE.DIRECT,
+                        });
 
-        this.settings.executionContext.run(() => {
-            const childLayer = currentLayer;
-            this.settings.executionContext.put(
-                DYNAMIC_VALUE_REGISTRY_KEY,
-                new DynamicMapRef(childLayer),
-            );
+                    return Promise.resolve();
+                },
+            };
+
+            this.registry.manger.initNewScope();
+
+            if (settings.dynamicRegistration !== undefined) {
+                await callInvokable(
+                    settings.dynamicRegistration,
+                    dynamicServiceRegister,
+                );
+            }
+
+            await this.initScopedValues();
+
+            const value = await callInvokable(settings.scope);
+            return value;
         });
     }
 
@@ -741,11 +931,7 @@ export class Container implements IContainer {
         this.throwIfStateNotBeforeReady();
         this.throwIfTokenAlreadyRegistered(settings.token);
 
-        const factory = settings.factory;
-
-        if (!isInvokableObject(factory)) {
-            throw new Error();
-        }
+        const factory = settings.factory as ServiceFactory;
 
         const deps: Array<[TEdge, EdgeProps]> = [...settings.deps].map(
             (to, argIndex) => [[settings.token, to], { argIndex }],
@@ -764,26 +950,26 @@ export class Container implements IContainer {
                 throwErrorIfScopedAlreadySet();
                 scope = LIFESPAN.SCOPED;
 
-                this.graph.setNodeProperty(settings.token, {
+                this.graphManger.baseGraph.setNodeProperty(settings.token, {
                     lifespan: scope,
                     service: factory,
                 });
 
                 deps.forEach(([edge, value]) => {
-                    this.graph.setEdgeProperty(edge, value);
+                    this.graphManger.baseGraph.setEdgeProperty(edge, value);
                 });
             },
             singleton: () => {
                 throwErrorIfScopedAlreadySet();
                 scope = LIFESPAN.SINGLETON;
 
-                this.graph.setNodeProperty(settings.token, {
+                this.graphManger.baseGraph.setNodeProperty(settings.token, {
                     lifespan: scope,
                     service: factory,
                 });
 
                 deps.forEach(([edge, value]) => {
-                    this.graph.setEdgeProperty(edge, value);
+                    this.graphManger.baseGraph.setEdgeProperty(edge, value);
                 });
             },
 
@@ -791,13 +977,13 @@ export class Container implements IContainer {
                 throwErrorIfScopedAlreadySet();
                 scope = LIFESPAN.TRANSIENT;
 
-                this.graph.setNodeProperty(settings.token, {
+                this.graphManger.baseGraph.setNodeProperty(settings.token, {
                     lifespan: scope,
                     service: factory,
                 });
 
                 deps.forEach(([edge, value]) => {
-                    this.graph.setEdgeProperty(edge, value);
+                    this.graphManger.baseGraph.setEdgeProperty(edge, value);
                 });
             },
         };
@@ -806,20 +992,28 @@ export class Container implements IContainer {
     registerClass<TDeps extends Array<unknown> = [], TRegisteredType = unknown>(
         settings: ClassRegistration<TDeps, TRegisteredType>,
     ): IServiceLifetime {
-        this.throwIfStateNotBeforeReady();
-        throw new Error("Method not implemented.");
+        return this.registerFactory({
+            deps: settings.deps,
+            token: settings.impl,
+            factory: (args) => new settings.impl(...args),
+        });
     }
 
     registerValue<TRegisteredType = unknown>(
         settings: ValueRegistration<TRegisteredType>,
     ): void {
-        this.throwIfStateNotBeforeReady();
-        throw new Error("Method not implemented.");
+        this.registerFactory({
+            deps: [],
+            token: settings.token,
+            factory: () => settings.value,
+        }).singleton();
     }
 
     registerDynamic(token: DiToken): void {
-        this.throwIfStateNotReady();
-        throw new Error("Method not implemented.");
+        this.throwIfStateNotBeforeReady();
+        this.graphManger.overrideGraph.setNodeProperty(token, {
+            lifespan: LIFESPAN.DYNAMIC,
+        });
     }
 
     registerContext<TWhen = unknown, TNeeds = unknown>(
@@ -840,27 +1034,43 @@ export class Container implements IContainer {
 
         const canResolveTransient = createCanResolveTransientFunc<TNode>({
             getLifespan: (node) =>
-                this.graph.getNodePropertyOrThrow(node).lifespan,
+                this.graphManger.overrideGraph.getNodePropertyOrThrow(node)
+                    .lifespan,
             getNeighbors: (node) => {
-                return this.graph.getSuccessorsOf(node);
+                return this.graphManger.overrideGraph.getSuccessorsOf(node);
             },
         });
 
-        const lifespan = this.graph.getNodePropertyOrThrow(token).lifespan;
+        const scopeDepth = this.registry.manger.currentScopeDepthOrZero();
+
+        const lifespan =
+            this.graphManger.overrideGraph.getNodePropertyOrThrow(
+                token,
+            ).lifespan;
         if (lifespan === LIFESPAN.SINGLETON) {
             return await Promise.resolve(
-                (this.singletonValueRegistry.get(token) ??
+                (this.registry.manger.overrideRegistry.get(token)?.value ??
                     null) as TType | null,
             );
         } else if (
             lifespan === LIFESPAN.TRANSIENT &&
-            canResolveTransient(token, true)
+            canResolveTransient(token, scopeDepth === 0)
         ) {
-            const factory = this.nodeTransientServiceFactory.get(token);
-            if (factory === undefined) {
+            const valueWrapper =
+                this.registry.manger.overrideRegistry.get(token);
+            if (valueWrapper === null) {
                 throw new Error();
             }
+            if (valueWrapper.type !== REGISTER_VALUE_TYPE.FUNC) {
+                throw new Error();
+            }
+
+            const factory = valueWrapper.value;
+
             return (await factory()) as TType | null;
+        } else if (lifespan === LIFESPAN.SCOPED && scopeDepth > 0) {
+            return this.registry.manger.overrideRegistry.get(token)
+                ?.value as TType | null;
         }
 
         throw new Error("Method not implemented.");
@@ -888,33 +1098,17 @@ export class Container implements IContainer {
     }
 
     async has(token: DiToken): Promise<boolean> {
-        return Promise.resolve(this.graph.hasNodeProperty(token));
+        return Promise.resolve(
+            this.graphManger.baseGraph.hasNodeProperty(token),
+        );
     }
 
     overrideFactory<
         TDeps extends Array<unknown> = [],
         TRegisteredType = unknown,
     >(settings: FactoryRegistration<TDeps, TRegisteredType>): void {
-        // if (!this.graph.hasNode(settings.token)) {
-        //     throw new Error("can not override if not registered");
-        // } else if (
-        //     this.graph.getNodePropertyOrThrow(settings.token).lifespan ===
-        //     LIFESPAN.DYNAMIC
-        // ) {
-        //     throw new Error("can not override dynamic");
-        // }
-        // if (!isInvokableObject(settings.factory)) {
-        //     throw new Error();
-        // }
-        // this.overrideServices.setNodeProperty(settings.token, {
-        //     service: settings.factory,
-        // });
-        // const deps: Array<[TEdge, EdgeProps]> = [...settings.deps].map(
-        //     (to, argIndex) => [[settings.token, to], { argIndex }],
-        // );
-        // deps.forEach(([edge, property]) => {
-        //     this.overrideServices.setEdgeProperty(edge, property);
-        // });
+        // put in override version of graph
+        // put in override version of register
     }
 
     overrideClass<TDeps extends Array<unknown> = [], TRegisteredType = unknown>(

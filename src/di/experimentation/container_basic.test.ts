@@ -3,7 +3,6 @@ import { describe, expect, test, vi } from "vitest";
 import { genericToken } from "@/di/contracts/container.contract.js";
 import { Container } from "@/di/implementations/container.js";
 import { eagerInitialization } from "@/di/implementations/graph.js";
-import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
 import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 
@@ -247,8 +246,7 @@ describe("register & resolve singleton", () => {
             .registerFactory({
                 token: tokenDerived,
                 factory: {
-                    invoke: (b: string, _ctx: IExecutionContext) =>
-                        `result: ${b}`,
+                    invoke: (args: [string]) => `result: ${args[0]}`,
                 },
                 deps: [tokenBase],
             })
@@ -284,7 +282,7 @@ describe("register & resolve singleton", () => {
             .registerFactory({
                 token: tokenB,
                 factory: {
-                    invoke: (c: string, _ctx: IExecutionContext) => `B(${c})`,
+                    invoke: (args: [string]) => `B(${args[0]})`,
                 },
                 deps: [tokenC],
             })
@@ -294,7 +292,7 @@ describe("register & resolve singleton", () => {
             .registerFactory({
                 token: tokenA,
                 factory: {
-                    invoke: (b: string, _ctx: IExecutionContext) => `A(${b})`,
+                    invoke: (args: [string]) => `A(${args[0]})`,
                 },
                 deps: [tokenB],
             })
@@ -334,7 +332,7 @@ describe("register & resolve singleton", () => {
             .registerFactory({
                 token: tokenB,
                 factory: {
-                    invoke: (d: string, _: IExecutionContext) => `B(${d})`,
+                    invoke: (args: [string]) => `B(${args[0]})`,
                 },
                 deps: [tokenD],
             })
@@ -344,7 +342,7 @@ describe("register & resolve singleton", () => {
             .registerFactory({
                 token: tokenC,
                 factory: {
-                    invoke: (d: string, _: IExecutionContext) => `C(${d})`,
+                    invoke: (args: [string]) => `C(${args[0]})`,
                 },
                 deps: [tokenD],
             })
@@ -354,8 +352,10 @@ describe("register & resolve singleton", () => {
             .registerFactory({
                 token: tokenA,
                 factory: {
-                    invoke: (a: string, b: string, _: IExecutionContext) =>
-                        `A(${a},${b})`,
+                    invoke: (args: [string, string]) => {
+                        const [a, b] = args;
+                        return `A(${a},${b})`;
+                    },
                 },
                 deps: [tokenB, tokenC],
             })
@@ -445,12 +445,8 @@ describe("register & resolve singleton", () => {
             .registerFactory({
                 token: tokenMessage,
                 factory: {
-                    invoke: (
-                        greeting: string,
-                        name: string,
-                        punct: string,
-                        _ctx: IExecutionContext,
-                    ) => `${greeting}, ${name}${punct}`,
+                    invoke: (args: [string, string, string]) =>
+                        `${args[0]}, ${args[1]}${args[2]}`,
                 },
                 deps: [tokenGreeting, tokenName, tokenPunctuation],
             })
@@ -509,7 +505,7 @@ describe("register & resolve transient", () => {
             .registerFactory({
                 token: tokenA,
                 factory: {
-                    invoke: (b: string, _ctx: IExecutionContext) => `A(${b})`,
+                    invoke: (args: [string]) => `A(${args[0]})`,
                 },
                 deps: [tokenB],
             })
@@ -546,7 +542,7 @@ describe("register & resolve transient", () => {
             .registerFactory({
                 token: tokenB,
                 factory: {
-                    invoke: (d: string, _: IExecutionContext) => `B(${d})`,
+                    invoke: (args: [string]) => `B(${args[0]})`,
                 },
                 deps: [tokenD],
             })
@@ -556,7 +552,7 @@ describe("register & resolve transient", () => {
             .registerFactory({
                 token: tokenC,
                 factory: {
-                    invoke: (d: string, _: IExecutionContext) => `C(${d})`,
+                    invoke: (args: [string]) => `C(${args[0]})`,
                 },
                 deps: [tokenD],
             })
@@ -566,8 +562,8 @@ describe("register & resolve transient", () => {
             .registerFactory({
                 token: tokenA,
                 factory: {
-                    invoke: (b: string, c: string, _: IExecutionContext) =>
-                        `A(${b},${c})`,
+                    invoke: (args: [string, string]) =>
+                        `A(${args[0]},${args[1]})`,
                 },
                 deps: [tokenB, tokenC],
             })
@@ -599,8 +595,7 @@ describe("register & resolve transient", () => {
             .registerFactory({
                 token: tokenA,
                 factory: {
-                    invoke: (b: { id: number }, _ctx: IExecutionContext) =>
-                        `A(${b.id})`,
+                    invoke: (args: [{ id: number }]) => `A(${args[0].id})`,
                 },
                 deps: [tokenB],
             })
@@ -628,71 +623,93 @@ describe("register & resolve scoped", () => {
 
     test("register one scoped node", async () => {
         const token = genericToken<string>("my-scoped");
+        const scopedValue = "scoped value";
 
-        const container = new Container({
-            executionContext: initExecutionContext,
+        await initExecutionContext.run(async () => {
+            const container = new Container({
+                executionContext: initExecutionContext,
+            });
+
+            container
+                .registerFactory({
+                    token,
+                    factory: { invoke: () => scopedValue },
+                    deps: [],
+                })
+                .scoped();
+
+            await container.init();
+
+            await container.run({
+                scope: async () => {
+                    const result = await container.resolve(token);
+                    expect(result).toBe(scopedValue);
+                },
+            });
         });
-
-        container
-            .registerFactory({
-                token,
-                factory: { invoke: () => "scoped value" },
-                deps: [],
-            })
-            .scoped();
-
-        await container.init();
-
-        // Scoped resolution is not yet implemented (no run() method)
-        // Only verifying registration doesn't throw
-        expect(true).toBe(true);
     });
 
     test("register scoped with singleton dependency", async () => {
         const tokenB = genericToken<{ id: number }>("B");
         const tokenA = genericToken<string>("A");
+        const singletonValue = { id: 42 };
+        const expectedA = `A(${singletonValue.id})`;
 
-        const container = new Container({
-            executionContext: initExecutionContext,
-        });
+        await initExecutionContext.run(async () => {
+            const container = new Container({
+                executionContext: initExecutionContext,
+            });
 
-        container
-            .registerFactory({
-                token: tokenB,
-                factory: { invoke: () => ({ id: 42 }) },
-                deps: [],
-            })
-            .singleton();
+            container
+                .registerFactory({
+                    token: tokenB,
+                    factory: { invoke: () => singletonValue },
+                    deps: [],
+                })
+                .singleton();
 
-        container
-            .registerFactory({
-                token: tokenA,
-                factory: {
-                    invoke: (b: { id: number }, _ctx: IExecutionContext) =>
-                        `A(${b.id})`,
+            container
+                .registerFactory({
+                    token: tokenA,
+                    factory: {
+                        invoke: (args: [{ id: number }]) => {
+                            const value = args[0].id;
+                            return `A(${value})`;
+                        },
+                    },
+                    deps: [tokenB],
+                })
+                .scoped();
+
+            await container.init();
+
+            await container.run({
+                scope: async () => {
+                    const result = await container.resolve(tokenA);
+                    expect(result).toBe(expectedA);
                 },
-                deps: [tokenB],
-            })
-            .scoped();
-
-        await container.init();
-
-        // Only verifying registration doesn't throw
-        expect(true).toBe(true);
+            });
+        });
     });
 
     test("register scoped with scoped dependency", async () => {
         const tokenB = genericToken<string>("B");
         const tokenA = genericToken<string>("A");
 
+        const initExecutionContext2 = new ExecutionContext(
+            new AlsExecutionContextAdapter(),
+        );
+
         const container = new Container({
-            executionContext: initExecutionContext,
+            executionContext: initExecutionContext2,
         });
 
+        const valueB = `B`;
+        const valueA = `A(${valueB})`;
         container
             .registerFactory({
                 token: tokenB,
-                factory: { invoke: () => "base" },
+                factory: { invoke: () => valueB },
                 deps: [],
             })
             .scoped();
@@ -701,15 +718,22 @@ describe("register & resolve scoped", () => {
             .registerFactory({
                 token: tokenA,
                 factory: {
-                    invoke: (b: string, _ctx: IExecutionContext) => `A(${b})`,
+                    invoke: async (args: [string]) =>
+                        Promise.resolve(`A(${args[0]})`),
                 },
                 deps: [tokenB],
             })
             .scoped();
 
         await container.init();
+        await container.run({
+            scope: async () => {
+                const valueA_ = await container.resolve(tokenA);
+                expect(valueA_).toBe(valueA);
 
-        // Only verifying registration doesn't throw
-        expect(true).toBe(true);
+                const valueB_ = await container.resolve(tokenB);
+                expect(valueB_).toBe(valueB);
+            },
+        });
     });
 });
