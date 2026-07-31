@@ -39,11 +39,11 @@ import {
 export const INSTALL_CMD = "npm install @daiso-tech/core";
 
 export type FeatureItemProps = {
+    name: string;
     icon?: ReactNode;
     title: ReactNode;
     description: ReactNode;
 };
-
 
 export type ComponentItemProps = FeatureItemProps & {
     href?: string;
@@ -53,10 +53,14 @@ export type ComponentItemProps = FeatureItemProps & {
     completedDate?: ReactNode;
 };
 
-// ─── Existing — Production-Ready Components ──────────────────────
+// ─── Components Record ──────────────────────────────────────────
+// Single source of truth for every component — keyed by name.
+// Each curated list below references entries from this record.
 
-export const foundationExistingItems: ComponentItemProps[] = [
-    {
+export const COMPONENT_RECORD = {
+    // ─── Existing: Foundation ──────────────────────────────────
+    middleware_and_aop: {
+        name: "Middleware and AOP",
         icon: <Plug size="1.5rem" strokeWidth={1.5} />,
         title: <>Middleware and AOP</>,
         href: "/docs/components/middleware",
@@ -68,8 +72,9 @@ export const foundationExistingItems: ComponentItemProps[] = [
                 component's plugin system.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    collection: {
+        name: "Collection",
         icon: <Layers size="1.5rem" strokeWidth={1.5} />,
         title: <>Collection</>,
         href: "/docs/components/collection",
@@ -80,8 +85,9 @@ export const foundationExistingItems: ComponentItemProps[] = [
                 and pagination primitives.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    serde: {
+        name: "Serde",
         icon: <ArrowLeftRight size="1.5rem" strokeWidth={1.5} />,
         title: <>Serde</>,
         href: "/docs/components/serde",
@@ -92,8 +98,9 @@ export const foundationExistingItems: ComponentItemProps[] = [
                 the backbone for all data interchange across the ecosystem.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    codec: {
+        name: "Codec",
         icon: <ArrowLeftRight size="1.5rem" strokeWidth={1.5} />,
         title: <>Codec</>,
         href: "/docs/components/codec",
@@ -105,8 +112,9 @@ export const foundationExistingItems: ComponentItemProps[] = [
                 protocol.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    execution_context: {
+        name: "Execution Context",
         icon: <Zap size="1.5rem" strokeWidth={1.5} />,
         title: <>Execution Context</>,
         href: "/docs/components/execution_context",
@@ -117,8 +125,9 @@ export const foundationExistingItems: ComponentItemProps[] = [
                 injection, and correlation IDs — without thread-local hacks.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    typed_config_access: {
+        name: "Typed Config Access",
         icon: <Globe size="1.5rem" strokeWidth={1.5} />,
         title: <>Typed Config Access</>,
         href: "/docs/components/config_accessor",
@@ -129,8 +138,9 @@ export const foundationExistingItems: ComponentItemProps[] = [
                 runtime validation and full TypeScript inference.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    typed_env_access: {
+        name: "Typed Env Access",
         icon: <Globe size="1.5rem" strokeWidth={1.5} />,
         title: <>Typed Env Access</>,
         href: "/docs/components/env_accessor",
@@ -141,11 +151,10 @@ export const foundationExistingItems: ComponentItemProps[] = [
                 and validation — never read process.env raw again.
             </>
         ),
-    },
-];
-
-export const storageExistingItems: ComponentItemProps[] = [
-    {
+    } satisfies ComponentItemProps,
+    // ─── Existing: Storage ────────────────────────────────────
+    cache: {
+        name: "Cache",
         icon: <HardDrive size="1.5rem" strokeWidth={1.5} />,
         title: <>Cache</>,
         href: "/docs/components/cache/cache_usage",
@@ -156,8 +165,9 @@ export const storageExistingItems: ComponentItemProps[] = [
                 etc.), TTL policies, and stampede protection.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    file_storage: {
+        name: "File Storage",
         icon: <Database size="1.5rem" strokeWidth={1.5} />,
         title: <>File Storage</>,
         href: "/docs/components/file_storage/file_storage_usage",
@@ -169,11 +179,10 @@ export const storageExistingItems: ComponentItemProps[] = [
                 with one API.
             </>
         ),
-    },
-];
-
-export const reliabilityExistingItems: ComponentItemProps[] = [
-    {
+    } satisfies ComponentItemProps,
+    // ─── Existing: Reliability ────────────────────────────────
+    circuit_breaker: {
+        name: "Circuit Breaker",
         icon: <CircuitBoard size="1.5rem" strokeWidth={1.5} />,
         title: <>Circuit Breaker</>,
         href: "/docs/components/circuit_breaker/circuit_breaker_usage",
@@ -184,8 +193,9 @@ export const reliabilityExistingItems: ComponentItemProps[] = [
                 half-open recovery, and custom fallback strategies.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    rate_limiter: {
+        name: "Rate Limiter",
         icon: <Gauge size="1.5rem" strokeWidth={1.5} />,
         title: <>Rate Limiter</>,
         href: "/docs/components/rate-limiter/rate_limiter_usage",
@@ -197,8 +207,9 @@ export const reliabilityExistingItems: ComponentItemProps[] = [
                 overload.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    resilience: {
+        name: "Resilience",
         icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
         title: <>Resilience</>,
         href: "/docs/components/resilience",
@@ -209,11 +220,10 @@ export const reliabilityExistingItems: ComponentItemProps[] = [
                 backoffs.
             </>
         ),
-    },
-];
-
-export const concurrencyExistingItems: ComponentItemProps[] = [
-    {
+    } satisfies ComponentItemProps,
+    // ─── Existing: Concurrency ────────────────────────────────
+    lock: {
+        name: "Lock",
         icon: <Lock size="1.5rem" strokeWidth={1.5} />,
         title: <>Lock</>,
         href: "/docs/components/lock/lock_usage",
@@ -224,8 +234,9 @@ export const concurrencyExistingItems: ComponentItemProps[] = [
                 non-blocking acquisition, and automatic release.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    shared_lock: {
+        name: "Shared Lock",
         icon: <Share2 size="1.5rem" strokeWidth={1.5} />,
         title: <>Shared Lock</>,
         href: "/docs/components/shared_lock/shared_lock_usage",
@@ -236,8 +247,9 @@ export const concurrencyExistingItems: ComponentItemProps[] = [
                 with shared and exclusive modes.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    semaphore: {
+        name: "Semaphore",
         icon: <List size="1.5rem" strokeWidth={1.5} />,
         title: <>Semaphore</>,
         href: "/docs/components/semaphore/semaphore_usage",
@@ -248,11 +260,10 @@ export const concurrencyExistingItems: ComponentItemProps[] = [
                 permit allocation.
             </>
         ),
-    },
-];
-
-export const messagingExistingItems: ComponentItemProps[] = [
-    {
+    } satisfies ComponentItemProps,
+    // ─── Existing: Messaging ──────────────────────────────────
+    event_bus: {
+        name: "Event Bus",
         icon: <Radio size="1.5rem" strokeWidth={1.5} />,
         title: <>Event Bus</>,
         href: "/docs/components/event_bus/event_bus_usage",
@@ -263,11 +274,10 @@ export const messagingExistingItems: ComponentItemProps[] = [
                 routing, and guaranteed delivery semantics.
             </>
         ),
-    },
-];
-
-export const webExistingItems: ComponentItemProps[] = [
-    {
+    } satisfies ComponentItemProps,
+    // ─── Existing: Web ───────────────────────────────────────
+    http_router: {
+        name: "HTTP Router",
         icon: <GitBranch size="1.5rem" strokeWidth={1.5} />,
         title: <>HTTP Router</>,
         href: "/docs/components/http_router/http_router_usage",
@@ -278,22 +288,10 @@ export const webExistingItems: ComponentItemProps[] = [
                 parameter parsing, and framework-agnostic design.
             </>
         ),
-    },
-];
-
-export const existingItems: ComponentItemProps[] = [
-    ...foundationExistingItems,
-    ...storageExistingItems,
-    ...reliabilityExistingItems,
-    ...concurrencyExistingItems,
-    ...messagingExistingItems,
-    ...webExistingItems,
-];
-
-// ─── Foundation & Runtime ────────────────────────────────────────
-
-export const foundationRuntimeItems: ComponentItemProps[] = [
-    {
+    } satisfies ComponentItemProps,
+    // ─── Upcoming: Foundation & Runtime ──────────────────────
+    di_container: {
+        name: "DI Container",
         icon: <Box size="1.5rem" strokeWidth={1.5} />,
         title: <>DI Container</>,
         description: (
@@ -302,8 +300,9 @@ export const foundationRuntimeItems: ComponentItemProps[] = [
                 wiring application components without tight coupling.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    transaction_context: {
+        name: "Transaction Context",
         icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
         title: <>Transaction Context</>,
         description: (
@@ -313,8 +312,9 @@ export const foundationRuntimeItems: ComponentItemProps[] = [
                 the Outbox, Inbox, Scheduler, and Notifications.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    cli_command: {
+        name: "CLI Command",
         icon: <Terminal size="1.5rem" strokeWidth={1.5} />,
         title: <>CLI Command</>,
         description: (
@@ -326,8 +326,9 @@ export const foundationRuntimeItems: ComponentItemProps[] = [
                 definition.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    structured_concurrency: {
+        name: "Structured concurrency",
         icon: <RefreshCw size="1.5rem" strokeWidth={1.5} />,
         title: <>Structured concurrency</>,
         description: (
@@ -337,8 +338,9 @@ export const foundationRuntimeItems: ComponentItemProps[] = [
                 propagation, and resource cleanup.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    promise_queue: {
+        name: "Promise Queue",
         icon: <Layers size="1.5rem" strokeWidth={1.5} />,
         title: <>Promise Queue</>,
         description: (
@@ -347,8 +349,9 @@ export const foundationRuntimeItems: ComponentItemProps[] = [
                 concurrently executing promises and prevent resource exhaustion.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    logging_observability: {
+        name: "Logging & Observability",
         icon: <Server size="1.5rem" strokeWidth={1.5} />,
         title: <>Logging & Observability</>,
         description: (
@@ -359,8 +362,9 @@ export const foundationRuntimeItems: ComponentItemProps[] = [
                 local adapter that saves logs, traces, and metrics to disk.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    introspection: {
+        name: "Introspection",
         icon: <Search size="1.5rem" strokeWidth={1.5} />,
         title: <>Introspection</>,
         description: (
@@ -371,13 +375,10 @@ export const foundationRuntimeItems: ComponentItemProps[] = [
                 metrics.
             </>
         ),
-    },
-];
-
-// ─── Reliability & Messaging ─────────────────────────────────────
-
-export const reliabilityMessagingItems: ComponentItemProps[] = [
-    {
+    } satisfies ComponentItemProps,
+    // ─── Upcoming: Reliability & Messaging ───────────────────
+    job_scheduler: {
+        name: "Job Scheduler",
         icon: <Clock size="1.5rem" strokeWidth={1.5} />,
         title: <>Job Scheduler</>,
         description: (
@@ -387,8 +388,9 @@ export const reliabilityMessagingItems: ComponentItemProps[] = [
                 for reliable execution.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    notifications: {
+        name: "Notifications",
         icon: <Bell size="1.5rem" strokeWidth={1.5} />,
         title: <>Notifications</>,
         description: (
@@ -400,8 +402,9 @@ export const reliabilityMessagingItems: ComponentItemProps[] = [
                 Context and Scheduler.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    request_reply: {
+        name: "Request Reply",
         icon: <Reply size="1.5rem" strokeWidth={1.5} />,
         title: <>Request Reply</>,
         description: (
@@ -411,8 +414,9 @@ export const reliabilityMessagingItems: ComponentItemProps[] = [
                 pluggable transport backends.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    message_queue: {
+        name: "Message Queue",
         icon: <MessageSquare size="1.5rem" strokeWidth={1.5} />,
         title: <>Message Queue</>,
         description: (
@@ -422,8 +426,9 @@ export const reliabilityMessagingItems: ComponentItemProps[] = [
                 services.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    idempotent_cache: {
+        name: "Idempotent Cache",
         icon: <Copy size="1.5rem" strokeWidth={1.5} />,
         title: <>Idempotent Cache</>,
         description: (
@@ -432,8 +437,9 @@ export const reliabilityMessagingItems: ComponentItemProps[] = [
                 to prevent duplicate job execution and event processing.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    outbox_pattern: {
+        name: "Outbox Pattern",
         icon: <Send size="1.5rem" strokeWidth={1.5} />,
         title: <>Outbox Pattern</>,
         description: (
@@ -443,8 +449,9 @@ export const reliabilityMessagingItems: ComponentItemProps[] = [
                 Transaction Context.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    inbox_pattern: {
+        name: "Inbox Pattern",
         icon: <Inbox size="1.5rem" strokeWidth={1.5} />,
         title: <>Inbox Pattern</>,
         description: (
@@ -454,13 +461,10 @@ export const reliabilityMessagingItems: ComponentItemProps[] = [
                 Context.
             </>
         ),
-    },
-];
-
-// ─── Security ────────────────────────────────────────────────────
-
-export const securityItems: ComponentItemProps[] = [
-    {
+    } satisfies ComponentItemProps,
+    // ─── Upcoming: Security ──────────────────────────────────
+    authentication: {
+        name: "Authentication",
         icon: <Plug size="1.5rem" strokeWidth={1.5} />,
         title: <>Authentication</>,
         description: (
@@ -471,8 +475,9 @@ export const securityItems: ComponentItemProps[] = [
                 integration for batteries-included setups. Requires Sessions.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    session_management: {
+        name: "Session Management",
         icon: <Users size="1.5rem" strokeWidth={1.5} />,
         title: <>Session Management</>,
         description: (
@@ -481,8 +486,9 @@ export const securityItems: ComponentItemProps[] = [
                 API. Required by Authentication.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    authorization_gates: {
+        name: "Authorization Gates",
         icon: <Lock size="1.5rem" strokeWidth={1.5} />,
         title: <>Authorization Gates</>,
         description: (
@@ -491,8 +497,9 @@ export const securityItems: ComponentItemProps[] = [
                 Works alongside Authentication.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    apache_casbin_integration: {
+        name: "Apache Casbin Integration",
         icon: <Lightbulb size="1.5rem" strokeWidth={1.5} />,
         title: <>Apache Casbin Integration</>,
         description: (
@@ -502,13 +509,10 @@ export const securityItems: ComponentItemProps[] = [
                 relationship-based access control models.
             </>
         ),
-    },
-];
-
-// ─── Integrations ────────────────────────────────────────────────
-
-export const integrationsItems: ComponentItemProps[] = [
-    {
+    } satisfies ComponentItemProps,
+    // ─── Upcoming: Integrations ──────────────────────────────
+    text_search: {
+        name: "Text Search",
         icon: <Search size="1.5rem" strokeWidth={1.5} />,
         title: <>Text Search</>,
         description: (
@@ -519,8 +523,9 @@ export const integrationsItems: ComponentItemProps[] = [
                 with search indexes — synchronously or asynchronously.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    open_api: {
+        name: "OpenAPI",
         icon: <Server size="1.5rem" strokeWidth={1.5} />,
         title: <>OpenAPI</>,
         description: (
@@ -530,8 +535,9 @@ export const integrationsItems: ComponentItemProps[] = [
                 documentation out of the box.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    sql_integration: {
+        name: "SQL Integration",
         icon: <Database size="1.5rem" strokeWidth={1.5} />,
         title: <>SQL Integration</>,
         description: (
@@ -543,8 +549,9 @@ export const integrationsItems: ComponentItemProps[] = [
                 any supported ORM or raw driver.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    mongoose_native_mongodb_integration: {
+        name: "Mongoose and Native MongoDB Integration",
         icon: <Database size="1.5rem" strokeWidth={1.5} />,
         title: <>Mongoose and Native MongoDB Integration</>,
         description: (
@@ -556,8 +563,9 @@ export const integrationsItems: ComponentItemProps[] = [
                 No additional dependencies required.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    postgresql_native_integration: {
+        name: "PostgreSQL Native Integration",
         icon: <Server size="1.5rem" strokeWidth={1.5} />,
         title: <>PostgreSQL Native Integration</>,
         description: (
@@ -570,8 +578,9 @@ export const integrationsItems: ComponentItemProps[] = [
                 additional dependencies required.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    ssh_deployment: {
+        name: "SSH Deployment",
         icon: <Globe size="1.5rem" strokeWidth={1.5} />,
         title: <>SSH Deployment</>,
         description: (
@@ -582,8 +591,9 @@ export const integrationsItems: ComponentItemProps[] = [
                 command, no Docker or orchestration required.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    image_manipulator: {
+        name: "Image Manipulator",
         icon: <Image size="1.5rem" strokeWidth={1.5} />,
         title: <>Image Manipulator</>,
         description: (
@@ -594,8 +604,9 @@ export const integrationsItems: ComponentItemProps[] = [
                 like Cloudinary and Imgix.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    process_manager: {
+        name: "Process Manager",
         icon: <Activity size="1.5rem" strokeWidth={1.5} />,
         title: <>Process Manager</>,
         description: (
@@ -606,13 +617,10 @@ export const integrationsItems: ComponentItemProps[] = [
                 applications.
             </>
         ),
-    },
-];
-
-// ─── Dev Tooling ─────────────────────────────────────────────────
-
-export const devToolingItems: ComponentItemProps[] = [
-    {
+    } satisfies ComponentItemProps,
+    // ─── Upcoming: Dev Tooling ───────────────────────────────
+    di_autodiscovery_vite_plugin: {
+        name: "DI Autodiscovery Vite Plugin",
         icon: <Zap size="1.5rem" strokeWidth={1.5} />,
         title: <>DI Autodiscovery Vite Plugin</>,
         description: (
@@ -622,8 +630,9 @@ export const devToolingItems: ComponentItemProps[] = [
                 components or services.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    event_autodiscovery_vite_plugin: {
+        name: "Event Autodiscovery Vite Plugin",
         icon: <Radio size="1.5rem" strokeWidth={1.5} />,
         title: <>Event Autodiscovery Vite Plugin</>,
         description: (
@@ -632,8 +641,9 @@ export const devToolingItems: ComponentItemProps[] = [
                 bus handlers and listeners.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    job_scheduler_autodiscovery_vite_plugin: {
+        name: "Job Scheduler Autodiscovery Vite Plugin",
         icon: <Clock size="1.5rem" strokeWidth={1.5} />,
         title: <>Job Scheduler Autodiscovery Vite Plugin</>,
         description: (
@@ -642,8 +652,9 @@ export const devToolingItems: ComponentItemProps[] = [
                 scheduled job definitions.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    request_reply_autodiscovery_vite_plugin: {
+        name: "Request Reply Autodiscovery Vite Plugin",
         icon: <Reply size="1.5rem" strokeWidth={1.5} />,
         title: <>Request Reply Autodiscovery Vite Plugin</>,
         description: (
@@ -652,8 +663,9 @@ export const devToolingItems: ComponentItemProps[] = [
                 request-reply endpoints.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    message_queue_autodiscovery_vite_plugin: {
+        name: "Message Queue Autodiscovery Vite Plugin",
         icon: <MessageSquare size="1.5rem" strokeWidth={1.5} />,
         title: <>Message Queue Autodiscovery Vite Plugin</>,
         description: (
@@ -662,8 +674,9 @@ export const devToolingItems: ComponentItemProps[] = [
                 queue consumers and handlers.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    cli_command_autodiscovery_vite_plugin: {
+        name: "CLI Command Autodiscovery Vite Plugin",
         icon: <Terminal size="1.5rem" strokeWidth={1.5} />,
         title: <>CLI Command Autodiscovery Vite Plugin</>,
         description: (
@@ -672,8 +685,9 @@ export const devToolingItems: ComponentItemProps[] = [
                 command definitions.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    scaffolding_cli: {
+        name: "Scaffolding CLI",
         icon: <Zap size="1.5rem" strokeWidth={1.5} />,
         title: <>Scaffolding CLI</>,
         description: (
@@ -685,13 +699,10 @@ export const devToolingItems: ComponentItemProps[] = [
                 boilerplate code generated automatically.
             </>
         ),
-    },
-];
-
-// ─── Control Plane ──────────────────────────────────────────────
-
-export const controlPlaneItems: ComponentItemProps[] = [
-    {
+    } satisfies ComponentItemProps,
+    // ─── Upcoming: Control Plane ─────────────────────────────
+    daiso_platform: {
+        name: "Daiso Platform",
         icon: <Server size="1.5rem" strokeWidth={1.5} />,
         title: <>Daiso Platform</>,
         description: (
@@ -701,8 +712,9 @@ export const controlPlaneItems: ComponentItemProps[] = [
                 production.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    dashboard_observability: {
+        name: "Dashboard & Observability",
         icon: <Activity size="1.5rem" strokeWidth={1.5} />,
         title: <>Dashboard & Observability</>,
         description: (
@@ -712,8 +724,9 @@ export const controlPlaneItems: ComponentItemProps[] = [
                 services.
             </>
         ),
-    },
-    {
+    } satisfies ComponentItemProps,
+    multi_tenancy: {
+        name: "Multi-Tenancy",
         icon: <Globe size="1.5rem" strokeWidth={1.5} />,
         title: <>Multi-Tenancy</>,
         description: (
@@ -723,108 +736,139 @@ export const controlPlaneItems: ComponentItemProps[] = [
                 platform.
             </>
         ),
-    },
+    } satisfies ComponentItemProps,
+};
+
+// ─── Existing — Production-Ready Components ──────────────────────
+
+export const FOUNDATION_EXISTING_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.middleware_and_aop,
+    COMPONENT_RECORD.collection,
+    COMPONENT_RECORD.serde,
+    COMPONENT_RECORD.codec,
+    COMPONENT_RECORD.execution_context,
+    COMPONENT_RECORD.typed_config_access,
+    COMPONENT_RECORD.typed_env_access,
+];
+
+export const STORAGE_EXISTING_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.cache,
+    COMPONENT_RECORD.file_storage,
+];
+
+export const RELIABILITY_EXISTING_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.circuit_breaker,
+    COMPONENT_RECORD.rate_limiter,
+    COMPONENT_RECORD.resilience,
+];
+
+export const CONCURRENCY_EXISTING_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.lock,
+    COMPONENT_RECORD.shared_lock,
+    COMPONENT_RECORD.semaphore,
+];
+
+export const MESSAGING_EXISTING_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.event_bus,
+];
+
+export const WEB_EXISTING_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.http_router,
+];
+
+export const EXISTING_ITEMS: ComponentItemProps[] = [
+    ...FOUNDATION_EXISTING_ITEMS,
+    ...STORAGE_EXISTING_ITEMS,
+    ...RELIABILITY_EXISTING_ITEMS,
+    ...CONCURRENCY_EXISTING_ITEMS,
+    ...MESSAGING_EXISTING_ITEMS,
+    ...WEB_EXISTING_ITEMS,
+];
+
+// ─── Foundation & Runtime ────────────────────────────────────────
+
+export const FOUNDATION_RUNTIME_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.di_container,
+    COMPONENT_RECORD.transaction_context,
+    COMPONENT_RECORD.cli_command,
+    COMPONENT_RECORD.structured_concurrency,
+    COMPONENT_RECORD.promise_queue,
+    COMPONENT_RECORD.logging_observability,
+    COMPONENT_RECORD.introspection,
+];
+
+// ─── Reliability & Messaging ─────────────────────────────────────
+
+export const RELIABILITY_MESSAGING_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.job_scheduler,
+    COMPONENT_RECORD.notifications,
+    COMPONENT_RECORD.request_reply,
+    COMPONENT_RECORD.message_queue,
+    COMPONENT_RECORD.idempotent_cache,
+    COMPONENT_RECORD.outbox_pattern,
+    COMPONENT_RECORD.inbox_pattern,
+];
+
+// ─── Security ────────────────────────────────────────────────────
+
+export const SECURITY_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.authentication,
+    COMPONENT_RECORD.session_management,
+    COMPONENT_RECORD.authorization_gates,
+    COMPONENT_RECORD.apache_casbin_integration,
+];
+
+// ─── Integrations ────────────────────────────────────────────────
+
+export const INTEGRATIONS_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.text_search,
+    COMPONENT_RECORD.open_api,
+    COMPONENT_RECORD.sql_integration,
+    COMPONENT_RECORD.mongoose_native_mongodb_integration,
+    COMPONENT_RECORD.postgresql_native_integration,
+    COMPONENT_RECORD.ssh_deployment,
+    COMPONENT_RECORD.image_manipulator,
+    COMPONENT_RECORD.process_manager,
+];
+
+// ─── Dev Tooling ─────────────────────────────────────────────────
+
+export const DEV_TOOLING_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.di_autodiscovery_vite_plugin,
+    COMPONENT_RECORD.event_autodiscovery_vite_plugin,
+    COMPONENT_RECORD.job_scheduler_autodiscovery_vite_plugin,
+    COMPONENT_RECORD.request_reply_autodiscovery_vite_plugin,
+    COMPONENT_RECORD.message_queue_autodiscovery_vite_plugin,
+    COMPONENT_RECORD.cli_command_autodiscovery_vite_plugin,
+    COMPONENT_RECORD.scaffolding_cli,
+];
+
+// ─── Control Plane ──────────────────────────────────────────────
+
+export const CONTROL_PLANE_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.daiso_platform,
+    COMPONENT_RECORD.dashboard_observability,
+    COMPONENT_RECORD.multi_tenancy,
 ];
 
 // ─── Homepage preview subset ─────────────────────────────────────
 
-export const upcomingItems: ComponentItemProps[] = [
-    {
-        icon: <Box size="1.5rem" strokeWidth={1.5} />,
-        title: <>DI Container</>,
-        description: (
-            <>
-                A lightweight, type-safe dependency injection container for
-                wiring application components without tight coupling.
-            </>
-        ),
-    },
-    {
-        icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
-        title: <>Transaction Context</>,
-        description: (
-            <>
-                Coordinate database transactions across components with the
-                after-commit pattern. Foundation for reliable messaging — powers
-                the Outbox, Inbox, Scheduler, and Notifications.
-            </>
-        ),
-    },
-    {
-        icon: <Terminal size="1.5rem" strokeWidth={1.5} />,
-        title: <>CLI Command</>,
-        description: (
-            <>
-                A unified API for defining and executing CLI commands with a
-                transport adapter architecture. Run commands locally via child
-                processes, remotely over SSH or HTTP, inside Docker containers,
-                or through custom transports — all from the same command
-                definition.
-            </>
-        ),
-    },
-    {
-        icon: <RefreshCw size="1.5rem" strokeWidth={1.5} />,
-        title: <>Structured concurrency</>,
-        description: (
-            <>
-                Run async tasks in structured scopes where child tasks are tied
-                to their parent's lifetime — with automatic cancellation, error
-                propagation, and resource cleanup.
-            </>
-        ),
-    },
-    {
-        icon: <Layers size="1.5rem" strokeWidth={1.5} />,
-        title: <>Promise Queue</>,
-        description: (
-            <>
-                A configurable promise queue to control the number of
-                concurrently executing promises and prevent resource exhaustion.
-            </>
-        ),
-    },
-    {
-        icon: <Server size="1.5rem" strokeWidth={1.5} />,
-        title: <>Logging & Observability</>,
-        description: (
-            <>
-                Support for observability — logging, metrics, and tracing — with
-                a pluggable adapter system. Pre-built adapters for
-                [OpenTelemetry](https://opentelemetry.io/) and a local adapter
-                that saves logs, traces, and metrics to disk.
-            </>
-        ),
-    },
-    {
-        icon: <Search size="1.5rem" strokeWidth={1.5} />,
-        title: <>Introspection</>,
-        description: (
-            <>
-                Inspect the actual runtime state of any component through
-                pre-built CLI commands — view registered handlers, active jobs,
-                queue depth, lock holders, and more without digging into logs or
-                metrics.
-            </>
-        ),
-    },
-    {
-        icon: <Clock size="1.5rem" strokeWidth={1.5} />,
-        title: <>Job Scheduler</>,
-        description: (
-            <>
-                Schedule work with full flexibility — immediate dispatch,
-                delayed execution, and recurring jobs. Uses Transaction Context
-                for reliable execution.
-            </>
-        ),
-    },
+export const UPCOMING_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.di_container,
+    COMPONENT_RECORD.transaction_context,
+    COMPONENT_RECORD.cli_command,
+    COMPONENT_RECORD.structured_concurrency,
+    COMPONENT_RECORD.promise_queue,
+    COMPONENT_RECORD.logging_observability,
+    COMPONENT_RECORD.introspection,
+    COMPONENT_RECORD.job_scheduler,
 ];
 
 // ─── Homepage Data ─────────────────────────────────────────────
 
-export const featureItems: FeatureItemProps[] = [
-    {
+export const FEATURE_ITEMS = {
+    switch_infrastructure_without_rewriting_business_logic: {
+        name: "Switch infrastructure without rewriting business logic",
         icon: <Zap size="1.5rem" strokeWidth={1.5} />,
         title: <>Switch infrastructure without rewriting business logic</>,
         description: (
@@ -833,8 +877,9 @@ export const featureItems: FeatureItemProps[] = [
                 Redis today, Postgres tomorrow — no refactoring required.
             </>
         ),
-    },
-    {
+    } satisfies FeatureItemProps,
+    test_everything_without_docker: {
+        name: "Test everything without Docker",
         icon: <SiVitest size="1.5rem" />,
         title: <>Test everything without Docker</>,
         description: (
@@ -844,8 +889,9 @@ export const featureItems: FeatureItemProps[] = [
                 services needed.
             </>
         ),
-    },
-    {
+    } satisfies FeatureItemProps,
+    bring_your_own_framework: {
+        name: "Bring your own framework",
         icon: <Plug size="1.5rem" strokeWidth={1.5} />,
         title: <>Bring your own framework</>,
         description: (
@@ -854,8 +900,9 @@ export const featureItems: FeatureItemProps[] = [
                 AdonisJS, Next.js, Nuxt, or TanStack Start — it just works.
             </>
         ),
-    },
-    {
+    } satisfies FeatureItemProps,
+    type_safe_from_day_one: {
+        name: "Type-safe from day one",
         icon: <SiTypescript size="1.5rem" />,
         title: <>Type-safe from day one</>,
         description: (
@@ -865,8 +912,9 @@ export const featureItems: FeatureItemProps[] = [
                 compile time, not runtime.
             </>
         ),
-    },
-    {
+    } satisfies FeatureItemProps,
+    standard_schema_validation_built_in: {
+        name: "Standard schema validation built in",
         icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
         title: <>Standard schema validation built in</>,
         description: (
@@ -877,8 +925,9 @@ export const featureItems: FeatureItemProps[] = [
                 enforce both compile-time and runtime data safety.
             </>
         ),
-    },
-    {
+    } satisfies FeatureItemProps,
+    esm_native_no_commonjs_baggage: {
+        name: "ESM native. No CommonJS baggage.",
         icon: <Package size="1.5rem" strokeWidth={1.5} />,
         title: <>ESM native. No CommonJS baggage.</>,
         description: (
@@ -887,189 +936,206 @@ export const featureItems: FeatureItemProps[] = [
                 Node.js, Bun, Deno, and the modern bundler ecosystem.
             </>
         ),
-    },
-];
+    } satisfies FeatureItemProps,
+};
 
 export type WhoIsThisForItem = {
+    name: string;
     title: ReactNode;
     description: ReactNode;
 };
 
-export const whoIsThisForData = {
-    perfectFor: [
-        {
-            title: <>Backend applications:</>,
-            description: (
-                <>
-                    Build REST APIs, background workers, CLIs, and
-                    backend other services using reusable, composable components.
-                </>
-            ),
-        },
-        {
-            title: <>Framework-agnostic projects:</>,
-            description: (
-                <>
-                    Works with Express, Fastify, Hono, Next.js, Nuxt, SvelteKit,
-                    Cloudflare Workers, Bun, Deno, Node.js, and any runtime
-                    supporting the standard winter tc Fetch api.
-                </>
-            ),
-        },
-        {
-            title: <>Adapter-first architectures:</>,
-            description: (
-                <>
-                    Switch between Redis, PostgreSQL, SQLite, MongoDB, S3, local
-                    storage, in-memory implementations, or your own adapters
-                    without changing business logic.
-                </>
-            ),
-        },
-        {
-            title: <>Distributed systems:</>,
-            description: (
-                <>
-                    Use distributed locks, semaphores, shared locks, circuit
-                    breakers, rate limiters, caches, and event buses that work
-                    across multiple processes and machines.
-                </>
-            ),
-        },
-        {
-            title: <>Modular monoliths:</>,
-            description: (
-                <>
-                    Share the same abstractions, middleware, and adapters across
-                    a single deployable application. Some components or workers
-                    can be used in microservices, but the library is primarily
-                    designed for modular monolith architectures.
-                </>
-            ),
-        },
-        {
-            title: <>Library and framework authors:</>,
-            description: (
-                <>
-                    Build reusable backend libraries on stable interfaces
-                    instead of coupling to specific vendors or infrastructure.
-                </>
-            ),
-        },
-        {
-            title: <>Testing and local development:</>,
-            description: (
-                <>
-                    Use in-memory and NoOp adapters for fast, deterministic
-                    tests, then swap to production infrastructure with
-                    configuration only.
-                </>
-            ),
-        },
-        {
-            title: <>Portable backend code:</>,
-            description: (
-                <>
-                    Write infrastructure-independent code that can move between
-                    cloud providers, databases, storage providers, and runtimes
-                    with minimal changes.
-                </>
-            ),
-        },
-        {
-            title: <>Adopting individual components:</>,
-            description: (
-                <>
-                    Use specific components without being forced to adopt the
-                    entire library or a DI container — each component works
-                    standalone.
-                </>
-            ),
-        },
-        {
-            title: <>Incremental adoption:</>,
-            description: (
-                <>
-                    Start with a single component and gradually adopt more as
-                    your project grows.
-                </>
-            ),
-        },
-    ],
-    notIdealFor: [
-        {
-            title: <>Microservices:</>,
-            description: (
-                <>
-                    The library is designed for modular monoliths where
-                    components share the same process and runtime. While some
-                    components (like distributed locks, circuit breakers, and
-                    event buses) work across processes, the broader adapter
-                    model and shared abstractions are not optimized for
-                    microservice architectures.
-                </>
-            ),
-        },
-        {
-            title: <>Frontend-only applications:</>,
-            description: (
-                <>
-                    @daiso-tech/core is designed for backend and server-side
-                    development, not browser applications.
-                </>
-            ),
-        },
-        {
-            title: <>Projects tightly coupled to one vendor:</>,
-            description: (
-                <>
-                    If your application intentionally depends on
-                    provider-specific features instead of abstractions, the
-                    adapter model may provide little benefit.
-                </>
-            ),
-        },
-        {
-            title: <>Very small scripts:</>,
-            description: (
-                <>
-                    If you only need a single Redis call, file upload, or cache
-                    operation, the abstraction layer may be unnecessary
-                    overhead.
-                </>
-            ),
-        },
-        {
-            title: <>Applications requiring provider-specific capabilities:</>,
-            description: (
-                <>
-                    Features unique to a particular database, cache, or cloud
-                    service may require using that provider's native SDK
-                    directly instead of a generic abstraction.
-                </>
-            ),
-        },
-        {
-            title: <>Pure JavaScript projects prioritizing simplicity:</>,
-            description: (
-                <>
-                    While usable from JavaScript, the library is designed around
-                    TypeScript's type system, generics, and inference for the
-                    best developer experience.
-                </>
-            ),
-        },
-    ],
+export const PERFECT_FOR = {
+    backend_applications: {
+        name: "Backend applications:",
+        title: <>Backend applications:</>,
+        description: (
+            <>
+                Build REST APIs, background workers, CLIs, and backend other
+                services using reusable, composable components.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+    framework_agnostic_projects: {
+        name: "Framework-agnostic projects:",
+        title: <>Framework-agnostic projects:</>,
+        description: (
+            <>
+                Works with Express, Fastify, Hono, Next.js, Nuxt, SvelteKit,
+                Cloudflare Workers, Bun, Deno, Node.js, and any runtime
+                supporting the standard winter tc Fetch api.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+    adapter_first_architectures: {
+        name: "Adapter-first architectures:",
+        title: <>Adapter-first architectures:</>,
+        description: (
+            <>
+                Switch between Redis, PostgreSQL, SQLite, MongoDB, S3, local
+                storage, in-memory implementations, or your own adapters
+                without changing business logic.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+    distributed_systems: {
+        name: "Distributed systems:",
+        title: <>Distributed systems:</>,
+        description: (
+            <>
+                Use distributed locks, semaphores, shared locks, circuit
+                breakers, rate limiters, caches, and event buses that work
+                across multiple processes and machines.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+    modular_monoliths: {
+        name: "Modular monoliths:",
+        title: <>Modular monoliths:</>,
+        description: (
+            <>
+                Share the same abstractions, middleware, and adapters across
+                a single deployable application. Some components or workers
+                can be used in microservices, but the library is primarily
+                designed for modular monolith architectures.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+    library_and_framework_authors: {
+        name: "Library and framework authors:",
+        title: <>Library and framework authors:</>,
+        description: (
+            <>
+                Build reusable backend libraries on stable interfaces
+                instead of coupling to specific vendors or infrastructure.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+    testing_and_local_development: {
+        name: "Testing and local development:",
+        title: <>Testing and local development:</>,
+        description: (
+            <>
+                Use in-memory and NoOp adapters for fast, deterministic
+                tests, then swap to production infrastructure with
+                configuration only.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+    portable_backend_code: {
+        name: "Portable backend code:",
+        title: <>Portable backend code:</>,
+        description: (
+            <>
+                Write infrastructure-independent code that can move between
+                cloud providers, databases, storage providers, and runtimes
+                with minimal changes.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+    adopting_individual_components: {
+        name: "Adopting individual components:",
+        title: <>Adopting individual components:</>,
+        description: (
+            <>
+                Use specific components without being forced to adopt the
+                entire library or a DI container — each component works
+                standalone.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+    incremental_adoption: {
+        name: "Incremental adoption:",
+        title: <>Incremental adoption:</>,
+        description: (
+            <>
+                Start with a single component and gradually adopt more as
+                your project grows.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+};
+
+export const NOT_IDEAL_FOR = {
+    microservices: {
+        name: "Microservices:",
+        title: <>Microservices:</>,
+        description: (
+            <>
+                The library is designed for modular monoliths where
+                components share the same process and runtime. While some
+                components (like distributed locks, circuit breakers, and
+                event buses) work across processes, the broader adapter
+                model and shared abstractions are not optimized for
+                microservice architectures.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+    frontend_only_applications: {
+        name: "Frontend-only applications:",
+        title: <>Frontend-only applications:</>,
+        description: (
+            <>
+                @daiso-tech/core is designed for backend and server-side
+                development, not browser applications.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+    projects_tightly_coupled_to_one_vendor: {
+        name: "Projects tightly coupled to one vendor:",
+        title: <>Projects tightly coupled to one vendor:</>,
+        description: (
+            <>
+                If your application intentionally depends on
+                provider-specific features instead of abstractions, the
+                adapter model may provide little benefit.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+    very_small_scripts: {
+        name: "Very small scripts:",
+        title: <>Very small scripts:</>,
+        description: (
+            <>
+                If you only need a single Redis call, file upload, or cache
+                operation, the abstraction layer may be unnecessary
+                overhead.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+    applications_requiring_provider_specific_capabilities: {
+        name: "Applications requiring provider-specific capabilities:",
+        title: <>Applications requiring provider-specific capabilities:</>,
+        description: (
+            <>
+                Features unique to a particular database, cache, or cloud
+                service may require using that provider's native SDK
+                directly instead of a generic abstraction.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
+    pure_javascript_projects_prioritizing_simplicity: {
+        name: "Pure JavaScript projects prioritizing simplicity:",
+        title: <>Pure JavaScript projects prioritizing simplicity:</>,
+        description: (
+            <>
+                While usable from JavaScript, the library is designed around
+                TypeScript's type system, generics, and inference for the
+                best developer experience.
+            </>
+        ),
+    } satisfies WhoIsThisForItem,
 };
 
 // ─── Code Showcase ────────────────────────────────────────────
 
 export type CodeFile = {
-    name: ReactNode;
+    name: string;
     code: string;
 };
 
 export type CodeExample = {
+    name: string;
     label: ReactNode;
     heading: ReactNode;
     description: ReactNode;
@@ -1078,8 +1144,189 @@ export type CodeExample = {
     files: CodeFile[];
 };
 
-export const CODE_EXAMPLES: CodeExample[] = [
-    {
+export const CODE_FILES = {
+    main: {
+        name: "main.ts",
+        code: `import { lockFactory } from "./lock-factory.js";
+import { cache } from "./cache.js";
+
+// The LockFactory class uses Serde instance
+// internally to register custom serialization logic
+const lock = lockFactory.create("payment:order-42");
+
+// The underlying RedisCacheAdapter uses by Cache class
+// uses the Serde class to serialize and deserialize
+// Will automatically serialize correctly
+await cache.put(lock.key, lock);
+
+// Will automatically deserialize correctly
+const deserializedLock = await cache.get(lock.key);`,
+    } satisfies CodeFile,
+    lock_factory: {
+        name: "lock-factory.ts",
+        code: `import { LockFactory } from "@daiso-tech/core/lock";
+import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
+import { serde } from "./serde.js";
+
+export const lockFactory = new LockFactory({
+    adapter: new RedisLockAdapter(redis),
+    serde,
+});`,
+    } satisfies CodeFile,
+    cache: {
+        name: "cache.ts",
+        code: `import { Cache } from "@daiso-tech/core/cache";
+import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
+import { serde } from "./serde.js";
+
+export const cache = new Cache({
+    adapter: new RedisCacheAdapter({
+        database: redis,
+        serde,
+    }),
+});`,
+    } satisfies CodeFile,
+    serde: {
+        name: "serde.ts",
+        code: `import { Serde } from "@daiso-tech/core/serde";
+import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+
+export const serde = new Serde(new SuperJsonSerdeAdapter());`,
+    } satisfies CodeFile,
+    request_handler: {
+        name: "request-handler.ts",
+        code: `import { ExecutionContext, contextToken } from "@daiso-tech/core/execution-context";
+import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter";
+
+// IExecutionContext uses symbols internally for
+// reliable context isolation across async boundaries
+const executionContext = new ExecutionContext(
+    new AlsExecutionContextAdapter(),
+);
+
+const userToken = contextToken<{ id: string; name: string }>("user");
+const requestIdToken = contextToken<string>("requestId");
+
+export async function handleRequest(req: Request) {
+    return executionContext.run(() => {
+        executionContext
+            .put(userToken, { id: "123", name: "Alice" })
+            .put(requestIdToken, "req-456");
+        return processRequest();
+    });
+}
+
+async function processRequest() {
+    // Access context values throughout the call chain
+    const user = executionContext.get(userToken);
+    const reqId = executionContext.get(requestIdToken);
+    console.log("Processing request %s for %s", reqId, user?.name);
+}`,
+    } satisfies CodeFile,
+    middleware: {
+        name: "middleware.ts",
+        code: `import { use } from "@daiso-tech/core/middleware";
+import { retry, timeout } from "@daiso-tech/core/resilience";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+const fetchUser = async (id: string) => {
+    const res = await fetch(\`/api/users/\${id}\`);
+    if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+    return res.json();
+};
+
+const resilientFetch = use(fetchUser, [
+    timeout({ waitTime: TimeSpan.fromSeconds(5) }),
+    retry({ maxAttempts: 3, throwLastError: true }),
+]);
+
+// Times out after 5s per attempt, retries up to 3 times
+const user = await resilientFetch("42");`,
+    } satisfies CodeFile,
+    enhance: {
+        name: "enhance.ts",
+        code: `import { enhance, defineMiddleware } from "@daiso-tech/core/middleware";
+import { retry, timeout } from "@daiso-tech/core/resilience";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+class UserService {
+    async getUser(id: string) {
+        const res = await fetch(\`/api/users/\${id}\`);
+        if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+        return res.json();
+    }
+}
+
+const service = new UserService();
+enhance(service, "getUser", [
+    timeout({ waitTime: TimeSpan.fromSeconds(10) }),
+    retry({ maxAttempts: 3, throwLastError: true }),
+]);
+
+await service.getUser("42");
+// Retries up to 3 times on failure
+// Throws if a single attempt takes longer than 10s`,
+    } satisfies CodeFile,
+    plugin: {
+        name: "plugin.ts",
+        code: `import { withPlugin, type PluginFn } from "@daiso-tech/core/middleware";
+import { retry, timeout } from "@daiso-tech/core/resilience";
+import { TimeSpan } from "@daiso-tech/core/time-span";
+
+class Fetcher {
+    async getUser(id: string) {
+        const res = await fetch(\`/api/users/\${id}\`);
+        if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+        return res.json();
+    }
+}
+
+// Reusable plugin factory — apply to any service
+const withRetryAndTimeout: PluginFn<Fetcher> = () =>
+    (instance, enhance) => {
+        enhance(instance, "getUser", [
+            timeout({ waitTime: TimeSpan.fromSeconds(10) }),
+            retry({ maxAttempts: 3, throwLastError: true }),
+        ]);
+    };
+
+const fetcher = withPlugin(new Fetcher(), [withRetryAndTimeout()]);
+
+await fetcher.getUser("42");
+// Retries up to 3 times, each attempt times out after 10s`,
+    } satisfies CodeFile,
+    app_api_users_route: {
+        name: "app/api/users/route.ts",
+        code: `import { HttpRouter, defaultHttpRouterAdapter } from "@daiso-tech/core/http-router";
+import { z } from "zod";
+
+const router = new HttpRouter({
+    router: defaultHttpRouterAdapter,
+});
+
+router.endpoint({
+    url: "/",
+    method: "POST",
+    validation: {
+        json: z.object({ name: z.string(), email: z.string().email() }),
+    },
+    handler: async ({ req, json }) => {
+        const { name, email } = await req.json();
+        return json({ success: true, name, email });
+    },
+});
+
+export const GET: RequestHandler = async ({ request }) => router.fetch(request);
+export const POST: RequestHandler = async ({ request }) => router.fetch(request);
+export const PUT: RequestHandler = async ({ request }) => router.fetch(request);
+export const DELETE: RequestHandler = async ({ request }) => router.fetch(request);
+export const PATCH: RequestHandler = async ({ request }) => router.fetch(request);`,
+    } satisfies CodeFile,
+};
+
+export const CODE_EXAMPLES = {
+    serde: {
+        name: "Serde",
         label: <>Serde</>,
         heading: <>Serialize anything. Restore everything.</>,
         description: (
@@ -1110,64 +1357,21 @@ export const CODE_EXAMPLES: CodeExample[] = [
             <>Register custom serializers for your own types</>,
         ],
         files: [
-            {
-                name: <>main.ts</>,
-                code: `import { lockFactory } from "./lock-factory.js";
-import { cache } from "./cache.js";
-
-// The LockFactory class uses Serde instance
-// internally to register custom serialization logic
-const lock = lockFactory.create("payment:order-42");
-
-// The underlying RedisCacheAdapter uses by Cache class
-// uses the Serde class to serialize and deserialize
-// Will automatically serialize correctly
-await cache.put(lock.key, lock);
-
-// Will automatically deserialize correctly
-const deserializedLock = await cache.get(lock.key);`,
-            },
-            {
-                name: <>lock-factory.ts</>,
-                code: `import { LockFactory } from "@daiso-tech/core/lock";
-import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
-import { serde } from "./serde.js";
-
-export const lockFactory = new LockFactory({
-    adapter: new RedisLockAdapter(redis),
-    serde,
-});`,
-            },
-            {
-                name: <>cache.ts</>,
-                code: `import { Cache } from "@daiso-tech/core/cache";
-import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
-import { serde } from "./serde.js";
-
-export const cache = new Cache({
-    adapter: new RedisCacheAdapter({
-        database: redis,
-        serde,
-    }),
-});`,
-            },
-            {
-                name: <>serde.ts</>,
-                code: `import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-
-export const serde = new Serde(new SuperJsonSerdeAdapter());`,
-            },
+            CODE_FILES.main,
+            CODE_FILES.lock_factory,
+            CODE_FILES.cache,
+            CODE_FILES.serde,
         ],
-    },
-    {
+    } satisfies CodeExample,
+    execution_context: {
+        name: "ExecutionContext",
         label: <>ExecutionContext</>,
         heading: <>Propagate context across async boundaries.</>,
         description: (
             <>
                 The ExecutionContext component propagates any kind of async
-                context across execution boundaries. Most components use it
-                to become implicitly execution-context-aware, allowing them to
+                context across execution boundaries. Most components use it to
+                become implicitly execution-context-aware, allowing them to
                 automatically share the same transaction and other contextual
                 state.
             </>
@@ -1186,39 +1390,11 @@ export const serde = new Serde(new SuperJsonSerdeAdapter());`,
             <>No manual parameter passing</>,
         ],
         files: [
-            {
-                name: <>request-handler.ts</>,
-                code: `import { ExecutionContext, contextToken } from "@daiso-tech/core/execution-context";
-import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter";
-
-// IExecutionContext uses symbols internally for
-// reliable context isolation across async boundaries
-const executionContext = new ExecutionContext(
-    new AlsExecutionContextAdapter(),
-);
-
-const userToken = contextToken<{ id: string; name: string }>("user");
-const requestIdToken = contextToken<string>("requestId");
-
-export async function handleRequest(req: Request) {
-    return executionContext.run(() => {
-        executionContext
-            .put(userToken, { id: "123", name: "Alice" })
-            .put(requestIdToken, "req-456");
-        return processRequest();
-    });
-}
-
-async function processRequest() {
-    // Access context values throughout the call chain
-    const user = executionContext.get(userToken);
-    const reqId = executionContext.get(requestIdToken);
-    console.log("Processing request %s for %s", reqId, user?.name);
-}`,
-            },
+            CODE_FILES.request_handler,
         ],
-    },
-    {
+    } satisfies CodeExample,
+    middleware: {
+        name: "Middleware",
         label: <>Middleware</>,
         heading: <>AOP-style middleware. Compose behavior. Keep logic clean.</>,
         description: (
@@ -1252,81 +1428,13 @@ async function processRequest() {
             </>,
         ],
         files: [
-            {
-                name: <>middleware.ts</>,
-                code: `import { use } from "@daiso-tech/core/middleware";
-import { retry, timeout } from "@daiso-tech/core/resilience";
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
-const fetchUser = async (id: string) => {
-    const res = await fetch(\`/api/users/\${id}\`);
-    if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
-    return res.json();
-};
-
-const resilientFetch = use(fetchUser, [
-    timeout({ waitTime: TimeSpan.fromSeconds(5) }),
-    retry({ maxAttempts: 3, throwLastError: true }),
-]);
-
-// Times out after 5s per attempt, retries up to 3 times
-const user = await resilientFetch("42");`,
-            },
-            {
-                name: <>enhance.ts</>,
-                code: `import { enhance, defineMiddleware } from "@daiso-tech/core/middleware";
-import { retry, timeout } from "@daiso-tech/core/resilience";
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
-class UserService {
-    async getUser(id: string) {
-        const res = await fetch(\`/api/users/\${id}\`);
-        if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
-        return res.json();
-    }
-}
-
-const service = new UserService();
-enhance(service, "getUser", [
-    timeout({ waitTime: TimeSpan.fromSeconds(10) }),
-    retry({ maxAttempts: 3, throwLastError: true }),
-]);
-
-await service.getUser("42");
-// Retries up to 3 times on failure
-// Throws if a single attempt takes longer than 10s`,
-            },
-            {
-                name: <>plugin.ts</>,
-                code: `import { withPlugin, type PluginFn } from "@daiso-tech/core/middleware";
-import { retry, timeout } from "@daiso-tech/core/resilience";
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
-class Fetcher {
-    async getUser(id: string) {
-        const res = await fetch(\`/api/users/\${id}\`);
-        if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
-        return res.json();
-    }
-}
-
-// Reusable plugin factory — apply to any service
-const withRetryAndTimeout: PluginFn<Fetcher> = () =>
-    (instance, enhance) => {
-        enhance(instance, "getUser", [
-            timeout({ waitTime: TimeSpan.fromSeconds(10) }),
-            retry({ maxAttempts: 3, throwLastError: true }),
-        ]);
-    };
-
-const fetcher = withPlugin(new Fetcher(), [withRetryAndTimeout()]);
-
-await fetcher.getUser("42");
-// Retries up to 3 times, each attempt times out after 10s`,
-            },
+            CODE_FILES.middleware,
+            CODE_FILES.enhance,
+            CODE_FILES.plugin,
         ],
-    },
-    {
+    } satisfies CodeExample,
+    http_router: {
+        name: "HttpRouter",
         label: <>HttpRouter</>,
         heading: <>Define routes. Stay framework-agnostic.</>,
         description: (
@@ -1356,164 +1464,7 @@ await fetcher.getUser("42");
             <>Middleware chains & route groups</>,
         ],
         files: [
-            {
-                name: <>app/api/users/route.ts</>,
-                code: `import { HttpRouter, defaultHttpRouterAdapter } from "@daiso-tech/core/http-router";
-import { z } from "zod";
-
-const router = new HttpRouter({
-    router: defaultHttpRouterAdapter,
-});
-
-router.endpoint({
-    url: "/",
-    method: "POST",
-    validation: {
-        json: z.object({ name: z.string(), email: z.string().email() }),
-    },
-    handler: async ({ req, json }) => {
-        const { name, email } = await req.json();
-        return json({ success: true, name, email });
-    },
-});
-
-export const GET: RequestHandler = async ({ request }) => router.fetch(request);
-export const POST: RequestHandler = async ({ request }) => router.fetch(request);
-export const PUT: RequestHandler = async ({ request }) => router.fetch(request);
-export const DELETE: RequestHandler = async ({ request }) => router.fetch(request);
-export const PATCH: RequestHandler = async ({ request }) => router.fetch(request);`,
-            },
+            CODE_FILES.app_api_users_route,
         ],
-    },
-];
-
-export const componentRecord: Record<
-    string,
-    ComponentItemProps & { name: string }
-> = {
-    // ─── Existing: Foundation ──────────────────────────────────
-    "Middleware and AOP": {
-        ...foundationExistingItems[0],
-        name: "Middleware and AOP",
-    },
-    Collection: { ...foundationExistingItems[1], name: "Collection" },
-    Serde: { ...foundationExistingItems[2], name: "Serde" },
-    Codec: { ...foundationExistingItems[3], name: "Codec" },
-    "Execution Context": {
-        ...foundationExistingItems[4],
-        name: "Execution Context",
-    },
-    "Typed Config Access": {
-        ...foundationExistingItems[5],
-        name: "Typed Config Access",
-    },
-    "Typed Env Access": {
-        ...foundationExistingItems[6],
-        name: "Typed Env Access",
-    },
-    // ─── Existing: Storage ────────────────────────────────────
-    Cache: { ...storageExistingItems[0], name: "Cache" },
-    "File Storage": { ...storageExistingItems[1], name: "File Storage" },
-    // ─── Existing: Reliability ────────────────────────────────
-    "Circuit Breaker": {
-        ...reliabilityExistingItems[0],
-        name: "Circuit Breaker",
-    },
-    "Rate Limiter": { ...reliabilityExistingItems[1], name: "Rate Limiter" },
-    Resilience: { ...reliabilityExistingItems[2], name: "Resilience" },
-    // ─── Existing: Concurrency ────────────────────────────────
-    Lock: { ...concurrencyExistingItems[0], name: "Lock" },
-    "Shared Lock": { ...concurrencyExistingItems[1], name: "Shared Lock" },
-    Semaphore: { ...concurrencyExistingItems[2], name: "Semaphore" },
-    // ─── Existing: Messaging ──────────────────────────────────
-    "Event Bus": { ...messagingExistingItems[0], name: "Event Bus" },
-    // ─── Existing: Web ───────────────────────────────────────
-    "HTTP Router": { ...webExistingItems[0], name: "HTTP Router" },
-    // ─── Upcoming: Foundation & Runtime ──────────────────────
-    "DI Container": { ...foundationRuntimeItems[0], name: "DI Container" },
-    "Transaction Context": {
-        ...foundationRuntimeItems[1],
-        name: "Transaction Context",
-    },
-    "CLI Command": { ...foundationRuntimeItems[2], name: "CLI Command" },
-    "Structured concurrency": {
-        ...foundationRuntimeItems[3],
-        name: "Structured concurrency",
-    },
-    "Promise Queue": { ...foundationRuntimeItems[4], name: "Promise Queue" },
-    "Logging & Observability": {
-        ...foundationRuntimeItems[5],
-        name: "Logging & Observability",
-    },
-    Introspection: { ...foundationRuntimeItems[6], name: "Introspection" },
-    // ─── Upcoming: Reliability & Messaging ───────────────────
-    "Job Scheduler": { ...reliabilityMessagingItems[0], name: "Job Scheduler" },
-    Notifications: { ...reliabilityMessagingItems[1], name: "Notifications" },
-    "Request Reply": { ...reliabilityMessagingItems[2], name: "Request Reply" },
-    "Message Queue": { ...reliabilityMessagingItems[3], name: "Message Queue" },
-    "Idempotent Cache": {
-        ...reliabilityMessagingItems[4],
-        name: "Idempotent Cache",
-    },
-    "Outbox Pattern": {
-        ...reliabilityMessagingItems[5],
-        name: "Outbox Pattern",
-    },
-    "Inbox Pattern": { ...reliabilityMessagingItems[6], name: "Inbox Pattern" },
-    // ─── Upcoming: Security ──────────────────────────────────
-    Authentication: { ...securityItems[0], name: "Authentication" },
-    "Session Management": { ...securityItems[1], name: "Session Management" },
-    "Authorization Gates": { ...securityItems[2], name: "Authorization Gates" },
-    "Apache Casbin Integration": {
-        ...securityItems[3],
-        name: "Apache Casbin Integration",
-    },
-    // ─── Upcoming: Integrations ──────────────────────────────
-    "Text Search": { ...integrationsItems[0], name: "Text Search" },
-    OpenAPI: { ...integrationsItems[1], name: "OpenAPI" },
-    "SQL Integration": { ...integrationsItems[2], name: "SQL Integration" },
-    "Mongoose and Native MongoDB Integration": {
-        ...integrationsItems[3],
-        name: "Mongoose and Native MongoDB Integration",
-    },
-    "PostgreSQL Native Integration": {
-        ...integrationsItems[4],
-        name: "PostgreSQL Native Integration",
-    },
-    "SSH Deployment": { ...integrationsItems[5], name: "SSH Deployment" },
-    "Image Manipulator": { ...integrationsItems[6], name: "Image Manipulator" },
-    "Process Manager": { ...integrationsItems[7], name: "Process Manager" },
-    // ─── Upcoming: Dev Tooling ───────────────────────────────
-    "DI Autodiscovery Vite Plugin": {
-        ...devToolingItems[0],
-        name: "DI Autodiscovery Vite Plugin",
-    },
-    "Event Autodiscovery Vite Plugin": {
-        ...devToolingItems[1],
-        name: "Event Autodiscovery Vite Plugin",
-    },
-    "Job Scheduler Autodiscovery Vite Plugin": {
-        ...devToolingItems[2],
-        name: "Job Scheduler Autodiscovery Vite Plugin",
-    },
-    "Request Reply Autodiscovery Vite Plugin": {
-        ...devToolingItems[3],
-        name: "Request Reply Autodiscovery Vite Plugin",
-    },
-    "Message Queue Autodiscovery Vite Plugin": {
-        ...devToolingItems[4],
-        name: "Message Queue Autodiscovery Vite Plugin",
-    },
-    "CLI Command Autodiscovery Vite Plugin": {
-        ...devToolingItems[5],
-        name: "CLI Command Autodiscovery Vite Plugin",
-    },
-    "Scaffolding CLI": { ...devToolingItems[6], name: "Scaffolding CLI" },
-    // ─── Upcoming: Control Plane ─────────────────────────────
-    "Daiso Platform": { ...controlPlaneItems[0], name: "Daiso Platform" },
-    "Dashboard & Observability": {
-        ...controlPlaneItems[1],
-        name: "Dashboard & Observability",
-    },
-    "Multi-Tenancy": { ...controlPlaneItems[2], name: "Multi-Tenancy" },
+    } satisfies CodeExample,
 };

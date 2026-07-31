@@ -1,7 +1,7 @@
-import { controlPlaneItems } from "../../date/data";
+import { CONTROL_PLANE_ITEMS } from "../../data/data";
 import { PlannedCardGrid } from "./PlannedCardGrid";
 import styles from "../roadmap.module.css";
 
 export function ControlPlaneSection() {
-  return (<section className={styles.futureSection}><PlannedCardGrid items={controlPlaneItems} /></section>);
+  return (<section className={styles.futureSection}><PlannedCardGrid items={CONTROL_PLANE_ITEMS} /></section>);
 }

@@ -1,19 +1,20 @@
 import {
-    upcomingItems,
-    foundationExistingItems,
-    storageExistingItems,
-    reliabilityExistingItems,
-    concurrencyExistingItems,
-    messagingExistingItems,
-    webExistingItems,
-    featureItems,
+    UPCOMING_ITEMS,
+    FOUNDATION_EXISTING_ITEMS,
+    STORAGE_EXISTING_ITEMS,
+    RELIABILITY_EXISTING_ITEMS,
+    CONCURRENCY_EXISTING_ITEMS,
+    MESSAGING_EXISTING_ITEMS,
+    WEB_EXISTING_ITEMS,
+    FEATURE_ITEMS,
     type FeatureItemProps,
-    whoIsThisForData,
+    PERFECT_FOR,
+    NOT_IDEAL_FOR,
     type CodeExample,
     type CodeFile,
     CODE_EXAMPLES,
     INSTALL_CMD,
-} from "../date/data";
+} from "../data/data";
 import { AvailableCategory } from "../roadmap/components/AvailableCategory";
 import { PlannedCardGrid } from "../roadmap/components/PlannedCardGrid";
 import {
@@ -93,6 +94,7 @@ function StatsBar() {
 function CodeShowcase() {
     const [activeIndex, setActiveIndex] = useState(0);
     const [fading, setFading] = useState(false);
+    const codeExamples = Object.values(CODE_EXAMPLES);
 
     const goTo = useCallback(
         (index: number) => {
@@ -121,7 +123,7 @@ function CodeShowcase() {
                         Unified architecture
                     </h2>
                     <div className="daiso-segmented-control">
-                        {CODE_EXAMPLES.map((ex, i) => (
+                        {codeExamples.map((ex, i) => (
                             <button
                                 key={i}
                                 className={`daiso-segmented-option${i === activeIndex ? " daiso-segmented-option--active" : ""}`}
@@ -146,7 +148,7 @@ function CodeShowcase() {
                                     fontSize: "1.25rem",
                                 }}
                             >
-                                {CODE_EXAMPLES[activeIndex].heading}
+                                {codeExamples[activeIndex].heading}
                             </h3>
                             <p
                                 className="daiso-section-subtitle"
@@ -155,10 +157,10 @@ function CodeShowcase() {
                                     textAlign: "left",
                                 }}
                             >
-                                {CODE_EXAMPLES[activeIndex].description}
+                                {codeExamples[activeIndex].description}
                             </p>
                             <ul className="daiso-check-list">
-                                {CODE_EXAMPLES[activeIndex].bullets.map(
+                                {codeExamples[activeIndex].bullets.map(
                                     (b, i) => (
                                         <li key={i}>
                                             <Check
@@ -173,10 +175,10 @@ function CodeShowcase() {
                         </div>
                     </div>
                     <div className="col col--7">
-                        {CODE_EXAMPLES[activeIndex].codeBlockDescription && (
+                        {codeExamples[activeIndex].codeBlockDescription && (
                             <p className="daiso-carousel-description">
                                 {
-                                    CODE_EXAMPLES[activeIndex]
+                                    codeExamples[activeIndex]
                                         .codeBlockDescription
                                 }
                             </p>
@@ -186,7 +188,7 @@ function CodeShowcase() {
                                 className={`daiso-carousel-body${fading ? " daiso-carousel-body--fading" : ""}`}
                             >
                                 <Tabs key={activeIndex}>
-                                    {CODE_EXAMPLES[activeIndex].files.map(
+                                    {codeExamples[activeIndex].files.map(
                                         (file, i) => (
                                             <TabItem
                                                 key={i}
@@ -246,7 +248,6 @@ function FeatureSection({ items }: { items: FeatureItemProps[] }) {
 }
 
 function WhoIsThisFor() {
-    const { perfectFor, notIdealFor } = whoIsThisForData;
     return (
         <section className="padding-vert--xl">
             <div className="container">
@@ -280,7 +281,7 @@ function WhoIsThisFor() {
                                 Perfect for
                             </h3>
                             <ul className="daiso-who-list">
-                                {perfectFor.map((item, i) => (
+                                {Object.values(PERFECT_FOR).map((item, i) => (
                                     <li key={i}>
                                         <strong>{item.title}</strong>{" "}
                                         {item.description}
@@ -304,7 +305,7 @@ function WhoIsThisFor() {
                                 Not ideal for
                             </h3>
                             <ul className="daiso-who-list">
-                                {notIdealFor.map((item, i) => (
+                                {Object.values(NOT_IDEAL_FOR).map((item, i) => (
                                     <li key={i}>
                                         <strong>{item.title}</strong>{" "}
                                         {item.description}
@@ -338,25 +339,25 @@ function ComponentSection() {
                 </div>
                 <AvailableCategory
                     label="Foundation"
-                    items={foundationExistingItems}
+                    items={FOUNDATION_EXISTING_ITEMS}
                 />
                 <AvailableCategory
                     label="Storage"
-                    items={storageExistingItems}
+                    items={STORAGE_EXISTING_ITEMS}
                 />
                 <AvailableCategory
                     label="Resilience"
-                    items={reliabilityExistingItems}
+                    items={RELIABILITY_EXISTING_ITEMS}
                 />
                 <AvailableCategory
                     label="Concurrency"
-                    items={concurrencyExistingItems}
+                    items={CONCURRENCY_EXISTING_ITEMS}
                 />
                 <AvailableCategory
                     label="Messaging"
-                    items={messagingExistingItems}
+                    items={MESSAGING_EXISTING_ITEMS}
                 />
-                <AvailableCategory label="Web" items={webExistingItems} />
+                <AvailableCategory label="Web" items={WEB_EXISTING_ITEMS} />
                 <div className="text--center margin-top--lg">
                     <Link
                         className="button button--outline button--secondary"
@@ -469,7 +470,7 @@ function UpcomingSection() {
                         available in any release.
                     </p>
                 </div>
-                <PlannedCardGrid items={upcomingItems} />
+                <PlannedCardGrid items={UPCOMING_ITEMS} />
                 <div className="text--center margin-top--lg">
                     <Link
                         className="button button--outline button--secondary"
@@ -703,7 +704,7 @@ export default function Home(): ReactNode {
 
             <main>
                 <CodeShowcase />
-                <FeatureSection items={featureItems} />
+                <FeatureSection items={Object.values(FEATURE_ITEMS)} />
                 <WhoIsThisFor />
                 <ComponentSection />
                 <UpcomingSection />

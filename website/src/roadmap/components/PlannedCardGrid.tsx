@@ -1,4 +1,4 @@
-import type { ComponentItemProps } from "../../date/data";
+import type { ComponentItemProps } from "../../data/data";
 import styles from "../roadmap.module.css";
 
 export function PlannedCardGrid({ items }: { items: readonly ComponentItemProps[] }) {
