@@ -20,5 +20,5 @@ export {
     COMPONENT_RECORD,
 } from "../data/data";
 
-export type { ComponentItemProps } from "../data/data";
+export type { ComponentItemProps } from "../data/types";
 

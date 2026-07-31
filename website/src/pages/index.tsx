@@ -7,14 +7,12 @@ import {
     MESSAGING_EXISTING_ITEMS,
     WEB_EXISTING_ITEMS,
     FEATURE_ITEMS,
-    type FeatureItemProps,
     PERFECT_FOR,
     NOT_IDEAL_FOR,
-    type CodeExample,
-    type CodeFile,
     CODE_EXAMPLES,
     INSTALL_CMD,
 } from "../data/data";
+import type { FeatureItemProps, CodeExample, CodeFile } from "../data/types";
 import { AvailableCategory } from "../roadmap/components/AvailableCategory";
 import { PlannedCardGrid } from "../roadmap/components/PlannedCardGrid";
 import {

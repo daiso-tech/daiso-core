@@ -1,4 +1,10 @@
-import type { ReactNode } from "react";
+import type {
+    FeatureItemProps,
+    ComponentItemProps,
+    WhoIsThisForItem,
+    CodeFile,
+    CodeExample,
+} from "./types";
 import { SiTypescript, SiVitest } from "@icons-pack/react-simple-icons";
 import {
     Box,
@@ -38,28 +44,13 @@ import {
 
 export const INSTALL_CMD = "npm install @daiso-tech/core";
 
-export type FeatureItemProps = {
-    name: string;
-    icon?: ReactNode;
-    title: ReactNode;
-    description: ReactNode;
-};
-
-export type ComponentItemProps = FeatureItemProps & {
-    href?: string;
-    badges?: ReactNode[];
-    subItems?: ReactNode[];
-    maturity?: number;
-    completedDate?: ReactNode;
-};
-
 // ─── Components Record ──────────────────────────────────────────
 // Single source of truth for every component — keyed by name.
 // Each curated list below references entries from this record.
 
 export const COMPONENT_RECORD = {
     // ─── Existing: Foundation ──────────────────────────────────
-    middleware_and_aop: {
+    MIDDLEWARE_AND_AOP: {
         name: "Middleware and AOP",
         icon: <Plug size="1.5rem" strokeWidth={1.5} />,
         title: <>Middleware and AOP</>,
@@ -73,7 +64,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    collection: {
+    COLLECTION: {
         name: "Collection",
         icon: <Layers size="1.5rem" strokeWidth={1.5} />,
         title: <>Collection</>,
@@ -86,7 +77,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    serde: {
+    SERDE: {
         name: "Serde",
         icon: <ArrowLeftRight size="1.5rem" strokeWidth={1.5} />,
         title: <>Serde</>,
@@ -99,7 +90,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    codec: {
+    CODEC: {
         name: "Codec",
         icon: <ArrowLeftRight size="1.5rem" strokeWidth={1.5} />,
         title: <>Codec</>,
@@ -113,7 +104,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    execution_context: {
+    EXECUTION_CONTEXT: {
         name: "Execution Context",
         icon: <Zap size="1.5rem" strokeWidth={1.5} />,
         title: <>Execution Context</>,
@@ -126,7 +117,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    typed_config_access: {
+    TYPED_CONFIG_ACCESS: {
         name: "Typed Config Access",
         icon: <Globe size="1.5rem" strokeWidth={1.5} />,
         title: <>Typed Config Access</>,
@@ -139,7 +130,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    typed_env_access: {
+    TYPED_ENV_ACCESS: {
         name: "Typed Env Access",
         icon: <Globe size="1.5rem" strokeWidth={1.5} />,
         title: <>Typed Env Access</>,
@@ -153,7 +144,7 @@ export const COMPONENT_RECORD = {
         ),
     } satisfies ComponentItemProps,
     // ─── Existing: Storage ────────────────────────────────────
-    cache: {
+    CACHE: {
         name: "Cache",
         icon: <HardDrive size="1.5rem" strokeWidth={1.5} />,
         title: <>Cache</>,
@@ -166,7 +157,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    file_storage: {
+    FILE_STORAGE: {
         name: "File Storage",
         icon: <Database size="1.5rem" strokeWidth={1.5} />,
         title: <>File Storage</>,
@@ -181,7 +172,7 @@ export const COMPONENT_RECORD = {
         ),
     } satisfies ComponentItemProps,
     // ─── Existing: Reliability ────────────────────────────────
-    circuit_breaker: {
+    CIRCUIT_BREAKER: {
         name: "Circuit Breaker",
         icon: <CircuitBoard size="1.5rem" strokeWidth={1.5} />,
         title: <>Circuit Breaker</>,
@@ -194,7 +185,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    rate_limiter: {
+    RATE_LIMITER: {
         name: "Rate Limiter",
         icon: <Gauge size="1.5rem" strokeWidth={1.5} />,
         title: <>Rate Limiter</>,
@@ -208,7 +199,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    resilience: {
+    RESILIENCE: {
         name: "Resilience",
         icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
         title: <>Resilience</>,
@@ -222,7 +213,7 @@ export const COMPONENT_RECORD = {
         ),
     } satisfies ComponentItemProps,
     // ─── Existing: Concurrency ────────────────────────────────
-    lock: {
+    LOCK: {
         name: "Lock",
         icon: <Lock size="1.5rem" strokeWidth={1.5} />,
         title: <>Lock</>,
@@ -235,7 +226,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    shared_lock: {
+    SHARED_LOCK: {
         name: "Shared Lock",
         icon: <Share2 size="1.5rem" strokeWidth={1.5} />,
         title: <>Shared Lock</>,
@@ -248,7 +239,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    semaphore: {
+    SEMAPHORE: {
         name: "Semaphore",
         icon: <List size="1.5rem" strokeWidth={1.5} />,
         title: <>Semaphore</>,
@@ -262,7 +253,7 @@ export const COMPONENT_RECORD = {
         ),
     } satisfies ComponentItemProps,
     // ─── Existing: Messaging ──────────────────────────────────
-    event_bus: {
+    EVENT_BUS: {
         name: "Event Bus",
         icon: <Radio size="1.5rem" strokeWidth={1.5} />,
         title: <>Event Bus</>,
@@ -276,7 +267,7 @@ export const COMPONENT_RECORD = {
         ),
     } satisfies ComponentItemProps,
     // ─── Existing: Web ───────────────────────────────────────
-    http_router: {
+    HTTP_ROUTER: {
         name: "HTTP Router",
         icon: <GitBranch size="1.5rem" strokeWidth={1.5} />,
         title: <>HTTP Router</>,
@@ -290,7 +281,7 @@ export const COMPONENT_RECORD = {
         ),
     } satisfies ComponentItemProps,
     // ─── Upcoming: Foundation & Runtime ──────────────────────
-    di_container: {
+    DI_CONTAINER: {
         name: "DI Container",
         icon: <Box size="1.5rem" strokeWidth={1.5} />,
         title: <>DI Container</>,
@@ -301,7 +292,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    transaction_context: {
+    TRANSACTION_CONTEXT: {
         name: "Transaction Context",
         icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
         title: <>Transaction Context</>,
@@ -313,7 +304,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    cli_command: {
+    CLI_COMMAND: {
         name: "CLI Command",
         icon: <Terminal size="1.5rem" strokeWidth={1.5} />,
         title: <>CLI Command</>,
@@ -327,7 +318,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    structured_concurrency: {
+    STRUCTURED_CONCURRENCY: {
         name: "Structured concurrency",
         icon: <RefreshCw size="1.5rem" strokeWidth={1.5} />,
         title: <>Structured concurrency</>,
@@ -339,7 +330,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    promise_queue: {
+    PROMISE_QUEUE: {
         name: "Promise Queue",
         icon: <Layers size="1.5rem" strokeWidth={1.5} />,
         title: <>Promise Queue</>,
@@ -350,7 +341,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    logging_observability: {
+    LOGGING_OBSERVABILITY: {
         name: "Logging & Observability",
         icon: <Server size="1.5rem" strokeWidth={1.5} />,
         title: <>Logging & Observability</>,
@@ -363,7 +354,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    introspection: {
+    INTROSPECTION: {
         name: "Introspection",
         icon: <Search size="1.5rem" strokeWidth={1.5} />,
         title: <>Introspection</>,
@@ -377,7 +368,7 @@ export const COMPONENT_RECORD = {
         ),
     } satisfies ComponentItemProps,
     // ─── Upcoming: Reliability & Messaging ───────────────────
-    job_scheduler: {
+    JOB_SCHEDULER: {
         name: "Job Scheduler",
         icon: <Clock size="1.5rem" strokeWidth={1.5} />,
         title: <>Job Scheduler</>,
@@ -389,7 +380,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    notifications: {
+    NOTIFICATIONS: {
         name: "Notifications",
         icon: <Bell size="1.5rem" strokeWidth={1.5} />,
         title: <>Notifications</>,
@@ -403,7 +394,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    request_reply: {
+    REQUEST_REPLY: {
         name: "Request Reply",
         icon: <Reply size="1.5rem" strokeWidth={1.5} />,
         title: <>Request Reply</>,
@@ -415,7 +406,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    message_queue: {
+    MESSAGE_QUEUE: {
         name: "Message Queue",
         icon: <MessageSquare size="1.5rem" strokeWidth={1.5} />,
         title: <>Message Queue</>,
@@ -427,7 +418,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    idempotent_cache: {
+    IDEMPOTENT_CACHE: {
         name: "Idempotent Cache",
         icon: <Copy size="1.5rem" strokeWidth={1.5} />,
         title: <>Idempotent Cache</>,
@@ -438,7 +429,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    outbox_pattern: {
+    OUTBOX_PATTERN: {
         name: "Outbox Pattern",
         icon: <Send size="1.5rem" strokeWidth={1.5} />,
         title: <>Outbox Pattern</>,
@@ -450,7 +441,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    inbox_pattern: {
+    INBOX_PATTERN: {
         name: "Inbox Pattern",
         icon: <Inbox size="1.5rem" strokeWidth={1.5} />,
         title: <>Inbox Pattern</>,
@@ -463,7 +454,7 @@ export const COMPONENT_RECORD = {
         ),
     } satisfies ComponentItemProps,
     // ─── Upcoming: Security ──────────────────────────────────
-    authentication: {
+    AUTHENTICATION: {
         name: "Authentication",
         icon: <Plug size="1.5rem" strokeWidth={1.5} />,
         title: <>Authentication</>,
@@ -476,7 +467,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    session_management: {
+    SESSION_MANAGEMENT: {
         name: "Session Management",
         icon: <Users size="1.5rem" strokeWidth={1.5} />,
         title: <>Session Management</>,
@@ -487,7 +478,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    authorization_gates: {
+    AUTHORIZATION_GATES: {
         name: "Authorization Gates",
         icon: <Lock size="1.5rem" strokeWidth={1.5} />,
         title: <>Authorization Gates</>,
@@ -498,7 +489,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    apache_casbin_integration: {
+    APACHE_CASBIN_INTEGRATION: {
         name: "Apache Casbin Integration",
         icon: <Lightbulb size="1.5rem" strokeWidth={1.5} />,
         title: <>Apache Casbin Integration</>,
@@ -511,7 +502,7 @@ export const COMPONENT_RECORD = {
         ),
     } satisfies ComponentItemProps,
     // ─── Upcoming: Integrations ──────────────────────────────
-    text_search: {
+    TEXT_SEARCH: {
         name: "Text Search",
         icon: <Search size="1.5rem" strokeWidth={1.5} />,
         title: <>Text Search</>,
@@ -524,7 +515,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    open_api: {
+    OPEN_API: {
         name: "OpenAPI",
         icon: <Server size="1.5rem" strokeWidth={1.5} />,
         title: <>OpenAPI</>,
@@ -536,7 +527,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    sql_integration: {
+    SQL_INTEGRATION: {
         name: "SQL Integration",
         icon: <Database size="1.5rem" strokeWidth={1.5} />,
         title: <>SQL Integration</>,
@@ -550,7 +541,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    mongoose_native_mongodb_integration: {
+    MONGOOSE_NATIVE_MONGODB_INTEGRATION: {
         name: "Mongoose and Native MongoDB Integration",
         icon: <Database size="1.5rem" strokeWidth={1.5} />,
         title: <>Mongoose and Native MongoDB Integration</>,
@@ -564,7 +555,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    postgresql_native_integration: {
+    POSTGRESQL_NATIVE_INTEGRATION: {
         name: "PostgreSQL Native Integration",
         icon: <Server size="1.5rem" strokeWidth={1.5} />,
         title: <>PostgreSQL Native Integration</>,
@@ -579,7 +570,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    ssh_deployment: {
+    SSH_DEPLOYMENT: {
         name: "SSH Deployment",
         icon: <Globe size="1.5rem" strokeWidth={1.5} />,
         title: <>SSH Deployment</>,
@@ -592,7 +583,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    image_manipulator: {
+    IMAGE_MANIPULATOR: {
         name: "Image Manipulator",
         icon: <Image size="1.5rem" strokeWidth={1.5} />,
         title: <>Image Manipulator</>,
@@ -605,7 +596,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    process_manager: {
+    PROCESS_MANAGER: {
         name: "Process Manager",
         icon: <Activity size="1.5rem" strokeWidth={1.5} />,
         title: <>Process Manager</>,
@@ -619,7 +610,7 @@ export const COMPONENT_RECORD = {
         ),
     } satisfies ComponentItemProps,
     // ─── Upcoming: Dev Tooling ───────────────────────────────
-    di_autodiscovery_vite_plugin: {
+    DI_AUTODISCOVERY_VITE_PLUGIN: {
         name: "DI Autodiscovery Vite Plugin",
         icon: <Zap size="1.5rem" strokeWidth={1.5} />,
         title: <>DI Autodiscovery Vite Plugin</>,
@@ -631,7 +622,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    event_autodiscovery_vite_plugin: {
+    EVENT_AUTODISCOVERY_VITE_PLUGIN: {
         name: "Event Autodiscovery Vite Plugin",
         icon: <Radio size="1.5rem" strokeWidth={1.5} />,
         title: <>Event Autodiscovery Vite Plugin</>,
@@ -642,7 +633,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    job_scheduler_autodiscovery_vite_plugin: {
+    JOB_SCHEDULER_AUTODISCOVERY_VITE_PLUGIN: {
         name: "Job Scheduler Autodiscovery Vite Plugin",
         icon: <Clock size="1.5rem" strokeWidth={1.5} />,
         title: <>Job Scheduler Autodiscovery Vite Plugin</>,
@@ -653,7 +644,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    request_reply_autodiscovery_vite_plugin: {
+    REQUEST_REPLY_AUTODISCOVERY_VITE_PLUGIN: {
         name: "Request Reply Autodiscovery Vite Plugin",
         icon: <Reply size="1.5rem" strokeWidth={1.5} />,
         title: <>Request Reply Autodiscovery Vite Plugin</>,
@@ -664,7 +655,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    message_queue_autodiscovery_vite_plugin: {
+    MESSAGE_QUEUE_AUTODISCOVERY_VITE_PLUGIN: {
         name: "Message Queue Autodiscovery Vite Plugin",
         icon: <MessageSquare size="1.5rem" strokeWidth={1.5} />,
         title: <>Message Queue Autodiscovery Vite Plugin</>,
@@ -675,7 +666,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    cli_command_autodiscovery_vite_plugin: {
+    CLI_COMMAND_AUTODISCOVERY_VITE_PLUGIN: {
         name: "CLI Command Autodiscovery Vite Plugin",
         icon: <Terminal size="1.5rem" strokeWidth={1.5} />,
         title: <>CLI Command Autodiscovery Vite Plugin</>,
@@ -686,7 +677,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    scaffolding_cli: {
+    SCAFFOLDING_CLI: {
         name: "Scaffolding CLI",
         icon: <Zap size="1.5rem" strokeWidth={1.5} />,
         title: <>Scaffolding CLI</>,
@@ -701,7 +692,7 @@ export const COMPONENT_RECORD = {
         ),
     } satisfies ComponentItemProps,
     // ─── Upcoming: Control Plane ─────────────────────────────
-    daiso_platform: {
+    DAISO_PLATFORM: {
         name: "Daiso Platform",
         icon: <Server size="1.5rem" strokeWidth={1.5} />,
         title: <>Daiso Platform</>,
@@ -713,7 +704,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    dashboard_observability: {
+    DASHBOARD_OBSERVABILITY: {
         name: "Dashboard & Observability",
         icon: <Activity size="1.5rem" strokeWidth={1.5} />,
         title: <>Dashboard & Observability</>,
@@ -725,7 +716,7 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    multi_tenancy: {
+    MULTI_TENANCY: {
         name: "Multi-Tenancy",
         icon: <Globe size="1.5rem" strokeWidth={1.5} />,
         title: <>Multi-Tenancy</>,
@@ -742,38 +733,38 @@ export const COMPONENT_RECORD = {
 // ─── Existing — Production-Ready Components ──────────────────────
 
 export const FOUNDATION_EXISTING_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.middleware_and_aop,
-    COMPONENT_RECORD.collection,
-    COMPONENT_RECORD.serde,
-    COMPONENT_RECORD.codec,
-    COMPONENT_RECORD.execution_context,
-    COMPONENT_RECORD.typed_config_access,
-    COMPONENT_RECORD.typed_env_access,
+    COMPONENT_RECORD.MIDDLEWARE_AND_AOP,
+    COMPONENT_RECORD.COLLECTION,
+    COMPONENT_RECORD.SERDE,
+    COMPONENT_RECORD.CODEC,
+    COMPONENT_RECORD.EXECUTION_CONTEXT,
+    COMPONENT_RECORD.TYPED_CONFIG_ACCESS,
+    COMPONENT_RECORD.TYPED_ENV_ACCESS,
 ];
 
 export const STORAGE_EXISTING_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.cache,
-    COMPONENT_RECORD.file_storage,
+    COMPONENT_RECORD.CACHE,
+    COMPONENT_RECORD.FILE_STORAGE,
 ];
 
 export const RELIABILITY_EXISTING_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.circuit_breaker,
-    COMPONENT_RECORD.rate_limiter,
-    COMPONENT_RECORD.resilience,
+    COMPONENT_RECORD.CIRCUIT_BREAKER,
+    COMPONENT_RECORD.RATE_LIMITER,
+    COMPONENT_RECORD.RESILIENCE,
 ];
 
 export const CONCURRENCY_EXISTING_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.lock,
-    COMPONENT_RECORD.shared_lock,
-    COMPONENT_RECORD.semaphore,
+    COMPONENT_RECORD.LOCK,
+    COMPONENT_RECORD.SHARED_LOCK,
+    COMPONENT_RECORD.SEMAPHORE,
 ];
 
 export const MESSAGING_EXISTING_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.event_bus,
+    COMPONENT_RECORD.EVENT_BUS,
 ];
 
 export const WEB_EXISTING_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.http_router,
+    COMPONENT_RECORD.HTTP_ROUTER,
 ];
 
 export const EXISTING_ITEMS: ComponentItemProps[] = [
@@ -788,86 +779,86 @@ export const EXISTING_ITEMS: ComponentItemProps[] = [
 // ─── Foundation & Runtime ────────────────────────────────────────
 
 export const FOUNDATION_RUNTIME_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.di_container,
-    COMPONENT_RECORD.transaction_context,
-    COMPONENT_RECORD.cli_command,
-    COMPONENT_RECORD.structured_concurrency,
-    COMPONENT_RECORD.promise_queue,
-    COMPONENT_RECORD.logging_observability,
-    COMPONENT_RECORD.introspection,
+    COMPONENT_RECORD.DI_CONTAINER,
+    COMPONENT_RECORD.TRANSACTION_CONTEXT,
+    COMPONENT_RECORD.CLI_COMMAND,
+    COMPONENT_RECORD.STRUCTURED_CONCURRENCY,
+    COMPONENT_RECORD.PROMISE_QUEUE,
+    COMPONENT_RECORD.LOGGING_OBSERVABILITY,
+    COMPONENT_RECORD.INTROSPECTION,
 ];
 
 // ─── Reliability & Messaging ─────────────────────────────────────
 
 export const RELIABILITY_MESSAGING_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.job_scheduler,
-    COMPONENT_RECORD.notifications,
-    COMPONENT_RECORD.request_reply,
-    COMPONENT_RECORD.message_queue,
-    COMPONENT_RECORD.idempotent_cache,
-    COMPONENT_RECORD.outbox_pattern,
-    COMPONENT_RECORD.inbox_pattern,
+    COMPONENT_RECORD.JOB_SCHEDULER,
+    COMPONENT_RECORD.NOTIFICATIONS,
+    COMPONENT_RECORD.REQUEST_REPLY,
+    COMPONENT_RECORD.MESSAGE_QUEUE,
+    COMPONENT_RECORD.IDEMPOTENT_CACHE,
+    COMPONENT_RECORD.OUTBOX_PATTERN,
+    COMPONENT_RECORD.INBOX_PATTERN,
 ];
 
 // ─── Security ────────────────────────────────────────────────────
 
 export const SECURITY_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.authentication,
-    COMPONENT_RECORD.session_management,
-    COMPONENT_RECORD.authorization_gates,
-    COMPONENT_RECORD.apache_casbin_integration,
+    COMPONENT_RECORD.AUTHENTICATION,
+    COMPONENT_RECORD.SESSION_MANAGEMENT,
+    COMPONENT_RECORD.AUTHORIZATION_GATES,
+    COMPONENT_RECORD.APACHE_CASBIN_INTEGRATION,
 ];
 
 // ─── Integrations ────────────────────────────────────────────────
 
 export const INTEGRATIONS_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.text_search,
-    COMPONENT_RECORD.open_api,
-    COMPONENT_RECORD.sql_integration,
-    COMPONENT_RECORD.mongoose_native_mongodb_integration,
-    COMPONENT_RECORD.postgresql_native_integration,
-    COMPONENT_RECORD.ssh_deployment,
-    COMPONENT_RECORD.image_manipulator,
-    COMPONENT_RECORD.process_manager,
+    COMPONENT_RECORD.TEXT_SEARCH,
+    COMPONENT_RECORD.OPEN_API,
+    COMPONENT_RECORD.SQL_INTEGRATION,
+    COMPONENT_RECORD.MONGOOSE_NATIVE_MONGODB_INTEGRATION,
+    COMPONENT_RECORD.POSTGRESQL_NATIVE_INTEGRATION,
+    COMPONENT_RECORD.SSH_DEPLOYMENT,
+    COMPONENT_RECORD.IMAGE_MANIPULATOR,
+    COMPONENT_RECORD.PROCESS_MANAGER,
 ];
 
 // ─── Dev Tooling ─────────────────────────────────────────────────
 
 export const DEV_TOOLING_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.di_autodiscovery_vite_plugin,
-    COMPONENT_RECORD.event_autodiscovery_vite_plugin,
-    COMPONENT_RECORD.job_scheduler_autodiscovery_vite_plugin,
-    COMPONENT_RECORD.request_reply_autodiscovery_vite_plugin,
-    COMPONENT_RECORD.message_queue_autodiscovery_vite_plugin,
-    COMPONENT_RECORD.cli_command_autodiscovery_vite_plugin,
-    COMPONENT_RECORD.scaffolding_cli,
+    COMPONENT_RECORD.DI_AUTODISCOVERY_VITE_PLUGIN,
+    COMPONENT_RECORD.EVENT_AUTODISCOVERY_VITE_PLUGIN,
+    COMPONENT_RECORD.JOB_SCHEDULER_AUTODISCOVERY_VITE_PLUGIN,
+    COMPONENT_RECORD.REQUEST_REPLY_AUTODISCOVERY_VITE_PLUGIN,
+    COMPONENT_RECORD.MESSAGE_QUEUE_AUTODISCOVERY_VITE_PLUGIN,
+    COMPONENT_RECORD.CLI_COMMAND_AUTODISCOVERY_VITE_PLUGIN,
+    COMPONENT_RECORD.SCAFFOLDING_CLI,
 ];
 
 // ─── Control Plane ──────────────────────────────────────────────
 
 export const CONTROL_PLANE_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.daiso_platform,
-    COMPONENT_RECORD.dashboard_observability,
-    COMPONENT_RECORD.multi_tenancy,
+    COMPONENT_RECORD.DAISO_PLATFORM,
+    COMPONENT_RECORD.DASHBOARD_OBSERVABILITY,
+    COMPONENT_RECORD.MULTI_TENANCY,
 ];
 
 // ─── Homepage preview subset ─────────────────────────────────────
 
 export const UPCOMING_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.di_container,
-    COMPONENT_RECORD.transaction_context,
-    COMPONENT_RECORD.cli_command,
-    COMPONENT_RECORD.structured_concurrency,
-    COMPONENT_RECORD.promise_queue,
-    COMPONENT_RECORD.logging_observability,
-    COMPONENT_RECORD.introspection,
-    COMPONENT_RECORD.job_scheduler,
+    COMPONENT_RECORD.DI_CONTAINER,
+    COMPONENT_RECORD.TRANSACTION_CONTEXT,
+    COMPONENT_RECORD.CLI_COMMAND,
+    COMPONENT_RECORD.STRUCTURED_CONCURRENCY,
+    COMPONENT_RECORD.PROMISE_QUEUE,
+    COMPONENT_RECORD.LOGGING_OBSERVABILITY,
+    COMPONENT_RECORD.INTROSPECTION,
+    COMPONENT_RECORD.JOB_SCHEDULER,
 ];
 
 // ─── Homepage Data ─────────────────────────────────────────────
 
 export const FEATURE_ITEMS = {
-    switch_infrastructure_without_rewriting_business_logic: {
+    SWITCH_INFRASTRUCTURE_WITHOUT_REWRITING_BUSINESS_LOGIC: {
         name: "Switch infrastructure without rewriting business logic",
         icon: <Zap size="1.5rem" strokeWidth={1.5} />,
         title: <>Switch infrastructure without rewriting business logic</>,
@@ -878,7 +869,7 @@ export const FEATURE_ITEMS = {
             </>
         ),
     } satisfies FeatureItemProps,
-    test_everything_without_docker: {
+    TEST_EVERYTHING_WITHOUT_DOCKER: {
         name: "Test everything without Docker",
         icon: <SiVitest size="1.5rem" />,
         title: <>Test everything without Docker</>,
@@ -890,7 +881,7 @@ export const FEATURE_ITEMS = {
             </>
         ),
     } satisfies FeatureItemProps,
-    bring_your_own_framework: {
+    BRING_YOUR_OWN_FRAMEWORK: {
         name: "Bring your own framework",
         icon: <Plug size="1.5rem" strokeWidth={1.5} />,
         title: <>Bring your own framework</>,
@@ -901,7 +892,7 @@ export const FEATURE_ITEMS = {
             </>
         ),
     } satisfies FeatureItemProps,
-    type_safe_from_day_one: {
+    TYPE_SAFE_FROM_DAY_ONE: {
         name: "Type-safe from day one",
         icon: <SiTypescript size="1.5rem" />,
         title: <>Type-safe from day one</>,
@@ -913,7 +904,7 @@ export const FEATURE_ITEMS = {
             </>
         ),
     } satisfies FeatureItemProps,
-    standard_schema_validation_built_in: {
+    STANDARD_SCHEMA_VALIDATION_BUILT_IN: {
         name: "Standard schema validation built in",
         icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
         title: <>Standard schema validation built in</>,
@@ -926,7 +917,7 @@ export const FEATURE_ITEMS = {
             </>
         ),
     } satisfies FeatureItemProps,
-    esm_native_no_commonjs_baggage: {
+    ESM_NATIVE_NO_COMMONJS_BAGGAGE: {
         name: "ESM native. No CommonJS baggage.",
         icon: <Package size="1.5rem" strokeWidth={1.5} />,
         title: <>ESM native. No CommonJS baggage.</>,
@@ -939,14 +930,8 @@ export const FEATURE_ITEMS = {
     } satisfies FeatureItemProps,
 };
 
-export type WhoIsThisForItem = {
-    name: string;
-    title: ReactNode;
-    description: ReactNode;
-};
-
 export const PERFECT_FOR = {
-    backend_applications: {
+    BACKEND_APPLICATIONS: {
         name: "Backend applications:",
         title: <>Backend applications:</>,
         description: (
@@ -956,7 +941,7 @@ export const PERFECT_FOR = {
             </>
         ),
     } satisfies WhoIsThisForItem,
-    framework_agnostic_projects: {
+    FRAMEWORK_AGNOSTIC_PROJECTS: {
         name: "Framework-agnostic projects:",
         title: <>Framework-agnostic projects:</>,
         description: (
@@ -967,7 +952,7 @@ export const PERFECT_FOR = {
             </>
         ),
     } satisfies WhoIsThisForItem,
-    adapter_first_architectures: {
+    ADAPTER_FIRST_ARCHITECTURES: {
         name: "Adapter-first architectures:",
         title: <>Adapter-first architectures:</>,
         description: (
@@ -978,7 +963,7 @@ export const PERFECT_FOR = {
             </>
         ),
     } satisfies WhoIsThisForItem,
-    distributed_systems: {
+    DISTRIBUTED_SYSTEMS: {
         name: "Distributed systems:",
         title: <>Distributed systems:</>,
         description: (
@@ -989,7 +974,7 @@ export const PERFECT_FOR = {
             </>
         ),
     } satisfies WhoIsThisForItem,
-    modular_monoliths: {
+    MODULAR_MONOLITHS: {
         name: "Modular monoliths:",
         title: <>Modular monoliths:</>,
         description: (
@@ -1001,7 +986,7 @@ export const PERFECT_FOR = {
             </>
         ),
     } satisfies WhoIsThisForItem,
-    library_and_framework_authors: {
+    LIBRARY_AND_FRAMEWORK_AUTHORS: {
         name: "Library and framework authors:",
         title: <>Library and framework authors:</>,
         description: (
@@ -1011,7 +996,7 @@ export const PERFECT_FOR = {
             </>
         ),
     } satisfies WhoIsThisForItem,
-    testing_and_local_development: {
+    TESTING_AND_LOCAL_DEVELOPMENT: {
         name: "Testing and local development:",
         title: <>Testing and local development:</>,
         description: (
@@ -1022,7 +1007,7 @@ export const PERFECT_FOR = {
             </>
         ),
     } satisfies WhoIsThisForItem,
-    portable_backend_code: {
+    PORTABLE_BACKEND_CODE: {
         name: "Portable backend code:",
         title: <>Portable backend code:</>,
         description: (
@@ -1033,7 +1018,7 @@ export const PERFECT_FOR = {
             </>
         ),
     } satisfies WhoIsThisForItem,
-    adopting_individual_components: {
+    ADOPTING_INDIVIDUAL_COMPONENTS: {
         name: "Adopting individual components:",
         title: <>Adopting individual components:</>,
         description: (
@@ -1044,7 +1029,7 @@ export const PERFECT_FOR = {
             </>
         ),
     } satisfies WhoIsThisForItem,
-    incremental_adoption: {
+    INCREMENTAL_ADOPTION: {
         name: "Incremental adoption:",
         title: <>Incremental adoption:</>,
         description: (
@@ -1057,7 +1042,7 @@ export const PERFECT_FOR = {
 };
 
 export const NOT_IDEAL_FOR = {
-    microservices: {
+    MICROSERVICES: {
         name: "Microservices:",
         title: <>Microservices:</>,
         description: (
@@ -1071,7 +1056,7 @@ export const NOT_IDEAL_FOR = {
             </>
         ),
     } satisfies WhoIsThisForItem,
-    frontend_only_applications: {
+    FRONTEND_ONLY_APPLICATIONS: {
         name: "Frontend-only applications:",
         title: <>Frontend-only applications:</>,
         description: (
@@ -1081,7 +1066,7 @@ export const NOT_IDEAL_FOR = {
             </>
         ),
     } satisfies WhoIsThisForItem,
-    projects_tightly_coupled_to_one_vendor: {
+    PROJECTS_TIGHTLY_COUPLED_TO_ONE_VENDOR: {
         name: "Projects tightly coupled to one vendor:",
         title: <>Projects tightly coupled to one vendor:</>,
         description: (
@@ -1092,7 +1077,7 @@ export const NOT_IDEAL_FOR = {
             </>
         ),
     } satisfies WhoIsThisForItem,
-    very_small_scripts: {
+    VERY_SMALL_SCRIPTS: {
         name: "Very small scripts:",
         title: <>Very small scripts:</>,
         description: (
@@ -1103,7 +1088,7 @@ export const NOT_IDEAL_FOR = {
             </>
         ),
     } satisfies WhoIsThisForItem,
-    applications_requiring_provider_specific_capabilities: {
+    APPLICATIONS_REQUIRING_PROVIDER_SPECIFIC_CAPABILITIES: {
         name: "Applications requiring provider-specific capabilities:",
         title: <>Applications requiring provider-specific capabilities:</>,
         description: (
@@ -1114,7 +1099,7 @@ export const NOT_IDEAL_FOR = {
             </>
         ),
     } satisfies WhoIsThisForItem,
-    pure_javascript_projects_prioritizing_simplicity: {
+    PURE_JAVASCRIPT_PROJECTS_PRIORITIZING_SIMPLICITY: {
         name: "Pure JavaScript projects prioritizing simplicity:",
         title: <>Pure JavaScript projects prioritizing simplicity:</>,
         description: (
@@ -1129,23 +1114,8 @@ export const NOT_IDEAL_FOR = {
 
 // ─── Code Showcase ────────────────────────────────────────────
 
-export type CodeFile = {
-    name: string;
-    code: string;
-};
-
-export type CodeExample = {
-    name: string;
-    label: ReactNode;
-    heading: ReactNode;
-    description: ReactNode;
-    codeBlockDescription: ReactNode;
-    bullets: ReactNode[];
-    files: CodeFile[];
-};
-
 export const CODE_FILES = {
-    main: {
+    MAIN: {
         name: "main.ts",
         code: `import { lockFactory } from "./lock-factory.js";
 import { cache } from "./cache.js";
@@ -1162,7 +1132,7 @@ await cache.put(lock.key, lock);
 // Will automatically deserialize correctly
 const deserializedLock = await cache.get(lock.key);`,
     } satisfies CodeFile,
-    lock_factory: {
+    LOCK_FACTORY: {
         name: "lock-factory.ts",
         code: `import { LockFactory } from "@daiso-tech/core/lock";
 import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
@@ -1173,7 +1143,7 @@ export const lockFactory = new LockFactory({
     serde,
 });`,
     } satisfies CodeFile,
-    cache: {
+    CACHE: {
         name: "cache.ts",
         code: `import { Cache } from "@daiso-tech/core/cache";
 import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
@@ -1186,14 +1156,14 @@ export const cache = new Cache({
     }),
 });`,
     } satisfies CodeFile,
-    serde: {
+    SERDE: {
         name: "serde.ts",
         code: `import { Serde } from "@daiso-tech/core/serde";
 import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
 
 export const serde = new Serde(new SuperJsonSerdeAdapter());`,
     } satisfies CodeFile,
-    request_handler: {
+    REQUEST_HANDLER: {
         name: "request-handler.ts",
         code: `import { ExecutionContext, contextToken } from "@daiso-tech/core/execution-context";
 import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter";
@@ -1223,7 +1193,7 @@ async function processRequest() {
     console.log("Processing request %s for %s", reqId, user?.name);
 }`,
     } satisfies CodeFile,
-    middleware: {
+    MIDDLEWARE: {
         name: "middleware.ts",
         code: `import { use } from "@daiso-tech/core/middleware";
 import { retry, timeout } from "@daiso-tech/core/resilience";
@@ -1243,7 +1213,7 @@ const resilientFetch = use(fetchUser, [
 // Times out after 5s per attempt, retries up to 3 times
 const user = await resilientFetch("42");`,
     } satisfies CodeFile,
-    enhance: {
+    ENHANCE: {
         name: "enhance.ts",
         code: `import { enhance, defineMiddleware } from "@daiso-tech/core/middleware";
 import { retry, timeout } from "@daiso-tech/core/resilience";
@@ -1267,7 +1237,7 @@ await service.getUser("42");
 // Retries up to 3 times on failure
 // Throws if a single attempt takes longer than 10s`,
     } satisfies CodeFile,
-    plugin: {
+    PLUGIN: {
         name: "plugin.ts",
         code: `import { withPlugin, type PluginFn } from "@daiso-tech/core/middleware";
 import { retry, timeout } from "@daiso-tech/core/resilience";
@@ -1295,7 +1265,7 @@ const fetcher = withPlugin(new Fetcher(), [withRetryAndTimeout()]);
 await fetcher.getUser("42");
 // Retries up to 3 times, each attempt times out after 10s`,
     } satisfies CodeFile,
-    app_api_users_route: {
+    APP_API_USERS_ROUTE: {
         name: "app/api/users/route.ts",
         code: `import { HttpRouter, defaultHttpRouterAdapter } from "@daiso-tech/core/http-router";
 import { z } from "zod";
@@ -1325,7 +1295,7 @@ export const PATCH: RequestHandler = async ({ request }) => router.fetch(request
 };
 
 export const CODE_EXAMPLES = {
-    serde: {
+    SERDE: {
         name: "Serde",
         label: <>Serde</>,
         heading: <>Serialize anything. Restore everything.</>,
@@ -1357,13 +1327,13 @@ export const CODE_EXAMPLES = {
             <>Register custom serializers for your own types</>,
         ],
         files: [
-            CODE_FILES.main,
-            CODE_FILES.lock_factory,
-            CODE_FILES.cache,
-            CODE_FILES.serde,
+            CODE_FILES.MAIN,
+            CODE_FILES.LOCK_FACTORY,
+            CODE_FILES.CACHE,
+            CODE_FILES.SERDE,
         ],
     } satisfies CodeExample,
-    execution_context: {
+    EXECUTION_CONTEXT: {
         name: "ExecutionContext",
         label: <>ExecutionContext</>,
         heading: <>Propagate context across async boundaries.</>,
@@ -1390,10 +1360,10 @@ export const CODE_EXAMPLES = {
             <>No manual parameter passing</>,
         ],
         files: [
-            CODE_FILES.request_handler,
+            CODE_FILES.REQUEST_HANDLER,
         ],
     } satisfies CodeExample,
-    middleware: {
+    MIDDLEWARE: {
         name: "Middleware",
         label: <>Middleware</>,
         heading: <>AOP-style middleware. Compose behavior. Keep logic clean.</>,
@@ -1428,12 +1398,12 @@ export const CODE_EXAMPLES = {
             </>,
         ],
         files: [
-            CODE_FILES.middleware,
-            CODE_FILES.enhance,
-            CODE_FILES.plugin,
+            CODE_FILES.MIDDLEWARE,
+            CODE_FILES.ENHANCE,
+            CODE_FILES.PLUGIN,
         ],
     } satisfies CodeExample,
-    http_router: {
+    HTTP_ROUTER: {
         name: "HttpRouter",
         label: <>HttpRouter</>,
         heading: <>Define routes. Stay framework-agnostic.</>,
@@ -1464,7 +1434,7 @@ export const CODE_EXAMPLES = {
             <>Middleware chains & route groups</>,
         ],
         files: [
-            CODE_FILES.app_api_users_route,
+            CODE_FILES.APP_API_USERS_ROUTE,
         ],
     } satisfies CodeExample,
 };
