@@ -1,7 +1,4 @@
-import {
-    type DiToken,
-    type GenericToken,
-} from "@/di/contracts/container.contract.js";
+import { type DiToken } from "@/di/contracts/container.contract.js";
 
 /**
  * All possible service lifetime scopes.
@@ -10,32 +7,28 @@ import {
  * - `"scoped"`: one instance per scope (e.g., request).
  * - `"dynamic"`: dynamically registered in a child scope.
  */
-export type TLifespan = "singleton" | "transient" | "scoped" | "dynamic";
-export type TEdge = [DiToken, DiToken];
-export type TNode = DiToken;
-
-const LIFESPAN_SINGLETON = "singleton" satisfies TLifespan;
-const LIFESPAN_TRANSIENT = "transient" satisfies TLifespan;
-const LIFESPAN_SCOPED = "scoped" satisfies TLifespan;
-const LIFESPAN_DYNAMIC = "dynamic" satisfies TLifespan;
 
 /** Lifespan constants used to define service scope. */
 export const LIFESPAN = {
-    SINGLETON: LIFESPAN_SINGLETON,
-    TRANSIENT: LIFESPAN_TRANSIENT,
-    SCOPED: LIFESPAN_SCOPED,
-    DYNAMIC: LIFESPAN_DYNAMIC,
+    SINGLETON: "singleton",
+    TRANSIENT: "transient",
+    SCOPED: "scoped",
+    DYNAMIC: "dynamic",
 } as const;
 
+export type TLifespan = (typeof LIFESPAN)[keyof typeof LIFESPAN];
+export type TEdge = [DiToken, DiToken];
+export type TNode = DiToken;
+
 export class Graph<TNodeProp, TEdgeProp> {
-    private nodeProps = new Map<TNode, TNodeProp | null>();
-    private edgeProps = new Map<TNode, Map<TNode, TEdgeProp | null>>();
+    private nodeProps = new Map<TNode, TNodeProp>();
+    private edgeProps = new Map<TNode, Map<TNode, TEdgeProp>>();
     private description: string;
 
     private constructor(args?: {
         description?: string;
-        nodeProps?: Array<[TNode, TNodeProp | null]>;
-        edgeProps?: Array<[TEdge, TEdgeProp | null]>;
+        nodeProps?: Array<[TNode, TNodeProp]>;
+        edgeProps?: Array<[TEdge, TEdgeProp]>;
     }) {
         this.description = args?.description ?? "";
         const nodeProps = args?.nodeProps;
@@ -89,8 +82,8 @@ export class Graph<TNodeProp, TEdgeProp> {
         }
     }
 
-    edgeEntries(): Array<[TEdge, TEdgeProp | null]> {
-        const entries: Array<[TEdge, TEdgeProp | null]> = [];
+    edgeEntries(): Array<[TEdge, TEdgeProp]> {
+        const entries: Array<[TEdge, TEdgeProp]> = [];
 
         for (const node0 of this.edgeProps.keys()) {
             const neighbors =
@@ -114,9 +107,9 @@ export class Graph<TNodeProp, TEdgeProp> {
         });
     }
 
-    nodeEntries(): Array<[TNode, TNodeProp | null]> {
+    nodeEntries(): Array<[TNode, TNodeProp]> {
         const entries = [...this.nodeProps.entries()].map(([node, value]) => {
-            const res: [TNode, TNodeProp | null] = [node, value];
+            const res: [TNode, TNodeProp] = [node, value];
             return res;
         });
 
@@ -132,50 +125,50 @@ export class Graph<TNodeProp, TEdgeProp> {
         });
     }
 
-    edges(filter?: (arg: [TEdge, TEdgeProp | null]) => boolean): Array<TEdge> {
-        const filterOp = filter ?? (() => true);
-        return this.edgeEntries()
-            .filter(filterOp)
-            .map((item) => item[0]);
-    }
+    // edges(filter?: (arg: [TEdge, TEdgeProp | null]) => boolean): Array<TEdge> {
+    //     const filterOp = filter ?? (() => true);
+    //     return this.edgeEntries()
+    //         .filter(filterOp)
+    //         .map((item) => item[0]);
+    // }
 
-    nodes(filter?: (arg: [TNode, TNodeProp | null]) => boolean): Array<TNode> {
-        const filterOp = filter ?? (() => true);
+    // nodes(filter?: (arg: [TNode, TNodeProp | null]) => boolean): Array<TNode> {
+    //     const filterOp = filter ?? (() => true);
 
-        return this.nodeEntries()
-            .filter(filterOp)
-            .map((item) => item[0]);
-    }
+    //     return this.nodeEntries()
+    //         .filter(filterOp)
+    //         .map((item) => item[0]);
+    // }
 
-    filterMapEdges<T2>(
-        filterMap: (value: [TEdge, TEdgeProp | null]) => [TEdge, T2] | false,
-        args?: { description?: string },
-    ): Graph<TNodeProp, T2> {
-        const isNotFalse = <T>(item: T | false): item is T => item !== false;
+    // filterMapEdges<T2>(
+    //     filterMap: (value: [TEdge, TEdgeProp | null]) => [TEdge, T2] | false,
+    //     args?: { description?: string },
+    // ): Graph<TNodeProp, T2> {
+    //     const isNotFalse = <T>(item: T | false): item is T => item !== false;
 
-        const transformed = this.edgeEntries()
-            .map(filterMap)
-            .filter(isNotFalse);
+    //     const transformed = this.edgeEntries()
+    //         .map(filterMap)
+    //         .filter(isNotFalse);
 
-        return new Graph<TNodeProp, T2>({
-            description: args?.description,
-            edgeProps: transformed,
-            nodeProps: this.nodeEntries(),
-        });
-    }
+    //     return new Graph<TNodeProp, T2>({
+    //         description: args?.description,
+    //         edgeProps: transformed,
+    //         nodeProps: this.nodeEntries(),
+    //     });
+    // }
 
-    filterMapEdgesAndThrowIfNullProperty<T2>(
-        filterMap: (value: [TEdge, TEdgeProp]) => [TEdge, T2] | false,
-        args?: { description?: string },
-    ): Graph<TNodeProp, T2> {
-        return this.filterMapEdges((data) => {
-            const [node, prop] = data;
-            if (prop === null) {
-                throw new Error();
-            }
-            return filterMap([node, prop]);
-        }, args);
-    }
+    // filterMapEdgesAndThrowIfNullProperty<T2>(
+    //     filterMap: (value: [TEdge, TEdgeProp]) => [TEdge, T2] | false,
+    //     args?: { description?: string },
+    // ): Graph<TNodeProp, T2> {
+    //     return this.filterMapEdges((data) => {
+    //         const [node, prop] = data;
+    //         if (prop === null) {
+    //             throw new Error();
+    //         }
+    //         return filterMap([node, prop]);
+    //     }, args);
+    // }
 
     getEdgeProperty(edge: TEdge): TEdgeProp | null {
         return this.edgeProps.get(edge[0])?.get(edge[1]) ?? null;
@@ -191,67 +184,67 @@ export class Graph<TNodeProp, TEdgeProp> {
 
     getSuccessorEdgesOf(
         node: TNode,
-        args?:
-            | {
-                  throwIfNoPropertyFound: false;
-                  filter: (arg: [TEdge, TEdgeProp | null]) => boolean;
-              }
-            | {
-                  throwIfNoPropertyFound: true;
-                  filter: (arg: [TEdge, TEdgeProp]) => boolean;
-              },
+        // args?:
+        //     | {
+        //           throwIfNoPropertyFound: false;
+        //           filter: (arg: [TEdge, TEdgeProp | null]) => boolean;
+        //       }
+        //     | {
+        //           throwIfNoPropertyFound: true;
+        //           filter: (arg: [TEdge, TEdgeProp]) => boolean;
+        //       },
     ): Array<TEdge> {
-        let filterOp: (arg: [TEdge, TEdgeProp | null]) => boolean;
-        if (args === undefined) {
-            filterOp = () => true;
-        } else if (args.throwIfNoPropertyFound) {
-            filterOp = ([edge, prop]) => {
-                if (prop === null) {
-                    throw new Error();
-                }
-                return args.filter([edge, prop]);
-            };
-        } else {
-            filterOp = (item) => args.filter(item);
-        }
+        // let filterOp: (arg: [TEdge, TEdgeProp | null]) => boolean;
+        // if (args === undefined) {
+        //     filterOp = () => true;
+        // } else if (args.throwIfNoPropertyFound) {
+        //     filterOp = ([edge, prop]) => {
+        //         if (prop === null) {
+        //             throw new Error();
+        //         }
+        //         return args.filter([edge, prop]);
+        //     };
+        // } else {
+        //     filterOp = (item) => args.filter(item);
+        // }
 
         return this.edgeEntries()
             .map((item) => item[0])
-            .filter((item) => item[0] === node)
-            .filter((edge) => filterOp([edge, this.getEdgeProperty(edge)]));
+            .filter((item) => item[0] === node);
+        // .filter((edge) => filterOp([edge, this.getEdgeProperty(edge)]));
     }
 
     getPredecessorEdgesOf(
         node: TNode,
-        args?:
-            | {
-                  throwIfNoPropertyFound: false;
-                  filter: (arg: [TEdge, TEdgeProp | null]) => boolean;
-              }
-            | {
-                  throwIfNoPropertyFound: true;
-                  filter: (arg: [TEdge, TEdgeProp]) => boolean;
-              },
+        // args?:
+        //     | {
+        //           throwIfNoPropertyFound: false;
+        //           filter: (arg: [TEdge, TEdgeProp | null]) => boolean;
+        //       }
+        //     | {
+        //           throwIfNoPropertyFound: true;
+        //           filter: (arg: [TEdge, TEdgeProp]) => boolean;
+        //       },
     ): Array<TEdge> {
-        let filterOp: (arg: [TEdge, TEdgeProp | null]) => boolean;
+        // let filterOp: (arg: [TEdge, TEdgeProp | null]) => boolean;
 
-        if (args === undefined) {
-            filterOp = () => true;
-        } else if (args.throwIfNoPropertyFound) {
-            filterOp = ([edge, prop]) => {
-                if (prop === null) {
-                    throw new Error();
-                }
-                return args.filter([edge, prop]);
-            };
-        } else {
-            filterOp = (item) => args.filter(item);
-        }
+        // if (args === undefined) {
+        //     filterOp = () => true;
+        // } else if (args.throwIfNoPropertyFound) {
+        //     filterOp = ([edge, prop]) => {
+        //         if (prop === null) {
+        //             throw new Error();
+        //         }
+        //         return args.filter([edge, prop]);
+        //     };
+        // } else {
+        //     filterOp = (item) => args.filter(item);
+        // }
 
         return this.edgeEntries()
             .map((item) => item[0])
-            .filter((item) => item[1] === node)
-            .filter((edge) => filterOp([edge, this.getEdgeProperty(edge)]));
+            .filter((item) => item[1] === node);
+        // .filter((edge) => filterOp([edge, this.getEdgeProperty(edge)]));
     }
 
     getPredecessorsOf(node: TNode): Array<TNode> {
@@ -266,63 +259,63 @@ export class Graph<TNodeProp, TEdgeProp> {
         return this.getEdgeProperty(edge) !== null;
     }
 
-    hasEdge(edge: TEdge): boolean {
-        return this.edgeProps.get(edge[0])?.has(edge[1]) === true;
-    }
+    // hasEdge(edge: TEdge): boolean {
+    //     return this.edgeProps.get(edge[0])?.has(edge[1]) === true;
+    // }
 
-    addEdge(edge: TEdge): void {
-        if (!this.hasEdgeProperty(edge)) {
-            this.setEdgeProperty(edge, null);
-        }
-    }
+    // addEdge(edge: TEdge): void {
+    //     if (!this.hasEdgeProperty(edge)) {
+    //         this.setEdgeProperty(edge, null);
+    //     }
+    // }
 
-    setEdgeProperty(edge: TEdge, value: TEdgeProp | null): void {
+    setEdgeProperty(edge: TEdge, value: TEdgeProp): void {
         const neighbor =
             this.edgeProps.get(edge[0]) ?? new Map<TNode, TEdgeProp>();
         neighbor.set(edge[1], value);
         this.edgeProps.set(edge[0], neighbor);
     }
 
-    setEdgePropertyByFuncOrThrow(
-        key: TEdge,
-        func: (value: TEdgeProp) => TEdgeProp,
-    ): void {
-        const value = this.getEdgePropertyOrThrow(key);
-        this.setEdgeProperty(key, func(value));
-    }
+    // setEdgePropertyByFuncOrThrow(
+    //     key: TEdge,
+    //     func: (value: TEdgeProp) => TEdgeProp,
+    // ): void {
+    //     const value = this.getEdgePropertyOrThrow(key);
+    //     this.setEdgeProperty(key, func(value));
+    // }
 
-    setEdgePropertyByFunc(
-        key: TEdge,
-        func: (value: TEdgeProp | null) => TEdgeProp,
-    ): void {
-        const value = this.getEdgeProperty(key);
-        this.setEdgeProperty(key, func(value));
-    }
+    // setEdgePropertyByFunc(
+    //     key: TEdge,
+    //     func: (value: TEdgeProp | null) => TEdgeProp,
+    // ): void {
+    //     const value = this.getEdgeProperty(key);
+    //     this.setEdgeProperty(key, func(value));
+    // }
 
-    modifyEdgePropertyOrThrow(
-        key: TEdge,
-        modifier: (value: TEdgeProp) => void,
-    ): void {
-        const value = this.getEdgeProperty(key);
-        if (value === null) {
-            throw new Error();
-        }
-        modifier(value);
-    }
+    // modifyEdgePropertyOrThrow(
+    //     key: TEdge,
+    //     modifier: (value: TEdgeProp) => void,
+    // ): void {
+    //     const value = this.getEdgeProperty(key);
+    //     if (value === null) {
+    //         throw new Error();
+    //     }
+    //     modifier(value);
+    // }
 
     static empty<T1, T2>(description?: string): Graph<T1, T2> {
         return new Graph<T1, T2>({ description });
     }
 
     clone(args?: {
-        cloneNodes: (value: TNodeProp | null) => TNodeProp | null;
-        cloneEdges: (value: TEdgeProp | null) => TEdgeProp | null;
+        cloneNodes: (value: TNodeProp) => TNodeProp;
+        cloneEdges: (value: TEdgeProp) => TEdgeProp;
     }): Graph<TNodeProp, TEdgeProp> {
         const clonedNodes = this.nodeEntries().map(
             ([key, value]) =>
                 [key, args?.cloneNodes(value) ?? value] satisfies [
                     TNode,
-                    TNodeProp | null,
+                    TNodeProp,
                 ],
         );
 
@@ -346,99 +339,99 @@ export class Graph<TNodeProp, TEdgeProp> {
      * Removes a directed edge between source (node0) and target (node1).
      * @returns true if the edge existed and was removed, false otherwise.
      */
-    removeEdge(edge: TEdge): boolean {
-        const [source, target] = edge;
-        const neighbors = this.edgeProps.get(source);
+    // removeEdge(edge: TEdge): boolean {
+    //     const [source, target] = edge;
+    //     const neighbors = this.edgeProps.get(source);
 
-        if (!neighbors) {
-            return false;
-        }
+    //     if (!neighbors) {
+    //         return false;
+    //     }
 
-        const deleted = neighbors.delete(target);
+    //     const deleted = neighbors.delete(target);
 
-        // Clean up empty outer map entries to prevent memory leaks
-        if (neighbors.size === 0) {
-            this.edgeProps.delete(source);
-        }
+    //     // Clean up empty outer map entries to prevent memory leaks
+    //     if (neighbors.size === 0) {
+    //         this.edgeProps.delete(source);
+    //     }
 
-        return deleted;
-    }
+    //     return deleted;
+    // }
 
     /**
      * AI written check and simplify
      * Removes a node from the graph and cleans up all associated incoming and outgoing edges.
      * @returns true if the node existed and was removed, false otherwise.
      */
-    removeNode(node: TNode): boolean {
-        if (!this.nodeProps.has(node)) {
-            return false;
-        }
+    // removeNode(node: TNode): boolean {
+    //     if (!this.nodeProps.has(node)) {
+    //         return false;
+    //     }
 
-        // 1. Remove node properties
-        this.nodeProps.delete(node);
+    //     // 1. Remove node properties
+    //     this.nodeProps.delete(node);
 
-        // 2. Remove all outgoing edges from this node
-        this.edgeProps.delete(node);
+    //     // 2. Remove all outgoing edges from this node
+    //     this.edgeProps.delete(node);
 
-        // 3. Remove all incoming edges targeting this node from other nodes
-        for (const [source, neighbors] of this.edgeProps.entries()) {
-            neighbors.delete(node);
+    //     // 3. Remove all incoming edges targeting this node from other nodes
+    //     for (const [source, neighbors] of this.edgeProps.entries()) {
+    //         neighbors.delete(node);
 
-            // Clean up empty outer map entries
-            if (neighbors.size === 0) {
-                this.edgeProps.delete(source);
-            }
-        }
+    //         // Clean up empty outer map entries
+    //         if (neighbors.size === 0) {
+    //             this.edgeProps.delete(source);
+    //         }
+    //     }
 
-        return true;
-    }
+    //     return true;
+    // }
 
-    filterMapNodes<T2>(
-        filterMap: (value: [TNode, TNodeProp | null]) => [TNode, T2] | false,
-        args?: { description?: string },
-    ): Graph<T2, TEdgeProp> {
-        const isNotFalse = <T>(item: T | false): item is T => item !== false;
-        const transformedNodes = this.nodeEntries()
-            .map(filterMap)
-            .filter(isNotFalse);
+    // filterMapNodes<T2>(
+    //     filterMap: (value: [TNode, TNodeProp | null]) => [TNode, T2] | false,
+    //     args?: { description?: string },
+    // ): Graph<T2, TEdgeProp> {
+    //     const isNotFalse = <T>(item: T | false): item is T => item !== false;
+    //     const transformedNodes = this.nodeEntries()
+    //         .map(filterMap)
+    //         .filter(isNotFalse);
 
-        const validNodes = new Set(transformedNodes.map(([node]) => node));
+    //     const validNodes = new Set(transformedNodes.map(([node]) => node));
 
-        // Retain only edges whose source AND target nodes exist in the new graph
-        const validEdges = this.edgeEntries().filter(
-            ([[source, target]]) =>
-                validNodes.has(source) && validNodes.has(target),
-        );
+    //     // Retain only edges whose source AND target nodes exist in the new graph
+    //     const validEdges = this.edgeEntries().filter(
+    //         ([[source, target]]) =>
+    //             validNodes.has(source) && validNodes.has(target),
+    //     );
 
-        return new Graph<T2, TEdgeProp>({
-            description: args?.description,
-            nodeProps: transformedNodes,
-            edgeProps: validEdges,
-        });
-    }
+    //     return new Graph<T2, TEdgeProp>({
+    //         description: args?.description,
+    //         nodeProps: transformedNodes,
+    //         edgeProps: validEdges,
+    //     });
+    // }
 
-    filterMapNodesAndThrowIfNullProperty<T2>(
-        filterMap: (value: [TNode, TNodeProp]) => [TNode, T2] | false,
-        args?: { description?: string },
-    ): Graph<T2, TEdgeProp> {
-        return this.filterMapNodes((data) => {
-            const [node, prop] = data;
-            if (prop === null) {
-                throw new Error();
-            }
-            return filterMap([node, prop]);
-        }, args);
-    }
+    // filterMapNodesAndThrowIfNullProperty<T2>(
+    //     filterMap: (value: [TNode, TNodeProp]) => [TNode, T2] | false,
+    //     args?: { description?: string },
+    // ): Graph<T2, TEdgeProp> {
+    //     return this.filterMapNodes((data) => {
+    //         const [node, prop] = data;
+    //         if (prop === null) {
+    //             throw new Error();
+    //         }
+    //         return filterMap([node, prop]);
+    //     }, args);
+    // }
 
     hasNodeProperty(node: TNode): boolean {
         return this.getNodeProperty(node) !== null;
     }
 
-    addNode(node: TNode): void {
-        if (!this.hasNodeProperty(node)) {
-            this.setNodeProperty(node, null);
-        }
-    }
+    // addNode(node: TNode): void {
+    //     if (!this.hasNodeProperty(node)) {
+    //         this.setNodeProperty(node, null);
+    //     }
+    // }
 
     hasNode(node: TNode): boolean {
         return this.nodeProps.has(node);
@@ -456,33 +449,33 @@ export class Graph<TNodeProp, TEdgeProp> {
         return value;
     }
 
-    setNodeProperty(key: TNode, value: TNodeProp | null): void {
+    setNodeProperty(key: TNode, value: TNodeProp): void {
         this.nodeProps.set(key, value);
     }
 
-    setNodePropertyByFunc(
-        key: TNode,
-        func: (value: TNodeProp | null) => TNodeProp,
-    ): void {
-        const value = this.getNodeProperty(key);
-        this.setNodeProperty(key, func(value));
-    }
+    // setNodePropertyByFunc(
+    //     key: TNode,
+    //     func: (value: TNodeProp | null) => TNodeProp,
+    // ): void {
+    //     const value = this.getNodeProperty(key);
+    //     this.setNodeProperty(key, func(value));
+    // }
 
-    modifyNodePropertyOrThrow(
-        key: TNode,
-        modifier: (value: TNodeProp) => void,
-    ): void {
-        const value = this.getNodePropertyOrThrow(key);
-        modifier(value);
-    }
+    // modifyNodePropertyOrThrow(
+    //     key: TNode,
+    //     modifier: (value: TNodeProp) => void,
+    // ): void {
+    //     const value = this.getNodePropertyOrThrow(key);
+    //     modifier(value);
+    // }
 
-    setNodePropertyByFuncOrThrow(
-        key: TNode,
-        func: (value: TNodeProp | null) => TNodeProp,
-    ): void {
-        const value = this.getNodePropertyOrThrow(key);
-        this.setNodeProperty(key, func(value));
-    }
+    // setNodePropertyByFuncOrThrow(
+    //     key: TNode,
+    //     func: (value: TNodeProp | null) => TNodeProp,
+    // ): void {
+    //     const value = this.getNodePropertyOrThrow(key);
+    //     this.setNodeProperty(key, func(value));
+    // }
 
     getDescription(): string {
         return this.description;
