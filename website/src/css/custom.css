@@ -207,6 +207,17 @@ html[data-theme='dark'] {
    SECTION TYPOGRAPHY
    ================================================================ */
 
+.daiso-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.daiso-section-header .daiso-section-title {
+  margin-bottom: 0;
+}
+
 .daiso-section-title {
   font-size: 2rem;
   font-weight: 800;
@@ -408,7 +419,6 @@ html[data-theme='dark'] {
 .daiso-segmented-control {
   display: inline-flex;
   gap: 0;
-  margin-bottom: 1.5rem;
   background: var(--ifm-color-emphasis-100);
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: 0.5rem;
@@ -455,6 +465,17 @@ html[data-theme='dark'] {
   border-color: rgba(46, 204, 113, 0.12);
 }
 
+.daiso-carousel-description {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--ifm-color-emphasis-700);
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--ifm-color-emphasis-100);
+  border-radius: 0.5rem;
+  border-left: 3px solid var(--ifm-color-primary);
+}
+
 .daiso-carousel-body {
   padding: 0.25rem 0.6rem 0.6rem;
   transition: opacity 0.18s ease;
@@ -492,8 +513,11 @@ html[data-theme='dark'] {
 .daiso-carousel-body [class*="codeBlock"] {
   border-radius: 0 0.5rem 0.5rem 0.5rem;
   font-size: 0.8rem;
-  height: 320px;
+  height: 420px;
+  overflow-x: hidden;
   overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* ================================================================
@@ -538,6 +562,8 @@ html[data-theme='dark'] {
 /* ================================================================
    WHO IS THIS FOR
    ================================================================ */
+
+
 
 .daiso-who-card {
   border-radius: 0.65rem;

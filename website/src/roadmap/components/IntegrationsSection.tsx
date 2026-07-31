@@ -1,4 +1,4 @@
-import { integrationsItems } from "../../data";
+import { integrationsItems } from "../../date/data";
 import { PlannedCardGrid } from "./PlannedCardGrid";
 import styles from "../roadmap.module.css";
 

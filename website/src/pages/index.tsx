@@ -13,7 +13,7 @@ import {
     type CodeFile,
     CODE_EXAMPLES,
     INSTALL_CMD,
-} from "../data";
+} from "../date/data";
 import { AvailableCategory } from "../roadmap/components/AvailableCategory";
 import { PlannedCardGrid } from "../roadmap/components/PlannedCardGrid";
 import {
@@ -77,7 +77,7 @@ function StatsBar() {
         <div className="daiso-stats-bar">
             <div className="container">
                 <div className="daiso-stats-inner">
-                    <StatItem value="17" label="Production-ready components" />
+                    <StatItem value="17" label="Officially maintained components" />
                     <StatItem value="100%" label="TypeScript" />
                     <StatItem
                         value="4,640+"
@@ -109,20 +109,31 @@ function CodeShowcase() {
     return (
         <section className="padding-vert--xl">
             <div className="container">
-                <h2 className="daiso-section-title">Title</h2>
-                <div className="daiso-segmented-control">
-                    {CODE_EXAMPLES.map((ex, i) => (
-                        <button
-                            key={ex.label}
-                            className={`daiso-segmented-option${i === activeIndex ? " daiso-segmented-option--active" : ""}`}
-                            onClick={() => goTo(i)}
-                        >
-                            {ex.label}
-                        </button>
-                    ))}
+                <div
+                    className="daiso-section-header"
+                    style={{
+                        alignItems: "center",
+                        justifyContent: "start",
+                        gap: "3rem",
+                    }}
+                >
+                    <h2 className="daiso-section-title">
+                        Unified architecture
+                    </h2>
+                    <div className="daiso-segmented-control">
+                        {CODE_EXAMPLES.map((ex, i) => (
+                            <button
+                                key={i}
+                                className={`daiso-segmented-option${i === activeIndex ? " daiso-segmented-option--active" : ""}`}
+                                onClick={() => goTo(i)}
+                            >
+                                {ex.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
                 <div className="row">
-                    <div className="col col--6">
+                    <div className="col col--5">
                         <div
                             className={`daiso-carousel-text${fading ? " daiso-carousel-text--fading" : ""}`}
                         >
@@ -161,21 +172,29 @@ function CodeShowcase() {
                             </ul>
                         </div>
                     </div>
-                    <div className="col col--6">
+                    <div className="col col--7">
+                        {CODE_EXAMPLES[activeIndex].codeBlockDescription && (
+                            <p className="daiso-carousel-description">
+                                {
+                                    CODE_EXAMPLES[activeIndex]
+                                        .codeBlockDescription
+                                }
+                            </p>
+                        )}
                         <div className="daiso-carousel">
                             <div
                                 className={`daiso-carousel-body${fading ? " daiso-carousel-body--fading" : ""}`}
                             >
                                 <Tabs key={activeIndex}>
                                     {CODE_EXAMPLES[activeIndex].files.map(
-                                        (f) => (
+                                        (file, i) => (
                                             <TabItem
-                                                key={f.name}
-                                                value={f.name}
-                                                label={f.name}
+                                                key={i}
+                                                value={file.name}
+                                                label={file.name}
                                             >
                                                 <CodeBlock language="typescript">
-                                                    {f.code}
+                                                    {file.code}
                                                 </CodeBlock>
                                             </TabItem>
                                         ),
@@ -239,8 +258,14 @@ function WhoIsThisFor() {
                         testability.
                     </p>
                 </div>
-                <div className="row">
-                    <div className="col col--6 margin-bottom--lg">
+                <div
+                    className="row"
+                    style={{
+                        justifyContent: "stretch",
+                        alignItems: "start",
+                    }}
+                >
+                    <div className="col col--6">
                         <div className="daiso-who-card daiso-who-yes">
                             <h3>
                                 <Check
@@ -302,7 +327,7 @@ function ComponentSection() {
             <div className="container">
                 <div className="margin-bottom--xl">
                     <h2 className="daiso-section-title">
-                        Production-Ready Components
+                        Officially Maintained Components
                     </h2>
                     <p className="daiso-section-subtitle">
                         A growing collection of officially maintained
@@ -474,37 +499,43 @@ function FrameworkComparison() {
         {
             label: "Vendor lock-in",
             heading: "Swap infrastructure without rewriting code.",
-            instead: "Tied to a specific vendor (Redis, S3). Changing a vendor means rewriting integration code — your cache, lock, or file storage logic is coupled to a specific provider.",
+            instead:
+                "Tied to a specific vendor (Redis, S3). Changing a vendor means rewriting integration code — your cache, lock, or file storage logic is coupled to a specific provider.",
             daiso: "Adapter pattern built into every component. Swap Redis ↔ Postgres ↔ S3 ↔ in-memory anytime — zero changes to your application logic. The same API works across all backends.",
         },
         {
             label: "DI container",
             heading: "Optional DI. Not forced.",
-            instead: "DI container required (NestJS, Inversify). Every service must be registered in a module, decorated, and injected through the framework's DI system — adding boilerplate and framework coupling.",
+            instead:
+                "DI container required (NestJS, Inversify). Every service must be registered in a module, decorated, and injected through the framework's DI system — adding boilerplate and framework coupling.",
             daiso: "Plain TypeScript classes — instantiate directly with `new` or a factory function. No decorators, no modules, no forced DI. Use a container when you want one, not because you have to.",
         },
         {
             label: "Testing",
             heading: "Zero-dependency integration tests.",
-            instead: "Docker required for integration tests. Want to test with Redis or S3? Spin up containers, wait for them to be ready, and clean up after — slowing down every test run.",
+            instead:
+                "Docker required for integration tests. Want to test with Redis or S3? Spin up containers, wait for them to be ready, and clean up after — slowing down every test run.",
             daiso: "In-memory adapters built into every component. Your test suite runs without Docker, without external services, without network calls. Same API, same assertions, instant feedback.",
         },
         {
             label: "Learning curve",
             heading: "One API. Every component.",
-            instead: "Different APIs for each library. Redis has one client API, S3 has another, Bull has its own, node-cron has yet another — your team must learn and maintain each one.",
+            instead:
+                "Different APIs for each library. Redis has one client API, S3 has another, Bull has its own, node-cron has yet another — your team must learn and maintain each one.",
             daiso: "Unified `createX` pattern across all components. Cache, Lock, Event Bus, File Storage, Scheduler — all share the same conventions, adapter interfaces, and configuration style.",
         },
         {
             label: "Wiring",
             heading: "Seamless integration, zero glue code.",
-            instead: "Wiring libraries together manually. Need caching + locking + event bus? Import each library, configure each separately, and write adapter code to connect them yourself.",
+            instead:
+                "Wiring libraries together manually. Need caching + locking + event bus? Import each library, configure each separately, and write adapter code to connect them yourself.",
             daiso: "Components integrate seamlessly out of the box. Shared execution context, serde layer, adapter conventions — use two components or ten, they just work together.",
         },
         {
             label: "Frameworks",
             heading: "Works with everything. Locks you into nothing.",
-            instead: "Framework-specific solutions. NestJS decorators don't work in Express. Express middleware doesn't work in Fastify. Choose a framework and you're locked into its ecosystem.",
+            instead:
+                "Framework-specific solutions. NestJS decorators don't work in Express. Express middleware doesn't work in Fastify. Choose a framework and you're locked into its ecosystem.",
             daiso: "Framework agnostic. Same components work in Express, Fastify, Hono, Next.js, Nuxt, NestJS, or any Node.js server — no framework-specific wrappers or adapters needed.",
         },
     ];
@@ -543,39 +574,71 @@ function FrameworkComparison() {
                             </h2>
                             <div className="daiso-comparison-sides">
                                 <div className="daiso-comp-instead">
-                                    <div className="daiso-comp-label-instead">Instead of</div>
+                                    <div className="daiso-comp-label-instead">
+                                        Instead of
+                                    </div>
                                     <p>{comparisons[activeIndex].instead}</p>
                                 </div>
                                 <div className="daiso-comp-daiso">
-                                    <div className="daiso-comp-label-daiso">@daiso-tech/core</div>
+                                    <div className="daiso-comp-label-daiso">
+                                        @daiso-tech/core
+                                    </div>
                                     <p>{comparisons[activeIndex].daiso}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div className="col col--6">
-                        <div className="daiso-carousel" style={{ padding: "2rem" }}>
+                        <div
+                            className="daiso-carousel"
+                            style={{ padding: "2rem" }}
+                        >
                             <div className="daiso-carousel-body text--center">
                                 <ShieldCheck
                                     size="3.5rem"
                                     strokeWidth={1.5}
-                                    style={{ color: "var(--ifm-color-primary)", marginBottom: "1rem" }}
+                                    style={{
+                                        color: "var(--ifm-color-primary)",
+                                        marginBottom: "1rem",
+                                    }}
                                 />
-                                <h3 style={{ margin: "0 0 0.75rem", fontWeight: 700, fontSize: "1.1rem" }}>
+                                <h3
+                                    style={{
+                                        margin: "0 0 0.75rem",
+                                        fontWeight: 700,
+                                        fontSize: "1.1rem",
+                                    }}
+                                >
                                     {activeIndex === 0 && "No vendor lock-in."}
-                                    {activeIndex === 1 && "No forced framework."}
+                                    {activeIndex === 1 &&
+                                        "No forced framework."}
                                     {activeIndex === 2 && "No Docker required."}
-                                    {activeIndex === 3 && "Learn once, use everywhere."}
+                                    {activeIndex === 3 &&
+                                        "Learn once, use everywhere."}
                                     {activeIndex === 4 && "Plug and play."}
-                                    {activeIndex === 5 && "Bring your own server."}
+                                    {activeIndex === 5 &&
+                                        "Bring your own server."}
                                 </h3>
-                                <p style={{ fontSize: "0.9rem", color: "var(--ifm-color-emphasis-600)", lineHeight: 1.6, margin: 0 }}>
-                                    {activeIndex === 0 && "Switch between Redis, S3, Postgres, or in-memory without changing a single line of business logic."}
-                                    {activeIndex === 1 && "Use plain classes, factory functions, or your preferred DI container — @daiso-tech/core doesn't care."}
-                                    {activeIndex === 2 && "Every component ships with an in-memory adapter so you can test without Docker, without mocks, without waiting."}
-                                    {activeIndex === 3 && "The same `createX` pattern, the same adapter interface, the same configuration — across 17+ components."}
-                                    {activeIndex === 4 && "Execution Context, Serde, and adapter conventions are shared across all components — no glue code needed."}
-                                    {activeIndex === 5 && "Works with Express, Fastify, Hono, Next.js, Nuxt, NestJS — and every other Node.js framework or server."}
+                                <p
+                                    style={{
+                                        fontSize: "0.9rem",
+                                        color: "var(--ifm-color-emphasis-600)",
+                                        lineHeight: 1.6,
+                                        margin: 0,
+                                    }}
+                                >
+                                    {activeIndex === 0 &&
+                                        "Switch between Redis, S3, Postgres, or in-memory without changing a single line of business logic."}
+                                    {activeIndex === 1 &&
+                                        "Use plain classes, factory functions, or your preferred DI container — @daiso-tech/core doesn't care."}
+                                    {activeIndex === 2 &&
+                                        "Every component ships with an in-memory adapter so you can test without Docker, without mocks, without waiting."}
+                                    {activeIndex === 3 &&
+                                        "The same `createX` pattern, the same adapter interface, the same configuration — across 17+ components."}
+                                    {activeIndex === 4 &&
+                                        "Execution Context, Serde, and adapter conventions are shared across all components — no glue code needed."}
+                                    {activeIndex === 5 &&
+                                        "Works with Express, Fastify, Hono, Next.js, Nuxt, NestJS — and every other Node.js framework or server."}
                                 </p>
                             </div>
                         </div>

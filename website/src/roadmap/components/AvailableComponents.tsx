@@ -1,4 +1,4 @@
-import { foundationExistingItems, storageExistingItems, reliabilityExistingItems, concurrencyExistingItems, messagingExistingItems, webExistingItems } from "../../data";
+import { foundationExistingItems, storageExistingItems, reliabilityExistingItems, concurrencyExistingItems, messagingExistingItems, webExistingItems } from "../../date/data";
 import { AvailableCategory } from "./AvailableCategory";
 import styles from "../roadmap.module.css";
 
