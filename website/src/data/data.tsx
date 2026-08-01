@@ -959,8 +959,8 @@ export const PERFECT_FOR = {
         description: (
             <>
                 Switch between Redis, PostgreSQL, SQLite, MongoDB, S3, local
-                storage, in-memory implementations, or your own adapters
-                without changing business logic.
+                storage, in-memory implementations, or your own adapters without
+                changing business logic.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -980,10 +980,10 @@ export const PERFECT_FOR = {
         title: <>Modular monoliths:</>,
         description: (
             <>
-                Share the same abstractions, middleware, and adapters across
-                a single deployable application. Some components or workers
-                can be used in microservices, but the library is primarily
-                designed for modular monolith architectures.
+                Share the same abstractions, middleware, and adapters across a
+                single deployable application. Some components or workers can be
+                used in microservices, but the library is primarily designed for
+                modular monolith architectures.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -992,8 +992,8 @@ export const PERFECT_FOR = {
         title: <>Library and framework authors:</>,
         description: (
             <>
-                Build reusable backend libraries on stable interfaces
-                instead of coupling to specific vendors or infrastructure.
+                Build reusable backend libraries on stable interfaces instead of
+                coupling to specific vendors or infrastructure.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -1002,9 +1002,8 @@ export const PERFECT_FOR = {
         title: <>Testing and local development:</>,
         description: (
             <>
-                Use in-memory and NoOp adapters for fast, deterministic
-                tests, then swap to production infrastructure with
-                configuration only.
+                Use in-memory and NoOp adapters for fast, deterministic tests,
+                then swap to production infrastructure with configuration only.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -1014,8 +1013,8 @@ export const PERFECT_FOR = {
         description: (
             <>
                 Write infrastructure-independent code that can move between
-                cloud providers, databases, storage providers, and runtimes
-                with minimal changes.
+                cloud providers, databases, storage providers, and runtimes with
+                minimal changes.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -1024,9 +1023,8 @@ export const PERFECT_FOR = {
         title: <>Adopting individual components:</>,
         description: (
             <>
-                Use specific components without being forced to adopt the
-                entire library or a DI container — each component works
-                standalone.
+                Use specific components without being forced to adopt the entire
+                library or a DI container — each component works standalone.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -1035,8 +1033,8 @@ export const PERFECT_FOR = {
         title: <>Incremental adoption:</>,
         description: (
             <>
-                Start with a single component and gradually adopt more as
-                your project grows.
+                Start with a single component and gradually adopt more as your
+                project grows.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -1048,12 +1046,11 @@ export const NOT_IDEAL_FOR = {
         title: <>Microservices:</>,
         description: (
             <>
-                The library is designed for modular monoliths where
-                components share the same process and runtime. While some
-                components (like distributed locks, circuit breakers, and
-                event buses) work across processes, the broader adapter
-                model and shared abstractions are not optimized for
-                microservice architectures.
+                The library is designed for modular monoliths where components
+                share the same process and runtime. While some components (like
+                distributed locks, circuit breakers, and event buses) work
+                across processes, the broader adapter model and shared
+                abstractions are not optimized for microservice architectures.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -1072,9 +1069,9 @@ export const NOT_IDEAL_FOR = {
         title: <>Projects tightly coupled to one vendor:</>,
         description: (
             <>
-                If your application intentionally depends on
-                provider-specific features instead of abstractions, the
-                adapter model may provide little benefit.
+                If your application intentionally depends on provider-specific
+                features instead of abstractions, the adapter model may provide
+                little benefit.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -1084,8 +1081,7 @@ export const NOT_IDEAL_FOR = {
         description: (
             <>
                 If you only need a single Redis call, file upload, or cache
-                operation, the abstraction layer may be unnecessary
-                overhead.
+                operation, the abstraction layer may be unnecessary overhead.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -1095,8 +1091,8 @@ export const NOT_IDEAL_FOR = {
         description: (
             <>
                 Features unique to a particular database, cache, or cloud
-                service may require using that provider's native SDK
-                directly instead of a generic abstraction.
+                service may require using that provider's native SDK directly
+                instead of a generic abstraction.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -1106,8 +1102,8 @@ export const NOT_IDEAL_FOR = {
         description: (
             <>
                 While usable from JavaScript, the library is designed around
-                TypeScript's type system, generics, and inference for the
-                best developer experience.
+                TypeScript's type system, generics, and inference for the best
+                developer experience.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -1293,6 +1289,68 @@ export const PUT: RequestHandler = async ({ request }) => router.fetch(request);
 export const DELETE: RequestHandler = async ({ request }) => router.fetch(request);
 export const PATCH: RequestHandler = async ({ request }) => router.fetch(request);`,
     } satisfies CodeFile,
+    CONFIG_ACCESSOR: {
+        name: "config.ts",
+        code: `import { ConfigAccessor } from "@daiso-tech/core/config-accessor";
+import { z } from "zod";
+
+// Typed schema for domain configuration
+// Supports primitives, nested objects, and arrays
+const schema = z.object({
+    database: z.object({
+        host: z.string(),
+        port: z.number(),
+    }),
+    features: z.string().array(),
+});
+
+const accessor = new ConfigAccessor({
+    config: {
+        database: { host: "localhost", port: 5432 },
+        features: ["cache", "queue"],
+    },
+    // Schema is optional — a type works just as well
+    schema,
+});
+
+// Type-safe reads with full autocompletion
+const host = accessor.get("database.host");
+const port = accessor.getOr("database.port", 5432);
+const missing = accessor.get("database.user"); // null`,
+    } satisfies CodeFile,
+    ENV_ACCESSOR: {
+        name: "env.ts",
+        code: `import { EnvAccessor } from "@daiso-tech/core/env-accessor";
+import { z } from "zod";
+import {
+    SecretsManagerClient,
+    GetSecretValueCommand,
+} from "@aws-sdk/client-secrets-manager";
+
+// Multiple sources — later sources override earlier keys
+const secretsManager = new SecretsManagerClient({ region: "us-east-1" });
+const sources = [
+    process.env,
+    async () => {
+        const secret = await secretsManager.send(
+            new GetSecretValueCommand({ SecretId: "my-app/env" }),
+        );
+        return JSON.parse(secret.SecretString ?? "{}");
+    },
+];
+
+const schema = z.object({
+    NODE_ENV: z.string().optional(),
+    PORT: z.string().pipe(z.coerce.number()).default("3000"),
+});
+
+const accessor = new EnvAccessor({ schema, sources });
+await accessor.init();
+
+// Type-safe reads with full autocompletion
+const port = accessor.get("PORT");
+const env = accessor.getOr("NODE_ENV", "DEV");`,
+    } satisfies CodeFile,
 };
 
 export const CODE_EXAMPLES = {
@@ -1360,9 +1418,7 @@ export const CODE_EXAMPLES = {
             <>Async context propagation</>,
             <>No manual parameter passing</>,
         ],
-        files: [
-            CODE_FILES.REQUEST_HANDLER,
-        ],
+        files: [CODE_FILES.REQUEST_HANDLER],
     } satisfies CodeExample,
     MIDDLEWARE: {
         name: "Middleware",
@@ -1398,11 +1454,7 @@ export const CODE_EXAMPLES = {
                 many more
             </>,
         ],
-        files: [
-            CODE_FILES.MIDDLEWARE,
-            CODE_FILES.ENHANCE,
-            CODE_FILES.PLUGIN,
-        ],
+        files: [CODE_FILES.MIDDLEWARE, CODE_FILES.ENHANCE, CODE_FILES.PLUGIN],
     } satisfies CodeExample,
     HTTP_ROUTER: {
         name: "HttpRouter",
@@ -1434,9 +1486,67 @@ export const CODE_EXAMPLES = {
             <>Build on top of Hono.js Router adapters</>,
             <>Middleware chains & route groups</>,
         ],
-        files: [
-            CODE_FILES.APP_API_USERS_ROUTE,
+        files: [CODE_FILES.APP_API_USERS_ROUTE],
+    } satisfies CodeExample,
+    ENV_ACCESSOR: {
+        name: "EnvAccessor",
+        label: <>EnvAccessor</>,
+        heading: <>Type-safe environment variables. From any source.</>,
+        description: (
+            <>
+                The EnvAccessor component provides easy type-safe access to
+                environment variables. It supports multiple sync and async
+                sources (process.env, secrets managers), schema validation, and
+                convenient access patterns.
+            </>
+        ),
+        codeBlockDescription: (
+            <>
+                This example combines process.env with an async AWS Secrets
+                Manager source — later sources override earlier keys — and
+                validates the result with a Zod schema.
+            </>
+        ),
+        bullets: [
+            <>Type-safe reads with full autocompletion</>,
+            <>Multiple sources — process.env and async secret providers</>,
+            <>Optional Zod schema validation</>,
+            <>
+                get() returns null on missing fields; getOr() falls back to a
+                default
+            </>,
         ],
+        files: [CODE_FILES.ENV_ACCESSOR],
+    } satisfies CodeExample,
+    CONFIG_ACCESSOR: {
+        name: "ConfigAccessor",
+        label: <>ConfigAccessor</>,
+        heading: <>Read config safely. Stay type-safe.</>,
+        description: (
+            <>
+                The ConfigAccessor component provides standardized type-safe
+                access to domain configuration variables. It supports optional
+                schema validation — useful for dynamic configurations like
+                per-tenant settings.
+            </>
+        ),
+        codeBlockDescription: (
+            <>
+                This example defines a typed config schema with Zod, then reads
+                nested values with full autocompletion — get() returns null on
+                missing paths, getOr() falls back to a default.
+            </>
+        ),
+        bullets: [
+            <>Type-safe reads with full autocompletion</>,
+            <>Nested objects and arrays up to 2 levels deep</>,
+            <>Optional Zod schema validation</>,
+            <>
+                get() returns null on missing paths; getOr() falls back to a
+                default
+            </>,
+        ],
+        files: [CODE_FILES.CONFIG_ACCESSOR],
     } satisfies CodeExample,
 };
 
@@ -1445,80 +1555,110 @@ export const CODE_EXAMPLES = {
 export const COMPARISONS = {
     NESTJS: {
         name: "NestJS",
-        heading: "A full framework with built-in DI — or a library that fits yours.",
+        heading:
+            "A full framework with built-in DI vs a library that fits your needs.",
         instead: [
-            "Opinionated framework: its own DI container, decorators, and modules.",
-            "Rich ecosystem — guards, pipes, interceptors, and a structured architecture.",
-            "Conventions adopted wholesale: DI is central, and most primitives only work inside NestJS.",
-            "A more direct fit for microservices-first architectures that lean on provider-specific features.",
+            "Opinionated framework with its own DI, decorators, and modules.",
+            "Conventions wholesale: DI central, most primitives only work inside NestJS.",
+            "NodeJS runtime only.",
+            "Can't embed in a full-stack framework or host as one server.",
+            "Not adapted for edge runtimes.",
+            "Request-scoped only — no custom scopes.",
+            "Wraps existing libs — BullMQ, cache-manager, class-validator, class-transformer, etc.",
+            "Geared toward microservices and monoliths.",
+            "No execution context flowing through all components.",
+            "No shared serialization engine across components.",
+            "No built-in transaction context.",
         ],
         daiso: [
-            "A library, not a framework — DI is optional, no decorators, plain classes.",
-            "Adapter-first, portable primitives aimed at modular monoliths and framework-agnostic services.",
-            "The same cache, lock, or event bus works in NestJS, Express, Fastify, Hono, or a standalone script.",
-            "Swap infrastructure without rewriting business logic.",
-            "Trade-off: you bring your own application structure — no scaffolding or ecosystem.",
+            "A library, not a framework — DI optional, no decorators, plain classes.",
+            "Same cache/lock/event bus in any framework — no lock-in.",
+            "Runs anywhere Winter TC runs — Node, Bun, Deno, edge.",
+            "Edge-adaptable via the adapter pattern.",
+            "Embeds in any full-stack framework — host as one server.",
+            "Scope-agnostic — request, custom, or no scope.",
+            "Own primitives with pluggable adapters — in-memory adapters for testing.",
+            "Built for modular monoliths — swap infrastructure without rewriting logic.",
+            "Execution context flowing through all components.",
+            "Shared serialization engine (Serde) across components.",
+            "Will have a transaction context.",
         ],
     } satisfies ComparisonItem,
     ADONISJS: {
         name: "AdonisJS",
-        heading: "A batteries-included full-stack framework, or composable primitives.",
+        heading:
+            "A batteries-included full-stack framework vs composable primitives.",
         instead: [
-            "Bundles routing, an ORM (Lucid), auth, sessions, and validation.",
-            "Prescribed folder structure and lifecycle conventions.",
-            "An excellent fit when you want one integrated framework for the whole app.",
+            "Bundles routing, ORM (Lucid), auth, sessions, validation.",
+            "Prescribed folder structure and conventions.",
+            "NodeJS runtime only.",
+            "Can't embed in a full-stack framework or host as one server.",
+            "Not adapted for edge runtimes.",
+            "No execution context flowing through all components.",
+            "No shared serialization engine across components.",
+            "No built-in transaction context.",
         ],
         daiso: [
-            "No app framework, ORM, or auth — just infrastructure components behind pluggable adapters.",
-            "Combine with any application layer, including AdonisJS.",
-            "AdonisJS alone may be all you need if you won't change frameworks or backends.",
-            "Adds value when you want the same primitives portable across frameworks and infrastructure.",
+            "No app framework, ORM, or auth — just infrastructure behind adapters.",
+            "Combine with any application layer — you bring the structure.",
+            "Runs anywhere Winter TC runs — Node, Bun, Deno, edge.",
+            "Embeds in any full-stack framework — host as one server.",
+            "Edge-adaptable via the adapter pattern.",
+            "Execution context flowing through all components.",
+            "Shared serialization engine (Serde) across components.",
+            "Will have a transaction context.",
         ],
     } satisfies ComparisonItem,
     TRPC_ORPC: {
         name: "TRPC / ORPC",
-        heading: "End-to-end typed APIs — or the server-side infrastructure behind them.",
+        heading:
+            "End-to-end typed APIs vs the server-side infrastructure behind them.",
         instead: [
             "End-to-end type safety between client and server.",
-            "Define procedures once and call them from the client with full inference, no codegen.",
+            "Define procedures once — call from the client with full inference, no codegen.",
             "Excellent for type-safe full-stack APIs at the client-server boundary.",
+            "No built-in battery included backend infrastructure",
         ],
         daiso: [
-            "Not an RPC framework — not a tRPC replacement.",
-            "Provides backend infrastructure behind pluggable adapters: caching, locks, rate limiting, scheduling, event buses.",
-            "Complementary: your tRPC procedures can call services backed by @daiso-tech/core.",
-            "Choose tRPC alone for typed transport; add @daiso-tech/core for reusable, framework-agnostic server-side infra.",
+            "Not an RPC framework — not a tRPC or ORPC replacement.",
+            "Backend infrastructure behind pluggable adapters — caching, locks, rate limiting, scheduling, event buses.",
+            "Complementary — tRPC procedures can call services backed by @daiso-tech/core.",
+            "Choose tRPC for typed transport; add @daiso-tech/core for reusable server-side infra.",
         ],
     } satisfies ComparisonItem,
     FULLSTACK_FRAMEWORKS: {
         name: "Next.js, Nuxt, etc.",
-        heading: "Meta-frameworks for the web — and a framework-agnostic backend.",
+        heading: "Meta-frameworks for the web vs a framework-agnostic backend.",
         instead: [
             "Excel at client rendering, SSR, routing, and a rich frontend ecosystem.",
             "Ship their own server-side APIs and route handlers.",
             "Often the best starting point for shipping a web app quickly.",
+            "Backend logic locked into the meta-framework.",
+            "No built-in battery included backend infrastructure",
         ],
         daiso: [
             "Not a web or frontend framework — not a replacement for Next.js or Nuxt.",
-            "Complements them: route handlers and server actions can use @daiso-tech/core's cache, locks, queues, and schedulers.",
-            "The same backend logic moves between a meta-framework and a standalone API service or worker.",
-            "Meta-framework alone is probably enough for frontend-leaning apps; add @daiso-tech/core for portable, testable server-side infra.",
+            "Complements them — route handlers and server actions can use cache, locks, queues, and schedulers.",
+            "Same backend logic moves between a meta-framework and a standalone API service or worker.",
+            "Add @daiso-tech/core for portable, testable server-side infra.",
         ],
     } satisfies ComparisonItem,
     COMPOSING_YOUR_OWN_STACK: {
         name: "Composing your own stack",
-        heading: "Hand-picked libraries, or a consistent, integrated layer.",
+        heading: "Hand-picked libraries vs a consistent, integrated layer.",
         instead: [
             "Maximum control and minimal dependencies — pick exactly the libraries you want.",
             "Simpler and lighter for small, focused use cases.",
             "Better when you need one or two primitives or rely on provider-specific features.",
+            "No shared conventions — you wire libraries together yourself.",
+            "Locked into what you picked — adding more means more glue code.",
         ],
         daiso: [
-            "Several primitives that share conventions and work together — consistent `createX` pattern and common adapter interfaces.",
-            "Interoperate through a shared serde and execution context, so there's no glue code.",
-            "Every component ships an in-memory adapter for testing without Docker or external services.",
+            "Consistent, integrated layer — shared patterns and common adapter interfaces.",
+            "Heavier than a single raw library, but ships in-memory adapters for testing without Docker.",
+            "Trade-off: an abstraction layer — raw libraries win for a single Redis call or a tiny script.",
+            "No glue code — components interoperate through a shared serde and execution context.",
             "Adopt incrementally — start with one component and add more as the project grows.",
-            "Trade-off: it's an abstraction layer, so raw libraries win for a single Redis call or a tiny script.",
         ],
     } satisfies ComparisonItem,
 };

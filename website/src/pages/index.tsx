@@ -508,7 +508,7 @@ function FrameworkComparison() {
                     <h3
                         className="daiso-section-subtitle"
                         style={{
-                            textAlign: "left",
+                            width: "100%",
                             fontWeight: 700,
                             color: "var(--ifm-color-emphasis-900)",
                             fontSize: "1.25rem",
@@ -520,7 +520,7 @@ function FrameworkComparison() {
                 <div className="row">
                     <div className="col col--6">
                         <div className="daiso-comp-instead">
-                            <div className="daiso-comp-label-instead">
+                            <div className="daiso-comp-label-daiso">
                                 {comparisons[activeIndex].name}
                             </div>
                             <ul>
