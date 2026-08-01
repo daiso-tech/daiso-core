@@ -4,6 +4,7 @@ import type {
     WhoIsThisForItem,
     CodeFile,
     CodeExample,
+    ComparisonItem,
 } from "./types";
 import { SiTypescript, SiVitest } from "@icons-pack/react-simple-icons";
 import {
@@ -1437,4 +1438,37 @@ export const CODE_EXAMPLES = {
             CODE_FILES.APP_API_USERS_ROUTE,
         ],
     } satisfies CodeExample,
+};
+
+// ─── Framework Comparison ─────────────────────────────────────
+
+export const COMPARISONS = {
+    NESTJS: {
+        name: "NestJS",
+        heading: "Swap infrastructure without rewriting code.",
+        instead:
+            "Tied to a specific vendor (Redis, S3). Changing a vendor means rewriting integration code — your cache, lock, or file storage logic is coupled to a specific provider.",
+        daiso: "Adapter pattern built into every component. Swap Redis ↔ Postgres ↔ S3 ↔ in-memory anytime — zero changes to your application logic. The same API works across all backends.",
+    } satisfies ComparisonItem,
+    ADONISJS: {
+        name: "AdonisJS",
+        heading: "Optional DI. Not forced.",
+        instead:
+            "DI container required (NestJS, Inversify). Every service must be registered in a module, decorated, and injected through the framework's DI system — adding boilerplate and framework coupling.",
+        daiso: "Plain TypeScript classes — instantiate directly with `new` or a factory function. No decorators, no modules, no forced DI. Use a container when you want one, not because you have to.",
+    } satisfies ComparisonItem,
+    TRPC_ORPC: {
+        name: "TRPC / ORPC",
+        heading: "Zero-dependency integration tests.",
+        instead:
+            "Docker required for integration tests. Want to test with Redis or S3? Spin up containers, wait for them to be ready, and clean up after — slowing down every test run.",
+        daiso: "In-memory adapters built into every component. Your test suite runs without Docker, without external services, without network calls. Same API, same assertions, instant feedback.",
+    } satisfies ComparisonItem,
+    COMPOSING_YOUR_OWN_STACK: {
+        name: "Composing you own stack",
+        heading: "One API. Every component.",
+        instead:
+            "Different APIs for each library. Redis has one client API, S3 has another, Bull has its own, node-cron has yet another — your team must learn and maintain each one.",
+        daiso: "Unified `createX` pattern across all components. Cache, Lock, Event Bus, File Storage, Scheduler — all share the same conventions, adapter interfaces, and configuration style.",
+    } satisfies ComparisonItem,
 };

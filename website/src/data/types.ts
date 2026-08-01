@@ -35,3 +35,10 @@ export type CodeExample = {
     bullets: ReactNode[];
     files: CodeFile[];
 };
+
+export type ComparisonItem = {
+    name: string;
+    heading: ReactNode;
+    instead: ReactNode;
+    daiso: ReactNode;
+};
