@@ -157,7 +157,7 @@ export const COMPONENT_RECORD = {
         maturity: 90,
         description: (
             <>
-                Multi-backend caching with pluggable stores (in-memory, Redis,
+                Caching with pluggable stores (in-memory, Redis,
                 etc.), TTL policies, and stampede protection.
             </>
         ),
@@ -698,43 +698,6 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    // ─── Upcoming: Control Plane ─────────────────────────────
-    DAISO_PLATFORM: {
-        name: "Daiso Platform",
-        icon: <Server size="1.5rem" strokeWidth={1.5} />,
-        title: <>Daiso Platform</>,
-        description: (
-            <>
-                A commercial control plane and runtime platform for deploying,
-                managing, and monitoring Daiso-powered applications in
-                production.
-            </>
-        ),
-    } satisfies ComponentItemProps,
-    DASHBOARD_OBSERVABILITY: {
-        name: "Dashboard & Observability",
-        icon: <Activity size="1.5rem" strokeWidth={1.5} />,
-        title: <>Dashboard & Observability</>,
-        description: (
-            <>
-                Real-time dashboards for monitoring component health, job
-                queues, event throughput, and system metrics across all Daiso
-                services.
-            </>
-        ),
-    } satisfies ComponentItemProps,
-    MULTI_TENANCY: {
-        name: "Multi-Tenancy",
-        icon: <Globe size="1.5rem" strokeWidth={1.5} />,
-        title: <>Multi-Tenancy</>,
-        description: (
-            <>
-                Built-in tenant isolation, resource quotas, and per-tenant
-                configuration for SaaS applications running on the Daiso
-                platform.
-            </>
-        ),
-    } satisfies ComponentItemProps,
 };
 
 // ─── Existing — Production-Ready Components ──────────────────────
@@ -839,14 +802,6 @@ export const DEV_TOOLING_ITEMS: ComponentItemProps[] = [
     COMPONENT_RECORD.MESSAGE_QUEUE_AUTODISCOVERY_VITE_PLUGIN,
     COMPONENT_RECORD.CLI_COMMAND_AUTODISCOVERY_VITE_PLUGIN,
     COMPONENT_RECORD.SCAFFOLDING_CLI,
-];
-
-// ─── Control Plane ──────────────────────────────────────────────
-
-export const CONTROL_PLANE_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.DAISO_PLATFORM,
-    COMPONENT_RECORD.DASHBOARD_OBSERVABILITY,
-    COMPONENT_RECORD.MULTI_TENANCY,
 ];
 
 // ─── Homepage preview subset ─────────────────────────────────────

@@ -360,7 +360,7 @@ function ComponentSection() {
                 <div className="text--center margin-top--lg">
                     <Link
                         className="button button--outline button--secondary"
-                        to="/docs/components/collection"
+                        to="/docs/components/overview"
                     >
                         View all component docs{" "}
                         <ArrowRight
