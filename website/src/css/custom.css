@@ -742,3 +742,87 @@ html[data-theme='dark'] {
 /* ================================================================
    WHO IS THIS FOR
    ================================================================ */
+
+/* ================================================================
+   RESPONSIVE / MOBILE
+   ================================================================ */
+
+/* Split section headers (title + segmented control on one row) */
+.daiso-section-header--split {
+  justify-content: flex-start;
+  gap: 3rem;
+}
+
+@media (max-width: 996px) {
+  /* Section headers: stack the title above the segmented control */
+  .daiso-section-header,
+  .daiso-section-header--split {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  /* Segmented controls: wrap instead of overflowing */
+  .daiso-segmented-control {
+    max-width: 100%;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  /* Install command: stay within the viewport */
+  .daiso-install-command {
+    max-width: 100%;
+  }
+  .daiso-install-command code {
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  /* Hero */
+  .daiso-hero {
+    padding: 3.5rem 0 3rem;
+  }
+  .daiso-hero .hero__title {
+    font-size: 2.1rem;
+  }
+  .daiso-hero-tagline {
+    font-size: 1.05rem !important;
+  }
+  .daiso-hero-subtext {
+    font-size: 0.98rem;
+  }
+
+  /* Stats bar */
+  .daiso-stats-inner {
+    gap: 1.25rem 2rem;
+  }
+  .daiso-stat-value {
+    font-size: 1.6rem;
+  }
+
+  /* Section typography */
+  .daiso-section-title {
+    font-size: 1.6rem;
+  }
+
+  /* Cards */
+  .daiso-feature-card {
+    padding: 0.85rem 1rem;
+  }
+  .daiso-who-card {
+    padding: 1rem 1.1rem;
+  }
+
+  /* Code block: shorter on small screens */
+  .daiso-carousel-body [class*="codeBlock"] {
+    height: 320px;
+  }
+
+  /* CTA / star banner */
+  .daiso-cta-section h2 {
+    font-size: 1.6rem;
+  }
+  .daiso-star-title {
+    font-size: 1.35rem;
+  }
+}

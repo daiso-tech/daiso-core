@@ -105,14 +105,7 @@ function CodeShowcase() {
     return (
         <section className="padding-vert--xl">
             <div className="container">
-                <div
-                    className="daiso-section-header"
-                    style={{
-                        alignItems: "center",
-                        justifyContent: "start",
-                        gap: "3rem",
-                    }}
-                >
+                <div className="daiso-section-header daiso-section-header--split">
                     <h2 className="daiso-section-title">
                         Unified architecture
                     </h2>
@@ -481,14 +474,7 @@ function FrameworkComparison() {
     return (
         <section className="padding-vert--xl">
             <div className="container">
-                <div
-                    className="daiso-section-header"
-                    style={{
-                        alignItems: "center",
-                        justifyContent: "start",
-                        gap: "3rem",
-                    }}
-                >
+                <div className="daiso-section-header daiso-section-header--split">
                     <h2 className="daiso-section-title">
                         How @daiso-tech/core compares
                     </h2>
