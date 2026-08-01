@@ -160,6 +160,31 @@ function CodeShowcase() {
                                 )}
                             </ul>
                         </div>
+
+                        <div className="daiso-showcase-actions">
+                            <InstallCommand />
+                            <div className="daiso-showcase-ctas">
+                                <Link
+                                    className="button button--secondary button--lg"
+                                    to="./docs/installation"
+                                >
+                                    Get started{" "}
+                                    <ArrowRight
+                                        size="1rem"
+                                        style={{
+                                            marginLeft: "0.4rem",
+                                            verticalAlign: "middle",
+                                        }}
+                                    />
+                                </Link>
+                                <Link
+                                    className="button button--outline button--secondary button--lg"
+                                    href="https://github.com/daiso-tech/daiso-core"
+                                >
+                                    View on GitHub
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                     <div className="col col--7">
                         {codeExamples[activeIndex].codeBlockDescription && (
@@ -538,6 +563,26 @@ function FrameworkComparison() {
     );
 }
 
+// --- Header ---
+function Header() {
+    const { siteConfig } = useDocusaurusContext();
+    return (
+        <header className="daiso-hero hero hero--primary">
+            <div className="container">
+                <h1 className="hero__title">{siteConfig.title}</h1>
+                <p className="daiso-hero-badge margin-bottom--md">
+                    The adapter-first backend toolkit for TypeScript
+                </p>
+                <p className="hero__subtitle daiso-hero-tagline">
+                    Write business logic once.
+                    <br />
+                    Replace infrastructure anytime.
+                </p>
+            </div>
+        </header>
+    );
+}
+
 // --- Page ---
 
 export default function Home(): ReactNode {
@@ -545,53 +590,10 @@ export default function Home(): ReactNode {
 
     return (
         <Layout title={siteConfig.title} description={siteConfig.tagline}>
-            <header className="daiso-hero hero hero--primary">
-                <div className="container">
-                    <p className="daiso-hero-badge margin-bottom--md">
-                        The adapter-first backend toolkit for TypeScript
-                    </p>
-                    <h1 className="hero__title">{siteConfig.title}</h1>
-                    <p className="hero__subtitle daiso-hero-tagline">
-                        Write business logic once.
-                        <br />
-                        Replace infrastructure anytime.
-                    </p>
-                    <p className="daiso-hero-subtext">
-                        Swap Redis, S3, Postgres, and more — without rewriting
-                        your application. 4,640+ integration and behavior tests
-                        ensure reliability in real-world scenarios.
-                    </p>
-                    <div className="margin-bottom--xl">
-                        <InstallCommand />
-                    </div>
-                    <div className="daiso-hero-ctas">
-                        <Link
-                            className="button button--secondary button--lg"
-                            to="./docs/installation"
-                        >
-                            Get started{" "}
-                            <ArrowRight
-                                size="1rem"
-                                style={{
-                                    marginLeft: "0.4rem",
-                                    verticalAlign: "middle",
-                                }}
-                            />
-                        </Link>
-                        <Link
-                            className="button button--outline button--secondary button--lg"
-                            href="https://github.com/daiso-tech/daiso-core"
-                        >
-                            View on GitHub
-                        </Link>
-                    </div>
-                </div>
-            </header>
-
-            <StatsBar />
-
+            <Header/>
             <main>
                 <CodeShowcase />
+                <StatsBar />
                 <FeatureSection items={Object.values(FEATURE_ITEMS)} />
                 <WhoIsThisFor />
                 <ComponentSection />

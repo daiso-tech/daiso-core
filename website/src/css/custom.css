@@ -76,7 +76,7 @@ html[data-theme='dark'] {
     var(--daiso-hero-bg-start) 0%,
     var(--daiso-hero-bg-end) 100%
   );
-  padding: 5rem 0 4.5rem;
+  padding: 3rem 0 2.5rem;
   text-align: center;
   overflow: hidden;
 }
@@ -96,19 +96,10 @@ html[data-theme='dark'] {
 
 .daiso-hero-tagline {
   max-width: 660px;
-  margin: 0.75rem auto 1.75rem !important;
+  margin: 0.5rem auto 1.25rem !important;
   opacity: 0.9;
-  font-size: 1.15rem !important;
-  line-height: 1.65;
-}
-
-.daiso-hero-subtext {
-  color: #fff !important;
-  opacity: 0.85;
-  font-size: 1.02rem;
-  margin: -1.1rem auto 1.5rem;
-  max-width: 660px;
-  line-height: 1.6;
+  font-size: 1.05rem !important;
+  line-height: 1.55;
 }
 
 .daiso-install-command {
@@ -160,6 +151,21 @@ html[data-theme='dark'] {
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+/* Code showcase: install command + CTAs aligned with the left column */
+.daiso-showcase-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.daiso-showcase-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 /* ================================================================
@@ -284,7 +290,7 @@ html[data-theme='dark'] {
   flex-shrink: 0;
   border-radius: 0.4rem;
   background: rgba(46, 204, 113, 0.12);
-  color: #27ae60;
+  color: var(--ifm-color-primary);
   margin-bottom: 0.55rem;
 }
 
@@ -368,6 +374,11 @@ html[data-theme='dark'] {
 .daiso-hero .daiso-hero-tagline {
   color: #fff !important;
   text-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+
+.daiso-hero .hero__title {
+  font-size: 2.6rem;
+  margin-bottom: 0.75rem;
 }
 
 /* Make outlined GitHub button always white, on hover light bg and dark text */
@@ -780,16 +791,13 @@ html[data-theme='dark'] {
 
   /* Hero */
   .daiso-hero {
-    padding: 3.5rem 0 3rem;
+    padding: 2.5rem 0 2rem;
   }
   .daiso-hero .hero__title {
-    font-size: 2.1rem;
+    font-size: 1.9rem;
   }
   .daiso-hero-tagline {
-    font-size: 1.05rem !important;
-  }
-  .daiso-hero-subtext {
-    font-size: 0.98rem;
+    font-size: 0.95rem !important;
   }
 
   /* Stats bar */

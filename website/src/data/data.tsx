@@ -60,7 +60,7 @@ export const COMPONENT_RECORD = {
         description: (
             <>
                 Composable middleware pipeline with before/after hooks, error
-                handling, and context propagation — the foundation for every
+                handling — the foundation for every
                 component's plugin system.
             </>
         ),
@@ -86,8 +86,9 @@ export const COMPONENT_RECORD = {
         maturity: 80,
         description: (
             <>
-                Serialize and deserialize data with fully type-safe schemas —
-                the backbone for all data interchange across the ecosystem.
+                Serialize and deserialize data with a built-in SuperJSON
+                adapter (Date, Map, Set, BigInt) and custom serializers — the
+                backbone for all data interchange across the ecosystem.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -99,9 +100,9 @@ export const COMPONENT_RECORD = {
         maturity: 80,
         description: (
             <>
-                Encode and decode data across formats (JSON, Binary, etc.) with
-                a unified, type-safe interface — build custom codecs for any
-                protocol.
+                Encode and decode data with a unified, type-safe interface —
+                includes a built-in Base64 codec and lets you build custom
+                codecs for any protocol.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -113,8 +114,9 @@ export const COMPONENT_RECORD = {
         maturity: 90,
         description: (
             <>
-                Async context propagation for request-scoped state, dependency
-                injection, and correlation IDs — without thread-local hacks.
+                Type-safe, composable context propagation for request IDs, user
+                info, and tracing metadata across async boundaries — without
+                thread-local hacks.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -126,8 +128,9 @@ export const COMPONENT_RECORD = {
         maturity: 90,
         description: (
             <>
-                Safely read structured configuration from any source with
-                runtime validation and full TypeScript inference.
+                Standardized type-safe access to domain configuration
+                variables — with optional schema validation and full
+                TypeScript inference.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -139,8 +142,9 @@ export const COMPONENT_RECORD = {
         maturity: 90,
         description: (
             <>
-                Type-safe environment variable access with parsing, defaults,
-                and validation — never read process.env raw again.
+                Type-safe environment variable access from multiple sync/async
+                sources with parsing, defaults, and validation — never read
+                process.env raw again.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -262,8 +266,9 @@ export const COMPONENT_RECORD = {
         maturity: 90,
         description: (
             <>
-                Pub/sub event bus with multiple transport backends, topic
-                routing, and guaranteed delivery semantics.
+                Pub/sub event bus for dispatching and listening to events with
+                pluggable transport backends — independent of underlying
+                technology.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -276,8 +281,9 @@ export const COMPONENT_RECORD = {
         maturity: 90,
         description: (
             <>
-                Lightweight, composable HTTP router with middleware chains,
-                parameter parsing, and framework-agnostic design.
+                Framework-agnostic HTTP router built on the Hono router engine
+                — implements the Winter TC fetch standard with middleware
+                chains and typed path parameters.
             </>
         ),
     } satisfies ComponentItemProps,
