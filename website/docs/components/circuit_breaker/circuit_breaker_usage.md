@@ -5,11 +5,9 @@ pagination_label: CircuitBreaker Usage
 tags:
     - CircuitBreaker
     - Usage
-    - Namespace
 keywords:
     - CircuitBreaker
     - Usage
-    - Namespace
 ---
 
 # CircuitBreaker usage

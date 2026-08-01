@@ -5,11 +5,9 @@ pagination_label: RateLimiter Usage
 tags:
     - RateLimiter
     - Usage
-    - Namespace
 keywords:
     - RateLimiter
     - Usage
-    - Namespace
 ---
 
 # RateLimiter usage

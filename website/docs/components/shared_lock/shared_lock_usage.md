@@ -5,11 +5,9 @@ pagination_label: SharedLock usage
 tags:
     - SharedLock
     - Usage
-    - Namespace
 keywords:
     - SharedLock
     - Usage
-    - Namespace
 ---
 
 # SharedLock usage

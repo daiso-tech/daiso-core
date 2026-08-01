@@ -7,7 +7,7 @@ keywords:
 
 # ExecutionContext
 
-The `@daiso-tech/core/execution-context` module provides a type-safe, composable, and environment-agnostic way to store and propagate contextual data (such as request IDs, user info, or tracing metadata) across async boundaries and function calls. It is inspired by thread-local storage and context propagation in distributed systems, but is designed for modern TypeScript/JavaScript applications.
+The `@daiso-tech/core/execution-context` module provides a type-safe, composable, and environment-agnostic way to store and propagate contextual data (such as request IDs, user info, or tracing metadata) across async boundaries and function calls. `IExecutionContext` uses symbols internally for reliable context isolation.
 
 ## Initial configuration
 
@@ -31,14 +31,10 @@ const executionContext = new ExecutionContext(new AlsExecutionContextAdapter());
 You can run code within a context boundary, and all context values will be accessible throughout the call chain:
 
 ```ts
-import { Namespace } from "@daiso-tech/core/namespace";
-
-// Define context tokens using namespaced IDs to avoid collisions
-const namespace = new Namespace("myapp");
-const userToken = contextToken<{ id: string; name: string }>(
-    namespace.id("user"),
-);
-const requestIdToken = contextToken<string>(namespace.id("requestId"));
+// Define context tokens with type-safe identifiers
+type User = { id: string; name: string };
+const userToken = contextToken<User>("user");
+const requestIdToken = contextToken<string>("requestId");
 
 function logData(): void {
     // Access context values later in the call chain

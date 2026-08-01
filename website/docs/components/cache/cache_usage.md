@@ -5,11 +5,9 @@ pagination_label: Cache usage
 tags:
     - Cache
     - Usage
-    - Namespace
 keywords:
     - Cache
     - Usage
-    - Namespace
 ---
 
 # Cache usage
