@@ -69,10 +69,8 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 ### 3. Overriding default settings
 
 ```ts
-import { Namespace } from "@daiso-tech/core/namespace";
-
 await lockFactoryResolver
-    .setNamespace(new Namespace("@my-namespace"))
+    .setDefaultTtl(TimeSpan.fromMinutes(5))
     .use("redis")
     .create("shared-resource")
     .runOrFail(async () => {

@@ -5,11 +5,9 @@ pagination_label: FileStorage usage
 tags:
     - FileStorage
     - Usage
-    - Namespace
 keywords:
     - FileStorage
     - Usage
-    - Namespace
 ---
 
 # FileStorage usage

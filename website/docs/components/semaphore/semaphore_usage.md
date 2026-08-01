@@ -5,11 +5,9 @@ pagination_label: Semaphore usage
 tags:
     - Semaphore
     - Usage
-    - Namespace
 keywords:
     - Semaphore
     - Usage
-    - Namespace
 ---
 
 # Semaphore usage

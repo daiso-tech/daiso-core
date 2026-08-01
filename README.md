@@ -8,9 +8,9 @@
 
 # @daiso-tech/core
 
-**Backend server SDK for TypeScript**
+**Write business logic once. Replace infrastructure anytime.**
 
-The library contains 4,640 tests — the majority are integration and behavior tests, ensuring reliability in real-world scenarios.
+The adapter-first backend toolkit for TypeScript — 17 interchangeable components with 4,640+ integration and behavior tests.
 
 [**Explore the Docs**](https://daiso-tech.dev/docs/installation) | [**NPM Package**](https://www.npmjs.com/package/@daiso-tech/core)
 
@@ -26,12 +26,12 @@ npm install @daiso-tech/core
 
 ## ✨ Why @daiso-tech/core?
 
-- **Type safe by default**: Full TypeScript support with precise generics, rich intellisense, and auto-import friendly APIs — errors caught at compile time, not runtime.
-- **ESM ready**: Built on modern JavaScript primitives including ES modules. No CommonJS baggage — fully compatible with the modern Node.js and bundler ecosystem.
-- **Easily testable**: Every component ships with an in-memory adapter and built-in Vitest helpers. Write fast, isolated tests without Docker or external services.
-- **Standard schema support**: First-class integration with [Standard Schema](https://standardschema.dev/). Use [Zod](https://zod.dev/), Valibot, or ArkType to enforce both compile-time and runtime data safety.
-- **Framework agnostic**: No DI container required. Plug directly into Express, NestJS, AdonisJS, Next.js, Nuxt, or TanStack Start — it just works.
-- **Adapter pattern**: Swap infrastructure at will — Redis today, DynamoDB tomorrow. The adapter pattern keeps your business logic free from vendor lock-in.
+- **Switch infrastructure without rewriting business logic**: The adapter pattern keeps your code decoupled from vendors. Use Redis today, Postgres tomorrow — no refactoring required.
+- **Test everything without Docker**: Every component ships with an in-memory adapter and built-in Vitest helpers. Write fast, isolated tests without external services.
+- **Bring your own framework**: No DI container required. Plug directly into Express, NestJS, AdonisJS, Next.js, Nuxt, or TanStack Start — it just works.
+- **Type-safe from day one**: Full TypeScript support with precise generics, rich intellisense, and auto-import friendly APIs — errors caught at compile time, not runtime.
+- **Standard schema validation built in**: First-class integration with [Standard Schema](https://standardschema.dev/). Use [Zod](https://zod.dev/), Valibot, or ArkType to enforce both compile-time and runtime data safety.
+- **ESM native. No CommonJS baggage.**: Built on modern JavaScript primitives. Fully compatible with Node.js, Bun, Deno, and the modern bundler ecosystem.
 
 ---
 
@@ -41,20 +41,19 @@ A growing collection of officially maintained, production-ready components. Ever
 
 ### 🛡️ Resilience
 
-- **Circuit-breaker**: Prevent cascading failures with an automatic circuit-breaker primitive that stops calls to a consistently failing service.
-- **Rate limiter**: Control traffic flow to protect services from overload.
-- **Hooks / Middleware**: Retry, fallback, and timeout logic for robust async flows.
+- **Circuit-breaker**: Prevent cascading failures when external services go down. Automatically stops calls and recovers when the service is healthy again.
+- **Resilience**: Build robust async flows with built-in middlewares: retry failed calls, fallback gracefully, and enforce timeouts.
 
 ### 🚦 Concurrency
 
-- **Lock**: Guarantee mutual exclusion across multiple processes with a distributed lock, eliminating race conditions on shared resources.
-- **Semaphore**: Limit concurrent access to a resource or code section across processes with a configurable distributed semaphore.
+- **Lock**: Prevent duplicate payment processing and race conditions with distributed mutual exclusion across multiple processes.
+- **Semaphore**: Limit concurrent access to rate-limited APIs or resource-heavy operations across processes.
 - **Shared lock**: Coordinate readers and writers efficiently — allow concurrent reads while ensuring exclusive, safe writes across processes.
 
 ### 💾 Storage
 
-- **Cache**: Speed up your application by storing frequently accessed data in a pluggable cache store — Memory, Redis, Kysely, and MongoDB adapters included.
-- **File storage**: Manage files with a unified API across local filesystem, in-memory, and cloud providers like AWS S3.
+- **Cache**: Cache expensive database queries and API responses. Memory, Redis, Kysely, and MongoDB adapters included.
+- **File storage**: Build photo upload services and document management. Unified API across local filesystem, in-memory, and AWS S3.
 
 ### 📥 Messaging
 
@@ -66,15 +65,36 @@ A growing collection of officially maintained, production-ready components. Ever
 
 ### 🔗 Middleware
 
-- Intercept, compose and extend any sync or async function with a priority-based middleware pipeline useful for AOP (Aspect Oriented Programming).
+- Intercept and compose sync or async functions with a priority-based pipeline. Built-in middlewares for retry, fallback, timeout, lock, cache, circuit-breaker, and more.
 
 ### 🧰 Utilities
 
 - **Serde**: Add custom serialization and deserialization logic that integrates transparently with every other component in the library.
-- **Collection**: Effortlessly work with Arrays, Iterables, and AsyncIterables using a rich, composable, and lazy collection API.
-- **Execution context**: Propagate request-scoped data — user info, trace IDs, tenant context — across async boundaries. Integrates transparently with all components and adapters.
+- **Collection**: Work with Arrays, Iterables, and AsyncIterables using a rich, composable, and lazy collection API.
+- **Execution context**: Propagate request-scoped data — user info, trace IDs, tenant context — across async boundaries. Integrates with all components.
 - **Config accessor**: Read typed application config values through a small accessor with optional schema validation.
 - **Env accessor**: Load and validate environment variables from one or more sources with type-safe access.
+
+---
+
+## 🆚 Why not just combine existing libraries?
+
+| Instead of                                | @daiso-tech/core gives                                                      |
+| ----------------------------------------- | --------------------------------------------------------------------------- |
+| Tied to a specific vendor (Redis, S3)     | Adapter abstraction — swap infrastructure anytime                           |
+| DI container required (NestJS, Inversify) | Plain TypeScript classes — instantiate directly                             |
+| Docker required for integration tests     | In-memory adapters — fast, isolated tests                                   |
+| Different APIs for each library           | Unified interfaces — learn once, use everywhere                             |
+| Wiring libraries together manually        | Components integrate seamlessly — shared execution context, serde, adapters |
+| Framework-specific solutions              | Framework agnostic — works with Express, Next.js, Nuxt, NestJS, and more    |
+
+---
+
+## 🎯 Who is this for?
+
+**Perfect for:** SaaS · Internal tools · REST & GraphQL APIs · Enterprise · Modular monoliths · Microservices
+
+**Not ideal for:** Frontend-only apps · Browser-only libraries · Non-TypeScript projects
 
 ---
 

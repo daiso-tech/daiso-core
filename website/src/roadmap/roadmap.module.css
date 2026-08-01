@@ -1,0 +1,325 @@
+/* ================================================================
+   AVAILABLE TODAY
+   ================================================================ */
+
+.availableSection {
+  margin-bottom: 3rem;
+}
+
+.availableHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.availableIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: 0.5rem;
+  background: rgba(46, 204, 113, 0.12);
+  color: #27ae60;
+}
+
+.availableTitle {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.availableSubtitle {
+  font-size: 0.95rem;
+  color: var(--ifm-color-emphasis-600);
+  margin: 0 0 1.5rem 0;
+  line-height: 1.6;
+}
+
+.availableGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .availableGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .availableGridWide {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.availableCard {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.04) 0%, transparent 100%);
+  border: 1px solid rgba(46, 204, 113, 0.18);
+  border-radius: 0.65rem;
+  padding: 1rem 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.availableCard:hover {
+  border-color: rgba(46, 204, 113, 0.35);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.08) 0%, transparent 100%);
+}
+
+[data-theme='dark'] .availableCard {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.06) 0%, transparent 100%);
+}
+
+[data-theme='dark'] .availableCard:hover {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.12) 0%, transparent 100%);
+}
+
+.availableCardIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: 0.45rem;
+  background: rgba(46, 204, 113, 0.12);
+  color: #27ae60;
+}
+
+.availableCardBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.availableCardTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.availableCardBadge {
+  display: inline-block;
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.1em 0.5em;
+  border-radius: 0.25rem;
+  background: rgba(46, 204, 113, 0.15);
+  color: #27ae60;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.badgeNearStable {
+  display: inline-block;
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.1em 0.5em;
+  border-radius: 0.25rem;
+  background: rgba(241, 196, 15, 0.15);
+  color: #b7950b;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.badgeExperimental {
+  display: inline-block;
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.1em 0.5em;
+  border-radius: 0.25rem;
+  background: rgba(155, 89, 182, 0.15);
+  color: #8e44ad;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* ================================================================
+   PLANNED CARDS (future items — visually distinct from shipped)
+   ================================================================ */
+
+.plannedCard {
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-left: 3px solid var(--ifm-color-primary);
+  border-radius: 0.5rem;
+  padding: 1rem 1.15rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: var(--ifm-card-background-color);
+}
+
+[data-theme='dark'] .plannedCard {
+  background: var(--ifm-card-background-color);
+}
+
+.plannedCardIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: 0.45rem;
+  background: var(--daiso-icon-bg);
+  color: var(--daiso-icon-color);
+  margin-top: 0.05rem;
+}
+
+.plannedCardBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.plannedCardTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.plannedCardDesc {
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-600);
+  margin: 0.15rem 0 0;
+  line-height: 1.5;
+}
+
+.availableCardDesc {
+  font-size: 0.78rem;
+  color: var(--ifm-color-emphasis-600);
+  margin: 0.1rem 0 0;
+  line-height: 1.5;
+}
+
+/* ================================================================
+   ARCHITECTURE OVERVIEW
+   ================================================================ */
+
+.architectureBox {
+  background: var(--daiso-card-bg);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+[data-theme='dark'] .architectureBox {
+  background: var(--ifm-card-background-color);
+}
+
+.architectureTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+
+.architectureDesc {
+  font-size: 0.88rem;
+  color: var(--ifm-color-emphasis-600);
+  margin: 0 0 1.25rem;
+  line-height: 1.6;
+}
+
+.architectureLayers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.archLayer {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-background-color);
+}
+
+.archLayerIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+  border-radius: 0.35rem;
+  background: var(--daiso-icon-bg);
+  color: var(--daiso-icon-color);
+}
+
+.archLayerLabel {
+  font-size: 0.82rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.archLayerComponents {
+  font-size: 0.72rem;
+  color: var(--ifm-color-emphasis-500);
+  line-height: 1.5;
+}
+
+/* ================================================================
+   FUTURE SECTIONS
+   ================================================================ */
+
+.futureSection {
+  border-top: 1px solid var(--ifm-color-emphasis-300);
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.futureHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.futureContent {
+  animation: accordionFadeIn 0.2s ease;
+}
+
+.sectionIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 0.5rem;
+  background: var(--daiso-icon-bg);
+  color: var(--daiso-icon-color);
+}
+
+.sectionHeading {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--ifm-color-emphasis-500);
+  font-size: 0.95rem;
+  background: var(--daiso-card-bg);
+  border: 1px dashed var(--ifm-color-emphasis-300);
+  border-radius: 0.75rem;
+}
