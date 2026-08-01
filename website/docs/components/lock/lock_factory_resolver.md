@@ -69,7 +69,6 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 ### 3. Overriding default settings
 
 ```ts
-
 await lockFactoryResolver
     .setDefaultTtl(TimeSpan.fromMinutes(5))
     .use("redis")

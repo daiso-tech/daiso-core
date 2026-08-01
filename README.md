@@ -79,14 +79,14 @@ A growing collection of officially maintained, production-ready components. Ever
 
 ## 🆚 Why not just combine existing libraries?
 
-| Instead of | @daiso-tech/core gives |
-|------------|------------------------|
-| Tied to a specific vendor (Redis, S3) | Adapter abstraction — swap infrastructure anytime |
-| DI container required (NestJS, Inversify) | Plain TypeScript classes — instantiate directly |
-| Docker required for integration tests | In-memory adapters — fast, isolated tests |
-| Different APIs for each library | Unified interfaces — learn once, use everywhere |
-| Wiring libraries together manually | Components integrate seamlessly — shared execution context, serde, adapters |
-| Framework-specific solutions | Framework agnostic — works with Express, Next.js, Nuxt, NestJS, and more |
+| Instead of                                | @daiso-tech/core gives                                                      |
+| ----------------------------------------- | --------------------------------------------------------------------------- |
+| Tied to a specific vendor (Redis, S3)     | Adapter abstraction — swap infrastructure anytime                           |
+| DI container required (NestJS, Inversify) | Plain TypeScript classes — instantiate directly                             |
+| Docker required for integration tests     | In-memory adapters — fast, isolated tests                                   |
+| Different APIs for each library           | Unified interfaces — learn once, use everywhere                             |
+| Wiring libraries together manually        | Components integrate seamlessly — shared execution context, serde, adapters |
+| Framework-specific solutions              | Framework agnostic — works with Express, Next.js, Nuxt, NestJS, and more    |
 
 ---
 
