@@ -46,7 +46,7 @@
 
 @media (min-width: 640px) {
   .availableGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .availableGridWide {

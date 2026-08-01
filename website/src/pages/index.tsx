@@ -16,6 +16,7 @@ import {
 import type { FeatureItemProps } from "../data/types";
 import { AvailableCategory } from "../roadmap/components/AvailableCategory";
 import { PlannedCardGrid } from "../roadmap/components/PlannedCardGrid";
+import { FeatureItem } from "../components/FeatureItem";
 import { ArrowRight, Copy, Check, Star } from "lucide-react";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import { type ReactNode, useState, useCallback } from "react";
@@ -201,18 +202,6 @@ function CodeShowcase() {
     );
 }
 
-function FeatureItem(props: FeatureItemProps) {
-    return (
-        <div className="col col--6 margin-bottom--lg">
-            <div className="daiso-feature-card">
-                <div className="daiso-feature-icon">{props.icon}</div>
-                <h3>{props.title}</h3>
-                <p>{props.description}</p>
-            </div>
-        </div>
-    );
-}
-
 function FeatureSection({ items }: { items: FeatureItemProps[] }) {
     return (
         <section className="padding-vert--xl daiso-section-alt">
@@ -229,7 +218,9 @@ function FeatureSection({ items }: { items: FeatureItemProps[] }) {
                 </div>
                 <div className="row">
                     {items.map((item, idx) => (
-                        <FeatureItem key={idx} {...item} />
+                        <div className="col col--4 margin-bottom--lg" key={idx}>
+                            <FeatureItem {...item} />
+                        </div>
                     ))}
                 </div>
             </div>
