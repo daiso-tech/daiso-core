@@ -1160,35 +1160,25 @@ import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-a
 
 export const serde = new Serde(new SuperJsonSerdeAdapter());`,
     } satisfies CodeFile,
-    REQUEST_HANDLER: {
-        name: "request-handler.ts",
-        code: `import { ExecutionContext, contextToken } from "@daiso-tech/core/execution-context";
-import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter";
+    EXECUTION_CONTEXT: {
+        name: "main.ts",
+        code: `import { Cache } from "@daiso-tech/core/cache";
+import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
+import { EventBus } from "@daiso-tech/core/event-bus";
+import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus";
 
-// IExecutionContext uses symbols internally for
-// reliable context isolation across async boundaries
-const executionContext = new ExecutionContext(
-    new AlsExecutionContextAdapter(),
-);
+// A single context instance shared by every context-aware component
+const executionContext = new ExecutionContext(new AlsExecutionContextAdapter());
 
-const userToken = contextToken<{ id: string; name: string }>("user");
-const requestIdToken = contextToken<string>("requestId");
-
-export async function handleRequest(req: Request) {
-    return executionContext.run(() => {
-        executionContext
-            .put(userToken, { id: "123", name: "Alice" })
-            .put(requestIdToken, "req-456");
-        return processRequest();
-    });
-}
-
-async function processRequest() {
-    // Access context values throughout the call chain
-    const user = executionContext.get(userToken);
-    const reqId = executionContext.get(requestIdToken);
-    console.log("Processing request %s for %s", reqId, user?.name);
-}`,
+// Cache and EventBus receive the same ExecutionContext (IReadableContext)
+const cache = new Cache({
+    adapter: new MemoryCacheAdapter(),
+    context: executionContext,
+});
+const eventBus = new EventBus({
+    adapter: new MemoryEventBusAdapter(),
+    context: executionContext,
+});`,
     } satisfies CodeFile,
     MIDDLEWARE: {
         name: "middleware.ts",
@@ -1418,7 +1408,7 @@ export const CODE_EXAMPLES = {
             <>Async context propagation</>,
             <>No manual parameter passing</>,
         ],
-        files: [CODE_FILES.REQUEST_HANDLER],
+        files: [CODE_FILES.EXECUTION_CONTEXT],
     } satisfies CodeExample,
     MIDDLEWARE: {
         name: "Middleware",
