@@ -5,12 +5,12 @@ import styles from "../roadmap.module.css";
 export function AvailableComponents() {
   return (
     <section className={styles.availableSection}>
-      <AvailableCategory label="Foundation" items={FOUNDATION_EXISTING_ITEMS} />
-      <AvailableCategory label="Storage" items={STORAGE_EXISTING_ITEMS} />
-      <AvailableCategory label="Resilience" items={RELIABILITY_EXISTING_ITEMS} />
-      <AvailableCategory label="Concurrency" items={CONCURRENCY_EXISTING_ITEMS} />
-      <AvailableCategory label="Messaging" items={MESSAGING_EXISTING_ITEMS} />
-      <AvailableCategory label="Web" items={WEB_EXISTING_ITEMS} />
+      <AvailableCategory variant="feature" label="Foundation" items={FOUNDATION_EXISTING_ITEMS} />
+      <AvailableCategory variant="feature" label="Storage" items={STORAGE_EXISTING_ITEMS} />
+      <AvailableCategory variant="feature" label="Resilience" items={RELIABILITY_EXISTING_ITEMS} />
+      <AvailableCategory variant="feature" label="Concurrency" items={CONCURRENCY_EXISTING_ITEMS} />
+      <AvailableCategory variant="feature" label="Messaging" items={MESSAGING_EXISTING_ITEMS} />
+      <AvailableCategory variant="feature" label="Web" items={WEB_EXISTING_ITEMS} />
     </section>
   );
 }

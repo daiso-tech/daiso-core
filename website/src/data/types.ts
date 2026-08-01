@@ -39,6 +39,6 @@ export type CodeExample = {
 export type ComparisonItem = {
     name: string;
     heading: ReactNode;
-    instead: ReactNode;
-    daiso: ReactNode;
+    instead: ReactNode[];
+    daiso: ReactNode[];
 };

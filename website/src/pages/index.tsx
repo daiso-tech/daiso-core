@@ -525,29 +525,34 @@ function FrameworkComparison() {
                     >
                         {comparisons[activeIndex].heading}
                     </h3>
-                    <p
-                        className="daiso-section-subtitle"
-                        style={{
-                            margin: "0 0 1.25rem",
-                            textAlign: "left",
-                        }}
-                    >
-                        A library, not a framework — @daiso-tech/core gives you
-                        backend primitives that plug into whatever you're
-                        already using, without taking over your architecture.
-                    </p>
-                    <div className="daiso-comparison-sides">
+                </div>
+                <div className="row">
+                    <div className="col col--6">
                         <div className="daiso-comp-instead">
                             <div className="daiso-comp-label-instead">
-                                Instead of
+                                {comparisons[activeIndex].name}
                             </div>
-                            <p>{comparisons[activeIndex].instead}</p>
+                            <ul>
+                                {comparisons[activeIndex].instead.map(
+                                    (point, i) => (
+                                        <li key={i}>{point}</li>
+                                    ),
+                                )}
+                            </ul>
                         </div>
+                    </div>
+                    <div className="col col--6">
                         <div className="daiso-comp-daiso">
                             <div className="daiso-comp-label-daiso">
                                 @daiso-tech/core
                             </div>
-                            <p>{comparisons[activeIndex].daiso}</p>
+                            <ul>
+                                {comparisons[activeIndex].daiso.map(
+                                    (point, i) => (
+                                        <li key={i}>{point}</li>
+                                    ),
+                                )}
+                            </ul>
                         </div>
                     </div>
                 </div>

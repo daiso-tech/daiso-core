@@ -1445,30 +1445,80 @@ export const CODE_EXAMPLES = {
 export const COMPARISONS = {
     NESTJS: {
         name: "NestJS",
-        heading: "Swap infrastructure without rewriting code.",
-        instead:
-            "Tied to a specific vendor (Redis, S3). Changing a vendor means rewriting integration code — your cache, lock, or file storage logic is coupled to a specific provider.",
-        daiso: "Adapter pattern built into every component. Swap Redis ↔ Postgres ↔ S3 ↔ in-memory anytime — zero changes to your application logic. The same API works across all backends.",
+        heading: "A full framework with built-in DI — or a library that fits yours.",
+        instead: [
+            "Opinionated framework: its own DI container, decorators, and modules.",
+            "Rich ecosystem — guards, pipes, interceptors, and a structured architecture.",
+            "Conventions adopted wholesale: DI is central, and most primitives only work inside NestJS.",
+            "A more direct fit for microservices-first architectures that lean on provider-specific features.",
+        ],
+        daiso: [
+            "A library, not a framework — DI is optional, no decorators, plain classes.",
+            "Adapter-first, portable primitives aimed at modular monoliths and framework-agnostic services.",
+            "The same cache, lock, or event bus works in NestJS, Express, Fastify, Hono, or a standalone script.",
+            "Swap infrastructure without rewriting business logic.",
+            "Trade-off: you bring your own application structure — no scaffolding or ecosystem.",
+        ],
     } satisfies ComparisonItem,
     ADONISJS: {
         name: "AdonisJS",
-        heading: "Optional DI. Not forced.",
-        instead:
-            "DI container required (NestJS, Inversify). Every service must be registered in a module, decorated, and injected through the framework's DI system — adding boilerplate and framework coupling.",
-        daiso: "Plain TypeScript classes — instantiate directly with `new` or a factory function. No decorators, no modules, no forced DI. Use a container when you want one, not because you have to.",
+        heading: "A batteries-included full-stack framework, or composable primitives.",
+        instead: [
+            "Bundles routing, an ORM (Lucid), auth, sessions, and validation.",
+            "Prescribed folder structure and lifecycle conventions.",
+            "An excellent fit when you want one integrated framework for the whole app.",
+        ],
+        daiso: [
+            "No app framework, ORM, or auth — just infrastructure components behind pluggable adapters.",
+            "Combine with any application layer, including AdonisJS.",
+            "AdonisJS alone may be all you need if you won't change frameworks or backends.",
+            "Adds value when you want the same primitives portable across frameworks and infrastructure.",
+        ],
     } satisfies ComparisonItem,
     TRPC_ORPC: {
         name: "TRPC / ORPC",
-        heading: "Zero-dependency integration tests.",
-        instead:
-            "Docker required for integration tests. Want to test with Redis or S3? Spin up containers, wait for them to be ready, and clean up after — slowing down every test run.",
-        daiso: "In-memory adapters built into every component. Your test suite runs without Docker, without external services, without network calls. Same API, same assertions, instant feedback.",
+        heading: "End-to-end typed APIs — or the server-side infrastructure behind them.",
+        instead: [
+            "End-to-end type safety between client and server.",
+            "Define procedures once and call them from the client with full inference, no codegen.",
+            "Excellent for type-safe full-stack APIs at the client-server boundary.",
+        ],
+        daiso: [
+            "Not an RPC framework — not a tRPC replacement.",
+            "Provides backend infrastructure behind pluggable adapters: caching, locks, rate limiting, scheduling, event buses.",
+            "Complementary: your tRPC procedures can call services backed by @daiso-tech/core.",
+            "Choose tRPC alone for typed transport; add @daiso-tech/core for reusable, framework-agnostic server-side infra.",
+        ],
+    } satisfies ComparisonItem,
+    FULLSTACK_FRAMEWORKS: {
+        name: "Next.js, Nuxt, etc.",
+        heading: "Meta-frameworks for the web — and a framework-agnostic backend.",
+        instead: [
+            "Excel at client rendering, SSR, routing, and a rich frontend ecosystem.",
+            "Ship their own server-side APIs and route handlers.",
+            "Often the best starting point for shipping a web app quickly.",
+        ],
+        daiso: [
+            "Not a web or frontend framework — not a replacement for Next.js or Nuxt.",
+            "Complements them: route handlers and server actions can use @daiso-tech/core's cache, locks, queues, and schedulers.",
+            "The same backend logic moves between a meta-framework and a standalone API service or worker.",
+            "Meta-framework alone is probably enough for frontend-leaning apps; add @daiso-tech/core for portable, testable server-side infra.",
+        ],
     } satisfies ComparisonItem,
     COMPOSING_YOUR_OWN_STACK: {
-        name: "Composing you own stack",
-        heading: "One API. Every component.",
-        instead:
-            "Different APIs for each library. Redis has one client API, S3 has another, Bull has its own, node-cron has yet another — your team must learn and maintain each one.",
-        daiso: "Unified `createX` pattern across all components. Cache, Lock, Event Bus, File Storage, Scheduler — all share the same conventions, adapter interfaces, and configuration style.",
+        name: "Composing your own stack",
+        heading: "Hand-picked libraries, or a consistent, integrated layer.",
+        instead: [
+            "Maximum control and minimal dependencies — pick exactly the libraries you want.",
+            "Simpler and lighter for small, focused use cases.",
+            "Better when you need one or two primitives or rely on provider-specific features.",
+        ],
+        daiso: [
+            "Several primitives that share conventions and work together — consistent `createX` pattern and common adapter interfaces.",
+            "Interoperate through a shared serde and execution context, so there's no glue code.",
+            "Every component ships an in-memory adapter for testing without Docker or external services.",
+            "Adopt incrementally — start with one component and add more as the project grows.",
+            "Trade-off: it's an abstraction layer, so raw libraries win for a single Redis call or a tiny script.",
+        ],
     } satisfies ComparisonItem,
 };
