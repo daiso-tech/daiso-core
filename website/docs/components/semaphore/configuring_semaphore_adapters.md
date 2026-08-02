@@ -276,33 +276,16 @@ Note in order to use `KyselySemaphoreAdapter` with `libsql` correctly, ensure yo
 
 ### Settings
 
-Expired keys are cleared at regular intervals and you can change the interval time:
+To clean up expired semaphore keys, call `removeAllExpired` at a regular interval (for example, using a cron job):
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
 const kyselySemaphoreAdapter = new KyselySemaphoreAdapter({
     database,
-    // By default, the interval is 1 minute
-    expiredKeysRemovalInterval: TimeSpan.fromSeconds(10),
-});
-
-await kyselySemaphoreAdapter.init();
-```
-
-Disabling scheduled interval cleanup of expired keys:
-
-```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
-const kyselySemaphoreAdapter = new KyselySemaphoreAdapter({
-    database,
-    shouldRemoveExpiredKeys: false,
 });
 
 await kyselySemaphoreAdapter.init();
 
-// You can remove all expired keys manually.
+// Remove all expired semaphore keys manually.
 await kyselySemaphoreAdapter.removeAllExpired();
 ```
 

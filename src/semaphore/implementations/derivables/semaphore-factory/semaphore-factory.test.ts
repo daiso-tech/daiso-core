@@ -49,7 +49,6 @@ describe("class: SemaphoreFactory", () => {
                         database: new Sqlite(":memory:"),
                     }),
                 }),
-                shouldRemoveExpiredKeys: false,
             });
             await adapter2.init();
             const lockProvider2 = new SemaphoreFactory({
