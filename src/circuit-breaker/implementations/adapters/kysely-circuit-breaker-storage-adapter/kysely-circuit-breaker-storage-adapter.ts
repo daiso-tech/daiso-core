@@ -2,7 +2,7 @@
  * @module CircuitBreaker
  */
 
-import { MysqlAdapter, Transaction, type Kysely } from "kysely";
+import { MysqlAdapter, type Kysely } from "kysely";
 
 import {
     type ICircuitBreakerStorageAdapter,
@@ -50,16 +50,6 @@ export type KyselyCircuitBreakerStorageAdapterSettings = {
      * Serde instance for serializing and deserializing circuit-breaker state to and from strings.
      */
     serde: ISerde<string>;
-
-    /**
-     * @default
-     * ```ts
-     * import { Transaction } from "kysely"
-     *
-     * !(settings.kysely instanceof Transaction)
-     * ```
-     */
-    enableTransactions?: boolean;
 };
 
 /**
@@ -148,7 +138,6 @@ export class KyselyCircuitBreakerStorageAdapter<TType>
 {
     private readonly kysely: Kysely<KyselyCircuitBreakerStorageTables>;
     private readonly serde: ISerde<string>;
-    private readonly enableTransactions: boolean;
 
     /**
      * @example
@@ -173,15 +162,10 @@ export class KyselyCircuitBreakerStorageAdapter<TType>
      * ```
      */
     constructor(settings: KyselyCircuitBreakerStorageAdapterSettings) {
-        const {
-            kysely,
-            serde,
-            enableTransactions = !(settings.kysely instanceof Transaction),
-        } = settings;
+        const { kysely, serde } = settings;
 
         this.kysely = kysely;
         this.serde = serde;
-        this.enableTransactions = enableTransactions;
     }
     private _transaction<TValue>(
         trxFn: InvokableFn<
@@ -189,12 +173,9 @@ export class KyselyCircuitBreakerStorageAdapter<TType>
             Promise<TValue>
         >,
     ): Promise<TValue> {
-        if (this.enableTransactions) {
-            return this.kysely.transaction().execute(async (trx) => {
-                return await trxFn(trx);
-            });
-        }
-        return trxFn(this.kysely);
+        return this.kysely.transaction().execute(async (trx) => {
+            return await trxFn(trx);
+        });
     }
 
     /**
