@@ -100,7 +100,7 @@ export type ServiceFactory<
     TDeps extends Array<unknown> = Array<unknown>,
     TRegisteredType = unknown,
 > = Invokable<
-    [...deps: TDeps, executionContext: IExecutionContext],
+    [deps: TDeps, executionContext: IExecutionContext],
     Promisable<TRegisteredType>
 >;
 

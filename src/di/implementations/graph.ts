@@ -20,9 +20,15 @@ export type TLifespan = (typeof LIFESPAN)[keyof typeof LIFESPAN];
 export type TEdge = [DiToken, DiToken];
 export type TNode = DiToken;
 
+const stopParentSearch = Symbol("represents removed value");
+type TStopSearchSymbol = typeof stopParentSearch;
+
 export class Graph<TNodeProp, TEdgeProp> {
-    private nodeProps = new Map<TNode, TNodeProp>();
-    private edgeProps = new Map<TNode, Map<TNode, TEdgeProp>>();
+    private nodeProps = new Map<TNode, TNodeProp | TStopSearchSymbol>();
+    private edgeProps = new Map<
+        TNode,
+        Map<TNode, TEdgeProp | TStopSearchSymbol>
+    >();
 
     private parentGraphOriginal?:
         | Graph<TNodeProp, TEdgeProp>
@@ -98,19 +104,21 @@ export class Graph<TNodeProp, TEdgeProp> {
     }
 
     private edgesAtCurrentLayer(): Array<TEdge> {
-        const edges = [...this.edgeProps.entries()].flatMap(
-            ([node, neighborsMap]) => {
+        const edges = [...this.edgeProps.entries()]
+            .flatMap(([node, neighborsMap]) => {
                 return [...neighborsMap.keys()].map(
                     (neighborNode) => [node, neighborNode] satisfies TEdge,
                 );
-            },
-        );
+            })
+            .filter((item) => this.getEdgeProperty(item) !== null);
 
         return edges;
     }
 
     private nodesAtCurrentLayer(): Array<TNode> {
-        return [...this.nodeProps.keys()];
+        return [...this.nodeProps.keys()].filter(
+            (item) => this.getNodeProperty(item) !== null,
+        );
     }
 
     private hasNodePropertyAtCurrentLayer(node: TNode): boolean {
@@ -121,16 +129,26 @@ export class Graph<TNodeProp, TEdgeProp> {
         return this.edgeProps.get(edge[0])?.has(edge[1]) ?? false;
     }
 
-    private getEdgePropertyAtCurrentLayer(edge: TEdge): TEdgeProp | null {
+    private getEdgePropertyAtCurrentLayer(
+        edge: TEdge,
+    ): TEdgeProp | null | TStopSearchSymbol {
         return this.edgeProps.get(edge[0])?.get(edge[1]) ?? null;
     }
 
-    private getNodePropertyAtCurrentLayer(nodeId: TNode): TNodeProp | null {
+    private getNodePropertyAtCurrentLayer(
+        nodeId: TNode,
+    ): TNodeProp | null | TStopSearchSymbol {
         return this.nodeProps.get(nodeId) ?? null;
     }
 
     hasNodeProperty(node: TNode): boolean {
-        if (this.hasNodePropertyAtCurrentLayer(node)) {
+        const value = this.getNodePropertyAtCurrentLayer(node);
+
+        if (value === stopParentSearch) {
+            return false;
+        }
+
+        if (value !== null) {
             return true;
         }
 
@@ -142,7 +160,13 @@ export class Graph<TNodeProp, TEdgeProp> {
     }
 
     hasEdgeProperty(edge: TEdge): boolean {
-        if (this.hasEdgePropertyAtCurrentLayer(edge)) {
+        const value = this.getEdgePropertyAtCurrentLayer(edge);
+
+        if (value === stopParentSearch) {
+            return false;
+        }
+
+        if (value !== null) {
             return true;
         }
 
@@ -154,9 +178,16 @@ export class Graph<TNodeProp, TEdgeProp> {
     }
 
     getNodeProperty(nodeId: TNode): TNodeProp | null {
-        if (this.hasNodePropertyAtCurrentLayer(nodeId)) {
-            return this.getNodePropertyAtCurrentLayer(nodeId);
+        const value = this.getNodePropertyAtCurrentLayer(nodeId);
+
+        if (value === stopParentSearch) {
+            return null;
         }
+
+        if (value !== null) {
+            return value;
+        }
+
         if (this.parentGraph === undefined) {
             return null;
         }
@@ -165,8 +196,14 @@ export class Graph<TNodeProp, TEdgeProp> {
     }
 
     getEdgeProperty(edge: TEdge): TEdgeProp | null {
-        if (this.hasEdgePropertyAtCurrentLayer(edge)) {
-            return this.getEdgePropertyAtCurrentLayer(edge);
+        const value = this.getEdgePropertyAtCurrentLayer(edge);
+
+        if (value === stopParentSearch) {
+            return null;
+        }
+
+        if (value !== null) {
+            return value;
         }
 
         if (this.parentGraph === undefined) {
@@ -192,32 +229,79 @@ export class Graph<TNodeProp, TEdgeProp> {
         return value;
     }
 
-    setNodeProperty(key: TNode, value: TNodeProp): void {
+    private setNodePropertyOrStopSymbol(
+        key: TNode,
+        value: TNodeProp | TStopSearchSymbol,
+    ): void {
         this.nodeProps.set(key, value);
     }
 
-    setEdgeProperty(edge: TEdge, value: TEdgeProp): void {
+    setNodeProperty(key: TNode, value: TNodeProp): void {
+        this.setNodePropertyOrStopSymbol(key, value);
+    }
+
+    private setEdgePropertyOrStopSymbol(
+        edge: TEdge,
+        value: TEdgeProp | TStopSearchSymbol,
+    ): void {
         const neighbor =
             this.edgeProps.get(edge[0]) ?? new Map<TNode, TEdgeProp>();
         neighbor.set(edge[1], value);
         this.edgeProps.set(edge[0], neighbor);
     }
 
+    setEdgeProperty(edge: TEdge, value: TEdgeProp): void {
+        this.setEdgePropertyOrStopSymbol(edge, value);
+    }
+
+    removeEdge(edge: TEdge): void {
+        this.setEdgePropertyOrStopSymbol(edge, stopParentSearch);
+    }
+
+    removeNode(node: TNode): void {
+        this.setNodePropertyOrStopSymbol(node, stopParentSearch);
+    }
+
     nodes(): Array<TNode> {
         const currentNodes = this.nodesAtCurrentLayer();
         const parentNodes = this.parentGraph?.nodes() ?? [];
-        const nodesOnlyInParent = parentNodes.filter(
-            (node) => !this.hasNodePropertyAtCurrentLayer(node),
-        );
+        const nodesOnlyInParent = parentNodes.filter((node) => {
+            const value = this.getNodePropertyAtCurrentLayer(node);
+            const explicitExclude = value === stopParentSearch;
+
+            if (explicitExclude) {
+                return false;
+            }
+
+            const onlyInParent = value === null;
+
+            if (onlyInParent) {
+                return true;
+            }
+            return false;
+        });
         return [...currentNodes, ...nodesOnlyInParent];
     }
 
     edges(): Array<TEdge> {
         const currentEdges = this.edgesAtCurrentLayer();
         const parentEdges = this.parentGraph?.edges() ?? [];
-        const edgesOnlyInParent = parentEdges.filter(
-            (edge) => !this.hasEdgePropertyAtCurrentLayer(edge),
-        );
+        const edgesOnlyInParent = parentEdges.filter((edge) => {
+            const value = this.getEdgePropertyAtCurrentLayer(edge);
+            const explicitExclude = value === stopParentSearch;
+
+            if (explicitExclude) {
+                return false;
+            }
+
+            const onlyInParent = value === null;
+
+            if (onlyInParent) {
+                return true;
+            }
+            return false;
+        });
+
         return [...currentEdges, ...edgesOnlyInParent];
     }
 
@@ -236,18 +320,6 @@ export class Graph<TNodeProp, TEdgeProp> {
     getSuccessorsOf(node: TNode): Array<TNode> {
         return this.getSuccessorEdgesOf(node).map(([_, neighbor]) => neighbor);
     }
-
-    /**
-     * AI written check and simplify
-     * Removes a directed edge between source (node0) and target (node1).
-     * @returns true if the edge existed and was removed, false otherwise.
-     */
-
-    /**
-     * AI written check and simplify
-     * Removes a node from the graph and cleans up all associated incoming and outgoing edges.
-     * @returns true if the node existed and was removed, false otherwise.
-     */
 }
 
 /**
@@ -321,4 +393,29 @@ export async function eagerInitialization<T>(args: {
 
         currentBatch = nextBatch;
     }
+}
+
+export function findEffectedNodes<T>(args: {
+    predecessorOf: (node: T) => Array<T>;
+    startNodeId: T;
+}): Array<T> {
+    const effectedNodes = new Set<T>([args.startNodeId]);
+    const queue = [args.startNodeId];
+
+    while (queue.length > 0) {
+        const node = queue.shift();
+
+        if (node === undefined) {
+            throw new Error();
+        }
+
+        for (const successor of args.predecessorOf(node)) {
+            if (!effectedNodes.has(successor)) {
+                effectedNodes.add(successor);
+                queue.push(successor);
+            }
+        }
+    }
+
+    return [...effectedNodes];
 }
