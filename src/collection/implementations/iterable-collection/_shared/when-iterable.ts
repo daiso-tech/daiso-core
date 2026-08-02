@@ -6,7 +6,7 @@ import {
     type ICollection,
     type Modifier,
 } from "@/collection/contracts/_module.js";
-import { resolveInvokable } from "@/utilities/_module.js";
+import { resolveInvocable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -22,7 +22,7 @@ export class WhenIterable<TInput, TExtended> implements Iterable<
 
     *[Symbol.iterator](): Iterator<TInput | TExtended> {
         if (this.condition()) {
-            yield* resolveInvokable(this.callback)(this.collection);
+            yield* resolveInvocable(this.callback)(this.collection);
             return;
         }
         yield* this.collection as ICollection<TInput | TExtended>;

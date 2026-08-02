@@ -7,7 +7,7 @@ import { v4 } from "uuid";
 import { type ILockFactory } from "@/lock/contracts/_module.js";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
-import { callInvokable, type Invokable } from "@/utilities/_module.js";
+import { callInvocable, type Invocable } from "@/utilities/_module.js";
 
 /**
  * Settings for the distributed-lock middleware.
@@ -23,7 +23,7 @@ export type WithLockSettings<
      * function's arguments. The lock is acquired on this key, ensuring mutual
      * exclusion across processes for the same key.
      */
-    key: Invokable<TParameters, string>;
+    key: Invocable<TParameters, string>;
 
     /**
      *  A function that produces a unique identifier for the
@@ -37,7 +37,7 @@ export type WithLockSettings<
      * () => v4()
      * ```
      */
-    lockId?: Invokable<TParameters, string>;
+    lockId?: Invocable<TParameters, string>;
 
     /**
      * Time-to-live for the lock. If `null` the lock never expires
@@ -72,9 +72,9 @@ export function withLockFactory(lockFactory: ILockFactory) {
         } = settings;
         return ({ next, args }) => {
             return lockFactory
-                .create(callInvokable(key, ...args), {
+                .create(callInvocable(key, ...args), {
                     ...rest,
-                    lockId: callInvokable(lockId, ...args),
+                    lockId: callInvocable(lockId, ...args),
                 })
                 .runOrFail(next);
         };

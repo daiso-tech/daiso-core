@@ -3,10 +3,10 @@
  */
 
 import {
-    type PredicateInvokable,
+    type PredicateInvocable,
     type ICollection,
 } from "@/collection/contracts/_module.js";
-import { resolveInvokable } from "@/utilities/_module.js";
+import { resolveInvocable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -16,7 +16,7 @@ export class ChunkWhileIterable<TInput> implements Iterable<
 > {
     constructor(
         private collection: ICollection<TInput>,
-        private predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        private predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
         private makeCollection: <TInput_>(
             iterable: Iterable<TInput_>,
         ) => ICollection<TInput_>,
@@ -28,7 +28,7 @@ export class ChunkWhileIterable<TInput> implements Iterable<
             if (index === 0) {
                 array.push(item);
             } else if (
-                resolveInvokable(this.predicateFn)(
+                resolveInvocable(this.predicateFn)(
                     item,
                     index,
                     this.makeCollection(array),

@@ -6,7 +6,7 @@ import { type StandardSchemaV1 } from "@standard-schema/spec";
 
 import {
     type Comparator,
-    type PredicateInvokable,
+    type PredicateInvocable,
     type ForEach,
     type Map,
     type Modifier,
@@ -108,7 +108,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     filter<TOutput extends TInput>(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): ICollection<TOutput>;
 
     /**
@@ -136,7 +136,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     reject<TOutput extends TInput>(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): ICollection<Exclude<TInput, TOutput>>;
 
     /**
@@ -293,7 +293,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     change<TFilterOutput extends TInput, TMapOutput>(
-        predicateFn: PredicateInvokable<
+        predicateFn: PredicateInvocable<
             TInput,
             ICollection<TInput>,
             TFilterOutput
@@ -512,7 +512,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     percentage(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): number;
 
     /**
@@ -531,7 +531,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     some<TOutput extends TInput>(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): boolean;
 
     /**
@@ -550,7 +550,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     every<TOutput extends TInput>(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): boolean;
 
     /**
@@ -602,7 +602,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     takeUntil(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): ICollection<TInput>;
 
     /**
@@ -622,7 +622,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     takeWhile(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): ICollection<TInput>;
 
     /**
@@ -660,7 +660,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     skipUntil(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): ICollection<TInput>;
 
     /**
@@ -680,7 +680,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     skipWhile(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): ICollection<TInput>;
 
     /**
@@ -884,7 +884,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     chunkWhile(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): ICollection<ICollection<TInput>>;
 
     /**
@@ -952,7 +952,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     partition(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): ICollection<ICollection<TInput>>;
 
     /**
@@ -1452,7 +1452,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     insertBefore<TExtended = TInput>(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
         iterable: IterableValue<TInput | TExtended>,
     ): ICollection<TInput | TExtended>;
 
@@ -1473,7 +1473,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     insertAfter<TExtended = TInput>(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
         iterable: IterableValue<TInput | TExtended>,
     ): ICollection<TInput | TExtended>;
 
@@ -1684,7 +1684,7 @@ export interface ICollection<TInput = unknown>
      * // 3
      */
     first<TOutput extends TInput>(
-        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn?: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput | null;
 
     /**
@@ -1741,7 +1741,7 @@ export interface ICollection<TInput = unknown>
      */
     firstOr<TOutput extends TInput, TExtended = TInput>(
         defaultValue: Lazyable<TExtended>,
-        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn?: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput | TExtended;
 
     /**
@@ -1786,7 +1786,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     firstOrFail<TOutput extends TInput>(
-        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn?: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput;
 
     /**
@@ -1830,7 +1830,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     last<TOutput extends TInput>(
-        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn?: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput | null;
 
     /**
@@ -1887,7 +1887,7 @@ export interface ICollection<TInput = unknown>
      */
     lastOr<TOutput extends TInput, TExtended = TInput>(
         defaultValue: Lazyable<TExtended>,
-        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn?: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput | TExtended;
 
     /**
@@ -1932,7 +1932,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     lastOrFail<TOutput extends TInput>(
-        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn?: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput;
 
     /**
@@ -1964,7 +1964,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     before(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): TInput | null;
 
     /**
@@ -2009,7 +2009,7 @@ export interface ICollection<TInput = unknown>
      */
     beforeOr<TExtended = TInput>(
         defaultValue: Lazyable<TExtended>,
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): TInput | TExtended;
 
     /**
@@ -2042,7 +2042,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     beforeOrFail(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): TInput;
 
     /**
@@ -2074,7 +2074,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     after(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): TInput | null;
 
     /**
@@ -2119,7 +2119,7 @@ export interface ICollection<TInput = unknown>
      */
     afterOr<TExtended = TInput>(
         defaultValue: Lazyable<TExtended>,
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): TInput | TExtended;
 
     /**
@@ -2152,7 +2152,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     afterOrFail(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): TInput;
 
     /**
@@ -2198,7 +2198,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     sole<TOutput extends TInput>(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput;
 
     /**
@@ -2234,7 +2234,7 @@ export interface ICollection<TInput = unknown>
      * }
      * ```
      */
-    count(predicateFn: PredicateInvokable<TInput, ICollection<TInput>>): number;
+    count(predicateFn: PredicateInvocable<TInput, ICollection<TInput>>): number;
 
     /**
      * The `size` returns the size of the collection.
@@ -2267,7 +2267,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     searchFirst(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): number;
 
     /**
@@ -2286,7 +2286,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     searchLast(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): number;
 
     /**

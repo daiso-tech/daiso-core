@@ -8,7 +8,7 @@ import {
 } from "@/collection/contracts/_module.js";
 import {
     resolveAsyncIterableValue,
-    resolveInvokable,
+    resolveInvocable,
     type AsyncIterableValue,
 } from "@/utilities/_module.js";
 
@@ -32,7 +32,7 @@ export class AsyncInsertAfterIterable<
             yield item;
             if (
                 !hasMatched &&
-                (await resolveInvokable(this.predicateFn)(
+                (await resolveInvocable(this.predicateFn)(
                     item,
                     index,
                     this.collection,

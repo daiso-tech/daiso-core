@@ -125,7 +125,7 @@ The library includes several contracts that separate concerns for different use 
 
 #### `IExecutionContextBase`
 
-- `run(invokable)` — Runs a function within the current execution-context. All context values are accessible during execution.
+- `run(invocable)` — Runs a function within the current execution-context. All context values are accessible during execution.
 - `bind(fn)` — Returns a new function that, when called, executes the original function within the captured context.
 
 #### `IContext`
@@ -140,7 +140,7 @@ The library includes several contracts that separate concerns for different use 
 - `updateDecrement(token, settings?)` — Decrements a numeric value only if it exists. Optional min floor.
 - `updatePush(token, ...values)` — Pushes values to an array only if it exists. No-op if missing.
 - `remove(token)` — Removes a value from the context.
-- `when(condition, ...invokables)` — Conditionally applies operations if the condition is true.
+- `when(condition, ...invocables)` — Conditionally applies operations if the condition is true.
 
 #### `IReadableContext`
 

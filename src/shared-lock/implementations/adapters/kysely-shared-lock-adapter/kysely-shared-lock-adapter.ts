@@ -16,7 +16,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type IDeinitizable,
     type IInitizable,
-    type InvokableFn,
+    type InvocableFn,
     type IPrunable,
 } from "@/utilities/_module.js";
 
@@ -129,7 +129,7 @@ export class KyselySharedLockAdapter
     }
 
     private _transaction<TValue>(
-        trxFn: InvokableFn<
+        trxFn: InvocableFn<
             [trx: Kysely<KyselySharedLockTables>],
             Promise<TValue>
         >,

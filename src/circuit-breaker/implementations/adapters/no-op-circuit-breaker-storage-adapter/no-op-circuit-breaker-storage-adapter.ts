@@ -9,7 +9,7 @@ import {
     type ICircuitBreakerStorageAdapterTransaction,
 } from "@/circuit-breaker/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type InvokableFn } from "@/utilities/_module.js";
+import { type InvocableFn } from "@/utilities/_module.js";
 
 /**
  * The `NoOpCircuitBreakerStorageAdapter` will do nothing and is used for easily mocking {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} for testing.
@@ -21,7 +21,7 @@ export class NoOpCircuitBreakerStorageAdapter<
     TType,
 > implements ICircuitBreakerStorageAdapter<TType> {
     transaction<TValue>(
-        fn: InvokableFn<
+        fn: InvocableFn<
             [transaction: ICircuitBreakerStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,

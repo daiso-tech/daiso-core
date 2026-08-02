@@ -9,7 +9,7 @@ import {
     type ICircuitBreakerFactory,
 } from "@/circuit-breaker/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type IDeinitizable, type InvokableFn } from "@/utilities/_module.js";
+import { type IDeinitizable, type InvocableFn } from "@/utilities/_module.js";
 
 /**
  * The `MemoryCircuitBreakerStorageAdapter` is used for easily facking {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} for testing.
@@ -56,7 +56,7 @@ export class MemoryCircuitBreakerStorageAdapter<TType = unknown>
     }
 
     async transaction<TValue>(
-        fn: InvokableFn<
+        fn: InvocableFn<
             [transaction: ICircuitBreakerStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,

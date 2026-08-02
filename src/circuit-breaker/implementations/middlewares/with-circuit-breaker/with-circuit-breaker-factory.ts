@@ -9,8 +9,8 @@ import {
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
-    callInvokable,
-    type Invokable,
+    callInvocable,
+    type Invocable,
     type ErrorPolicySettings,
 } from "@/utilities/_module.js";
 
@@ -28,7 +28,7 @@ export type WithCircuitBreakerSettings<
      * circuit from the wrapped function's arguments. Each unique key gets its
      * own circuit state.
      */
-    key: Invokable<TParameters, string>;
+    key: Invocable<TParameters, string>;
 
     /**
      * Optional custom trigger that determines when the circuit should open.
@@ -68,7 +68,7 @@ export function withCircuitBreakerFactory(
         const { key = (...args) => JSON.stringify(args), ...rest } = settings;
         return ({ next, args }) => {
             return circuitBreakerFactory
-                .create(callInvokable(key, ...args), rest)
+                .create(callInvocable(key, ...args), rest)
                 .runOrFail(next);
         };
     };

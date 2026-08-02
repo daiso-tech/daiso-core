@@ -4,7 +4,7 @@
 
 import { type IFileSize } from "@/file-size/contracts/file-size.contract.js";
 import { type IHttpFile } from "@/http-router/contracts/http-file.contract.js";
-import { type Invokable } from "@/utilities/_module.js";
+import { type Invocable } from "@/utilities/_module.js";
 
 /**
  * Raw request input values before parsing and validation.
@@ -103,7 +103,7 @@ export type StaticFileDef = {
 /**
  * Dynamic file definition that derives validation rules from the uploaded file itself.
  *
- * Unlike {@link StaticFileDef}, this is an invokable function that receives the
+ * Unlike {@link StaticFileDef}, this is an invocable function that receives the
  * uploaded {@link IHttpFile} and returns a {@link StaticFileDef} with validation
  * rules tailored to that specific file. Use this when constraints (such as
  * allowed content type or maximum size) must be computed at runtime based on
@@ -121,7 +121,7 @@ export type StaticFileDef = {
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export type DynamicFileDef = Invokable<[file: IHttpFile], StaticFileDef>;
+export type DynamicFileDef = Invocable<[file: IHttpFile], StaticFileDef>;
 
 /**
  * Union of {@link StaticFileDef} and {@link DynamicFileDef}.

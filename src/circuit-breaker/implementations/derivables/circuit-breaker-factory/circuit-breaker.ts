@@ -16,11 +16,11 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callErrorPolicyOnThrow,
-    callInvokable,
+    callInvocable,
     resolveAsyncLazyable,
     type AsyncLazy,
     type ErrorPolicy,
-    type InvokableFn,
+    type InvocableFn,
     type WaitUntil,
 } from "@/utilities/_module.js";
 
@@ -115,7 +115,7 @@ export class CircuitBreaker implements ICircuitBreaker {
 
     private async trackFailure(): Promise<void> {
         if (this.enableAsyncTracking) {
-            callInvokable(
+            callInvocable(
                 this.waitUntil,
                 this.adapter.trackFailure(this._key, this.context),
             );
@@ -126,7 +126,7 @@ export class CircuitBreaker implements ICircuitBreaker {
 
     private async trackSuccess(): Promise<void> {
         if (this.enableAsyncTracking) {
-            callInvokable(
+            callInvocable(
                 this.waitUntil,
                 this.adapter.trackSuccess(this._key, this.context),
             );
@@ -136,7 +136,7 @@ export class CircuitBreaker implements ICircuitBreaker {
     }
 
     private async trackErrorWrapper<TValue = void>(
-        fn: InvokableFn<[], Promise<TValue>>,
+        fn: InvocableFn<[], Promise<TValue>>,
     ): Promise<TValue> {
         try {
             return await fn();
@@ -151,7 +151,7 @@ export class CircuitBreaker implements ICircuitBreaker {
 
             if (shouldRecordError && isErrorMatching) {
                 if (this.enableAsyncTracking) {
-                    callInvokable(this.waitUntil, this.trackFailure());
+                    callInvocable(this.waitUntil, this.trackFailure());
                 } else {
                     await this.trackFailure();
                 }
@@ -161,7 +161,7 @@ export class CircuitBreaker implements ICircuitBreaker {
     }
 
     private async trackSlowCallWrapper<TValue = void>(
-        fn: InvokableFn<[], Promise<TValue>>,
+        fn: InvocableFn<[], Promise<TValue>>,
     ): Promise<TValue> {
         const start = performance.now();
 

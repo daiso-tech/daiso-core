@@ -3,7 +3,7 @@
  */
 
 import { type IExecutionContextAdapter } from "@/execution-context/contracts/_module.js";
-import { callInvokable, type InvokableFn } from "@/utilities/_module.js";
+import { callInvocable, type InvocableFn } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/execution-context/no-op-execution-context-adapter"`
@@ -24,7 +24,7 @@ export class NoOpExecutionContextAdapter<
         return null;
     }
 
-    run<TReturn>(_context: TValue, fn: InvokableFn<[], TReturn>): TReturn {
-        return callInvokable(fn);
+    run<TReturn>(_context: TValue, fn: InvocableFn<[], TReturn>): TReturn {
+        return callInvocable(fn);
     }
 }

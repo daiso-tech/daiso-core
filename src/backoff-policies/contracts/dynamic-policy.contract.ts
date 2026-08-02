@@ -2,7 +2,7 @@
  * @module BackoffPolicy
  */
 
-import { type Invokable } from "@/utilities/_module.js";
+import { type Invocable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
@@ -10,4 +10,4 @@ import { type Invokable } from "@/utilities/_module.js";
  */
 export type DynamicBackoffPolicy<TSettings> =
     | TSettings
-    | Invokable<[error: unknown], TSettings | undefined>;
+    | Invocable<[error: unknown], TSettings | undefined>;

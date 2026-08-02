@@ -8,7 +8,7 @@ import {
     type IRateLimiterPolicy,
 } from "@/rate-limiter/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { callInvokable } from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -87,7 +87,7 @@ export class InternalRateLimiterPolicy<TMetrics = unknown> {
         settings: BackoffPolicySettings,
     ): AllRateLimiterState<TMetrics> {
         const waitTime = TimeSpan.fromTimeSpan(
-            callInvokable(settings.backoffPolicy, currentState.attempt, null),
+            callInvocable(settings.backoffPolicy, currentState.attempt, null),
         );
         const endDate = waitTime.toEndDate(new Date(currentState.startedAt));
         const isWaitTimeOver =
@@ -138,7 +138,7 @@ export class InternalRateLimiterPolicy<TMetrics = unknown> {
         }
 
         return TimeSpan.fromTimeSpan(
-            callInvokable(settings.backoffPolicy, currentState.attempt, null),
+            callInvocable(settings.backoffPolicy, currentState.attempt, null),
         ).toEndDate(settings.currentDate);
     }
 

@@ -6,7 +6,7 @@ import {
 } from "@/backoff-policies/implementations/linear-backoff/linear-backoff.js";
 import { TO_MILLISECONDS } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { callInvokable } from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
 
 describe("function: resolveLinearBackoffSettings", () => {
     test("Should use default values when no settings are provided", () => {
@@ -112,15 +112,15 @@ describe("function: linearBackoff", () => {
         });
 
         // 500 * 1 = 500
-        expect(callInvokable(backoff, 1, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 1, undefined)[TO_MILLISECONDS]()).toBe(
             500,
         );
         // 500 * 2 = 1000
-        expect(callInvokable(backoff, 2, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 2, undefined)[TO_MILLISECONDS]()).toBe(
             1000,
         );
         // 500 * 3 = 1500
-        expect(callInvokable(backoff, 3, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 3, undefined)[TO_MILLISECONDS]()).toBe(
             1500,
         );
     });
@@ -133,7 +133,7 @@ describe("function: linearBackoff", () => {
         });
 
         // 500 * 3 = 1500, capped at 1200
-        expect(callInvokable(backoff, 3, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 3, undefined)[TO_MILLISECONDS]()).toBe(
             1200,
         );
     });
@@ -147,7 +147,7 @@ describe("function: linearBackoff", () => {
         });
 
         // attempt=2: 500 * 2 = 1000, jitter: (1 - 0.5 * 0.5) * 1000 = 750
-        expect(callInvokable(backoff, 2, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 2, undefined)[TO_MILLISECONDS]()).toBe(
             750,
         );
     });

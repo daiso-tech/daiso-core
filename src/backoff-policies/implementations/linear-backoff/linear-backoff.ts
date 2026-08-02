@@ -11,7 +11,7 @@ import {
     type ITimeSpan,
 } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { callInvokable, isInvokable, withJitter } from "@/utilities/_module.js";
+import { callInvocable, isInvocable, withJitter } from "@/utilities/_module.js";
 
 /**
  * Configuration for the linear backoff policy.
@@ -102,8 +102,8 @@ export function linearBackoff(
     settings: DynamicBackoffPolicy<LinearBackoffSettings> = {},
 ): BackoffPolicy {
     return (attempt, error) => {
-        if (isInvokable(settings)) {
-            const dynamicSettings = callInvokable(settings, error);
+        if (isInvocable(settings)) {
+            const dynamicSettings = callInvocable(settings, error);
             if (dynamicSettings === undefined) {
                 settings = {};
             } else {

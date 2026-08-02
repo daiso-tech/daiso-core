@@ -16,9 +16,9 @@ import {
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
 import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import {
-    callInvokable,
-    type Invokable,
-    type InvokableFn,
+    callInvocable,
+    type Invocable,
+    type InvocableFn,
     type Lazyable,
 } from "@/utilities/_module.js";
 
@@ -59,7 +59,7 @@ export class ExecutionContext implements IExecutionContext {
         token: ContextToken<Array<TValue>>,
         matchValue:
             | NoInfer<TValue>
-            | Invokable<[value: NoInfer<TValue>], boolean>,
+            | Invocable<[value: NoInfer<TValue>], boolean>,
     ): boolean {
         return this.current.contains(token, matchValue);
     }
@@ -150,25 +150,25 @@ export class ExecutionContext implements IExecutionContext {
 
     when(
         condition: Lazyable<boolean>,
-        ...invokables: Array<Invokable<[context: IContext], IContext>>
+        ...invocables: Array<Invocable<[context: IContext], IContext>>
     ): IContext {
-        return this.current.when(condition, ...invokables);
+        return this.current.when(condition, ...invocables);
     }
 
-    run<TValue>(invokable: Invokable<[], TValue>): TValue {
+    run<TValue>(invocable: Invocable<[], TValue>): TValue {
         const currentContext = this.executionContextStorage.get();
         const contextToRun =
             currentContext === null
                 ? new Context(new Map())
                 : currentContext.copy();
         return this.executionContextStorage.run(contextToRun, () => {
-            return callInvokable(invokable);
+            return callInvocable(invocable);
         });
     }
 
     bind<TArgs extends Array<unknown>, TReturn>(
-        fn: Invokable<[...args: TArgs], TReturn>,
-    ): InvokableFn<[...args: TArgs], TReturn> {
+        fn: Invocable<[...args: TArgs], TReturn>,
+    ): InvocableFn<[...args: TArgs], TReturn> {
         // Capture the context at bind time
         const currentContext = this.executionContextStorage.get();
         const capturedContext =
@@ -180,7 +180,7 @@ export class ExecutionContext implements IExecutionContext {
             return this.executionContextStorage.run(
                 capturedContext.copy(),
                 () => {
-                    return callInvokable(fn, ...args);
+                    return callInvocable(fn, ...args);
                 },
             );
         };

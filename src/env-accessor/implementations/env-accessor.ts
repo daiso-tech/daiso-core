@@ -15,9 +15,9 @@ import {
     type OneOrMore,
     type AsyncLazyable,
     resolveOneOrMore,
-    isInvokable,
+    isInvocable,
     type AsyncLazy,
-    callInvokable,
+    callInvocable,
     validate,
 } from "@/utilities/_module.js";
 
@@ -110,7 +110,7 @@ export class EnvAccessor<
         const resolvedSource = resolveOneOrMore(this.sources).map<
             AsyncLazy<RawEnvConfig>
         >((source) => {
-            if (isInvokable(source)) {
+            if (isInvocable(source)) {
                 return source;
             }
             return () => source;
@@ -120,7 +120,7 @@ export class EnvAccessor<
         for (const source of resolvedSource) {
             mergedRawConfig = {
                 ...mergedRawConfig,
-                ...(await callInvokable(source)),
+                ...(await callInvocable(source)),
             };
         }
 

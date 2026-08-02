@@ -21,7 +21,7 @@ import { Serde } from "@/serde/implementations/derivables/_module.js";
 import {
     CORE,
     resolveOneOrMore,
-    type InvokableFn,
+    type InvocableFn,
     type OneOrMore,
 } from "@/utilities/_module.js";
 
@@ -49,7 +49,7 @@ export function defaultKeyValidator(key: string): string | null {
  * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
  * @group Derivables
  */
-export type FileKeyValidator = InvokableFn<[key: string], string | null>;
+export type FileKeyValidator = InvocableFn<[key: string], string | null>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
@@ -177,7 +177,7 @@ export class FileStorage implements IFileStorage {
     private readonly defaultCacheControl: string | null;
     private readonly defaultContentLanguage: string | null;
     private readonly onlyLowercase: boolean;
-    private readonly keyValidator: InvokableFn<[key: string], string | null>;
+    private readonly keyValidator: InvocableFn<[key: string], string | null>;
     private readonly context: IReadableContext;
 
     /**

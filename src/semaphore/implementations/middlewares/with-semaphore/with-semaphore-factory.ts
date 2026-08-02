@@ -7,7 +7,7 @@ import { v4 } from "uuid";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { type ISemaphoreFactory } from "@/semaphore/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
-import { callInvokable, type Invokable } from "@/utilities/_module.js";
+import { callInvocable, type Invocable } from "@/utilities/_module.js";
 
 /**
  * Settings for the distributed-semaphore middleware.
@@ -23,7 +23,7 @@ export type WithSemaphoreSettings<
      * wrapped function's arguments. All consumers using the same key share
      * the same semaphore limit.
      */
-    key: Invokable<TParameters, string>;
+    key: Invocable<TParameters, string>;
 
     /**
      *  A function that produces a unique slot identifier for
@@ -37,7 +37,7 @@ export type WithSemaphoreSettings<
      * () => v4()
      * ```
      */
-    slotId?: Invokable<TParameters, string>;
+    slotId?: Invocable<TParameters, string>;
 
     /**
      * Time-to-live for each acquired slot. If `null` slots never expire
@@ -80,9 +80,9 @@ export function withSemaphoreFactory(semaphoreFactory: ISemaphoreFactory) {
         } = settings;
         return ({ next, args }) => {
             return semaphoreFactory
-                .create(callInvokable(key, ...args), {
+                .create(callInvocable(key, ...args), {
                     ...rest,
-                    slotId: callInvokable(slotId, ...args),
+                    slotId: callInvocable(slotId, ...args),
                 })
                 .runOrFail(next);
         };

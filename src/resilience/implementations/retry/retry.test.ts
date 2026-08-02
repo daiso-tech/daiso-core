@@ -8,7 +8,7 @@ import {
     type ITimeSpan,
 } from "@/time-span/contracts/time-span.contract.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type InvokableFn } from "@/utilities/_module.js";
+import { type InvocableFn } from "@/utilities/_module.js";
 
 describe("function: retry", () => {
     describe("setting: maxAttempts", () => {
@@ -381,7 +381,7 @@ describe("function: retry", () => {
             expect(nextFn).toHaveBeenCalledTimes(3);
         });
 
-        test("Should support errorPolicy as an invokable object", async () => {
+        test("Should support errorPolicy as an invocable object", async () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockRejectedValueOnce(new Error("retryable"))
@@ -818,7 +818,7 @@ describe("function: retry", () => {
                 1,
                 expect.objectContaining({
                     waitTime: expect.objectContaining({
-                        [TO_MILLISECONDS]: expect.any(Function) as InvokableFn<
+                        [TO_MILLISECONDS]: expect.any(Function) as InvocableFn<
                             [],
                             number
                         >,

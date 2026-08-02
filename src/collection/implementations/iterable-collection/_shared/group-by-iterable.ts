@@ -3,7 +3,7 @@
  */
 
 import { type ICollection, type Map } from "@/collection/contracts/_module.js";
-import { resolveInvokable } from "@/utilities/_module.js";
+import { resolveInvocable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -24,7 +24,7 @@ export class GroupByIterable<TInput, TOutput = TInput> implements Iterable<
     *[Symbol.iterator](): Iterator<[TOutput, ICollection<TInput>]> {
         const map = new Map<TOutput, Array<TInput>>();
         for (const [index, item] of this.collection.entries()) {
-            const key = resolveInvokable(this.selectFn)(
+            const key = resolveInvocable(this.selectFn)(
                 item,
                 index,
                 this.collection,

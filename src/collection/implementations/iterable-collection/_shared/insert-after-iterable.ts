@@ -3,10 +3,10 @@
  */
 
 import {
-    type PredicateInvokable,
+    type PredicateInvocable,
     type ICollection,
 } from "@/collection/contracts/_module.js";
-import { resolveInvokable } from "@/utilities/_module.js";
+import { resolveInvocable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -16,7 +16,7 @@ export class InsertAfterIterable<TInput, TExtended> implements Iterable<
 > {
     constructor(
         private collection: ICollection<TInput>,
-        private predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        private predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
         private iterable: Iterable<TInput | TExtended>,
     ) {}
 
@@ -26,7 +26,7 @@ export class InsertAfterIterable<TInput, TExtended> implements Iterable<
             yield item;
             if (
                 !hasMatched &&
-                resolveInvokable(this.predicateFn)(item, index, this.collection)
+                resolveInvocable(this.predicateFn)(item, index, this.collection)
             ) {
                 yield* this.iterable;
                 hasMatched = true;

@@ -9,7 +9,7 @@ import {
     type ITimeSpan,
 } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { callInvokable, type Invokable } from "@/utilities/_module.js";
+import { callInvocable, type Invocable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
@@ -26,7 +26,7 @@ export type OnTimeoutData<TParameters extends Array<unknown> = Array<unknown>> =
  * @group Middlewares
  */
 export type OnTimeout<TParameters extends Array<unknown> = Array<unknown>> =
-    Invokable<[data: OnTimeoutData<TParameters>]>;
+    Invocable<[data: OnTimeoutData<TParameters>]>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
@@ -36,7 +36,7 @@ export type TimeoutCallbacks<
     TParameters extends Array<unknown> = Array<unknown>,
 > = {
     /**
-     * Callback {@link Invokable | `Invokable`} that will be called before the timeout occurs.
+     * Callback {@link Invocable | `Invocable`} that will be called before the timeout occurs.
      */
     onTimeout?: OnTimeout<TParameters>;
 };
@@ -100,7 +100,7 @@ export function timeout<TParameters extends Array<unknown>, TReturn>(
                 error === timeoutError
             ) {
                 try {
-                    await callInvokable(onTimeout, {
+                    await callInvocable(onTimeout, {
                         args,
                         waitTime: TimeSpan.fromTimeSpan(waitTime),
                     });

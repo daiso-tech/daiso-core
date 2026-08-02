@@ -17,9 +17,9 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import {
-    resolveInvokable,
+    resolveInvocable,
     type OneOrArray,
-    type InvokableFn,
+    type InvocableFn,
     resolveOneOrMore,
 } from "@/utilities/_module.js";
 
@@ -80,7 +80,7 @@ export class EventBus<
     /**
      * Thist instance variable is only used for testing!
      */
-    private readonly _onUncaughtRejection: InvokableFn<[error: unknown], void>;
+    private readonly _onUncaughtRejection: InvocableFn<[error: unknown], void>;
 
     /**
      * @example
@@ -115,7 +115,7 @@ export class EventBus<
     ) {
         return async (event: InferEvent<TEventMap, TEventName>) => {
             try {
-                await resolveInvokable(listener)({
+                await resolveInvocable(listener)({
                     ...event,
                     type: eventName,
                 });
@@ -201,7 +201,7 @@ export class EventBus<
             event_: InferEvent<TEventMap, TEventName>,
         ) => {
             try {
-                const resolvedListener = resolveInvokable(listener);
+                const resolvedListener = resolveInvocable(listener);
                 await resolvedListener(event_);
             } catch (error: unknown) {
                 this._onUncaughtRejection(error);

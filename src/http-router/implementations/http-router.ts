@@ -38,9 +38,9 @@ import {
 } from "@/http-router/implementations/types.js";
 import { use } from "@/http-router/middlewares/_module.js";
 import {
-    callInvokable,
-    isInvokable,
-    type InvokableFn,
+    callInvocable,
+    isInvocable,
+    type InvocableFn,
     type OneOrMore,
     type Promisable,
 } from "@/utilities/_module.js";
@@ -329,8 +329,8 @@ export class HttpRouter implements IHttpRouter {
             context,
             ...httpResHelpers,
         };
-        let chain: InvokableFn<[], Promisable<IHttpRes>> = () => {
-            return callInvokable(endpoint.handler, handlerArgs);
+        let chain: InvocableFn<[], Promisable<IHttpRes>> = () => {
+            return callInvocable(endpoint.handler, handlerArgs);
         };
 
         for (const middlewareEntry of [...middlewareMatches].reverse()) {
@@ -342,7 +342,7 @@ export class HttpRouter implements IHttpRouter {
                     req: httpReq,
                     next: () => nextHandler(),
                 };
-                return callInvokable(middleware, middlewareArgs);
+                return callInvocable(middleware, middlewareArgs);
             };
         }
 
@@ -363,7 +363,7 @@ export class HttpRouter implements IHttpRouter {
         prefixOrGroup: string | HttpRouteGroup,
         group?: HttpRouteGroup,
     ): IHttpRouterBase {
-        if (isInvokable(prefixOrGroup)) {
+        if (isInvocable(prefixOrGroup)) {
             return this.httpRouterBase.group(prefixOrGroup);
         }
 

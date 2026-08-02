@@ -951,9 +951,9 @@ router.endpoint({
 });
 ```
 
-### Using invokable objects as handlers and middleware
+### Using invocable objects as handlers and middleware
 
-Both handlers and middleware can be invokable objects (classes with an `invoke` method), which allows them to encapsulate state. This pattern is designed for seamless integration with dependency injection libraries, as most DI frameworks have first-class support for classes.
+Both handlers and middleware can be invocable objects (classes with an `invoke` method), which allows them to encapsulate state. This pattern is designed for seamless integration with dependency injection libraries, as most DI frameworks have first-class support for classes.
 
 **Handler example** using `IHttpHandlerObject`:
 
@@ -1005,7 +1005,7 @@ router.use(new AuthMiddleware("sk-1234"));
 ```
 
 :::info
-For further information about invokable objects, refer to the [`Invokable`](../../utilities/invokable.md) documentation.
+For further information about invocable objects, refer to the [`Invocable`](../../utilities/invocable.md) documentation.
 :::
 
 ### Interoperability with Winter TC standard web request handlers

@@ -293,7 +293,7 @@ describe("function: fallback", () => {
             await expect(fn()).rejects.toThrow("other-error");
         });
 
-        test("Should return fallback when errorPolicy is an IInvokableObject that returns true", async () => {
+        test("Should return fallback when errorPolicy is an IInvocableObject that returns true", async () => {
             const fn = use((): Promise<string> => {
                 return Promise.reject(new Error("fail"));
             }, [
@@ -307,7 +307,7 @@ describe("function: fallback", () => {
             expect(await fn()).toBe("fallback");
         });
 
-        test("Should rethrow when errorPolicy is an IInvokableObject that returns false", async () => {
+        test("Should rethrow when errorPolicy is an IInvocableObject that returns false", async () => {
             const fn = use((): Promise<string> => {
                 return Promise.reject(new Error("fail"));
             }, [

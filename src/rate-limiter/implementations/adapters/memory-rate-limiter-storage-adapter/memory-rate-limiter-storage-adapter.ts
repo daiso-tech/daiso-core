@@ -10,7 +10,7 @@ import {
     type IRateLimiterStorageAdapter,
     type IRateLimiterStorageAdapterTransaction,
 } from "@/rate-limiter/contracts/_module.js";
-import { type IDeinitizable, type InvokableFn } from "@/utilities/_module.js";
+import { type IDeinitizable, type InvocableFn } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter"`
@@ -53,7 +53,7 @@ export class MemoryRateLimiterStorageAdapter<TType>
     }
 
     async transaction<TValue>(
-        fn: InvokableFn<
+        fn: InvocableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,

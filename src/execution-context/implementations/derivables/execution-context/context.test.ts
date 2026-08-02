@@ -930,7 +930,7 @@ describe("class: Context", () => {
             expect(conditionEvaluated).toBe(true);
         });
 
-        test("Should pass context to each invokable", () => {
+        test("Should pass context to each invocable", () => {
             const token = contextToken<number>("count");
             context.put(token, 0);
 

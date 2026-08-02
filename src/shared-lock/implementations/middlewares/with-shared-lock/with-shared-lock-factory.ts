@@ -7,7 +7,7 @@ import { v4 } from "uuid";
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { type ISharedLockFactory } from "@/shared-lock/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
-import { callInvokable, type Invokable } from "@/utilities/_module.js";
+import { callInvocable, type Invocable } from "@/utilities/_module.js";
 
 /**
  * Constants that specify whether the middleware should acquire the shared lock
@@ -44,7 +44,7 @@ export type WithSharedLockFactorySettings<
      * function's arguments. All consumers using the same key share the same
      * lock state.
      */
-    key: Invokable<TParameters, string>;
+    key: Invocable<TParameters, string>;
 
     /**
      *  A function that produces a unique identifier for the
@@ -58,7 +58,7 @@ export type WithSharedLockFactorySettings<
      * () => v4()
      * ```
      */
-    lockId?: Invokable<TParameters, string>;
+    lockId?: Invocable<TParameters, string>;
 
     /**
      * Time-to-live for the lock. If `null` the lock never expires
@@ -113,16 +113,16 @@ export function withSharedLockFactory(sharedLockFactory: ISharedLockFactory) {
         return ({ next, args }) => {
             if (when === SHARED_LOCK_WHEN.READER) {
                 return sharedLockFactory
-                    .create(callInvokable(key, ...args), {
+                    .create(callInvocable(key, ...args), {
                         ...rest,
-                        lockId: callInvokable(lockId, ...args),
+                        lockId: callInvocable(lockId, ...args),
                     })
                     .runReaderOrFail(next);
             }
             return sharedLockFactory
-                .create(callInvokable(key, ...args), {
+                .create(callInvocable(key, ...args), {
                     ...rest,
-                    lockId: callInvokable(lockId, ...args),
+                    lockId: callInvocable(lockId, ...args),
                 })
                 .runWriterOrFail(next);
         };

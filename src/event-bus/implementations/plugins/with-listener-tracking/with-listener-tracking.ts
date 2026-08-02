@@ -5,7 +5,7 @@
 import { type IEventBusAdapter } from "@/event-bus/contracts/_module.js";
 import { ListenerStore } from "@/event-bus/implementations/derivables/event-bus/listener-store.js";
 import { type Plugin, type PluginFn } from "@/middleware/contracts/_module.js";
-import { callInvokable } from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
 
 /**
  * Wraps a plugin with automatic listener-reference tracking.
@@ -32,7 +32,7 @@ export function withListenerTracking(
     const listenerStore = new ListenerStore(new Map());
 
     return (adapter, enhance) => {
-        callInvokable(plugin, adapter, enhance);
+        callInvocable(plugin, adapter, enhance);
 
         enhance(
             adapter,

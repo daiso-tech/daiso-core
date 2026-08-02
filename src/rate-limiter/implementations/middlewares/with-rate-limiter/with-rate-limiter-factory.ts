@@ -5,9 +5,9 @@
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { type IRateLimiterFactory } from "@/rate-limiter/contracts/_module.js";
 import {
-    callInvokable,
+    callInvocable,
     type ErrorPolicySettings,
-    type Invokable,
+    type Invocable,
 } from "@/utilities/_module.js";
 
 /**
@@ -24,7 +24,7 @@ export type WithRateLimiterSettings<
      * wrapped function's arguments. Each unique key gets its own rate-limit
      * counter.
      */
-    key: Invokable<TParameters, string>;
+    key: Invocable<TParameters, string>;
 
     /**
      * When `true`, only failed (errored) invocations count toward the rate
@@ -65,7 +65,7 @@ export function withRateLimiterFactory(
         const { key = (...args) => JSON.stringify(args), ...rest } = settings;
         return ({ next, args }) => {
             return rateLimiterFactory
-                .create(callInvokable(key, ...args), rest)
+                .create(callInvocable(key, ...args), rest)
                 .runOrFail(next);
         };
     };

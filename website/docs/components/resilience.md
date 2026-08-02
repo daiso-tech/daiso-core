@@ -41,7 +41,7 @@ console.log(await fn());
 ```
 
 :::info
-You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../utilities/invokable.md) as fallback value.
+You can provide synchronous or asynchronous [`Invocable<[], TValue | Promise<TValue>>`](../utilities/invocable.md) as fallback value.
 :::
 
 ### Custom ErrorPolicy
@@ -62,7 +62,7 @@ await fn();
 
 ### Callbacks
 
-You can add callback [`Invokable`](../utilities/invokable.md) that will be called before the fallback value is returned.
+You can add callback [`Invocable`](../utilities/invocable.md) that will be called before the fallback value is returned.
 
 ```ts
 const fn = use(unstableFn, [
@@ -158,7 +158,7 @@ await fn();
 
 ### Callbacks
 
-You can add callback [`Invokable`](../utilities/invokable.md) that will be called before execution attempt:
+You can add callback [`Invocable`](../utilities/invocable.md) that will be called before execution attempt:
 
 ```ts
 const fn = use(unstableFn, [
@@ -171,7 +171,7 @@ const fn = use(unstableFn, [
 await fn();
 ```
 
-You can add callback [`Invokable`](../utilities/invokable.md) that will be called before the retry delay starts:
+You can add callback [`Invocable`](../utilities/invocable.md) that will be called before the retry delay starts:
 
 :::info
 For more details about `onExecutionAttempt` callback data, see the `OnRetryAttemptData` type.
@@ -257,7 +257,7 @@ await fn();
 
 ### Callbacks
 
-You can add callback [`Invokable`](../utilities/invokable.md) that will be called before each execution attempt:
+You can add callback [`Invocable`](../utilities/invocable.md) that will be called before each execution attempt:
 
 ```ts
 const fn = use(unstableFn, [
@@ -275,7 +275,7 @@ await fn();
 For more details about `onExecutionAttempt` callback data, see the `OnRetryAttemptData` type.
 :::
 
-You can add callback [`Invokable`](../utilities/invokable.md) that will be called before the retry delay starts:
+You can add callback [`Invocable`](../utilities/invocable.md) that will be called before the retry delay starts:
 
 ```ts
 const fn = use(unstableFn, [
@@ -320,7 +320,7 @@ await fn();
 
 ### Callbacks
 
-You can add callback [`Invokable`](../utilities/invokable.md) that will be called before the timeout occurs.
+You can add callback [`Invocable`](../utilities/invocable.md) that will be called before the timeout occurs.
 
 ```ts
 const fn = use(fetchData, [

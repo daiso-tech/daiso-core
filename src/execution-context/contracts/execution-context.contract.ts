@@ -3,8 +3,8 @@
  */
 
 import {
-    type Invokable,
-    type InvokableFn,
+    type Invocable,
+    type InvocableFn,
     type Lazyable,
 } from "@/utilities/_module.js";
 
@@ -149,7 +149,7 @@ export type IReadableContext = {
         token: ContextToken<Array<TValue>>,
         matchValue:
             | NoInfer<TValue>
-            | Invokable<[value: NoInfer<TValue>], boolean>,
+            | Invocable<[value: NoInfer<TValue>], boolean>,
     ): boolean;
 
     /**
@@ -372,17 +372,17 @@ export type IContext = IReadableContext & {
     /**
      * Conditionally applies one or more operations to the context.
      *
-     * If the condition evaluates to true, executes all provided invokable functions
+     * If the condition evaluates to true, executes all provided invocable functions
      * with this context. The condition can be a direct boolean or a lazy-evaluated function.
      * Useful for conditional context modifications.
      *
      * @param condition - Boolean condition or function that returns a condition
-     * @param invokables - Functions to execute if condition is true, each receives this context
+     * @param invocables - Functions to execute if condition is true, each receives this context
      * @returns This context instance for method chaining
      */
     when(
         condition: Lazyable<boolean>,
-        ...invokables: Array<Invokable<[context: IContext], IContext>>
+        ...invocables: Array<Invocable<[context: IContext], IContext>>
     ): IContext;
 };
 
@@ -402,10 +402,10 @@ export type IExecutionContextBase = {
      * accessible to the function and any functions it calls.
      *
      * @template TValue - The return type of the function
-     * @param invokable - The function to execute within this context
+     * @param invocable - The function to execute within this context
      * @returns The return value of the executed function
      */
-    run<TValue>(invokable: Invokable<[], TValue>): TValue;
+    run<TValue>(invocable: Invocable<[], TValue>): TValue;
 
     /**
      * Binds a function to this execution context.
@@ -420,8 +420,8 @@ export type IExecutionContextBase = {
      * @returns A new function that accepts the same arguments and runs within this context
      */
     bind<TArgs extends Array<unknown>, TReturn>(
-        fn: Invokable<[...args: TArgs], TReturn>,
-    ): InvokableFn<[...args: TArgs], TReturn>;
+        fn: Invocable<[...args: TArgs], TReturn>,
+    ): InvocableFn<[...args: TArgs], TReturn>;
 };
 
 /**

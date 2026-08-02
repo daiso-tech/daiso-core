@@ -6,7 +6,7 @@ import {
     type WinterTcRequestHandler,
 } from "@/http-router/contracts/_module.js";
 import {
-    callInvokable,
+    callInvocable,
     resolveOneOrMore,
     type OneOrMore,
 } from "@/utilities/_module.js";
@@ -38,7 +38,7 @@ export function use(
     let handler = coreHandler;
     for (const middleware of [...middlewareList].reverse()) {
         const next = handler;
-        handler = (req) => callInvokable(middleware, req, next);
+        handler = (req) => callInvocable(middleware, req, next);
     }
 
     return handler;

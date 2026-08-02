@@ -6,7 +6,7 @@ import {
 } from "@/backoff-policies/implementations/exponential-backoff/exponential-backoff.js";
 import { TO_MILLISECONDS } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { callInvokable } from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
 
 describe("function: resolveExponentialBackoffSettings", () => {
     test("Should use default values when no settings are provided", () => {
@@ -139,7 +139,7 @@ describe("function: exponentialBackoff", () => {
             jitter: null,
         });
 
-        const result = callInvokable(backoff, 0, undefined);
+        const result = callInvocable(backoff, 0, undefined);
 
         // 500 * 2^0 = 500
         expect(result[TO_MILLISECONDS]()).toBe(500);
@@ -154,15 +154,15 @@ describe("function: exponentialBackoff", () => {
         });
 
         // 500 * 2^1 = 1000
-        expect(callInvokable(backoff, 1, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 1, undefined)[TO_MILLISECONDS]()).toBe(
             1000,
         );
         // 500 * 2^2 = 2000
-        expect(callInvokable(backoff, 2, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 2, undefined)[TO_MILLISECONDS]()).toBe(
             2000,
         );
         // 500 * 2^3 = 4000
-        expect(callInvokable(backoff, 3, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 3, undefined)[TO_MILLISECONDS]()).toBe(
             4000,
         );
     });
@@ -176,7 +176,7 @@ describe("function: exponentialBackoff", () => {
         });
 
         // 500 * 2^3 = 4000, capped at 3000
-        expect(callInvokable(backoff, 3, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 3, undefined)[TO_MILLISECONDS]()).toBe(
             3000,
         );
     });
@@ -191,7 +191,7 @@ describe("function: exponentialBackoff", () => {
         });
 
         // attempt=1: 500 * 2^1 = 1000, jitter: (1 - 0.5 * 0.5) * 1000 = 750
-        expect(callInvokable(backoff, 1, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 1, undefined)[TO_MILLISECONDS]()).toBe(
             750,
         );
     });

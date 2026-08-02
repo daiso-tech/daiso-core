@@ -6,7 +6,7 @@ import {
     type EventListener,
     type EventListenerFn,
 } from "@/event-bus/contracts/_module.js";
-import { resolveInvokable } from "@/utilities/_module.js";
+import { resolveInvocable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -35,7 +35,7 @@ export class ListenerStore {
 
         let listenerFn_ = eventMap.get(listener);
         if (listenerFn_ === undefined) {
-            listenerFn_ = resolveInvokable(listenerWrapper);
+            listenerFn_ = resolveInvocable(listenerWrapper);
             eventMap.set(listener, listenerFn_);
         }
 

@@ -14,7 +14,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type IDeinitizable,
     type IInitizable,
-    type InvokableFn,
+    type InvocableFn,
     type IPrunable,
 } from "@/utilities/_module.js";
 
@@ -104,7 +104,7 @@ export class KyselySemaphoreAdapter
     }
 
     private _transaction<TValue>(
-        trxFn: InvokableFn<
+        trxFn: InvocableFn<
             [trx: Kysely<KyselySemaphoreTables>],
             Promise<TValue>
         >,

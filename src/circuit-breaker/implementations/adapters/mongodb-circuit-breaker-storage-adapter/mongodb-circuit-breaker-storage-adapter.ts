@@ -20,7 +20,7 @@ import { type ISerde } from "@/serde/contracts/_module.js";
 import {
     type IDeinitizable,
     type IInitizable,
-    type InvokableFn,
+    type InvocableFn,
 } from "@/utilities/_module.js";
 
 /**
@@ -178,7 +178,7 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
     }
 
     private async _transaction<TValue>(
-        trxFn: InvokableFn<[session?: ClientSession], Promise<TValue>>,
+        trxFn: InvocableFn<[session?: ClientSession], Promise<TValue>>,
     ): Promise<TValue> {
         return await this.client.withSession(async (session) => {
             return await session.withTransaction(async () => {
@@ -188,7 +188,7 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
     }
 
     async transaction<TValue>(
-        fn: InvokableFn<
+        fn: InvocableFn<
             [transaction: ICircuitBreakerStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,

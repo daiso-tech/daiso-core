@@ -5,7 +5,7 @@
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type Invokable,
+    type Invocable,
     type AsyncLazyable,
     type NoneFunc,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

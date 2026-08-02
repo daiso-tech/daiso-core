@@ -9,8 +9,8 @@ import {
     type IHttpResHelpers,
 } from "@/http-router/contracts/http-res.contract.js";
 import {
-    type IInvokableObject,
-    type InvokableFn,
+    type IInvocableObject,
+    type InvocableFn,
     type Promisable,
 } from "@/utilities/_module.js";
 
@@ -39,13 +39,13 @@ export type HttpHandlerArgs = IHttpResHelpers & {
 };
 
 /**
- * An invokable object that handles an HTTP request.
+ * An invocable object that handles an HTTP request.
  * Receives handler args ({@link HttpHandlerArgs}) and returns a response.
  *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export type IHttpHandlerObject = IInvokableObject<
+export type IHttpHandlerObject = IInvocableObject<
     [args: HttpHandlerArgs],
     Promisable<IHttpRes>
 >;
@@ -58,13 +58,13 @@ export type IHttpHandlerObject = IInvokableObject<
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export type HttpHandlerFn = InvokableFn<
+export type HttpHandlerFn = InvocableFn<
     [args: HttpHandlerArgs],
     Promisable<IHttpRes>
 >;
 
 /**
- * A union of all handler forms: a function or an invokable object.
+ * A union of all handler forms: a function or an invocable object.
  *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts

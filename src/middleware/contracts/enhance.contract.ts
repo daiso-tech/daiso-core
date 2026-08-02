@@ -3,10 +3,10 @@
  */
 
 import { type Middleware } from "@/middleware/contracts/use.contract.js";
-import { type InvokableFn, type OneOrMore } from "@/utilities/_module.js";
+import { type InvocableFn, type OneOrMore } from "@/utilities/_module.js";
 
 /**
- * Extracts the keys of an object whose values are invokable functions.
+ * Extracts the keys of an object whose values are invocable functions.
  *
  * This utility type filters the keys of `TInstance` to only include those
  * that are functions, enabling type-safe method selection when applying
@@ -21,40 +21,40 @@ export type InferMethodNames<TInstance> = {
     [TKey in keyof TInstance]: Exclude<
         TInstance[TKey],
         undefined
-    > extends InvokableFn<any, any>
+    > extends InvocableFn<any, any>
         ? TKey
         : never;
 }[keyof TInstance];
 
 /**
- * Infers the parameter tuple type from an invokable function or method.
+ * Infers the parameter tuple type from an invocable function or method.
  *
- * Given an invokable value, extracts its arguments as a tuple type.
+ * Given an invocable value, extracts its arguments as a tuple type.
  * This is used internally by the middleware system to derive the correct
  * type parameters for middleware from the enhanced method's signature.
  *
- * @typeParam TValue - The invokable type to extract parameters from
+ * @typeParam TValue - The invocable type to extract parameters from
  *
  * IMPORT_PATH: `@daiso-tech/core/middleware`
  * @group Contracts
  */
 export type InferParameters<TValue> =
-    TValue extends InvokableFn<infer R, any> ? R : never;
+    TValue extends InvocableFn<infer R, any> ? R : never;
 
 /**
- * Infers the return type from an invokable function or method.
+ * Infers the return type from an invocable function or method.
  *
- * Given an invokable value, extracts its return type.
+ * Given an invocable value, extracts its return type.
  * This is used internally by the middleware system to derive the correct
  * type parameters for middleware from the enhanced method's return type.
  *
- * @typeParam TValue - The invokable type to extract the return type from
+ * @typeParam TValue - The invocable type to extract the return type from
  *
  * IMPORT_PATH: `@daiso-tech/core/middleware`
  * @group Contracts
  */
 export type InferReturn<TValue> =
-    TValue extends InvokableFn<Array<any>, infer R> ? R : never;
+    TValue extends InvocableFn<Array<any>, infer R> ? R : never;
 
 /**
  * Enhances a method on an object by wrapping it with one or more middleware.
@@ -71,7 +71,7 @@ export type InferReturn<TValue> =
  * `Enhance` works with object literal methods, static class methods, class instance methods, class prototype methods.
  *
  * @typeParam TInstance - The type of the object containing the method
- * @typeParam TField - The method name (constrained to invokable keys of `TInstance`)
+ * @typeParam TField - The method name (constrained to invocable keys of `TInstance`)
  *
  * @param obj - The target object whose method will be enhanced
  * @param field - The name of the method to wrap with middleware
