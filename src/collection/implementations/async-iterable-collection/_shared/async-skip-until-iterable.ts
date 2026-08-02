@@ -6,7 +6,7 @@ import {
     type AsyncPredicate,
     type IAsyncCollection,
 } from "@/collection/contracts/_module.js";
-import { resolveInvokable } from "@/utilities/_module.js";
+import { resolveInvocable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -22,7 +22,7 @@ export class AsyncSkipUntilIterable<TInput> implements AsyncIterable<TInput> {
             index = 0;
         for await (const item of this.collection) {
             if (!hasMatched) {
-                hasMatched = await resolveInvokable(this.predicateFn)(
+                hasMatched = await resolveInvocable(this.predicateFn)(
                     item,
                     index,
                     this.collection,

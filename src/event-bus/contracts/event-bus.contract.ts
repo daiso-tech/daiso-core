@@ -7,7 +7,7 @@ import {
     type EventListenerFn,
 } from "@/event-bus/contracts/event-bus-adapter.contract.js";
 import {
-    type IInvokableObject,
+    type IInvocableObject,
     type OneOrArray,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type ValidationError,
@@ -32,13 +32,13 @@ export type BaseEventMap = Record<string, BaseEvent>;
 export type Unsubscribe = () => Promise<void>;
 
 /**
- * Event listener that implements the invokable object pattern.
+ * Event listener that implements the invocable object pattern.
  * Allows treating objects as callable functions for event handling.
  *
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
  * @group Contracts
  */
-export type IEventListenerObject<TEvent> = IInvokableObject<[event: TEvent]>;
+export type IEventListenerObject<TEvent> = IInvocableObject<[event: TEvent]>;
 
 /**
  * Event listener that can be either a function or an object implementing the event listener pattern.

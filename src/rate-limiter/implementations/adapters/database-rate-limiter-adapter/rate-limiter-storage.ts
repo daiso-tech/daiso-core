@@ -13,7 +13,7 @@ import {
     type AllRateLimiterState,
     type InternalRateLimiterPolicy,
 } from "@/rate-limiter/implementations/adapters/database-rate-limiter-adapter/internal-rate-limiter-policy.js";
-import { type InvokableFn } from "@/utilities/_module.js";
+import { type InvocableFn } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -39,7 +39,7 @@ export type IRateLimiterStorageState = {
 export type AtomicUpdateArgs<TMetrics> = {
     context: IReadableContext;
     key: string;
-    update: InvokableFn<
+    update: InvocableFn<
         [currentState: AllRateLimiterState<TMetrics>],
         AllRateLimiterState<TMetrics>
     >;

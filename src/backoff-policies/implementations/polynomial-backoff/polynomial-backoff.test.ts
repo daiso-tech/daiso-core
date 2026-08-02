@@ -6,7 +6,7 @@ import {
 } from "@/backoff-policies/implementations/polynomial-backoff/polynomial-backoff.js";
 import { TO_MILLISECONDS } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { callInvokable } from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
 
 describe("function: resolvePolynomialBackoffSettings", () => {
     test("Should use default values when no settings are provided", () => {
@@ -140,15 +140,15 @@ describe("function: polynomialBackoff", () => {
         });
 
         // 500 * 1^2 = 500
-        expect(callInvokable(backoff, 1, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 1, undefined)[TO_MILLISECONDS]()).toBe(
             500,
         );
         // 500 * 2^2 = 2000
-        expect(callInvokable(backoff, 2, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 2, undefined)[TO_MILLISECONDS]()).toBe(
             2000,
         );
         // 500 * 3^2 = 4500
-        expect(callInvokable(backoff, 3, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 3, undefined)[TO_MILLISECONDS]()).toBe(
             4500,
         );
     });
@@ -162,7 +162,7 @@ describe("function: polynomialBackoff", () => {
         });
 
         // 500 * 3^2 = 4500, capped at 3000
-        expect(callInvokable(backoff, 3, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 3, undefined)[TO_MILLISECONDS]()).toBe(
             3000,
         );
     });
@@ -176,11 +176,11 @@ describe("function: polynomialBackoff", () => {
         });
 
         // 100 * 2^3 = 800
-        expect(callInvokable(backoff, 2, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 2, undefined)[TO_MILLISECONDS]()).toBe(
             800,
         );
         // 100 * 3^3 = 2700
-        expect(callInvokable(backoff, 3, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 3, undefined)[TO_MILLISECONDS]()).toBe(
             2700,
         );
     });
@@ -195,7 +195,7 @@ describe("function: polynomialBackoff", () => {
         });
 
         // attempt=2: 500 * 2^2 = 2000, jitter: (1 - 0.5 * 0.5) * 2000 = 1500
-        expect(callInvokable(backoff, 2, undefined)[TO_MILLISECONDS]()).toBe(
+        expect(callInvocable(backoff, 2, undefined)[TO_MILLISECONDS]()).toBe(
             1500,
         );
     });

@@ -14,7 +14,7 @@ import {
 import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
 import {
     getConstructorName,
-    type InvokableFn,
+    type InvocableFn,
     type OneOrMore,
 } from "@/utilities/_module.js";
 
@@ -31,7 +31,7 @@ export type FileSerdeTransformerSettings = {
     adapter: ISignedFileStorageAdapter;
     serdeTransformerName: string;
     onlyLowercase: boolean;
-    keyValidator: InvokableFn<[key: string], string | null>;
+    keyValidator: InvocableFn<[key: string], string | null>;
     context: IReadableContext;
 };
 
@@ -43,7 +43,7 @@ export class FileSerdeTransformer implements ISerdeTransformer<
     ISerializedFile
 > {
     private readonly onlyLowercase: boolean;
-    private readonly keyValidator: InvokableFn<[key: string], string | null>;
+    private readonly keyValidator: InvocableFn<[key: string], string | null>;
     private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
     private readonly serdeTransformerName: string;

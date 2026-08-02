@@ -3,7 +3,7 @@
  */
 
 import { type ICollection, type Map } from "@/collection/contracts/_module.js";
-import { resolveInvokable } from "@/utilities/_module.js";
+import { resolveInvocable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -16,7 +16,7 @@ export class MapIterable<TInput, TOutput> implements Iterable<TOutput> {
 
     *[Symbol.iterator](): Iterator<TOutput> {
         for (const [index, item] of this.collection.entries()) {
-            yield resolveInvokable(this.mapFn)(item, index, this.collection);
+            yield resolveInvocable(this.mapFn)(item, index, this.collection);
         }
     }
 }

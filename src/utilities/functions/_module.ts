@@ -4,7 +4,7 @@ export * from "@/utilities/functions/default-wait-until.js";
 export * from "@/utilities/functions/delay.js";
 export * from "@/utilities/functions/error-policy.js";
 export * from "@/utilities/functions/get-constructor-name.js";
-export * from "@/utilities/functions/invokable.js";
+export * from "@/utilities/functions/invocable.js";
 export * from "@/utilities/functions/is-array-like.js";
 export * from "@/utilities/functions/is-async-iterable.js";
 export * from "@/utilities/functions/is-class.js";

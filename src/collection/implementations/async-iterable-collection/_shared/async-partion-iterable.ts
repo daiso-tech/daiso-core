@@ -7,7 +7,7 @@ import {
     type IAsyncCollection,
 } from "@/collection/contracts/_module.js";
 import {
-    resolveInvokable,
+    resolveInvocable,
     type AsyncIterableValue,
 } from "@/utilities/_module.js";
 
@@ -30,7 +30,7 @@ export class AsyncPartionIterable<TInput> implements AsyncIterable<
         const arrayB: Array<TInput> = [];
         for await (const [index, item] of this.collection.entries()) {
             if (
-                await resolveInvokable(this.predicateFn)(
+                await resolveInvocable(this.predicateFn)(
                     item,
                     index,
                     this.collection,

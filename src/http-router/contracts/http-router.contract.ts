@@ -7,10 +7,10 @@ import { type HttpMiddleware } from "@/http-router/contracts/http-middleware.con
 import { type HttpMethod } from "@/http-router/contracts/http-req.contract.js";
 import { type IWinterTcFetch } from "@/http-router/contracts/winter-tc-fetch.contract.js";
 import {
-    type InvokableFn,
-    type IInvokableObject,
+    type InvocableFn,
+    type IInvocableObject,
     type OneOrAtLeastOne,
-    type Invokable,
+    type Invocable,
 } from "@/utilities/_module.js";
 
 /**
@@ -76,7 +76,7 @@ export type IHttpEndpoint = {
      * specific to a single route — it keeps middleware scoped and avoids
      * unintended side effects on other endpoints.
      */
-    middlewares?: Invokable<[builder: IMiddlewareBuilder], void>;
+    middlewares?: Invocable<[builder: IMiddlewareBuilder], void>;
 };
 
 /**
@@ -168,16 +168,16 @@ export type IHttpRouterBase = {
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export type HttpRouteGroupFn = InvokableFn<[router: IHttpRouterBase], void>;
+export type HttpRouteGroupFn = InvocableFn<[router: IHttpRouterBase], void>;
 
 /**
- * An invokable object that receives a sub-router and returns it after registering routes.
+ * An invocable object that receives a sub-router and returns it after registering routes.
  * Used when state or configuration needs to be encapsulated alongside the route logic.
  *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export type IHttpRouteGroupObject = IInvokableObject<
+export type IHttpRouteGroupObject = IInvocableObject<
     [router: IHttpRouterBase],
     void
 >;

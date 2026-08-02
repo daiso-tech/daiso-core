@@ -58,9 +58,9 @@ import {
     AsyncValidateIterable,
 } from "@/collection/implementations/async-iterable-collection/_shared/_module.js";
 import {
-    isInvokable,
+    isInvocable,
     resolveAsyncIterableValue,
-    resolveInvokable,
+    resolveInvocable,
     type AsyncIterableValue,
     type AsyncLazyable,
     resolveAsyncLazyable,
@@ -324,7 +324,7 @@ export class AsyncIterableCollection<
     ): IAsyncCollection<Exclude<TInput, TOutput>> {
         return this.filter(
             async (...arguments_) =>
-                !(await resolveInvokable(predicateFn)(...arguments_)),
+                !(await resolveInvocable(predicateFn)(...arguments_)),
         );
     }
 
@@ -360,7 +360,7 @@ export class AsyncIterableCollection<
             let output = initialValue as TOutput;
 
             for await (const [index, item] of this.entries()) {
-                output = await resolveInvokable(reduceFn)(
+                output = await resolveInvocable(reduceFn)(
                     output,
                     item,
                     index,
@@ -375,7 +375,7 @@ export class AsyncIterableCollection<
         let isFirstIteration = true;
         for await (const item of this) {
             if (!isFirstIteration) {
-                output = await resolveInvokable(reduceFn)(
+                output = await resolveInvocable(reduceFn)(
                     output,
                     item,
                     index,
@@ -439,7 +439,7 @@ export class AsyncIterableCollection<
             return this;
         }
         let fn: AsyncMap<TInput, IAsyncCollection<TInput>, TInput>;
-        if (isInvokable(value)) {
+        if (isInvocable(value)) {
             fn = value;
         } else {
             fn = () => value;
@@ -579,7 +579,7 @@ export class AsyncIterableCollection<
         let part = 0,
             total = 0;
         for await (const item of this) {
-            if (await resolveInvokable(predicateFn)(item, total, this)) {
+            if (await resolveInvocable(predicateFn)(item, total, this)) {
                 part++;
             }
             total++;
@@ -591,7 +591,7 @@ export class AsyncIterableCollection<
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
     ): Promise<boolean> {
         for await (const [index, item] of this.entries()) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
+            if (await resolveInvocable(predicateFn)(item, index, this)) {
                 return true;
             }
         }
@@ -603,7 +603,7 @@ export class AsyncIterableCollection<
     ): Promise<boolean> {
         let isTrue = true;
         for await (const [index, item] of this.entries()) {
-            isTrue &&= await resolveInvokable(predicateFn)(item, index, this);
+            isTrue &&= await resolveInvocable(predicateFn)(item, index, this);
             if (!isTrue) {
                 break;
             }
@@ -628,7 +628,7 @@ export class AsyncIterableCollection<
     ): IAsyncCollection<TInput> {
         return this.takeUntil(
             async (...arguments_) =>
-                !(await resolveInvokable(predicateFn)(...arguments_)),
+                !(await resolveInvocable(predicateFn)(...arguments_)),
         );
     }
 
@@ -649,7 +649,7 @@ export class AsyncIterableCollection<
     ): IAsyncCollection<TInput> {
         return this.skipUntil(
             async (...arguments_) =>
-                !(await resolveInvokable(predicateFn)(...arguments_)),
+                !(await resolveInvocable(predicateFn)(...arguments_)),
         );
     }
 
@@ -702,7 +702,7 @@ export class AsyncIterableCollection<
     async pipe<TOutput = TInput>(
         callback: AsyncTransform<IAsyncCollection<TInput>, TOutput>,
     ): Promise<TOutput> {
-        return resolveInvokable(callback)(this);
+        return resolveInvocable(callback)(this);
     }
 
     tap(
@@ -805,12 +805,12 @@ export class AsyncIterableCollection<
             return !(await differenceCollection.some(
                 async (matchItem, matchIndex, matchCollection) => {
                     return (
-                        (await resolveInvokable(selectFn)(
+                        (await resolveInvocable(selectFn)(
                             item,
                             index,
                             collection,
                         )) ===
-                        (await resolveInvokable(selectFn)(
+                        (await resolveInvocable(selectFn)(
                             matchItem,
                             matchIndex,
                             matchCollection,
@@ -950,7 +950,7 @@ export class AsyncIterableCollection<
     ): Promise<Option<TOutput>> {
         let index = 0;
         for await (const item of this) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
+            if (await resolveInvocable(predicateFn)(item, index, this)) {
                 return optionSome(item as TOutput);
             }
             index++;
@@ -1003,7 +1003,7 @@ export class AsyncIterableCollection<
         let index = 0;
         let matchedItem: TOutput | null = null;
         for await (const item of this) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
+            if (await resolveInvocable(predicateFn)(item, index, this)) {
                 matchedItem = item as TOutput;
             }
             index++;
@@ -1060,7 +1060,7 @@ export class AsyncIterableCollection<
             index = 0;
         for await (const item of this) {
             if (
-                (await resolveInvokable(predicateFn)(item, index, this)) &&
+                (await resolveInvocable(predicateFn)(item, index, this)) &&
                 beforeItem !== null
             ) {
                 return optionSome(beforeItem as TOutput);
@@ -1119,7 +1119,7 @@ export class AsyncIterableCollection<
             if (hasMatched) {
                 return optionSome(item as TOutput);
             }
-            hasMatched = await resolveInvokable(predicateFn)(item, index, this);
+            hasMatched = await resolveInvocable(predicateFn)(item, index, this);
             index++;
         }
         return optionNone();
@@ -1166,7 +1166,7 @@ export class AsyncIterableCollection<
         let index = 0,
             matchedItem: Option<TOutput> = optionNone();
         for await (const item of this) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
+            if (await resolveInvocable(predicateFn)(item, index, this)) {
                 if (matchedItem.type === OPTION.SOME) {
                     throw MultipleItemsFoundCollectionError.create();
                 }
@@ -1191,7 +1191,7 @@ export class AsyncIterableCollection<
         let index = 0;
 
         for await (const item of this) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
+            if (await resolveInvocable(predicateFn)(item, index, this)) {
                 size++;
             }
             index++;
@@ -1218,7 +1218,7 @@ export class AsyncIterableCollection<
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
     ): Promise<number> {
         for await (const [index, item] of this.entries()) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
+            if (await resolveInvocable(predicateFn)(item, index, this)) {
                 return index;
             }
         }
@@ -1230,7 +1230,7 @@ export class AsyncIterableCollection<
     ): Promise<number> {
         let matchedIndex = -1;
         for await (const [index, item] of this.entries()) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
+            if (await resolveInvocable(predicateFn)(item, index, this)) {
                 matchedIndex = index;
             }
         }
@@ -1241,7 +1241,7 @@ export class AsyncIterableCollection<
         callback: AsyncForEach<TInput, IAsyncCollection<TInput>>,
     ): Promise<void> {
         for await (const [index, item] of this.entries()) {
-            await resolveInvokable(callback)(item, index, this);
+            await resolveInvocable(callback)(item, index, this);
         }
     }
 

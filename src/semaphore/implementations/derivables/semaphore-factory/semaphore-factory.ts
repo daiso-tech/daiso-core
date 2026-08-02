@@ -21,11 +21,11 @@ import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
-    callInvokable,
+    callInvocable,
     CORE,
     isPositiveNbr,
     resolveOneOrMore,
-    type Invokable,
+    type Invocable,
     type OneOrMore,
 } from "@/utilities/_module.js";
 
@@ -62,7 +62,7 @@ export type SemaphoreFactorySettingsBase = {
      *
      * () => v4()
      */
-    createSlotId?: Invokable<[], string>;
+    createSlotId?: Invocable<[], string>;
 
     /**
      * You can decide the default ttl value for {@link ISemaphore | `ISemaphore`} expiration. If null is passed then no ttl will be used by default.
@@ -128,7 +128,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
-    private readonly createSlotId: Invokable<[], string>;
+    private readonly createSlotId: Invocable<[], string>;
     private readonly context: IReadableContext;
 
     /**
@@ -198,7 +198,7 @@ export class SemaphoreFactory implements ISemaphoreFactory {
         const {
             ttl = this.defaultTtl,
             limit,
-            slotId = callInvokable(this.createSlotId),
+            slotId = callInvocable(this.createSlotId),
         } = settings;
         isPositiveNbr(limit);
 

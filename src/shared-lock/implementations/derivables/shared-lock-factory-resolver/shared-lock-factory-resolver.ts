@@ -15,7 +15,7 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
-    type Invokable,
+    type Invocable,
 } from "@/utilities/_module.js";
 
 /**
@@ -81,7 +81,7 @@ export class SharedLockFactoryResolver<
     ) {}
 
     setCreateLockId(
-        createId: Invokable<[], string>,
+        createId: Invocable<[], string>,
     ): SharedLockFactoryResolver<TAdapters> {
         return new SharedLockFactoryResolver({
             ...this.settings,

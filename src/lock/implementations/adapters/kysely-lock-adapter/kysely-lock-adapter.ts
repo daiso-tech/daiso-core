@@ -13,7 +13,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type IDeinitizable,
     type IInitizable,
-    type InvokableFn,
+    type InvocableFn,
     type IPrunable,
 } from "@/utilities/_module.js";
 
@@ -93,7 +93,7 @@ export class KyselyLockAdapter
     }
 
     private _transaction<TValue>(
-        trxFn: InvokableFn<[trx: Kysely<KyselyLockTables>], Promise<TValue>>,
+        trxFn: InvocableFn<[trx: Kysely<KyselyLockTables>], Promise<TValue>>,
     ): Promise<TValue> {
         return this.kysely
             .transaction()

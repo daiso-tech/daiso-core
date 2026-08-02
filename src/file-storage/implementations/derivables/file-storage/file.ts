@@ -24,7 +24,7 @@ import {
 import { resolveFileContent } from "@/file-storage/implementations/derivables/file-storage/resolve-file-content.js";
 import { ResolveFileStream } from "@/file-storage/implementations/derivables/file-storage/resolve-file-stream.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type InvokableFn } from "@/utilities/_module.js";
+import { type InvocableFn } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -32,7 +32,7 @@ import { type InvokableFn } from "@/utilities/_module.js";
 export type FileSettings = {
     originalKey: string;
     onlyLowercase: boolean;
-    keyValidator: InvokableFn<[key: string], string | null>;
+    keyValidator: InvocableFn<[key: string], string | null>;
     defaultContentType: string;
     originalAdapter: FileStorageAdapterVariants;
     adapter: ISignedFileStorageAdapter;
@@ -77,7 +77,7 @@ export class File implements IFile {
     private readonly defaultCacheControl: string | null;
     private readonly defaultContentLanguage: string | null;
     private readonly onlyLowercase: boolean;
-    private readonly keyValidator: InvokableFn<[key: string], string | null>;
+    private readonly keyValidator: InvocableFn<[key: string], string | null>;
     private readonly context: IReadableContext;
     private readonly originalKey: string;
 

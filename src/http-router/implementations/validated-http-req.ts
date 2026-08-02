@@ -19,8 +19,8 @@ import {
 } from "@/http-router/contracts/_module.js";
 import { HttpFileCollection } from "@/http-router/implementations/http-file-collection.js";
 import {
-    callInvokable,
-    isInvokableObject,
+    callInvocable,
+    isInvocableObject,
     validate,
     validateSync,
     ValidationError,
@@ -156,11 +156,11 @@ export class ValidatedHttpReq<
     ): Array<StaticFileDef> {
         const isDynamic =
             typeof fileValidation === "function" ||
-            isInvokableObject(fileValidation);
+            isInvocableObject(fileValidation);
         if (!isDynamic) {
             return collected.map(() => fileValidation);
         }
-        return collected.map((file) => callInvokable(fileValidation, file));
+        return collected.map((file) => callInvocable(fileValidation, file));
     }
 
     private validateSingleFile(

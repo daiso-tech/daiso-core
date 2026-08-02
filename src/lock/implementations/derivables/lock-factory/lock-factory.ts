@@ -24,8 +24,8 @@ import {
     type OneOrMore,
     CORE,
     resolveOneOrMore,
-    type Invokable,
-    callInvokable,
+    type Invocable,
+    callInvocable,
 } from "@/utilities/_module.js";
 
 /**
@@ -61,7 +61,7 @@ export type LockFactorySettingsBase = {
      *
      * () => v4()
      */
-    createLockId?: Invokable<[], string>;
+    createLockId?: Invocable<[], string>;
 
     /**
      * You can decide the default ttl value for {@link ILock | `ILock`} expiration. If null is passed then no ttl will be used by default.
@@ -123,7 +123,7 @@ export type LockFactorySettings = LockFactorySettingsBase & {
  */
 export class LockFactory implements ILockFactory {
     private readonly adapter: ILockAdapter;
-    private readonly creatLockId: Invokable<[], string>;
+    private readonly creatLockId: Invocable<[], string>;
     private readonly defaultTtl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
@@ -213,7 +213,7 @@ export class LockFactory implements ILockFactory {
     create(key: string, settings: LockFactoryCreateSettings = {}): ILock {
         const {
             ttl = this.defaultTtl,
-            lockId = callInvokable(this.creatLockId),
+            lockId = callInvocable(this.creatLockId),
         } = settings;
 
         return new Lock({

@@ -9,7 +9,7 @@ import {
 import { type Enhance } from "@/middleware/contracts/enhance.contract.js";
 import { enhance } from "@/middleware/implementations/enhance-factory/_module.js";
 import {
-    callInvokable,
+    callInvocable,
     copyObj,
     resolveOneOrMore,
     type OneOrMore,
@@ -25,7 +25,7 @@ export function withPluginFactory(enhance_: Enhance): WithPlugin {
     ): TInstance => {
         const copyOfInstance = copyObj(instance);
         for (const plugin of resolveOneOrMore(plugins).reverse()) {
-            callInvokable(plugin, copyOfInstance, enhance_);
+            callInvocable(plugin, copyOfInstance, enhance_);
         }
         return copyOfInstance;
     };

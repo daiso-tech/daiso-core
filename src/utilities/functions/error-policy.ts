@@ -5,10 +5,10 @@
 import { type StandardSchemaV1 } from "@standard-schema/spec";
 
 import {
-    callInvokable,
-    isInvokable,
-    type Invokable,
-} from "@/utilities/functions/invokable.js";
+    callInvocable,
+    isInvocable,
+    type Invocable,
+} from "@/utilities/functions/invocable.js";
 import { isStandardSchema } from "@/utilities/functions/is-standard-schema.js";
 import {
     resolveOneOrMore,
@@ -49,7 +49,7 @@ export function isErrorPolicyBoolSetting(
  * @group Utilities
  */
 export type ErrorPolicy<TError = unknown> =
-    | Invokable<[error: TError], boolean>
+    | Invocable<[error: TError], boolean>
     | StandardSchemaV1<TError>
     | OneOrMore<AnyClass>
     | ErrorPolicyBoolSetting;
@@ -93,8 +93,8 @@ export async function callErrorPolicyOnThrow<TError = unknown>(
     errorPolicy: ErrorPolicy<TError> = () => true,
     error: TError,
 ): Promise<boolean> {
-    if (isInvokable(errorPolicy)) {
-        return callInvokable(errorPolicy, error);
+    if (isInvocable(errorPolicy)) {
+        return callInvocable(errorPolicy, error);
     }
 
     if (isStandardSchema(errorPolicy)) {

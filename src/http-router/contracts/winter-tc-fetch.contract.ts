@@ -1,7 +1,7 @@
 /**
  * @module HttpRouter
  */
-import { type InvokableFn, type Promisable } from "@/utilities/_module.js";
+import { type InvocableFn, type Promisable } from "@/utilities/_module.js";
 
 /**
  * A function that handles an HTTP request using the WinterTC fetch signature.
@@ -14,7 +14,7 @@ import { type InvokableFn, type Promisable } from "@/utilities/_module.js";
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export type WinterTcRequestHandler = InvokableFn<
+export type WinterTcRequestHandler = InvocableFn<
     [request: Request],
     Promisable<Response>
 >;
@@ -32,7 +32,7 @@ export type WinterTcRequestHandler = InvokableFn<
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export type WinterTcMiddlewareFn = InvokableFn<
+export type WinterTcMiddlewareFn = InvocableFn<
     [request: Request, next: WinterTcRequestHandler],
     Promise<Response>
 >;
@@ -40,7 +40,7 @@ export type WinterTcMiddlewareFn = InvokableFn<
 /**
  * An object-based WinterTC middleware.
  *
- * Implements the WinterTC middleware contract as an invokable object rather
+ * Implements the WinterTC middleware contract as an invocable object rather
  * than a plain function. Receives the incoming `Request` and a `next` handler,
  * and returns a `Response`, either synchronously or as a promise.
  *
@@ -49,7 +49,7 @@ export type WinterTcMiddlewareFn = InvokableFn<
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export type IWinterTcMiddlewareObject = InvokableFn<
+export type IWinterTcMiddlewareObject = InvocableFn<
     [request: Request, next: WinterTcRequestHandler],
     Promise<Response>
 >;

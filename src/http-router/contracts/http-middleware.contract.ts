@@ -5,8 +5,8 @@
 import { type HttpHandlerArgs } from "@/http-router/contracts/http-handler.contract.js";
 import { type IHttpRes } from "@/http-router/contracts/http-res.contract.js";
 import {
-    type IInvokableObject,
-    type InvokableFn,
+    type IInvocableObject,
+    type InvocableFn,
     type Promisable,
 } from "@/utilities/_module.js";
 
@@ -17,7 +17,7 @@ import {
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export type HttpNextFn = InvokableFn<[], Promisable<IHttpRes>>;
+export type HttpNextFn = InvocableFn<[], Promisable<IHttpRes>>;
 
 /**
  * The arguments passed to a middleware function or object.
@@ -34,14 +34,14 @@ export type HttpMiddlewareArgs = HttpHandlerArgs & {
 };
 
 /**
- * An invokable object that acts as HTTP middleware.
+ * An invocable object that acts as HTTP middleware.
  * Receives {@link HttpMiddlewareArgs} (request, response builder, context, next)
  * and returns a response.
  *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export type IHttpMiddlewareObject = IInvokableObject<
+export type IHttpMiddlewareObject = IInvocableObject<
     [args: HttpMiddlewareArgs],
     Promisable<IHttpRes>
 >;
@@ -54,13 +54,13 @@ export type IHttpMiddlewareObject = IInvokableObject<
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts
  */
-export type HttpMiddlewareFn = InvokableFn<
+export type HttpMiddlewareFn = InvocableFn<
     [args: HttpMiddlewareArgs],
     Promisable<IHttpRes>
 >;
 
 /**
- * A union of all middleware forms: a function or an invokable object.
+ * A union of all middleware forms: a function or an invocable object.
  *
  * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
  * @group Contracts

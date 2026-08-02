@@ -21,7 +21,7 @@ import { type ISerde } from "@/serde/contracts/_module.js";
 import {
     type IDeinitizable,
     type IInitizable,
-    type InvokableFn,
+    type InvocableFn,
 } from "@/utilities/_module.js";
 
 /**
@@ -184,7 +184,7 @@ export class MongodbRateLimiterStorageAdapter<TType>
     }
 
     private async _transaction<TValue>(
-        trxFn: InvokableFn<[session?: ClientSession], Promise<TValue>>,
+        trxFn: InvocableFn<[session?: ClientSession], Promise<TValue>>,
     ): Promise<TValue> {
         return await this.client.withSession(async (session) => {
             return await session.withTransaction(async () => {
@@ -194,7 +194,7 @@ export class MongodbRateLimiterStorageAdapter<TType>
     }
 
     async transaction<TValue>(
-        fn: InvokableFn<
+        fn: InvocableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,

@@ -339,7 +339,7 @@ Note the method throws an error when the shared-lock cannot be acquired as write
 :::
 
 :::info
-You can provide synchronous Invokable or async/promisable invokable as values for the `runWriterOrFail` method.
+You can provide synchronous Invocable or async/promisable invocable as values for the `runWriterOrFail` method.
 :::
 
 ### Additional reader methods
@@ -392,7 +392,7 @@ Note the method throws an error when the shared-lock cannot be acquired as reade
 :::
 
 :::info
-You can provide synchronous Invokable or async/promisable invokable as values for the `runReaderOrFail` method.
+You can provide synchronous Invocable or async/promisable invocable as values for the `runReaderOrFail` method.
 :::
 
 ### Additional methods

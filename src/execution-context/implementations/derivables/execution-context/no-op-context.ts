@@ -14,7 +14,7 @@ import {
 import { NotFoundExecutionContextError } from "@/execution-context/contracts/execution-context.errors.js";
 import {
     resolveLazyable,
-    type Invokable,
+    type Invocable,
     type Lazyable,
 } from "@/utilities/_module.js";
 
@@ -30,7 +30,7 @@ export class NoOpContext implements ICopyableContext {
         _token: ContextToken<Array<TValue>>,
         _matchValue:
             | NoInfer<TValue>
-            | Invokable<[value: NoInfer<TValue>], boolean>,
+            | Invocable<[value: NoInfer<TValue>], boolean>,
     ): boolean {
         return false;
     }
@@ -127,7 +127,7 @@ export class NoOpContext implements ICopyableContext {
 
     when(
         _condition: Lazyable<boolean>,
-        ..._invokables: Array<Invokable<[context: IContext], IContext>>
+        ..._invocables: Array<Invocable<[context: IContext], IContext>>
     ): IContext {
         return this;
     }

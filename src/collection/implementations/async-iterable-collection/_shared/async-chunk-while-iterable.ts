@@ -7,7 +7,7 @@ import {
     type IAsyncCollection,
 } from "@/collection/contracts/_module.js";
 import {
-    resolveInvokable,
+    resolveInvocable,
     type AsyncIterableValue,
 } from "@/utilities/_module.js";
 
@@ -32,7 +32,7 @@ export class AsyncChunkWhileIterable<TInput> implements AsyncIterable<
             if (index === 0) {
                 array.push(item);
             } else if (
-                await resolveInvokable(this.predicateFn)(
+                await resolveInvocable(this.predicateFn)(
                     item,
                     index,
                     this.makeCollection(array),

@@ -7,7 +7,7 @@ import {
     type IAsyncCollection,
 } from "@/collection/contracts/_module.js";
 import {
-    resolveInvokable,
+    resolveInvocable,
     type AsyncIterableValue,
 } from "@/utilities/_module.js";
 
@@ -36,7 +36,7 @@ export class AsyncGroupByIterable<
     > {
         const map = new Map<TOutput, Array<TInput>>();
         for await (const [index, item] of this.collection.entries()) {
-            const key = await resolveInvokable(this.selectFn)(
+            const key = await resolveInvocable(this.selectFn)(
                 item,
                 index,
                 this.collection,

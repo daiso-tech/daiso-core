@@ -9,13 +9,13 @@ import {
     type Use,
 } from "@/middleware/contracts/_module.js";
 import {
-    type InvokableFn,
+    type InvocableFn,
     type OneOrMore,
-    type Invokable,
+    type Invocable,
     resolveOneOrMore,
-    isInvokableObject,
-    resolveInvokable,
-    getInvokableName,
+    isInvocableObject,
+    resolveInvocable,
+    getInvocableName,
 } from "@/utilities/_module.js";
 
 /**
@@ -24,7 +24,7 @@ import {
 function isMiddlewareObject<TParameters extends Array<unknown>, TReturn>(
     middleware: Middleware<TParameters, TReturn>,
 ): middleware is IMiddlewareObject<TParameters, TReturn> {
-    return isInvokableObject(middleware);
+    return isInvocableObject(middleware);
 }
 
 /**
@@ -70,10 +70,10 @@ const DEFAULT_PRIORITY = 0;
  */
 export function useFactory(): Use {
     return <TParameters extends Array<unknown>, TReturn>(
-        invokable: Invokable<TParameters, TReturn>,
+        invocable: Invocable<TParameters, TReturn>,
         middlewares: OneOrMore<Middleware<TParameters, TReturn>>,
-    ): InvokableFn<TParameters, TReturn> => {
-        let func = resolveInvokable(invokable);
+    ): InvocableFn<TParameters, TReturn> => {
+        let func = resolveInvocable(invocable);
         for (const middleware of resolveMiddlewares(
             middlewares,
             DEFAULT_PRIORITY,
@@ -86,7 +86,7 @@ export function useFactory(): Use {
 
                 // If function has been binded the name field will be "bound fnName"
                 // So we need to remove the "bound " prefix.
-                let name = getInvokableName(invokable);
+                let name = getInvocableName(invocable);
                 if (name.toLowerCase().startsWith("bound ")) {
                     name = name.slice(6);
                 }

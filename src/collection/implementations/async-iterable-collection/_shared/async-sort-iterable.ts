@@ -6,7 +6,7 @@ import {
     type Comparator,
     type IAsyncCollection,
 } from "@/collection/contracts/_module.js";
-import { resolveInvokable } from "@/utilities/_module.js";
+import { resolveInvocable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -23,7 +23,7 @@ export class AsyncSortIterable<TInput> implements AsyncIterable<TInput> {
             return;
         }
         yield* [...(await this.collection.toArray())].sort(
-            resolveInvokable(this.comparator),
+            resolveInvocable(this.comparator),
         );
     }
 }

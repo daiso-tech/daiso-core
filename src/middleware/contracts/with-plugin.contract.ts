@@ -4,8 +4,8 @@
 
 import { type Enhance } from "@/middleware/contracts/enhance.contract.js";
 import {
-    type InvokableFn,
-    type IInvokableObject,
+    type InvocableFn,
+    type IInvocableObject,
     type OneOrMore,
 } from "@/utilities/_module.js";
 
@@ -28,7 +28,7 @@ import {
  * IMPORT_PATH: `@daiso-tech/core/middleware`
  * @group Contracts
  */
-export type PluginFn<TInstance> = InvokableFn<
+export type PluginFn<TInstance> = InvocableFn<
     [instance: TInstance, enhance: Enhance],
     void
 >;
@@ -49,7 +49,7 @@ export type PluginFn<TInstance> = InvokableFn<
  * IMPORT_PATH: `@daiso-tech/core/middleware`
  * @group Contracts
  */
-export type IPluginObject<TInstance> = IInvokableObject<
+export type IPluginObject<TInstance> = IInvocableObject<
     [instance: TInstance, enhance: Enhance],
     void
 >;

@@ -6,7 +6,7 @@ import { type ISharedLockState } from "@/shared-lock/contracts/_module.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type AsyncLazy, type Invokable } from "@/utilities/_module.js";
+import { type AsyncLazy, type Invocable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
@@ -14,7 +14,7 @@ import { type AsyncLazy, type Invokable } from "@/utilities/_module.js";
  */
 export type IReaderSemaphore = {
     /**
-     * The `runReaderOrFail` method wraps an {@link Invokable | `Invokable`} with the `acquireOrFail` and `release` method.
+     * The `runReaderOrFail` method wraps an {@link Invocable | `Invocable`} with the `acquireOrFail` and `release` method.
      * @throws {LimitReachedReaderSemaphoreError}
      */
     runReaderOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
@@ -76,7 +76,7 @@ export type IReaderSemaphore = {
  */
 export type IWriterLock = {
     /**
-     * The `runWriterOrFail` method wraps an {@link Invokable | `Invokable`} with the `acquireOrFail` and `release` method.
+     * The `runWriterOrFail` method wraps an {@link Invocable | `Invocable`} with the `acquireOrFail` and `release` method.
      * @throws {FailedAcquireWriterLockError}
      */
     runWriterOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;

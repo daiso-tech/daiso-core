@@ -11,7 +11,7 @@ import {
     type Use,
 } from "@/middleware/contracts/_module.js";
 import { use } from "@/middleware/implementations/use-factory/_module.js";
-import { type InvokableFn, type OneOrMore } from "@/utilities/_module.js";
+import { type InvocableFn, type OneOrMore } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -27,7 +27,7 @@ export function enhanceFactory(use_: Use): Enhance {
             >
         >,
     ): void => {
-        const fn = obj[field] as InvokableFn<any, any>;
+        const fn = obj[field] as InvocableFn<any, any>;
         if (typeof fn === "undefined") {
             return fn;
         }

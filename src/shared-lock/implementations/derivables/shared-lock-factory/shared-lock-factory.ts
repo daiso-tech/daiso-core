@@ -23,8 +23,8 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     CORE,
     resolveOneOrMore,
-    type Invokable,
-    callInvokable,
+    type Invocable,
+    callInvocable,
     type OneOrMore,
 } from "@/utilities/_module.js";
 
@@ -61,7 +61,7 @@ export type SharedLockFactorySettingsBase = {
      *
      * () => v4()
      */
-    createLockId?: Invokable<[], string>;
+    createLockId?: Invocable<[], string>;
 
     /**
      * You can decide the default ttl value for {@link ISharedLock | `ISharedLock`} expiration. If null is passed then no ttl will be used by default.
@@ -123,7 +123,7 @@ export type SharedLockFactorySettings = SharedLockFactorySettingsBase & {
  */
 export class SharedLockFactory implements ISharedLockFactory {
     private readonly adapter: ISharedLockAdapter;
-    private readonly creatLockId: Invokable<[], string>;
+    private readonly creatLockId: Invocable<[], string>;
     private readonly defaultTtl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
@@ -216,7 +216,7 @@ export class SharedLockFactory implements ISharedLockFactory {
     ): ISharedLock {
         const {
             ttl = this.defaultTtl,
-            lockId = callInvokable(this.creatLockId),
+            lockId = callInvocable(this.creatLockId),
             limit,
         } = settings;
 

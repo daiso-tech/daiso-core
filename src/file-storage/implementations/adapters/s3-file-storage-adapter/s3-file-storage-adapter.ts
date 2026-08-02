@@ -33,18 +33,18 @@ import {
     type WritableFileAdapterStream,
 } from "@/file-storage/contracts/_module.js";
 import {
-    callInvokable,
+    callInvocable,
     UnexpectedError,
     type IDeinitizable,
     type IInitizable,
-    type Invokable,
+    type Invocable,
 } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/file-storage/aws-file-storage-adapter"`
  * @group Adapters
  */
-export type S3FilePublicUrlGenerator = Invokable<
+export type S3FilePublicUrlGenerator = Invocable<
     [settings: { key: string; bucket: string; client: S3Client }],
     Promise<string>
 >;
@@ -262,7 +262,7 @@ export class S3FileStorageAdapter
             return new URL(key, this.cdnUrl).toString();
         }
 
-        return await callInvokable(this.publicUrlGenerator, {
+        return await callInvocable(this.publicUrlGenerator, {
             key,
             bucket: this.bucket,
             client: this.client,

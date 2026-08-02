@@ -4,12 +4,12 @@
 
 import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import {
-    type Invokable,
+    type Invocable,
     type AsyncLazyable,
     type ErrorPolicySettings,
     callErrorPolicyOnValue,
     resolveAsyncLazyable,
-    callInvokable,
+    callInvocable,
     callErrorPolicyOnThrow,
 } from "@/utilities/_module.js";
 
@@ -33,7 +33,7 @@ export type OnFallbackData<
 export type OnFallback<
     TParameters extends Array<unknown> = Array<unknown>,
     TFallbackValue = unknown,
-> = Invokable<[data: OnFallbackData<TParameters, TFallbackValue>]>;
+> = Invocable<[data: OnFallbackData<TParameters, TFallbackValue>]>;
 
 /**
  * Lifecycle callbacks for the `fallback` middleware.
@@ -47,7 +47,7 @@ export type FallbackCallbacks<
     TReturn = unknown,
 > = {
     /**
-     * Callback {@link Invokable | `Invokable`} that will be called before fallback value is returned.
+     * Callback {@link Invocable | `Invocable`} that will be called before fallback value is returned.
      */
     onFallback?: OnFallback<TParameters, TReturn>;
 };
@@ -89,7 +89,7 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
             try {
                 void (async () => {
                     try {
-                        await callInvokable(onFallback, {
+                        await callInvocable(onFallback, {
                             error: value,
                             fallbackValue: resolvedFallbackValue,
                             args,
@@ -116,7 +116,7 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
             try {
                 void (async () => {
                     try {
-                        await callInvokable(onFallback, {
+                        await callInvocable(onFallback, {
                             error,
                             fallbackValue: resolvedFallbackValue as TReturn,
                             args,

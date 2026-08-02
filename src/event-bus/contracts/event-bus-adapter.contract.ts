@@ -3,7 +3,7 @@
  */
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type InvokableFn } from "@/utilities/_module.js";
+import { type InvocableFn } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
@@ -15,7 +15,7 @@ export type BaseEvent = Record<string, unknown>;
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
  * @group Contracts
  */
-export type EventListenerFn<TEvent> = InvokableFn<[event: TEvent]>;
+export type EventListenerFn<TEvent> = InvocableFn<[event: TEvent]>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`

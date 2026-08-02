@@ -2,7 +2,7 @@
  * @module ExecutionContext
  */
 
-import { type InvokableFn } from "@/utilities/_module.js";
+import { type InvocableFn } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
@@ -58,5 +58,5 @@ export type IExecutionContextAdapter<TValue> = {
      * @returns The return value of the executed function
      * @throws Error propagated from the executed function
      */
-    run<TReturn>(context: TValue, fn: InvokableFn<[], TReturn>): TReturn;
+    run<TReturn>(context: TValue, fn: InvocableFn<[], TReturn>): TReturn;
 };

@@ -12,9 +12,9 @@ import { RetryResilienceError } from "@/resilience/implementations/resilience.er
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
-    type Invokable,
+    type Invocable,
     type ErrorPolicySettings,
-    callInvokable,
+    callInvocable,
     callErrorPolicyOnValue,
     delay,
     callErrorPolicyOnThrow,
@@ -42,7 +42,7 @@ export type OnRetryAttemptData<
  */
 export type OnExecutionAttempt<
     TParameters extends Array<unknown> = Array<unknown>,
-> = Invokable<[data: OnRetryAttemptData<TParameters>]>;
+> = Invocable<[data: OnRetryAttemptData<TParameters>]>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/resilience"`
@@ -62,7 +62,7 @@ export type OnRetryDelayData<
  * @group Middlewares
  */
 export type OnRetryDelay<TParameters extends Array<unknown> = Array<unknown>> =
-    Invokable<[data: OnRetryDelayData<TParameters>]>;
+    Invocable<[data: OnRetryDelayData<TParameters>]>;
 
 /**
  * Lifecycle callbacks for the `retry` middleware.
@@ -75,12 +75,12 @@ export type RetryCallbacks<
     TParameters extends Array<unknown> = Array<unknown>,
 > = {
     /**
-     * Callback {@link Invokable | `Invokable`} that will be called before execution attempt.
+     * Callback {@link Invocable | `Invocable`} that will be called before execution attempt.
      */
     onExecutionAttempt?: OnExecutionAttempt<TParameters>;
 
     /**
-     * Callback {@link Invokable | `Invokable`} that will be called before the retry delay starts.
+     * Callback {@link Invocable | `Invocable`} that will be called before the retry delay starts.
      */
     onRetryDelay?: OnRetryDelay<TParameters>;
 };
@@ -140,7 +140,7 @@ export function handleOnExecutionAttempt<TParameters extends Array<unknown>>(
     const { attempt, args, onExecutionAttempt } = settings;
     void (async () => {
         try {
-            await callInvokable(onExecutionAttempt, {
+            await callInvocable(onExecutionAttempt, {
                 attempt,
                 args,
             });
@@ -173,7 +173,7 @@ export function handleOnRetryDelay<TParameters extends Array<unknown>>(
     const { onRetryDelay, error, waitTime, attempt, args } = settings;
     void (async () => {
         try {
-            await callInvokable(onRetryDelay, {
+            await callInvocable(onRetryDelay, {
                 error,
                 waitTime: TimeSpan.fromTimeSpan(waitTime),
                 attempt,
@@ -233,7 +233,7 @@ async function handleWhenReturn<TParameters extends Array<unknown>, TReturn>(
 
     // Only sleep if there will actually be a next attempt
     if (attempt < maxAttempts) {
-        const waitTime = callInvokable(backoffPolicy, attempt, value);
+        const waitTime = callInvocable(backoffPolicy, attempt, value);
         handleOnRetryDelay({
             onRetryDelay,
             error: value,
@@ -284,7 +284,7 @@ async function handleWhenThrow<TParameters extends Array<unknown>>(
 
     // Only sleep if there will actually be a next attempt
     if (attempt < maxAttempts) {
-        const waitTime = callInvokable(backoffPolicy, attempt, error);
+        const waitTime = callInvocable(backoffPolicy, attempt, error);
 
         handleOnRetryDelay({
             onRetryDelay,

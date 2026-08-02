@@ -15,7 +15,7 @@ import {
 } from "@/rate-limiter/contracts/_module.js";
 import {
     callErrorPolicyOnThrow,
-    callInvokable,
+    callInvocable,
     resolveAsyncLazyable,
     type AsyncLazy,
     type ErrorPolicy,
@@ -173,7 +173,7 @@ export class RateLimiter implements IRateLimiter {
                     );
                 };
                 if (this.enableAsyncTracking) {
-                    callInvokable(this.waitUntil, fn());
+                    callInvocable(this.waitUntil, fn());
                 } else {
                     await fn();
                 }

@@ -11,7 +11,7 @@ import {
 } from "@/http-router/contracts/_module.js";
 import { MiddlewareBuilder } from "@/http-router/implementations/middleware-builder.js";
 import { type RouterEntry } from "@/http-router/implementations/types.js";
-import { callInvokable, isInvokable } from "@/utilities/_module.js";
+import { callInvocable, isInvocable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -51,7 +51,7 @@ export class HttpRouterBase implements IHttpRouterBase {
         } = endpoint_;
 
         const endpointMiddlewares: Array<HttpMiddleware> = [];
-        callInvokable(middlewares, new MiddlewareBuilder(endpointMiddlewares));
+        callInvocable(middlewares, new MiddlewareBuilder(endpointMiddlewares));
 
         for (const method of methods) {
             const methodLowerCase = method.toLowerCase();
@@ -85,8 +85,8 @@ export class HttpRouterBase implements IHttpRouterBase {
         prefixOrGroup: HttpRouteGroup | string,
         group?: HttpRouteGroup,
     ): IHttpRouterBase {
-        if (isInvokable(prefixOrGroup)) {
-            callInvokable(
+        if (isInvocable(prefixOrGroup)) {
+            callInvocable(
                 prefixOrGroup,
                 new HttpRouterBase(
                     this.withPrefix("/"),
@@ -98,7 +98,7 @@ export class HttpRouterBase implements IHttpRouterBase {
         }
 
         if (group !== undefined && typeof prefixOrGroup === "string") {
-            callInvokable(
+            callInvocable(
                 group,
                 new HttpRouterBase(
                     this.withPrefix(prefixOrGroup),

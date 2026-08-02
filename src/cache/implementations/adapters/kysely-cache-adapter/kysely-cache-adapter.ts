@@ -11,7 +11,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type IDeinitizable,
     type IInitizable,
-    type InvokableFn,
+    type InvocableFn,
     type IPrunable,
 } from "@/utilities/_module.js";
 
@@ -154,7 +154,7 @@ export class KyselyCacheAdapter<TType = unknown>
 
     private _transaction<TValue>(
         _context: IReadableContext,
-        trxFn: InvokableFn<[trx: Kysely<KyselyCacheTables>], Promise<TValue>>,
+        trxFn: InvocableFn<[trx: Kysely<KyselyCacheTables>], Promise<TValue>>,
     ): Promise<TValue> {
         return this.kysely.transaction().execute(async (trx) => {
             return await trxFn(trx);

@@ -2,12 +2,12 @@
  * @module Collection
  */
 
-import { type Invokable, type Promisable } from "@/utilities/_module.js";
+import { type Invocable, type Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
-export type PredicateFn<TInput, TCollection> = Invokable<
+export type PredicateFn<TInput, TCollection> = Invocable<
     [item: TInput, index: number, collection: TCollection],
     boolean
 >;
@@ -24,7 +24,7 @@ export type PredicateGuardFn<
 /**
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
-export type PredicateGuardInvokableObject<
+export type PredicateGuardInvocableObject<
     TInput,
     TCollection,
     TOutput extends TInput = TInput,
@@ -39,29 +39,29 @@ export type PredicateGuardInvokableObject<
 /**
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
-export type PredicateGuardInvokable<
+export type PredicateGuardInvocable<
     TInput,
     TCollection,
     TOutput extends TInput = TInput,
 > =
     | PredicateGuardFn<TInput, TCollection, TOutput>
-    | PredicateGuardInvokableObject<TInput, TCollection, TOutput>;
+    | PredicateGuardInvocableObject<TInput, TCollection, TOutput>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
-export type PredicateInvokable<
+export type PredicateInvocable<
     TInput,
     TCollection,
     TOutput extends TInput = TInput,
 > =
     | PredicateFn<TInput, TCollection>
-    | PredicateGuardInvokable<TInput, TCollection, TOutput>;
+    | PredicateGuardInvocable<TInput, TCollection, TOutput>;
 
 /**
  * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
  */
-export type AsyncPredicateInvokable<TInput, TCollection> = Invokable<
+export type AsyncPredicateInvocable<TInput, TCollection> = Invocable<
     [item: TInput, index: number, collection: TCollection],
     Promisable<boolean>
 >;
@@ -74,5 +74,5 @@ export type AsyncPredicate<
     TCollection,
     TOutput extends TInput = TInput,
 > =
-    | AsyncPredicateInvokable<TInput, TCollection>
-    | PredicateGuardInvokable<TInput, TCollection, TOutput>;
+    | AsyncPredicateInvocable<TInput, TCollection>
+    | PredicateGuardInvocable<TInput, TCollection, TOutput>;

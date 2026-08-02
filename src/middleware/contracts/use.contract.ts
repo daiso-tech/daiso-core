@@ -3,10 +3,10 @@
  */
 
 import {
-    type InvokableFn,
-    type IInvokableObject,
+    type InvocableFn,
+    type IInvocableObject,
     type OneOrMore,
-    type Invokable,
+    type Invocable,
 } from "@/utilities/_module.js";
 
 /**
@@ -34,7 +34,7 @@ import {
 export type NextFn<
     TParameters extends Array<unknown> = Array<unknown>,
     TReturn = unknown,
-> = InvokableFn<[args?: TParameters], TReturn>;
+> = InvocableFn<[args?: TParameters], TReturn>;
 
 /**
  * Arguments passed to middleware functions during execution.
@@ -111,7 +111,7 @@ export type MiddlewareArgs<
 export type IMiddlewareObject<
     TParameters extends Array<unknown> = Array<unknown>,
     TReturn = unknown,
-> = IInvokableObject<[args: MiddlewareArgs<TParameters, TReturn>], TReturn> & {
+> = IInvocableObject<[args: MiddlewareArgs<TParameters, TReturn>], TReturn> & {
     /** Execution priority. Lower values execute first. Defaults to 0. */
     priority?: number;
 };
@@ -131,7 +131,7 @@ export type IMiddlewareObject<
 export type MiddlewareFn<
     TParameters extends Array<unknown> = Array<unknown>,
     TReturn = unknown,
-> = InvokableFn<[args: MiddlewareArgs<TParameters, TReturn>], TReturn>;
+> = InvocableFn<[args: MiddlewareArgs<TParameters, TReturn>], TReturn>;
 
 /**
  * Defines a middleware function with type inference.
@@ -204,19 +204,19 @@ export type Middleware<
     | IMiddlewareObject<TParameters, TReturn>;
 
 /**
- * Function that applies a middleware chain to an invokable function or object.
+ * Function that applies a middleware chain to an invocable function or object.
  *
- * Wraps the provided invokable with the specified middlewares, creating a new function
+ * Wraps the provided invocable with the specified middlewares, creating a new function
  * that executes all middlewares in priority order before delegating to the original
- * invokable.
+ * invocable.
  *
- * @typeParam TParameters - Type of arguments passed to the invokable
- * @typeParam TReturn - Type of value returned from the invokable
+ * @typeParam TParameters - Type of arguments passed to the invocable
+ * @typeParam TReturn - Type of value returned from the invocable
  *
- * @param invokable - The function or object to wrap with middleware
+ * @param invocable - The function or object to wrap with middleware
  * @param middlewares - One or more middleware to apply, executed in priority order
  *
- * @returns A new invokable function that applies the middleware chain
+ * @returns A new invocable function that applies the middleware chain
  *
  * @example
  * ```ts
@@ -239,12 +239,12 @@ export type Middleware<
  *
  * @see {@link UseFactorySettings | `UseFactorySettings`}
  * @see {@link Middleware | `Middleware`}
- * @see {@link Invokable | `Invokable`}
+ * @see {@link Invocable | `Invocable`}
  *
  * IMPORT_PATH: `@daiso-tech/core/middleware`
  * @group Contracts
  */
 export type Use = <TParameters extends Array<unknown>, TReturn>(
-    invokable: Invokable<TParameters, TReturn>,
+    invocable: Invocable<TParameters, TReturn>,
     middlewares: OneOrMore<Middleware<TParameters, TReturn>>,
-) => InvokableFn<TParameters, TReturn>;
+) => InvocableFn<TParameters, TReturn>;

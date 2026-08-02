@@ -310,12 +310,12 @@ await listenerFunc(eventBus);
 await dispatchingFunc(eventBus);
 ```
 
-### Invokable listeners
+### Invocable listeners
 
-An event listener is `Invokable` meaning you can also pass in an object (class instance or object literal) as listener:
+An event listener is `Invocable` meaning you can also pass in an object (class instance or object literal) as listener:
 
 :::info
-For further information refer the [`Invokable`](../../utilities/invokable.md) docs.
+For further information refer the [`Invocable`](../../utilities/invocable.md) docs.
 :::
 
 ```ts

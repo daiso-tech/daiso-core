@@ -3,7 +3,7 @@
  */
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type InvokableFn } from "@/utilities/_module.js";
+import { type InvocableFn } from "@/utilities/_module.js";
 
 /**
  * Persisted rate limiter state data.
@@ -99,7 +99,7 @@ export type IRateLimiterStorageAdapter<TType = unknown> = {
      * @returns The value returned by the fn callback
      */
     transaction<TValue>(
-        fn: InvokableFn<
+        fn: InvocableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,

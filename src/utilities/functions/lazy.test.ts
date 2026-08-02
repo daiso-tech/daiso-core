@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 
 import {
-    type IInvokableObject,
-    type InvokableFn,
+    type IInvocableObject,
+    type InvocableFn,
 } from "@/utilities/functions/_module.js";
 import {
     isAsyncLazy,
@@ -14,74 +14,74 @@ import { type Promisable } from "@/utilities/types/_module.js";
 
 describe("file: lazy.ts", () => {
     describe("function: isLazy", () => {
-        test("Should return true when given a InvokableFn", () => {
-            const invokable: InvokableFn<[], string> = () => "";
-            expect(isLazy(invokable)).toBe(true);
+        test("Should return true when given a InvocableFn", () => {
+            const invocable: InvocableFn<[], string> = () => "";
+            expect(isLazy(invocable)).toBe(true);
         });
-        test("Should return true when given a IInvokableObject", () => {
-            const invokableObject: IInvokableObject<[], string> = {
+        test("Should return true when given a IInvocableObject", () => {
+            const invocableObject: IInvocableObject<[], string> = {
                 invoke(): string {
                     return "";
                 },
             };
-            expect(isLazy(invokableObject)).toBe(true);
+            expect(isLazy(invocableObject)).toBe(true);
         });
-        test("Should return false when given not IInvokableObject and InvokableFn", () => {
+        test("Should return false when given not IInvocableObject and InvocableFn", () => {
             expect(isLazy("")).toBe(false);
         });
     });
     describe("function: isAsyncLazy", () => {
-        test("Should return true when given a InvokableFn", () => {
-            const invokable: InvokableFn<[], Promisable<string>> = () => "";
-            expect(isAsyncLazy(invokable)).toBe(true);
+        test("Should return true when given a InvocableFn", () => {
+            const invocable: InvocableFn<[], Promisable<string>> = () => "";
+            expect(isAsyncLazy(invocable)).toBe(true);
         });
-        test("Should return true when given a IInvokableObject", () => {
-            const invokableObject: IInvokableObject<[], Promisable<string>> = {
+        test("Should return true when given a IInvocableObject", () => {
+            const invocableObject: IInvocableObject<[], Promisable<string>> = {
                 invoke(): Promisable<string> {
                     return "";
                 },
             };
-            expect(isAsyncLazy(invokableObject)).toBe(true);
+            expect(isAsyncLazy(invocableObject)).toBe(true);
         });
-        test("Should return false when given not IInvokableObject and InvokableFn", () => {
+        test("Should return false when given not IInvocableObject and InvocableFn", () => {
             expect(isAsyncLazy("")).toBe(false);
         });
     });
     describe("function: resolveLazyable", () => {
-        test("Should return value when given IInvokableObject", () => {
+        test("Should return value when given IInvocableObject", () => {
             const str = "TEXT";
-            const factory: IInvokableObject<[], string> = {
+            const factory: IInvocableObject<[], string> = {
                 invoke(): string {
                     return str;
                 },
             };
             expect(resolveLazyable(factory)).toBe(str);
         });
-        test("Should return value when given InvokableFn", () => {
+        test("Should return value when given InvocableFn", () => {
             const str = "TEXT";
-            const factory: InvokableFn<[], string> = function (): string {
+            const factory: InvocableFn<[], string> = function (): string {
                 return str;
             };
             expect(resolveLazyable(factory)).toBe(str);
         });
-        test("Should return value when given not IInvokableObject or InvokableFn", () => {
+        test("Should return value when given not IInvocableObject or InvocableFn", () => {
             const str = "TEXT";
             expect(resolveLazyable(str)).toBe(str);
         });
     });
     describe("function: resolveAsyncLazyable", () => {
-        test("Should return value when given IInvokableObject", async () => {
+        test("Should return value when given IInvocableObject", async () => {
             const str = "TEXT";
-            const factory: IInvokableObject<[], Promisable<string>> = {
+            const factory: IInvocableObject<[], Promisable<string>> = {
                 invoke(): Promisable<string> {
                     return str;
                 },
             };
             expect(await resolveAsyncLazyable(factory)).toBe(str);
         });
-        test("Should return value when given InvokableFn", async () => {
+        test("Should return value when given InvocableFn", async () => {
             const str = "TEXT";
-            const factory: InvokableFn<
+            const factory: InvocableFn<
                 [],
                 Promisable<string>
             > = function (): string {
@@ -89,7 +89,7 @@ describe("file: lazy.ts", () => {
             };
             expect(await resolveAsyncLazyable(factory)).toBe(str);
         });
-        test("Should return value when given not IInvokableObject or InvokableFn", async () => {
+        test("Should return value when given not IInvocableObject or InvocableFn", async () => {
             const str = "TEXT";
             expect(await resolveAsyncLazyable(str)).toBe(str);
         });
