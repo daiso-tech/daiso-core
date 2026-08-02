@@ -23,7 +23,6 @@ describe("sqlite class: KyselyCacheAdapter", () => {
                         database,
                     }),
                 }),
-                shouldRemoveExpiredKeys: false,
                 serde: new Serde(new SuperJsonSerdeAdapter()),
             });
             await adapter.init();

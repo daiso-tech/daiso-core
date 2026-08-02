@@ -293,35 +293,17 @@ you won't be able to use following methods `put` and `increment`, as they requir
 
 ### Settings
 
-Expired keys are cleared at regular intervals and you can change the interval time:
+To clean up expired cache keys, call `removeAllExpired` at a regular interval (for example, using a cron job):
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
 const kyselyCacheAdapter = new KyselyCacheAdapter({
     database,
     serde,
-    // By default, the interval is 1 minute
-    expiredKeysRemovalInterval: TimeSpan.fromSeconds(10),
-});
-
-await kyselyCacheAdapter.init();
-```
-
-Disabling scheduled interval cleanup of expired keys:
-
-```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
-const kyselyCacheAdapter = new KyselyCacheAdapter({
-    database,
-    serde,
-    shouldRemoveExpiredKeys: false,
 });
 
 await kyselyCacheAdapter.init();
 
-// You can remove all expired keys manually.
+// Remove all expired cache keys manually.
 await kyselyCacheAdapter.removeAllExpired();
 ```
 
