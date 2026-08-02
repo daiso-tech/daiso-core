@@ -10,9 +10,9 @@
 
 **Write business logic once. Replace infrastructure anytime.**
 
-The adapter-first backend toolkit for TypeScript — 17 interchangeable components with 4,640+ integration and behavior tests.
+The adapter-first backend toolkit for TypeScript — 17 officially maintained components with 4,640+ integration and behavior tests.
 
-[**Explore the Docs**](https://daiso-tech.dev/docs/installation) | [**NPM Package**](https://www.npmjs.com/package/@daiso-tech/core)
+[**Explore the Docs**](https://www.daiso-tech.dev/docs/installation) · [**API docs**](https://daiso-tech.github.io/daiso-core/modules.html) · [**GitHub**](https://github.com/daiso-tech/daiso-core) · [**NPM**](https://www.npmjs.com/package/@daiso-tech/core)
 
 ---
 
@@ -35,66 +35,139 @@ npm install @daiso-tech/core
 
 ---
 
-## 🧩 Components
+## 🧬 Unified architecture
 
-A growing collection of officially maintained, production-ready components. Every component ships with multiple built-in adapters — swap infrastructure without changing a single line of business logic.
+A single serialization engine, a single execution context, and composable middleware — every component shares the same architecture.
 
-### 🛡️ Resilience
+### 🔁 Serde — Serialize anything. Restore everything.
 
-- **Circuit-breaker**: Prevent cascading failures when external services go down. Automatically stops calls and recovers when the service is healthy again.
-- **Resilience**: Build robust async flows with built-in middlewares: retry failed calls, fallback gracefully, and enforce timeouts.
+The Serde component provides a unified serialization and deserialization engine with fully type-safe schemas. It supports custom serializers for any type and includes a built-in SuperJSON adapter that handles Date, Map, Set, and BigInt out of the box. Serde is used internally across LockFactory, Cache, EventBus, and other components.
 
-### 🚦 Concurrency
+- [x] Shared serialization engine used throughout Daiso
+- [x] Powers LockFactory, Cache, EventBus, and more
+- [x] Built-in SuperJSON adapter — Date, Map, Set & BigInt out of the box
+- [x] Register custom serializers for your own types
 
-- **Lock**: Prevent duplicate payment processing and race conditions with distributed mutual exclusion across multiple processes.
-- **Semaphore**: Limit concurrent access to rate-limited APIs or resource-heavy operations across processes.
-- **Shared lock**: Coordinate readers and writers efficiently — allow concurrent reads while ensuring exclusive, safe writes across processes.
+### ⚡ ExecutionContext — Propagate context across async boundaries.
 
-### 💾 Storage
+The ExecutionContext component propagates any kind of async context across execution boundaries. Most components use it to become implicitly execution-context-aware, allowing them to automatically share the same transaction and other contextual state.
 
-- **Cache**: Cache expensive database queries and API responses. Memory, Redis, Kysely, and MongoDB adapters included.
-- **File storage**: Build photo upload services and document management. Unified API across local filesystem, in-memory, and AWS S3.
+- [x] Type-safe context tokens
+- [x] Async context propagation
+- [x] No manual parameter passing
 
-### 📥 Messaging
+### 🔗 Middleware — AOP-style middleware. Compose behavior. Keep logic clean.
 
-- **EventBus**: Publish and subscribe to events across distributed server instances or entirely in-memory for local testing.
+The Middleware component provides a composable AOP-style middleware pipeline with before/after hooks, error handling, and context propagation. It supports wrapping standalone functions with `use()`, enhancing class methods with `enhance()`, and packaging reusable middleware into plugins with `withPlugin()`. Built-in middlewares include retry, timeout, fallback, and more.
 
-### 🌐 HTTP
+- [x] AOP with before/after hooks around any function
+- [x] Built-in retry, timeout, fallback middlewares and so many more
+- [x] Function wrapping with `use()`, class enhancement with `enhance()`, plugin system with `withPlugin()`
+- [x] Built-in prefixing plugins for majority of components and so many more
 
-- **HTTP Router**: Route HTTP requests with a universal WinterTC-compatible fetch handler. Works with any framework or runtime that is WinterTC-compatible like Cloudflare Workers, AWS Lambda (via Hono), Next.js and more.
+### 🌐 HttpRouter — Define routes. Stay framework-agnostic.
 
-### 🔗 Middleware
+The HttpRouter component provides a framework-agnostic HTTP routing layer with type-safe endpoint definitions, standard-schema validation, and middleware support. It works with any Winter TC compatible runtime or adapter and can be used across Express, Fastify, Hono, Next.js, Nuxt, SvelteKit, and more.
 
-- Intercept and compose sync or async functions with a priority-based pipeline. Built-in middlewares for retry, fallback, timeout, lock, cache, circuit-breaker, and more.
+- [x] Type-safe route definitions with standard-schema validation
+- [x] Works with Next.js App Router, Nuxt, SvelteKit, and any winter tc compatible runtime or adapter
+- [x] Build on top of Hono.js Router adapters
+- [x] Middleware chains & route groups
 
-### 🧰 Utilities
+### 🌍 EnvAccessor — Type-safe environment variables. From any source.
 
-- **Serde**: Add custom serialization and deserialization logic that integrates transparently with every other component in the library.
-- **Collection**: Work with Arrays, Iterables, and AsyncIterables using a rich, composable, and lazy collection API.
-- **Execution context**: Propagate request-scoped data — user info, trace IDs, tenant context — across async boundaries. Integrates with all components.
-- **Config accessor**: Read typed application config values through a small accessor with optional schema validation.
-- **Env accessor**: Load and validate environment variables from one or more sources with type-safe access.
+The EnvAccessor component provides easy type-safe access to environment variables. It supports multiple sync and async sources (process.env, secrets managers), schema validation, and convenient access patterns.
 
----
+- [x] Type-safe reads with full autocompletion
+- [x] Multiple sources — process.env and async secret providers
+- [x] Optional Zod schema validation
+- [x] `get()` returns null on missing fields; `getOr()` falls back to a default
 
-## 🆚 Why not just combine existing libraries?
+### 🗂️ ConfigAccessor — Read config safely. Stay type-safe.
 
-| Instead of                                | @daiso-tech/core gives                                                      |
-| ----------------------------------------- | --------------------------------------------------------------------------- |
-| Tied to a specific vendor (Redis, S3)     | Adapter abstraction — swap infrastructure anytime                           |
-| DI container required (NestJS, Inversify) | Plain TypeScript classes — instantiate directly                             |
-| Docker required for integration tests     | In-memory adapters — fast, isolated tests                                   |
-| Different APIs for each library           | Unified interfaces — learn once, use everywhere                             |
-| Wiring libraries together manually        | Components integrate seamlessly — shared execution context, serde, adapters |
-| Framework-specific solutions              | Framework agnostic — works with Express, Next.js, Nuxt, NestJS, and more    |
+The ConfigAccessor component provides standardized type-safe access to domain configuration variables. It supports optional schema validation — useful for dynamic configurations like per-tenant settings.
+
+- [x] Type-safe reads with full autocompletion
+- [x] Nested objects and arrays up to 2 levels deep
+- [x] Optional Zod schema validation
+- [x] `get()` returns null on missing paths; `getOr()` falls back to a default
+
+## 📊 At a glance
+
+| 17                               | 100%       | 4,640+                       | 0                       |
+| -------------------------------- | ---------- | ---------------------------- | ----------------------- |
+| Officially maintained components | TypeScript | Integration & behavior tests | Docker needed for tests |
 
 ---
 
 ## 🎯 Who is this for?
 
-**Perfect for:** SaaS · Internal tools · REST & GraphQL APIs · Enterprise · Modular monoliths · Microservices
+@daiso-tech/core is built for backend and fullstack TypeScript developers who value flexibility and testability.
 
-**Not ideal for:** Frontend-only apps · Browser-only libraries · Non-TypeScript projects
+### ✅ Perfect for
+
+- **Backend applications:** Build REST APIs, background workers, CLIs, and backend other services using reusable, composable components.
+- **Framework-agnostic projects:** Works with Express, Fastify, Hono, Next.js, Nuxt, SvelteKit, Cloudflare Workers, Bun, Deno, Node.js, and any runtime supporting the standard winter tc Fetch api.
+- **Adapter-first architectures:** Switch between Redis, PostgreSQL, SQLite, MongoDB, S3, local storage, in-memory implementations, or your own adapters without changing business logic.
+- **Distributed systems:** Use distributed locks, semaphores, shared locks, circuit breakers, rate limiters, caches, and event buses that work across multiple processes and machines.
+- **Modular monoliths:** Share the same abstractions, middleware, and adapters across a single deployable application. Some components or workers can be used in microservices, but the library is primarily designed for modular monolith architectures.
+- **Library and framework authors:** Build reusable backend libraries on stable interfaces instead of coupling to specific vendors or infrastructure.
+- **Testing and local development:** Use in-memory and NoOp adapters for fast, deterministic tests, then swap to production infrastructure with configuration only.
+- **Portable backend code:** Write infrastructure-independent code that can move between cloud providers, databases, storage providers, and runtimes with minimal changes.
+- **Adopting individual components:** Use specific components without being forced to adopt the entire library or a DI container — each component works standalone.
+- **Incremental adoption:** Start with a single component and gradually adopt more as your project grows.
+
+### ⭐ Not ideal for
+
+- **Microservices:** The library is designed for modular monoliths where components share the same process and runtime. While some components (like distributed locks, circuit breakers, and event buses) work across processes, the broader adapter model and shared abstractions are not optimized for microservice architectures.
+- **Frontend-only applications:** @daiso-tech/core is designed for backend and server-side development, not browser applications.
+- **Projects tightly coupled to one vendor:** If your application intentionally depends on provider-specific features instead of abstractions, the adapter model may provide little benefit.
+- **Very small scripts:** If you only need a single Redis call, file upload, or cache operation, the abstraction layer may be unnecessary overhead.
+- **Applications requiring provider-specific capabilities:** Features unique to a particular database, cache, or cloud service may require using that provider's native SDK directly instead of a generic abstraction.
+- **Pure JavaScript projects prioritizing simplicity:** While usable from JavaScript, the library is designed around TypeScript's type system, generics, and inference for the best developer experience.
+
+---
+
+## 🧩 Officially Maintained Components
+
+A growing collection of officially maintained components. Every component ships with multiple built-in adapters — swap infrastructure without changing a single line of business logic.
+
+### Foundation
+
+- [**Middleware and AOP**](https://www.daiso-tech.dev/docs/components/middleware) — `Near-stable` — Composable middleware pipeline with before/after hooks, error handling — the foundation for every component's plugin system.
+- [**Collection**](https://www.daiso-tech.dev/docs/components/collection) — `Near-stable` — Type-safe collection utilities with powerful query, transform, and pagination primitives.
+- [**Serde**](https://www.daiso-tech.dev/docs/components/serde) — `Experimental` — Serialize and deserialize data with a built-in SuperJSON adapter (Date, Map, Set, BigInt) and custom serializers — the backbone for all data interchange across the ecosystem.
+- [**Codec**](https://www.daiso-tech.dev/docs/components/codec) — `Experimental` — Encode and decode data with a unified, type-safe interface — includes a built-in Base64 codec and lets you build custom codecs for any protocol.
+- [**Execution Context**](https://www.daiso-tech.dev/docs/components/execution_context) — `Near-stable` — Type-safe, composable context propagation for request IDs, user info, and tracing metadata across async boundaries — without thread-local hacks.
+- [**Typed Config Access**](https://www.daiso-tech.dev/docs/components/config_accessor) — `Near-stable` — Standardized type-safe access to domain configuration variables — with optional schema validation and full TypeScript inference.
+- [**Typed Env Access**](https://www.daiso-tech.dev/docs/components/env_accessor) — `Near-stable` — Type-safe environment variable access from multiple sync/async sources with parsing, defaults, and validation — never read `process.env` raw again.
+
+### Storage
+
+- [**Cache**](https://www.daiso-tech.dev/docs/components/cache/cache_usage) — `Near-stable` — Caching with pluggable stores (in-memory, Redis, etc.), TTL policies, and stampede protection.
+- [**File Storage**](https://www.daiso-tech.dev/docs/components/file_storage/file_storage_usage) — `Near-stable` — Abstract file storage with adapters for local disk, S3-compatible, and other backends — upload, stream, and serve with one API.
+
+### Resilience
+
+- [**Circuit Breaker**](https://www.daiso-tech.dev/docs/components/circuit_breaker/circuit_breaker_usage) — `Near-stable` — Prevent cascading failures with configurable thresholds, half-open recovery, and custom fallback strategies.
+- [**Rate Limiter**](https://www.daiso-tech.dev/docs/components/rate-limiter/rate_limiter_usage) — `Near-stable` — Throttle request rates with configurable limits, sliding windows, and pluggable backends — protect your services from overload.
+- [**Resilience**](https://www.daiso-tech.dev/docs/components/resilience) — `Near-stable` — Timeout, fallback, retry, with configurable policies and backoffs.
+
+### Concurrency
+
+- [**Lock**](https://www.daiso-tech.dev/docs/components/lock/lock_usage) — `Near-stable` — Distributed lock primitives with lease management, blocking and non-blocking acquisition, and automatic release.
+- [**Shared Lock**](https://www.daiso-tech.dev/docs/components/shared_lock/shared_lock_usage) — `Near-stable` — Read-write distributed locks for coordinating concurrent access with shared and exclusive modes.
+- [**Semaphore**](https://www.daiso-tech.dev/docs/components/semaphore/semaphore_usage) — `Near-stable` — Rate-limit concurrent access to shared resources with dynamic permit allocation.
+
+### Messaging
+
+- [**Event Bus**](https://www.daiso-tech.dev/docs/components/event_bus/event_bus_usage) — `Near-stable` — Pub/sub event bus for dispatching and listening to events with pluggable transport backends — independent of underlying technology.
+
+### Web
+
+- [**HTTP Router**](https://www.daiso-tech.dev/docs/components/http_router/http_router_usage) — `Near-stable` — Framework-agnostic HTTP router built on the Hono router engine — implements the Winter TC fetch standard with middleware chains and typed path parameters.
+
+[**View all component docs →**](https://www.daiso-tech.dev/docs/components/overview)
 
 ---
 
@@ -102,83 +175,95 @@ A growing collection of officially maintained, production-ready components. Ever
 
 Components currently in design or development — not yet available in any release.
 
-### ⏰ Job Scheduling
+- **DI Container** — A lightweight, type-safe dependency injection container for wiring application components without tight coupling.
+- **Transaction Context** — Coordinate database transactions across components with the after-commit pattern. Foundation for reliable messaging — powers the Outbox, Inbox, Scheduler, and Notifications.
+- **CLI Command** — A unified API for defining and executing CLI commands with a transport adapter architecture. Run commands locally via child processes, remotely over SSH or HTTP, inside Docker containers, or through custom transports — all from the same command definition.
+- **Structured concurrency** — Run async tasks in structured scopes where child tasks are tied to their parent's lifetime — with automatic cancellation, error propagation, and resource cleanup.
+- **Promise Queue** — A configurable promise queue to control the number of concurrently executing promises and prevent resource exhaustion.
+- **Logging & Observability** — Support for observability — logging, metrics, and tracing — with a pluggable adapter system. Pre-built adapters for [OpenTelemetry](https://opentelemetry.io/) and a local adapter that saves logs, traces, and metrics to disk.
+- **Introspection** — Inspect the actual runtime state of any component through pre-built CLI commands — view registered handlers, active jobs, queue depth, lock holders, and more without digging into logs or metrics.
+- **Job Scheduler** — Schedule work with full flexibility — immediate dispatch, delayed execution, and recurring jobs. Uses Transaction Context for reliable execution.
 
-- **Job scheduler**: Schedule work with full flexibility — immediate dispatch, delayed execution, and recurring jobs.
-
-### 🔀 Structured Concurrency
-
-- **Structured cancellations**: Planning to support running async tasks in structured scopes where child tasks are tied to their parent's lifetime — with automatic cancellation, error propagation, and resource cleanup.
-- **Promise queue**: Planning to add a configurable promise queue to control the number of concurrently executing promises and prevent resource exhaustion.
-
-### 💉 Dependency Injection
-
-- **DI container**: Planning to build a lightweight, type-safe dependency injection container for wiring application components without tight coupling.
-
-### 📣 Notifications
-
-- **Notifications**: Planning to support sending notifications through multiple channels with flexible dispatch strategies — synchronous dispatching, immediate enqueueing, delayed enqueueing, and recurring messages. Planned channel adapters include Slack, Discord, email, SMS, and WebSocket (browser push).
-
-### 🗄️ Data Integrity
-
-- **Transaction context**: Planning to support coordinating database transactions across components with the after-commit, outbox, and inbox patterns for reliable, exactly-once message delivery.
-- **Idempotent cache**: Planning to add built-in idempotency support for the Job Scheduler and Event Bus to prevent duplicate job execution and event processing.
-
-### 🐘 Database
-
-- **MikroORM** _(primary)_: Planning first-class integration with [MikroORM](https://mikro-orm.io/) as the main recommended database layer — full ORM support across PostgreSQL, MongoDB, SQLite, and more, with deep integration across all components.
-
-### 🔍 Text Search
-
-- **Text search**: Planning to support synchronising your database — synchronously or asynchronously — with an external search engine, queryable through a unified, ergonomic interface. First-class integrations with MikroORM, PostgreSQL (via Kysely), and MongoDB are planned so no glue code will be required.
-
-### 🌐 HTTP
-
-- **OpenAPI**: Planning first-class OpenAPI support — define your API schema alongside your handlers and get spec generation, validation, and documentation out of the box.
-
-### 🔐 Security
-
-- **Session management**: Planning to support managing user sessions securely with a pluggable, adapter-driven API.
-- **Authorization gates**: Planning to implement Laravel-inspired gate primitives for fine-grained, policy-based access control.
-- **Apache Casbin integration**: Planning integration with [Casbin](https://casbin.org/) for advanced authorization using attribute-based, role-based, and relationship-based access control models.
-- **Authentication**: Planning first-class support for username/password, email verification, OAuth, and WebAuthn — with a [Better Auth](https://www.better-auth.com/) integration for batteries-included setups.
+[**View full roadmap →**](https://www.daiso-tech.dev/docs/roadmap)
 
 ---
 
-## 🌟 Vision
+## 🆚 How @daiso-tech/core compares
 
-@daiso-tech/core will be built around one core idea: **production-grade backend primitives that work great standalone, but are even better together** — all inside your existing fullstack TypeScript app.
+### NestJS — A full framework with built-in DI vs a library that fits your needs.
 
-### Composable by design, not by requirement
+| Instead of NestJS                                                                     | With @daiso-tech/core                                                      |
+| ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Opinionated framework with its own DI, decorators, and modules.                       | A library, not a framework — DI optional, no decorators, plain classes.    |
+| Conventions wholesale: DI central, most primitives only work inside NestJS.           | Same cache/lock/event bus in any framework — no lock-in.                   |
+| NodeJS runtime only.                                                                  | Runs anywhere Winter TC runs — Node, Bun, Deno, edge.                      |
+| Can't embed in a full-stack framework or host as one server.                          | Edge-adaptable via the adapter pattern.                                    |
+| Not adapted for edge runtimes.                                                        | Embeds in any full-stack framework — host as one server.                   |
+| Request-scoped only — no custom scopes.                                               | Scope-agnostic — request, custom, or no scope.                             |
+| Wraps existing libs — BullMQ, cache-manager, class-validator, class-transformer, etc. | Own primitives with pluggable adapters — in-memory adapters for testing.   |
+| Geared toward microservices and monoliths.                                            | Built for modular monoliths — swap infrastructure without rewriting logic. |
+| No execution context flowing through all components.                                  | Execution context flowing through all components.                          |
+| No shared serialization engine across components.                                     | Shared serialization engine (Serde) across components.                     |
+| No built-in transaction context.                                                      | Will have a transaction context.                                           |
 
-Every component will be self-contained and will have zero hard dependencies on the others. You will be able to drop the Cache, the Lock, or the EventBus into any project in isolation. But when you use them together, they will integrate seamlessly — sharing the same execution context, serde layer, adapters, and conventions without any extra wiring.
+### AdonisJS — A batteries-included full-stack framework vs composable primitives.
 
-### No DI container required — but supported when you want it
+| Instead of AdonisJS                                          | With @daiso-tech/core                                                 |
+| ------------------------------------------------------------ | --------------------------------------------------------------------- |
+| Bundles routing, ORM (Lucid), auth, sessions, validation.    | No app framework, ORM, or auth — just infrastructure behind adapters. |
+| Prescribed folder structure and conventions.                 | Combine with any application layer — you bring the structure.         |
+| NodeJS runtime only.                                         | Runs anywhere Winter TC runs — Node, Bun, Deno, edge.                 |
+| Can't embed in a full-stack framework or host as one server. | Embeds in any full-stack framework — host as one server.              |
+| Not adapted for edge runtimes.                               | Edge-adaptable via the adapter pattern.                               |
+| No execution context flowing through all components.         | Execution context flowing through all components.                     |
+| No shared serialization engine across components.            | Shared serialization engine (Serde) across components.                |
+| No built-in transaction context.                             | Will have a transaction context.                                      |
 
-Components will remain plain classes you instantiate yourself. There will be no forced dependency injection framework. The DI container will become a first-class citizen that understands every component in the library — so when you do want a container, it will work with no adapters and no boilerplate.
+### TRPC / ORPC — End-to-end typed APIs vs the server-side infrastructure behind them.
 
-### One server, one app
+| Instead of TRPC / ORPC                                                         | With @daiso-tech/core                                                                                      |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| End-to-end type safety between client and server.                              | Not an RPC framework — not a tRPC or ORPC replacement.                                                     |
+| Define procedures once — call from the client with full inference, no codegen. | Backend infrastructure behind pluggable adapters — caching, locks, rate limiting, scheduling, event buses. |
+| Excellent for type-safe full-stack APIs at the client-server boundary.         | Complementary — tRPC procedures can call services backed by @daiso-tech/core.                              |
+| No built-in battery included backend infrastructure                            | Choose tRPC for typed transport; add @daiso-tech/core for reusable server-side infra.                      |
 
-The library's HTTP primitives will be built on the standard Web platform `Request`/`Response` API, which will allow your route handlers to run natively inside **Next.js, SvelteKit, Nuxt, SolidStart, Analog (Angular), TanStack Start, cloudflare workers, vercel functions, netlify functions and many more platforms by leveraging Hono js** — with no separate backend server to host, deploy, or maintain. Your fullstack app will become your backend.
+### Next.js, Nuxt, etc. — Meta-frameworks for the web vs a framework-agnostic backend.
 
-### A cohesive experience for the JavaScript ecosystem
+| Instead of Next.js, Nuxt, etc.                                          | With @daiso-tech/core                                                                              |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Excel at client rendering, SSR, routing, and a rich frontend ecosystem. | Not a web or frontend framework — not a replacement for Next.js or Nuxt.                           |
+| Ship their own server-side APIs and route handlers.                     | Complements them — route handlers and server actions can use cache, locks, queues, and schedulers. |
+| Often the best starting point for shipping a web app quickly.           | Same backend logic moves between a meta-framework and a standalone API service or worker.          |
+| Backend logic locked into the meta-framework.                           | Add @daiso-tech/core for portable, testable server-side infra.                                     |
+| No built-in battery included backend infrastructure                     |                                                                                                    |
 
-The long-term vision will be to give TypeScript developers a cohesive, batteries-included experience — authentication, authorization, job scheduling, notifications, queues, caching, file storage, and more — designed from the ground up for the modern JavaScript fullstack world. There will be no framework lock-in, no vendor lock-in, just great primitives that fit together.
+### Composing your own stack — Hand-picked libraries vs a consistent, integrated layer.
 
-### The framework experience
-
-On top of the agnostic core, a separate opinionated, batteries-included framework layer will be introduced. Unlike the core library, it will not be agnostic — it will make deliberate choices so you will not have to. It will be delivered as a **Vite plugin** that can be dropped into most modern frontend frameworks — Next.js, SvelteKit, Nuxt, SolidStart, TanStack Start, Analog, and more — and will lean heavily on **code generation** to eliminate boilerplate, auto-wire components, and provide a truly integrated developer experience with a convention-over-configuration feel directly inside your existing fullstack app.
+| Instead of composing your own stack                                               | With @daiso-tech/core                                                                         |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Maximum control and minimal dependencies — pick exactly the libraries you want.   | Consistent, integrated layer — shared patterns and common adapter interfaces.                 |
+| Simpler and lighter for small, focused use cases.                                 | Heavier than a single raw library, but ships in-memory adapters for testing without Docker.   |
+| Better when you need one or two primitives or rely on provider-specific features. | Trade-off: an abstraction layer — raw libraries win for a single Redis call or a tiny script. |
+| No shared conventions — you wire libraries together yourself.                     | No glue code — components interoperate through a shared serde and execution context.          |
+| Locked into what you picked — adding more means more glue code.                   | Adopt incrementally — start with one component and add more as the project grows.             |
 
 ---
 
-## ⭐ Find this library useful?
+## ⭐ Find this library useful? Give it a ⭐
 
 If you see potential in @daiso-tech/core, starring the repo on GitHub helps others discover it and motivates continued development. It takes one click and means a lot.
 
-[Star on GitHub](https://github.com/daiso-tech/daiso-core)
+[⭐ Star on GitHub](https://github.com/daiso-tech/daiso-core)
 
 ---
 
-## 📖 Get Started
+## 🚀 Ready to build something great?
 
-Check out the [documentation](https://daiso-tech.dev/docs/installation) to get up and running in minutes.
+Get up and running in minutes with a single install.
+
+```bash
+npm install @daiso-tech/core
+```
+
+[**Get started →**](https://www.daiso-tech.dev/docs/installation) · [**View on GitHub**](https://github.com/daiso-tech/daiso-core)
