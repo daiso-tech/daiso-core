@@ -49,7 +49,6 @@ describe("class: SharedLockFactory", () => {
                         database: new Sqlite(":memory:"),
                     }),
                 }),
-                shouldRemoveExpiredKeys: false,
             });
             await adapter2.init();
             const sharedLockFactory2 = new SharedLockFactory({

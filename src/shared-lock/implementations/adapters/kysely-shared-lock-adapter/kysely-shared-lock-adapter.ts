@@ -2,7 +2,7 @@
  * @module SharedLock
  */
 
-import { MysqlAdapter, Transaction, type Kysely } from "kysely";
+import { MysqlAdapter, type Kysely } from "kysely";
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
@@ -12,8 +12,7 @@ import {
     type IWriterLockAdapterState,
     type SharedLockAcquireSettings,
 } from "@/shared-lock/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
+import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type IDeinitizable,
     type IInitizable,
@@ -79,39 +78,12 @@ export type KyselySharedLockAdapterSettings = {
     kysely: Kysely<KyselySharedLockTables>;
 
     /**
-     * @default
-     * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
-     *
-     * TimeSpan.fromMinutes(1)
-     * ```
-     */
-    expiredKeysRemovalInterval?: ITimeSpan;
-
-    /**
-     * When `true`, a background task periodically removes expired shared-lock records.
-     * Set to `false` to disable automatic cleanup.
-     * @default true
-     */
-    shouldRemoveExpiredKeys?: boolean;
-
-    /**
      *  @default
      * ```ts
      * () => new Date()
      * ```
      */
     currentDate?: () => Date;
-
-    /**
-     * @default
-     * ```ts
-     * import { Transaction } from "kysely"
-     *
-     * !(settings.kysely instanceof Transaction)
-     * ```
-     */
-    enableTransactions?: boolean;
 };
 
 /**
@@ -127,13 +99,8 @@ export class KyselySharedLockAdapter
     implements ISharedLockAdapter, IDeinitizable, IInitizable, IPrunable
 {
     private readonly kysely: Kysely<KyselySharedLockTables>;
-    private readonly expiredKeysRemovalInterval: TimeSpan;
-    private readonly shouldRemoveExpiredKeys: boolean;
-    private intervalId: string | number | NodeJS.Timeout | undefined | null =
-        null;
     private readonly isMysql: boolean;
     private readonly currentDate: () => Date;
-    private readonly enableTransactions: boolean;
 
     /**
      * @example
@@ -154,22 +121,11 @@ export class KyselySharedLockAdapter
      * ```
      */
     constructor(settings: KyselySharedLockAdapterSettings) {
-        const {
-            kysely,
-            expiredKeysRemovalInterval = TimeSpan.fromMinutes(1),
-            shouldRemoveExpiredKeys = true,
-            currentDate = () => new Date(),
-            enableTransactions = !(settings.kysely instanceof Transaction),
-        } = settings;
-        this.expiredKeysRemovalInterval = TimeSpan.fromTimeSpan(
-            expiredKeysRemovalInterval,
-        );
-        this.shouldRemoveExpiredKeys = shouldRemoveExpiredKeys;
+        const { kysely, currentDate = () => new Date() } = settings;
         this.kysely = kysely;
         this.isMysql =
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
         this.currentDate = currentDate;
-        this.enableTransactions = enableTransactions;
     }
 
     private _transaction<TValue>(
@@ -178,15 +134,12 @@ export class KyselySharedLockAdapter
             Promise<TValue>
         >,
     ): Promise<TValue> {
-        if (this.enableTransactions) {
-            return this.kysely
-                .transaction()
-                .setIsolationLevel("serializable")
-                .execute(async (trx) => {
-                    return await trxFn(trx);
-                });
-        }
-        return trxFn(this.kysely);
+        return this.kysely
+            .transaction()
+            .setIsolationLevel("serializable")
+            .execute(async (trx) => {
+                return await trxFn(trx);
+            });
     }
 
     async init(): Promise<void> {
@@ -259,12 +212,6 @@ export class KyselySharedLockAdapter
         } catch {
             /* EMPTY */
         }
-
-        if (this.shouldRemoveExpiredKeys) {
-            this.intervalId = setInterval(() => {
-                void this.removeAllExpired();
-            }, this.expiredKeysRemovalInterval.toMilliseconds());
-        }
     }
 
     /**
@@ -272,10 +219,6 @@ export class KyselySharedLockAdapter
      * Note all shared-lock data will be removed.
      */
     async deInit(): Promise<void> {
-        if (this.shouldRemoveExpiredKeys && this.intervalId !== null) {
-            clearInterval(this.intervalId);
-        }
-
         // Should throw if the index does not exists thats why the try catch is used.
         try {
             await this.kysely.schema
