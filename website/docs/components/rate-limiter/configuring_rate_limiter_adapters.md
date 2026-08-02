@@ -290,6 +290,22 @@ const kyselyRateLimiterStorageAdapter = new KyselyRateLimiterStorageAdapter({
 await kyselyRateLimiterStorageAdapter.init();
 ```
 
+### Settings
+
+To clean up expired rate-limiter records, call `removeAllExpired` at a regular interval (for example, using a cron job):
+
+```ts
+const kyselyRateLimiterStorageAdapter = new KyselyRateLimiterStorageAdapter({
+    kysely,
+    serde,
+});
+
+await kyselyRateLimiterStorageAdapter.init();
+
+// Remove all expired rate-limiter records manually.
+await kyselyRateLimiterStorageAdapter.removeAllExpired();
+```
+
 ## MemoryRateLimiterStorageAdapter
 
 To use the `MemoryRateLimiterStorageAdapter` you only need to create instance of it:
