@@ -53,13 +53,6 @@ export type MongodbRateLimiterStorageAdapterSettings = {
      * Serde instance for serializing and deserializing rate-limiter state to and from strings.
      */
     serde: ISerde<string>;
-
-    /**
-     * When `true`, operations are wrapped in MongoDB transactions for atomicity.
-     * Requires a Replica Set or sharded cluster that supports transactions.
-     * @default true
-     */
-    enableTransactions?: boolean;
 };
 
 /**
@@ -83,7 +76,6 @@ export class MongodbRateLimiterStorageAdapter<TType>
     private readonly client: MongoClient;
     private readonly collection: Collection<MongodbRateLimiterDocument>;
     private readonly serde: ISerde<string>;
-    private readonly enableTransactions: boolean;
 
     /**
      * @example
@@ -112,7 +104,6 @@ export class MongodbRateLimiterStorageAdapter<TType>
             collectionSettings,
             database,
             serde,
-            enableTransactions = true,
         } = settings;
         this.client = client;
         this.collection = database.collection(
@@ -120,7 +111,6 @@ export class MongodbRateLimiterStorageAdapter<TType>
             collectionSettings,
         );
         this.serde = serde;
-        this.enableTransactions = enableTransactions;
     }
 
     /**
@@ -196,14 +186,11 @@ export class MongodbRateLimiterStorageAdapter<TType>
     private async _transaction<TValue>(
         trxFn: InvokableFn<[session?: ClientSession], Promise<TValue>>,
     ): Promise<TValue> {
-        if (this.enableTransactions) {
-            return await this.client.withSession(async (session) => {
-                return await session.withTransaction(async () => {
-                    return await trxFn(session);
-                });
+        return await this.client.withSession(async (session) => {
+            return await session.withTransaction(async () => {
+                return await trxFn(session);
             });
-        }
-        return trxFn();
+        });
     }
 
     async transaction<TValue>(

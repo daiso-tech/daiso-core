@@ -50,7 +50,6 @@ describe("class: LockFactory", () => {
                         database: new Sqlite(":memory:"),
                     }),
                 }),
-                shouldRemoveExpiredKeys: false,
             });
             await adapter2.init();
             const lockFactory2 = new LockFactory({

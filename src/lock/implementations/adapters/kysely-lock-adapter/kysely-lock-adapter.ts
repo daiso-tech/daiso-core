@@ -2,15 +2,14 @@
  * @module Lock
  */
 
-import { MysqlAdapter, Transaction, type Kysely } from "kysely";
+import { MysqlAdapter, type Kysely } from "kysely";
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     type ILockAdapter,
     type ILockAdapterState,
 } from "@/lock/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
+import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type IDeinitizable,
     type IInitizable,
@@ -51,33 +50,6 @@ export type KyselyLockAdapterSettings = {
      * The Kysely database instance typed with the required lock table.
      */
     kysely: Kysely<KyselyLockTables>;
-
-    /**
-     * @default
-     * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
-     *
-     * TimeSpan.fromMinutes(1)
-     * ```
-     */
-    expiredKeysRemovalInterval?: ITimeSpan;
-
-    /**
-     * When `true`, a background task periodically removes expired lock records.
-     * Set to `false` to disable automatic cleanup.
-     * @default true
-     */
-    shouldRemoveExpiredKeys?: boolean;
-
-    /**
-     * @default
-     * ```ts
-     * import { Transaction } from "kysely"
-     *
-     * !(settings.kysely instanceof Transaction)
-     * ```
-     */
-    enableTransactions?: boolean;
 };
 
 /**
@@ -93,12 +65,7 @@ export class KyselyLockAdapter
     implements ILockAdapter, IDeinitizable, IInitizable, IPrunable
 {
     private readonly kysely: Kysely<KyselyLockTables>;
-    private readonly expiredKeysRemovalInterval: TimeSpan;
-    private readonly shouldRemoveExpiredKeys: boolean;
-    private intervalId: string | number | NodeJS.Timeout | undefined | null =
-        null;
     private readonly isMysql: boolean;
-    private readonly enableTransactions: boolean;
 
     /**
      * @example
@@ -119,34 +86,21 @@ export class KyselyLockAdapter
      * ```
      */
     constructor(settings: KyselyLockAdapterSettings) {
-        const {
-            kysely,
-            expiredKeysRemovalInterval = TimeSpan.fromMinutes(1),
-            shouldRemoveExpiredKeys = true,
-            enableTransactions = !(settings.kysely instanceof Transaction),
-        } = settings;
-        this.expiredKeysRemovalInterval = TimeSpan.fromTimeSpan(
-            expiredKeysRemovalInterval,
-        );
-        this.shouldRemoveExpiredKeys = shouldRemoveExpiredKeys;
+        const { kysely } = settings;
         this.kysely = kysely;
         this.isMysql =
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
-        this.enableTransactions = enableTransactions;
     }
 
     private _transaction<TValue>(
         trxFn: InvokableFn<[trx: Kysely<KyselyLockTables>], Promise<TValue>>,
     ): Promise<TValue> {
-        if (this.enableTransactions) {
-            return this.kysely
-                .transaction()
-                .setIsolationLevel("serializable")
-                .execute(async (trx) => {
-                    return await trxFn(trx);
-                });
-        }
-        return trxFn(this.kysely);
+        return this.kysely
+            .transaction()
+            .setIsolationLevel("serializable")
+            .execute(async (trx) => {
+                return await trxFn(trx);
+            });
     }
 
     /**
@@ -154,10 +108,6 @@ export class KyselyLockAdapter
      * Note all lock data will be removed.
      */
     async deInit(): Promise<void> {
-        if (this.shouldRemoveExpiredKeys && this.intervalId !== null) {
-            clearInterval(this.intervalId);
-        }
-
         // Should throw if the index does not exists thats why the try catch is used.
         try {
             await this.kysely.schema
@@ -204,12 +154,6 @@ export class KyselyLockAdapter
                 .execute();
         } catch {
             /* EMPTY */
-        }
-
-        if (this.shouldRemoveExpiredKeys) {
-            this.intervalId = setInterval(() => {
-                void this.removeAllExpired();
-            }, this.expiredKeysRemovalInterval.toMilliseconds());
         }
     }
 

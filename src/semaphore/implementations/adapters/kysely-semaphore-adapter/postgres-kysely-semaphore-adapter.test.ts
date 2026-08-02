@@ -9,7 +9,7 @@ import {
     type TableMetadata,
 } from "kysely";
 import { Pool } from "pg";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
@@ -49,7 +49,6 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
         createAdapter: async () => {
             const adapter = new KyselySemaphoreAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
             });
             await adapter.init();
             return adapter;
@@ -66,7 +65,6 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
             );
             const adapter = new KyselySemaphoreAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
             });
             await adapter.init();
 
@@ -129,7 +127,6 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
         test("Should create semaphore table", async () => {
             const adapter = new KyselySemaphoreAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
             });
             await adapter.init();
 
@@ -159,7 +156,6 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
         test("Should create semaphoreSlot table", async () => {
             const adapter = new KyselySemaphoreAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
             });
             await adapter.init();
 
@@ -195,7 +191,6 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
         test("Should not throw error when called multiple times", async () => {
             const adapter = new KyselySemaphoreAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
             });
             await adapter.init();
 
@@ -203,35 +198,11 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
 
             await expect(promise).resolves.toBeUndefined();
         });
-        test("Should call not setInterval when shouldRemoveExpiredKeys is false", async () => {
-            const intervalFn = vi.spyOn(globalThis, "setInterval");
-
-            const adapter = new KyselySemaphoreAdapter({
-                kysely,
-                shouldRemoveExpiredKeys: false,
-            });
-            await adapter.init();
-
-            expect(intervalFn).not.toHaveBeenCalledTimes(1);
-        });
-        test("Should call setInterval when shouldRemoveExpiredKeys is true", async () => {
-            const intervalFn = vi.spyOn(globalThis, "setInterval");
-
-            const adapter = new KyselySemaphoreAdapter({
-                kysely,
-                shouldRemoveExpiredKeys: true,
-            });
-            await adapter.init();
-
-            expect(intervalFn).toHaveBeenCalledTimes(1);
-            await adapter.deInit();
-        });
     });
     describe("method: deInit", () => {
         test("Should remove semaphore table", async () => {
             const adapter = new KyselySemaphoreAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
             });
             await adapter.init();
             await adapter.deInit();
@@ -247,7 +218,6 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
         test("Should remove semaphoreSlot table", async () => {
             const adapter = new KyselySemaphoreAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
             });
             await adapter.init();
             await adapter.deInit();
@@ -263,7 +233,6 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
         test("Should not throw error when called multiple times", async () => {
             const adapter = new KyselySemaphoreAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
             });
             await adapter.init();
             await adapter.deInit();
@@ -274,37 +243,11 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
         test("Should not throw error when called before init", async () => {
             const adapter = new KyselySemaphoreAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
             });
             const promise = adapter.deInit();
             await adapter.init();
 
             await expect(promise).resolves.toBeUndefined();
-        });
-        test("Should call not clearInterval when shouldRemoveExpiredKeys is false", async () => {
-            const intervalFn = vi.spyOn(globalThis, "clearInterval");
-
-            const adapter = new KyselySemaphoreAdapter({
-                kysely,
-                shouldRemoveExpiredKeys: false,
-            });
-            await adapter.init();
-            await adapter.deInit();
-
-            expect(intervalFn).not.toHaveBeenCalledTimes(1);
-        });
-        test("Should call clearInterval when shouldRemoveExpiredKeys is true", async () => {
-            const intervalFn = vi.spyOn(globalThis, "clearInterval");
-
-            const adapter = new KyselySemaphoreAdapter({
-                kysely,
-                shouldRemoveExpiredKeys: true,
-            });
-            await adapter.init();
-            await adapter.deInit();
-
-            expect(intervalFn).toHaveBeenCalledTimes(1);
-            await adapter.deInit();
         });
     });
 });

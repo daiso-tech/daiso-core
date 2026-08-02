@@ -39,7 +39,6 @@ describe("postgres class: KyselyCacheAdapter", () => {
                         pool: database,
                     }),
                 }),
-                shouldRemoveExpiredKeys: false,
                 serde: new Serde(new SuperJsonSerdeAdapter()),
             });
             await adapter.init();

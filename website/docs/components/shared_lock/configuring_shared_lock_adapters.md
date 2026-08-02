@@ -276,33 +276,16 @@ Note in order to use `KyselySharedLockAdapter` with `libsql` correctly, ensure y
 
 ### Settings
 
-Expired keys are cleared at regular intervals and you can change the interval time:
+To clean up expired shared-lock keys, call `removeAllExpired` at a regular interval (for example, using a cron job):
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
 const kyselySharedLockAdapter = new KyselySharedLockAdapter({
     database,
-    // By default, the interval is 1 minute
-    expiredKeysRemovalInterval: TimeSpan.fromSeconds(10),
-});
-
-await kyselySharedLockAdapter.init();
-```
-
-Disabling scheduled interval cleanup of expired keys:
-
-```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
-const kyselySharedLockAdapter = new KyselySharedLockAdapter({
-    database,
-    shouldRemoveExpiredKeys: false,
 });
 
 await kyselySharedLockAdapter.init();
 
-// You can remove all expired keys manually.
+// Remove all expired shared-lock keys manually.
 await kyselySharedLockAdapter.removeAllExpired();
 ```
 

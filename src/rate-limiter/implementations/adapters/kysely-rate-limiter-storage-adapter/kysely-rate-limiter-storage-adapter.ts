@@ -2,7 +2,7 @@
  * @module RateLimiter
  */
 
-import { MysqlAdapter, Transaction, type Kysely } from "kysely";
+import { MysqlAdapter, type Kysely } from "kysely";
 
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
@@ -11,8 +11,6 @@ import {
     type IRateLimiterStorageAdapterTransaction,
 } from "@/rate-limiter/contracts/_module.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type IDeinitizable,
     type IInitizable,
@@ -137,33 +135,6 @@ export type KyselyRateLimiterStorageAdapterSettings = {
      * Serde instance for serializing and deserializing rate-limiter state to and from strings.
      */
     serde: ISerde<string>;
-
-    /**
-     * @default
-     * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
-     *
-     * TimeSpan.fromMinutes(1)
-     * ```
-     */
-    expiredKeysRemovalInterval?: ITimeSpan;
-
-    /**
-     * When `true`, a background task periodically removes expired rate-limiter records.
-     * Set to `false` to disable automatic cleanup.
-     * @default true
-     */
-    shouldRemoveExpiredKeys?: boolean;
-
-    /**
-     * @default
-     * ```ts
-     * import { Transaction } from "kysely"
-     *
-     * !(settings.kysely instanceof Transaction)
-     * ```
-     */
-    enableTransactions?: boolean;
 };
 
 /**
@@ -179,11 +150,6 @@ export class KyselyRateLimiterStorageAdapter<TType>
 {
     private readonly kysely: Kysely<KyselyRateLimiterStorageTables>;
     private readonly serde: ISerde<string>;
-    private readonly expiredKeysRemovalInterval: TimeSpan;
-    private readonly shouldRemoveExpiredKeys: boolean;
-    private intervalId: string | number | NodeJS.Timeout | undefined | null =
-        null;
-    private readonly enableTransactions: boolean;
 
     /**
      * @example
@@ -208,21 +174,10 @@ export class KyselyRateLimiterStorageAdapter<TType>
      * ```
      */
     constructor(settings: KyselyRateLimiterStorageAdapterSettings) {
-        const {
-            kysely,
-            serde,
-            expiredKeysRemovalInterval = TimeSpan.fromMinutes(1),
-            shouldRemoveExpiredKeys = true,
-            enableTransactions = !(settings.kysely instanceof Transaction),
-        } = settings;
+        const { kysely, serde } = settings;
 
-        this.expiredKeysRemovalInterval = TimeSpan.fromTimeSpan(
-            expiredKeysRemovalInterval,
-        );
-        this.shouldRemoveExpiredKeys = shouldRemoveExpiredKeys;
         this.kysely = kysely;
         this.serde = serde;
-        this.enableTransactions = enableTransactions;
     }
     private _transaction<TValue>(
         trxFn: InvokableFn<
@@ -230,12 +185,9 @@ export class KyselyRateLimiterStorageAdapter<TType>
             Promise<TValue>
         >,
     ): Promise<TValue> {
-        if (this.enableTransactions) {
-            return this.kysely.transaction().execute(async (trx) => {
-                return await trxFn(trx);
-            });
-        }
-        return trxFn(this.kysely);
+        return this.kysely.transaction().execute(async (trx) => {
+            return await trxFn(trx);
+        });
     }
 
     /**
@@ -243,10 +195,6 @@ export class KyselyRateLimiterStorageAdapter<TType>
      * Note all rate limiter data will be removed.
      */
     async deInit(): Promise<void> {
-        if (this.shouldRemoveExpiredKeys && this.intervalId !== null) {
-            clearInterval(this.intervalId);
-        }
-
         // Should throw if the index does not exists thats why the try catch is used.
         try {
             await this.kysely.schema
@@ -293,12 +241,6 @@ export class KyselyRateLimiterStorageAdapter<TType>
                 .execute();
         } catch {
             /* EMPTY */
-        }
-
-        if (this.shouldRemoveExpiredKeys) {
-            this.intervalId = setInterval(() => {
-                void this.removeAllExpired();
-            }, this.expiredKeysRemovalInterval.toMilliseconds());
         }
     }
 

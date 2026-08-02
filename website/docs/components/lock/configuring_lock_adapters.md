@@ -276,33 +276,16 @@ Note in order to use `KyselyLockAdapter` with `libsql` correctly, ensure you use
 
 ### Settings
 
-Expired keys are cleared at regular intervals and you can change the interval time:
+To clean up expired lock keys, call `removeAllExpired` at a regular interval (for example, using a cron job):
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
 const kyselyLockAdapter = new KyselyLockAdapter({
     database,
-    // By default, the interval is 1 minute
-    expiredKeysRemovalInterval: TimeSpan.fromSeconds(10),
-});
-
-await kyselyLockAdapter.init();
-```
-
-Disabling scheduled interval cleanup of expired keys:
-
-```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
-const kyselyLockAdapter = new KyselyLockAdapter({
-    database,
-    shouldRemoveExpiredKeys: false,
 });
 
 await kyselyLockAdapter.init();
 
-// You can remove all expired keys manually.
+// Remove all expired lock keys manually.
 await kyselyLockAdapter.removeAllExpired();
 ```
 

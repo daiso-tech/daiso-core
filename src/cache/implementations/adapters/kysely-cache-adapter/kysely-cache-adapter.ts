@@ -2,13 +2,12 @@
  * @module Cache
  */
 
-import { MysqlAdapter, Transaction, type Kysely } from "kysely";
+import { MysqlAdapter, type Kysely } from "kysely";
 
 import { type ICacheAdapter } from "@/cache/contracts/_module.js";
 import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { type ISerde } from "@/serde/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
+import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     type IDeinitizable,
     type IInitizable,
@@ -52,34 +51,6 @@ export type KyselyCacheAdapterSettings = {
      * Serde instance for serializing and deserializing cache values to and from strings.
      */
     serde: ISerde<string>;
-
-    /**
-     * How often expired cache entries are automatically removed in the background.
-     * @default
-     * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
-     *
-     * TimeSpan.fromMinutes(1)
-     * ```
-     */
-    expiredKeysRemovalInterval?: ITimeSpan;
-
-    /**
-     * When `true`, a background task periodically removes expired keys.
-     * Set to `false` to disable automatic cleanup.
-     * @default true
-     */
-    shouldRemoveExpiredKeys?: boolean;
-
-    /**
-     * @default
-     * ```ts
-     * import { Transaction } from "kysely"
-     *
-     * !(settings.kysely instanceof Transaction)
-     * ```
-     */
-    enableTransactions?: boolean;
 };
 
 /**
@@ -95,10 +66,6 @@ export class KyselyCacheAdapter<TType = unknown>
     private readonly isMysql: boolean;
     private readonly serde: ISerde<string>;
     private readonly kysely: Kysely<KyselyCacheTables>;
-    private readonly shouldRemoveExpiredKeys: boolean;
-    private readonly expiredKeysRemovalInterval: TimeSpan;
-    private timeoutId: NodeJS.Timeout | string | number | null = null;
-    private readonly enableTransactions: boolean;
 
     /**
      * @example
@@ -123,20 +90,9 @@ export class KyselyCacheAdapter<TType = unknown>
      * ```
      */
     constructor(settings: KyselyCacheAdapterSettings) {
-        const {
-            kysely,
-            serde,
-            expiredKeysRemovalInterval = TimeSpan.fromMinutes(1),
-            shouldRemoveExpiredKeys = true,
-            enableTransactions = !(settings.kysely instanceof Transaction),
-        } = settings;
-        this.enableTransactions = enableTransactions;
+        const { kysely, serde } = settings;
         this.kysely = kysely;
         this.serde = serde;
-        this.expiredKeysRemovalInterval = TimeSpan.fromTimeSpan(
-            expiredKeysRemovalInterval,
-        );
-        this.shouldRemoveExpiredKeys = shouldRemoveExpiredKeys;
         this.isMysql =
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
     }
@@ -171,12 +127,6 @@ export class KyselyCacheAdapter<TType = unknown>
         } catch {
             /* EMPTY */
         }
-
-        if (this.shouldRemoveExpiredKeys && this.timeoutId === null) {
-            this.timeoutId = setInterval(() => {
-                void this.removeAllExpired();
-            }, this.expiredKeysRemovalInterval.toMilliseconds());
-        }
     }
 
     /**
@@ -184,10 +134,6 @@ export class KyselyCacheAdapter<TType = unknown>
      * Note all cache data will be removed.
      */
     async deInit(): Promise<void> {
-        if (this.shouldRemoveExpiredKeys && this.timeoutId !== null) {
-            clearInterval(this.timeoutId);
-        }
-
         // Should throw if the index does not exists thats why the try catch is used.
         try {
             await this.kysely.schema
@@ -210,12 +156,9 @@ export class KyselyCacheAdapter<TType = unknown>
         _context: IReadableContext,
         trxFn: InvokableFn<[trx: Kysely<KyselyCacheTables>], Promise<TValue>>,
     ): Promise<TValue> {
-        if (this.enableTransactions) {
-            return this.kysely.transaction().execute(async (trx) => {
-                return await trxFn(trx);
-            });
-        }
-        return trxFn(this.kysely);
+        return this.kysely.transaction().execute(async (trx) => {
+            return await trxFn(trx);
+        });
     }
 
     async get(key: string, _context: IReadableContext): Promise<TType | null> {
