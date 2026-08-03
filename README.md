@@ -14,6 +14,10 @@ The adapter-first backend toolkit for TypeScript — 17 officially maintained co
 
 [**Explore the Docs**](https://www.daiso-tech.dev/docs/installation) · [**API docs**](https://daiso-tech.github.io/daiso-core/modules.html) · [**GitHub**](https://github.com/daiso-tech/daiso-core) · [**NPM**](https://www.npmjs.com/package/@daiso-tech/core)
 
+> ## ⚠️ Deprecated — renamed to `eridu-tech`
+>
+> **`@daiso-tech/core` has been renamed to [`eridu-tech`](https://www.npmjs.com/package/eridu-tech) and is now deprecated.** The `eridu-tech` package will be **released ASAP** — it will replace `@daiso-tech/core` as soon as it is available. Please don't start new projects on `@daiso-tech/core`, and plan to migrate existing ones once `eridu-tech` ships.
+
 ---
 
 ## ⚡ Quick Install
