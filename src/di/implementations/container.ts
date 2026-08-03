@@ -15,7 +15,6 @@ import {
 } from "@/di/contracts/_module.js";
 import {
     eagerInitialization,
-    findEffectedNodes,
     Graph,
     LIFESPAN,
     type TEdge,
