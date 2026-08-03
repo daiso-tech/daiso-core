@@ -34,7 +34,7 @@ const rateLimiterFactory = new RateLimiterFactory({
 ```
 
 :::info
-Here is a complete list of settings for the [`RateLimiterFactory`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.RateLimiterFactorySettingsBase.html) class.
+Here is a complete list of settings for the [`RateLimiterFactory`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.RateLimiterFactorySettingsBase.html) class.
 :::
 
 ## RateLimiter basics
@@ -102,7 +102,7 @@ await rateLimiter.reset();
 
 ### Checking rate-limiter state
 
-You can get the rate-limiter state by using the `getState` method, it returns [`RateLimiterState`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.RateLimiterState.html).
+You can get the rate-limiter state by using the `getState` method, it returns [`RateLimiterState`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.RateLimiterState.html).
 
 ```ts
 import { RATE_LIMITER_STATE } from "eridu-tech/rate-limiter/contracts";
@@ -222,10 +222,10 @@ await eventBus.addListener(
 
 The library includes 2 additional contracts:
 
-- [`IRateLimiter`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiter.html) - Allows only for manipulating of the rate-limiter.
+- [`IRateLimiter`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.IRateLimiter.html) - Allows only for manipulating of the rate-limiter.
 
-- [`IRateLimiterFactory`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiterFactory.html) - Allows only for creation of rate-limiters.
+- [`IRateLimiterFactory`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.IRateLimiterFactory.html) - Allows only for creation of rate-limiters.
 
 ## Further information
 
-For further information refer to [`eridu-tech/rate-limiter`](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) API docs.
+For further information refer to [`eridu-tech/rate-limiter`](https://eridu-tech.github.io/eridu-tech/modules/RateLimiter.html) API docs.

@@ -309,9 +309,9 @@ const noOpSemaphoreAdapter = new NoOpSemaphoreAdapter();
 ```
 
 :::info
-The `NoOpSemaphoreAdapter` is useful when you want to mock out or disable your [`SemaphoreFactory`](https://daiso-tech.github.io/daiso-core/classes/Semaphore.SemaphoreFactory.html) instance.
+The `NoOpSemaphoreAdapter` is useful when you want to mock out or disable your [`SemaphoreFactory`](https://eridu-tech.github.io/eridu-tech/classes/Semaphore.SemaphoreFactory.html) instance.
 :::
 
 ## Further information
 
-For further information refer to [`eridu-tech/semaphore`](https://daiso-tech.github.io/daiso-core/modules/Semaphore.html) API docs.
+For further information refer to [`eridu-tech/semaphore`](https://eridu-tech.github.io/eridu-tech/modules/Semaphore.html) API docs.

@@ -107,4 +107,4 @@ type IConfigAccessor<TConfig extends BaseConfig = BaseConfig> = {
 
 ## Further information
 
-For further information refer to [`eridu-tech/config-accessor`](https://daiso-tech.github.io/daiso-core/modules/ConfigAccessor.html) API docs.
+For further information refer to [`eridu-tech/config-accessor`](https://eridu-tech.github.io/eridu-tech/modules/ConfigAccessor.html) API docs.

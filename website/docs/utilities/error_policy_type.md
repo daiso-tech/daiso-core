@@ -121,4 +121,4 @@ await func();
 
 ## Further information
 
-For further information refer to [`eridu-tech/utilities`](https://daiso-tech.github.io/daiso-core/types/Utilities.ErrorPolicy.html) API docs.
+For further information refer to [`eridu-tech/utilities`](https://eridu-tech.github.io/eridu-tech/types/Utilities.ErrorPolicy.html) API docs.

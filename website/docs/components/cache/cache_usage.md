@@ -34,7 +34,7 @@ const cache = new Cache({
 ```
 
 :::info
-Here is a complete list of settings for the [`Cache`](https://daiso-tech.github.io/daiso-core/types/Cache.CacheSettingsBase.html) class.
+Here is a complete list of settings for the [`Cache`](https://eridu-tech.github.io/eridu-tech/types/Cache.CacheSettingsBase.html) class.
 :::
 
 ## Cache basics
@@ -262,9 +262,9 @@ await cache.removeOrFail("ab");
 
 The library includes 2 additional contracts:
 
-- [`IReadableCache`](https://daiso-tech.github.io/daiso-core/types/Cache.IReadableCache.html) - Allows only for reading cache.
+- [`IReadableCache`](https://eridu-tech.github.io/eridu-tech/types/Cache.IReadableCache.html) - Allows only for reading cache.
 
-- [`ICache`](https://daiso-tech.github.io/daiso-core/types/Cache.ICache.html) - Allows for both reading and manipulating the cache.
+- [`ICache`](https://eridu-tech.github.io/eridu-tech/types/Cache.ICache.html) - Allows for both reading and manipulating the cache.
 
 This separation makes it easy to visually distinguish the two contracts, making it immediately obvious that they serve different purposes.
 
@@ -295,4 +295,4 @@ await readingFunc(cache);
 
 ## Further information
 
-For further information refer to [`eridu-tech/cache`](https://daiso-tech.github.io/daiso-core/modules/Cache.html) API docs.
+For further information refer to [`eridu-tech/cache`](https://eridu-tech.github.io/eridu-tech/modules/Cache.html) API docs.

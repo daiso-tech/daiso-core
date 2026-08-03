@@ -14,11 +14,11 @@ keywords:
 
 ## Implementing your custom ICacheAdapter
 
-In order to create an adapter you need to implement the [`ICacheAdapter`](https://daiso-tech.github.io/daiso-core/types/Cache.ICacheAdapter.html) contract.
+In order to create an adapter you need to implement the [`ICacheAdapter`](https://eridu-tech.github.io/eridu-tech/types/Cache.ICacheAdapter.html) contract.
 
 ## Testing your custom ICacheAdapter
 
-We provide a complete test suite to test your cache adapter implementation. Simply use the [`cacheAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Cache.cacheAdapterTestSuite.html) function:
+We provide a complete test suite to test your cache adapter implementation. Simply use the [`cacheAdapterTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/Cache.cacheAdapterTestSuite.html) function:
 
 - Preconfigured Vitest test cases
 - Common edge case coverage
@@ -45,11 +45,11 @@ describe("class: MyCacheAdapter", () => {
 
 ## Implementing your custom ICache class
 
-In some cases, you may need to implement a custom [`Cache`](https://daiso-tech.github.io/daiso-core/classes/Cache.Cache.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ICache`](https://daiso-tech.github.io/daiso-core/types/Cache.ICache.html) contract.
+In some cases, you may need to implement a custom [`Cache`](https://eridu-tech.github.io/eridu-tech/classes/Cache.Cache.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ICache`](https://eridu-tech.github.io/eridu-tech/types/Cache.ICache.html) contract.
 
 ## Testing your custom ICache class
 
-We provide a complete test suite to verify your custom cache class implementation. Simply use the [`cacheTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Cache.cacheTestSuite.html) function:
+We provide a complete test suite to verify your custom cache class implementation. Simply use the [`cacheTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/Cache.cacheTestSuite.html) function:
 
 - Preconfigured Vitest test cases
 - Standardized cache behavior validation
@@ -77,4 +77,4 @@ describe("class: MyCache", () => {
 
 ## Further information
 
-For further information refer to [`eridu-tech/cache`](https://daiso-tech.github.io/daiso-core/modules/Cache.html) API docs.
+For further information refer to [`eridu-tech/cache`](https://eridu-tech.github.io/eridu-tech/modules/Cache.html) API docs.

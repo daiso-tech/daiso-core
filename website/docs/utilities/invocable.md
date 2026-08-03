@@ -1,6 +1,6 @@
 # Invocable
 
-An [`Invocable`](https://daiso-tech.github.io/daiso-core/types/Utilities.Invocable.html) represents a callable entity, which can be either:
+An [`Invocable`](https://eridu-tech.github.io/eridu-tech/types/Utilities.Invocable.html) represents a callable entity, which can be either:
 
 1. A function `InvocableFn`
 2. An object with a specific invocation signature (`IInvocableObject`)
@@ -51,4 +51,4 @@ const invocableObject: IInvocableObject<[arg1: number, arg2: number], number> =
 
 ## Further information
 
-For further information refer to [`eridu-tech/utilities`](https://daiso-tech.github.io/daiso-core/types/Utilities.Invocable.html) API docs.
+For further information refer to [`eridu-tech/utilities`](https://eridu-tech.github.io/eridu-tech/types/Utilities.Invocable.html) API docs.

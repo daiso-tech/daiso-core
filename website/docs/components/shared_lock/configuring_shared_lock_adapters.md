@@ -309,9 +309,9 @@ const noOpSharedLockAdapter = new NoOpSharedLockAdapter();
 ```
 
 :::info
-The `NoOpSharedLockAdapter` is useful when you want to mock out or disable your [`SharedLockFactory`](https://daiso-tech.github.io/daiso-core/classes/SharedLock.SharedLockFactory.html) instance.
+The `NoOpSharedLockAdapter` is useful when you want to mock out or disable your [`SharedLockFactory`](https://eridu-tech.github.io/eridu-tech/classes/SharedLock.SharedLockFactory.html) instance.
 :::
 
 ## Further information
 
-For further information refer to [`eridu-tech/shared-lock`](https://daiso-tech.github.io/daiso-core/modules/SharedLock.html) API docs.
+For further information refer to [`eridu-tech/shared-lock`](https://eridu-tech.github.io/eridu-tech/modules/SharedLock.html) API docs.

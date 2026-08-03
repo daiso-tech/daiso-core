@@ -22,27 +22,14 @@ const sidebars: SidebarsConfig = {
         {
             type: "link",
             label: "llms.txt",
-            href: "https://www.daiso-tech.dev/llms.txt"
+            href: "https://www.eridu-tech.dev/llms.txt"
         },
         {
             type: "link",
             label: "llms-full.txt",
-            href: "https://www.daiso-tech.dev/llms-full.txt"
+            href: "https://www.eridu-tech.dev/llms-full.txt"
         }
     ],
-
-    // But you can create a sidebar manually
-    /*
-  tutorialSidebar: [
-    'intro',
-    'hello',
-    {
-      type: 'category',
-      label: 'Tutorial',
-      items: ['tutorial-basics/create-a-document'],
-    },
-  ],
-   */
 };
 
 export default sidebars;

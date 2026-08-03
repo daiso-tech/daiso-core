@@ -51,9 +51,9 @@ const userAgain = await cachedFetchUser("123"); // Cache hit — returns immedia
 ```
 
 :::info
-Here is a complete list of settings for the [`withCache`](https://daiso-tech.github.io/daiso-core/types/Cache.WithCacheSettings.html) function.
+Here is a complete list of settings for the [`withCache`](https://eridu-tech.github.io/eridu-tech/types/Cache.WithCacheSettings.html) function.
 :::
 
 ### Further information
 
-For further information refer to [`eridu-tech/cache`](https://daiso-tech.github.io/daiso-core/modules/Cache.html) API docs.
+For further information refer to [`eridu-tech/cache`](https://eridu-tech.github.io/eridu-tech/modules/Cache.html) API docs.

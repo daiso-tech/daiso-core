@@ -99,4 +99,4 @@ Note that the `EventBusResolver` is immutable, meaning any configuration overrid
 
 ## Further information
 
-For further information refer to [`eridu-tech/event-bus`](https://daiso-tech.github.io/daiso-core/modules/EventBus.html) API docs.
+For further information refer to [`eridu-tech/event-bus`](https://eridu-tech.github.io/eridu-tech/modules/EventBus.html) API docs.

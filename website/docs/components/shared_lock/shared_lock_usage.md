@@ -34,7 +34,7 @@ const sharedLockFactory = new SharedLockFactory({
 ```
 
 :::info
-Here is a complete list of settings for the [`SharedLockFactory`](https://daiso-tech.github.io/daiso-core/types/SharedLock.SharedLockFactorySettingsBase.html) class.
+Here is a complete list of settings for the [`SharedLockFactory`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.SharedLockFactorySettingsBase.html) class.
 :::
 
 ## SharedLock basics
@@ -158,7 +158,7 @@ const sharedLock = sharedLockFactory.create("shared-resource", {
 
 ### Checking shared-lock state
 
-You can get the shared-lock state by using the `getState` method, it returns [`ISharedLockState`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLockState.html).
+You can get the shared-lock state by using the `getState` method, it returns [`ISharedLockState`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.ISharedLockState.html).
 
 ```ts
 import { SHARED_LOCK_STATE } from "eridu-tech/shared-lock/contracts";
@@ -899,14 +899,14 @@ await eventBus.addListener(
 
 The library includes 4 additional contracts:
 
-- [`ISharedLock`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLock.html) - Allows only for manipulating of the shared-lock.
+- [`ISharedLock`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.ISharedLock.html) - Allows only for manipulating of the shared-lock.
 
-- [`IWriterLock`](https://daiso-tech.github.io/daiso-core/types/SharedLock.IWriterLock.html) - Allows only for manipulating of the shared-lock as writer.
+- [`IWriterLock`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.IWriterLock.html) - Allows only for manipulating of the shared-lock as writer.
 
-- [`IReaderSemaphore`](https://daiso-tech.github.io/daiso-core/types/SharedLock.IReaderSemaphore.html) - Allows only for manipulating of the shared-lock as reader.
+- [`IReaderSemaphore`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.IReaderSemaphore.html) - Allows only for manipulating of the shared-lock as reader.
 
-- [`ISharedLockFactory`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLockFactory.html) - Allows only for creation of shared-locks.
+- [`ISharedLockFactory`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.ISharedLockFactory.html) - Allows only for creation of shared-locks.
 
 ## Further information
 
-For further information refer to [`eridu-tech/shared-lock`](https://daiso-tech.github.io/daiso-core/modules/SharedLock.html) API docs.
+For further information refer to [`eridu-tech/shared-lock`](https://eridu-tech.github.io/eridu-tech/modules/SharedLock.html) API docs.

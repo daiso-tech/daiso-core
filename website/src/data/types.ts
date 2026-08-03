@@ -40,5 +40,5 @@ export type ComparisonItem = {
     name: string;
     heading: ReactNode;
     instead: ReactNode[];
-    daiso: ReactNode[];
+    eriduTech: ReactNode[];
 };

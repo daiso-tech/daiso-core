@@ -339,4 +339,4 @@ For more details about `onTimeout` callback data, see the `OnTimeoutData` type.
 
 ## Further information
 
-For further information refer to [`eridu-tech/resilience`](https://daiso-tech.github.io/daiso-core/modules/Resilience.html) API docs.
+For further information refer to [`eridu-tech/resilience`](https://eridu-tech.github.io/eridu-tech/modules/Resilience.html) API docs.

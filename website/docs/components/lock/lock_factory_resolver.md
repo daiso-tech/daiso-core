@@ -84,4 +84,4 @@ Note that the `LockFactoryResolver` is immutable, meaning any configuration over
 
 ## Further information
 
-For further information refer to [`eridu-tech/lock`](https://daiso-tech.github.io/daiso-core/modules/Lock.html) API docs.
+For further information refer to [`eridu-tech/lock`](https://eridu-tech.github.io/eridu-tech/modules/Lock.html) API docs.

@@ -49,5 +49,5 @@ keywords:
 ## Further information
 
 - [Hono documentation](https://hono.dev/docs/) — Primary reference for runtime adapters and integration patterns.
-- [`HttpRouter` API docs](https://daiso-tech.github.io/daiso-core/classes/HttpRouter.HttpRouter.html)
+- [`HttpRouter` API docs](https://eridu-tech.github.io/eridu-tech/classes/HttpRouter.HttpRouter.html)
 - [WinterTC fetch standard](https://wintertc.org/work)

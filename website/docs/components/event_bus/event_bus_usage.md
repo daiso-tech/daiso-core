@@ -30,7 +30,7 @@ const eventBus: IEventBus = new EventBus({
 ```
 
 :::info
-Here is a complete list of settings for the [`EventBus`](https://daiso-tech.github.io/daiso-core/types/EventBus.EventBusSettingsBase.html) class.
+Here is a complete list of settings for the [`EventBus`](https://eridu-tech.github.io/eridu-tech/types/EventBus.EventBusSettingsBase.html) class.
 :::
 
 ## Event handling basics
@@ -255,9 +255,9 @@ await unsubscribe();
 
 The library includes two additional contracts:
 
-- [`IEventDispatcher`](https://daiso-tech.github.io/daiso-core/types/EventBus.IEventDispatcher.html) - Allows only for event dispatching.
+- [`IEventDispatcher`](https://eridu-tech.github.io/eridu-tech/types/EventBus.IEventDispatcher.html) - Allows only for event dispatching.
 
-- [`IEventListenable`](https://daiso-tech.github.io/daiso-core/types/EventBus.IEventListenable.html) - Allows only for event listening.
+- [`IEventListenable`](https://eridu-tech.github.io/eridu-tech/types/EventBus.IEventListenable.html) - Allows only for event listening.
 
 This separation makes it easy to visually distinguish the two contracts, making it immediately obvious that they serve different purposes.
 
@@ -346,4 +346,4 @@ await eventBus.dispatch("add", {
 
 ## Further information
 
-For further information refer to [`eridu-tech/event-bus`](https://daiso-tech.github.io/daiso-core/modules/EventBus.html) API docs.
+For further information refer to [`eridu-tech/event-bus`](https://eridu-tech.github.io/eridu-tech/modules/EventBus.html) API docs.

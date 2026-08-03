@@ -16,15 +16,15 @@ keywords:
 
 ## Implementing your custom IRateLimiterAdapter
 
-In order to create an adapter you need to implement the [`IRateLimiterAdapter`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiterAdapter.html) contract.
+In order to create an adapter you need to implement the [`IRateLimiterAdapter`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.IRateLimiterAdapter.html) contract.
 
 ## Implementing your custom IRateLimiterStorageAdapter
 
-We provide an additional contract [`IRateLimiterStorageAdapter`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiterStorageAdapter.html) for building custom rate-limiter storage adapters tailored to [`DatabaseRateLimiterAdapter`](./configuring_rate_limiter_adapters.md#databaseratelimiteradapter) and [`DatabaseRateLimiterProviderFactory`](./rate_limiter_factory_resolver.md#databaseratelimiterfactoryresolver).
+We provide an additional contract [`IRateLimiterStorageAdapter`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.IRateLimiterStorageAdapter.html) for building custom rate-limiter storage adapters tailored to [`DatabaseRateLimiterAdapter`](./configuring_rate_limiter_adapters.md#databaseratelimiteradapter) and [`DatabaseRateLimiterProviderFactory`](./rate_limiter_factory_resolver.md#databaseratelimiterfactoryresolver).
 
 ## Testing your custom IRateLimiterStorageAdapter
 
-We provide a complete test suite to test your rate-limiter storage adapter implementation. Simply use the [`rateLimiterBreakerStorageTestSuite`](https://daiso-tech.github.io/daiso-core/functions/RateLimiter.rateLimiterBreakerStorageTestSuite.html) function:
+We provide a complete test suite to test your rate-limiter storage adapter implementation. Simply use the [`rateLimiterBreakerStorageTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/RateLimiter.rateLimiterBreakerStorageTestSuite.html) function:
 
 - Preconfigured Vitest test cases
 - Common edge case coverage
@@ -51,8 +51,8 @@ describe("class: MyRateLimiterStorageAdapter", () => {
 
 ## Implementing your custom IRateLimiterProvider class
 
-In some cases, you may need to implement a custom [`RateLimiterProvider`](https://daiso-tech.github.io/daiso-core/classes/RateLimiter.RateLimiterProvider.html) class to optimize performance for your specific technology stack. You can then directly implement the [`IRateLimiterProvider`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiterProvider.html) contract.
+In some cases, you may need to implement a custom [`RateLimiterProvider`](https://eridu-tech.github.io/eridu-tech/classes/RateLimiter.RateLimiterProvider.html) class to optimize performance for your specific technology stack. You can then directly implement the [`IRateLimiterProvider`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.IRateLimiterProvider.html) contract.
 
 ## Further information
 
-For further information refer to [`eridu-tech/rate-limiter`](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) API docs.
+For further information refer to [`eridu-tech/rate-limiter`](https://eridu-tech.github.io/eridu-tech/modules/RateLimiter.html) API docs.

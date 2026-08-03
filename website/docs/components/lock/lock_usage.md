@@ -34,7 +34,7 @@ const lockFactory = new LockFactory({
 ```
 
 :::info
-Here is a complete list of settings for the [`LockFactory`](https://daiso-tech.github.io/daiso-core/types/Lock.LockFactorySettingsBase.html) class.
+Here is a complete list of settings for the [`LockFactory`](https://eridu-tech.github.io/eridu-tech/types/Lock.LockFactorySettingsBase.html) class.
 :::
 
 ## Lock basics
@@ -88,7 +88,7 @@ const lock = lockFactory.create("shared-resource", {
 
 ### Checking lock state
 
-You can get the lock state by using the `getState` method, it returns [`ILockState`](https://daiso-tech.github.io/daiso-core/types/Lock.ILockState.html).
+You can get the lock state by using the `getState` method, it returns [`ILockState`](https://eridu-tech.github.io/eridu-tech/types/Lock.ILockState.html).
 
 ```ts
 import { LOCK_STATE } from "eridu-tech/lock/contracts";
@@ -504,10 +504,10 @@ await eventBus.addListener("sending-lock-over-network", ({ lock }) => {
 
 The library includes 2 additional contracts:
 
-- [`ILock`](https://daiso-tech.github.io/daiso-core/types/Lock.ILock.html) - Allows only for manipulating of the lock.
+- [`ILock`](https://eridu-tech.github.io/eridu-tech/types/Lock.ILock.html) - Allows only for manipulating of the lock.
 
-- [`ILockFactory`](https://daiso-tech.github.io/daiso-core/types/Lock.ILockFactory.html) - Allows only for creation of locks.
+- [`ILockFactory`](https://eridu-tech.github.io/eridu-tech/types/Lock.ILockFactory.html) - Allows only for creation of locks.
 
 ## Further information
 
-For further information refer to [`eridu-tech/lock`](https://daiso-tech.github.io/daiso-core/modules/Lock.html) API docs.
+For further information refer to [`eridu-tech/lock`](https://eridu-tech.github.io/eridu-tech/modules/Lock.html) API docs.

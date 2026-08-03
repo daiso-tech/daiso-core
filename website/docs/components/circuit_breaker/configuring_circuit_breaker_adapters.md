@@ -149,7 +149,7 @@ const noOpCircuitBreakerAdapter = new NoOpCircuitBreakerAdapter();
 ```
 
 :::info
-The `NoOpCircuitBreakerAdapter` is useful when you want to mock out or disable your [`CircuitBreakerProvider`](https://daiso-tech.github.io/daiso-core/classes/CircuitBreaker.CircuitBreakerProvider.html) instance.
+The `NoOpCircuitBreakerAdapter` is useful when you want to mock out or disable your [`CircuitBreakerProvider`](https://eridu-tech.github.io/eridu-tech/classes/CircuitBreaker.CircuitBreakerProvider.html) instance.
 :::
 
 ## KyselyCircuitBreakerStorageAdapter
@@ -360,9 +360,9 @@ const noOpCircuitBreakerStorageAdapter = new NoOpCircuitBreakerStorageAdapter();
 ```
 
 :::info
-The `NoOpCircuitBreakerStorageAdapter` is useful when you want to mock out or disable your [`DatabaseCircuitBreakerAdapter`](https://daiso-tech.github.io/daiso-core/classes/CircuitBreaker.DatabaseCircuitBreakerAdapter.html) instance.
+The `NoOpCircuitBreakerStorageAdapter` is useful when you want to mock out or disable your [`DatabaseCircuitBreakerAdapter`](https://eridu-tech.github.io/eridu-tech/classes/CircuitBreaker.DatabaseCircuitBreakerAdapter.html) instance.
 :::
 
 ## Further information
 
-For further information refer to [`eridu-tech/circuit-breaker`](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) API docs.
+For further information refer to [`eridu-tech/circuit-breaker`](https://eridu-tech.github.io/eridu-tech/modules/CircuitBreaker.html) API docs.

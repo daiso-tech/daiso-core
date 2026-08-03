@@ -64,9 +64,9 @@ await writeData("config");
 ```
 
 :::info
-Here is a complete list of settings for the [`withSharedLock`](https://daiso-tech.github.io/daiso-core/types/SharedLock.WithSharedLockFactorySettings.html) function.
+Here is a complete list of settings for the [`withSharedLock`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.WithSharedLockFactorySettings.html) function.
 :::
 
 ## Further information
 
-For further information refer to [`eridu-tech/shared-lock`](https://daiso-tech.github.io/daiso-core/modules/SharedLock.html) API docs.
+For further information refer to [`eridu-tech/shared-lock`](https://eridu-tech.github.io/eridu-tech/modules/SharedLock.html) API docs.

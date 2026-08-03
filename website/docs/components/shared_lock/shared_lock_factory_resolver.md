@@ -84,4 +84,4 @@ Note that the `SharedLockFactoryResolver` is immutable, meaning any configuratio
 
 ## Further information
 
-For further information refer to [`eridu-tech/shared-lock`](https://daiso-tech.github.io/daiso-core/modules/SharedLock.html) API docs.
+For further information refer to [`eridu-tech/shared-lock`](https://eridu-tech.github.io/eridu-tech/modules/SharedLock.html) API docs.
