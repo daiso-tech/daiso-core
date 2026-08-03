@@ -7,7 +7,7 @@ import { isClass } from "@/utilities/functions/is-class.js";
 import { isNullable } from "@/utilities/functions/is-nullable.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  */
 export type InvocableFn<
     TArgs extends Array<unknown> = Array<unknown>,
@@ -15,7 +15,7 @@ export type InvocableFn<
 > = (...args: TArgs) => TReturn;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  */
 export type IInvocableObject<
     TArgs extends Array<unknown> = Array<unknown>,
@@ -25,7 +25,7 @@ export type IInvocableObject<
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  */
 export type Invocable<
     TArgs extends Array<unknown> = Array<unknown>,

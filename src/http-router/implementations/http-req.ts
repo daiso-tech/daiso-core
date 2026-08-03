@@ -25,7 +25,7 @@ import { ValidatedHttpReq } from "@/http-router/implementations/validated-http-r
  * pre-resolved path parameters so the resulting `HttpReq` can apply
  * type-safe validation on demand.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export type FromWebReqSettings = {
@@ -47,7 +47,7 @@ export type FromWebReqSettings = {
  * in tests. The `data` field accepts any value; it will be serialized
  * via `JSON.stringify` when the test {@link HttpReq} is constructed.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export type TestReqJsonBody = {
@@ -62,7 +62,7 @@ export type TestReqJsonBody = {
  * `application/x-www-form-urlencoded` payload in tests. The `data`
  * field is a {@link StringInputs} record of form field name/value pairs.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export type TestReqUrlEncodedBody = {
@@ -79,7 +79,7 @@ export type TestReqUrlEncodedBody = {
  * - `files` — a record mapping file field names to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer | ArrayBuffer}
  *   instances representing raw file content.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export type TestReqMultipartFormDataBody = {
@@ -102,7 +102,7 @@ export type TestReqMultipartFormDataBody = {
  * fit into the JSON, URL-encoded, or multipart categories. The `data`
  * field is passed through as-is when the test {@link HttpReq} is constructed.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export type TestReqCustom = {
@@ -117,7 +117,7 @@ export type TestReqCustom = {
  * Each variant maps to a content type, allowing the body data to be
  * typed according to the selected format.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export type TestReqBody =
@@ -143,7 +143,7 @@ export type TestReqBody =
  * @typeParam TReqFiles - The expected file upload definitions.
  * @typeParam TCookieData - A record mapping cookie names to their value types.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export type TestReqSettings = {
@@ -203,7 +203,7 @@ export type TestReqSettings = {
  * @typeParam TReqFiles - The expected file upload definitions.
  * @typeParam TCookieData - A record mapping cookie names to their value types.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export class HttpReq implements IHttpReq {

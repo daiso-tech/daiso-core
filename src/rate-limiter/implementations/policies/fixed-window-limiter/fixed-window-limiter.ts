@@ -10,7 +10,7 @@ import {
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/policies"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/policies"`
  * @group Policies
  */
 export type FixedWindowLimiterSettings = {
@@ -19,7 +19,7 @@ export type FixedWindowLimiterSettings = {
      *
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromSeconds(1)
      * ```
@@ -60,7 +60,7 @@ export function serializeFixedWindowLimiterSettings(
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/policies"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/policies"`
  * @group Policies
  */
 export type FixedWindowLimiterState = {
@@ -87,7 +87,7 @@ export type FixedWindowLimiterState = {
  * A burst of attempts near the boundary of a window can result in a very
  * high request rate because two windows will be filled with attempts quickly.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/policies"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/policies"`
  * @group Policies
  */
 export class FixedWindowLimiter implements IRateLimiterPolicy<FixedWindowLimiterState> {

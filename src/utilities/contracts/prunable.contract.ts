@@ -15,7 +15,7 @@
  *
  * Typically called periodically (on timer) or on-demand during maintenance.
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities/contracts"`
+ * IMPORT_PATH: `"eridu-tech/utilities/contracts"`
  * @group Contracts
  */
 export type IPrunable = {

@@ -11,7 +11,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  * Internal settings for semaphore slot acquisition operations.
  * This is used internally by adapters and should not be directly instantiated in application code.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type SemaphoreAcquireSettings = {
@@ -47,7 +47,7 @@ export type SemaphoreAcquireSettings = {
  * Represents the persistent state of a semaphore in storage.
  * Contains information about the slot limit and currently acquired slots with their expiration times.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type ISemaphoreAdapterState = {
@@ -69,7 +69,7 @@ export type ISemaphoreAdapterState = {
  * Implementations handle slot acquisition, release, refresh, and state tracking independent of the underlying storage.
  * **Note:** This contract is low-level and typically not used directly - prefer {@link ISemaphoreFactory | `ISemaphoreFactory`} for semaphore usage.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type ISemaphoreAdapter = {

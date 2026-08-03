@@ -23,7 +23,7 @@ import { callInvocable } from "@/utilities/_module.js";
  * @param plugin - The plugin to wrap with listener tracking.
  * @returns A plugin function that applies both the given plugin and listener tracking.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/plugins"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/plugins"`
  * @group Plugins
  */
 export function withListenerTracking(

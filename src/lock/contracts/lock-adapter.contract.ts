@@ -11,7 +11,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  * Represents the persistent state of a lock in storage.
  * Contains information about ownership and expiration time.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type ILockAdapterState = {
@@ -32,7 +32,7 @@ export type ILockAdapterState = {
  * Implementations handle lock acquisition, release, refresh, and state tracking independent of the underlying storage.
  * **Note:** This contract is low-level and typically not used directly - prefer {@link ILockFactory | `ILockFactory`} for lock usage.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type ILockAdapter = {

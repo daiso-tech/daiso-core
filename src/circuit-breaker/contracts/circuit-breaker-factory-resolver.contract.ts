@@ -9,7 +9,7 @@ import { type ICircuitBreakerFactory } from "@/circuit-breaker/contracts/circuit
  * Enables seamless switching between different storage backends, policies, and adapters at runtime.
  * Implementations typically use adapter registration patterns to manage multiple implementations.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type ICircuitBreakerFactoryResolver<TAdapters extends string = string> =

@@ -24,7 +24,7 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
  * Configuration for `DatabaseCircuitBreakerAdapter`.
  * Wraps a {@link ICircuitBreakerStorageAdapter | `ICircuitBreakerStorageAdapter`} with circuit-breaker logic.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/database-circuit-breaker-adapter"`
  * @group Adapters
  */
 export type DatabaseCircuitBreakerAdapterSettings = {
@@ -37,7 +37,7 @@ export type DatabaseCircuitBreakerAdapterSettings = {
      * You can define your own {@link BackoffPolicy | `BackoffPolicy`}.
      * @default
      * ```ts
-     * import { exponentialBackoff } from "@daiso-tech/core/backoff-policies";
+     * import { exponentialBackoff } from "eridu-tech/backoff-policies";
      *
      * exponentialBackoff();
      * ```
@@ -48,7 +48,7 @@ export type DatabaseCircuitBreakerAdapterSettings = {
      * You can define your own {@link ICircuitBreakerPolicy | `ICircuitBreakerPolicy`}.
      * @default
      * ```ts
-     * import { ConsecutiveBreaker } from "@daiso-tech/core/circuit-breaker/policies";
+     * import { ConsecutiveBreaker } from "eridu-tech/circuit-breaker/policies";
      *
      * new ConsecutiveBreaker();
      * ```
@@ -57,7 +57,7 @@ export type DatabaseCircuitBreakerAdapterSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/database-circuit-breaker-adapter"`
  * @group Adapters
  */
 export class DatabaseCircuitBreakerAdapter<
@@ -69,8 +69,8 @@ export class DatabaseCircuitBreakerAdapter<
     /**
      * @example
      * ```ts
-     * import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
-     * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
+     * import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
+     * import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storage-adapter";
      *
      * const circuitBreakerStorageAdapter = new MemoryCircuitBreakerStorageAdapter();
      * const circuitBreakerAdapter = new DatabaseCircuitBreakerAdapter({

@@ -10,7 +10,7 @@ import {
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/policies"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/policies"`
  * @group Policies
  */
 export type SlidingWindowLimiterSettings = {
@@ -19,7 +19,7 @@ export type SlidingWindowLimiterSettings = {
      *
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromSeconds(1)
      * ```
@@ -29,7 +29,7 @@ export type SlidingWindowLimiterSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromTimeSpan(window).divide(4)
      * ```
@@ -80,7 +80,7 @@ export function serializeSlidingWindowLimiterSettings(
  * The key is the timestamp of the window's start (e.g., 1700000000000).
  * The value is the attempts for that window.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/policies"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/policies"`
  * @group Policies
  */
 export type SlidingWindowLimiterState = Partial<Record<number, number>>;
@@ -98,7 +98,7 @@ export type SlidingWindowLimiterState = Partial<Record<number, number>>;
  *
  * Nothing major.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/policies"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/policies"`
  * @group Policies
  */
 export class SlidingWindowLimiter implements IRateLimiterPolicy<SlidingWindowLimiterState> {

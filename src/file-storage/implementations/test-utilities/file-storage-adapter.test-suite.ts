@@ -24,7 +24,7 @@ import {
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/test-utilities"`
  * @group TestUtilities
  */
 export type FileStorageAdapterTestSuiteSettings = {
@@ -41,8 +41,8 @@ export type FileStorageAdapterTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -53,7 +53,7 @@ export type FileStorageAdapterTestSuiteSettings = {
 /**
  * The `fileStorageAdapterTestSuite` function simplifies the process of testing your custom implementation of {@link IFileStorageAdapter | `IFileStorageAdapter`} with `vitest`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/test-utilities"`
  * @group TestUtilities
  */
 export function fileStorageAdapterTestSuite(

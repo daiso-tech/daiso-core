@@ -24,7 +24,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/mongodb-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/mongodb-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export type MongodbCircuitBreakerStorageDocument = {
@@ -37,7 +37,7 @@ export type MongodbCircuitBreakerStorageDocument = {
  * Configuration for `MongodbCircuitBreakerStorageAdapter`.
  * Requires a MongoDB `Db` instance.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/mongodb-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/mongodb-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export type MongodbCircuitBreakerStorageAdapterSettings = {
@@ -69,7 +69,7 @@ export type MongodbCircuitBreakerStorageAdapterSettings = {
  *
  * Note in order to use `MongodbCircuitBreakerStorageAdapter` correctly, you need to use a database that has support for transactions.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/mongodb-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/mongodb-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
@@ -82,10 +82,10 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
     /**
      * @example
      * ```ts
-     * import { MongodbCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/mongodb-circuit-breaker-storage-adapter";
+     * import { MongodbCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/mongodb-circuit-breaker-storage-adapter";
      * import { MongoClient } from "mongodb";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      *
      * const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
      * const database = client.db("database");

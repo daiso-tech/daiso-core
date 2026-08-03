@@ -32,7 +32,7 @@ export function withPluginFactory(enhance_: Enhance): WithPlugin {
 }
 
 /**
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Implementations
  */
 export const withPlugin = withPluginFactory(enhance);

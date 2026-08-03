@@ -9,7 +9,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import { type AsyncLazy, type Invocable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type IReaderSemaphore = {
@@ -71,7 +71,7 @@ export type IReaderSemaphore = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type IWriterLock = {
@@ -136,7 +136,7 @@ export type IWriterLock = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockStateMethods = {
@@ -159,7 +159,7 @@ export type ISharedLockStateMethods = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockBase = IReaderSemaphore &
@@ -168,7 +168,7 @@ export type ISharedLockBase = IReaderSemaphore &
     };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLock = ISharedLockBase & ISharedLockStateMethods;

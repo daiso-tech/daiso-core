@@ -18,7 +18,7 @@ import {
 /**
  * The `NoOpFileStorageAdapter` will do nothing and is used for easily mocking {@link ISignedFileStorageAdapter | `ISignedFileStorageAdapter`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/no-op-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/no-op-file-storage-adapter"`
  * @group Adapters
  */
 export class NoOpFileStorageAdapter implements ISignedFileStorageAdapter {

@@ -6,7 +6,7 @@ import { type IExecutionContextAdapter } from "@/execution-context/contracts/_mo
 import { callInvocable, type InvocableFn } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/no-op-execution-context-adapter"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/no-op-execution-context-adapter"`
  *
  * No-operation execution context adapter.
  *

@@ -22,7 +22,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/test-utilities"`
  * @group TestUtilities
  */
 export type EventBusAdapterTestSuiteSettings = {
@@ -35,8 +35,8 @@ export type EventBusAdapterTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -47,7 +47,7 @@ export type EventBusAdapterTestSuiteSettings = {
 /**
  * The `eventBusAdapterTestSuite` function simplifies the process of testing your custom implementation of {@link IEventBusAdapter | `IEventBusAdapter`} with vitest.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/test-utilities"`
  * @group TestUtilities
  */
 export function eventBusAdapterTestSuite(

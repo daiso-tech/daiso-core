@@ -20,7 +20,7 @@ import {
  * only to that specific endpoint. This keeps middleware isolated and prevents
  * it from affecting other routes.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IMiddlewareBuilder = {
@@ -36,7 +36,7 @@ export type IMiddlewareBuilder = {
 /**
  * Defines a single HTTP endpoint registration.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IHttpEndpoint = {
@@ -96,7 +96,7 @@ export type IHttpEndpoint = {
  * });
  * ```
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export function defineHttpEndpoint(endpoint: IHttpEndpoint): IHttpEndpoint {
@@ -114,7 +114,7 @@ export function defineHttpEndpoint(endpoint: IHttpEndpoint): IHttpEndpoint {
  * exposing a second `fetch` entry point. The full router is
  * `IHttpRouter = IHttpRouterBase & IWinterTcFetch`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IHttpRouterBase = {
@@ -165,7 +165,7 @@ export type IHttpRouterBase = {
  * A function that receives a sub-router and returns it after registering routes.
  * Used as a lightweight alternative to {@link IHttpRouteGroupObject}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpRouteGroupFn = InvocableFn<[router: IHttpRouterBase], void>;
@@ -174,7 +174,7 @@ export type HttpRouteGroupFn = InvocableFn<[router: IHttpRouterBase], void>;
  * An invocable object that receives a sub-router and returns it after registering routes.
  * Used when state or configuration needs to be encapsulated alongside the route logic.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IHttpRouteGroupObject = IInvocableObject<
@@ -186,7 +186,7 @@ export type IHttpRouteGroupObject = IInvocableObject<
  * A callable that receives a sub-router and returns it after registering routes.
  * Used with {@link IHttpRouter.group} to group endpoints under a shared prefix.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpRouteGroup = HttpRouteGroupFn | IHttpRouteGroupObject;
@@ -201,7 +201,7 @@ export type HttpRouteGroup = HttpRouteGroupFn | IHttpRouteGroupObject;
  * {@link IHttpRouterBase.group | group} for defining routes, and
  * {@link IWinterTcFetch.fetch | fetch} for dispatching requests.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IHttpRouter = IHttpRouterBase & IWinterTcFetch;

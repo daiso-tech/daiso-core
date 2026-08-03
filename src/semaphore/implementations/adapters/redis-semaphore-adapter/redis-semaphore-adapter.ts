@@ -71,7 +71,7 @@ declare module "ioredis" {
  *
  * Note in order to use `RedisSemaphoreAdapter` correctly, ensure you use a single, consistent database across all server instances.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/redis-semaphore-adapter"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/redis-semaphore-adapter"`
  * @group Adapters
  */
 export class RedisSemaphoreAdapter implements ISemaphoreAdapter {

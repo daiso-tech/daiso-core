@@ -8,7 +8,7 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 /**
  * Configuration settings for creating a shared lock instance through the factory.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type SharedLockFactoryCreateSettings = {
@@ -37,7 +37,7 @@ export type SharedLockFactoryCreateSettings = {
  * The `ISharedLockFactory` contract defines a way for managing locks independent of the underlying technology.
  * It comes with more convenient methods compared to `ISharedLockAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockFactory = {

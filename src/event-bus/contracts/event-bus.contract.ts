@@ -17,7 +17,7 @@ import {
  * Base type for event maps - a record of event names to their event payloads.
  * Used to provide type-safe event handling in event listeners and subscribers.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/contracts"`
  * @group Contracts
  */
 export type BaseEventMap = Record<string, BaseEvent>;
@@ -26,7 +26,7 @@ export type BaseEventMap = Record<string, BaseEvent>;
  * Function type returned when subscribing to events.
  * Call this function to unsubscribe from the event and clean up the listener.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/contracts"`
  * @group Contracts
  */
 export type Unsubscribe = () => Promise<void>;
@@ -35,7 +35,7 @@ export type Unsubscribe = () => Promise<void>;
  * Event listener that implements the invocable object pattern.
  * Allows treating objects as callable functions for event handling.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/contracts"`
  * @group Contracts
  */
 export type IEventListenerObject<TEvent> = IInvocableObject<[event: TEvent]>;
@@ -43,7 +43,7 @@ export type IEventListenerObject<TEvent> = IInvocableObject<[event: TEvent]>;
 /**
  * Event listener that can be either a function or an object implementing the event listener pattern.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/contracts"`
  * @group Contracts
  */
 export type EventListener<TEvent> =
@@ -69,7 +69,7 @@ export type InferEvent<
  * Provides multiple patterns for subscribing to events and receiving notifications of their occurrence.
  * Implementation is independent of the underlying event distribution technology (in-memory, Redis, etc.).
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/contracts"`
  * @group Contracts
  */
 export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
@@ -156,7 +156,7 @@ export type IEventListenable<TEventMap extends BaseEventMap = BaseEventMap> = {
 /**
  * The `IEventDispatcher` contract defines a way for dispatching to events independent of underlying technology.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/contracts"`
  * @group Contracts
  */
 export type IEventDispatcher<TEventMap extends BaseEventMap = BaseEventMap> = {
@@ -174,7 +174,7 @@ export type IEventDispatcher<TEventMap extends BaseEventMap = BaseEventMap> = {
  * The `IEventBus` contract defines a way for dispatching and listening to events independent of underlying technology.
  * It comes with more convenient methods compared to `IEventBusAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/contracts"`
  * @group Contracts
  */
 export type IEventBus<TEventMap extends BaseEventMap = BaseEventMap> =

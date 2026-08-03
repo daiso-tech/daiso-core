@@ -8,7 +8,7 @@ import { type IExecutionContextAdapter } from "@/execution-context/contracts/_mo
 import { type InvocableFn } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/als-execution-context-adapter"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/als-execution-context-adapter"`
  *
  * Execution context adapter using Node.js AsyncLocalStorage.
  *

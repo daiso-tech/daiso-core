@@ -29,7 +29,7 @@ import {
  * Configuration for `MongodbCacheAdapter`.
  * Requires a MongoDB `Db` instance and a serde for serialising cache values to strings.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/mongodb-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/mongodb-cache-adapter"`
  * @group Adapters
  */
 export type MongodbCacheAdapterSettings = {
@@ -53,7 +53,7 @@ export type MongodbCacheAdapterSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/cache/mongodb-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/mongodb-cache-adapter"`
  * @group Adapters
  */
 export type MongodbCacheDocument = {
@@ -66,7 +66,7 @@ export type MongodbCacheDocument = {
 /**
  * To utilize the `MongodbCacheAdapter`, you must install the [`"mongodb"`](https://www.npmjs.com/package/mongodb) package and supply a {@link ISerde | `ISerde`}, with an adapter like {@link SuperJsonSerdeAdapter | `SuperJsonSerdeAdapter`}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/mongodb-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/mongodb-cache-adapter"`
  * @group Adapters
  */
 export class MongodbCacheAdapter<TType = unknown>
@@ -128,9 +128,9 @@ export class MongodbCacheAdapter<TType = unknown>
     /**
      * @example
      * ```ts
-     * import { MongodbCacheAdapter } from "@daiso-tech/core/cache/mongodb-cache-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { MongodbCacheAdapter } from "eridu-tech/cache/mongodb-cache-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import { MongoClient } from "mongodb";
      *
      * const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");

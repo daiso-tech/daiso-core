@@ -65,7 +65,7 @@ declare module "ioredis" {
  * Configuration for `RedisRateLimiterAdapter`.
  * Requires a Redis client and handles serialization internally with JSON.stringify/JSON.parse.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/redis-rate-limiter-adapter"`
  * @group Adapters
  */
 export type RedisRateLimiterAdapterSettings = {
@@ -94,7 +94,7 @@ export type RedisRateLimiterAdapterSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/redis-rate-limiter-adapter"`
  * @group Adapters
  */
 export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
@@ -107,7 +107,7 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
     /**
      * @example
      * ```ts
-     * import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
+     * import { RedisRateLimiterAdapter } from "eridu-tech/rate-limiter/redis-rate-limiter-adapter";
      * import Redis from "ioredis";
      *
      * const database = new Redis("YOUR_REDIS_CONNECTION_STRING");

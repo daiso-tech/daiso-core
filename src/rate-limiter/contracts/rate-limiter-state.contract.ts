@@ -10,7 +10,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  * - ALLOWED: Requests are being allowed within the configured limit
  * - EXPIRED: Rate limiter has no recorded state (initial or cleaned up)
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export const RATE_LIMITER_STATE = {
@@ -23,7 +23,7 @@ export const RATE_LIMITER_STATE = {
  * Literal union type for rate limiter state values.
  * Ensures type-safe discrimination of rate limiter states.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type RateLimiterStateLiterals =
@@ -34,7 +34,7 @@ export type RateLimiterStateLiterals =
  * Occurs when the rate limiter data has expired or been cleaned up.
  * Requests are allowed to proceed with fresh quota calculation.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type RateLimiterExpiredState = {
@@ -49,7 +49,7 @@ export type RateLimiterExpiredState = {
  * The rate limiter is tracking attempts and has remaining quota available.
  * This state includes metrics about current usage within the configured limit.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type RateLimiterAllowedState = {
@@ -88,7 +88,7 @@ export type RateLimiterAllowedState = {
  * The configured limit has been exceeded and the rate limiter is preventing further requests.
  * This state includes metrics about the excess and when the block will be lifted.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type RateLimiterBlockedState = {
@@ -127,7 +127,7 @@ export type RateLimiterBlockedState = {
  * The `type` property discriminates between EXPIRED, ALLOWED, and BLOCKED states.
  * Each state provides different metrics and indicates different operational conditions.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type RateLimiterState =

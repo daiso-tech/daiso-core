@@ -18,7 +18,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/cache/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/cache/test-utilities"`
  * @group TestUtilities
  */
 export type CacheAdapterTestSuiteSettings = {
@@ -31,7 +31,7 @@ export type CacheAdapterTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
@@ -41,8 +41,8 @@ export type CacheAdapterTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -53,7 +53,7 @@ export type CacheAdapterTestSuiteSettings = {
 /**
  * The `cacheAdapterTestSuite` function simplifies the process of testing your custom implementation of {@link ICacheAdapter | `ICacheAdapter`} with `vitest`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/cache/test-utilities"`
  * @group TestUtilities
  * @example
  * ```ts
@@ -63,11 +63,11 @@ export type CacheAdapterTestSuiteSettings = {
  *   RedisContainer,
  *   type StartedRedisContainer,
  * } from "@testcontainers/redis";
- * import { cacheAdapterTestSuite } from "@daiso-tech/core/cache/test-utilities";
- * import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
- * import { TimeSpan } from "@daiso-tech/core/time-span";
- * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
- * import { Serde } from "@daiso-tech/core/serde";
+ * import { cacheAdapterTestSuite } from "eridu-tech/cache/test-utilities";
+ * import { RedisCacheAdapter } from "eridu-tech/cache/redis-cache-adapter";
+ * import { TimeSpan } from "eridu-tech/time-span";
+ * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+ * import { Serde } from "eridu-tech/serde";
  *
  * const timeout = TimeSpan.fromMinutes(2);
  * describe("class: RedisCacheAdapter", () => {

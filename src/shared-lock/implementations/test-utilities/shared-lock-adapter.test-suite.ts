@@ -21,7 +21,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/test-utilities"`
  * @group Utilities
  */
 export type SharedLockAdapterTestSuiteSettings = {
@@ -34,7 +34,7 @@ export type SharedLockAdapterTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
@@ -44,8 +44,8 @@ export type SharedLockAdapterTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -56,19 +56,19 @@ export type SharedLockAdapterTestSuiteSettings = {
 /**
  * The `sharedLockAdapterTestSuite` function simplifies the process of testing your custom implementation of {@link ISharedLockAdapter | `ISharedLockAdapter`} with `vitest`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/test-utilities"`
  * @group Utilities
  * @example
  * ```ts
  * import { afterEach, beforeEach, describe, expect, test } from "vitest";
- * import { sharedLockAdapterTestSuite } from "@daiso-tech/core/shared-lock/test-utilities";
- * import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
+ * import { sharedLockAdapterTestSuite } from "eridu-tech/shared-lock/test-utilities";
+ * import { RedisSharedLockAdapter } from "eridu-tech/shared-lock/redis-shared-lock-adapter";
  * import { Redis } from "ioredis";
  * import {
  *     RedisContainer,
  *     type StartedRedisContainer,
  * } from "@testcontainers/redis";
- * import { TimeSpan } from "@daiso-tech/core/time-span";
+ * import { TimeSpan } from "eridu-tech/time-span";
  *
  * const timeout = TimeSpan.fromMinutes(2);
  * describe("class: RedisSharedLockAdapter", () => {

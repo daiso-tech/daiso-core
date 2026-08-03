@@ -5,7 +5,7 @@
 import { type TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export const SHARED_LOCK_WRITER_STATE = {
@@ -14,14 +14,14 @@ export const SHARED_LOCK_WRITER_STATE = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type SharedLockWriterStateLiterals =
     (typeof SHARED_LOCK_WRITER_STATE)[keyof typeof SHARED_LOCK_WRITER_STATE];
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export const SHARED_LOCK_READER_STATE = {
@@ -31,14 +31,14 @@ export const SHARED_LOCK_READER_STATE = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type SharedLockReaderStateLiterals =
     (typeof SHARED_LOCK_READER_STATE)[keyof typeof SHARED_LOCK_READER_STATE];
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export const SHARED_LOCK_STATE = {
@@ -48,14 +48,14 @@ export const SHARED_LOCK_STATE = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type SharedLockState =
     (typeof SHARED_LOCK_STATE)[keyof typeof SHARED_LOCK_STATE];
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockExpiredState = {
@@ -63,7 +63,7 @@ export type ISharedLockExpiredState = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockWriterUnavailableState = {
@@ -73,7 +73,7 @@ export type ISharedLockWriterUnavailableState = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockWriterAcquiredState = {
@@ -82,7 +82,7 @@ export type ISharedLockWriterAcquiredState = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockWriterState =
@@ -90,7 +90,7 @@ export type ISharedLockWriterState =
     | ISharedLockWriterAcquiredState;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockReaderUnacquiredState = {
@@ -102,7 +102,7 @@ export type ISharedLockReaderUnacquiredState = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockReaderAcquiredState = {
@@ -115,7 +115,7 @@ export type ISharedLockReaderAcquiredState = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockReaderLimitReachedState = {
@@ -125,7 +125,7 @@ export type ISharedLockReaderLimitReachedState = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockReaderState =
@@ -134,7 +134,7 @@ export type ISharedLockReaderState =
     | ISharedLockReaderLimitReachedState;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockState =

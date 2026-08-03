@@ -37,7 +37,7 @@ import {
  *
  * @template TValue - The value type to collapse.
  *
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  */
 export type AsyncCollapse<TValue> = TValue extends string
     ? string
@@ -52,7 +52,7 @@ export type AsyncCollapse<TValue> = TValue extends string
  * The `IAsyncCollection` contract offers a fluent and efficient approach to working with {@link AsyncIterable | `AsyncIterable`} objects.
  * `IAsyncCollection` is immutable.
  *
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  * @group Contracts
  */
 export interface IAsyncCollection<
@@ -82,7 +82,7 @@ export interface IAsyncCollection<
      * The `filter` method filters the collection using `predicateFn`, keeping only those items that pass `predicateFn`.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -110,7 +110,7 @@ export interface IAsyncCollection<
      * The `reject` method filters the collection using `predicateFn`, keeping only those items that not pass `predicateFn`.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -131,7 +131,7 @@ export interface IAsyncCollection<
      * The `mapFn` is free to modify the item and return it, thus forming a new collection of modified items.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -152,7 +152,7 @@ export interface IAsyncCollection<
      * The final result of running the reducer across all items of the array is a single value.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -164,7 +164,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -200,7 +200,7 @@ export interface IAsyncCollection<
      * @throws {TypeError}
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -213,7 +213,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -231,7 +231,7 @@ export interface IAsyncCollection<
      * The `collapse` method collapses a collection of iterables into a single, flat collection.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number[]>): Promise<void> {
@@ -250,7 +250,7 @@ export interface IAsyncCollection<
      * It is identical to a `map` method followed by a `collapse` method.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string[]>): Promise<void> {
@@ -270,7 +270,7 @@ export interface IAsyncCollection<
      * The `change` method changes only the items that passes `predicateFn` using `mapFn`.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -295,7 +295,7 @@ export interface IAsyncCollection<
      * The `set` method changes a item by i>index` using `value`.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -308,7 +308,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -329,7 +329,7 @@ export interface IAsyncCollection<
      * The `get` method returns the item by index. If the item is not found null will returned.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -350,7 +350,7 @@ export interface IAsyncCollection<
      * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -370,7 +370,7 @@ export interface IAsyncCollection<
      * The `page` method returns a new collection containing the items that would be present on ` page ` with custom ` pageSize `.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -390,7 +390,7 @@ export interface IAsyncCollection<
      * @throws {EmptyCollectionError}
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -409,7 +409,7 @@ export interface IAsyncCollection<
      * @throws {EmptyCollectionError}
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -428,7 +428,7 @@ export interface IAsyncCollection<
      * @throws {EmptyCollectionError}
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -447,7 +447,7 @@ export interface IAsyncCollection<
      * @throws {EmptyCollectionError}
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -466,7 +466,7 @@ export interface IAsyncCollection<
      * @throws {EmptyCollectionError}
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -484,7 +484,7 @@ export interface IAsyncCollection<
      * @throws {EmptyCollectionError}
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -503,7 +503,7 @@ export interface IAsyncCollection<
      * The `some` method determines whether at least one item in the collection matches `predicateFn`.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -522,7 +522,7 @@ export interface IAsyncCollection<
      * The `every` method determines whether all items in the collection matches `predicateFn`.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -541,7 +541,7 @@ export interface IAsyncCollection<
      * The `take` method takes the first `limit` items.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -554,7 +554,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -572,7 +572,7 @@ export interface IAsyncCollection<
      * The `takeUntil` method takes items until `predicateFn` returns true.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -592,7 +592,7 @@ export interface IAsyncCollection<
      * The `takeWhile` method takes items until `predicateFn` returns false.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -612,7 +612,7 @@ export interface IAsyncCollection<
      * The `skip` method skips the first `offset` items.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -630,7 +630,7 @@ export interface IAsyncCollection<
      * The `skipUntil` method skips items until `predicateFn` returns true.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -650,7 +650,7 @@ export interface IAsyncCollection<
      * The `skipWhile` method skips items until `predicateFn` returns false.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -670,7 +670,7 @@ export interface IAsyncCollection<
      * The `when` method will execute `callback` when `condition` evaluates to true.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -695,7 +695,7 @@ export interface IAsyncCollection<
      * The `whenEmpty` method will execute `callback` when the collection is empty.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -708,7 +708,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -731,7 +731,7 @@ export interface IAsyncCollection<
      * The `whenNot` method will execute `callback` when `condition` evaluates to false.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -756,7 +756,7 @@ export interface IAsyncCollection<
      * The `whenNotEmpty` method will execute `callback` when the collection is not empty.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -768,7 +768,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -792,7 +792,7 @@ export interface IAsyncCollection<
      * This method is useful when you want compose multiple smaller functions.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -822,7 +822,7 @@ export interface IAsyncCollection<
      * The `tap` method passes a copy of the original collection to `callback`, allowing you to do something with the items while not affecting the original collection.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -845,7 +845,7 @@ export interface IAsyncCollection<
      * If `chunkSize` is not divisible with total number of items then the last chunk will contain the remaining items.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -865,7 +865,7 @@ export interface IAsyncCollection<
      * The chunk variable passed to the `predicateFn` may be used to inspect the previous item.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -888,7 +888,7 @@ export interface IAsyncCollection<
      * The `split` method breaks a collection evenly into `chunkAmount` of chunks.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -902,7 +902,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -916,7 +916,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -934,7 +934,7 @@ export interface IAsyncCollection<
      * The `partition` method is used to separate items that pass `predicateFn` from those that do not.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -955,7 +955,7 @@ export interface IAsyncCollection<
      * The `sliding` method returns a new collection of chunks representing a "sliding window" view of the items in the collection.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -978,7 +978,7 @@ export interface IAsyncCollection<
      * By default the equality check occurs on the item.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -1005,7 +1005,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -1036,7 +1036,7 @@ export interface IAsyncCollection<
      * By default the equality check occurs on the item.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1054,7 +1054,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -1078,7 +1078,7 @@ export interface IAsyncCollection<
      * By default the equality check occurs on the item.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * type Phone = {
      *   name: string;
@@ -1097,7 +1097,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1127,7 +1127,7 @@ export interface IAsyncCollection<
      * By default the equality check occurs on the item.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1140,7 +1140,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * type Phone = {
      *   name: string;
@@ -1182,7 +1182,7 @@ export interface IAsyncCollection<
      * The `repeat` method will repeat the original collection `amount` times.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1201,7 +1201,7 @@ export interface IAsyncCollection<
      * The padding is applied from the start of this collection.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -1253,7 +1253,7 @@ export interface IAsyncCollection<
      * The padding is applied from the end of this collection.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -1305,7 +1305,7 @@ export interface IAsyncCollection<
      * where `start` and `end` (end not included) represent the index of items in the collection.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -1318,7 +1318,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -1331,7 +1331,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -1344,7 +1344,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -1357,7 +1357,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -1370,7 +1370,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -1388,7 +1388,7 @@ export interface IAsyncCollection<
      * The `prepend` method adds `iterable` to the beginning of the collection.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1408,7 +1408,7 @@ export interface IAsyncCollection<
      * The `append` method adds `iterable` to the end of the collection.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1428,7 +1428,7 @@ export interface IAsyncCollection<
      * The `insertBefore` method adds `iterable` before the first item that matches `predicateFn`.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1449,7 +1449,7 @@ export interface IAsyncCollection<
      * The `insertAfter` method adds `iterable` after the first item that matches `predicateFn`.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1470,7 +1470,7 @@ export interface IAsyncCollection<
      * The `crossJoin` method cross joins the collection's values among `iterables`, returning a Cartesian product with all possible permutations.
      * @example
      * ```ts
-     * import { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import { ICollection } from "eridu-tech/collection/contracts";
      *
      * async function(): Promise<void> {
      *   await collection
@@ -1487,7 +1487,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import { ICollection } from "eridu-tech/collection/contracts";
      *
      * async function(): Promise<void> {
      *   await collection
@@ -1517,7 +1517,7 @@ export interface IAsyncCollection<
      * The returned collection has size of the shortest collection.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -1530,7 +1530,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -1543,7 +1543,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -1563,7 +1563,7 @@ export interface IAsyncCollection<
      * The `sort` method sorts the collection. You can provide a `comparator` function.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * type Person = {
      *   name: string;
@@ -1581,7 +1581,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1610,7 +1610,7 @@ export interface IAsyncCollection<
      * The reversing of the collection will be applied in chunks that are the size of ` chunkSize `.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1634,7 +1634,7 @@ export interface IAsyncCollection<
      * By default it will get the first item. If the collection is empty or no items passes ` predicateFn ` than null i returned.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1646,7 +1646,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1658,7 +1658,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1678,7 +1678,7 @@ export interface IAsyncCollection<
      * By default it will get the first item. If the collection is empty or no items passes ` predicateFn ` than ` defaultValue `.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1690,7 +1690,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1703,7 +1703,7 @@ export interface IAsyncCollection<
      * You can pass a function as default value.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1716,7 +1716,7 @@ export interface IAsyncCollection<
      * You can pass an async function as default value.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1738,7 +1738,7 @@ export interface IAsyncCollection<
      * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1750,7 +1750,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1762,7 +1762,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1782,7 +1782,7 @@ export interface IAsyncCollection<
      * By default it will get the last item. If the collection is empty or no items passes ` predicateFn ` than null i returned.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1794,7 +1794,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1806,7 +1806,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1826,7 +1826,7 @@ export interface IAsyncCollection<
      * By default it will get the last item. If the collection is empty or no items passes ` predicateFn ` than ` defaultValue `.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1838,7 +1838,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1851,7 +1851,7 @@ export interface IAsyncCollection<
      * You can pass a function as default value.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1864,7 +1864,7 @@ export interface IAsyncCollection<
      * You can pass an async function as default value.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1886,7 +1886,7 @@ export interface IAsyncCollection<
      * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1898,7 +1898,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1910,7 +1910,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1930,7 +1930,7 @@ export interface IAsyncCollection<
      * If the `predicateFn` does not match or matches the first item then null is returned.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1942,7 +1942,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1962,7 +1962,7 @@ export interface IAsyncCollection<
      * If the collection is empty or the `predicateFn` does not match or matches the first item then `defaultValue` is returned.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1975,7 +1975,7 @@ export interface IAsyncCollection<
      * You can pass a function as default value.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -1988,7 +1988,7 @@ export interface IAsyncCollection<
      * You can pass an async function as default value.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2010,7 +2010,7 @@ export interface IAsyncCollection<
      * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2022,7 +2022,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2042,7 +2042,7 @@ export interface IAsyncCollection<
      * If the collection is empty or the `predicateFn` does not match or matches the last item then null is returned.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2054,7 +2054,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2074,7 +2074,7 @@ export interface IAsyncCollection<
      * If the collection is empty or the `predicateFn` does not match or matches the last item then `defaultValue` is returned.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2087,7 +2087,7 @@ export interface IAsyncCollection<
      * You can pass a function as default value.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2100,7 +2100,7 @@ export interface IAsyncCollection<
      * You can pass an async function as default value.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2122,7 +2122,7 @@ export interface IAsyncCollection<
      * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2134,7 +2134,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2156,7 +2156,7 @@ export interface IAsyncCollection<
      * @throws {MultipleItemsFoundCollectionError}
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2168,7 +2168,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2180,7 +2180,7 @@ export interface IAsyncCollection<
      * ```
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2199,7 +2199,7 @@ export interface IAsyncCollection<
      * The `nth` method creates a new collection consisting of every n-th item.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2216,7 +2216,7 @@ export interface IAsyncCollection<
      * The `count` method returns the total number of items in the collection that passes `predicateFn`.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<number>): Promise<void> {
@@ -2250,7 +2250,7 @@ export interface IAsyncCollection<
      * The `searchFirst` return the index of the first item that matches `predicateFn`.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {
@@ -2269,7 +2269,7 @@ export interface IAsyncCollection<
      * The `searchLast` return the index of the last item that matches `predicateFn`.
      * @example
      * ```ts
-     * import type { IAsyncCollection } from "@daiso-tech/core/collection/contracts";
+     * import type { IAsyncCollection } from "eridu-tech/collection/contracts";
      *
      * // Asume the inputed collection is empty.
      * async function main(collection: IAsyncCollection<string>): Promise<void> {

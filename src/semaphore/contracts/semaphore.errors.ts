@@ -7,7 +7,7 @@ import { type InferInstance } from "@/utilities/_module.js";
 /**
  * The error is thrown when trying to acquire a semaphore slot, but all slots are already taken.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Errors
  */
 export class LimitReachedSemaphoreError extends Error {
@@ -32,7 +32,7 @@ export class LimitReachedSemaphoreError extends Error {
 /**
  * The error is thrown when trying to refresh a semaphore slot that is already expired.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Errors
  */
 export class FailedRefreshSemaphoreError extends Error {
@@ -61,7 +61,7 @@ export class FailedRefreshSemaphoreError extends Error {
 /**
  * The error is thrown when trying to release a semaphore slot that is already expired.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Errors
  */
 export class FailedReleaseSemaphoreError extends Error {
@@ -88,7 +88,7 @@ export class FailedReleaseSemaphoreError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Errors
  */
 export const SEMAPHORE_ERRORS = {
@@ -98,7 +98,7 @@ export const SEMAPHORE_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Errors
  */
 export type AllSemaphoreErrors = InferInstance<
@@ -106,7 +106,7 @@ export type AllSemaphoreErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Errors
  */
 export function isSemaphoreError(value: unknown): value is AllSemaphoreErrors {

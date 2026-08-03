@@ -21,7 +21,7 @@ import {
  * Represents the HTTP request method.
  * Provides autocompletion for common verbs while accepting any string.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpMethod = StrIntellisense<
@@ -46,7 +46,7 @@ export type HttpMethod = StrIntellisense<
  *
  * @typeParam TReqFiles - The expected file definitions from validation.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpReqFiles<TReqFiles extends FileInputs> = {
@@ -73,7 +73,7 @@ export type HttpReqFiles<TReqFiles extends FileInputs> = {
  * @typeParam TReqFiles - The expected file definitions.
  * @typeParam TCookieData - A record mapping cookie names to their value types.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IValidatedHttpReq<
@@ -211,7 +211,7 @@ export type IValidatedHttpReq<
  * @typeParam TReqFiles - The expected file definitions.
  * @typeParam TCookieData - The type of the parsed cookie data.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpReqSchemas<
@@ -266,7 +266,7 @@ export type HttpReqSchemas<
  * {@link IValidatedHttpReq} that provides schema-validated access to all
  * request data sources.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IHttpReqValidation = {
@@ -308,7 +308,7 @@ export type IHttpReqValidation = {
  * path params, query params, headers) alongside the underlying
  * {@link IHttpReqBase.webReq | Web API Request}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IHttpReqBase = AsyncIterable<unknown> & {
@@ -419,7 +419,7 @@ export type IHttpReqBase = AsyncIterable<unknown> & {
  * @typeParam TReqFiles - The expected file upload definitions.
  * @typeParam TCookieData - A record mapping cookie names to their value types.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IHttpReq = IHttpReqValidation & IHttpReqBase;

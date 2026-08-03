@@ -19,7 +19,7 @@ import { validate } from "@/utilities/_module.js";
  *
  * @typeParam TEventMap - The event map type mapping event names to their payloads.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
+ * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Plugins
  */
 export type EventMapSchema<TEventMap extends BaseEventMap = BaseEventMap> = {
@@ -33,7 +33,7 @@ export type EventMapSchema<TEventMap extends BaseEventMap = BaseEventMap> = {
  * @param eventMapSchema - The event map schema to define.
  * @returns The same event map schema with proper type inference.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
+ * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Plugins
  */
 export function defineEventMapSchema<TEventMap extends BaseEventMap>(
@@ -45,7 +45,7 @@ export function defineEventMapSchema<TEventMap extends BaseEventMap>(
 /**
  * Settings for the {@link withEventBusSchema} plugin.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/plugins"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/plugins"`
  * @group Plugins
  */
 export type WithEventBusSchemaSettings = {
@@ -85,7 +85,7 @@ export type WithEventBusSchemaSettings = {
  *                                        functions. @default true
  * @returns A middleware plugin that wraps an `IEventBusAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/plugins"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/plugins"`
  * @group Plugins
  */
 export function withEventBusSchema(

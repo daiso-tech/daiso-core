@@ -29,7 +29,7 @@ type CookieEntry = Required<CookieSetSettings> & {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export type IHttpResSettings = {
@@ -40,7 +40,7 @@ export type IHttpResSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export class HttpRes implements IHttpRes {

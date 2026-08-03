@@ -13,7 +13,7 @@ import {
 import { type IDeinitizable, type InvocableFn } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export type MemoryRateLimiterData<TType = unknown> = {
@@ -25,7 +25,7 @@ export type MemoryRateLimiterData<TType = unknown> = {
 /**
  * The `MemoryRateLimiterStorageAdapter` is used for easily facking {@link IRateLimiterFactory | `IRateLimiterFactory`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export class MemoryRateLimiterStorageAdapter<TType>
@@ -34,7 +34,7 @@ export class MemoryRateLimiterStorageAdapter<TType>
     /**
      * @example
      * ```ts
-     * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
+     * import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
      *
      * const rateLimiterStorageAdapter = new MemoryRateLimiterStorageAdapter();
      * ```

@@ -14,7 +14,7 @@ import { TimeSpan } from "@/time-span/implementations/time-span.js";
 /**
  * The `NoOpRateLimiterAdapter` will do nothing and is used for easily mocking {@link IRateLimiterFactory | `IRateLimiterFactory`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/no-op-rate-limiter-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/no-op-rate-limiter-adapter"`
  * @group Adapters
  */
 export class NoOpRateLimiterAdapter implements IRateLimiterAdapter {

@@ -16,21 +16,21 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
 /**
  * The `MemoryEventBusAdapter` is used for easily faking{@link IEventBus | `IEventBus`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/memory-event-bus"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/memory-event-bus"`
  * @group Adapters
  */
 export class MemoryEventBusAdapter implements IEventBusAdapter {
     /**
      *  @example
      * ```ts
-     * import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus";
+     * import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus";
      *
      * const eventBusAdapter = new MemoryEventBusAdapter();
      * ```
      * You can also provide an {@link EventEmitter | `EventEmitter`} that will be used dispatching the events in memory.
      * @example
      * ```ts
-     * import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus";
+     * import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus";
      * import { EventEmitter } from "node:events";
      *
      * const eventEmitter = new EventEmitter<any>();

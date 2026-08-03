@@ -9,7 +9,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  * Defines CRUD operations for key-value pairs with expiration support.
  * This contract abstracts away the underlying cache storage technology (Redis, Memcached, database, etc.).
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
+ * IMPORT_PATH: `"eridu-tech/cache/contracts"`
  * @group Contracts
  */
 export type ICacheAdapter<TType = unknown> = {

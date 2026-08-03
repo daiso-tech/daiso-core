@@ -16,7 +16,7 @@ import { type ISharedLockAdapter } from "@/shared-lock/contracts/_module.js";
  * @param prefix - The string to prepend to every shared-lock key.
  * @returns A middleware plugin that wraps an `ISharedLockAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/plugins"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/plugins"`
  * @group Plugins
  */
 export function withSharedLockPrefix(

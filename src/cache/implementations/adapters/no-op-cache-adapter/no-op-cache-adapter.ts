@@ -14,7 +14,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  * The `NoOpCacheAdapter` will do nothing and is used for easily mocking {@link ICache | `ICache`} for testing.
  *
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/no-op-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/no-op-cache-adapter"`
  * @group Adapters
  */
 export class NoOpCacheAdapter<TType = unknown> implements ICacheAdapter<TType> {

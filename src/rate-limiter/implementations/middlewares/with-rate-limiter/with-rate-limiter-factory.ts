@@ -53,7 +53,7 @@ export type WithRateLimiterSettings<
  * @returns A higher-order function that accepts {@link WithRateLimiterSettings}
  *          and returns a {@link MiddlewareFn}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/middlewares"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/middlewares"`
  * @group Middleware
  */
 export function withRateLimiterFactory(

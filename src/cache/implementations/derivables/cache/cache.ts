@@ -23,7 +23,7 @@ import {
  * Base configuration shared by all `Cache` variants.
  * Provides optional schema validation for all cached values.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache"`
+ * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
 export type CacheSettingsBase = {
@@ -37,8 +37,8 @@ export type CacheSettingsBase = {
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -50,7 +50,7 @@ export type CacheSettingsBase = {
  * Configuration for the `Cache` class.
  * Extends {@link CacheSettingsBase | `CacheSettingsBase`} with a required adapter.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache"`
+ * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
 export type CacheSettings = CacheSettingsBase & {
@@ -61,7 +61,7 @@ export type CacheSettings = CacheSettingsBase & {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/cache"`
+ * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
 export class Cache<TType = unknown> implements ICache<TType> {
@@ -73,11 +73,11 @@ export class Cache<TType = unknown> implements ICache<TType> {
      *
      * @example
      * ```ts
-     * import { KyselyCacheAdapter } from "@daiso-tech/core/cache/kysely-cache-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { KyselyCacheAdapter } from "eridu-tech/cache/kysely-cache-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import Sqlite from "better-sqlite3";
-     * import { Cache } from "@daiso-tech/core/cache";
+     * import { Cache } from "eridu-tech/cache";
      * import { Kysely, SqliteDialect } from "kysely";
      *
      * const database = new Sqlite("local.db");

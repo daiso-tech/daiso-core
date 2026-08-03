@@ -25,7 +25,7 @@ import {
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/test-utilities"`
  * @group TestUtilities
  */
 export type FileStorageTestSuiteSettings = {
@@ -47,7 +47,7 @@ export type FileStorageTestSuiteSettings = {
 /**
  * The `fileStorageTestSuite` function simplifies the process of testing your custom implementation of {@link IFileStorage | `IFileStorage`} with `vitest`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/test-utilities"`
  * @group TestUtilities
  */
 export function fileStorageTestSuite(

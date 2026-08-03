@@ -19,7 +19,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/cache/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/cache/test-utilities"`
  * @group TestUtilities
  */
 export type CacheTestSuiteSettings = {
@@ -32,7 +32,7 @@ export type CacheTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
@@ -43,14 +43,14 @@ export type CacheTestSuiteSettings = {
 /**
  * The `cacheTestSuite` function simplifies the process of testing your custom implementation of {@link ICache | `ICache`} with `vitest`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/cache/test-utilities"`
  * @group TestUtilities
  * @example
  * ```ts
  * import { beforeEach, describe, expect, test } from "vitest";
- * import { cacheTestSuite } from "@daiso-tech/core/cache/test-utilities";
- * import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
- * import { Cache } from "@daiso-tech/core/cache";
+ * import { cacheTestSuite } from "eridu-tech/cache/test-utilities";
+ * import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+ * import { Cache } from "eridu-tech/cache";
  *
  * describe("class: Cache", () => {
  *     cacheTestSuite({

@@ -23,7 +23,7 @@ import {
  * Discriminant constants that identify the type of backoff algorithm.
  * Used as the `type` field in {@link BackoffSettingsEnum | `BackoffSettingsEnum`} discriminated unions.
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export const BACKOFFS = {
@@ -36,7 +36,7 @@ export const BACKOFFS = {
 /**
  * Union of all {@link BACKOFFS | `BACKOFFS`} discriminant string values.
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export type BackoffsLiterals = (typeof BACKOFFS)[keyof typeof BACKOFFS];
@@ -45,7 +45,7 @@ export type BackoffsLiterals = (typeof BACKOFFS)[keyof typeof BACKOFFS];
  * {@link ConstantBackoffSettings | `ConstantBackoffSettings`} tagged with a `type` discriminant for use in
  * serialised backoff configuration unions.
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export type ConstantBackoffSettingsEnum = Omit<
@@ -62,7 +62,7 @@ export type ConstantBackoffSettingsEnum = Omit<
  * {@link ExponentialBackoffSettings | `ExponentialBackoffSettings`} tagged with a `type` discriminant for use in
  * serialised backoff configuration unions.
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export type ExponentialBackoffSettingsEnum = Omit<
@@ -79,7 +79,7 @@ export type ExponentialBackoffSettingsEnum = Omit<
  * {@link LinearBackoffSettings | `LinearBackoffSettings`} tagged with a `type` discriminant for use in
  * serialised backoff configuration unions.
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export type LinearBackoffSettingsEnum = Omit<
@@ -96,7 +96,7 @@ export type LinearBackoffSettingsEnum = Omit<
  * {@link PolynomialBackoffSettings | `PolynomialBackoffSettings`} tagged with a `type` discriminant for use in
  * serialised backoff configuration unions.
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export type PolynomialBackoffSettingsEnum = Omit<
@@ -113,7 +113,7 @@ export type PolynomialBackoffSettingsEnum = Omit<
  * Discriminated union of all backoff settings types.
  * Use the `type` field to narrow to a specific algorithm's settings.
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export type BackoffSettingsEnum =

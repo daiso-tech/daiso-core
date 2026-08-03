@@ -9,7 +9,7 @@
  * - HALF_OPEN: Testing if the service has recovered, limited requests allowed
  * - ISOLATED: Manually isolated, all requests are blocked until reset
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export const CIRCUIT_BREAKER_STATE = {
@@ -38,7 +38,7 @@ export const CIRCUIT_BREAKER_STATE = {
  * Union type of all possible circuit breaker states.
  * Represents the current operational state of a circuit breaker instance.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type CircuitBreakerState =

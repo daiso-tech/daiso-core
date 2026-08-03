@@ -15,7 +15,7 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
 /**
  * The `NoOpCircuitBreakerAdapter` will do nothing and is used for easily mocking {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/no-op-circuit-breaker-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/no-op-circuit-breaker-adapter"`
  * @group Adapters
  */
 export class NoOpCircuitBreakerAdapter implements ICircuitBreakerAdapter {

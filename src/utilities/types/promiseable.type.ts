@@ -3,6 +3,6 @@
  */
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  */
 export type Promisable<TValue> = TValue | PromiseLike<TValue>;

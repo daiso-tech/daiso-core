@@ -13,7 +13,7 @@
  *
  * @template TValue - Type of value being compared to
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Contracts
  */
 export type IEquals<TValue> = {
@@ -33,7 +33,7 @@ export type IEquals<TValue> = {
  *
  * @template TValue - Type of value being compared to
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Contracts
  */
 export type IGreaterThan<TValue> = {
@@ -52,7 +52,7 @@ export type IGreaterThan<TValue> = {
  *
  * @template TValue - Type of value being compared to
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Contracts
  */
 export type IGreaterThanOrEquals<TValue> = {
@@ -71,7 +71,7 @@ export type IGreaterThanOrEquals<TValue> = {
  *
  * @template TValue - Type of value being compared to
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Contracts
  */
 export type ILessThan<TValue> = {
@@ -90,7 +90,7 @@ export type ILessThan<TValue> = {
  *
  * @template TValue - Type of value being compared to
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Contracts
  */
 export type ILessThanOrEquals<TValue> = {
@@ -114,7 +114,7 @@ export type ILessThanOrEquals<TValue> = {
  *
  * @template TValue - Type of value being compared to
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Contracts
  */
 export type IComparable<TValue> = IEquals<TValue> &

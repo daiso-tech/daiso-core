@@ -117,14 +117,14 @@ declare module "ioredis" {
  *
  * Note in order to use `RedisSharedLockAdapter` correctly, ensure you use a single, consistent database across all server instances.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/redis-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/redis-shared-lock-adapter"`
  * @group Adapters
  */
 export class RedisSharedLockAdapter implements ISharedLockAdapter {
     /**
      * @example
      * ```ts
-     * import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
+     * import { RedisSharedLockAdapter } from "eridu-tech/shared-lock/redis-shared-lock-adapter";
      * import Redis from "ioredis";
      *
      * const database = new Redis("YOUR_REDIS_CONNECTION_STRING");

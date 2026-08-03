@@ -21,7 +21,7 @@ import {
 import { type IDeinitizable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/memory-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/memory-file-storage-adapter"`
  * @group Adapters
  */
 export type MemoryFile = {
@@ -36,7 +36,7 @@ export type MemoryFile = {
 /**
  * The `MemoryFileStorageAdapter` is used for easily facking {@link IFileStorage | `IFileStorage`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/memory-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/memory-file-storage-adapter"`
  * @group Adapters
  */
 export class MemoryFileStorageAdapter
@@ -46,7 +46,7 @@ export class MemoryFileStorageAdapter
      * You can provide an optional {@link Map | `Map`}, that will be used for storing the data.
      * @example
      * ```ts
-     * import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
+     * import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
      *
      * const map = new Map<any, any>();
      * const fileStorageAdapter = new MemoryFileStorageAdapter(map);

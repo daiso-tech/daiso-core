@@ -21,7 +21,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/kysely-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/kysely-shared-lock-adapter"`
  * @group Adapters
  */
 export type KyselyWriterLockTable = {
@@ -34,7 +34,7 @@ export type KyselyWriterLockTable = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/kysely-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/kysely-shared-lock-adapter"`
  * @group Adapters
  */
 export type KyselyReaderSemaphoreTable = {
@@ -43,7 +43,7 @@ export type KyselyReaderSemaphoreTable = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/kysely-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/kysely-shared-lock-adapter"`
  * @group Adapters
  */
 export type KyselyReaderSemaphoreSlotTable = {
@@ -55,7 +55,7 @@ export type KyselyReaderSemaphoreSlotTable = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/kysely-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/kysely-shared-lock-adapter"`
  * @group Adapters
  */
 export type KyselySharedLockTables = {
@@ -68,7 +68,7 @@ export type KyselySharedLockTables = {
  * Configuration for `KyselySharedLockAdapter`.
  * Requires a Kysely database instance with the shared-lock schema applied.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/kysely-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/kysely-shared-lock-adapter"`
  * @group Adapters
  */
 export type KyselySharedLockAdapterSettings = {
@@ -92,7 +92,7 @@ export type KyselySharedLockAdapterSettings = {
  * Note in order to use `KyselySharedLockAdapter` correctly, ensure you use a single, consistent database across all server instances and use a database that has support for transactions.
  * The adapter have been tested with `sqlite`, `postgres` and `mysql` databases.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/kysely-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/kysely-shared-lock-adapter"`
  * @group Adapters
  */
 export class KyselySharedLockAdapter
@@ -105,7 +105,7 @@ export class KyselySharedLockAdapter
     /**
      * @example
      * ```ts
-     * import { KyselySharedLockAdapter } from "@daiso-tech/core/shared-lock/kysely-shared-lock-adapter";
+     * import { KyselySharedLockAdapter } from "eridu-tech/shared-lock/kysely-shared-lock-adapter";
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *

@@ -16,7 +16,7 @@ import { type PluginFn } from "@/middleware/contracts/_module.js";
  * @param prefix - The string to prepend to every lock key.
  * @returns A middleware plugin that wraps an `ILockAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/plugins"`
+ * IMPORT_PATH: `"eridu-tech/lock/plugins"`
  * @group Plugins
  */
 export function withLockPrefix(prefix: string): PluginFn<ILockAdapter> {

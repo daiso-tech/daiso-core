@@ -16,7 +16,7 @@ import {
 /**
  * Tracks in-memory failure and success counts for the consecutive circuit breaker.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/policies"`
  * @group Policies
  */
 export type ConsecutiveBreakerState = {
@@ -29,7 +29,7 @@ export type ConsecutiveBreakerState = {
  * Opens the circuit when `failureThreshold` consecutive failures occur,
  * and closes it again after `successThreshold` consecutive successes in half-open state.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/policies"`
  * @group Policies
  */
 export type ConsecutiveBreakerSettings = {
@@ -99,7 +99,7 @@ export function resolveConsecutiveBreakerSettings(
 /**
  * The `ConsecutiveBreaker` breaks after n requests in a row fail.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/policies"`
  * @group Policies
  */
 export class ConsecutiveBreaker implements ICircuitBreakerPolicy<ConsecutiveBreakerState> {

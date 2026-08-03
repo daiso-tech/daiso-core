@@ -24,7 +24,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/test-utilities"`
  * @group TestUtilities
  */
 export type SamplingBreakerTestSuiteSettings = {
@@ -37,7 +37,7 @@ export type SamplingBreakerTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
@@ -67,17 +67,17 @@ const backoffPolicySettings: Required<ConstantBackoffSettingsEnum> = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/test-utilities"`
  * @group TestUtilities
  *
  * @example
  * ```ts
  * import { beforeEach, describe, expect, test } from "vitest";
- * import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
- * import { SamplingBreaker } from "@daiso-tech/core/circuit-breaker/policies";
- * import { samplingBreakerTestSuite } from "@daiso-tech/core/circuit-breaker/test-utilities";
- * import { constantBackoff } from "@daiso-tech/core/backoff-policies";
- * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
+ * import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
+ * import { SamplingBreaker } from "eridu-tech/circuit-breaker/policies";
+ * import { samplingBreakerTestSuite } from "eridu-tech/circuit-breaker/test-utilities";
+ * import { constantBackoff } from "eridu-tech/backoff-policies";
+ * import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storage-adapter";
  *
  * describe("sampling-breaker class: DatabaseCircuitBreakerAdapter", () => {
  *     samplingBreakerTestSuite({

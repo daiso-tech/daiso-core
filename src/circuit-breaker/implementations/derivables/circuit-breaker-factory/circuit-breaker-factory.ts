@@ -32,7 +32,7 @@ import {
 /**
  * Base configuration shared by all `CircuitBreakerFactory` variants.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker"`
  * @group Derivables
  */
 export type CircuitBreakerFactorySettingsBase = {
@@ -51,7 +51,7 @@ export type CircuitBreakerFactorySettingsBase = {
      *
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromSeconds(10);
      * ```
@@ -63,7 +63,7 @@ export type CircuitBreakerFactorySettingsBase = {
      *
      * @default
      * ```ts
-     * import { CIRCUIT_BREAKER_TRIGGER} from "@daiso-tech/core/circuit-breaker/contracts";
+     * import { CIRCUIT_BREAKER_TRIGGER} from "eridu-tech/circuit-breaker/contracts";
      *
      * CIRCUIT_BREAKER_TRIGGER.BOTH
      * ```
@@ -80,8 +80,8 @@ export type CircuitBreakerFactorySettingsBase = {
      * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link CircuitBreakerFactory | `CircuitBreakerFactory`} to register the circuit breaker's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { NoOpSerdeAdapter } from "@daiso-tech/core/serde/no-op-serde-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { NoOpSerdeAdapter } from "eridu-tech/serde/no-op-serde-adapter";
      *
      * new Serde(new NoOpSerdeAdapter())
      * ```
@@ -99,7 +99,7 @@ export type CircuitBreakerFactorySettingsBase = {
      * This is required when working with environments like Cloudflare Workers or Vercel Functions to ensure tasks complete after the response is sent.
      * @default
      * ```ts
-     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
+     * import { defaultWaitUntil } from "eridu-tech/utilities"
      * ```
      */
     waitUntil?: WaitUntil;
@@ -108,8 +108,8 @@ export type CircuitBreakerFactorySettingsBase = {
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -121,7 +121,7 @@ export type CircuitBreakerFactorySettingsBase = {
  * Configuration for `CircuitBreakerFactory`.
  * Extends {@link CircuitBreakerFactorySettingsBase | `CircuitBreakerFactorySettingsBase`} with a required adapter.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker"`
  * @group Derivables
  */
 export type CircuitBreakerFactorySettings =
@@ -139,7 +139,7 @@ export type CircuitBreakerFactorySettings =
  * allowing them to be seamlessly transferred across different servers, processes, and databases.
  * This can be done directly using {@link ISerderRegister | `ISerderRegister`} or indirectly through components that rely on {@link ISerderRegister | `ISerderRegister`} internally.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker"`
  * @group Derivables
  */
 export class CircuitBreakerFactory implements ICircuitBreakerFactory {
@@ -156,10 +156,10 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
     /**
      * @example
      * ```ts
-     * import { KyselyCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storage-adapter";
-     * import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { KyselyCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/kysely-circuit-breaker-storage-adapter";
+     * import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *

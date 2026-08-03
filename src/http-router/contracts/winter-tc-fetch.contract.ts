@@ -11,7 +11,7 @@ import { type InvocableFn, type Promisable } from "@/utilities/_module.js";
  * used by WinterTC-compatible runtimes (Node.js, Bun, Deno, Cloudflare
  * Workers, etc.).
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type WinterTcRequestHandler = InvocableFn<
@@ -29,7 +29,7 @@ export type WinterTcRequestHandler = InvocableFn<
  * This is the lightweight, functional alternative to
  * {@link IWinterTcMiddlewareObject}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type WinterTcMiddlewareFn = InvocableFn<
@@ -46,7 +46,7 @@ export type WinterTcMiddlewareFn = InvocableFn<
  *
  * This is the object-oriented alternative to {@link WinterTcMiddlewareFn}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IWinterTcMiddlewareObject = InvocableFn<
@@ -61,7 +61,7 @@ export type IWinterTcMiddlewareObject = InvocableFn<
  * an object-based ({@link IWinterTcMiddlewareObject}) middleware,
  * allowing consumers to pass either form interchangeably.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type WinterTcMiddleware =
@@ -92,7 +92,7 @@ export type WinterTcMiddleware =
  * });
  * ```
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export function defineWinterTcMiddleware(
@@ -111,7 +111,7 @@ export function defineWinterTcMiddleware(
  * Implementing this interface ensures that a router can be used as a WinterTC-compatible
  * request handler, enabling seamless integration with WinterTC-based adapters and middleware.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IWinterTcFetch = {

@@ -11,7 +11,7 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
  * Represents a state transition event in a circuit breaker.
  * Tracks the before and after states during a state update operation.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type CircuitBreakerStateTransition = {
@@ -31,7 +31,7 @@ export type CircuitBreakerStateTransition = {
  * Implementations handle state persistence, metric tracking, and state transitions independent of the underlying storage and algorithm.
  * **Note:** This contract is low-level and typically not used directly - prefer {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} for creating circuit breaker instances.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type ICircuitBreakerAdapter = {

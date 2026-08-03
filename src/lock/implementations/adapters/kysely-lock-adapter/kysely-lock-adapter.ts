@@ -18,7 +18,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock/kysely-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/kysely-lock-adapter"`
  * @group Adapters
  */
 export type KyselyLockTable = {
@@ -31,7 +31,7 @@ export type KyselyLockTable = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock/kysely-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/kysely-lock-adapter"`
  * @group Adapters
  */
 export type KyselyLockTables = {
@@ -42,7 +42,7 @@ export type KyselyLockTables = {
  * Configuration for `KyselyLockAdapter`.
  * Requires a Kysely database instance with the lock schema applied.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/kysely-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/kysely-lock-adapter"`
  * @group Adapters
  */
 export type KyselyLockAdapterSettings = {
@@ -58,7 +58,7 @@ export type KyselyLockAdapterSettings = {
  * Note in order to use `KyselyLockAdapter` correctly, ensure you use a single, consistent database across all server instances and use a database that has support for transactions.
  * The adapter have been tested with `sqlite`, `postgres` and `mysql` databases.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/kysely-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/kysely-lock-adapter"`
  * @group Adapters
  */
 export class KyselyLockAdapter
@@ -70,7 +70,7 @@ export class KyselyLockAdapter
     /**
      * @example
      * ```ts
-     * import { KyselyLockAdapter } from "@daiso-tech/core/lock/kysely-lock-adapter";
+     * import { KyselyLockAdapter } from "eridu-tech/lock/kysely-lock-adapter";
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *

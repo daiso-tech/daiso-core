@@ -11,7 +11,7 @@ import {
 /**
  * The `NoOpSerdeAdapter` will do nothing and is used for easily mocking {@link IFlexibleSerde | `IFlexibleSerde`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/no-op-serde-adapter"`
+ * IMPORT_PATH: `"eridu-tech/serde/no-op-serde-adapter"`
  * @group Adapters
  */
 export class NoOpSerdeAdapter<

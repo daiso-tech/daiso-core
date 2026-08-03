@@ -16,7 +16,7 @@ import { type PluginFn } from "@/middleware/contracts/_module.js";
  * @param prefix - The string to prepend to every circuit-breaker key.
  * @returns A middleware plugin that wraps an `ICircuitBreakerAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/plugins"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/plugins"`
  * @group Plugins
  */
 export function withCircuitBreakerPrefix(

@@ -14,7 +14,7 @@ import { type PluginFn } from "@/middleware/contracts/_module.js";
  * All methods of {@link ISignedFileStorageAdapter | `ISignedFileStorageAdapter`} that can be protected by a lock,
  * excluding `removeByPrefix` (which operates on key patterns rather than concrete keys).
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/plugins"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/plugins"`
  * @group Plugins
  */
 export type WithFileStorageLockMethods = keyof Omit<
@@ -26,7 +26,7 @@ export type WithFileStorageLockMethods = keyof Omit<
  * Configuration for the {@link withFileStorageLock} plugin.
  * Requires a lock factory and optionally restricts which methods are protected.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/plugins"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/plugins"`
  * @group Plugins
  */
 export type WithFileStorageLockSettings = {
@@ -337,7 +337,7 @@ function withFileStorageRemovalLock(
  *
  * @typeParam TType - The type of values stored in the file storage.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/plugins"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/plugins"`
  * @group Plugins
  */
 export function withFileStorageLock(

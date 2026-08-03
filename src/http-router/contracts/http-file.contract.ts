@@ -9,7 +9,7 @@ import { type FileSize } from "@/file-size/implementations/_module.js";
  * Provides multiple methods to access the file's content in various formats — text, binary,
  * ArrayBuffer, or as a stream for efficient handling of large files.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IHttpFile = AsyncIterable<Uint8Array> & {

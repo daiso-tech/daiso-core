@@ -14,7 +14,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
 /**
  * The `NoOpLockAdapter` will do nothing and is used for easily mocking {@link ILockFactory | `ILockFactory`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/no-op-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/no-op-lock-adapter"`
  * @group Adapters
  */
 export class NoOpLockAdapter implements ILockAdapter {

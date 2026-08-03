@@ -23,7 +23,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context"`
+ * IMPORT_PATH: `"eridu-tech/execution-context"`
  *
  * Manages execution context values and provides a way to execute functions within a context.
  *

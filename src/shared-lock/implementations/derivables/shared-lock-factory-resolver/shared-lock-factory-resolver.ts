@@ -19,7 +19,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock"`
  * @group Derivables
  */
 export type SharedLockAdapters<TAdapters extends string> = Partial<
@@ -30,7 +30,7 @@ export type SharedLockAdapters<TAdapters extends string> = Partial<
  * Configuration for `SharedLockFactoryResolver`.
  * Registers named shared-lock adapters and optionally designates a default.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock"`
  * @group Derivables
  */
 export type SharedLockFactoryResolverSettings<TAdapters extends string> =
@@ -49,7 +49,7 @@ export type SharedLockFactoryResolverSettings<TAdapters extends string> =
 /**
  * The `SharedLockFactoryResolver` class is immutable.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock"`
  * @group Derivables
  */
 export class SharedLockFactoryResolver<
@@ -58,11 +58,11 @@ export class SharedLockFactoryResolver<
     /**
      * @example
      * ```ts
-     * import { SharedLockFactoryResolver } from "@daiso-tech/core/shared-lock";
-     * import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
-     * import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { SharedLockFactoryResolver } from "eridu-tech/shared-lock";
+     * import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
+     * import { RedisSharedLockAdapter } from "eridu-tech/shared-lock/redis-shared-lock-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -117,12 +117,12 @@ export class SharedLockFactoryResolver<
     /**
      * @example
      * ```ts
-     * import { SharedLockFactoryResolver } from "@daiso-tech/core/shared-lock";
-     * import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
-     * import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { SharedLockFactoryResolver } from "eridu-tech/shared-lock";
+     * import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
+     * import { RedisSharedLockAdapter } from "eridu-tech/shared-lock/redis-shared-lock-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+     * import { TimeSpan } from "eridu-tech/time-span";
      * import Redis from "ioredis";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());

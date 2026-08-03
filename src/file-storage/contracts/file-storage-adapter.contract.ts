@@ -8,7 +8,7 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
  * Configuration for generating temporary signed download URLs for files.
  * These settings control how the presigned download URL behaves when accessed.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileAdapterSignedDownloadUrlSettings = {
@@ -37,7 +37,7 @@ export type FileAdapterSignedDownloadUrlSettings = {
  * Configuration for generating temporary signed upload URLs for files.
  * These settings control how the presigned upload URL behaves and what files can be uploaded.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileAdapterSignedUploadUrlSettings = {
@@ -67,7 +67,7 @@ export type FileAdapterSignedUploadUrlSettings = {
  *
  * All methods operate on files via `key` identifier and use `IReadableContext` for audit logging.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type IFileUrlAdapter = {
@@ -127,7 +127,7 @@ export type IFileUrlAdapter = {
  * Contains properties describing file state, size, and modification times.
  * Immutable snapshot used for cache validation and file information endpoints.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileAdapterMetadata = {
@@ -166,7 +166,7 @@ export type FileAdapterMetadata = {
  * Used for both reading (download) and writing (upload) operations.
  * Iterating the stream will fetch/produce chunks sequentially.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileAdapterStream = AsyncIterable<Uint8Array>;
@@ -177,7 +177,7 @@ export type FileAdapterStream = AsyncIterable<Uint8Array>;
  *
  * Shared between content (bytes) and stream write operations.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type WritableFileAdapterCommonSettings = {
@@ -224,7 +224,7 @@ export type WritableFileAdapterCommonSettings = {
  * Used when entire file content is available in memory (smaller files).
  * All content is provided upfront before write operation.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type WritableFileAdapterContent = WritableFileAdapterCommonSettings & {
@@ -250,7 +250,7 @@ export type WritableFileAdapterContent = WritableFileAdapterCommonSettings & {
  * Used when file content is too large for memory or comes from a streaming source.
  * Content is transmitted in chunks, allowing memory-efficient processing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type WritableFileAdapterStream = WritableFileAdapterCommonSettings & {
@@ -274,7 +274,7 @@ export type WritableFileAdapterStream = WritableFileAdapterCommonSettings & {
  * Enumeration defining the possible outcomes of write operations.
  * Used by copy and move operations that respect existing key constraints.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export const FILE_WRITE_ENUM = {
@@ -302,7 +302,7 @@ export const FILE_WRITE_ENUM = {
  * Type definition for FileWriteEnum string values.
  * Represents one of the possible outcomes from copy/move operations.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileWriteEnum =
@@ -312,7 +312,7 @@ export type FileWriteEnum =
  * File storage adapter contract defining complete file operations.
  * Abstracts storage backend implementation (local filesystem, S3, database, memory, etc).
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type IFileStorageAdapter = {
@@ -575,7 +575,7 @@ export type IFileStorageAdapter = {
  * - Public URL generation for direct browser access
  * - Temporary signed URLs for secure download/upload without client credentials
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type ISignedFileStorageAdapter = IFileUrlAdapter & IFileStorageAdapter;

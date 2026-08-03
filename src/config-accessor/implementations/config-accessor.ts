@@ -59,7 +59,7 @@ export class ConfigAccessor<
     /**
      * @example
      * ```ts
-     * import { ConfigAccessor } from "@daiso-tech/core/config-accessor";
+     * import { ConfigAccessor } from "eridu-tech/config-accessor";
      * import { z } from "zod";
      *
      * const config = {}

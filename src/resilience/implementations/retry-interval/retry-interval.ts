@@ -26,7 +26,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type RetryIntervalSettings<
@@ -217,7 +217,7 @@ function throwErrors(settings: ThrowErrorsSettings): never {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  * @throws {RetryIntervalResilienceError}
  */

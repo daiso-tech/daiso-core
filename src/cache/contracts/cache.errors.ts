@@ -7,7 +7,7 @@ import { type InferInstance } from "@/utilities/_module.js";
 /**
  * The error is thrown when a key is not found
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
+ * IMPORT_PATH: `"eridu-tech/cache/contracts"`
  * @group Errors
  */
 export class KeyNotFoundCacheError extends Error {
@@ -29,7 +29,7 @@ export class KeyNotFoundCacheError extends Error {
 /**
  * The error is thrown when a key already exists found
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
+ * IMPORT_PATH: `"eridu-tech/cache/contracts"`
  * @group Errors
  */
 export class KeyExistsCacheError extends Error {
@@ -49,7 +49,7 @@ export class KeyExistsCacheError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
+ * IMPORT_PATH: `"eridu-tech/cache/contracts"`
  * @group Errors
  */
 export const CACHE_ERRORS = {
@@ -58,7 +58,7 @@ export const CACHE_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
+ * IMPORT_PATH: `"eridu-tech/cache/contracts"`
  * @group Errors
  */
 export type AllCacheErrors = InferInstance<
@@ -66,7 +66,7 @@ export type AllCacheErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
+ * IMPORT_PATH: `"eridu-tech/cache/contracts"`
  * @group Errors
  */
 export function isCacheError(value: unknown): value is AllCacheErrors {

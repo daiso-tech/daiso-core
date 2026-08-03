@@ -9,7 +9,7 @@ import {
 } from "@/event-bus/contracts/event-bus.contract.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type EventBusInput<TEventMap extends BaseEventMap = BaseEventMap> =

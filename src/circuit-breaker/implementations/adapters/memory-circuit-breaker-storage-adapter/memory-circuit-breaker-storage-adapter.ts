@@ -14,7 +14,7 @@ import { type IDeinitizable, type InvocableFn } from "@/utilities/_module.js";
 /**
  * The `MemoryCircuitBreakerStorageAdapter` is used for easily facking {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/memory-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export class MemoryCircuitBreakerStorageAdapter<TType = unknown>
@@ -23,14 +23,14 @@ export class MemoryCircuitBreakerStorageAdapter<TType = unknown>
     /**
      *  @example
      * ```ts
-     * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
+     * import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storage-adapter";
      *
      * const circuitBreakerStorageAdapter = new MemoryCircuitBreakerStorageAdapter();
      * ```
      * You can also provide an `Map`.
      * @example
      * ```ts
-     * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
+     * import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storage-adapter";
      *
      * const map = new Map<any, any>();
      * const circuitBreakerStorageAdapter = new MemoryCircuitBreakerStorageAdapter(map);

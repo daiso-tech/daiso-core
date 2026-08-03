@@ -7,7 +7,7 @@ import { type ISerializable } from "@/serde/contracts/_module.js";
 import { type IComparable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-size"`
+ * IMPORT_PATH: `"eridu-tech/file-size"`
  * @group Implementations
  */
 export type SerializedFileSize = {
@@ -19,7 +19,7 @@ export type SerializedFileSize = {
  * The `FileSize` class is used for representing file size.
  * `FileSize` class cannot be negative, if you pass negative number it will be converted to 0.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-size"`
+ * IMPORT_PATH: `"eridu-tech/file-size"`
  * @group Implementations
  */
 export class FileSize

@@ -24,7 +24,7 @@ import {
  * @template TAdapters - Union type of registered adapter names (e.g., "memory" | "redis" | "kafka")
  * @template TEventMap - Strongly-typed map of event names to event payloads
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/contracts"`
  * @group Contracts
  */
 export type IEventBusResolver<

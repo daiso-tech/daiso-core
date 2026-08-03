@@ -24,7 +24,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker"`
  * @group Derivables
  */
 export type CircuitBreakerAdapters<TAdapters extends string> = Partial<
@@ -35,7 +35,7 @@ export type CircuitBreakerAdapters<TAdapters extends string> = Partial<
  * Configuration for `CircuitBreakerFactoryResolver`.
  * Registers named circuit-breaker adapters and optionally designates a default.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker"`
  * @group Derivables
  */
 export type CircuitBreakerFactoryResolverSettings<TAdapters extends string> =
@@ -54,7 +54,7 @@ export type CircuitBreakerFactoryResolverSettings<TAdapters extends string> =
 /**
  * The `CircuitBreakerFactoryResolver` class is immutable.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker"`
  * @group Derivables
  */
 export class CircuitBreakerFactoryResolver<
@@ -63,12 +63,12 @@ export class CircuitBreakerFactoryResolver<
     /**
      * @example
      * ```ts
-     * import { CircuitBreakerFactoryResolver } from "@daiso-tech/core/circuit-breaker";
-     * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storate-adapter";
-     * import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
-     * import { RedisCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { CircuitBreakerFactoryResolver } from "eridu-tech/circuit-breaker";
+     * import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storate-adapter";
+     * import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
+     * import { RedisCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/redis-circuit-breaker-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -138,12 +138,12 @@ export class CircuitBreakerFactoryResolver<
     /**
      * @example
      * ```ts
-     * import { CircuitBreakerFactoryResolver } from "@daiso-tech/core/circuit-breaker";
-     * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storate-adapter";
-     * import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
-     * import { RedisCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { CircuitBreakerFactoryResolver } from "eridu-tech/circuit-breaker";
+     * import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storate-adapter";
+     * import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
+     * import { RedisCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/redis-circuit-breaker-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());

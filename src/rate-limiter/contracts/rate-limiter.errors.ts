@@ -8,7 +8,7 @@ import { type InferInstance } from "@/utilities/_module.js";
 /**
  * The error is throw when rate limiter blocks the attempts.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Errors
  */
 export class BlockedRateLimiterError extends Error {
@@ -40,7 +40,7 @@ export class BlockedRateLimiterError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Errors
  */
 export const RATE_LIMITER_ERRORS = {
@@ -48,7 +48,7 @@ export const RATE_LIMITER_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Errors
  */
 export type AllRateLimiterErrors = InferInstance<
@@ -56,7 +56,7 @@ export type AllRateLimiterErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Errors
  */
 export function isRateLimiterError(

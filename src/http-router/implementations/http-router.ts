@@ -48,7 +48,7 @@ import {
 /**
  * Configuration options for {@link HttpRouter}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export type HttpRouterSettings = {
@@ -92,7 +92,7 @@ export type HttpRouterSettings = {
  * })
  * ```
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export const defaultHttpRouterAdapter = new SmartRouter<RouterEntry>({
@@ -127,7 +127,7 @@ export const defaultHttpRouterAdapter = new SmartRouter<RouterEntry>({
  * });
  * ```
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 

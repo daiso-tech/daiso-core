@@ -58,7 +58,7 @@ export type WithLockSettings<
  * @returns A function that accepts {@link WithLockSettings} and returns a
  *          middleware.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/middlewares"`
+ * IMPORT_PATH: `"eridu-tech/lock/middlewares"`
  * @group Middleware
  */
 export function withLockFactory(lockFactory: ILockFactory) {

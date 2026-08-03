@@ -14,7 +14,7 @@ import { type InvocableFn, type OneOrMore } from "@/utilities/_module.js";
  *
  * @typeParam TInstance - The object type to extract method names from
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type InferMethodNames<TInstance> = {
@@ -35,7 +35,7 @@ export type InferMethodNames<TInstance> = {
  *
  * @typeParam TValue - The invocable type to extract parameters from
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type InferParameters<TValue> =
@@ -50,7 +50,7 @@ export type InferParameters<TValue> =
  *
  * @typeParam TValue - The invocable type to extract the return type from
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type InferReturn<TValue> =
@@ -108,7 +108,7 @@ export type InferReturn<TValue> =
  * @see {@link Middleware | `Middleware`} — the middleware type
  * @see {@link enhanceFactory | `enhanceFactory`} — factory to create an `Enhance` function
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type Enhance = <TInstance, TField extends InferMethodNames<TInstance>>(

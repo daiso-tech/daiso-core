@@ -8,7 +8,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  * Enumeration of lock operational states.
  * Represents the possible status conditions a lock can have at any point in time.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export const LOCK_STATE = {
@@ -35,7 +35,7 @@ export const LOCK_STATE = {
  * Union type of lock state literals.
  * Represents the valid string values that indicate a lock's current status.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type LockStateLiterals = (typeof LOCK_STATE)[keyof typeof LOCK_STATE];
@@ -44,7 +44,7 @@ export type LockStateLiterals = (typeof LOCK_STATE)[keyof typeof LOCK_STATE];
  * Represents a lock that has expired and is no longer held.
  * In this state, any requester can acquire the lock.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type ILockExpiredState = {
@@ -58,7 +58,7 @@ export type ILockExpiredState = {
  * Represents a lock that is currently held by a different owner.
  * The requesting entity cannot acquire this lock until the owner releases it or it expires.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type ILockUnavailableState = {
@@ -77,7 +77,7 @@ export type ILockUnavailableState = {
  * Represents a lock that is currently held by the requesting owner.
  * The owner has exclusive access to the protected resource for the duration of the remaining time.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type ILockAcquiredState = {
@@ -98,7 +98,7 @@ export type ILockAcquiredState = {
  * Discriminated union using the `type` field to determine which specific state it is.
  * Use type guards or switch statements on the `type` field to narrow to specific states.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type ILockState =

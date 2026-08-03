@@ -31,7 +31,7 @@ import {
 /**
  * Base configuration shared by all `SharedLockFactory` variants.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock"`
  * @group Derivables
  */
 export type SharedLockFactorySettingsBase = {
@@ -39,8 +39,8 @@ export type SharedLockFactorySettingsBase = {
      * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link SharedLockFactory | `SharedLockFactory`} to register the shared lock's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { NoOpSerdeAdapter } from "@daiso-tech/core/serde/no-op-serde-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { NoOpSerdeAdapter } from "eridu-tech/serde/no-op-serde-adapter";
      *
      * new Serde(new NoOpSerdeAdapter())
      * ```
@@ -67,7 +67,7 @@ export type SharedLockFactorySettingsBase = {
      * You can decide the default ttl value for {@link ISharedLock | `ISharedLock`} expiration. If null is passed then no ttl will be used by default.
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMinutes(5);
      * ```
@@ -77,7 +77,7 @@ export type SharedLockFactorySettingsBase = {
     /**
      * The default refresh time used in the {@link ISharedLock | `ISharedLock`} `refresh` method.
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMinutes(5);
      * ```
@@ -88,8 +88,8 @@ export type SharedLockFactorySettingsBase = {
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -101,7 +101,7 @@ export type SharedLockFactorySettingsBase = {
  * Configuration for `SharedLockFactory`.
  * Extends {@link SharedLockFactorySettingsBase | `SharedLockFactorySettingsBase`} with a required adapter.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock"`
  * @group Derivables
  */
 export type SharedLockFactorySettings = SharedLockFactorySettingsBase & {
@@ -118,7 +118,7 @@ export type SharedLockFactorySettings = SharedLockFactorySettingsBase & {
  * allowing them to be seamlessly transferred across different servers, processes, and databases.
  * This can be done directly using {@link ISerderRegister | `ISerderRegister`} or indirectly through components that rely on {@link ISerderRegister | `ISerderRegister`} internally.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock"`
  * @group Derivables
  */
 export class SharedLockFactory implements ISharedLockFactory {
@@ -133,10 +133,10 @@ export class SharedLockFactory implements ISharedLockFactory {
     /**
      * @example
      * ```ts
-     * import { KyselySharedLockAdapter } from "@daiso-tech/core/shared-lock/kysely-shared-lock-adapter";
-     * import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { KyselySharedLockAdapter } from "eridu-tech/shared-lock/kysely-shared-lock-adapter";
+     * import { SharedLockFactory } from "eridu-tech/shared-lock";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *
@@ -195,11 +195,11 @@ export class SharedLockFactory implements ISharedLockFactory {
     /**
      * @example
      * ```ts
-     * import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
-     * import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
-     * import { Namespace } from "@daiso-tech/core/namespace";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { SharedLockFactory } from "eridu-tech/shared-lock";
+     * import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
+     * import { Namespace } from "eridu-tech/namespace";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      *
      * const lockFactory = new SharedLockFactory({
      *   adapter: new MemorySharedLockAdapter(),

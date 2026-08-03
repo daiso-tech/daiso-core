@@ -15,7 +15,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/test-utilities"`
  * @group TestUtilities
  */
 export type EventBusTestSuiteSettings = {
@@ -29,7 +29,7 @@ export type EventBusTestSuiteSettings = {
 /**
  * The `eventBusTestSuite` function simplifies the process of testing your custom implementation of {@link IEventBus | `IEventBus`} with vitest.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/test-utilities"`
  * @group TestUtilities
  */
 export function eventBusTestSuite(settings: EventBusTestSuiteSettings): void {

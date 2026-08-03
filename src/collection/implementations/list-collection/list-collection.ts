@@ -44,7 +44,7 @@ import {
 /**
  * All methods in `ListCollection` are executed eagerly.
  *
- * IMPORT_PATH: `"@daiso-tech/core/collection"`
+ * IMPORT_PATH: `"eridu-tech/collection"`
  * @group Implementations
  */
 export class ListCollection<TInput = unknown> implements ICollection<TInput> {
@@ -52,7 +52,7 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
      * The `concat` static method is a convenient utility for easily concatenating multiple {@link Iterable | `Iterable`}.
      * @example
      * ```ts
-     * import { ListCollection } from "@daiso-tech/core/collection";
+     * import { ListCollection } from "eridu-tech/collection";
      *
      * class MyIterable implements Iterable<number> {
      *   *[Symbol.iterator](): Iterator<number> {
@@ -86,7 +86,7 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
      * The `difference` static method is used to compute the difference between two {@link Iterable | `Iterable`} instances. By default, the equality check is performed on each item.
      * @example
      * ```ts
-     * import { ListCollection } from "@daiso-tech/core/collection";
+     * import { ListCollection } from "eridu-tech/collection";
      *
      * const collection = ListCollection.difference(
      *   [1, 2, 2, 3, 4, 5],
@@ -97,7 +97,7 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
      * ```
      * @example
      * ```ts
-     * import { ListCollection } from "@daiso-tech/core/collection";
+     * import { ListCollection } from "eridu-tech/collection";
      *
      * const collection = ListCollection.difference(
      *   [
@@ -133,7 +133,7 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
      * The returned collection has size of the shortest collection.
      * @example
      * ```ts
-     * import { ListCollection } from "@daiso-tech/core/collection";
+     * import { ListCollection } from "eridu-tech/collection";
      *
      * const collection = ListCollection.zip(["Chair", "Desk"], [100, 200]);
      * collection.toArray();
@@ -141,7 +141,7 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
      * ```
      * @example
      * ```ts
-     * import { ListCollection } from "@daiso-tech/core/collection";
+     * import { ListCollection } from "eridu-tech/collection";
      *
      * const collection = ListCollection.zip(["Chair", "Desk", "Couch"], [100, 200]);
      * collection.toArray();
@@ -149,7 +149,7 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
      * ```
      * @example
      * ```ts
-     * import { ListCollection } from "@daiso-tech/core/collection";
+     * import { ListCollection } from "eridu-tech/collection";
      *
      * const collection = ListCollection.zip(["Chair", "Desk"], [100, 200, 300]);
      * collection.toArray();
@@ -177,7 +177,7 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
      * Works with `Array`.
      * @example
      * ```ts
-     * import { ListCollection } from "@daiso-tech/core/collection";
+     * import { ListCollection } from "eridu-tech/collection";
      *
      * const collection = new ListCollection([1, 2, 3, 4]);
      * ```
@@ -185,7 +185,7 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
      * Works with `String`.
      * @example
      * ```ts
-     * import { ListCollection } from "@daiso-tech/core/collection";
+     * import { ListCollection } from "eridu-tech/collection";
      *
      * const collection = new ListCollection("ABCDE");
      * ```
@@ -193,7 +193,7 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
      * Works with `Set`.
      * @example
      * ```ts
-     * import { ListCollection } from "@daiso-tech/core/collection";
+     * import { ListCollection } from "eridu-tech/collection";
      *
      * const collection = new ListCollection(new Set([1, 2, 2 4]));
      * ```
@@ -201,7 +201,7 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
      * Works with `Map`.
      * @example
      * ```ts
-     * import { ListCollection } from "@daiso-tech/core/collection";
+     * import { ListCollection } from "eridu-tech/collection";
      *
      * const collection = new ListCollection(new Map([["a", 1], ["b", 2]]));
      * ```
@@ -209,7 +209,7 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
      * Works with any `Iterable`.
      * @example
      * ```ts
-     * import { ListCollection } from "@daiso-tech/core/collection";
+     * import { ListCollection } from "eridu-tech/collection";
      *
      * class MyIterable implements Iterable<number> {
      *   *[Symbol.iterator](): Iterator<number> {

@@ -9,7 +9,7 @@ import { type InvocableFn } from "@/utilities/_module.js";
  * Persisted rate limiter state data.
  * Contains the metrics/state object and expiration information for stored rate limiters.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  * @template TType - The type of metrics/state object stored (defined by the policy)
  */
@@ -34,7 +34,7 @@ export type IRateLimiterData<TType = unknown> = {
  * Provides atomic operations within a database transaction context.
  * All methods execute within the same transaction for ACID compliance.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  * @template TType - The type of metrics/state object being stored
  */
@@ -80,7 +80,7 @@ export type IRateLimiterStorageAdapterTransaction<TType = unknown> = {
  * Adapters implementing this contract serialize the policy's TMetrics type for storage
  * and deserialize it when loading, handling the conversion to/from TType.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  * @template TType - The type of persisted metrics/state object in the database
  */

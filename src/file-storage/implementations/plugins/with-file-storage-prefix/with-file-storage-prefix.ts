@@ -19,7 +19,7 @@ import { type PluginFn } from "@/middleware/contracts/_module.js";
  * @param prefix - The string to prepend to every file key.
  * @returns A middleware plugin that wraps a file-storage adapter.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/plugins"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/plugins"`
  * @group Plugins
  */
 export function withFileStoragePrefix(

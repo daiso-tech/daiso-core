@@ -19,7 +19,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock"`
+ * IMPORT_PATH: `"eridu-tech/lock"`
  * @group Derivables
  */
 export type LockAdapters<TAdapters extends string> = Partial<
@@ -30,7 +30,7 @@ export type LockAdapters<TAdapters extends string> = Partial<
  * Configuration for `LockFactoryResolver`.
  * Registers named lock adapters and optionally designates a default.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock"`
+ * IMPORT_PATH: `"eridu-tech/lock"`
  * @group Derivables
  */
 export type LockFactoryResolverSettings<TAdapters extends string> =
@@ -49,7 +49,7 @@ export type LockFactoryResolverSettings<TAdapters extends string> =
 /**
  * The `LockFactoryResolver` class is immutable.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock"`
+ * IMPORT_PATH: `"eridu-tech/lock"`
  * @group Derivables
  */
 export class LockFactoryResolver<
@@ -58,11 +58,11 @@ export class LockFactoryResolver<
     /**
      * @example
      * ```ts
-     * import { LockFactoryResolver } from "@daiso-tech/core/lock";
-     * import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
-     * import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { LockFactoryResolver } from "eridu-tech/lock";
+     * import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
+     * import { RedisLockAdapter } from "eridu-tech/lock/redis-lock-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -115,12 +115,12 @@ export class LockFactoryResolver<
     /**
      * @example
      * ```ts
-     * import { LockFactoryResolver } from "@daiso-tech/core/lock";
-     * import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
-     * import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { LockFactoryResolver } from "eridu-tech/lock";
+     * import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
+     * import { RedisLockAdapter } from "eridu-tech/lock/redis-lock-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+     * import { TimeSpan } from "eridu-tech/time-span";
      * import Redis from "ioredis";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());

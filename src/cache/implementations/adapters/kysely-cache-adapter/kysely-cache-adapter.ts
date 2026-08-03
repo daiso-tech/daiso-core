@@ -16,7 +16,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/cache/kysely-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/kysely-cache-adapter"`
  * @group Adapters
  */
 export type KyselyCacheTable = {
@@ -27,7 +27,7 @@ export type KyselyCacheTable = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/cache/kysely-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/kysely-cache-adapter"`
  * @group Adapters
  */
 export type KyselyCacheTables = {
@@ -38,7 +38,7 @@ export type KyselyCacheTables = {
  * Configuration for `KyselyCacheAdapter`.
  * Requires a Kysely database instance and a serde for serialising cache values to strings.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/kysely-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/kysely-cache-adapter"`
  * @group Adapters
  */
 export type KyselyCacheAdapterSettings = {
@@ -57,7 +57,7 @@ export type KyselyCacheAdapterSettings = {
  * To utilize the `KyselyCacheAdapter`, you must install the [`"kysely"`](https://www.npmjs.com/package/kysely) package and configure a `Kysely` class instance.
  * The adapter have been tested with `sqlite`, `postgres` and `mysql` databases.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/kysely-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/kysely-cache-adapter"`
  * @group Adapters
  */
 export class KyselyCacheAdapter<TType = unknown>
@@ -70,9 +70,9 @@ export class KyselyCacheAdapter<TType = unknown>
     /**
      * @example
      * ```ts
-     * import { KyselyCacheAdapter } from "@daiso-tech/core/cache/kysely-cache-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { KyselyCacheAdapter } from "eridu-tech/cache/kysely-cache-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import SQLite from 'better-sqlite3'
      * import { Kysely, SqliteDialect } from 'kysely'
      *

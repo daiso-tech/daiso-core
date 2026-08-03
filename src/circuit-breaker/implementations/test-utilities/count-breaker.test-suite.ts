@@ -30,7 +30,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/test-utilities"`
  * @group TestUtilities
  */
 export type CountBreakerTestSuiteSettings = {
@@ -43,7 +43,7 @@ export type CountBreakerTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
@@ -53,8 +53,8 @@ export type CountBreakerTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -83,17 +83,17 @@ const backoffPolicySettings: Required<ConstantBackoffSettingsEnum> = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/test-utilities"`
  * @group TestUtilities
  *
  * @example
  * ```ts
  * import { beforeEach, describe, expect, test } from "vitest";
- * import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
- * import { CountBreaker } from "@daiso-tech/core/circuit-breaker/policies";
- * import { countBreakerTestSuite } from "@daiso-tech/core/circuit-breaker/test-utilities";
- * import { constantBackoff } from "@daiso-tech/core/backoff-policies";
- * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
+ * import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
+ * import { CountBreaker } from "eridu-tech/circuit-breaker/policies";
+ * import { countBreakerTestSuite } from "eridu-tech/circuit-breaker/test-utilities";
+ * import { constantBackoff } from "eridu-tech/backoff-policies";
+ * import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storage-adapter";
  *
  * describe("count-breaker class: DatabaseCircuitBreakerAdapter", () => {
  *     countBreakerTestSuite({

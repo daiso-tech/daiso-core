@@ -38,7 +38,7 @@ export type WithCacheSettings<
  * @returns A function that accepts {@link WithCacheSettings} and returns a
  *          middleware.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/middlewares"`
+ * IMPORT_PATH: `"eridu-tech/cache/middlewares"`
  * @group Middleware
  */
 export function withCacheFactory(cache: Pick<ICache, "getOrAdd">) {

@@ -9,7 +9,7 @@
  * This symbol prevents naming conflicts by using a unique symbol as the property key.
  * Objects implementing ITimeSpan use this symbol to provide millisecond conversion.
  *
- * IMPORT_PATH: `"@daiso-tech/core/time-span/contracts"`
+ * IMPORT_PATH: `"eridu-tech/time-span/contracts"`
  * @group Contracts
  */
 export const TO_MILLISECONDS = Symbol("TO_MILLISECONDS");
@@ -31,7 +31,7 @@ export const TO_MILLISECONDS = Symbol("TO_MILLISECONDS");
  * 2. Pass instances to any daiso-core function accepting ITimeSpan
  * 3. The library will call the method to get millisecond values for duration calculations
  *
- * IMPORT_PATH: `"@daiso-tech/core/time-span/contracts"`
+ * IMPORT_PATH: `"eridu-tech/time-span/contracts"`
  * @group Contracts
  */
 export type ITimeSpan = {

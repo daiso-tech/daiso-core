@@ -8,7 +8,7 @@ import { type StrIntellisense } from "@/utilities/_module.js";
  * Well-known `Cache-Control` directive values for HTTP responses.
  * Controls how browsers and intermediate caches store and revalidate the response.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpResCacheControl = StrIntellisense<
@@ -30,7 +30,7 @@ export type HttpResCacheControl = StrIntellisense<
  * `Content-Disposition` header values for HTTP responses.
  * Controls whether the content is displayed inline or downloaded as an attachment.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpResContentDisposition = StrIntellisense<
@@ -41,7 +41,7 @@ export type HttpResContentDisposition = StrIntellisense<
  * `Content-Encoding` header values for HTTP responses.
  * Indicates the compression algorithm applied to the response body.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpResContentEncoding = StrIntellisense<
@@ -52,7 +52,7 @@ export type HttpResContentEncoding = StrIntellisense<
  * `Content-Language` header values for HTTP responses.
  * Specifies the natural language of the response content using BCP 47 language tags.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpResContentLanguage = StrIntellisense<
@@ -100,7 +100,7 @@ export type HttpResContentLanguage = StrIntellisense<
  * `Content-Range` header format for HTTP partial content responses.
  * Follows the pattern `<unit> <range-start>-<range-end>/<size>`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpResContentRange = `${string} ${string}/${string}`;
@@ -108,7 +108,7 @@ export type HttpResContentRange = `${string} ${string}/${string}`;
 /**
  * Well-known `application/*` media type subtypes.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpApplicationSubtype =
@@ -134,7 +134,7 @@ export type HttpApplicationSubtype =
 /**
  * Well-known `text/*` media type subtypes.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpTextSubtype =
@@ -152,7 +152,7 @@ export type HttpTextSubtype =
 /**
  * Well-known `multipart/*` media type subtypes.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpMultipartSubtype =
@@ -165,7 +165,7 @@ export type HttpMultipartSubtype =
 /**
  * Well-known `image/*` media type subtypes.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpImageSubtype =
@@ -184,7 +184,7 @@ export type HttpImageSubtype =
 /**
  * Well-known `audio/*` media type subtypes.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpAudioSubtype =
@@ -199,7 +199,7 @@ export type HttpAudioSubtype =
 /**
  * Well-known `video/*` media type subtypes.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpVideoSubtype =
@@ -213,7 +213,7 @@ export type HttpVideoSubtype =
 /**
  * Well-known `font/*` media type subtypes.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpFontSubtype = "ttf" | "otf" | "woff" | "woff2";
@@ -221,7 +221,7 @@ export type HttpFontSubtype = "ttf" | "otf" | "woff" | "woff2";
 /**
  * Well-known `application/*` media type strings.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpApplicationMediaType = `application/${HttpApplicationSubtype}`;
@@ -229,7 +229,7 @@ export type HttpApplicationMediaType = `application/${HttpApplicationSubtype}`;
 /**
  * Well-known `text/*` media type strings.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpTextMediaType = `text/${HttpTextSubtype}`;
@@ -237,7 +237,7 @@ export type HttpTextMediaType = `text/${HttpTextSubtype}`;
 /**
  * Well-known `multipart/*` media type strings.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpMultipartMediaType = `multipart/${HttpMultipartSubtype}`;
@@ -245,7 +245,7 @@ export type HttpMultipartMediaType = `multipart/${HttpMultipartSubtype}`;
 /**
  * Well-known `image/*` media type strings.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpImageMediaType = `image/${HttpImageSubtype}`;
@@ -253,7 +253,7 @@ export type HttpImageMediaType = `image/${HttpImageSubtype}`;
 /**
  * Well-known `audio/*` media type strings.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpAudioMediaType = `audio/${HttpAudioSubtype}`;
@@ -261,7 +261,7 @@ export type HttpAudioMediaType = `audio/${HttpAudioSubtype}`;
 /**
  * Well-known `video/*` media type strings.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpVideoMediaType = `video/${HttpVideoSubtype}`;
@@ -269,7 +269,7 @@ export type HttpVideoMediaType = `video/${HttpVideoSubtype}`;
 /**
  * Well-known `font/*` media type strings.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpFontMediaType = `font/${HttpFontSubtype}`;
@@ -278,7 +278,7 @@ export type HttpFontMediaType = `font/${HttpFontSubtype}`;
  * Union of all well-known `Content-Type` header values for HTTP responses.
  * Provides autocompletion for common media types while accepting any string.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpResContentType = StrIntellisense<
@@ -295,7 +295,7 @@ export type HttpResContentType = StrIntellisense<
  * `ETag` header values for HTTP conditional responses.
  * Supports both strong (`"value"`) and weak (`W/"value"`) validators.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpResETag = `"${string}"` | `W/"${string}"`;

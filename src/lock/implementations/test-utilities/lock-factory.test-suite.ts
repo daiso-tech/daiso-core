@@ -30,7 +30,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/lock/test-utilities"`
  * @group Utilities
  */
 export type LockFactoryTestSuiteSettings = {
@@ -51,7 +51,7 @@ export type LockFactoryTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
@@ -61,7 +61,7 @@ export type LockFactoryTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
@@ -72,19 +72,19 @@ export type LockFactoryTestSuiteSettings = {
 /**
  * The `lockFactoryTestSuite` function simplifies the process of testing your custom implementation of {@link ILock | `ILock`} with `vitest`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/lock/test-utilities"`
  * @group Utilities
  * @example
  * ```ts
  * import { describe, expect, test, beforeEach } from "vitest";
- * import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
- * import { LockFactory } from "@daiso-tech/core/lock";
- * import { EventBus } from "@daiso-tech/core/event-bus";
- * import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
- * import { lockFactoryTestSuite } from "@daiso-tech/core/lock/test-utilities";
- * import { Serde } from "@daiso-tech/core/serde";
- * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
- * import type { ILockData } from "@daiso-tech/core/lock/contracts";
+ * import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
+ * import { LockFactory } from "eridu-tech/lock";
+ * import { EventBus } from "eridu-tech/event-bus";
+ * import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+ * import { lockFactoryTestSuite } from "eridu-tech/lock/test-utilities";
+ * import { Serde } from "eridu-tech/serde";
+ * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+ * import type { ILockData } from "eridu-tech/lock/contracts";
  *
  * describe("class: LockFactory", () => {
  *     lockFactoryTestSuite({

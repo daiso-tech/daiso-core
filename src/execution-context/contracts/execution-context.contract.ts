@@ -9,7 +9,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Type-safe token for storing and retrieving execution context values.
  *
@@ -35,7 +35,7 @@ export type ContextToken<TValue> = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Factory function that creates a type-safe context token.
  *
@@ -48,7 +48,7 @@ export type ContextToken<TValue> = {
  * @returns A new ContextToken with the specified ID and type
  *
  * @example
- * import { contextToken } from "@daiso-tech/core/execution-context/contracts";
+ * import { contextToken } from "eridu-tech/execution-context/contracts";
  *
  * const userToken = contextToken<User>("user");
  * const requestIdToken = contextToken<string>("requestId");
@@ -60,7 +60,7 @@ export function contextToken<TValue>(id: string): ContextToken<TValue> {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Configuration for incrementing a numeric context value.
  * Used when updating an existing context value.
@@ -80,7 +80,7 @@ export type IncrementSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Configuration for putting (creating or overwriting) and incrementing a numeric context value.
  * Extends IncrementSettings to allow specifying an initial value if the key doesn't exist.
@@ -94,7 +94,7 @@ export type PutIncrementSettings = IncrementSettings & {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Configuration for decrementing a numeric context value.
  * Used when updating an existing context value.
@@ -114,7 +114,7 @@ export type DecrementSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Configuration for putting (creating or overwriting) and decrementing a numeric context value.
  * Extends DecrementSettings to allow specifying an initial value if the key doesn't exist.
@@ -128,7 +128,7 @@ export type PutDecrementSettings = DecrementSettings & {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Read-only contract for accessing execution context values.
  *
@@ -210,7 +210,7 @@ export type IReadableContext = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Read-write contract for managing execution context values.
  *
@@ -387,7 +387,7 @@ export type IContext = IReadableContext & {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Base contract for execution context operations.
  *
@@ -425,7 +425,7 @@ export type IExecutionContextBase = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Complete execution context contract combining execution capabilities with context management.
  *

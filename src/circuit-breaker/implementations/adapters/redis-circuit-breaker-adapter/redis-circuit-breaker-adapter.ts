@@ -30,7 +30,7 @@ import { type IReadableContext } from "@/execution-context/contracts/_module.js"
  * Configuration for `RedisCircuitBreakerAdapter`.
  * Requires a Redis client.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/redis-circuit-breaker-adapter"`
  * @group Adapters
  */
 export type RedisCircuitBreakerAdapterSettings = {
@@ -88,7 +88,7 @@ declare module "ioredis" {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/redis-circuit-breaker-adapter"`
  * @group Adapters
  */
 export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
@@ -101,7 +101,7 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
     /**
      * @example
      * ```ts
-     * import { RedisCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter";
+     * import { RedisCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/redis-circuit-breaker-adapter";
      * import Redis from "ioredis";
      *
      * const database = new Redis("YOUR_REDIS_CONNECTION_STRING");

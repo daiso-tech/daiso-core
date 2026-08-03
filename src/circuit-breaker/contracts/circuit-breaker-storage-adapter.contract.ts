@@ -10,7 +10,7 @@ import { type InvocableFn } from "@/utilities/_module.js";
  * Used within database transactions to ensure atomic updates and consistency.
  *
  * @template TType - The type/shape of the serialized circuit breaker state
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type ICircuitBreakerStorageAdapterTransaction<TType = unknown> = {
@@ -43,7 +43,7 @@ export type ICircuitBreakerStorageAdapterTransaction<TType = unknown> = {
  * Provides transactional support to ensure atomic updates and consistency across distributed systems.
  *
  * @template TType - The type/shape of the serialized circuit breaker state
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type ICircuitBreakerStorageAdapter<TType = unknown> = {

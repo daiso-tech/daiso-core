@@ -66,7 +66,7 @@ export type WithSemaphoreSettings<
  * @returns A function that accepts {@link WithSemaphoreSettings} and returns a
  *          middleware.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/middlewares"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/middlewares"`
  * @group Middleware
  */
 export function withSemaphoreFactory(semaphoreFactory: ISemaphoreFactory) {

@@ -14,7 +14,7 @@
  * @template TDecodedValue - The type produced by decoding (e.g., domain object, plaintext)
  * @template TEncodedValue - The type consumed by decoding (e.g., JSON string, ciphertext, transport format)
  *
- * IMPORT_PATH: `"@daiso-tech/core/codec/contracts"`
+ * IMPORT_PATH: `"eridu-tech/codec/contracts"`
  * @group Contracts
  */
 export type IDecoder<TDecodedValue, TEncodedValue> = {

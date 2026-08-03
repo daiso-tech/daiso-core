@@ -10,7 +10,7 @@
  * Implementations should return new copies of metrics rather than modifying the input.
  * This allows the rate limiter to be stateless and thread-safe.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  * @template TMetrics - The type of metrics object used to track rate limiter state (e.g., attempt counts, timestamps)
  */

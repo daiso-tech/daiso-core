@@ -10,7 +10,7 @@ import { withJitter } from "@/utilities/_module.js";
 /**
  * Settings for the {@link withCacheJitter} plugin.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
+ * IMPORT_PATH: `"eridu-tech/cache/plugins"`
  * @group Plugins
  */
 export type WithCacheJitterSettings = {
@@ -43,7 +43,7 @@ export type WithCacheJitterSettings = {
  *                                 @default 0.2
  * @returns A middleware plugin that wraps an `ICacheAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
+ * IMPORT_PATH: `"eridu-tech/cache/plugins"`
  * @group Plugins
  */
 export function withCacheJitter(

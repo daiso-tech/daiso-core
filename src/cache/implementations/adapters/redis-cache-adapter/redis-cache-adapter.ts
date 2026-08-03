@@ -35,7 +35,7 @@ declare module "ioredis" {
  * Configuration for `RedisCacheAdapter`.
  * Requires a Redis client and a serde for serialising cache values to strings.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/redis-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/redis-cache-adapter"`
  * @group Adapters
  */
 export type RedisCacheAdapterSettings = {
@@ -52,7 +52,7 @@ export type RedisCacheAdapterSettings = {
 /**
  * To utilize the `RedisCacheAdapter`, you must install the [`"ioredis"`](https://www.npmjs.com/package/ioredis) package and supply a {@link ISerde | `ISerde`}, with adapter like {@link SuperJsonSerdeAdapter | `SuperJsonSerdeAdapter`}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/redis-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/redis-cache-adapter"`
  * @group Adapters
  */
 export class RedisCacheAdapter<
@@ -76,9 +76,9 @@ export class RedisCacheAdapter<
     /**
      * @example
      * ```ts
-     * import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { RedisCacheAdapter } from "eridu-tech/cache/redis-cache-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import Redis from "ioredis";
      *
      * const database = new Redis("YOUR_REDIS_CONNECTION_STRING");

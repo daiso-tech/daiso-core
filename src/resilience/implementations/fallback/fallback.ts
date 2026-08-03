@@ -14,7 +14,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnFallbackData<
@@ -27,7 +27,7 @@ export type OnFallbackData<
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnFallback<
@@ -39,7 +39,7 @@ export type OnFallback<
  * Lifecycle callbacks for the `fallback` middleware.
  * Called when the fallback value is about to be returned instead of the original result.
  *
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type FallbackCallbacks<
@@ -57,7 +57,7 @@ export type FallbackCallbacks<
  * Returns a default value when the wrapped function throws or returns a value matching the error policy.
  * Supports error-policy filtering to only catch specific errors.
  *
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type FallbackSettings<
@@ -69,7 +69,7 @@ export type FallbackSettings<
     };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export function fallback<TParameters extends Array<unknown>, TReturn>(

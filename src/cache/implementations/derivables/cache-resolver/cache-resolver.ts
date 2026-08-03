@@ -19,7 +19,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/cache"`
+ * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
 export type CacheAdapters<TAdapters extends string = string> = Partial<
@@ -30,7 +30,7 @@ export type CacheAdapters<TAdapters extends string = string> = Partial<
  * Configuration for `CacheResolver`.
  * Registers named cache adapters with optional schema validation and designates a default.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache"`
+ * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
 export type CacheResolverSettings<TAdapters extends string = string> =
@@ -49,7 +49,7 @@ export type CacheResolverSettings<TAdapters extends string = string> =
 /**
  * The `CacheResolver` class is immutable.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache"`
+ * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
 export class CacheResolver<
@@ -59,12 +59,12 @@ export class CacheResolver<
     /**
      * @example
      * ```ts
-     * import { CacheResolver } from "@daiso-tech/core/cache";
-     * import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-     * import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import type { ISerde } from "@daiso-tech/core/serde/contracts";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { CacheResolver } from "eridu-tech/cache";
+     * import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+     * import { RedisCacheAdapter } from "eridu-tech/cache/redis-cache-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import type { ISerde } from "eridu-tech/serde/contracts";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -104,13 +104,13 @@ export class CacheResolver<
     /**
      * @example
      * ```ts
-     * import { CacheResolver } from "@daiso-tech/core/cache";
-     * import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-     * import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import type { ISerde } from "@daiso-tech/core/serde/contracts";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { CacheResolver } from "eridu-tech/cache";
+     * import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+     * import { RedisCacheAdapter } from "eridu-tech/cache/redis-cache-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import type { ISerde } from "eridu-tech/serde/contracts";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+     * import { TimeSpan } from "eridu-tech/time-span";
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());

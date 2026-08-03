@@ -13,7 +13,7 @@ import { type IRateLimiterFactory } from "@/rate-limiter/contracts/rate-limiter-
  *
  * @template TAdapters - Union type of registered adapter names (e.g., "memory" | "database" | "redis")
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type IRateLimiterFactoryResolver<TAdapters extends string = string> = {

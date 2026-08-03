@@ -63,7 +63,7 @@ export class EnvAccessor<
     /**
      * @example
      * ```ts
-     * import { EnvAccessor } from "@daiso-tech/core/env-accessor";
+     * import { EnvAccessor } from "eridu-tech/env-accessor";
      * import { z } from "zod";
      * import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
      *
