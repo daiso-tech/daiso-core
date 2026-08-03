@@ -1,7 +1,7 @@
 {
     "name": "eridu-tech",
     "private": false,
-    "version": "0.57.1",
+    "version": "0.57.2",
     "author": "Yousif Abdulkarim",
     "license": "Apache-2.0",
     "type": "module",
