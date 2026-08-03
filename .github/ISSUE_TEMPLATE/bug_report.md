@@ -44,7 +44,7 @@ If applicable, add terminal logs or full stack traces to help explain your probl
 
 ## **Component Where Error Was Found**
 
-Please specify the exact component, module, or file where the error was observed (e.g., `@daiso-tech/core/cache/memory-cache-adapter`, ``@daiso-tech/core/event-bus/redis-pub-sub-event-bus-addapter`).
+Please specify the exact component, module, or file where the error was observed (e.g., `eridu-tech/cache/memory-cache-adapter`, ``eridu-tech/event-bus/redis-pub-sub-event-bus-addapter`).
 
 ## **Additional context**
 

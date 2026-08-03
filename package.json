@@ -1,15 +1,15 @@
 {
-    "name": "@daiso-tech/core",
+    "name": "eridu-tech",
     "private": false,
     "version": "0.57.0",
     "author": "Yousif Abdulkarim",
     "license": "Apache-2.0",
     "type": "module",
-    "homepage": "http://daiso-tech.dev/",
+    "homepage": "http://eridu-tech.io/",
     "description": "The library offers flexible, framework-agnostic solutions for modern web applications, built on adaptable components that integrate seamlessly with popular frameworks like Next Js.",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/daiso-tech/daiso-core.git"
+        "url": "git+https://github.com/eridu-tech/eridu-tech-core.git"
     },
     "files": [
         "./dist"

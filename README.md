@@ -1,30 +1,30 @@
 <p align="center">
-	<img src="https://img.shields.io/npm/v/@daiso-tech/core" alt="npm version">
-	<img src="https://img.shields.io/npm/dy/@daiso-tech/core" alt="NPM Downloads">
+	<img src="https://img.shields.io/npm/v/eridu-tech" alt="npm version">
+	<img src="https://img.shields.io/npm/dy/eridu-tech" alt="NPM Downloads">
 	<img src="https://img.shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=white" alt="TypeScript">
 	<img src="https://img.shields.io/badge/module%20type-ESM-blue" alt="ES Modules">
-	<img src="https://img.shields.io/npm/l/@daiso-tech/core" alt="License">
+	<img src="https://img.shields.io/npm/l/eridu-tech" alt="License">
 </p>
 
-# @daiso-tech/core
+# eridu-tech
 
 **Write business logic once. Replace infrastructure anytime.**
 
 The adapter-first backend toolkit for TypeScript — 17 officially maintained components with 4,640+ integration and behavior tests.
 
-[**Explore the Docs**](https://www.daiso-tech.dev/docs/installation) · [**API docs**](https://daiso-tech.github.io/daiso-core/modules.html) · [**GitHub**](https://github.com/daiso-tech/daiso-core) · [**NPM**](https://www.npmjs.com/package/@daiso-tech/core)
+[**Explore the Docs**](https://www.eridu-tech.io/docs/installation) · [**API docs**](https://eridu-tech.github.io/eridu-tech-core/modules.html) · [**GitHub**](https://github.com/eridu-tech/eridu-tech-core) · [**NPM**](https://www.npmjs.com/package/eridu-tech)
 
 ---
 
 ## ⚡ Quick Install
 
 ```bash
-npm install @daiso-tech/core
+npm install eridu-tech
 ```
 
 ---
 
-## ✨ Why @daiso-tech/core?
+## ✨ Why eridu-tech?
 
 - **Switch infrastructure without rewriting business logic**: The adapter pattern keeps your code decoupled from vendors. Use Redis today, Postgres tomorrow — no refactoring required.
 - **Test everything without Docker**: Every component ships with an in-memory adapter and built-in Vitest helpers. Write fast, isolated tests without external services.
@@ -43,7 +43,7 @@ A single serialization engine, a single execution context, and composable middle
 
 The Serde component provides a unified serialization and deserialization engine with fully type-safe schemas. It supports custom serializers for any type and includes a built-in SuperJSON adapter that handles Date, Map, Set, and BigInt out of the box. Serde is used internally across LockFactory, Cache, EventBus, and other components.
 
-- Shared serialization engine used throughout Daiso
+- Shared serialization engine used throughout Eridu-tech
 - Powers LockFactory, Cache, EventBus, and more
 - Built-in SuperJSON adapter — Date, Map, Set & BigInt out of the box
 - Register custom serializers for your own types
@@ -96,7 +96,7 @@ The ConfigAccessor component provides standardized type-safe access to domain co
 
 ## 🎯 Who is this for?
 
-@daiso-tech/core is built for backend and fullstack TypeScript developers who value flexibility and testability.
+eridu-tech is built for backend and fullstack TypeScript developers who value flexibility and testability.
 
 ### ✅ Perfect for
 
@@ -114,7 +114,7 @@ The ConfigAccessor component provides standardized type-safe access to domain co
 ### ⭐ Not ideal for
 
 - **Microservices:** The library is designed for modular monoliths where components share the same process and runtime. While some components (like distributed locks, circuit breakers, and event buses) work across processes, the broader adapter model and shared abstractions are not optimized for microservice architectures.
-- **Frontend-only applications:** @daiso-tech/core is designed for backend and server-side development, not browser applications.
+- **Frontend-only applications:** eridu-tech is designed for backend and server-side development, not browser applications.
 - **Projects tightly coupled to one vendor:** If your application intentionally depends on provider-specific features instead of abstractions, the adapter model may provide little benefit.
 - **Very small scripts:** If you only need a single Redis call, file upload, or cache operation, the abstraction layer may be unnecessary overhead.
 - **Applications requiring provider-specific capabilities:** Features unique to a particular database, cache, or cloud service may require using that provider's native SDK directly instead of a generic abstraction.
@@ -128,40 +128,40 @@ A growing collection of officially maintained components. Every component ships 
 
 ### Foundation
 
-- [**Middleware and AOP**](https://www.daiso-tech.dev/docs/components/middleware) — `Near-stable` — Composable middleware pipeline with before/after hooks, error handling — the foundation for every component's plugin system.
-- [**Collection**](https://www.daiso-tech.dev/docs/components/collection) — `Near-stable` — Type-safe collection utilities with powerful query, transform, and pagination primitives.
-- [**Serde**](https://www.daiso-tech.dev/docs/components/serde) — `Experimental` — Serialize and deserialize data with a built-in SuperJSON adapter (Date, Map, Set, BigInt) and custom serializers — the backbone for all data interchange across the ecosystem.
-- [**Codec**](https://www.daiso-tech.dev/docs/components/codec) — `Experimental` — Encode and decode data with a unified, type-safe interface — includes a built-in Base64 codec and lets you build custom codecs for any protocol.
-- [**Execution Context**](https://www.daiso-tech.dev/docs/components/execution_context) — `Near-stable` — Type-safe, composable context propagation for request IDs, user info, and tracing metadata across async boundaries — without thread-local hacks.
-- [**Typed Config Access**](https://www.daiso-tech.dev/docs/components/config_accessor) — `Near-stable` — Standardized type-safe access to domain configuration variables — with optional schema validation and full TypeScript inference.
-- [**Typed Env Access**](https://www.daiso-tech.dev/docs/components/env_accessor) — `Near-stable` — Type-safe environment variable access from multiple sync/async sources with parsing, defaults, and validation — never read `process.env` raw again.
+- [**Middleware and AOP**](https://www.eridu-tech.io/docs/components/middleware) — `Near-stable` — Composable middleware pipeline with before/after hooks, error handling — the foundation for every component's plugin system.
+- [**Collection**](https://www.eridu-tech.io/docs/components/collection) — `Near-stable` — Type-safe collection utilities with powerful query, transform, and pagination primitives.
+- [**Serde**](https://www.eridu-tech.io/docs/components/serde) — `Experimental` — Serialize and deserialize data with a built-in SuperJSON adapter (Date, Map, Set, BigInt) and custom serializers — the backbone for all data interchange across the ecosystem.
+- [**Codec**](https://www.eridu-tech.io/docs/components/codec) — `Experimental` — Encode and decode data with a unified, type-safe interface — includes a built-in Base64 codec and lets you build custom codecs for any protocol.
+- [**Execution Context**](https://www.eridu-tech.io/docs/components/execution_context) — `Near-stable` — Type-safe, composable context propagation for request IDs, user info, and tracing metadata across async boundaries — without thread-local hacks.
+- [**Typed Config Access**](https://www.eridu-tech.io/docs/components/config_accessor) — `Near-stable` — Standardized type-safe access to domain configuration variables — with optional schema validation and full TypeScript inference.
+- [**Typed Env Access**](https://www.eridu-tech.io/docs/components/env_accessor) — `Near-stable` — Type-safe environment variable access from multiple sync/async sources with parsing, defaults, and validation — never read `process.env` raw again.
 
 ### Storage
 
-- [**Cache**](https://www.daiso-tech.dev/docs/components/cache/cache_usage) — `Near-stable` — Caching with pluggable stores (in-memory, Redis, etc.), TTL policies, and stampede protection.
-- [**File Storage**](https://www.daiso-tech.dev/docs/components/file_storage/file_storage_usage) — `Near-stable` — Abstract file storage with adapters for local disk, S3-compatible, and other backends — upload, stream, and serve with one API.
+- [**Cache**](https://www.eridu-tech.io/docs/components/cache/cache_usage) — `Near-stable` — Caching with pluggable stores (in-memory, Redis, etc.), TTL policies, and stampede protection.
+- [**File Storage**](https://www.eridu-tech.io/docs/components/file_storage/file_storage_usage) — `Near-stable` — Abstract file storage with adapters for local disk, S3-compatible, and other backends — upload, stream, and serve with one API.
 
 ### Resilience
 
-- [**Circuit Breaker**](https://www.daiso-tech.dev/docs/components/circuit_breaker/circuit_breaker_usage) — `Near-stable` — Prevent cascading failures with configurable thresholds, half-open recovery, and custom fallback strategies.
-- [**Rate Limiter**](https://www.daiso-tech.dev/docs/components/rate-limiter/rate_limiter_usage) — `Near-stable` — Throttle request rates with configurable limits, sliding windows, and pluggable backends — protect your services from overload.
-- [**Resilience**](https://www.daiso-tech.dev/docs/components/resilience) — `Near-stable` — Timeout, fallback, retry, with configurable policies and backoffs.
+- [**Circuit Breaker**](https://www.eridu-tech.io/docs/components/circuit_breaker/circuit_breaker_usage) — `Near-stable` — Prevent cascading failures with configurable thresholds, half-open recovery, and custom fallback strategies.
+- [**Rate Limiter**](https://www.eridu-tech.io/docs/components/rate-limiter/rate_limiter_usage) — `Near-stable` — Throttle request rates with configurable limits, sliding windows, and pluggable backends — protect your services from overload.
+- [**Resilience**](https://www.eridu-tech.io/docs/components/resilience) — `Near-stable` — Timeout, fallback, retry, with configurable policies and backoffs.
 
 ### Concurrency
 
-- [**Lock**](https://www.daiso-tech.dev/docs/components/lock/lock_usage) — `Near-stable` — Distributed lock primitives with lease management, blocking and non-blocking acquisition, and automatic release.
-- [**Shared Lock**](https://www.daiso-tech.dev/docs/components/shared_lock/shared_lock_usage) — `Near-stable` — Read-write distributed locks for coordinating concurrent access with shared and exclusive modes.
-- [**Semaphore**](https://www.daiso-tech.dev/docs/components/semaphore/semaphore_usage) — `Near-stable` — Rate-limit concurrent access to shared resources with dynamic permit allocation.
+- [**Lock**](https://www.eridu-tech.io/docs/components/lock/lock_usage) — `Near-stable` — Distributed lock primitives with lease management, blocking and non-blocking acquisition, and automatic release.
+- [**Shared Lock**](https://www.eridu-tech.io/docs/components/shared_lock/shared_lock_usage) — `Near-stable` — Read-write distributed locks for coordinating concurrent access with shared and exclusive modes.
+- [**Semaphore**](https://www.eridu-tech.io/docs/components/semaphore/semaphore_usage) — `Near-stable` — Rate-limit concurrent access to shared resources with dynamic permit allocation.
 
 ### Messaging
 
-- [**Event Bus**](https://www.daiso-tech.dev/docs/components/event_bus/event_bus_usage) — `Near-stable` — Pub/sub event bus for dispatching and listening to events with pluggable transport backends — independent of underlying technology.
+- [**Event Bus**](https://www.eridu-tech.io/docs/components/event_bus/event_bus_usage) — `Near-stable` — Pub/sub event bus for dispatching and listening to events with pluggable transport backends — independent of underlying technology.
 
 ### Web
 
-- [**HTTP Router**](https://www.daiso-tech.dev/docs/components/http_router/http_router_usage) — `Near-stable` — Framework-agnostic HTTP router built on the Hono router engine — implements the Winter TC fetch standard with middleware chains and typed path parameters.
+- [**HTTP Router**](https://www.eridu-tech.io/docs/components/http_router/http_router_usage) — `Near-stable` — Framework-agnostic HTTP router built on the Hono router engine — implements the Winter TC fetch standard with middleware chains and typed path parameters.
 
-[**View all component docs →**](https://www.daiso-tech.dev/docs/components/overview)
+[**View all component docs →**](https://www.eridu-tech.io/docs/components/overview)
 
 ---
 
@@ -178,15 +178,15 @@ Components currently in design or development — not yet available in any relea
 - **Introspection** — Inspect the actual runtime state of any component through pre-built CLI commands — view registered handlers, active jobs, queue depth, lock holders, and more without digging into logs or metrics.
 - **Job Scheduler** — Schedule work with full flexibility — immediate dispatch, delayed execution, and recurring jobs. Uses Transaction Context for reliable execution.
 
-[**View full roadmap →**](https://www.daiso-tech.dev/docs/roadmap)
+[**View full roadmap →**](https://www.eridu-tech.io/docs/roadmap)
 
 ---
 
-## 🆚 How @daiso-tech/core compares
+## 🆚 How eridu-tech compares
 
 ### NestJS — A full framework with built-in DI vs a library that fits your needs.
 
-| Instead of NestJS                                                                     | With @daiso-tech/core                                                      |
+| Instead of NestJS                                                                     | With eridu-tech                                                      |
 | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | Opinionated framework with its own DI, decorators, and modules.                       | A library, not a framework — DI optional, no decorators, plain classes.    |
 | Conventions wholesale: DI central, most primitives only work inside NestJS.           | Same cache/lock/event bus in any framework — no lock-in.                   |
@@ -202,7 +202,7 @@ Components currently in design or development — not yet available in any relea
 
 ### AdonisJS — A batteries-included full-stack framework vs composable primitives.
 
-| Instead of AdonisJS                                          | With @daiso-tech/core                                                 |
+| Instead of AdonisJS                                          | With eridu-tech                                                 |
 | ------------------------------------------------------------ | --------------------------------------------------------------------- |
 | Bundles routing, ORM (Lucid), auth, sessions, validation.    | No app framework, ORM, or auth — just infrastructure behind adapters. |
 | Prescribed folder structure and conventions.                 | Combine with any application layer — you bring the structure.         |
@@ -215,26 +215,26 @@ Components currently in design or development — not yet available in any relea
 
 ### TRPC / ORPC — End-to-end typed APIs vs the server-side infrastructure behind them.
 
-| Instead of TRPC / ORPC                                                         | With @daiso-tech/core                                                                                      |
+| Instead of TRPC / ORPC                                                         | With eridu-tech                                                                                      |
 | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
 | End-to-end type safety between client and server.                              | Not an RPC framework — not a tRPC or ORPC replacement.                                                     |
 | Define procedures once — call from the client with full inference, no codegen. | Backend infrastructure behind pluggable adapters — caching, locks, rate limiting, scheduling, event buses. |
-| Excellent for type-safe full-stack APIs at the client-server boundary.         | Complementary — tRPC procedures can call services backed by @daiso-tech/core.                              |
-| No built-in battery included backend infrastructure                            | Choose tRPC for typed transport; add @daiso-tech/core for reusable server-side infra.                      |
+| Excellent for type-safe full-stack APIs at the client-server boundary.         | Complementary — tRPC procedures can call services backed by eridu-tech.                              |
+| No built-in battery included backend infrastructure                            | Choose tRPC for typed transport; add eridu-tech for reusable server-side infra.                      |
 
 ### Next.js, Nuxt, etc. — Meta-frameworks for the web vs a framework-agnostic backend.
 
-| Instead of Next.js, Nuxt, etc.                                          | With @daiso-tech/core                                                                              |
+| Instead of Next.js, Nuxt, etc.                                          | With eridu-tech                                                                              |
 | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | Excel at client rendering, SSR, routing, and a rich frontend ecosystem. | Not a web or frontend framework — not a replacement for Next.js or Nuxt.                           |
 | Ship their own server-side APIs and route handlers.                     | Complements them — route handlers and server actions can use cache, locks, queues, and schedulers. |
 | Often the best starting point for shipping a web app quickly.           | Same backend logic moves between a meta-framework and a standalone API service or worker.          |
-| Backend logic locked into the meta-framework.                           | Add @daiso-tech/core for portable, testable server-side infra.                                     |
+| Backend logic locked into the meta-framework.                           | Add eridu-tech for portable, testable server-side infra.                                     |
 | No built-in battery included backend infrastructure                     |                                                                                                    |
 
 ### Composing your own stack — Hand-picked libraries vs a consistent, integrated layer.
 
-| Instead of composing your own stack                                               | With @daiso-tech/core                                                                         |
+| Instead of composing your own stack                                               | With eridu-tech                                                                         |
 | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | Maximum control and minimal dependencies — pick exactly the libraries you want.   | Consistent, integrated layer — shared patterns and common adapter interfaces.                 |
 | Simpler and lighter for small, focused use cases.                                 | Heavier than a single raw library, but ships in-memory adapters for testing without Docker.   |
@@ -246,9 +246,9 @@ Components currently in design or development — not yet available in any relea
 
 ## ⭐ Find this library useful? Give it a ⭐
 
-If you see potential in @daiso-tech/core, starring the repo on GitHub helps others discover it and motivates continued development. It takes one click and means a lot.
+If you see potential in eridu-tech, starring the repo on GitHub helps others discover it and motivates continued development. It takes one click and means a lot.
 
-[⭐ Star on GitHub](https://github.com/daiso-tech/daiso-core)
+[⭐ Star on GitHub](https://github.com/eridu-tech/eridu-tech-core)
 
 ---
 
@@ -257,7 +257,7 @@ If you see potential in @daiso-tech/core, starring the repo on GitHub helps othe
 Get up and running in minutes with a single install.
 
 ```bash
-npm install @daiso-tech/core
+npm install eridu-tech
 ```
 
-[**Get started →**](https://www.daiso-tech.dev/docs/installation) · [**View on GitHub**](https://github.com/daiso-tech/daiso-core)
+[**Get started →**](https://www.eridu-tech.io/docs/installation) · [**View on GitHub**](https://github.com/eridu-tech/eridu-tech-core)
