@@ -186,7 +186,7 @@ Components currently in design or development — not yet available in any relea
 
 ### NestJS — A full framework with built-in DI vs a library that fits your needs.
 
-| Instead of NestJS                                                                     | With eridu-tech                                                      |
+| Instead of NestJS                                                                     | With eridu-tech                                                            |
 | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | Opinionated framework with its own DI, decorators, and modules.                       | A library, not a framework — DI optional, no decorators, plain classes.    |
 | Conventions wholesale: DI central, most primitives only work inside NestJS.           | Same cache/lock/event bus in any framework — no lock-in.                   |
@@ -202,7 +202,7 @@ Components currently in design or development — not yet available in any relea
 
 ### AdonisJS — A batteries-included full-stack framework vs composable primitives.
 
-| Instead of AdonisJS                                          | With eridu-tech                                                 |
+| Instead of AdonisJS                                          | With eridu-tech                                                       |
 | ------------------------------------------------------------ | --------------------------------------------------------------------- |
 | Bundles routing, ORM (Lucid), auth, sessions, validation.    | No app framework, ORM, or auth — just infrastructure behind adapters. |
 | Prescribed folder structure and conventions.                 | Combine with any application layer — you bring the structure.         |
@@ -215,26 +215,26 @@ Components currently in design or development — not yet available in any relea
 
 ### TRPC / ORPC — End-to-end typed APIs vs the server-side infrastructure behind them.
 
-| Instead of TRPC / ORPC                                                         | With eridu-tech                                                                                      |
+| Instead of TRPC / ORPC                                                         | With eridu-tech                                                                                            |
 | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
 | End-to-end type safety between client and server.                              | Not an RPC framework — not a tRPC or ORPC replacement.                                                     |
 | Define procedures once — call from the client with full inference, no codegen. | Backend infrastructure behind pluggable adapters — caching, locks, rate limiting, scheduling, event buses. |
-| Excellent for type-safe full-stack APIs at the client-server boundary.         | Complementary — tRPC procedures can call services backed by eridu-tech.                              |
-| No built-in battery included backend infrastructure                            | Choose tRPC for typed transport; add eridu-tech for reusable server-side infra.                      |
+| Excellent for type-safe full-stack APIs at the client-server boundary.         | Complementary — tRPC procedures can call services backed by eridu-tech.                                    |
+| No built-in battery included backend infrastructure                            | Choose tRPC for typed transport; add eridu-tech for reusable server-side infra.                            |
 
 ### Next.js, Nuxt, etc. — Meta-frameworks for the web vs a framework-agnostic backend.
 
-| Instead of Next.js, Nuxt, etc.                                          | With eridu-tech                                                                              |
+| Instead of Next.js, Nuxt, etc.                                          | With eridu-tech                                                                                    |
 | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | Excel at client rendering, SSR, routing, and a rich frontend ecosystem. | Not a web or frontend framework — not a replacement for Next.js or Nuxt.                           |
 | Ship their own server-side APIs and route handlers.                     | Complements them — route handlers and server actions can use cache, locks, queues, and schedulers. |
 | Often the best starting point for shipping a web app quickly.           | Same backend logic moves between a meta-framework and a standalone API service or worker.          |
-| Backend logic locked into the meta-framework.                           | Add eridu-tech for portable, testable server-side infra.                                     |
+| Backend logic locked into the meta-framework.                           | Add eridu-tech for portable, testable server-side infra.                                           |
 | No built-in battery included backend infrastructure                     |                                                                                                    |
 
 ### Composing your own stack — Hand-picked libraries vs a consistent, integrated layer.
 
-| Instead of composing your own stack                                               | With eridu-tech                                                                         |
+| Instead of composing your own stack                                               | With eridu-tech                                                                               |
 | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | Maximum control and minimal dependencies — pick exactly the libraries you want.   | Consistent, integrated layer — shared patterns and common adapter interfaces.                 |
 | Simpler and lighter for small, focused use cases.                                 | Heavier than a single raw library, but ships in-memory adapters for testing without Docker.   |
