@@ -26,10 +26,7 @@ The router provides typed path parameters, a middleware chain with shared contex
 To begin using the `HttpRouter` class, you'll need to create and configure an instance:
 
 ```ts
-import {
-    HttpRouter,
-    defaultHttpRouterAdapter,
-} from "eridu-tech/http-router";
+import { HttpRouter, defaultHttpRouterAdapter } from "eridu-tech/http-router";
 import { RegExpRouter } from "hono/router/reg-exp-router";
 import { SmartRouter } from "hono/router/smart-router";
 import { TrieRouter } from "hono/router/trie-router";
@@ -46,10 +43,7 @@ The `router` setting accepts any Hono-compatible router instance. For most use c
 You can also use the bundled `defaultHttpRouterAdapter`:
 
 ```ts
-import {
-    HttpRouter,
-    defaultHttpRouterAdapter,
-} from "eridu-tech/http-router";
+import { HttpRouter, defaultHttpRouterAdapter } from "eridu-tech/http-router";
 
 const router = new HttpRouter({
     router: defaultHttpRouterAdapter,
@@ -619,11 +613,11 @@ router.endpoint({
 
 #### File properties
 
-| Property       | Type       | Description                                       |
-| -------------- | ---------- | ------------------------------------------------- |
-| `name`         | `string`   | The original file name                            |
-| `contentType`  | `string`   | The MIME type                                     |
-| `lastModified` | `Date`     | The last modified timestamp                       |
+| Property       | Type       | Description                                 |
+| -------------- | ---------- | ------------------------------------------- |
+| `name`         | `string`   | The original file name                      |
+| `contentType`  | `string`   | The MIME type                               |
+| `lastModified` | `Date`     | The last modified timestamp                 |
 | `fileSize`     | `FileSize` | The file size (from `eridu-tech/file-size`) |
 
 ### Error handling

@@ -14,10 +14,7 @@ The `eridu-tech/execution-context` module provides a type-safe, composable, and 
 To begin using the execution-context, you'll need to create and configure an instance:
 
 ```ts
-import {
-    ExecutionContext,
-    contextToken,
-} from "eridu-tech/execution-context";
+import { ExecutionContext, contextToken } from "eridu-tech/execution-context";
 import { AlsExecutionContextAdapter } from "eridu-tech/execution-context/als-execution-context-adapter";
 
 // Create an execution-context instance with an adapter

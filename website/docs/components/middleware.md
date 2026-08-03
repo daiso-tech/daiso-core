@@ -18,10 +18,7 @@ The `eridu-tech/middleware` module provides a flexible middleware system for int
 A middleware is a function that receives middleware arguments (containing the original arguments, a next function, and the name of the function) and returns the result:
 
 ```ts
-import {
-    type MiddlewareArgs,
-    type MiddlewareFn,
-} from "eridu-tech/middleware";
+import { type MiddlewareArgs, type MiddlewareFn } from "eridu-tech/middleware";
 
 const createLoggingMiddleware = <TParameters extends Array<unknown>, TReturn>(
     prefix: string = "LOG",
@@ -137,10 +134,7 @@ type MiddlewareArgs<TParameters, TReturn> = {
 A helper function for defining middleware with accurate type inference. It ensures the provided handler conforms to the `MiddlewareFn` signature while preserving exact parameter and return types, without needing explicit generic annotations:
 
 ```ts
-import {
-    defineMiddleware,
-    type MiddlewareFn,
-} from "eridu-tech/middleware";
+import { defineMiddleware, type MiddlewareFn } from "eridu-tech/middleware";
 
 const loggingMiddleware = defineMiddleware(
     <T extends unknown[], R>({ args, next }: MiddlewareArgs<T, R>): R => {
@@ -478,10 +472,7 @@ const enhancedService = withPlugin(service, [
 For plugins with state or configuration, use the object form:
 
 ```ts
-import {
-    type IPluginObject,
-    type MiddlewareFn,
-} from "eridu-tech/middleware";
+import { type IPluginObject, type MiddlewareFn } from "eridu-tech/middleware";
 
 class MetricsPlugin implements IPluginObject<UserService> {
     constructor(private readonly metricsClient: MetricsClient) {}

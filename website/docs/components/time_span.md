@@ -283,10 +283,7 @@ Note `TimeSpan` class implements `ITimeSpan` contract.
 The `ITimeSpan` contract requires you to implement the `TO_MILLISECONDS` method on the duration object, which must return the duration in milliseconds.
 
 ```ts
-import {
-    ITimeSpan,
-    TO_MILLISECONDS,
-} from "eridu-tech/time-span/contracts";
+import { ITimeSpan, TO_MILLISECONDS } from "eridu-tech/time-span/contracts";
 
 export class Duration implements ITimeSpan {
     constructor(private readonly timeInMs: number) {}
