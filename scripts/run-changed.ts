@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import { existsSync } from "node:fs";
 
 /**
  * Minimal helper to parse CLI arguments like --key value
@@ -53,17 +54,24 @@ function getFiles(command: string): Array<string> {
 }
 
 function runTask(): void {
-    // Get all files that differ from the target branch
-    const changed = getFiles(`git diff --name-only ${CONFIG.baseBranch}`);
+    // Get all files that differ from the target branch.
+    // --diff-filter=d excludes deleted files: they no longer exist on disk, so
+    // passing them to tools like ESLint/Prettier/TypeScript would fail.
+    const changed = getFiles(
+        `git diff --name-only --diff-filter=d ${CONFIG.baseBranch}`,
+    );
 
     // Get all new files not yet tracked by git
     const untracked = getFiles("git ls-files --others --exclude-standard");
 
     const extensionRegex = new RegExp(`\\.(${CONFIG.extensions.join("|")})$`);
 
-    const targetFiles = Array.from(new Set([...changed, ...untracked])).filter(
-        (file) => extensionRegex.test(file),
-    );
+    const targetFiles = Array.from(new Set([...changed, ...untracked]))
+        .filter((file) => extensionRegex.test(file))
+        // Only forward files that still exist on disk. This is a safety net on
+        // top of --diff-filter=d so file-based tools never receive a path that
+        // cannot be opened.
+        .filter((file) => existsSync(file));
 
     if (targetFiles.length === 0) {
         console.log(
