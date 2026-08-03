@@ -1,7 +1,7 @@
 export * from "@/di/contracts/container.errors.js";
 
 /**
- * Thrown when a container method is called before `container.init()`.
+ * Thrown  when a container method is called before `container.init()`.
  *
  * @group Errors
  */
