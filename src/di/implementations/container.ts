@@ -732,9 +732,6 @@ export class Container implements IContainer {
                 return this.graphManager.overrideGraph.getSuccessorsOf(nodeId);
             },
             getValueGetter: (nodeId) => {
-                const result =
-                    this.registry.manger.overrideRegistry.getOrThrow(nodeId);
-
                 const node =
                     this.graphManager.overrideGraph.getNodePropertyOrThrow(
                         nodeId,
@@ -746,7 +743,30 @@ export class Container implements IContainer {
                     LIFESPAN.SINGLETON,
                 ]);
 
-                if (node.lifespan !== LIFESPAN.TRANSIENT) {
+                if (node.lifespan === LIFESPAN.SCOPED) {
+                    return reuse({
+                        nodeId,
+                        newFunc: async () => {
+                            // scoped value do have key registry.manger until container.run is called
+                            // so can not call getOrThrow outside
+                            const result =
+                                this.registry.manger.overrideRegistry.getOrThrow(
+                                    nodeId,
+                                );
+
+                            if (result.type !== REGISTER_VALUE_TYPE.DIRECT) {
+                                throw new Error();
+                            }
+
+                            return Promise.resolve(result.value);
+                        },
+                    });
+                }
+
+                const result =
+                    this.registry.manger.overrideRegistry.getOrThrow(nodeId);
+
+                if (node.lifespan === LIFESPAN.SINGLETON) {
                     return reuse({
                         nodeId,
                         newFunc: () => Promise.resolve(result.value),
@@ -885,12 +905,17 @@ export class Container implements IContainer {
         await this.settings.executionContext.run(async () => {
             const dynamicServiceRegister: IDynamicServiceRegister = {
                 set: (dynSettings): Promise<void> => {
-                    this.registry.manger
-                        .currentScopedOrBaseRegistry()
-                        .set(dynSettings.token, {
-                            value: dynSettings.value,
-                            type: REGISTER_VALUE_TYPE.DIRECT,
-                        });
+                    const currentScopedOrBaseRegistry =
+                        this.registry.manger.currentScopedOrBaseRegistry();
+
+                    if (currentScopedOrBaseRegistry.has(dynSettings.token)) {
+                        throw new Error();
+                    }
+
+                    currentScopedOrBaseRegistry.set(dynSettings.token, {
+                        value: dynSettings.value,
+                        type: REGISTER_VALUE_TYPE.DIRECT,
+                    });
 
                     return Promise.resolve();
                 },
@@ -1016,9 +1041,13 @@ export class Container implements IContainer {
         throw new Error("Method not implemented.");
     }
 
+    // TODO for lazy: throw if graph is invalid here
     async resolve<TType>(token: DiToken<TType>): Promise<TType | null> {
         this.throwIfStateNotReady();
-        this.throwIfTokenNotRegistered(token);
+        //this.throwIfTokenNotRegistered(token);
+        if (!this.registry.manger.overrideRegistry.has(token)) {
+            return null;
+        }
 
         const canResolveTransient = createCanResolveTransientFunc<TNode>({
             getLifespan: (node) =>
@@ -1040,10 +1069,10 @@ export class Container implements IContainer {
                 (this.registry.manger.overrideRegistry.get(token)?.value ??
                     null) as TType | null,
             );
-        } else if (
-            lifespan === LIFESPAN.TRANSIENT &&
-            canResolveTransient(token, scopeDepth === 0)
-        ) {
+        } else if (lifespan === LIFESPAN.TRANSIENT) {
+            if (!canResolveTransient(token, scopeDepth === 0)) {
+                return null;
+            }
             const valueWrapper =
                 this.registry.manger.overrideRegistry.get(token);
             if (valueWrapper === null) {
@@ -1057,6 +1086,11 @@ export class Container implements IContainer {
 
             return (await factory()) as TType | null;
         } else if (lifespan === LIFESPAN.SCOPED && scopeDepth > 0) {
+            return this.registry.manger.overrideRegistry.get(token)
+                ?.value as TType | null;
+        }
+
+        if (scopeDepth > 0 && lifespan === LIFESPAN.DYNAMIC) {
             return this.registry.manger.overrideRegistry.get(token)
                 ?.value as TType | null;
         }
