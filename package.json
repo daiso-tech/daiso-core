@@ -561,11 +561,11 @@
         "@aws-sdk/s3-request-presigner": "^3.1011.0",
         "@changesets/cli": "^2.27.7",
         "@standard-schema/spec": "^1.0.0",
-        "@testcontainers/minio": "^11.13.0",
-        "@testcontainers/mongodb": "^10.13.2",
-        "@testcontainers/mysql": "^11.0.0",
-        "@testcontainers/postgresql": "^11.0.0",
-        "@testcontainers/redis": "^10.13.2",
+        "@testcontainers/minio": "^12.0.4",
+        "@testcontainers/mongodb": "^12.0.4",
+        "@testcontainers/mysql": "^12.0.4",
+        "@testcontainers/postgresql": "^12.0.4",
+        "@testcontainers/redis": "^12.0.4",
         "@types/better-sqlite3": "^7.6.13",
         "@types/etag": "^1.8.4",
         "@types/mime-types": "^3.0.1",
@@ -597,14 +597,14 @@
         "pg": "^8.16.0",
         "publint": "^0.3.8",
         "rimraf": "^6.0.1",
-        "testcontainers": "^11.13.0",
+        "testcontainers": "^12.0.4",
         "tsc-alias": "^1.8.10",
         "tsx": "^4.21.0",
         "typedoc": "^0.27.1",
         "typedoc-plugin-merge-modules": "^6.1.0",
         "typescript": "^5.5.4",
         "vite-tsconfig-paths": "^4.3.2",
-        "vitest": "^3.0.2",
+        "vitest": "^4.1.10",
         "zod": "^3.25.49"
     },
     "peerDependencies": {
@@ -636,6 +636,6 @@
         "mime-types": "^3.0.2",
         "superjson": "^2.2.2",
         "type-fest": "^5.6.0",
-        "uuid": "^11.0.5"
+        "uuid": "^14.0.1"
     }
 }
