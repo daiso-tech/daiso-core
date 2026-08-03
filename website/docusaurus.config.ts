@@ -82,7 +82,7 @@ const config: Config = {
                     // Please change this to your repo.
                     // Remove this to remove the "edit this page" links.
                     editUrl:
-                        "https://github.com/eridu-tech/eridu-tech/tree/main/website/",
+                        "https://github.com/eridu-tech/eridu-tech-core/tree/main/website/",
                 },
                 blog: {
                     showReadingTime: true,
@@ -133,7 +133,7 @@ const config: Config = {
                     position: "left",
                 },
                 {
-                    href: "https://github.com/eridu-tech/eridu-tech/",
+                    href: "https://github.com/eridu-tech/eridu-tech-core/",
                     label: "GitHub",
                     position: "right",
                 },
