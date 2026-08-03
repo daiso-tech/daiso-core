@@ -28,7 +28,7 @@ export const TO_MILLISECONDS = Symbol("TO_MILLISECONDS");
  *
  * Usage:
  * 1. Implement ITimeSpan on your duration class by computing the TO_MILLISECONDS method
- * 2. Pass instances to any daiso-core function accepting ITimeSpan
+ * 2. Pass instances to any eridu-tech function accepting ITimeSpan
  * 3. The library will call the method to get millisecond values for duration calculations
  *
  * IMPORT_PATH: `"eridu-tech/time-span/contracts"`
