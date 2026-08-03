@@ -6,15 +6,24 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      root-weekly-updates:
+        patterns:
+          - "*"
     ignore:
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+        update-types: 
+          - "version-update:semver-major"
 
   # Monthly updates (includes major versions)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      root-monthly-updates:
+        patterns:
+          - "*"
     ignore:
       - dependency-name: "*"
         update-types:
@@ -27,15 +36,24 @@ updates:
     directory: "/website"
     schedule:
       interval: "weekly"
+    groups:
+      website-weekly-updates:
+        patterns:
+          - "*"
     ignore:
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+        update-types:
+          - "version-update:semver-major"
 
   # Monthly updates (includes major versions)
   - package-ecosystem: "npm"
     directory: "/website"
     schedule:
       interval: "monthly"
+    groups:
+      website-monthly-updates:
+        patterns:
+          - "*"
     ignore:
       - dependency-name: "*"
         update-types:
