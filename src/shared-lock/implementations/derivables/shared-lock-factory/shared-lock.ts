@@ -132,8 +132,8 @@ export class SharedLock implements ISharedLock {
     }
 
     async acquireReaderOrFail(): Promise<void> {
-        const hasAquired = await this.acquireReader();
-        if (!hasAquired) {
+        const hasAcquired = await this.acquireReader();
+        if (!hasAcquired) {
             throw LimitReachedReaderSemaphoreError.create(this._key);
         }
     }
@@ -209,8 +209,8 @@ export class SharedLock implements ISharedLock {
     }
 
     async acquireWriterOrFail(): Promise<void> {
-        const hasAquired = await this.acquireWriter();
-        if (!hasAquired) {
+        const hasAcquired = await this.acquireWriter();
+        if (!hasAcquired) {
             throw FailedAcquireWriterLockError.create(this._key);
         }
     }

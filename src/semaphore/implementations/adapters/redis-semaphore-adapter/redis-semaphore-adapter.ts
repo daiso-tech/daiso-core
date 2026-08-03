@@ -76,7 +76,7 @@ declare module "ioredis" {
  */
 export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
     constructor(private readonly database: Redis) {
-        this.initAquireCommand();
+        this.initAcquireCommand();
         this.initReleaseCommand();
         this.initRefreshCommand();
         this.initForceReleaseAllCommand();
@@ -182,7 +182,7 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
         `;
     }
 
-    private initAquireCommand(): void {
+    private initAcquireCommand(): void {
         if (typeof this.database.eridu_semaphore_acquire === "function") {
             return;
         }

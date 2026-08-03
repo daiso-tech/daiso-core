@@ -79,13 +79,13 @@ export class RedisLockAdapter implements ILockAdapter {
      * ```
      */
     constructor(private readonly database: Redis) {
-        this.initAquireCommand();
+        this.initAcquireCommand();
         this.initReleaseCommand();
         this.initRefreshComand();
         this.initGetStateComand();
     }
 
-    private initAquireCommand(): void {
+    private initAcquireCommand(): void {
         if (typeof this.database.eridu_lock_acquire === "function") {
             return;
         }

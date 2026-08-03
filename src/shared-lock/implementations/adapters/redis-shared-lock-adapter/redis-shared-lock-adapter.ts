@@ -132,11 +132,11 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
      * ```
      */
     constructor(private readonly database: Redis) {
-        this.initAquireWriterCommand();
+        this.initAcquireWriterCommand();
         this.initReleaseWriterCommand();
         this.initRefreshWriterCommand();
         this.initForceReleaseWriterCommand();
-        this.initAquireReaderCommand();
+        this.initAcquireReaderCommand();
         this.initReleaseReaderCommand();
         this.initRefreshReaderCommand();
         this.initForceReleaseAllReadersCommand();
@@ -160,7 +160,7 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         `;
     }
 
-    private initAquireWriterCommand(): void {
+    private initAcquireWriterCommand(): void {
         if (
             typeof this.database.eridu_shared_lock_acquire_writer === "function"
         ) {
@@ -410,7 +410,7 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         `;
     }
 
-    private initAquireReaderCommand(): void {
+    private initAcquireReaderCommand(): void {
         if (
             typeof this.database.eridu_shared_lock_acquire_reader === "function"
         ) {

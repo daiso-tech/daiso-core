@@ -118,8 +118,8 @@ export class Semaphore implements ISemaphore {
     }
 
     async acquireOrFail(): Promise<void> {
-        const hasAquired = await this.acquire();
-        if (!hasAquired) {
+        const hasAcquired = await this.acquire();
+        if (!hasAcquired) {
             throw LimitReachedSemaphoreError.create(this._key);
         }
     }
