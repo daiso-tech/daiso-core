@@ -17,7 +17,7 @@ Deno provides the native `Deno.serve()` function which accepts a standard fetch 
 ### 1. Install
 
 ```sh
-deno add npm:@daiso-tech/core npm:hono
+deno add npm:eridu-tech npm:hono
 ```
 
 ### 2. Create the handler
@@ -28,7 +28,7 @@ import {
     HttpRouter,
     HttpRes,
     defaultHttpRouterAdapter,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 
 const router = new HttpRouter({ router: defaultHttpRouterAdapter });
 

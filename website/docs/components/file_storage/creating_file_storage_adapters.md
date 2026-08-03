@@ -26,4 +26,4 @@ In some cases, you may need to implement a custom [`FileStorage`](https://daiso-
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/FileStorage`](https://daiso-tech.github.io/daiso-core/modules/FileStorage.html) API docs.
+For further information refer to [`eridu-tech/FileStorage`](https://daiso-tech.github.io/daiso-core/modules/FileStorage.html) API docs.

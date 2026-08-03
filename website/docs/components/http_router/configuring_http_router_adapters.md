@@ -20,7 +20,7 @@ keywords:
 
 `SmartRouter` is the recommended adapter. It composes multiple routers and automatically selects the best matching router for each route.
 
-`@daiso-tech/core/http-router` exports [`defaultHttpRouterAdapter`](https://daiso-tech.github.io/daiso-core/variables/HttpRouter.defaultHttpRouterAdapter.html) to reduce boilerplate. It is equivalent to:
+`eridu-tech/http-router` exports [`defaultHttpRouterAdapter`](https://daiso-tech.github.io/daiso-core/variables/HttpRouter.defaultHttpRouterAdapter.html) to reduce boilerplate. It is equivalent to:
 
 ```ts
 new SmartRouter({
@@ -32,7 +32,7 @@ new SmartRouter({
 import {
     HttpRouter,
     defaultHttpRouterAdapter,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 
 new HttpRouter({ router: defaultHttpRouterAdapter });
 ```
@@ -40,7 +40,7 @@ new HttpRouter({ router: defaultHttpRouterAdapter });
 You can also configure `SmartRouter` explicitly:
 
 ```ts
-import { HttpRouter } from "@daiso-tech/core/http-router";
+import { HttpRouter } from "eridu-tech/http-router";
 import { SmartRouter } from "hono/router/smart-router";
 import { RegExpRouter } from "hono/router/reg-exp-router";
 import { TrieRouter } from "hono/router/trie-router";
@@ -61,7 +61,7 @@ new HttpRouter({
 `RegExpRouter` compiles all routes into a single regular expression for fast matching. It is best suited for applications with many static routes.
 
 ```ts
-import { HttpRouter } from "@daiso-tech/core/http-router";
+import { HttpRouter } from "eridu-tech/http-router";
 import { RegExpRouter } from "hono/router/reg-exp-router";
 
 new HttpRouter({ router: new RegExpRouter() });
@@ -72,7 +72,7 @@ new HttpRouter({ router: new RegExpRouter() });
 `TrieRouter` performs linear trie traversal for route matching. It is best suited for applications with many dynamic path parameters.
 
 ```ts
-import { HttpRouter } from "@daiso-tech/core/http-router";
+import { HttpRouter } from "eridu-tech/http-router";
 import { TrieRouter } from "hono/router/trie-router";
 
 new HttpRouter({ router: new TrieRouter() });
@@ -83,7 +83,7 @@ new HttpRouter({ router: new TrieRouter() });
 `LinearRouter` registers routes very quickly, making it suitable for environments that initialize applications on every request.
 
 ```ts
-import { HttpRouter } from "@daiso-tech/core/http-router";
+import { HttpRouter } from "eridu-tech/http-router";
 import { LinearRouter } from "hono/router/linear-router";
 
 new HttpRouter({ router: new LinearRouter() });
@@ -94,7 +94,7 @@ new HttpRouter({ router: new LinearRouter() });
 `PatternRouter` is the smallest router, simply adding and matching patterns. It is best suited for minimal footprint applications.
 
 ```ts
-import { HttpRouter } from "@daiso-tech/core/http-router";
+import { HttpRouter } from "eridu-tech/http-router";
 import { PatternRouter } from "hono/router/pattern-router";
 
 new HttpRouter({ router: new PatternRouter() });

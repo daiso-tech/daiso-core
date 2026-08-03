@@ -7,7 +7,7 @@ keywords:
 
 # ExecutionContext
 
-The `@daiso-tech/core/execution-context` module provides a type-safe, composable, and environment-agnostic way to store and propagate contextual data (such as request IDs, user info, or tracing metadata) across async boundaries and function calls. `IExecutionContext` uses symbols internally for reliable context isolation.
+The `eridu-tech/execution-context` module provides a type-safe, composable, and environment-agnostic way to store and propagate contextual data (such as request IDs, user info, or tracing metadata) across async boundaries and function calls. `IExecutionContext` uses symbols internally for reliable context isolation.
 
 ## Initial configuration
 
@@ -17,8 +17,8 @@ To begin using the execution-context, you'll need to create and configure an ins
 import {
     ExecutionContext,
     contextToken,
-} from "@daiso-tech/core/execution-context";
-import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter";
+} from "eridu-tech/execution-context";
+import { AlsExecutionContextAdapter } from "eridu-tech/execution-context/als-execution-context-adapter";
 
 // Create an execution-context instance with an adapter
 const executionContext = new ExecutionContext(new AlsExecutionContextAdapter());
@@ -153,4 +153,4 @@ The library includes several contracts that separate concerns for different use 
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/execution-context`](https://daiso-tech.github.io/daiso-core/modules/ExecutionContext.html) API docs.
+For further information refer to [`eridu-tech/execution-context`](https://daiso-tech.github.io/daiso-core/modules/ExecutionContext.html) API docs.

@@ -12,16 +12,16 @@ keywords:
 
 # Lock usage
 
-The `@daiso-tech/core/lock` component provides a way for managing locks independent of underlying platform or storage.
+The `eridu-tech/lock` component provides a way for managing locks independent of underlying platform or storage.
 
 ## Initial configuration
 
 To begin using the `LockFactory` class, you'll need to create and configure an instance:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
-import { LockFactory } from "@daiso-tech/core/lock";
+import { TimeSpan } from "eridu-tech/time-span";
+import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
+import { LockFactory } from "eridu-tech/lock";
 
 const lockFactory = new LockFactory({
     // You can provide default TTL value
@@ -91,7 +91,7 @@ const lock = lockFactory.create("shared-resource", {
 You can get the lock state by using the `getState` method, it returns [`ILockState`](https://daiso-tech.github.io/daiso-core/types/Lock.ILockState.html).
 
 ```ts
-import { LOCK_STATE } from "@daiso-tech/core/lock/contracts";
+import { LOCK_STATE } from "eridu-tech/lock/contracts";
 
 const lock = lockFactory.create("shared-resource");
 const state = await lock.getState();
@@ -117,7 +117,7 @@ The lock can be refreshed by the current owner before it expires. This is partic
 instead of setting an excessively long TTL initially, you can start with a shorter one and use the `refresh` method to set the TTL of the lock:
 
 ```ts
-import { delay } from "@daiso-tech/core/utilities/functions";
+import { delay } from "eridu-tech/utilities/functions";
 
 const lock = lockFactory.create("resource", {
     ttl: TimeSpan.fromMinutes(1),
@@ -257,9 +257,9 @@ To retry acquiring lock you can use the [`retry`](../resilience.md) middleware.
 Retrying acquiring lock with `acquireOrFail` method:
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
-import { use } from "@daiso-tech/core/middleware";
+import { retry } from "eridu-tech/resilience";
+import { FailedAcquireLockError } from "eridu-tech/lock/contracts";
+import { use } from "eridu-tech/middleware";
 
 const lock = lockFactory.create("lock");
 
@@ -281,8 +281,8 @@ try {
 Retrying acquiring lock with `acquire` method:
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { use } from "@daiso-tech/core/middleware";
+import { retry } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
 
 const lock = lockFactory.create("lock");
 
@@ -309,9 +309,9 @@ if (hasAquired) {
 Retrying acquiring lock with `runOrFail` method:
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
-import { use } from "@daiso-tech/core/middleware";
+import { retry } from "eridu-tech/resilience";
+import { FailedAcquireLockError } from "eridu-tech/lock/contracts";
+import { use } from "eridu-tech/middleware";
 
 const lock = lockFactory.create("lock");
 
@@ -334,10 +334,10 @@ To retry acquiring lock at regular intervals you can use the [`retryInterval`](.
 Retrying acquiring lock with `acquireOrFail` method:
 
 ```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
-import { use } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { retryInterval } from "eridu-tech/resilience";
+import { FailedAcquireLockError } from "eridu-tech/lock/contracts";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const lock = lockFactory.create("resource");
 
@@ -362,9 +362,9 @@ try {
 Retrying acquiring lock with `acquire` method:
 
 ```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { use } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { retryInterval } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const lock = lockFactory.create("resource");
 
@@ -392,10 +392,10 @@ if (hasAcquired) {
 Retrying acquiring lock with `runOrFail` method:
 
 ```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { FailedAcquireLockError } from "@daiso-tech/core/lock/contracts";
-import { use } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { retryInterval } from "eridu-tech/resilience";
+import { FailedAcquireLockError } from "eridu-tech/lock/contracts";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const lock = lockFactory.create("resource");
 
@@ -427,10 +427,10 @@ In order to serialize or deserialize a lock you need pass an object that impleme
 Manually serializing and deserializing the lock:
 
 ```ts
-import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
-import { LockFactory } from "@daiso-tech/core/lock";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RedisLockAdapter } from "eridu-tech/lock/redis-lock-adapter";
+import { LockFactory } from "eridu-tech/lock";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 
@@ -458,13 +458,13 @@ Note you only need manuall serialization and deserialization when integrating wi
 As long you pass the same `Serde` instances with all other components you dont need to serialize and deserialize the lock manually.
 
 ```ts
-import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
-import type { ILock } from "@daiso-tech/core/lock/contracts";
-import { LockFactory } from "@daiso-tech/core/lock";
-import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RedisLockAdapter } from "eridu-tech/lock/redis-lock-adapter";
+import type { ILock } from "eridu-tech/lock/contracts";
+import { LockFactory } from "eridu-tech/lock";
+import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
+import { EventBus } from "eridu-tech/event-bus";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 const redis = new Redis("YOUR_REDIS_CONNECTION");
@@ -510,4 +510,4 @@ The library includes 2 additional contracts:
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/lock`](https://daiso-tech.github.io/daiso-core/modules/Lock.html) API docs.
+For further information refer to [`eridu-tech/lock`](https://daiso-tech.github.io/daiso-core/modules/Lock.html) API docs.

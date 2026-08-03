@@ -21,12 +21,12 @@ The `CircuitBreakerFactoryResolver` class provides a flexible way to configure a
 To begin using the `CircuitBreakerFactoryResolver`, You will need to register all required adapters during initialization.
 
 ```ts
-import { CircuitBreakerFactoryResolver } from "@daiso-tech/core/circuit-breaker";
-import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storate-adapter";
-import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
-import { RedisCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { CircuitBreakerFactoryResolver } from "eridu-tech/circuit-breaker";
+import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storate-adapter";
+import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
+import { RedisCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/redis-circuit-breaker-adapter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 import Redis from "ioredis";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -103,12 +103,12 @@ The `DatabaseCircuitBreakerFactoryResolver` class provides a flexible way to con
 To begin using the `DatabaseCircuitBreakerFactoryResolver`, You will need to register all required adapters during initialization.
 
 ```ts
-import { DatabaseCircuitBreakerFactoryResolver } from "@daiso-tech/core/circuit-breaker";
-import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storate-adapter";
-import { KyselyCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storate-adapter";
-import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { DatabaseCircuitBreakerFactoryResolver } from "eridu-tech/circuit-breaker";
+import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storate-adapter";
+import { KyselyCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/kysely-circuit-breaker-storate-adapter";
+import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 
@@ -185,8 +185,8 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 #### 3. Overriding default settings
 
 ```ts
-import { CountBreaker } from "@daiso-tech/core/circuit-breaker/policies";
-import { constantBackoff } from "@daiso-tech/core/backoff-policies";
+import { CountBreaker } from "eridu-tech/circuit-breaker/policies";
+import { constantBackoff } from "eridu-tech/backoff-policies";
 
 await circuitBreakerFactoryResolver
     .setBackoffPolicy(constantBackoff())
@@ -204,4 +204,4 @@ Note that the `DatabaseCircuitBreakerFactoryResolver` is immutable, meaning any 
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/circuit-breaker`](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) API docs.
+For further information refer to [`eridu-tech/circuit-breaker`](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) API docs.

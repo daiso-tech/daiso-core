@@ -29,7 +29,7 @@ Usage example:
 // filename: MySharedLockAdapter.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { sharedLockAdapterTestSuite } from "@daiso-tech/core/shared-lock/test-utilities";
+import { sharedLockAdapterTestSuite } from "eridu-tech/shared-lock/test-utilities";
 import { MemorySharedLockAdapter } from "./MemorySharedLockAdapter.js";
 
 describe("class: MySharedLockAdapter", () => {
@@ -61,7 +61,7 @@ Usage example:
 // filename: MySharedLockFactory.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { sharedLockProviderTestSuite } from "@daiso-tech/core/shared-lock/test-utilities";
+import { sharedLockProviderTestSuite } from "eridu-tech/shared-lock/test-utilities";
 import { MySharedLockFactory } from "./MySharedLockFactory.js";
 
 describe("class: MySharedLockFactory", () => {
@@ -77,4 +77,4 @@ describe("class: MySharedLockFactory", () => {
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/shared-lock`](https://daiso-tech.github.io/daiso-core/modules/SharedLock.html) API docs.
+For further information refer to [`eridu-tech/shared-lock`](https://daiso-tech.github.io/daiso-core/modules/SharedLock.html) API docs.

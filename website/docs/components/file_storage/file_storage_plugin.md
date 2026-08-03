@@ -60,9 +60,9 @@ For the `copy`, `copyAndReplace`, `move`, and `moveAndReplace` methods, only the
 ### Usage
 
 ```ts
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
-import { withFileStoragePrefix } from "@daiso-tech/core/file-storage/plugins";
+import { withPlugin } from "eridu-tech/middleware";
+import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
+import { withFileStoragePrefix } from "eridu-tech/file-storage/plugins";
 
 const adapter = new MemoryFileStorageAdapter();
 
@@ -157,10 +157,10 @@ All methods are protected by default:
 ### Usage
 
 ```ts
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
-import { withFileStorageLock } from "@daiso-tech/core/file-storage/plugins";
-import { MemoryLockFactory } from "@daiso-tech/core/lock/memory-lock-factory";
+import { withPlugin } from "eridu-tech/middleware";
+import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
+import { withFileStorageLock } from "eridu-tech/file-storage/plugins";
+import { MemoryLockFactory } from "eridu-tech/lock/memory-lock-factory";
 
 const adapter = new MemoryFileStorageAdapter();
 const lockFactory = new MemoryLockFactory();

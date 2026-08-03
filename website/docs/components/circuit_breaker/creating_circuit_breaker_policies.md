@@ -14,4 +14,4 @@ To understand how to implement a custom [`ICircuitBreakerPolicy`](https://daiso-
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/circuit-breaker`](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) API docs.
+For further information refer to [`eridu-tech/circuit-breaker`](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) API docs.

@@ -17,7 +17,7 @@ Bun's `Bun.serve()` accepts a standard fetch handler directly.
 ### 1. Install
 
 ```sh
-bun add @daiso-tech/core hono
+bun add eridu-tech hono
 ```
 
 ### 2. Create the handler
@@ -28,7 +28,7 @@ import {
     HttpRouter,
     HttpRes,
     defaultHttpRouterAdapter,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 
 const router = new HttpRouter({ router: defaultHttpRouterAdapter });
 

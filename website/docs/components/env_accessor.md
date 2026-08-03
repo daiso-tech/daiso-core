@@ -7,7 +7,7 @@ keywords:
 
 # EnvAccessor
 
-The `@daiso-tech/core/env-accessor` component provides easy type-safe access to enviroment variables.
+The `eridu-tech/env-accessor` component provides easy type-safe access to enviroment variables.
 It supports multiple sources (sync/async), schema validation, and convenient access patterns.
 
 ## EnvAccessor class
@@ -15,7 +15,7 @@ It supports multiple sources (sync/async), schema validation, and convenient acc
 ### Initial configuration
 
 ```ts
-import { EnvAccessor } from "@daiso-tech/core/env-accessor";
+import { EnvAccessor } from "eridu-tech/env-accessor";
 import { z } from "zod";
 import {
     SecretsManagerClient,
@@ -85,4 +85,4 @@ type IEnvAccessor<TEnvConfig extends BaseEnvConfig = BaseEnvConfig> = {
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/env-accessor`](https://daiso-tech.github.io/daiso-core/modules/EnvAccessor.html) API docs.
+For further information refer to [`eridu-tech/env-accessor`](https://daiso-tech.github.io/daiso-core/modules/EnvAccessor.html) API docs.

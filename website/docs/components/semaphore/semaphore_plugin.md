@@ -53,9 +53,9 @@ adapter.acquire({ context, key: "prefix:my-key", slotId: "s1", limit: 5, ttl });
 ### Usage
 
 ```ts
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
-import { withSemaphorePrefix } from "@daiso-tech/core/semaphore/plugins";
+import { withPlugin } from "eridu-tech/middleware";
+import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
+import { withSemaphorePrefix } from "eridu-tech/semaphore/plugins";
 
 const adapter = new MemorySemaphoreAdapter();
 
@@ -77,10 +77,10 @@ const acquired = await prefixedAdapter.acquire({
 The plugin can be applied directly to the adapter passed to the `SemaphoreFactory` constructor:
 
 ```ts
-import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
-import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { withSemaphorePrefix } from "@daiso-tech/core/semaphore/plugins";
+import { SemaphoreFactory } from "eridu-tech/semaphore";
+import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
+import { withPlugin } from "eridu-tech/middleware";
+import { withSemaphorePrefix } from "eridu-tech/semaphore/plugins";
 
 const adapter = new MemorySemaphoreAdapter();
 const prefixedAdapter = withPlugin(adapter, withSemaphorePrefix("worker:"));

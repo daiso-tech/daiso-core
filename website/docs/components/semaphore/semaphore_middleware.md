@@ -19,9 +19,9 @@ The Semaphore middleware wraps function calls with a distributed semaphore, limi
 ## Usage
 
 ```ts
-import { withSemaphoreFactory } from "@daiso-tech/core/semaphore/middlewares";
-import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
-import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
+import { withSemaphoreFactory } from "eridu-tech/semaphore/middlewares";
+import { SemaphoreFactory } from "eridu-tech/semaphore";
+import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
 
 const semaphoreFactory = new SemaphoreFactory({
     adapter: new MemorySemaphoreAdapter(),
@@ -57,4 +57,4 @@ Here is a complete list of settings for the [`withSemaphore`](https://daiso-tech
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/semaphore`](https://daiso-tech.github.io/daiso-core/modules/Semaphore.html) API docs.
+For further information refer to [`eridu-tech/semaphore`](https://daiso-tech.github.io/daiso-core/modules/Semaphore.html) API docs.

@@ -19,10 +19,10 @@ The CircuitBreaker middleware wraps function calls with a circuit-breaker, provi
 ## Usage
 
 ```ts
-import { withCircuitBreakerFactory } from "@daiso-tech/core/circuit-breaker/middlewares";
-import { CircuitBreakerFactory } from "@daiso-tech/core/circuit-breaker";
-import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
-import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
+import { withCircuitBreakerFactory } from "eridu-tech/circuit-breaker/middlewares";
+import { CircuitBreakerFactory } from "eridu-tech/circuit-breaker";
+import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storage-adapter";
+import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
 
 const circuitBreakerFactory = new CircuitBreakerFactory({
     adapter: new DatabaseCircuitBreakerAdapter({
@@ -53,4 +53,4 @@ Here is a complete list of settings for the [`withCircuitBreaker`](https://daiso
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/circuit-breaker`](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) API docs.
+For further information refer to [`eridu-tech/circuit-breaker`](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) API docs.

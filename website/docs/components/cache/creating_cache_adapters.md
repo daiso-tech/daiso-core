@@ -29,7 +29,7 @@ Usage example:
 // filename: MyCacheAdapter.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { cacheAdapterTestSuite } from "@daiso-tech/core/cache/test-utilities";
+import { cacheAdapterTestSuite } from "eridu-tech/cache/test-utilities";
 import { MemoryCacheAdapter } from "./MemoryCacheAdapter.js";
 
 describe("class: MyCacheAdapter", () => {
@@ -61,7 +61,7 @@ Usage example:
 // filename: MyCache.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { cacheTestSuite } from "@daiso-tech/core/cache/test-utilities";
+import { cacheTestSuite } from "eridu-tech/cache/test-utilities";
 import { MyCache } from "./MyCache.js";
 
 describe("class: MyCache", () => {
@@ -77,4 +77,4 @@ describe("class: MyCache", () => {
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/cache`](https://daiso-tech.github.io/daiso-core/modules/Cache.html) API docs.
+For further information refer to [`eridu-tech/cache`](https://daiso-tech.github.io/daiso-core/modules/Cache.html) API docs.

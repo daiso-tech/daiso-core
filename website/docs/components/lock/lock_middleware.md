@@ -19,9 +19,9 @@ The Lock middleware wraps function calls with a distributed lock, ensuring mutua
 ## Usage
 
 ```ts
-import { withLockFactory } from "@daiso-tech/core/lock/middlewares";
-import { LockFactory } from "@daiso-tech/core/lock";
-import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
+import { withLockFactory } from "eridu-tech/lock/middlewares";
+import { LockFactory } from "eridu-tech/lock";
+import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
 
 const lockFactory = new LockFactory({
     adapter: new MemoryLockAdapter(),
@@ -50,4 +50,4 @@ Here is a complete list of settings for the [`withLock`](https://daiso-tech.gith
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/lock`](https://daiso-tech.github.io/daiso-core/modules/Lock.html) API docs.
+For further information refer to [`eridu-tech/lock`](https://daiso-tech.github.io/daiso-core/modules/Lock.html) API docs.

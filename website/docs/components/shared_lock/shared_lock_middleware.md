@@ -22,9 +22,9 @@ The SharedLock middleware wraps function calls with a distributed shared lock (r
 import {
     withSharedLockFactory,
     SHARED_LOCK_WHEN,
-} from "@daiso-tech/core/shared-lock/middlewares";
-import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
-import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
+} from "eridu-tech/shared-lock/middlewares";
+import { SharedLockFactory } from "eridu-tech/shared-lock";
+import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
 
 const sharedLockFactory = new SharedLockFactory({
     adapter: new MemorySharedLockAdapter(),
@@ -69,4 +69,4 @@ Here is a complete list of settings for the [`withSharedLock`](https://daiso-tec
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/shared-lock`](https://daiso-tech.github.io/daiso-core/modules/SharedLock.html) API docs.
+For further information refer to [`eridu-tech/shared-lock`](https://daiso-tech.github.io/daiso-core/modules/SharedLock.html) API docs.

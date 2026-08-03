@@ -7,14 +7,14 @@ keywords:
 
 # ConfigAccessor
 
-The `@daiso-tech/core/config-accessor` component provides standardized type-safe access to domain configuration variables. It supports optional schema validation useful accessing dynamic configurations (e.g tenneat configurations).
+The `eridu-tech/config-accessor` component provides standardized type-safe access to domain configuration variables. It supports optional schema validation useful accessing dynamic configurations (e.g tenneat configurations).
 
 ## ConfigAccessor class
 
 ### Initial configuration
 
 ```ts
-import { ConfigAccessor } from "@daiso-tech/core/config-accessor";
+import { ConfigAccessor } from "eridu-tech/config-accessor";
 import { z } from "zod";
 
 const config = {};
@@ -107,4 +107,4 @@ type IConfigAccessor<TConfig extends BaseConfig = BaseConfig> = {
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/config-accessor`](https://daiso-tech.github.io/daiso-core/modules/ConfigAccessor.html) API docs.
+For further information refer to [`eridu-tech/config-accessor`](https://daiso-tech.github.io/daiso-core/modules/ConfigAccessor.html) API docs.

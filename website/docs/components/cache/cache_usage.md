@@ -12,16 +12,16 @@ keywords:
 
 # Cache usage
 
-The `@daiso-tech/core/cache` component provides a way for storing key-value pairs with expiration independent of data storage
+The `eridu-tech/cache` component provides a way for storing key-value pairs with expiration independent of data storage
 
 ## Initial configuration
 
 To begin using the `Cache` class, you'll need to create and configure an instance:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { Cache } from "@daiso-tech/core/cache";
+import { TimeSpan } from "eridu-tech/time-span";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { Cache } from "eridu-tech/cache";
 
 const cache = new Cache({
     // You can provide default TTL value
@@ -125,8 +125,8 @@ await cache.clear();
 You can enforce compile time type safety by setting the cache value type:
 
 ```ts
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { Cache } from "@daiso-tech/core/cache";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { Cache } from "eridu-tech/cache";
 
 type IUser = {
     name: string;
@@ -145,8 +145,8 @@ await cache.add("a", "asd");
 If you have multiple types you can use algeberical enums:
 
 ```ts
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { Cache } from "@daiso-tech/core/cache";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { Cache } from "eridu-tech/cache";
 
 type IUser = {
     type: "USER";
@@ -179,8 +179,8 @@ if (cacheValue.type === "PRODUCT") {
 Alternatively you can use different `Cache` classes with different namespaces:
 
 ```ts
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { Cache } from "@daiso-tech/core/cache";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { Cache } from "eridu-tech/cache";
 
 const cacheAdapter = new MemoryCacheAdapter();
 
@@ -269,9 +269,9 @@ The library includes 2 additional contracts:
 This separation makes it easy to visually distinguish the two contracts, making it immediately obvious that they serve different purposes.
 
 ```ts
-import type { ICache, IReadableCache } from "@daiso-tech/core/cache/contracts";
-import { Cache } from "@daiso-tech/core/cache";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
+import type { ICache, IReadableCache } from "eridu-tech/cache/contracts";
+import { Cache } from "eridu-tech/cache";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
 
 async function readingFunc(cache: IReadableCache): Promise<void> {
     // You cannot access write methods like put, add and update
@@ -295,4 +295,4 @@ await readingFunc(cache);
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/cache`](https://daiso-tech.github.io/daiso-core/modules/Cache.html) API docs.
+For further information refer to [`eridu-tech/cache`](https://daiso-tech.github.io/daiso-core/modules/Cache.html) API docs.

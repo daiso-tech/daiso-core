@@ -12,17 +12,17 @@ keywords:
 
 # CircuitBreaker usage
 
-The `@daiso-tech/core/circuit-breaker` component provides a way for managing circuit-breaker independent of underlying platform or storage.
+The `eridu-tech/circuit-breaker` component provides a way for managing circuit-breaker independent of underlying platform or storage.
 
 ## Initial configuration
 
 To begin using the `CircuitBreakerFactory` class, you'll need to create and configure an instance:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
-import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
-import { CircuitBreakerFactory } from "@daiso-tech/core/circuit-breaker";
+import { TimeSpan } from "eridu-tech/time-span";
+import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storage-adapter";
+import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
+import { CircuitBreakerFactory } from "eridu-tech/circuit-breaker";
 
 const circuitBreakerFactory = new CircuitBreakerFactory({
     // You can provide default settings
@@ -82,7 +82,7 @@ By default the the circuit-breaker will treat errors and slow calls as failures.
 The `CIRCUIT_BREAKER_TRIGGER.BOTH` will treat error and slow calls as failures.
 
 ```ts
-import { CIRCUIT_BREAKER_TRIGGER } from "@daiso-tech/core/circuit-breaker/contracts";
+import { CIRCUIT_BREAKER_TRIGGER } from "eridu-tech/circuit-breaker/contracts";
 
 const circuitBreaker = circuitBreakerFactory.create("resource", {
     trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
@@ -95,7 +95,7 @@ await circuitBreaker.runOrFail(async () => {
 The `CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR` will treat only errors as failures.
 
 ```ts
-import { CIRCUIT_BREAKER_TRIGGER } from "@daiso-tech/core/circuit-breaker/contracts";
+import { CIRCUIT_BREAKER_TRIGGER } from "eridu-tech/circuit-breaker/contracts";
 
 const circuitBreaker = circuitBreakerFactory.create("resource", {
     trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
@@ -108,7 +108,7 @@ await circuitBreaker.runOrFail(async () => {
 The `CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL` will treat slow calls as failures.
 
 ```ts
-import { CIRCUIT_BREAKER_TRIGGER } from "@daiso-tech/core/circuit-breaker/contracts";
+import { CIRCUIT_BREAKER_TRIGGER } from "eridu-tech/circuit-breaker/contracts";
 
 const circuitBreaker = circuitBreakerFactory.create("resource", {
     trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
@@ -123,7 +123,7 @@ await circuitBreaker.runOrFail(async () => {
 You can set custom slow call threshold that will be used when treating slow calls as failures.
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const circuitBreaker = circuitBreakerFactory.create("resource", {
     trigger: TimeSpan.fromSeconds(1),
@@ -154,7 +154,7 @@ await circuitBreaker.isolate();
 You can get the circuit-breaker state by using the `getState` method, it returns [`CircuitBreakerState`](https://daiso-tech.github.io/daiso-core/types/CircuitBreaker.CircuitBreakerState.html).
 
 ```ts
-import { CIRCUIT_BREAKER_STATE } from "@daiso-tech/core/circuit-breaker/contracts";
+import { CIRCUIT_BREAKER_STATE } from "eridu-tech/circuit-breaker/contracts";
 
 const state = await circuitBreaker.getState();
 
@@ -196,10 +196,10 @@ In order to serialize or deserialize a circuit-breaker you need pass an object t
 Manually serializing and deserializing the circuit-breaker:
 
 ```ts
-import { RedisCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter";
-import { CircuitBreakerFactory } from "@daiso-tech/core/circuit-breaker";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RedisCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/redis-circuit-breaker-adapter";
+import { CircuitBreakerFactory } from "eridu-tech/circuit-breaker";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 
@@ -227,13 +227,13 @@ Note you only need manuall serialization and deserialization when integrating wi
 As long you pass the same `Serde` instances with all other components you dont need to serialize and deserialize the circuit-breaker manually.
 
 ```ts
-import { RedisCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/redis-circuit-breaker-adapter";
-import type { ICircuitBreaker } from "@daiso-tech/core/circuit-breaker/contracts";
-import { CircuitBreakerFactory } from "@daiso-tech/core/circuit-breaker";
-import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RedisCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/redis-circuit-breaker-adapter";
+import type { ICircuitBreaker } from "eridu-tech/circuit-breaker/contracts";
+import { CircuitBreakerFactory } from "eridu-tech/circuit-breaker";
+import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
+import { EventBus } from "eridu-tech/event-bus";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 const redis = new Redis("YOUR_REDIS_CONNECTION");
@@ -274,4 +274,4 @@ await eventBus.addListener(
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/circuit-breaker`](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) API docs.
+For further information refer to [`eridu-tech/circuit-breaker`](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) API docs.

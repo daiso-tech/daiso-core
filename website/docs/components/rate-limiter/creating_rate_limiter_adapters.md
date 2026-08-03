@@ -35,7 +35,7 @@ Usage example:
 // filename: MyRateLimiterStorageAdapter.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { rateLimiterBreakerStorageTestSuite } from "@daiso-tech/core/rate-limiter/test-utilities";
+import { rateLimiterBreakerStorageTestSuite } from "eridu-tech/rate-limiter/test-utilities";
 import { MemoryRateLimiterStorageAdapter } from "./MemoryRateLimiterStorageAdapter.js";
 
 describe("class: MyRateLimiterStorageAdapter", () => {
@@ -55,4 +55,4 @@ In some cases, you may need to implement a custom [`RateLimiterProvider`](https:
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/rate-limiter`](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) API docs.
+For further information refer to [`eridu-tech/rate-limiter`](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) API docs.

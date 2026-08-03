@@ -11,8 +11,8 @@ pagination_label: Configuring RateLimiter policies
 <!-- The `SlidingWindowLimiter` breaks after n requests in a row fail. -->
 
 ````ts
-import { SlidingWindowLimiter } from "@daiso-tech/core/rate-limiter/policies"
-import { TimeSpan } from "@daiso-tech/core/time-span"
+import { SlidingWindowLimiter } from "eridu-tech/rate-limiter/policies"
+import { TimeSpan } from "eridu-tech/time-span"
 
 new SlidingWindowLimiter({
     /**
@@ -35,8 +35,8 @@ new SlidingWindowLimiter({
 <!-- The `FixedWindowLimiter` breaks after a proportion of requests in a count based sliding window fail. -->
 
 ```ts
-import { FixedWindowLimiter } from "@daiso-tech/core/rate-limiter/policies";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { FixedWindowLimiter } from "eridu-tech/rate-limiter/policies";
+import { TimeSpan } from "eridu-tech/time-span";
 
 new FixedWindowLimiter({
     /**
@@ -49,4 +49,4 @@ new FixedWindowLimiter({
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/rate-limiter`](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) API docs.
+For further information refer to [`eridu-tech/rate-limiter`](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) API docs.

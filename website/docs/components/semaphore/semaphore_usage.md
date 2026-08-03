@@ -12,16 +12,16 @@ keywords:
 
 # Semaphore usage
 
-The `@daiso-tech/core/semaphore` component provides a way for managing semaphores independent of underlying platform or storage.
+The `eridu-tech/semaphore` component provides a way for managing semaphores independent of underlying platform or storage.
 
 ## Initial configuration
 
 To begin using the `SemaphoreFactory` class, you'll need to create and configure an instance:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
-import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
+import { TimeSpan } from "eridu-tech/time-span";
+import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
+import { SemaphoreFactory } from "eridu-tech/semaphore";
 
 const semaphoreFactory = new SemaphoreFactory({
     // You can provide default TTL value
@@ -132,7 +132,7 @@ const semaphore = semaphoreFactory.create("shared-resource", {
 You can get the semaphore state by using the `getState` method, it returns [`ISemaphoreState`](https://daiso-tech.github.io/daiso-core/types/Semaphore.ISemaphoreState.html).
 
 ```ts
-import { SEMAPHORE_STATE } from "@daiso-tech/core/semaphore/contracts";
+import { SEMAPHORE_STATE } from "eridu-tech/semaphore/contracts";
 
 const semaphore = semaphoreFactory.create("shared-resource", {
     limit: 2,
@@ -164,7 +164,7 @@ The semaphore can be refreshed by the current owner before it expires. This is p
 instead of setting an excessively long TTL initially, you can start with a shorter one and use the `refresh` method to set the TTL of the semaphore:
 
 ```ts
-import { delay } from "@daiso-tech/core/utilities";
+import { delay } from "eridu-tech/utilities";
 
 const semaphore = semaphoreFactory.create("resource", {
     limit: 2,
@@ -312,9 +312,9 @@ To retry acquiring semaphore you can use the [`retry`](../resilience.md) middlew
 Retrying acquiring semaphore with `acquireOrFail` method:
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
-import { use } from "@daiso-tech/core/middleware";
+import { retry } from "eridu-tech/resilience";
+import { FailedAcquireSemaphoreError } from "eridu-tech/semaphore/contracts";
+import { use } from "eridu-tech/middleware";
 
 const semaphore = semaphoreFactory.create("semaphore", {
     limit: 2,
@@ -338,8 +338,8 @@ try {
 Retrying acquiring semaphore with `acquire` method:
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { use } from "@daiso-tech/core/middleware";
+import { retry } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
 
 const semaphore = semaphoreFactory.create("semaphore", {
     limit: 2,
@@ -368,9 +368,9 @@ if (hasAquired) {
 Retrying acquiring semaphore with `runOrFail` method:
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
-import { use } from "@daiso-tech/core/middleware";
+import { retry } from "eridu-tech/resilience";
+import { FailedAcquireSemaphoreError } from "eridu-tech/semaphore/contracts";
+import { use } from "eridu-tech/middleware";
 
 const semaphore = semaphoreFactory.create("semaphore", {
     limit: 2,
@@ -395,10 +395,10 @@ To retry acquiring semaphore at regular intervals you can use the [`retryInterva
 Retrying acquiring semaphore with `acquireOrFail` method:
 
 ```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
-import { use } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { retryInterval } from "eridu-tech/resilience";
+import { FailedAcquireSemaphoreError } from "eridu-tech/semaphore/contracts";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const semaphore = semaphoreFactory.create("resource", {
     limit: 2,
@@ -425,9 +425,9 @@ try {
 Retrying acquiring semaphore with `acquire` method:
 
 ```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { use } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { retryInterval } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const semaphore = semaphoreFactory.create("resource", {
     limit: 2,
@@ -457,10 +457,10 @@ if (hasAcquired) {
 Retrying acquiring semaphore with `runOrFail` method:
 
 ```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { FailedAcquireSemaphoreError } from "@daiso-tech/core/semaphore/contracts";
-import { use } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { retryInterval } from "eridu-tech/resilience";
+import { FailedAcquireSemaphoreError } from "eridu-tech/semaphore/contracts";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const semaphore = semaphoreFactory.create("resource", {
     limit: 2,
@@ -492,10 +492,10 @@ In order to serialize or deserialize a semaphore you need pass an object that im
 Manually serializing and deserializing the semaphore:
 
 ```ts
-import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
-import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RedisSemaphoreAdapter } from "eridu-tech/semaphore/redis-semaphore-adapter";
+import { SemaphoreFactory } from "eridu-tech/semaphore";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 
@@ -525,13 +525,13 @@ Note you only need manuall serialization and deserialization when integrating wi
 As long you pass the same `Serde` instances with all other components you dont need to serialize and deserialize the semaphore manually.
 
 ```ts
-import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
-import type { ISemaphore } from "@daiso-tech/core/semaphore/contracts";
-import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
-import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RedisSemaphoreAdapter } from "eridu-tech/semaphore/redis-semaphore-adapter";
+import type { ISemaphore } from "eridu-tech/semaphore/contracts";
+import { SemaphoreFactory } from "eridu-tech/semaphore";
+import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
+import { EventBus } from "eridu-tech/event-bus";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 const redis = new Redis("YOUR_REDIS_CONNECTION");
@@ -582,4 +582,4 @@ The library includes 2 additional contracts:
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/semaphore`](https://daiso-tech.github.io/daiso-core/modules/Semaphore.html) API docs.
+For further information refer to [`eridu-tech/semaphore`](https://daiso-tech.github.io/daiso-core/modules/Semaphore.html) API docs.

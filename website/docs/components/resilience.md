@@ -7,10 +7,10 @@ keywords:
 
 # Resilience
 
-The `@daiso-tech/core/resilience` component provides predefined fault tolerant `middlewares`.
+The `eridu-tech/resilience` component provides predefined fault tolerant `middlewares`.
 
 :::info
-For further information about `middlewares` refer to [`@daiso-tech/core/middleware`](./middleware.md) documentation.
+For further information about `middlewares` refer to [`eridu-tech/middleware`](./middleware.md) documentation.
 :::
 
 ## Fallback
@@ -20,8 +20,8 @@ The `fallback` middleware adds fallback value when an error occurs:
 ### Usage
 
 ```ts
-import { fallback } from "@daiso-tech/core/resilience";
-import { use } from "@daiso-tech/core/middleware";
+import { fallback } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
 
 function unstableFn(): number {
     // We simulate a function that can throw unexpected errors
@@ -86,8 +86,8 @@ The `retry` middleware enables automatic retries for all errors or specific erro
 ### Usage
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { use } from "@daiso-tech/core/middleware";
+import { retry } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
 
 function unstableFn(): number {
     // We simulate a function that can throw unexpected errors
@@ -142,7 +142,7 @@ await fn();
 You can use custom [`BackoffPolicy`](./backoff_policies.md):
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const fn = use(unstableFn, [
     retry({
@@ -199,9 +199,9 @@ The `retryInterval` middleware retries a function repeatedly within a given time
 ### Usage
 
 ```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { use } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { retryInterval } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 function unstableFn(): number {
     // We simulate a function that can throw unexpected errors
@@ -300,9 +300,9 @@ The `timeout` middleware automatically aborts functions after a specified time p
 ### Usage
 
 ```ts
-import { timeout } from "@daiso-tech/core/resilience";
-import { use } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { timeout } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 async function fetchData(): Promise<Response> {
     const response = await fetch("ENDPOINT");
@@ -339,4 +339,4 @@ For more details about `onTimeout` callback data, see the `OnTimeoutData` type.
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/resilience`](https://daiso-tech.github.io/daiso-core/modules/Resilience.html) API docs.
+For further information refer to [`eridu-tech/resilience`](https://daiso-tech.github.io/daiso-core/modules/Resilience.html) API docs.

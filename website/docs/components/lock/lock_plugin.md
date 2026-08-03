@@ -43,9 +43,9 @@ Every method on the `ILockAdapter` that operates on a specific lock key is prefi
 ### Usage
 
 ```ts
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
-import { withLockPrefix } from "@daiso-tech/core/lock/plugins";
+import { withPlugin } from "eridu-tech/middleware";
+import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
+import { withLockPrefix } from "eridu-tech/lock/plugins";
 
 const adapter = new MemoryLockAdapter();
 
@@ -66,10 +66,10 @@ const acquired = await prefixedAdapter.acquire(
 The plugin can be applied directly to the adapter passed to the `LockFactory` constructor:
 
 ```ts
-import { LockFactory } from "@daiso-tech/core/lock";
-import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { withLockPrefix } from "@daiso-tech/core/lock/plugins";
+import { LockFactory } from "eridu-tech/lock";
+import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
+import { withPlugin } from "eridu-tech/middleware";
+import { withLockPrefix } from "eridu-tech/lock/plugins";
 
 const adapter = new MemoryLockAdapter();
 const prefixedAdapter = withPlugin(adapter, withLockPrefix("worker:"));

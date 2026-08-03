@@ -36,7 +36,7 @@ brew install azure-functions-core-tools@4
 2. Install dependencies:
 
     ```sh
-    npm install @daiso-tech/core hono @marplex/hono-azurefunc-adapter
+    npm install eridu-tech hono @marplex/hono-azurefunc-adapter
     ```
 
 3. Change the default route prefix in `host.json`:
@@ -63,7 +63,7 @@ import {
     HttpRouter,
     HttpRes,
     defaultHttpRouterAdapter,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 
 const router = new HttpRouter({ router: defaultHttpRouterAdapter });
 

@@ -4,7 +4,7 @@ sidebar_position: 0
 
 # Overview
 
-`@daiso-tech/core` is a modular, adapter-first TypeScript library for building
+`eridu-tech` is a modular, adapter-first TypeScript library for building
 production-ready backend applications. Every component ships with in-memory
 adapters for fast, deterministic testing — and pluggable adapters to swap in
 real infrastructure without touching your

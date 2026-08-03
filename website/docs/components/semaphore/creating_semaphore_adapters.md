@@ -29,7 +29,7 @@ Usage example:
 // filename: MySemaphoreAdapter.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { semaphoreAdapterTestSuite } from "@daiso-tech/core/semaphore/test-utilities";
+import { semaphoreAdapterTestSuite } from "eridu-tech/semaphore/test-utilities";
 import { MemorySemaphoreAdapter } from "./MemorySemaphoreAdapter.js";
 
 describe("class: MySemaphoreAdapter", () => {
@@ -61,7 +61,7 @@ Usage example:
 // filename: MySemaphoreFactory.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { semaphoreFactoryTestSuite } from "@daiso-tech/core/semaphore/test-utilities";
+import { semaphoreFactoryTestSuite } from "eridu-tech/semaphore/test-utilities";
 import { MySemaphoreFactory } from "./MySemaphoreFactory.js";
 
 describe("class: MySemaphoreFactory", () => {
@@ -77,4 +77,4 @@ describe("class: MySemaphoreFactory", () => {
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/semaphore`](https://daiso-tech.github.io/daiso-core/modules/Semaphore.html) API docs.
+For further information refer to [`eridu-tech/semaphore`](https://daiso-tech.github.io/daiso-core/modules/Semaphore.html) API docs.

@@ -19,7 +19,7 @@ This guide uses the third-party adapter [rwv/hono-alibaba-cloud-fc3-adapter](htt
 ```sh
 mkdir my-app
 cd my-app
-npm install @daiso-tech/core hono hono-alibaba-cloud-fc3-adapter
+npm install eridu-tech hono hono-alibaba-cloud-fc3-adapter
 npm install -D @serverless-devs/s esbuild
 mkdir src
 ```
@@ -32,7 +32,7 @@ import {
     HttpRouter,
     HttpRes,
     defaultHttpRouterAdapter,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 import { handle } from "hono-alibaba-cloud-fc3-adapter";
 
 const router = new HttpRouter({ router: defaultHttpRouterAdapter });

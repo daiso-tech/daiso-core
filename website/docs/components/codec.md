@@ -7,12 +7,12 @@ keywords:
 
 # Codec
 
-The `@daiso-tech/core/codec` component provides seamless way to encode/decode data.
+The `eridu-tech/codec` component provides seamless way to encode/decode data.
 
 ## Usage
 
 ```ts
-import { Base64Codec } from "@daiso-tech/core/codec/base-64-codec";
+import { Base64Codec } from "eridu-tech/codec/base-64-codec";
 
 const codec = new Base64Codec();
 
@@ -37,4 +37,4 @@ Currently the library only included `Base64Codec` class.
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/codec`](https://daiso-tech.github.io/daiso-core/modules/Codec.html) API docs.
+For further information refer to [`eridu-tech/codec`](https://daiso-tech.github.io/daiso-core/modules/Codec.html) API docs.

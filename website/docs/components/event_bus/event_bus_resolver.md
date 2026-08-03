@@ -22,12 +22,12 @@ To begin using the `EventBusResolver` class, you will need to register all requi
 import {
     type IEventBusAdapter,
     BaseEvent,
-} from "@daiso-tech/core/event-bus/contracts";
-import { EventBusResolver } from "@daiso-tech/core/event-bus";
-import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+} from "eridu-tech/event-bus/contracts";
+import { EventBusResolver } from "eridu-tech/event-bus";
+import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 import Redis from "ioredis";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -99,4 +99,4 @@ Note that the `EventBusResolver` is immutable, meaning any configuration overrid
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/event-bus`](https://daiso-tech.github.io/daiso-core/modules/EventBus.html) API docs.
+For further information refer to [`eridu-tech/event-bus`](https://daiso-tech.github.io/daiso-core/modules/EventBus.html) API docs.

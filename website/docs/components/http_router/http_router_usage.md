@@ -17,7 +17,7 @@ keywords:
 
 # HTTP Router usage
 
-The `@daiso-tech/core/http-router` component provides a framework-agnostic HTTP router built on top of the [Hono](https://hono.dev/) router engine. It implements the **Winter TC fetch object standard**, which means it exposes a standard `fetch(request): Response` signature. This allows it to be integrated directly into any runtime or framework that supports the Fetch API — including Node.js, Bun, Deno, Cloudflare Workers, Next.js, Nuxt, SvelteKit, and more.
+The `eridu-tech/http-router` component provides a framework-agnostic HTTP router built on top of the [Hono](https://hono.dev/) router engine. It implements the **Winter TC fetch object standard**, which means it exposes a standard `fetch(request): Response` signature. This allows it to be integrated directly into any runtime or framework that supports the Fetch API — including Node.js, Bun, Deno, Cloudflare Workers, Next.js, Nuxt, SvelteKit, and more.
 
 The router provides typed path parameters, a middleware chain with shared context, response helpers, cookie management, file upload validation, and schema-based request validation.
 
@@ -29,7 +29,7 @@ To begin using the `HttpRouter` class, you'll need to create and configure an in
 import {
     HttpRouter,
     defaultHttpRouterAdapter,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 import { RegExpRouter } from "hono/router/reg-exp-router";
 import { SmartRouter } from "hono/router/smart-router";
 import { TrieRouter } from "hono/router/trie-router";
@@ -49,7 +49,7 @@ You can also use the bundled `defaultHttpRouterAdapter`:
 import {
     HttpRouter,
     defaultHttpRouterAdapter,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 
 const router = new HttpRouter({
     router: defaultHttpRouterAdapter,
@@ -69,7 +69,7 @@ Here is a complete list of settings for the [`HttpRouter`](https://daiso-tech.gi
 You can register an endpoint using the `endpoint` method with a URL pattern and handler:
 
 ```ts
-import { HttpRouter } from "@daiso-tech/core/http-router";
+import { HttpRouter } from "eridu-tech/http-router";
 
 const router = new HttpRouter({
     router: defaultHttpRouterAdapter,
@@ -384,7 +384,7 @@ router.endpoint({
 The `context` object is a shared key-value store that lives for the duration of a single request. It persists across the middleware chain and the final handler, making it ideal for passing data between middleware and handlers:
 
 ```ts
-import { contextToken } from "@daiso-tech/core/execution-context";
+import { contextToken } from "eridu-tech/execution-context";
 
 type IUser = {
     id: string;
@@ -624,14 +624,14 @@ router.endpoint({
 | `name`         | `string`   | The original file name                            |
 | `contentType`  | `string`   | The MIME type                                     |
 | `lastModified` | `Date`     | The last modified timestamp                       |
-| `fileSize`     | `FileSize` | The file size (from `@daiso-tech/core/file-size`) |
+| `fileSize`     | `FileSize` | The file size (from `eridu-tech/file-size`) |
 
 ### Error handling
 
 Errors thrown inside handlers or middleware propagate as a generic `500 Internal Server Error` response. To return structured HTTP errors with proper status codes and messages, use the `HttpError` class:
 
 ```ts
-import { HttpError } from "@daiso-tech/core/http-router/contracts";
+import { HttpError } from "eridu-tech/http-router/contracts";
 
 router.endpoint({
     url: "/secure",
@@ -651,7 +651,7 @@ router.endpoint({
 You can test the code by creating a standard web `Request` object and passing it to the `fetch` method of the `HttpRouter` class:
 
 ```ts
-import { HttpReq } from "@daiso-tech/core/http-router";
+import { HttpReq } from "eridu-tech/http-router";
 import { describe, expect, test } from "vitest";
 
 describe("My router", () => {
@@ -677,7 +677,7 @@ describe("My router", () => {
 You can also use `HttpReq.test()` to easily create a standard web `Request`:
 
 ```ts
-import { HttpReq } from "@daiso-tech/core/http-router";
+import { HttpReq } from "eridu-tech/http-router";
 
 const httpReq = HttpReq.test({
     method: "POST",
@@ -702,7 +702,7 @@ import {
     HttpRouter,
     defaultHttpRouterAdapter,
     HttpReq,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 import { describe, expect, test } from "vitest";
 
 describe("JSON body", () => {
@@ -748,7 +748,7 @@ import {
     HttpRouter,
     defaultHttpRouterAdapter,
     HttpReq,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 import { describe, expect, test } from "vitest";
 
 describe("URL-encoded body", () => {
@@ -786,7 +786,7 @@ import {
     HttpRouter,
     defaultHttpRouterAdapter,
     HttpReq,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 import { describe, expect, test } from "vitest";
 
 describe("Multipart body", () => {
@@ -836,7 +836,7 @@ import {
     HttpRouter,
     defaultHttpRouterAdapter,
     HttpReq,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 import { describe, expect, test } from "vitest";
 
 describe("Custom body", () => {
@@ -896,7 +896,7 @@ router.endpoint({
 You can define file validation rules on the schemas passed to `withSchema`. Each file field accepts a `FileDef` that can constrain content type, file size, filename, and cardinality:
 
 ```ts
-import { FileSize } from "@daiso-tech/core/file-size";
+import { FileSize } from "eridu-tech/file-size";
 
 router.endpoint({
     url: "/upload-avatar",
@@ -961,7 +961,7 @@ Both handlers and middleware can be invocable objects (classes with an `invoke` 
 import {
     type IHttpHandlerObject,
     type HttpHandlerArgs,
-} from "@daiso-tech/core/http-router/contracts";
+} from "eridu-tech/http-router/contracts";
 
 class GreetingHandler implements IHttpHandlerObject {
     constructor(private readonly greeting: string) {}
@@ -986,7 +986,7 @@ import {
     type IHttpMiddlewareObject,
     type HttpMiddlewareArgs,
     type IHttpRes,
-} from "@daiso-tech/core/http-router/contracts";
+} from "eridu-tech/http-router/contracts";
 
 class AuthMiddleware implements IHttpMiddlewareObject {
     constructor(private readonly apiKey: string) {}
@@ -1013,8 +1013,8 @@ For further information about invocable objects, refer to the [`Invocable`](../.
 A Winter TC handler is a function with the signature `(request: Request) => Promise<Response> | Response`. Since `HttpRouter` endpoints expect the richer `HttpHandlerArgs` interface, you can use the `HttpRouter.fromWinterTcHandler()` static method to bridge the two seamlessly:
 
 ```ts
-import { HttpRouter } from "@daiso-tech/core/http-router";
-import { type WinterTcRequestHandler } from "@daiso-tech/core/http-router/contracts";
+import { HttpRouter } from "eridu-tech/http-router";
+import { type WinterTcRequestHandler } from "eridu-tech/http-router/contracts";
 
 // A standard Winter TC handler
 const healthHandler: WinterTcRequestHandler = async (request) => {

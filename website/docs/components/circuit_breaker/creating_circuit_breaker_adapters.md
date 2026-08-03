@@ -35,7 +35,7 @@ Usage example:
 // filename: MyCircuitBreakerStorageAdapter.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { circuitBreakerStorageTestSuite } from "@daiso-tech/core/circuit-breaker/test-utilities";
+import { circuitBreakerStorageTestSuite } from "eridu-tech/circuit-breaker/test-utilities";
 import { MemoryCircuitBreakerStorageAdapter } from "./MemoryCircuitBreakerStorageAdapter.js";
 
 describe("class: MyCircuitBreakerStorageAdapter", () => {
@@ -55,4 +55,4 @@ In some cases, you may need to implement a custom [`CircuitBreakerProvider`](htt
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/circuit-breaker`](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) API docs.
+For further information refer to [`eridu-tech/circuit-breaker`](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) API docs.

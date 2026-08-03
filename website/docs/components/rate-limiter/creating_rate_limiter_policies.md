@@ -14,4 +14,4 @@ To understand how to implement a custom [`IRateLimiterPolicy`](https://daiso-tec
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/rate-limiter`](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) API docs.
+For further information refer to [`eridu-tech/rate-limiter`](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) API docs.

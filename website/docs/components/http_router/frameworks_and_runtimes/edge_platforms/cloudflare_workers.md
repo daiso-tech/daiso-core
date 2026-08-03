@@ -17,7 +17,7 @@ Export `router.fetch` as the default module fetch handler.
 ### 1. Install
 
 ```sh
-npm install @daiso-tech/core hono
+npm install eridu-tech hono
 npm install -D @cloudflare/workers-types wrangler
 ```
 
@@ -29,7 +29,7 @@ import {
     HttpRouter,
     HttpRes,
     defaultHttpRouterAdapter,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 
 const router = new HttpRouter({ router: defaultHttpRouterAdapter });
 

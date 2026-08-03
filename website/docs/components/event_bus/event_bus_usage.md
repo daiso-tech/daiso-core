@@ -12,16 +12,16 @@ keywords:
 
 # EventBus usage
 
-The `@daiso-tech/core/event-bus` component provides a way for dispatching and listening to events independent of underlying technology.
+The `eridu-tech/event-bus` component provides a way for dispatching and listening to events independent of underlying technology.
 
 ## Initial configuration
 
 To begin using the `EventBus` class, you'll need to create and configure an instance:
 
 ```ts
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import type { IEventBus } from "@daiso-tech/core/event-bus/contracts";
-import { EventBus } from "@daiso-tech/core/event-bus";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+import type { IEventBus } from "eridu-tech/event-bus/contracts";
+import { EventBus } from "eridu-tech/event-bus";
 
 const eventBus: IEventBus = new EventBus({
     // You can choose the adapter to use
@@ -55,7 +55,7 @@ await eventBus.dispatch("add", {
 To properly remove a listener, you must use a named function:
 
 ```ts
-import type { BaseEvent } from "@daiso-tech/core/event-bus/contracts";
+import type { BaseEvent } from "eridu-tech/event-bus/contracts";
 
 const listener = (event: BaseEvent) => {
     console.log(event);
@@ -79,9 +79,9 @@ await eventBus.dispatch("add", {
 An event map can be used to strictly type the events:
 
 ```ts
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import type { IEventBus } from "@daiso-tech/core/event-bus/contracts";
-import { EventBus } from "@daiso-tech/core/event-bus";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+import type { IEventBus } from "eridu-tech/event-bus/contracts";
+import { EventBus } from "eridu-tech/event-bus";
 
 type AddEvent = {
     a: number;
@@ -154,7 +154,7 @@ await eventBus.dispatch("add", {
 You can also cancel one-time listeners before they trigger:
 
 ```ts
-import type { BaseEvent } from "@daiso-tech/core/event-bus/contracts";
+import type { BaseEvent } from "eridu-tech/event-bus/contracts";
 
 const listener = (event: BaseEvent) => {
     console.log(event);
@@ -191,8 +191,8 @@ await eventBus.dispatch("add", {
 Wait for events using promises:
 
 ```ts
-import { delay } from "@daiso-tech/core/utilities";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { delay } from "eridu-tech/utilities";
+import { TimeSpan } from "eridu-tech/time-span";
 
 // Register the promise before dispatching the event.
 const eventPromise = eventBus.asPromise("add");
@@ -266,9 +266,9 @@ import type {
     IEventBus,
     IEventListenable,
     IEventDispatcher,
-} from "@daiso-tech/core/event-bus/contracts";
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
+} from "eridu-tech/event-bus/contracts";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+import { EventBus } from "eridu-tech/event-bus";
 
 type AddEvent = {
     a: number;
@@ -346,4 +346,4 @@ await eventBus.dispatch("add", {
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/event-bus`](https://daiso-tech.github.io/daiso-core/modules/EventBus.html) API docs.
+For further information refer to [`eridu-tech/event-bus`](https://daiso-tech.github.io/daiso-core/modules/EventBus.html) API docs.

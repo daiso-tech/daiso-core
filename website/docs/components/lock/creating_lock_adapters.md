@@ -29,7 +29,7 @@ Usage example:
 // filename: MyLockAdapter.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { lockAdapterTestSuite } from "@daiso-tech/core/lock/test-utilities";
+import { lockAdapterTestSuite } from "eridu-tech/lock/test-utilities";
 import { MemoryLockAdapter } from "./MemoryLockAdapter.js";
 
 describe("class: MyLockAdapter", () => {
@@ -61,7 +61,7 @@ Usage example:
 // filename: MyLockFactory.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { lockFactoryTestSuite } from "@daiso-tech/core/lock/test-utilities";
+import { lockFactoryTestSuite } from "eridu-tech/lock/test-utilities";
 import { MyLockFactory } from "./MyLockFactory.js";
 
 describe("class: MyLockFactory", () => {
@@ -77,4 +77,4 @@ describe("class: MyLockFactory", () => {
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/lock`](https://daiso-tech.github.io/daiso-core/modules/Lock.html) API docs.
+For further information refer to [`eridu-tech/lock`](https://daiso-tech.github.io/daiso-core/modules/Lock.html) API docs.

@@ -9,7 +9,7 @@ keywords:
 
 # Middleware
 
-The `@daiso-tech/core/middleware` module provides a flexible middleware system for intercepting and composing function calls. It enables you to wrap functions with pre-processing and post-processing logic, similar to middleware patterns found in web frameworks like Express.js.
+The `eridu-tech/middleware` module provides a flexible middleware system for intercepting and composing function calls. It enables you to wrap functions with pre-processing and post-processing logic, similar to middleware patterns found in web frameworks like Express.js.
 
 ## Middleware basics
 
@@ -21,7 +21,7 @@ A middleware is a function that receives middleware arguments (containing the or
 import {
     type MiddlewareArgs,
     type MiddlewareFn,
-} from "@daiso-tech/core/middleware";
+} from "eridu-tech/middleware";
 
 const createLoggingMiddleware = <TParameters extends Array<unknown>, TReturn>(
     prefix: string = "LOG",
@@ -140,7 +140,7 @@ A helper function for defining middleware with accurate type inference. It ensur
 import {
     defineMiddleware,
     type MiddlewareFn,
-} from "@daiso-tech/core/middleware";
+} from "eridu-tech/middleware";
 
 const loggingMiddleware = defineMiddleware(
     <T extends unknown[], R>({ args, next }: MiddlewareArgs<T, R>): R => {
@@ -268,7 +268,7 @@ The `enhance` function provides a convenient way to apply middleware to methods 
 #### Usage Example
 
 ```ts
-import { enhance } from "@daiso-tech/core/middleware";
+import { enhance } from "eridu-tech/middleware";
 
 class Greeter {
     greet(name: string): string {
@@ -379,7 +379,7 @@ import {
     withPlugin,
     type PluginFn,
     type MiddlewareFn,
-} from "@daiso-tech/core/middleware";
+} from "eridu-tech/middleware";
 
 class UserService {
     async getUser(id: string): Promise<{ name: string }> {
@@ -481,7 +481,7 @@ For plugins with state or configuration, use the object form:
 import {
     type IPluginObject,
     type MiddlewareFn,
-} from "@daiso-tech/core/middleware";
+} from "eridu-tech/middleware";
 
 class MetricsPlugin implements IPluginObject<UserService> {
     constructor(private readonly metricsClient: MetricsClient) {}
@@ -523,4 +523,4 @@ This pattern is ideal for building reusable feature packs (logging, monitoring) 
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/middleware`](https://daiso-tech.github.io/daiso-core/modules/Middleware.html) API docs.
+For further information refer to [`eridu-tech/middleware`](https://daiso-tech.github.io/daiso-core/modules/Middleware.html) API docs.

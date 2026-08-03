@@ -29,7 +29,7 @@ Usage example:
 // filename: MyEventBusAdapter.test.ts
 
 import { describe, test, beforeEach, expect } from "vitest";
-import { eventBusAdapterTestSuite } from "@daiso-tech/core/event-bus/test-utilities";
+import { eventBusAdapterTestSuite } from "eridu-tech/event-bus/test-utilities";
 import { MyEventBusAdapter } from "./MyEventBusAdapter.js";
 
 describe("class: MyEventBusAdapter", () => {
@@ -61,7 +61,7 @@ Usage example:
 // filename: MyEventBus.test.ts
 
 import { describe, test, beforeEach, expect } from "vitest";
-import { eventBusTestSuite } from "@daiso-tech/core/event-bus/test-utilities";
+import { eventBusTestSuite } from "eridu-tech/event-bus/test-utilities";
 import { MyEventBus } from "./MyEventBus.js";
 
 describe("class: EventBus", () => {
@@ -77,4 +77,4 @@ describe("class: EventBus", () => {
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/event-bus`](https://daiso-tech.github.io/daiso-core/modules/EventBus.html) API docs.
+For further information refer to [`eridu-tech/event-bus`](https://daiso-tech.github.io/daiso-core/modules/EventBus.html) API docs.

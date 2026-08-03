@@ -20,7 +20,7 @@ Use the `hono/lambda-edge` adapter to run `HttpRouter` on Lambda@Edge with Cloud
 mkdir my-app
 cd my-app
 cdk init app -l typescript
-npm install @daiso-tech/core hono
+npm install eridu-tech hono
 mkdir lambda
 ```
 
@@ -32,7 +32,7 @@ import {
     HttpRouter,
     HttpRes,
     defaultHttpRouterAdapter,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 import { handle } from "hono/lambda-edge";
 
 const router = new HttpRouter({ router: defaultHttpRouterAdapter });

@@ -67,9 +67,9 @@ adapter.acquireReader({
 ### Usage
 
 ```ts
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
-import { withSharedLockPrefix } from "@daiso-tech/core/shared-lock/plugins";
+import { withPlugin } from "eridu-tech/middleware";
+import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
+import { withSharedLockPrefix } from "eridu-tech/shared-lock/plugins";
 
 const adapter = new MemorySharedLockAdapter();
 
@@ -94,10 +94,10 @@ await prefixedAdapter.acquireReader({
 The plugin can be applied directly to the adapter passed to the `SharedLockFactory` constructor:
 
 ```ts
-import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
-import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { withSharedLockPrefix } from "@daiso-tech/core/shared-lock/plugins";
+import { SharedLockFactory } from "eridu-tech/shared-lock";
+import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
+import { withPlugin } from "eridu-tech/middleware";
+import { withSharedLockPrefix } from "eridu-tech/shared-lock/plugins";
 
 const adapter = new MemorySharedLockAdapter();
 const prefixedAdapter = withPlugin(adapter, withSharedLockPrefix("prod:"));
