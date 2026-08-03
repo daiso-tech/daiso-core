@@ -28,8 +28,7 @@ describe("function: withFileStoragePrefix", () => {
 
             await enhanced.getPublicUrl("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getPublicUrl"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -51,8 +50,7 @@ describe("function: withFileStoragePrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getSignedDownloadUrl"]>
             >(
                 `${prefix}myKey`,
@@ -81,8 +79,7 @@ describe("function: withFileStoragePrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getSignedUploadUrl"]>
             >(
                 `${prefix}myKey`,
@@ -103,8 +100,7 @@ describe("function: withFileStoragePrefix", () => {
 
             await enhanced.exists("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["exists"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -118,8 +114,7 @@ describe("function: withFileStoragePrefix", () => {
 
             await enhanced.getStream("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getStream"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -133,8 +128,7 @@ describe("function: withFileStoragePrefix", () => {
 
             await enhanced.getBytes("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getBytes"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -148,8 +142,7 @@ describe("function: withFileStoragePrefix", () => {
 
             await enhanced.getMetaData("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getMetaData"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -172,8 +165,7 @@ describe("function: withFileStoragePrefix", () => {
 
             await enhanced.add("myKey", content, noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["add"]>
             >(`${prefix}myKey`, content, noOpContext);
         });
@@ -208,8 +200,7 @@ describe("function: withFileStoragePrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["addStream"]>
             >(
                 `${prefix}myKey`,
@@ -244,8 +235,7 @@ describe("function: withFileStoragePrefix", () => {
 
             await enhanced.update("myKey", content, noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["update"]>
             >(`${prefix}myKey`, content, noOpContext);
         });
@@ -280,8 +270,7 @@ describe("function: withFileStoragePrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["updateStream"]>
             >(
                 `${prefix}myKey`,
@@ -316,8 +305,7 @@ describe("function: withFileStoragePrefix", () => {
 
             await enhanced.put("myKey", content, noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["put"]>
             >(`${prefix}myKey`, content, noOpContext);
         });
@@ -352,8 +340,7 @@ describe("function: withFileStoragePrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["putStream"]>
             >(
                 `${prefix}myKey`,
@@ -379,8 +366,7 @@ describe("function: withFileStoragePrefix", () => {
 
             await enhanced.copy("sourceKey", "destKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["copy"]>
             >(`${prefix}sourceKey`, `${prefix}destKey`, noOpContext);
         });
@@ -394,8 +380,7 @@ describe("function: withFileStoragePrefix", () => {
 
             await enhanced.copyAndReplace("sourceKey", "destKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["copyAndReplace"]>
             >(`${prefix}sourceKey`, `${prefix}destKey`, noOpContext);
         });
@@ -409,8 +394,7 @@ describe("function: withFileStoragePrefix", () => {
 
             await enhanced.move("sourceKey", "destKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["move"]>
             >(`${prefix}sourceKey`, `${prefix}destKey`, noOpContext);
         });
@@ -424,8 +408,7 @@ describe("function: withFileStoragePrefix", () => {
 
             await enhanced.moveAndReplace("sourceKey", "destKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["moveAndReplace"]>
             >(`${prefix}sourceKey`, `${prefix}destKey`, noOpContext);
         });
@@ -439,8 +422,7 @@ describe("function: withFileStoragePrefix", () => {
 
             await enhanced.removeMany(["key1", "key2"], noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["removeMany"]>
             >([`${prefix}key1`, `${prefix}key2`], noOpContext);
         });
@@ -454,8 +436,7 @@ describe("function: withFileStoragePrefix", () => {
 
             await enhanced.removeByPrefix("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["removeByPrefix"]>
             >(`${prefix}myKey`, noOpContext);
         });

@@ -249,10 +249,10 @@ export class KyselySemaphoreAdapter
                         eb("semaphoreSlot.expiration", ">", Date.now()),
                     ]),
                 )
-                .select((eb) => eb.fn.countAll<number>().as("count"))
+                .select((eb) => eb.fn.countAll().as("count"))
                 .executeTakeFirst();
 
-            const currentCount = countResult ? countResult.count : 0;
+            const currentCount = Number(countResult?.count ?? 0);
 
             // When no slots are held the limit may be updated; otherwise the
             // stored limit is authoritative.

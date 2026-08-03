@@ -37,8 +37,7 @@ describe("function: withListenerTracking", () => {
 
         await enhancedAdapter.addListener("test.event", listener, noOpContext);
         await enhancedAdapter.dispatch("test.event", payload, noOpContext);
-        expect(listener).toHaveBeenCalledOnce();
-        expect(listener).toHaveBeenCalledWith(payload);
+        expect(listener).toHaveBeenCalledExactlyOnceWith(payload);
 
         await enhancedAdapter.removeListener(
             "test.event",

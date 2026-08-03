@@ -43,8 +43,7 @@ describe("function: withSemaphoreFactory", () => {
             }),
         )(argValue);
 
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(argValue, settings);
+        expect(spy).toHaveBeenCalledExactlyOnceWith(argValue, settings);
     });
     test("Should call Semaphore.run method", async () => {
         const spy = vi.spyOn(Semaphore.prototype, "runOrFail");

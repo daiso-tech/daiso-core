@@ -26,8 +26,7 @@ describe("function: withRateLimiterPrefix", () => {
 
             await enhanced.getState("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<IRateLimiterAdapter["getState"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -41,8 +40,7 @@ describe("function: withRateLimiterPrefix", () => {
 
             await enhanced.reset("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<IRateLimiterAdapter["reset"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -56,8 +54,7 @@ describe("function: withRateLimiterPrefix", () => {
 
             await enhanced.updateState("myKey", 10, noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<IRateLimiterAdapter["updateState"]>
             >(`${prefix}myKey`, 10, noOpContext);
         });

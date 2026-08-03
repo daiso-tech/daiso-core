@@ -32,13 +32,9 @@ describe("function: withCacheSchema", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["add"]>>(
-                "myKey",
-                "validValue",
-                TimeSpan.fromMinutes(5),
-                noOpContext,
-            );
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
+                Parameters<ICacheAdapter["add"]>
+            >("myKey", "validValue", TimeSpan.fromMinutes(5), noOpContext);
         });
         test("Should throw when input validation fails", async () => {
             const adapter = new NoOpCacheAdapter<string>();
@@ -93,13 +89,9 @@ describe("function: withCacheSchema", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["put"]>>(
-                "myKey",
-                "validValue",
-                TimeSpan.fromMinutes(5),
-                noOpContext,
-            );
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
+                Parameters<ICacheAdapter["put"]>
+            >("myKey", "validValue", TimeSpan.fromMinutes(5), noOpContext);
         });
         test("Should throw when input validation fails", async () => {
             const adapter = new NoOpCacheAdapter<string>();
@@ -149,8 +141,7 @@ describe("function: withCacheSchema", () => {
 
             await enhanced.update("myKey", "validValue", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["update"]>
             >("myKey", "validValue", noOpContext);
         });

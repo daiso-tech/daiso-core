@@ -63,8 +63,7 @@ describe("function: fallback", () => {
             await fn();
             // Allow the fire-and-forget async callback to complete
             await new Promise((resolve) => setTimeout(resolve, 0));
-            expect(onFallbackFn).toHaveBeenCalledOnce();
-            expect(onFallbackFn).toHaveBeenCalledWith(
+            expect(onFallbackFn).toHaveBeenCalledExactlyOnceWith(
                 expect.objectContaining({
                     error,
                     fallbackValue: "fallback",
@@ -86,8 +85,7 @@ describe("function: fallback", () => {
             );
             await fn();
             await new Promise((resolve) => setTimeout(resolve, 0));
-            expect(onFallbackFn).toHaveBeenCalledOnce();
-            expect(onFallbackFn).toHaveBeenCalledWith(
+            expect(onFallbackFn).toHaveBeenCalledExactlyOnceWith(
                 expect.objectContaining({
                     error: false,
                     fallbackValue: true,

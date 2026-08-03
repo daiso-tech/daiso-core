@@ -102,6 +102,4 @@ export type ILockAcquiredState = {
  * @group Contracts
  */
 export type ILockState =
-    | ILockUnavailableState
-    | ILockAcquiredState
-    | ILockExpiredState;
+    ILockUnavailableState | ILockAcquiredState | ILockExpiredState;

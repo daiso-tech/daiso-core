@@ -46,8 +46,7 @@ export type SlidingWindowLimiterSettingsEnum = SlidingWindowLimiterSettings & {
  * @internal
  */
 export type RateLimiterPolicySettingsEnum =
-    | FixedWindowLimiterSettingsEnum
-    | SlidingWindowLimiterSettingsEnum;
+    FixedWindowLimiterSettingsEnum | SlidingWindowLimiterSettingsEnum;
 
 /**
  * @internal

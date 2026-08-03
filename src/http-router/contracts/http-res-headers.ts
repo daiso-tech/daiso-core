@@ -156,11 +156,7 @@ export type HttpTextSubtype =
  * @group Contracts
  */
 export type HttpMultipartSubtype =
-    | "form-data"
-    | "mixed"
-    | "alternative"
-    | "related"
-    | "byte-ranges";
+    "form-data" | "mixed" | "alternative" | "related" | "byte-ranges";
 
 /**
  * Well-known `image/*` media type subtypes.
@@ -188,13 +184,7 @@ export type HttpImageSubtype =
  * @group Contracts
  */
 export type HttpAudioSubtype =
-    | "mpeg"
-    | "ogg"
-    | "wav"
-    | "webm"
-    | "aac"
-    | "flac"
-    | "mp4";
+    "mpeg" | "ogg" | "wav" | "webm" | "aac" | "flac" | "mp4";
 
 /**
  * Well-known `video/*` media type subtypes.
@@ -203,12 +193,7 @@ export type HttpAudioSubtype =
  * @group Contracts
  */
 export type HttpVideoSubtype =
-    | "mp4"
-    | "webm"
-    | "ogg"
-    | "x-msvideo"
-    | "mpeg"
-    | "quicktime";
+    "mp4" | "webm" | "ogg" | "x-msvideo" | "mpeg" | "quicktime";
 
 /**
  * Well-known `font/*` media type subtypes.

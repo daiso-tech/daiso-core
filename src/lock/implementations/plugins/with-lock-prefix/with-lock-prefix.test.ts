@@ -32,8 +32,7 @@ describe("function: withLockPrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ILockAdapter["acquire"]>
             >(
                 `${prefix}myKey`,
@@ -53,8 +52,7 @@ describe("function: withLockPrefix", () => {
 
             await enhanced.forceRelease("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ILockAdapter["forceRelease"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -69,8 +67,7 @@ describe("function: withLockPrefix", () => {
 
             await enhanced.getState("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ILockAdapter["getState"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -90,8 +87,7 @@ describe("function: withLockPrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ILockAdapter["refresh"]>
             >(
                 `${prefix}myKey`,
@@ -111,8 +107,7 @@ describe("function: withLockPrefix", () => {
 
             await enhanced.release("myKey", "lockId", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ILockAdapter["release"]>
             >(`${prefix}myKey`, "lockId", noOpContext);
         });

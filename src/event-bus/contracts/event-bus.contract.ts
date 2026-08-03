@@ -47,8 +47,7 @@ export type IEventListenerObject<TEvent> = IInvocableObject<[event: TEvent]>;
  * @group Contracts
  */
 export type EventListener<TEvent> =
-    | IEventListenerObject<TEvent>
-    | EventListenerFn<TEvent>;
+    IEventListenerObject<TEvent> | EventListenerFn<TEvent>;
 
 export type EventWithType<TEvent, TEventName> = TEvent & {
     type: TEventName;

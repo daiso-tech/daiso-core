@@ -9,5 +9,4 @@ import { type Invocable } from "@/utilities/_module.js";
  * @group Contracts
  */
 export type DynamicBackoffPolicy<TSettings> =
-    | TSettings
-    | Invocable<[error: unknown], TSettings | undefined>;
+    TSettings | Invocable<[error: unknown], TSettings | undefined>;

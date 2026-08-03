@@ -48,8 +48,7 @@ describe("function: enhanceFactory", () => {
         const value = "value";
         objectLiteral.methodA(value);
 
-        expect(middlewareA).toHaveBeenCalledOnce();
-        expect(middlewareA).toHaveBeenCalledWith({
+        expect(middlewareA).toHaveBeenCalledExactlyOnceWith({
             args: [value],
             next: expect.any(Function) as NextFn<[value: string]>,
             name: methodName,
@@ -110,9 +109,7 @@ describe("function: enhanceFactory", () => {
         const value = "value";
         instance.methodA(value);
 
-        expect(middlewareA).toHaveBeenCalledOnce();
-
-        expect(middlewareA).toHaveBeenCalledWith({
+        expect(middlewareA).toHaveBeenCalledExactlyOnceWith({
             args: [value],
             next: expect.any(Function) as NextFn<[value: string]>,
             name: methodName,

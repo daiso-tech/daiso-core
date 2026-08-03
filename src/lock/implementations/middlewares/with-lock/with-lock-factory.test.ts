@@ -41,8 +41,7 @@ describe("function: withLockFactory", () => {
             }),
         )(argValue);
 
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(argValue, settings);
+        expect(spy).toHaveBeenCalledExactlyOnceWith(argValue, settings);
     });
     test("Should call Lock.run method", async () => {
         const spy = vi.spyOn(Lock.prototype, "runOrFail");

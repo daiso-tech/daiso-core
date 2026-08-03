@@ -32,13 +32,9 @@ describe("function: withCachePrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["add"]>>(
-                `${prefix}myKey`,
-                "value",
-                TimeSpan.fromMinutes(5),
-                noOpContext,
-            );
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
+                Parameters<ICacheAdapter["add"]>
+            >(`${prefix}myKey`, "value", TimeSpan.fromMinutes(5), noOpContext);
         });
     });
     describe("method: get", () => {
@@ -50,11 +46,9 @@ describe("function: withCachePrefix", () => {
 
             await enhanced.get("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["get"]>>(
-                `${prefix}myKey`,
-                noOpContext,
-            );
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
+                Parameters<ICacheAdapter["get"]>
+            >(`${prefix}myKey`, noOpContext);
         });
     });
     describe("method: getAndRemove", () => {
@@ -66,8 +60,7 @@ describe("function: withCachePrefix", () => {
 
             await enhanced.getAndRemove("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["getAndRemove"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -81,8 +74,7 @@ describe("function: withCachePrefix", () => {
 
             await enhanced.increment("myKey", 5, noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["increment"]>
             >(`${prefix}myKey`, 5, noOpContext);
         });
@@ -101,13 +93,9 @@ describe("function: withCachePrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["put"]>>(
-                `${prefix}myKey`,
-                "value",
-                TimeSpan.fromMinutes(5),
-                noOpContext,
-            );
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
+                Parameters<ICacheAdapter["put"]>
+            >(`${prefix}myKey`, "value", TimeSpan.fromMinutes(5), noOpContext);
         });
     });
     describe("method: removeByKeyPrefix", () => {
@@ -119,8 +107,7 @@ describe("function: withCachePrefix", () => {
 
             await enhanced.removeByKeyPrefix("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["removeByKeyPrefix"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -134,8 +121,7 @@ describe("function: withCachePrefix", () => {
 
             await enhanced.removeMany(["key1", "key2"], noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["removeMany"]>
             >([`${prefix}key1`, `${prefix}key2`], noOpContext);
         });
@@ -149,8 +135,7 @@ describe("function: withCachePrefix", () => {
 
             await enhanced.update("myKey", "newValue", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["update"]>
             >(`${prefix}myKey`, "newValue", noOpContext);
         });

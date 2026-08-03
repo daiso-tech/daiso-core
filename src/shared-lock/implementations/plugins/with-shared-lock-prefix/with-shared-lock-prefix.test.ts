@@ -27,8 +27,7 @@ describe("function: withSharedLockPrefix", () => {
 
             await enhanced.forceRelease("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["forceRelease"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -43,8 +42,7 @@ describe("function: withSharedLockPrefix", () => {
 
             await enhanced.getState("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["getState"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -64,8 +62,7 @@ describe("function: withSharedLockPrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["acquireWriter"]>
             >(
                 `${prefix}myKey`,
@@ -85,8 +82,7 @@ describe("function: withSharedLockPrefix", () => {
 
             await enhanced.forceReleaseWriter("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["forceReleaseWriter"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -106,8 +102,7 @@ describe("function: withSharedLockPrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["refreshWriter"]>
             >(
                 `${prefix}myKey`,
@@ -127,8 +122,7 @@ describe("function: withSharedLockPrefix", () => {
 
             await enhanced.releaseWriter("myKey", "lockId", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["releaseWriter"]>
             >(`${prefix}myKey`, "lockId", noOpContext);
         });
@@ -149,8 +143,7 @@ describe("function: withSharedLockPrefix", () => {
                 ttl: TimeSpan.fromSeconds(30),
             });
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["acquireReader"]>
             >({
                 context: noOpContext,
@@ -171,8 +164,7 @@ describe("function: withSharedLockPrefix", () => {
 
             await enhanced.forceReleaseAllReaders("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["forceReleaseAllReaders"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -192,8 +184,7 @@ describe("function: withSharedLockPrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["refreshReader"]>
             >(
                 `${prefix}myKey`,
@@ -213,8 +204,7 @@ describe("function: withSharedLockPrefix", () => {
 
             await enhanced.releaseReader("myKey", "lockId", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["releaseReader"]>
             >(`${prefix}myKey`, "lockId", noOpContext);
         });

@@ -43,8 +43,7 @@ describe("function: withRateLimiterFactory", () => {
             }),
         )(key);
 
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(key, settings);
+        expect(spy).toHaveBeenCalledExactlyOnceWith(key, settings);
     });
     test("Should call RateLimiter.run method", async () => {
         const spy = vi.spyOn(RateLimiter.prototype, "runOrFail");

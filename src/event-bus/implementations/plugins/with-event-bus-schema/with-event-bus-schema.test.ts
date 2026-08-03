@@ -36,8 +36,7 @@ describe("function: withEventBusSchema", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<IEventBusAdapter["dispatch"]>
             >(
                 "user.created",
@@ -90,8 +89,7 @@ describe("function: withEventBusSchema", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<IEventBusAdapter["dispatch"]>
             >(
                 "unknown.event",
@@ -150,8 +148,7 @@ describe("function: withEventBusSchema", () => {
             await expect(
                 wrappedListener?.({ userId: "456" }),
             ).resolves.not.toThrow();
-            expect(listener).toHaveBeenCalledOnce();
-            expect(listener).toHaveBeenCalledWith({ userId: "456" });
+            expect(listener).toHaveBeenCalledExactlyOnceWith({ userId: "456" });
         });
         test("Should throw in wrapped listener when event data validation fails", async () => {
             const addListenerSpy = vi.spyOn(adapter, "addListener");
@@ -192,8 +189,7 @@ describe("function: withEventBusSchema", () => {
 
             await enhanced.addListener("unknown.event", listener, noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<IEventBusAdapter["addListener"]>
             >("unknown.event", listener, noOpContext);
         });
@@ -214,8 +210,7 @@ describe("function: withEventBusSchema", () => {
 
             await enhanced.addListener("user.created", listener, noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<IEventBusAdapter["addListener"]>
             >("user.created", listener, noOpContext);
         });

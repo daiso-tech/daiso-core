@@ -1,5 +1,6 @@
-import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
+
+import { execaSync, parseCommandString } from "execa";
 
 /**
  * Minimal helper to parse CLI arguments like --key value
@@ -39,16 +40,19 @@ const CONFIG = {
     baseBranch,
 };
 
-function getFiles(command: string): Array<string> {
+function getFiles(args: Array<string>): Array<string> {
     try {
-        return execSync(command, {
-            encoding: "utf8",
+        // execaSync spawns git directly with an argument array (no shell), so
+        // branch names and paths are never interpolated into a shell command.
+        return execaSync("git", args, {
             stdio: ["pipe", "pipe", "ignore"],
         })
-            .split("\n")
+            .stdout.split("\n")
             .map((f) => f.trim())
             .filter(Boolean);
     } catch {
+        // Match the original behavior: a failed git call (e.g. an unknown
+        // branch) yields no files instead of aborting the whole script.
         return [];
     }
 }
@@ -57,12 +61,15 @@ function runTask(): void {
     // Get all files that differ from the target branch.
     // --diff-filter=d excludes deleted files: they no longer exist on disk, so
     // passing them to tools like ESLint/Prettier/TypeScript would fail.
-    const changed = getFiles(
-        `git diff --name-only --diff-filter=d ${CONFIG.baseBranch}`,
-    );
+    const changed = getFiles([
+        "diff",
+        "--name-only",
+        "--diff-filter=d",
+        CONFIG.baseBranch,
+    ]);
 
     // Get all new files not yet tracked by git
-    const untracked = getFiles("git ls-files --others --exclude-standard");
+    const untracked = getFiles(["ls-files", "--others", "--exclude-standard"]);
 
     const extensionRegex = new RegExp(`\\.(${CONFIG.extensions.join("|")})$`);
 
@@ -85,14 +92,31 @@ function runTask(): void {
         `🚀 Running: "${CONFIG.command}" on ${String(targetFiles.length)} file(s)`,
     );
 
+    // Split the user command ("npx prettier --write") into a fixed executable
+    // and its arguments with execa's parser, so the changed files can be
+    // appended as individual arguments instead of being concatenated into a
+    // shell command string.
+    const [executable, ...commandArgs] = parseCommandString(CONFIG.command);
+
+    if (executable === undefined || executable === "") {
+        console.error("❌ Empty command.");
+        process.exit(1);
+    }
+
     try {
-        const filesArg = targetFiles.join(" ");
         // stdio: 'inherit' keeps the colored output of your tools (prettier/vitest)
-        execSync(`${CONFIG.command} ${filesArg}`, { stdio: "inherit" });
+        // execa spawns the tool directly with an argument array (no shell):
+        // each target file is its own argument, so whitespace in paths is
+        // preserved and shell metacharacters can never execute commands.
+        // On Windows, execa also runs .cmd/.bat shims (e.g. npx) safely.
+        execaSync(executable, [...commandArgs, ...targetFiles], {
+            stdio: "inherit",
+        });
         console.log("✅ Done!");
     } catch {
+        // We don't need to log the error here as 'inherit' already showed the
+        // tool's output.
         console.error("❌ Task failed.");
-        // We don't need to log the error here as 'inherit' already showed the tool's output
         process.exit(1);
     }
 }

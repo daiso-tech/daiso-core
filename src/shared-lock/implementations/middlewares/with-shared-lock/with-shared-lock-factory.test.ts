@@ -48,8 +48,7 @@ describe("function: withSharedLockFactory", () => {
                 }),
             )(argValue);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(argValue, settings);
+            expect(spy).toHaveBeenCalledExactlyOnceWith(argValue, settings);
         });
         test("Should call SharedLock.run method", async () => {
             const spy = vi.spyOn(SharedLock.prototype, "runWriterOrFail");
@@ -95,8 +94,7 @@ describe("function: withSharedLockFactory", () => {
                 }),
             )(argValue);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(argValue, settings);
+            expect(spy).toHaveBeenCalledExactlyOnceWith(argValue, settings);
         });
         test("Should call SharedLock.run method", async () => {
             const spy = vi.spyOn(SharedLock.prototype, "runReaderOrFail");

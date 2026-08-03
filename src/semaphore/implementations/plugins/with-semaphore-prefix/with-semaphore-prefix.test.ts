@@ -33,8 +33,7 @@ describe("function: withSemaphorePrefix", () => {
                 ttl: TimeSpan.fromSeconds(30),
             });
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISemaphoreAdapter["acquire"]>
             >({
                 context: noOpContext,
@@ -55,8 +54,7 @@ describe("function: withSemaphorePrefix", () => {
 
             await enhanced.forceReleaseAll("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISemaphoreAdapter["forceReleaseAll"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -71,8 +69,7 @@ describe("function: withSemaphorePrefix", () => {
 
             await enhanced.getState("myKey", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISemaphoreAdapter["getState"]>
             >(`${prefix}myKey`, noOpContext);
         });
@@ -92,8 +89,7 @@ describe("function: withSemaphorePrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISemaphoreAdapter["refresh"]>
             >(`${prefix}myKey`, "slot1", TimeSpan.fromSeconds(30), noOpContext);
         });
@@ -108,8 +104,7 @@ describe("function: withSemaphorePrefix", () => {
 
             await enhanced.release("myKey", "slot1", noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISemaphoreAdapter["release"]>
             >(`${prefix}myKey`, "slot1", noOpContext);
         });

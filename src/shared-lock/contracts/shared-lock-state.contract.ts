@@ -86,8 +86,7 @@ export type ISharedLockWriterAcquiredState = {
  * @group Contracts
  */
 export type ISharedLockWriterState =
-    | ISharedLockWriterUnavailableState
-    | ISharedLockWriterAcquiredState;
+    ISharedLockWriterUnavailableState | ISharedLockWriterAcquiredState;
 
 /**
  * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
@@ -138,6 +137,4 @@ export type ISharedLockReaderState =
  * @group Contracts
  */
 export type ISharedLockState =
-    | ISharedLockExpiredState
-    | ISharedLockWriterState
-    | ISharedLockReaderState;
+    ISharedLockExpiredState | ISharedLockWriterState | ISharedLockReaderState;

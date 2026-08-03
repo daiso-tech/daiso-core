@@ -40,9 +40,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/prefix", [], mockRouter);
 
@@ -65,9 +66,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/", [], mockRouter);
 
@@ -90,9 +92,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/", [], mockRouter);
             const epMw = vi.fn<HttpMiddlewareFn>();
@@ -128,9 +131,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/", [], mockRouter);
 
@@ -151,9 +155,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/", [], mockRouter);
 
@@ -174,9 +179,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/", [], mockRouter);
 
@@ -203,9 +209,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/", [], mockRouter);
 
@@ -226,9 +233,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/", [], mockRouter);
 
@@ -249,9 +257,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/", [], mockRouter);
 
@@ -272,9 +281,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/", [], mockRouter);
 
@@ -295,9 +305,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/", [], mockRouter);
 
@@ -320,9 +331,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/", [], mockRouter);
 
@@ -343,9 +355,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/", [], mockRouter);
 
@@ -366,9 +379,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/", [], mockRouter);
 
@@ -394,9 +408,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase(
                 "/",
@@ -459,9 +474,10 @@ describe("class: HttpRouterBase", () => {
             const mockRouter: Router<RouterEntry> = {
                 name: "mock",
                 add: addSpy,
-                match: vi.fn(
-                    (): Result<RouterEntry> => [[], [] as Array<string>],
-                ),
+                match: vi.fn((): Result<RouterEntry> => [
+                    [],
+                    [] as Array<string>,
+                ]),
             };
             const base = new HttpRouterBase("/", [], mockRouter);
 

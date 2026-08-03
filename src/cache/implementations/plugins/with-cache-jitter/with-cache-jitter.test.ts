@@ -36,8 +36,9 @@ describe("function: withCacheJitter", () => {
 
             await enhanced.add("myKey", "value", ttl, noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["add"]>>(
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
+                Parameters<ICacheAdapter["add"]>
+            >(
                 "myKey",
                 "value",
                 TimeSpan.fromMilliseconds(expectedMs),
@@ -102,8 +103,9 @@ describe("function: withCacheJitter", () => {
 
             await enhanced.put("myKey", "value", ttl, noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["put"]>>(
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
+                Parameters<ICacheAdapter["put"]>
+            >(
                 "myKey",
                 "value",
                 TimeSpan.fromMilliseconds(expectedMs),

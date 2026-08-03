@@ -66,8 +66,7 @@ export const SERDE_ERRORS = {
  * @group Errors
  */
 export type AllSerdeErrors =
-    | SerializationSerdeError
-    | DeserializationSerdeError;
+    SerializationSerdeError | DeserializationSerdeError;
 
 /**
  * IMPORT_PATH: `"eridu-tech/serde/contracts"`

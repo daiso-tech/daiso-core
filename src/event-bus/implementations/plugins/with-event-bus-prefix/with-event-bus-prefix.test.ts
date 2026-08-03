@@ -30,8 +30,7 @@ describe("function: withEventBusPrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<IEventBusAdapter["dispatch"]>
             >(
                 `${prefix}user.created`,
@@ -52,8 +51,7 @@ describe("function: withEventBusPrefix", () => {
 
             await enhanced.addListener("user.created", listener, noOpContext);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<IEventBusAdapter["addListener"]>
             >(`${prefix}user.created`, listener, noOpContext);
         });
@@ -72,8 +70,7 @@ describe("function: withEventBusPrefix", () => {
                 noOpContext,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<IEventBusAdapter["removeListener"]>
             >(`${prefix}user.created`, listener, noOpContext);
         });

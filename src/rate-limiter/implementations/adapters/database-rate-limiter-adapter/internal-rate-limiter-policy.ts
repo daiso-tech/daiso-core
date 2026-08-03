@@ -34,8 +34,7 @@ export type BlockedState = {
  * @internal
  */
 export type AllRateLimiterState<TMetrics = unknown> =
-    | AllowedState<TMetrics>
-    | BlockedState;
+    AllowedState<TMetrics> | BlockedState;
 
 /**
  * @internal

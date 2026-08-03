@@ -589,6 +589,7 @@
         "eslint-plugin-tsdoc": "^0.3.0",
         "eslint-plugin-typescript-enum": "^2.1.0",
         "eslint-plugin-vitest": "^0.5.4",
+        "execa": "^10.0.1",
         "hono": "^4.13.0",
         "ioredis": "^6.0.0",
         "kysely": "^0.29.4",
@@ -608,9 +609,9 @@
         "zod": "^4.4.3"
     },
     "peerDependencies": {
-        "ioredis": "^5.0.0",
-        "kysely": "^0.28.0",
-        "mongodb": "^6.0.0"
+        "ioredis": "^6.0.0",
+        "kysely": "^0.29.4",
+        "mongodb": "^7.5.0"
     },
     "peerDependenciesMeta": {
         "mongodb": {

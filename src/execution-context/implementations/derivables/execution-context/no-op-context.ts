@@ -29,8 +29,7 @@ export class NoOpContext implements ICopyableContext {
     contains<TValue>(
         _token: ContextToken<Array<TValue>>,
         _matchValue:
-            | NoInfer<TValue>
-            | Invocable<[value: NoInfer<TValue>], boolean>,
+            NoInfer<TValue> | Invocable<[value: NoInfer<TValue>], boolean>,
     ): boolean {
         return false;
     }

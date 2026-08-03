@@ -34,7 +34,10 @@ describe("function: withCacheFactory", () => {
             }),
         )(key);
 
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(key, expect.any(Function), ttl);
+        expect(spy).toHaveBeenCalledExactlyOnceWith(
+            key,
+            expect.any(Function),
+            ttl,
+        );
     });
 });

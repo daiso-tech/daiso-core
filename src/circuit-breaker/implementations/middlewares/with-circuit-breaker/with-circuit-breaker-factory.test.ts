@@ -46,8 +46,7 @@ describe("function: withCircuitBreakerFactory", () => {
             }),
         )(key);
 
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(key, settings);
+        expect(spy).toHaveBeenCalledExactlyOnceWith(key, settings);
     });
     test("Should call CircuitBreaker.run method", async () => {
         const spy = vi.spyOn(CircuitBreaker.prototype, "runOrFail");
