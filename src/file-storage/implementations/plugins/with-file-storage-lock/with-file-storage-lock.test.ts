@@ -256,7 +256,7 @@ describe("function: withFileStorageLock", () => {
                 await enhanced.addStream(
                     "myKey",
                     {
-                        data: (async function* () {})() as unknown as ReadableStream,
+                        data: (async function* () {})(),
                         fileSizeInBytes: null,
                         contentType: "application/octet-stream",
                         contentLanguage: null,
@@ -322,7 +322,7 @@ describe("function: withFileStorageLock", () => {
                 await enhanced.updateStream(
                     "myKey",
                     {
-                        data: (async function* () {})() as unknown as ReadableStream,
+                        data: (async function* () {})(),
                         fileSizeInBytes: null,
                         contentType: "application/octet-stream",
                         contentLanguage: null,
@@ -388,7 +388,7 @@ describe("function: withFileStorageLock", () => {
                 await enhanced.putStream(
                     "myKey",
                     {
-                        data: (async function* () {})() as unknown as ReadableStream,
+                        data: (async function* () {})(),
                         fileSizeInBytes: null,
                         contentType: "application/octet-stream",
                         contentLanguage: null,

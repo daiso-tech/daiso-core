@@ -16,7 +16,7 @@ describe("class: RedisPubSubEventBusAdapter", () => {
     let client: Redis;
     let startedContainer: StartedRedisContainer;
     beforeEach(async () => {
-        startedContainer = await new RedisContainer().start();
+        startedContainer = await new RedisContainer("redis:7.2").start();
         client = new Redis(startedContainer.getConnectionUrl());
     }, timeout.toMilliseconds());
     afterEach(async () => {

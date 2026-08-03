@@ -71,7 +71,7 @@ describe("function: enhanceFactory", () => {
         const value = "value";
         objectLiteral.methodB(value);
 
-        expect(middlewareA).not.toBeCalled();
+        expect(middlewareA).not.toHaveBeenCalled();
     });
     test("Should call underlying Use when enhancing a class instance method", () => {
         const use = vi.fn(useFactory()) as Use;
@@ -135,7 +135,7 @@ describe("function: enhanceFactory", () => {
         const value = "value";
         instance.methodB(value);
 
-        expect(middlewareA).not.toBeCalled();
+        expect(middlewareA).not.toHaveBeenCalled();
     });
 
     test("Should execute middlewares in last-in-first-out order when enhancing the same method multiple times", () => {

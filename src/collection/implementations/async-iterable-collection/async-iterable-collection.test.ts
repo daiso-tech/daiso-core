@@ -148,7 +148,7 @@ describe("class: AsyncIterableCollection", () => {
             const collection = new AsyncIterableCollection<string>([]);
             await expect(async () => {
                 await collection.reduce((a, b) => a + b);
-            }).rejects.toThrowError(TypeError);
+            }).rejects.toThrow(TypeError);
         });
         test("Should return the same value when called more than 1 times", async () => {
             const arr = ["a", "b", "c", "d"],
@@ -513,7 +513,7 @@ describe("class: AsyncIterableCollection", () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, "a"]);
             await expect(async () => {
                 await collection.sum();
-            }).rejects.toThrowError(TypeError);
+            }).rejects.toThrow(TypeError);
         });
         test("Should return the same value when called more than 1 times", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4]);
@@ -535,7 +535,7 @@ describe("class: AsyncIterableCollection", () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, "a"]);
             await expect(async () => {
                 await collection.average();
-            }).rejects.toThrowError(TypeError);
+            }).rejects.toThrow(TypeError);
         });
         test("Should return the same value when called more than 1 times", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4]);
@@ -561,7 +561,7 @@ describe("class: AsyncIterableCollection", () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, "a"]);
             await expect(async () => {
                 await collection.median();
-            }).rejects.toThrowError(TypeError);
+            }).rejects.toThrow(TypeError);
         });
         test("Should return the same value when called more than 1 times", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]);
@@ -590,7 +590,7 @@ describe("class: AsyncIterableCollection", () => {
             ]);
             await expect(async () => {
                 await collection.min();
-            }).rejects.toThrowError(TypeError);
+            }).rejects.toThrow(TypeError);
         });
         test("Should return the same value when called more than 1 times", async () => {
             const collection = new AsyncIterableCollection([2, 1, 3, -2, 4]);
@@ -619,7 +619,7 @@ describe("class: AsyncIterableCollection", () => {
             ]);
             await expect(async () => {
                 await collection.max();
-            }).rejects.toThrowError(TypeError);
+            }).rejects.toThrow(TypeError);
         });
         test("Should return the same value when called more than 1 times", async () => {
             const collection = new AsyncIterableCollection([2, 1, 3, -2, 4]);
@@ -2412,7 +2412,7 @@ describe("class: AsyncIterableCollection", () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]);
             await expect(async () => {
                 await collection.firstOrFail((item) => item === 6);
-            }).rejects.toThrowError(ItemNotFoundCollectionError);
+            }).rejects.toThrow(ItemNotFoundCollectionError);
         });
         test("Should input correct indexes to predicate function", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]),
@@ -2690,7 +2690,7 @@ describe("class: AsyncIterableCollection", () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]);
             await expect(async () => {
                 await collection.lastOrFail((item) => item === 6);
-            }).rejects.toThrowError(ItemNotFoundCollectionError);
+            }).rejects.toThrow(ItemNotFoundCollectionError);
         });
         test("Should input correct indexes to predicate function", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]),
@@ -2889,7 +2889,7 @@ describe("class: AsyncIterableCollection", () => {
             const collection = new AsyncIterableCollection(["a", "b", "c"]);
             await expect(async () => {
                 await collection.beforeOrFail((item) => item === "d");
-            }).rejects.toThrowError(ItemNotFoundCollectionError);
+            }).rejects.toThrow(ItemNotFoundCollectionError);
         });
         test("Should input correct indexes to predicate function", async () => {
             const collection = new AsyncIterableCollection(["a", "b", "c"]),
@@ -3070,7 +3070,7 @@ describe("class: AsyncIterableCollection", () => {
             const collection = new AsyncIterableCollection(["a", "b", "c"]);
             await expect(async () => {
                 await collection.afterOrFail((item) => item === "d");
-            }).rejects.toThrowError(ItemNotFoundCollectionError);
+            }).rejects.toThrow(ItemNotFoundCollectionError);
         });
         test("Should input correct indexes to predicate function", async () => {
             const collection = new AsyncIterableCollection(["a", "b", "c"]),
@@ -3115,7 +3115,7 @@ describe("class: AsyncIterableCollection", () => {
             ]);
             await expect(async () => {
                 await collection.sole((item) => item === "f");
-            }).rejects.toThrowError(ItemNotFoundCollectionError);
+            }).rejects.toThrow(ItemNotFoundCollectionError);
         });
         test("Should throw MultipleItemsFoundError when multiple item of same sort does exist", async () => {
             const collection = new AsyncIterableCollection([
@@ -3127,7 +3127,7 @@ describe("class: AsyncIterableCollection", () => {
             ]);
             await expect(async () => {
                 await collection.sole((item) => item === "a");
-            }).rejects.toThrowError(MultipleItemsFoundCollectionError);
+            }).rejects.toThrow(MultipleItemsFoundCollectionError);
         });
         test("Should return item when only one item of the same sort exist", async () => {
             const collection = new AsyncIterableCollection([

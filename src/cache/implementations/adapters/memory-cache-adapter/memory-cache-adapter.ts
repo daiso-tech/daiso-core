@@ -140,7 +140,7 @@ export class MemoryCacheAdapter<
                 );
             }
             const newValue = prevValue + value;
-            this.map.set(key, newValue as TType);
+            this.map.set(key, newValue);
         }
         return Promise.resolve(hasKey);
     }

@@ -923,7 +923,7 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
             ...firstPart,
             ...resolveIterableValue(iterable),
             ...lastPart,
-        ]) as ICollection<TInput | TExtended>;
+        ]);
     }
 
     crossJoin<TExtended>(

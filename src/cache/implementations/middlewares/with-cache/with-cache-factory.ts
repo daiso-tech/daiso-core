@@ -45,7 +45,7 @@ export function withCacheFactory(cache: Pick<ICache, "getOrAdd">) {
     return <TParameters extends Array<unknown>, TReturn>(
         settings: WithCacheSettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
-        const { key = (...args) => JSON.stringify(args), ttl } = settings;
+        const { key, ttl } = settings;
         return async ({ next, args }) => {
             return cache.getOrAdd(
                 callInvocable(key, ...args),

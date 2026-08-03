@@ -347,7 +347,7 @@ export class KyselySharedLockAdapter
                 .select((eb) => eb.fn.countAll<number>().as("count"))
                 .executeTakeFirst();
 
-            if (readerCount && Number(readerCount.count) > 0) {
+            if (readerCount && readerCount.count > 0) {
                 return false;
             }
 
@@ -584,7 +584,7 @@ export class KyselySharedLockAdapter
             .select((eb) => eb.fn.countAll<number>().as("count"))
             .executeTakeFirst();
 
-        return countResult ? Number(countResult.count) : 0;
+        return countResult ? countResult.count : 0;
     }
 
     private async upsertReaderSlot(

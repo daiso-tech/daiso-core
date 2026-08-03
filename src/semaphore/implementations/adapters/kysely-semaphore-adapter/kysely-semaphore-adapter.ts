@@ -252,7 +252,7 @@ export class KyselySemaphoreAdapter
                 .select((eb) => eb.fn.countAll<number>().as("count"))
                 .executeTakeFirst();
 
-            const currentCount = countResult ? Number(countResult.count) : 0;
+            const currentCount = countResult ? countResult.count : 0;
 
             // When no slots are held the limit may be updated; otherwise the
             // stored limit is authoritative.

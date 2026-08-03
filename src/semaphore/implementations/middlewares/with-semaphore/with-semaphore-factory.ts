@@ -73,11 +73,7 @@ export function withSemaphoreFactory(semaphoreFactory: ISemaphoreFactory) {
     return <TParameters extends Array<unknown>, TReturn>(
         settings: WithSemaphoreSettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
-        const {
-            key = (...args) => JSON.stringify(args),
-            slotId = () => v4(),
-            ...rest
-        } = settings;
+        const { key, slotId = () => v4(), ...rest } = settings;
         return ({ next, args }) => {
             return semaphoreFactory
                 .create(callInvocable(key, ...args), {

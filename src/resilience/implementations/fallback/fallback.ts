@@ -131,7 +131,7 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
             } catch {
                 /* EMPTY */
             }
-            return resolvedFallbackValue as TReturn;
+            return resolvedFallbackValue;
         }
     };
 }

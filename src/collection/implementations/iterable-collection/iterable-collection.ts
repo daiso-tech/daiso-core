@@ -413,7 +413,7 @@ export class IterableCollection<
         }
         let fn: Map<TInput, ICollection<TInput>, TInput>;
         if (isInvocable(value)) {
-            fn = value as Map<TInput, ICollection<TInput>, TInput>;
+            fn = value;
         } else {
             fn = () => value;
         }

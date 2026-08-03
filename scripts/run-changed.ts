@@ -82,13 +82,13 @@ function runTask(): void {
 
     console.log(`🔍 Branch: ${CONFIG.baseBranch}`);
     console.log(
-        `🚀 Running: "${String(CONFIG.command)}" on ${String(targetFiles.length)} file(s)`,
+        `🚀 Running: "${CONFIG.command}" on ${String(targetFiles.length)} file(s)`,
     );
 
     try {
         const filesArg = targetFiles.join(" ");
         // stdio: 'inherit' keeps the colored output of your tools (prettier/vitest)
-        execSync(`${String(CONFIG.command)} ${filesArg}`, { stdio: "inherit" });
+        execSync(`${CONFIG.command} ${filesArg}`, { stdio: "inherit" });
         console.log("✅ Done!");
     } catch {
         console.error("❌ Task failed.");

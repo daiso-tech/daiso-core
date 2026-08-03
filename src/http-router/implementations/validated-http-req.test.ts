@@ -4,7 +4,7 @@
 
 /* eslint-disable @typescript-eslint/unbound-method, @typescript-eslint/require-await */
 import { describe, expect, test, vi } from "vitest";
-import { z } from "zod";
+import { email, z } from "zod";
 
 import { type IHttpReqBase } from "@/http-router/contracts/_module.js";
 import { ValidatedHttpReq } from "@/http-router/implementations/validated-http-req.js";
@@ -119,7 +119,7 @@ describe("class: ValidatedHttpReq", () => {
 
         test("Should throw ValidationError when params do not match schema", () => {
             const req = createMockReq({ rawParams: { id: "not-an-email" } });
-            const schema = z.object({ id: z.string().email() });
+            const schema = z.object({ id: email() });
             const validated = new ValidatedHttpReq(req, { params: schema });
 
             expect(() => validated.params()).toThrow(ValidationError);
