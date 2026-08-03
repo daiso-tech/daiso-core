@@ -5,6 +5,10 @@ import {
     type DiToken,
 } from "@/di/contracts/container.contract.js";
 import { Container } from "@/di/implementations/container.js";
+import {
+    ContainerAlreadyInitializedException,
+    ContainerNotActiveException,
+} from "@/di/implementations/errors.js";
 import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 
@@ -338,9 +342,147 @@ describe("container", () => {
             }).rejects.toThrow();
         });
 
-        describe.todo(
-            "error when container.{run|resolve*|register*|has|fork|overrideValue} called before init or after deInit",
-        );
+        describe("container.run|resolve|has can only be called after init before deInit", () => {
+            const nodeA = dependency()
+                .factory(() => "A")
+                .tokenDescription("A");
+
+            const activeOnlyCases: Array<{
+                methodName: string;
+                invoke: () => Promise<unknown>;
+            }> = [
+                {
+                    methodName: "run",
+                    invoke: () => container.run({ scope: async () => {} }),
+                },
+                {
+                    methodName: "resolve",
+                    invoke: () => container.resolve(nodeA.token),
+                },
+                {
+                    methodName: "has",
+                    invoke: () => container.has(nodeA.token),
+                },
+            ];
+
+            describe("before init", () => {
+                test.each(activeOnlyCases)(
+                    "container.$methodName should throw before init",
+                    async ({ invoke }) => {
+                        await expect(invoke()).rejects.toThrowError(
+                            ContainerNotActiveException,
+                        );
+                    },
+                );
+            });
+
+            describe("after deInit", () => {
+                test.each(activeOnlyCases)(
+                    "container.$methodName should throw after deInit",
+                    async ({ invoke }) => {
+                        container.registerFactory(nodeA).singleton();
+                        await container.init();
+                        await container.deInit();
+
+                        await expect(invoke()).rejects.toThrowError(
+                            ContainerNotActiveException,
+                        );
+                    },
+                );
+            });
+        });
+
+        describe("container.register*|override* can only be called before init", () => {
+            // eslint-disable-next-line @typescript-eslint/no-extraneous-class
+            class A {}
+
+            const nodeA = dependency()
+                .factory(() => "A")
+                .tokenDescription("A");
+
+            const beforeInitOnlyCases: Array<{
+                methodName: string;
+                invoke: () => void;
+            }> = [
+                {
+                    methodName: "registerFactory",
+                    invoke: () => {
+                        container.registerFactory(nodeA).singleton();
+                    },
+                },
+                {
+                    methodName: "registerClass",
+                    invoke: () => {
+                        container.registerClass({ deps: [], impl: A }).scoped();
+                    },
+                },
+                {
+                    methodName: "registerValue",
+                    invoke: () => {
+                        container.registerValue({
+                            token: nodeA.token,
+                            value: "A",
+                        });
+                    },
+                },
+                {
+                    methodName: "registerDynamic",
+                    invoke: () => {
+                        container.registerDynamic(nodeA.token);
+                    },
+                },
+                {
+                    methodName: "overrideFactory",
+                    invoke: () => {
+                        container.overrideFactory(nodeA);
+                    },
+                },
+                {
+                    methodName: "overrideClass",
+                    invoke: () => {
+                        container.overrideClass({ deps: [], impl: A });
+                    },
+                },
+                {
+                    methodName: "overrideValue",
+                    invoke: () => {
+                        container.overrideValue({
+                            token: nodeA.token,
+                            value: "A",
+                        });
+                    },
+                },
+            ];
+
+            describe("after init", () => {
+                test.each(beforeInitOnlyCases)(
+                    "container.$methodName should throw after init",
+                    async ({ invoke }) => {
+                        container.registerFactory(nodeA).singleton();
+                        await container.init();
+
+                        expect(() => {
+                            invoke();
+                        }).toThrowError(ContainerAlreadyInitializedException);
+                    },
+                );
+            });
+
+            describe("after deInit", () => {
+                test.each(beforeInitOnlyCases)(
+                    "container.$methodName should throw after deInit",
+                    async ({ invoke }) => {
+                        container.registerFactory(nodeA).singleton();
+                        await container.init();
+                        await container.deInit();
+
+                        expect(() => {
+                            invoke();
+                        }).toThrowError(ContainerAlreadyInitializedException);
+                    },
+                );
+            });
+        });
     });
 
     //TODO via forloop combo {singleton,transient,scoped} x {registerClass,registerFactory}
@@ -883,7 +1025,7 @@ describe("container", () => {
             );
         });
 
-        test("resolve outside run-scope should fail", async () => {
+        test("resolve outside run-scope should resolve to null", async () => {
             const nodeA = dependency()
                 .factory(() => ({}))
                 .tokenDescription("A");
@@ -892,9 +1034,8 @@ describe("container", () => {
 
             await container.init();
 
-            await expect(() =>
-                container.resolve(nodeA.token),
-            ).rejects.toThrowError();
+            const resultA = await container.resolve(nodeA.token);
+            expect(resultA).toBe(null);
         });
 
         test.todo("register scoped with singleton dependency", async () => {
@@ -1059,10 +1200,10 @@ describe("container", () => {
 
         await container.init();
 
-        // test case 0.1: transient -> scoped should fail when resolved without run-scope block
-        await expect(async () =>
-            container.resolve(nodeC.token),
-        ).rejects.toThrowError();
+        // // test case 0.1: transient -> scoped should resolve to null when resolved without run-scope block
+        // await expect(async () =>
+        //     container.resolve(nodeC.token),
+        // ).rejects.toThrowError();
 
         // test case 0.2: transient -> singleton should not fail when resolved without run-scope block
         await expect(

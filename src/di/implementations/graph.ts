@@ -1,24 +1,4 @@
-import { type DiToken } from "@/di/contracts/container.contract.js";
-
-/**
- * All possible service lifetime scopes.
- * - `"singleton"`: one instance for the app lifetime.
- * - `"transient"`: new instance per resolution.
- * - `"scoped"`: one instance per scope (e.g., request).
- * - `"dynamic"`: dynamically registered in a child scope.
- */
-
-/** Lifespan constants used to define service scope. */
-export const LIFESPAN = {
-    SINGLETON: "singleton",
-    TRANSIENT: "transient",
-    SCOPED: "scoped",
-    DYNAMIC: "dynamic",
-} as const;
-
-export type TLifespan = (typeof LIFESPAN)[keyof typeof LIFESPAN];
-export type TEdge = [DiToken, DiToken];
-export type TNode = DiToken;
+import { type TNode, type TEdge } from "@/di/implementations/utils.js";
 
 const stopParentSearch = Symbol("represents removed value");
 type TStopSearchSymbol = typeof stopParentSearch;
@@ -322,100 +302,75 @@ export class Graph<TNodeProp, TEdgeProp> {
     }
 }
 
-/**
- * Thrown when a node dependency or neighbor was referenced during graph traversal
- * but was not declared in the `nodeIds` list.
- */
-export class UndeclaredDependencyError<T = unknown> extends Error {
-    public readonly nodeId: T;
+export class GraphManager<TNodeProps, TEdgeProps> {
+    private baseGraph = new Graph<TNodeProps, TEdgeProps>();
+    private overrideGraph = new Graph<TNodeProps, TEdgeProps>({
+        parentGraph: this.baseGraph,
+    });
 
-    constructor(nodeId: T) {
-        super(
-            `Node "${String(nodeId)}" was referenced as a neighbor/dependency but not listed in nodeIds.`,
-        );
-        this.name = "UndeclaredDependencyError";
-        this.nodeId = nodeId;
-    }
-}
-
-/**
- * Kahn's Algorithm for eager initialization.
- *
- * Resolves nodes in dependency order: a node's **successors** are its
- * dependencies — they must be initialized before the node itself.
- *
- * @param args.getSuccessors - Returns the dependencies (successors) of a node.
- * @param args.initNode      - Called once all of a node's dependencies are ready.
- */
-export async function eagerInitialization<T>(args: {
-    nodeIds: Array<T>;
-    getSuccessors: (nodeId: T) => Array<T>;
-    initNode: (nodeId: T) => Promise<void> | void;
-    getPredecessors: (nodeId: T) => Array<T>;
-}): Promise<void> {
-    const { nodeIds, getSuccessors, initNode, getPredecessors } = args;
-
-    const pending = new Map<T, number>();
-
-    const getPendingDependencyCount = (id: T): number => {
-        const unInitialized = pending.get(id);
-        if (unInitialized === undefined) {
-            throw new UndeclaredDependencyError(id);
-        }
-        return unInitialized;
-    };
-
-    const isAllDependencyResolved = (id: T) =>
-        getPendingDependencyCount(id) === 0;
-
-    for (const id of nodeIds) {
-        const successors = getSuccessors(id);
-        pending.set(id, successors.length);
+    setNodeProperty(key: TNode, value: TNodeProps): void {
+        this.baseGraph.setNodeProperty(key, value);
     }
 
-    let currentBatch = nodeIds.filter((id) => isAllDependencyResolved(id));
-
-    while (currentBatch.length > 0) {
-        await Promise.all(currentBatch.map((nodeId) => initNode(nodeId)));
-
-        const nextBatch: Array<T> = [];
-
-        for (const nodeId of currentBatch) {
-            for (const dependentId of getPredecessors(nodeId)) {
-                const nextCount = getPendingDependencyCount(dependentId) - 1;
-                pending.set(dependentId, nextCount);
-
-                if (nextCount === 0) {
-                    nextBatch.push(dependentId);
-                }
-            }
-        }
-
-        currentBatch = nextBatch;
-    }
-}
-
-export function findEffectedNodes<T>(args: {
-    predecessorOf: (node: T) => Array<T>;
-    startNodeId: T;
-}): Array<T> {
-    const effectedNodes = new Set<T>([args.startNodeId]);
-    const queue = [args.startNodeId];
-
-    while (queue.length > 0) {
-        const node = queue.shift();
-
-        if (node === undefined) {
-            throw new Error();
-        }
-
-        for (const successor of args.predecessorOf(node)) {
-            if (!effectedNodes.has(successor)) {
-                effectedNodes.add(successor);
-                queue.push(successor);
-            }
-        }
+    setEdgeProperty(edge: TEdge, value: TEdgeProps): void {
+        this.baseGraph.setEdgeProperty(edge, value);
     }
 
-    return [...effectedNodes];
+    setNodePropertyInOverrideLayer(key: TNode, value: TNodeProps): void {
+        this.overrideGraph.setNodeProperty(key, value);
+    }
+
+    setEdgePropertyInOverrideLayer(edge: TEdge, value: TEdgeProps): void {
+        this.overrideGraph.setEdgeProperty(edge, value);
+    }
+
+    removeEdgeFromOverrideLayer(edge: TEdge): void {
+        this.overrideGraph.removeEdge(edge);
+    }
+    removeNodeFromOverrideLayer(node: TNode): void {
+        this.overrideGraph.removeNode(node);
+    }
+
+    hasNodeProperty(node: TNode): boolean {
+        return this.overrideGraph.hasNodeProperty(node);
+    }
+    hasEdgeProperty(edge: TEdge): boolean {
+        return this.overrideGraph.hasEdgeProperty(edge);
+    }
+    getNodeProperty(nodeId: TNode): TNodeProps | null {
+        return this.overrideGraph.getNodeProperty(nodeId);
+    }
+
+    getEdgeProperty(edge: TEdge): TEdgeProps | null {
+        return this.overrideGraph.getEdgeProperty(edge);
+    }
+
+    getNodePropertyOrThrow(key: TNode): TNodeProps {
+        return this.overrideGraph.getNodePropertyOrThrow(key);
+    }
+
+    getEdgePropertyOrThrow(edge: TEdge): TEdgeProps {
+        return this.overrideGraph.getEdgePropertyOrThrow(edge);
+    }
+    nodes(): Array<TNode> {
+        return this.overrideGraph.nodes();
+    }
+    edges(): Array<TEdge> {
+        return this.overrideGraph.edges();
+    }
+    getSuccessorEdgesOf(node: TNode): Array<TEdge> {
+        return this.overrideGraph.getSuccessorEdgesOf(node);
+    }
+    getPredecessorEdgesOf(node: TNode): Array<TEdge> {
+        return this.overrideGraph.getPredecessorEdgesOf(node);
+    }
+    getPredecessorsOf(node: TNode): Array<TNode> {
+        return this.overrideGraph.getPredecessorsOf(node);
+    }
+    getSuccessorsOf(node: TNode): Array<TNode> {
+        return this.overrideGraph.getSuccessorsOf(node);
+    }
+
+
+    
 }

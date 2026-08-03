@@ -1,88 +1,90 @@
+/**
+ * Thrown when a node dependency or neighbor was referenced during graph traversal
+ * but was not declared in the `nodeIds` list.
+ */
+
+export class UndeclaredDependencyError<T = unknown> extends Error {
+    public readonly nodeId: T;
+
+    constructor(nodeId: T) {
+        super(
+            `Node "${String(nodeId)}" was referenced as a neighbor/dependency but not listed in nodeIds.`,
+        );
+        this.name = "UndeclaredDependencyError";
+        this.nodeId = nodeId;
+    }
+}
+
 export * from "@/di/contracts/container.errors.js";
 
 /**
- * Thrown  when a container method is called before `container.init()`.
+ * Base error for illegal container lifecycle method calls.
  *
  * @group Errors
  */
-export class BeforeReadyCallError extends Error {
+export class ContainerLifecycleError extends Error {
     /**
-     * Creates a new {@link BeforeReadyCallError} instance.
-     *
-     * @param methodName - The name of the method that was called illegally.
-     * @returns A new error instance.
+     * @param args - Contains the name of the illegally called method and a
+     * function that produces the specific lifecycle error message.
      */
-    static create(methodName: string): BeforeReadyCallError {
-        return new BeforeReadyCallError(
-            `Illegal method call: "${methodName}" was called before container.init() was invoked. Call container.init() first.`,
-        );
-    }
-
-    /**
-     * Note: Do not instantiate `BeforeReadyCallError` directly via the constructor. Use the static `create()` factory method instead.
-     *
-     * @param message - A descriptive error message.
-     * @param cause - The underlying cause of the error, if any.
-     */
-    constructor(message: string, cause?: unknown) {
-        super(message, { cause });
+    constructor(args: {
+        methodName: string;
+        lifeCycleError: (methodName_: string) => string;
+    }) {
+        super(`Illegal method call: ${args.lifeCycleError(args.methodName)}`);
     }
 }
 
 /**
- * Thrown when a container method is called after `container.init()`.
+ * Thrown when a container method only valid to call before `container.init()` but was called after `container.init()`.
  *
  * @group Errors
  */
-export class InReadyCallError extends Error {
+export class ContainerAlreadyInitializedException extends ContainerLifecycleError {
     /**
-     * Creates a new {@link InReadyCallError} instance.
-     *
      * @param methodName - The name of the method that was called illegally.
-     * @returns A new error instance.
      */
-    static create(methodName: string): InReadyCallError {
-        return new InReadyCallError(
-            `Illegal method call: "${methodName}" was called after container.init() was invoked. Registration and override methods must be called before container.init().`,
-        );
-    }
-
-    /**
-     * Note: Do not instantiate `InReadyCallError` directly via the constructor. Use the static `create()` factory method instead.
-     *
-     * @param message - A descriptive error message.
-     * @param cause - The underlying cause of the error, if any.
-     */
-    constructor(message: string, cause?: unknown) {
-        super(message, { cause });
+    constructor(methodName: string) {
+        super({
+            methodName,
+            lifeCycleError: (methodName_) =>
+                `"${methodName_}" was called before container.init() was invoked.`,
+        });
     }
 }
 
 /**
- * Thrown when a container method is called after `container.deInit()`.
+ * Thrown when a container method only valid to call between `container.init()` to `container.deInit()` but called either before  `container.init()` or after `container.deInit()`.
  *
  * @group Errors
  */
-export class AfterReadyCallError extends Error {
+export class ContainerNotActiveException extends ContainerLifecycleError {
     /**
-     * Creates a new {@link AfterReadyCallError} instance.
-     *
      * @param methodName - The name of the method that was called illegally.
-     * @returns A new error instance.
      */
-    static create(methodName: string): AfterReadyCallError {
-        return new AfterReadyCallError(
-            `Illegal method call: "${methodName}" was called after container.deInit() was invoked. The container is no longer ready; call container.init() again before using it.`,
-        );
+    constructor(methodName: string) {
+        super({
+            methodName,
+            lifeCycleError: (methodName_) =>
+                `"${methodName_}" was called after container.init() was invoked.`,
+        });
     }
+}
 
+/**
+ * Thrown when a container method only valid to call after `container.deInit()` but was called before `container.deInit()
+ *
+ * @group Errors
+ */
+export class ContainerNotTerminatedException extends ContainerLifecycleError {
     /**
-     * Note: Do not instantiate `AfterReadyCallError` directly via the constructor. Use the static `create()` factory method instead.
-     *
-     * @param message - A descriptive error message.
-     * @param cause - The underlying cause of the error, if any.
+     * @param methodName - The name of the method that was called illegally.
      */
-    constructor(message: string, cause?: unknown) {
-        super(message, { cause });
+    constructor(methodName: string) {
+        super({
+            methodName,
+            lifeCycleError: (methodName_) =>
+                `"${methodName_}" was called after container.deInit() was invoked.`,
+        });
     }
 }
