@@ -28,7 +28,7 @@ import {
  * Configuration for `MongodbRateLimiterStorageAdapter`.
  * Requires a MongoDB `Db` instance.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/mongodb-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/mongodb-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export type MongodbRateLimiterStorageAdapterSettings = {
@@ -56,7 +56,7 @@ export type MongodbRateLimiterStorageAdapterSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/mongodb-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/mongodb-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export type MongodbRateLimiterDocument = {
@@ -67,7 +67,7 @@ export type MongodbRateLimiterDocument = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/mongodb-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/mongodb-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export class MongodbRateLimiterStorageAdapter<TType>
@@ -80,10 +80,10 @@ export class MongodbRateLimiterStorageAdapter<TType>
     /**
      * @example
      * ```ts
-     * import { MongodbRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/mongodb-rate-limiter-storage-adapter";
+     * import { MongodbRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/mongodb-rate-limiter-storage-adapter";
      * import { MongoClient } from "mongodb";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      *
      * const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
      * const database = client.db("database");

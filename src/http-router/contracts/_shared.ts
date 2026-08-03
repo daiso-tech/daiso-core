@@ -10,7 +10,7 @@ import { type Invocable } from "@/utilities/_module.js";
  * Raw request input values before parsing and validation.
  * Maps field names to optional unknown-typed values (e.g. from path parameters).
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type ReqInputs = Partial<Record<string, unknown>>;
@@ -19,7 +19,7 @@ export type ReqInputs = Partial<Record<string, unknown>>;
  * A record mapping string keys to optional string values.
  * Used for raw header, cookie, param, and query string inputs before parsing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type StringInputs = Partial<Record<string, string>>;
@@ -32,7 +32,7 @@ export type StringInputs = Partial<Record<string, string>>;
  * Each field resolves to a single `string` when the key appears once, or an
  * `Array<string>` when it appears multiple times.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type MultiStringInputs = Partial<Record<string, string | Array<string>>>;
@@ -41,7 +41,7 @@ export type MultiStringInputs = Partial<Record<string, string | Array<string>>>;
  * Represents raw form fields input before parsing.
  * Each field is a string value.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type FormInputs = Partial<Record<string, string>>;
@@ -54,7 +54,7 @@ export type FormInputs = Partial<Record<string, string>>;
  * type, file size, filename pattern, and whether the file is required or
  * optional.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type StaticFileDef = {
@@ -118,7 +118,7 @@ export type StaticFileDef = {
  * });
  * ```
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type DynamicFileDef = Invocable<[file: IHttpFile], StaticFileDef>;
@@ -130,7 +130,7 @@ export type DynamicFileDef = Invocable<[file: IHttpFile], StaticFileDef>;
  * rules or a function that dynamically produces those rules based on the
  * uploaded file.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type FileDef = StaticFileDef | DynamicFileDef;
@@ -139,7 +139,7 @@ export type FileDef = StaticFileDef | DynamicFileDef;
  * A partial record mapping file field names to their expected {@link FileDef}.
  * Used to describe the expected file uploads in a request.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type FileInputs = Partial<Record<string, FileDef>>;
@@ -151,7 +151,7 @@ export type FileInputs = Partial<Record<string, FileDef>>;
  * when the field name appears multiple times. File upload fields map to an
  * {@link IHttpFile} instance.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type RawFormData = Partial<

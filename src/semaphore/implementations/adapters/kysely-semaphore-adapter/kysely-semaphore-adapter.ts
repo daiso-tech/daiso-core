@@ -19,7 +19,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/kysely-semaphore-adapter"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/kysely-semaphore-adapter"`
  * @group Adapters
  */
 export type KyselySemaphoreTable = {
@@ -28,7 +28,7 @@ export type KyselySemaphoreTable = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/kysely-semaphore-adapter"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/kysely-semaphore-adapter"`
  * @group Adapters
  */
 export type KyselySemaphoreSlotTable = {
@@ -40,7 +40,7 @@ export type KyselySemaphoreSlotTable = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/kysely-semaphore-adapter"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/kysely-semaphore-adapter"`
  * @group Adapters
  */
 export type KyselySemaphoreTables = {
@@ -53,7 +53,7 @@ export type KyselySemaphoreTables = {
  * Requires a Kysely instance typed with the semaphore schema.
  * Call `init()` before using the adapter.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/kysely-semaphore-adapter"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/kysely-semaphore-adapter"`
  * @group Adapters
  */
 export type KyselySemaphoreAdapterSettings = {
@@ -69,7 +69,7 @@ export type KyselySemaphoreAdapterSettings = {
  * Note in order to use `KyselySemaphoreAdapter` correctly, ensure you use a single, consistent database across all server instances and use a database that has support for transactions.
  * The adapter have been tested with `sqlite`, `postgres` and `mysql` databases.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/kysely-semaphore-adapter"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/kysely-semaphore-adapter"`
  * @group Adapters
  */
 export class KyselySemaphoreAdapter
@@ -81,7 +81,7 @@ export class KyselySemaphoreAdapter
     /**
      * @example
      * ```ts
-     * import { KyselySemaphoreAdapter } from "@daiso-tech/core/semaphore/kysely-semaphore-adapter";
+     * import { KyselySemaphoreAdapter } from "eridu-tech/semaphore/kysely-semaphore-adapter";
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *

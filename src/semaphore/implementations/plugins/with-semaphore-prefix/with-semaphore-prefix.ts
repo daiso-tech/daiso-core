@@ -16,7 +16,7 @@ import { type ISemaphoreAdapter } from "@/semaphore/contracts/_module.js";
  * @param prefix - The string to prepend to every semaphore key.
  * @returns A middleware plugin that wraps an `ISemaphoreAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/plugins"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/plugins"`
  * @group Plugins
  */
 export function withSemaphorePrefix(

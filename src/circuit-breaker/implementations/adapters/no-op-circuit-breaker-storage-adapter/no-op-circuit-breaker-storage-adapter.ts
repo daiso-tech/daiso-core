@@ -14,7 +14,7 @@ import { type InvocableFn } from "@/utilities/_module.js";
 /**
  * The `NoOpCircuitBreakerStorageAdapter` will do nothing and is used for easily mocking {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/database-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/database-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export class NoOpCircuitBreakerStorageAdapter<

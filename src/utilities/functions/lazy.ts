@@ -10,22 +10,22 @@ import {
 import { type Promisable } from "@/utilities/types/promiseable.type.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  */
 export type Lazy<TValue> = Invocable<[], TValue>;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  */
 export type Lazyable<TValue> = TValue | Lazy<TValue>;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  */
 export type AsyncLazy<TValue> = Invocable<[], Promisable<TValue>>;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  */
 export type AsyncLazyable<TValue> = TValue | AsyncLazy<TValue>;
 

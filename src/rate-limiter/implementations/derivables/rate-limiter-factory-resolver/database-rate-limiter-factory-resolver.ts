@@ -25,7 +25,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
 export type DatabaseRateLimiterAdapters<TAdapters extends string> = Partial<
@@ -37,7 +37,7 @@ export type DatabaseRateLimiterAdapters<TAdapters extends string> = Partial<
  * Convenience resolver that wires named {@link IRateLimiterStorageAdapter | `IRateLimiterStorageAdapter`} database adapters
  * into rate-limiter logic.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
 export type DatabaseRateLimiterFactoryResolverSettings<
@@ -56,7 +56,7 @@ export type DatabaseRateLimiterFactoryResolverSettings<
     /**
      * @default
      * ```ts
-     * import { exponentialBackoff } from "@daiso-tech/core/backoff-policies";
+     * import { exponentialBackoff } from "eridu-tech/backoff-policies";
      *
      * exponentialBackoff();
      * ```
@@ -66,7 +66,7 @@ export type DatabaseRateLimiterFactoryResolverSettings<
     /**
      * @default
      * ```ts
-     * import { ConsecutiveBreaker } from "@daiso-tech/core/rate-limiter/policies";
+     * import { ConsecutiveBreaker } from "eridu-tech/rate-limiter/policies";
      *
      * new ConsecutiveBreaker({ failureThreshold: 5 });
      * ```
@@ -77,7 +77,7 @@ export type DatabaseRateLimiterFactoryResolverSettings<
 /**
  * The `DatabaseRateLimiterFactoryResolver` class is immutable.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
 export class DatabaseRateLimiterFactoryResolver<
@@ -86,12 +86,12 @@ export class DatabaseRateLimiterFactoryResolver<
     /**
      * @example
      * ```ts
-     * import { RateLimiterFactoryResolver } from "@daiso-tech/core/rate-limiter";
-     * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storate-adapter";
-     * import { KyselyRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/kysely-rate-limiter-storate-adapter";
-     * import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { RateLimiterFactoryResolver } from "eridu-tech/rate-limiter";
+     * import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storate-adapter";
+     * import { KyselyRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/kysely-rate-limiter-storate-adapter";
+     * import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *
@@ -174,12 +174,12 @@ export class DatabaseRateLimiterFactoryResolver<
     /**
      * @example
      * ```ts
-     * import { RateLimiterFactoryResolver } from "@daiso-tech/core/rate-limiter";
-     * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storate-adapter";
-     * import { KyselyRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/kysely-rate-limiter-storate-adapter";
-     * import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { RateLimiterFactoryResolver } from "eridu-tech/rate-limiter";
+     * import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storate-adapter";
+     * import { KyselyRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/kysely-rate-limiter-storate-adapter";
+     * import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *

@@ -16,7 +16,7 @@ import { type PluginFn } from "@/middleware/contracts/_module.js";
  * @param prefix - The string to prepend to every event name.
  * @returns A middleware plugin that wraps an `IEventBusAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/plugins"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/plugins"`
  * @group Plugins
  */
 export function withEventBusPrefix(prefix: string): PluginFn<IEventBusAdapter> {

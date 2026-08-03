@@ -17,7 +17,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export type KyselyCircuitBreakerStorageTable = {
@@ -26,7 +26,7 @@ export type KyselyCircuitBreakerStorageTable = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export type KyselyCircuitBreakerStorageTables = {
@@ -38,7 +38,7 @@ export type KyselyCircuitBreakerStorageTables = {
  * Requires a Kysely database instance typed with the circuit-breaker storage schema.
  * Call `init()` to create the storage table when it has not already been provisioned.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export type KyselyCircuitBreakerStorageAdapterSettings = {
@@ -130,7 +130,7 @@ class KyselyCircuitBreakerStorageAdapterTransaction<
  * Note in order to use `KyselyCircuitBreakerStorageAdapter` correctly, you need to use a database that has support for transactions.
  * The adapter have been tested with `sqlite`, `postgres` and `mysql` databases.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export class KyselyCircuitBreakerStorageAdapter<TType>
@@ -142,9 +142,9 @@ export class KyselyCircuitBreakerStorageAdapter<TType>
     /**
      * @example
      * ```ts
-     * import { KyselyCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storage-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { KyselyCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/kysely-circuit-breaker-storage-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *

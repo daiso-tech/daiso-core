@@ -6,7 +6,7 @@
  * The error thrown when {@link IHttpFileCollection.firstOrFail} is called
  * on an empty file collection.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Errors
  */
 export class EmptyFileCollectionError extends Error {
@@ -36,7 +36,7 @@ export class EmptyFileCollectionError extends Error {
  * The error thrown when {@link IHttpFileCollection.getOrFail} is called
  * with an index that is out of bounds.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Errors
  */
 export class FileIndexOutOfBoundsError extends Error {

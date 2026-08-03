@@ -7,7 +7,7 @@ import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 import { type ErrorPolicySettings } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export const CIRCUIT_BREAKER_TRIGGER = {
@@ -17,7 +17,7 @@ export const CIRCUIT_BREAKER_TRIGGER = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type CircuitBreakerTrigger =
@@ -26,7 +26,7 @@ export type CircuitBreakerTrigger =
 /**
  * Configuration settings for creating a circuit breaker instance through the factory.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type CircuitBreakerFactoryCreateSettings = ErrorPolicySettings & {
@@ -47,7 +47,7 @@ export type CircuitBreakerFactoryCreateSettings = ErrorPolicySettings & {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type ICircuitBreakerFactory = {

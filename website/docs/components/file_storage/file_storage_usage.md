@@ -12,16 +12,16 @@ keywords:
 
 # FileStorage usage
 
-The `@daiso-tech/core/FileStorage` component provides a way for managing files independent of underlying platform or storage.
+The `eridu-tech/FileStorage` component provides a way for managing files independent of underlying platform or storage.
 
 ## Initial configuration
 
 To begin using the `FileStorage` class, you'll need to create and configure an instance:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
-import { FileStorage } from "@daiso-tech/core/FileStorage";
+import { TimeSpan } from "eridu-tech/time-span";
+import { MemoryFileStorageAdapter } from "eridu-tech/FileStorage/memory-FileStorage-adapter";
+import { FileStorage } from "eridu-tech/FileStorage";
 
 const fileStorage = new FileStorage({
     // You can provide defaultContentType value by default is application/octet-stream
@@ -33,7 +33,7 @@ const fileStorage = new FileStorage({
 ```
 
 :::info
-Here is a complete list of settings for the [`FileStorage`](https://daiso-tech.github.io/daiso-core/types/FileStorage.FileStorage.html) class.
+Here is a complete list of settings for the [`FileStorage`](https://eridu-tech.github.io/eridu-tech/types/FileStorage.FileStorage.html) class.
 :::
 
 ## FileStorage basics
@@ -231,7 +231,7 @@ You can also pass the file-size of the stream which used for optimizations by so
 ```ts
 import { createReadStream } from "node:fs"
 import { stat } from "node:fs/promises";
-import { FileSize } from "@daiso-tech/file-size";
+import { FileSize } from "eridu-tech/file-size";
 
 const fileStream = createReadStream("./file.txt")
 const { size } = stat("./file.txt")
@@ -331,7 +331,7 @@ const metadata = await fileStorage.create("file.txt").getMetadata();
 console.log(metadata);
 ```
 
-The `getMetadata` returns [FileMetadata](https://daiso-tech.github.io/daiso-core/types/FileStorage.FileMetadata.html) type.
+The `getMetadata` returns [FileMetadata](https://eridu-tech.github.io/eridu-tech/types/FileStorage.FileMetadata.html) type.
 
 ## Patterns
 
@@ -443,13 +443,13 @@ console.log(publicUrl);
 Note since not all FileStorage adapters support signed or public URLs, you can manually override these behaviors using the `urlAdapter` setting:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { MemoryFileStorageAdapter } from "eridu-tech/FileStorage/memory-FileStorage-adapter";
 import {
     FildeAdapterDownloadUrlSettings,
     FildeAdapterUploadUrlSettings,
-} from "@daiso-tech/core/FileStorage/contracts";
-import { FileStorage } from "@daiso-tech/core/FileStorage";
+} from "eridu-tech/FileStorage/contracts";
+import { FileStorage } from "eridu-tech/FileStorage";
 
 const fileStorage = new FileStorage({
     // You can provide defaultContentType value by default is application/octet-stream
@@ -505,10 +505,10 @@ In order to serialize or deserialize a file object you need pass an object that 
 Manually serializing and deserializing the file object:
 
 ```ts
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
-import { FileStorage } from "@daiso-tech/core/FileStorage";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { MemoryFileStorageAdapter } from "eridu-tech/FileStorage/memory-FileStorage-adapter";
+import { FileStorage } from "eridu-tech/FileStorage";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 
@@ -534,13 +534,13 @@ Note you only need manuall serialization and deserialization when integrating wi
 As long you pass the same `Serde` instances with all other components you dont need to serialize and deserialize the file object manually.
 
 ```ts
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
-import type { IFile } from "@daiso-tech/core/FileStorage/contracts";
-import { FileStorage } from "@daiso-tech/core/FileStorage";
-import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { MemoryFileStorageAdapter } from "eridu-tech/FileStorage/memory-FileStorage-adapter";
+import type { IFile } from "eridu-tech/FileStorage/contracts";
+import { FileStorage } from "eridu-tech/FileStorage";
+import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
+import { EventBus } from "eridu-tech/event-bus";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 const redis = new Redis("YOUR_REDIS_CONNECTION");
@@ -580,14 +580,14 @@ await eventBus.addListener("sending-file-over-network", ({ file }) => {
 
 The library includes 3 additional contracts:
 
-- [`IReadableFile`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IReadableFile.html) - Allows only for reading a file.
+- [`IReadableFile`](https://eridu-tech.github.io/eridu-tech/types/FileStorage.IReadableFile.html) - Allows only for reading a file.
 
-- [`IFile`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IFile.html) - Allows for both reading and manipulating the file.
+- [`IFile`](https://eridu-tech.github.io/eridu-tech/types/FileStorage.IFile.html) - Allows for both reading and manipulating the file.
 
-- [`IFileFactory`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IFileFactory.html) - Allows only for creation of file.
+- [`IFileFactory`](https://eridu-tech.github.io/eridu-tech/types/FileStorage.IFileFactory.html) - Allows only for creation of file.
 
-- [`IFileStorage`](https://daiso-tech.github.io/daiso-core/types/FileStorage.IFileStorage.html) - Allows for creation and removal of files.
+- [`IFileStorage`](https://eridu-tech.github.io/eridu-tech/types/FileStorage.IFileStorage.html) - Allows for creation and removal of files.
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/FileStorage`](https://daiso-tech.github.io/daiso-core/modules/FileStorage.html) API docs.
+For further information refer to [`eridu-tech/FileStorage`](https://eridu-tech.github.io/eridu-tech/modules/FileStorage.html) API docs.

@@ -12,17 +12,17 @@ keywords:
 
 # RateLimiter usage
 
-The `@daiso-tech/core/rate-limiter` component provides a way for managing rate-limiter independent of underlying platform or storage.
+The `eridu-tech/rate-limiter` component provides a way for managing rate-limiter independent of underlying platform or storage.
 
 ## Initial configuration
 
 To begin using the `RateLimiterFactory` class, you'll need to create and configure an instance:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
-import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-import { RateLimiterFactory } from "@daiso-tech/core/rate-limiter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
+import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+import { RateLimiterFactory } from "eridu-tech/rate-limiter";
 
 const rateLimiterFactory = new RateLimiterFactory({
     // You can provide default settings
@@ -34,7 +34,7 @@ const rateLimiterFactory = new RateLimiterFactory({
 ```
 
 :::info
-Here is a complete list of settings for the [`RateLimiterFactory`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.RateLimiterFactorySettingsBase.html) class.
+Here is a complete list of settings for the [`RateLimiterFactory`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.RateLimiterFactorySettingsBase.html) class.
 :::
 
 ## RateLimiter basics
@@ -102,10 +102,10 @@ await rateLimiter.reset();
 
 ### Checking rate-limiter state
 
-You can get the rate-limiter state by using the `getState` method, it returns [`RateLimiterState`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.RateLimiterState.html).
+You can get the rate-limiter state by using the `getState` method, it returns [`RateLimiterState`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.RateLimiterState.html).
 
 ```ts
-import { RATE_LIMITER_STATE } from "@daiso-tech/core/rate-limiter/contracts";
+import { RATE_LIMITER_STATE } from "eridu-tech/rate-limiter/contracts";
 
 const state = await rateLimiter.getState();
 
@@ -142,10 +142,10 @@ In order to serialize or deserialize a rate-limiter you need pass an object that
 Manually serializing and deserializing the rate-limiter:
 
 ```ts
-import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
-import { RateLimiterFactory } from "@daiso-tech/core/rate-limiter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RedisRateLimiterAdapter } from "eridu-tech/rate-limiter/redis-rate-limiter-adapter";
+import { RateLimiterFactory } from "eridu-tech/rate-limiter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 
@@ -173,13 +173,13 @@ Note you only need manuall serialization and deserialization when integrating wi
 As long you pass the same `Serde` instances with all other components you dont need to serialize and deserialize the rate-limiter manually.
 
 ```ts
-import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
-import type { IRateLimiter } from "@daiso-tech/core/rate-limiter/contracts";
-import { RateLimiterFactory } from "@daiso-tech/core/rate-limiter";
-import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RedisRateLimiterAdapter } from "eridu-tech/rate-limiter/redis-rate-limiter-adapter";
+import type { IRateLimiter } from "eridu-tech/rate-limiter/contracts";
+import { RateLimiterFactory } from "eridu-tech/rate-limiter";
+import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
+import { EventBus } from "eridu-tech/event-bus";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 const redis = new Redis("YOUR_REDIS_CONNECTION");
@@ -222,10 +222,10 @@ await eventBus.addListener(
 
 The library includes 2 additional contracts:
 
-- [`IRateLimiter`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiter.html) - Allows only for manipulating of the rate-limiter.
+- [`IRateLimiter`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.IRateLimiter.html) - Allows only for manipulating of the rate-limiter.
 
-- [`IRateLimiterFactory`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiterFactory.html) - Allows only for creation of rate-limiters.
+- [`IRateLimiterFactory`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.IRateLimiterFactory.html) - Allows only for creation of rate-limiters.
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/rate-limiter`](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) API docs.
+For further information refer to [`eridu-tech/rate-limiter`](https://eridu-tech.github.io/eridu-tech/modules/RateLimiter.html) API docs.

@@ -17,7 +17,7 @@ import { type ICache } from "@/cache/contracts/cache.contract.js";
  * @template TAdapters - Union type of registered adapter names (e.g., "memory" | "redis" | "memcached")
  * @template TType - The type of values cached (optional, defaults to unknown)
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
+ * IMPORT_PATH: `"eridu-tech/cache/contracts"`
  * @group Contracts
  */
 export type ICacheResolver<

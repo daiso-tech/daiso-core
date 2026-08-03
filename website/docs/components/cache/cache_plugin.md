@@ -49,9 +49,9 @@ Methods that do not accept a key (`removeAll`) are unaffected.
 ### Usage
 
 ```ts
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { withCachePrefix } from "@daiso-tech/core/cache/plugins";
+import { withPlugin } from "eridu-tech/middleware";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { withCachePrefix } from "eridu-tech/cache/plugins";
 
 const adapter = new MemoryCacheAdapter();
 
@@ -68,10 +68,10 @@ await prefixedAdapter.get(context, "my-key"); // -> "value"
 The plugin can be applied directly to the adapter passed to the `Cache` constructor:
 
 ```ts
-import { Cache } from "@daiso-tech/core/cache";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { withCachePrefix } from "@daiso-tech/core/cache/plugins";
+import { Cache } from "eridu-tech/cache";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { withPlugin } from "eridu-tech/middleware";
+import { withCachePrefix } from "eridu-tech/cache/plugins";
 
 const adapter = new MemoryCacheAdapter();
 const prefixedAdapter = withPlugin(adapter, withCachePrefix("v2:"));
@@ -141,10 +141,10 @@ Methods that do not accept a TTL are unaffected.
 ### Usage
 
 ```ts
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { withCacheJitter } from "@daiso-tech/core/cache/plugins";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { withPlugin } from "eridu-tech/middleware";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { withCacheJitter } from "eridu-tech/cache/plugins";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const adapter = new MemoryCacheAdapter();
 
@@ -170,10 +170,10 @@ await jitteredAdapter.put(
 #### Using with Cache class
 
 ```ts
-import { Cache } from "@daiso-tech/core/cache";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { withCacheJitter } from "@daiso-tech/core/cache/plugins";
+import { Cache } from "eridu-tech/cache";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { withPlugin } from "eridu-tech/middleware";
+import { withCacheJitter } from "eridu-tech/cache/plugins";
 
 const adapter = new MemoryCacheAdapter();
 const jitteredAdapter = withPlugin(adapter, withCacheJitter());
@@ -226,9 +226,9 @@ The `withCacheSchema` function returns a [`PluginFn`](/docs/components/middlewar
 ### Usage
 
 ```ts
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { withCacheSchema } from "@daiso-tech/core/cache/plugins";
+import { withPlugin } from "eridu-tech/middleware";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { withCacheSchema } from "eridu-tech/cache/plugins";
 import { z } from "zod"; // or any StandardSchemaV1-compatible library
 
 const UserSchema = z.object({
@@ -275,10 +275,10 @@ const adapter = withPlugin(
 #### Using with Cache class
 
 ```ts
-import { Cache } from "@daiso-tech/core/cache";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { withCacheSchema } from "@daiso-tech/core/cache/plugins";
+import { Cache } from "eridu-tech/cache";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { withPlugin } from "eridu-tech/middleware";
+import { withCacheSchema } from "eridu-tech/cache/plugins";
 import { z } from "zod";
 
 const UserSchema = z.object({
@@ -352,10 +352,10 @@ Read-only methods (`get`, `removeAll`, `removeByKeyPrefix`) are unaffected.
 ### Usage
 
 ```ts
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { withCacheWriteLock } from "@daiso-tech/core/cache/plugins";
-import { MemoryLockFactory } from "@daiso-tech/core/lock/memory-lock-factory";
+import { withPlugin } from "eridu-tech/middleware";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { withCacheWriteLock } from "eridu-tech/cache/plugins";
+import { MemoryLockFactory } from "eridu-tech/lock/memory-lock-factory";
 
 const adapter = new MemoryCacheAdapter();
 const lockFactory = new MemoryLockFactory();
@@ -385,11 +385,11 @@ const adapter = withPlugin(
 #### Using with Cache class
 
 ```ts
-import { Cache } from "@daiso-tech/core/cache";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { withCacheWriteLock } from "@daiso-tech/core/cache/plugins";
-import { MemoryLockFactory } from "@daiso-tech/core/lock/memory-lock-factory";
+import { Cache } from "eridu-tech/cache";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { withPlugin } from "eridu-tech/middleware";
+import { withCacheWriteLock } from "eridu-tech/cache/plugins";
+import { MemoryLockFactory } from "eridu-tech/lock/memory-lock-factory";
 
 const adapter = new MemoryCacheAdapter();
 const lockFactory = new MemoryLockFactory();

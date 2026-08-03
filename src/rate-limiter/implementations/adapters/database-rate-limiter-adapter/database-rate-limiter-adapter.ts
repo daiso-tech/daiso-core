@@ -24,7 +24,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
  * Configuration for `DatabaseRateLimiterAdapter`.
  * Wraps a {@link IRateLimiterStorageAdapter | `IRateLimiterStorageAdapter`} with rate-limiter logic.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/database-rate-limiter-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/database-rate-limiter-adapter"`
  * @group Adapters
  */
 export type DatabaseRateLimiterAdapterSettings = {
@@ -37,7 +37,7 @@ export type DatabaseRateLimiterAdapterSettings = {
      * You can define your own {@link BackoffPolicy | `BackoffPolicy`}.
      * @default
      * ```ts
-     * import { exponentialBackoff } from "@daiso-tech/core/backoff-policies";
+     * import { exponentialBackoff } from "eridu-tech/backoff-policies";
      *
      * exponentialBackoff();
      * ```
@@ -48,7 +48,7 @@ export type DatabaseRateLimiterAdapterSettings = {
      * You can define your own {@link IRateLimiterPolicy | `IRateLimiterPolicy`}.
      * @default
      * ```ts
-     * import { FixedWindowLimiter } from "@daiso-tech/core/rate-limiter/policies";
+     * import { FixedWindowLimiter } from "eridu-tech/rate-limiter/policies";
      *
      * new FixedWindowLimiter();
      * ```
@@ -57,7 +57,7 @@ export type DatabaseRateLimiterAdapterSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/database-rate-limiter-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/database-rate-limiter-adapter"`
  * @group Adapters
  */
 export class DatabaseRateLimiterAdapter<
@@ -69,8 +69,8 @@ export class DatabaseRateLimiterAdapter<
     /**
      * @example
      * ```ts
-     * import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-     * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
+     * import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+     * import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
      *
      * const rateLimiterStorageAdapter = new MemoryRateLimiterStorageAdapter();
      * const rateLimiterAdapter = new DatabaseRateLimiterAdapter({

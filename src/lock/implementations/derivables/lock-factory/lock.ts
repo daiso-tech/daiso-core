@@ -115,8 +115,8 @@ export class Lock implements ILock {
     }
 
     async acquireOrFail(): Promise<void> {
-        const hasAquired = await this.acquire();
-        if (!hasAquired) {
+        const hasAcquired = await this.acquire();
+        if (!hasAcquired) {
             throw FailedAcquireLockError.create(this._key);
         }
     }

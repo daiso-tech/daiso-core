@@ -5,7 +5,7 @@
 import { type Invocable, type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  */
 export type PredicateFn<TInput, TCollection> = Invocable<
     [item: TInput, index: number, collection: TCollection],
@@ -13,7 +13,7 @@ export type PredicateFn<TInput, TCollection> = Invocable<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  */
 export type PredicateGuardFn<
     TInput,
@@ -22,7 +22,7 @@ export type PredicateGuardFn<
 > = (item: TInput, index: number, collection: TCollection) => item is TOutput;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  */
 export type PredicateGuardInvocableObject<
     TInput,
@@ -37,7 +37,7 @@ export type PredicateGuardInvocableObject<
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  */
 export type PredicateGuardInvocable<
     TInput,
@@ -48,7 +48,7 @@ export type PredicateGuardInvocable<
     | PredicateGuardInvocableObject<TInput, TCollection, TOutput>;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  */
 export type PredicateInvocable<
     TInput,
@@ -59,7 +59,7 @@ export type PredicateInvocable<
     | PredicateGuardInvocable<TInput, TCollection, TOutput>;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  */
 export type AsyncPredicateInvocable<TInput, TCollection> = Invocable<
     [item: TInput, index: number, collection: TCollection],
@@ -67,7 +67,7 @@ export type AsyncPredicateInvocable<TInput, TCollection> = Invocable<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  */
 export type AsyncPredicate<
     TInput,

@@ -4,7 +4,7 @@
 import { type IFile } from "@/file-storage/contracts/file.contract.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type IFileFactory = {
@@ -15,7 +15,7 @@ export type IFileFactory = {
  * The `IFileStorage` contract defines a way for managing files independent of the underlying technology.
  * It commes with more convient methods compared to `IFileStorageAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type IFileStorage = IFileFactory & {

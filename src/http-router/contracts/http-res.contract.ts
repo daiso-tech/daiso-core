@@ -21,7 +21,7 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
  * Defines the scope of a cookie — the `Path`, `Secure`, and `Domain` attributes
  * that must match when reading or removing a previously set cookie.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type CookieScope = {
@@ -50,7 +50,7 @@ export type CookieScope = {
 /**
  * Settings for configuring a `Set-Cookie` header.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type CookieSetSettings = CookieScope & {
@@ -120,7 +120,7 @@ export type CookieSetSettings = CookieScope & {
  * `Response` object.
  *
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IHttpRes = {
@@ -300,7 +300,7 @@ export type IHttpRes = {
  * from within a handler or middleware function.
  *
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IHttpResHelpers = {

@@ -1,6 +1,6 @@
 # Invocable
 
-An [`Invocable`](https://daiso-tech.github.io/daiso-core/types/Utilities.Invocable.html) represents a callable entity, which can be either:
+An [`Invocable`](https://eridu-tech.github.io/eridu-tech/types/Utilities.Invocable.html) represents a callable entity, which can be either:
 
 1. A function `InvocableFn`
 2. An object with a specific invocation signature (`IInvocableObject`)
@@ -16,7 +16,7 @@ An [`Invocable`](https://daiso-tech.github.io/daiso-core/types/Utilities.Invocab
 Represents a standard function with typed parameters and return value.
 
 ```typescript
-import type { InvocableFn } from "@daiso-tech/core/utilities";
+import type { InvocableFn } from "eridu-tech/utilities";
 
 // Using InvocableFn
 type AddFunction = InvocableFn<[arg1: number, arg2: number], number>;
@@ -30,7 +30,7 @@ type TraditionalFunction = (arg1: number, arg2: number) => number;
 An object that implements a callable contract through an invoke method. This pattern is especially useful for dependency injection (DI) integration, as most DI frameworks are adapted for class-based resolution.
 
 ```ts
-import type { IInvocableObject } from "@daiso-tech/core/utilities";
+import type { IInvocableObject } from "eridu-tech/utilities";
 
 class InvocableObject implements IInvocableObject<
     [arg1: number, arg2: number],
@@ -51,4 +51,4 @@ const invocableObject: IInvocableObject<[arg1: number, arg2: number], number> =
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/utilities`](https://daiso-tech.github.io/daiso-core/types/Utilities.Invocable.html) API docs.
+For further information refer to [`eridu-tech/utilities`](https://eridu-tech.github.io/eridu-tech/types/Utilities.Invocable.html) API docs.

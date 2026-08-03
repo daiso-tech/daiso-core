@@ -18,7 +18,7 @@ import { type IEncoder } from "@/codec/contracts/encoder.contract.js";
  * @template TDecodedValue - The original/human-readable data format
  * @template TEncodedValue - The transportable/storage data format
  *
- * IMPORT_PATH: `"@daiso-tech/core/codec/contracts"`
+ * IMPORT_PATH: `"eridu-tech/codec/contracts"`
  * @group Contracts
  */
 export type ICodec<TDecodedValue, TEncodedValue> = IEncoder<

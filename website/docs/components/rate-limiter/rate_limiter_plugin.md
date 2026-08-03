@@ -41,10 +41,10 @@ Every method on the `IRateLimiterAdapter` that operates on a specific rate-limit
 ### Usage
 
 ```ts
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
-import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-import { withRateLimiterPrefix } from "@daiso-tech/core/rate-limiter/plugins";
+import { withPlugin } from "eridu-tech/middleware";
+import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
+import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+import { withRateLimiterPrefix } from "eridu-tech/rate-limiter/plugins";
 
 const adapter = new DatabaseRateLimiterAdapter({
     adapter: new MemoryRateLimiterStorageAdapter(),
@@ -65,10 +65,10 @@ const state = await prefixedAdapter.getState(context, "api:login");
 The plugin can be applied directly to the adapter passed to the `RateLimiterFactory` constructor:
 
 ```ts
-import { RateLimiterFactory } from "@daiso-tech/core/rate-limiter";
-import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { withRateLimiterPrefix } from "@daiso-tech/core/rate-limiter/plugins";
+import { RateLimiterFactory } from "eridu-tech/rate-limiter";
+import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+import { withPlugin } from "eridu-tech/middleware";
+import { withRateLimiterPrefix } from "eridu-tech/rate-limiter/plugins";
 
 const adapter = new DatabaseRateLimiterAdapter({ ... });
 const prefixedAdapter = withPlugin(adapter, withRateLimiterPrefix("free-tier:"));

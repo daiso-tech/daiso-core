@@ -29,14 +29,14 @@ declare module "ioredis" {
          * @param expiration As unix timestamp in miliseconds
          */
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_lock_acquire(
+        eridu_lock_acquire(
             key: string,
             lockId: string,
             expiration: number | null,
         ): Result<1 | 0, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_lock_release(key: string, lockId: string): Result<1 | 0, Context>;
+        eridu_lock_release(key: string, lockId: string): Result<1 | 0, Context>;
 
         /**
          *
@@ -45,7 +45,7 @@ declare module "ioredis" {
          * @param expiration As unix timestamp in miliseconds
          */
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_lock_refresh(
+        eridu_lock_refresh(
             key: string,
             lockId: string,
             expiration: number,
@@ -55,7 +55,7 @@ declare module "ioredis" {
          * @returns {string} {@link IRedisJsonLockState | `IRedisJsonLockState`} or `null` as json string.
          */
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_lock_get_state(key: string): Result<string, Context>;
+        eridu_lock_get_state(key: string): Result<string, Context>;
     }
 }
 
@@ -64,14 +64,14 @@ declare module "ioredis" {
  *
  * Note in order to use `RedisLockAdapter` correctly, ensure you use a single, consistent database across all server instances.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/redis-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/redis-lock-adapter"`
  * @group Adapters
  */
 export class RedisLockAdapter implements ILockAdapter {
     /**
      * @example
      * ```ts
-     * import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
+     * import { RedisLockAdapter } from "eridu-tech/lock/redis-lock-adapter";
      * import Redis from "ioredis";
      *
      * const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
@@ -79,17 +79,17 @@ export class RedisLockAdapter implements ILockAdapter {
      * ```
      */
     constructor(private readonly database: Redis) {
-        this.initAquireCommand();
+        this.initAcquireCommand();
         this.initReleaseCommand();
         this.initRefreshComand();
         this.initGetStateComand();
     }
 
-    private initAquireCommand(): void {
-        if (typeof this.database.daiso_lock_acquire === "function") {
+    private initAcquireCommand(): void {
+        if (typeof this.database.eridu_lock_acquire === "function") {
             return;
         }
-        this.database.defineCommand("daiso_lock_acquire", {
+        this.database.defineCommand("eridu_lock_acquire", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1];
@@ -114,11 +114,11 @@ export class RedisLockAdapter implements ILockAdapter {
     }
 
     private initReleaseCommand(): void {
-        if (typeof this.database.daiso_lock_release === "function") {
+        if (typeof this.database.eridu_lock_release === "function") {
             return;
         }
 
-        this.database.defineCommand("daiso_lock_release", {
+        this.database.defineCommand("eridu_lock_release", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1];
@@ -141,11 +141,11 @@ export class RedisLockAdapter implements ILockAdapter {
     }
 
     private initRefreshComand(): void {
-        if (typeof this.database.daiso_lock_refresh === "function") {
+        if (typeof this.database.eridu_lock_refresh === "function") {
             return;
         }
 
-        this.database.defineCommand("daiso_lock_refresh", {
+        this.database.defineCommand("eridu_lock_refresh", {
             numberOfKeys: 1,
             lua: `
                 -- Arguments
@@ -177,11 +177,11 @@ export class RedisLockAdapter implements ILockAdapter {
     }
 
     private initGetStateComand(): void {
-        if (typeof this.database.daiso_lock_get_state === "function") {
+        if (typeof this.database.eridu_lock_get_state === "function") {
             return;
         }
 
-        this.database.defineCommand("daiso_lock_get_state", {
+        this.database.defineCommand("eridu_lock_get_state", {
             numberOfKeys: 1,
             lua: `
                 -- Arguments
@@ -207,7 +207,7 @@ export class RedisLockAdapter implements ILockAdapter {
         ttl: TimeSpan | null,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const result = await this.database.daiso_lock_acquire(
+        const result = await this.database.eridu_lock_acquire(
             key,
             lockId,
             ttl?.toEndDate().getTime() ?? null,
@@ -220,7 +220,7 @@ export class RedisLockAdapter implements ILockAdapter {
         lockId: string,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const result = await this.database.daiso_lock_release(key, lockId);
+        const result = await this.database.eridu_lock_release(key, lockId);
         return result === 1;
     }
 
@@ -238,7 +238,7 @@ export class RedisLockAdapter implements ILockAdapter {
         ttl: TimeSpan,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const result = await this.database.daiso_lock_refresh(
+        const result = await this.database.eridu_lock_refresh(
             key,
             lockId,
             ttl.toEndDate().getTime(),
@@ -251,7 +251,7 @@ export class RedisLockAdapter implements ILockAdapter {
         _context: IReadableContext,
     ): Promise<ILockAdapterState | null> {
         const json = JSON.parse(
-            await this.database.daiso_lock_get_state(key),
+            await this.database.eridu_lock_get_state(key),
         ) as IRedisJsonLockState | null;
         if (json === null) {
             return null;

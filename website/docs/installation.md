@@ -14,14 +14,14 @@ sidebar_position: 1
 Run the following command to install the library:
 
 ```bash
-npm install @daiso-tech/core
+npm install eridu-tech
 ```
 
 ## Configuration
 
 #### Set Module Type:
 
-`@daiso-tech/core` exclusively uses ESM (ECMAScript Modules). To configure your project:
+`eridu-tech` exclusively uses ESM (ECMAScript Modules). To configure your project:
 
 1. Open your `package.json`
 2. Add or update the `type` field:

@@ -8,7 +8,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  * Enumeration of semaphore operational states.
  * Represents the possible status conditions a semaphore can have, tracking slot availability and acquisition.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export const SEMAPHORE_STATE = {
@@ -41,7 +41,7 @@ export const SEMAPHORE_STATE = {
  * Union type of semaphore state literals.
  * Represents the valid string values indicating a semaphore's current operational status.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type SemaphoreStateLiterals =
@@ -51,7 +51,7 @@ export type SemaphoreStateLiterals =
  * Represents a semaphore where all slots have expired.
  * In this state, the semaphore no longer holds any active slot acquisitions.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type ISemaphoreExpiredState = {
@@ -65,7 +65,7 @@ export type ISemaphoreExpiredState = {
  * Represents a semaphore where the requester has not acquired any slots.
  * At least one slot remains available for acquisition.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type ISemaphoreUnacquiredState = {
@@ -99,7 +99,7 @@ export type ISemaphoreUnacquiredState = {
  * Represents a semaphore where at least one slot has been acquired by the requester.
  * The requester holds exclusive control over one or more slots.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type ISemaphoreAcquiredState = {
@@ -139,7 +139,7 @@ export type ISemaphoreAcquiredState = {
  * Represents a semaphore where all available slots have been acquired.
  * No additional slots can be acquired until existing slots are released or expire.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type ISemaphoreLimitReachedState = {
@@ -164,7 +164,7 @@ export type ISemaphoreLimitReachedState = {
  * Discriminated union using the `type` field to determine which specific state it is.
  * Use type guards or switch statements on the `type` field to narrow to specific states.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type ISemaphoreState =

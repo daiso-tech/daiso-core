@@ -19,7 +19,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/kysely-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export type KyselyRateLimiterTable = {
@@ -32,7 +32,7 @@ export type KyselyRateLimiterTable = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/kysely-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export type KyselyRateLimiterStorageTables = {
@@ -123,7 +123,7 @@ class KyselyRateLimiterStorageAdapterTransaction<
  * Configuration for `KyselyRateLimiterStorageAdapter`.
  * Requires a Kysely database instance with the rate-limiter schema applied.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/kysely-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export type KyselyRateLimiterStorageAdapterSettings = {
@@ -138,7 +138,7 @@ export type KyselyRateLimiterStorageAdapterSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/kysely-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export class KyselyRateLimiterStorageAdapter<TType>
@@ -154,9 +154,9 @@ export class KyselyRateLimiterStorageAdapter<TType>
     /**
      * @example
      * ```ts
-     * import { KyselyRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/kysely-rate-limiter-storage-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { KyselyRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *

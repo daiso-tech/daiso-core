@@ -7,7 +7,7 @@ keywords:
 
 # Backoff policies
 
-The `@daiso-tech/core/backoff-policies` component
+The `eridu-tech/backoff-policies` component
 
 ## Predefined backoff policies
 
@@ -16,8 +16,8 @@ The library includes predefined backoff policies:
 - `constantBackoff` - Constant backoff policy with jitter
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { constantBackoff } from "@daiso-tech/core/backoff-policies";
+import { TimeSpan } from "eridu-tech/time-span";
+import { constantBackoff } from "eridu-tech/backoff-policies";
 
 // The settings argument is optional and all its fields are optional
 const backoff = constantBackoff({
@@ -29,8 +29,8 @@ const backoff = constantBackoff({
 - `exponentialBackoff` - Exponential backoff policy with jitter
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { exponentialBackoff } from "@daiso-tech/core/backoff-policies";
+import { TimeSpan } from "eridu-tech/time-span";
+import { exponentialBackoff } from "eridu-tech/backoff-policies";
 
 // The settings argument is optional and all its fields are optional
 const backoff = exponentialBackoff({
@@ -44,8 +44,8 @@ const backoff = exponentialBackoff({
 - `linearBackoff` - Linear backoff policy with jitter
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { linearBackoff } from "@daiso-tech/core/backoff-policies";
+import { TimeSpan } from "eridu-tech/time-span";
+import { linearBackoff } from "eridu-tech/backoff-policies";
 
 // The settings argument is optional and all its fields are optional
 const backoff = linearBackoff({
@@ -58,8 +58,8 @@ const backoff = linearBackoff({
 - `polynomialBackoff` - Polynomial backoff policy with jitter
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { linearBackoff } from "@daiso-tech/core/backoff-policies";
+import { TimeSpan } from "eridu-tech/time-span";
+import { linearBackoff } from "eridu-tech/backoff-policies";
 
 // The settings argument is optional and all its fields are optional
 const backoff = linearBackoff({
@@ -72,4 +72,4 @@ const backoff = linearBackoff({
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/backoff-policies`](https://daiso-tech.github.io/daiso-core/modules/BackoffPolicy.html) API docs.
+For further information refer to [`eridu-tech/backoff-policies`](https://eridu-tech.github.io/eridu-tech/modules/BackoffPolicy.html) API docs.

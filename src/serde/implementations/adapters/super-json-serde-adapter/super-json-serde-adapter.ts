@@ -12,7 +12,7 @@ import {
 } from "@/serde/contracts/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/serde/super-json-serde-adapter"`
+ * IMPORT_PATH: `"eridu-tech/serde/super-json-serde-adapter"`
  * @group Adapters
  */
 export class SuperJsonSerdeAdapter implements IFlexibleSerdeAdapter<string> {

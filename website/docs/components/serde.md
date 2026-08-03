@@ -7,13 +7,13 @@ keywords:
 
 # Serde
 
-The `@daiso-tech/core/serde` component provides seamless way to serialize/deserialize data and adding custom serialization/deserialization logic for custom data types.
+The `eridu-tech/serde` component provides seamless way to serialize/deserialize data and adding custom serialization/deserialization logic for custom data types.
 
 ## Initial configuration
 
 ```ts
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 ```
@@ -38,7 +38,7 @@ const deserializedValue = serde.deserialize(serializedValue);
 The `registerCustom` method offers control over serialization and deserialization behavior.
 
 ```ts
-import type { ISerdeTransformer } from "@daiso-tech/core/serde/contracts";
+import type { ISerdeTransformer } from "eridu-tech/serde/contracts";
 
 type ISerializedUser = {
     version: "1";
@@ -78,7 +78,7 @@ Note the `ISerdeTranformer` object can be dynamically created.
 The `registerClass` method provides a simplified abstraction over `registerCustom` method for serialization and deserialization classes.
 
 ```ts
-import type { ISerializable } from "@daiso-tech/core/serde/contracts";
+import type { ISerializable } from "eridu-tech/serde/contracts";
 
 type ISerializedUser = {
     version: "1";
@@ -143,11 +143,11 @@ serde.registerClass(User, "my-library");
 When using `Serde` class instance there is no need to call `serialize` and `deserialize` manually. Because components like `Cache` handle it automatically through their adapter.
 
 ```ts
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
-import { Cache } from "@daiso-tech/core/cache";
-import { ListCollection } from "@daiso-tech/core/collection";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+import { RedisCacheAdapter } from "eridu-tech/cache/redis-cache-adapter";
+import { Cache } from "eridu-tech/cache";
+import { ListCollection } from "eridu-tech/collection";
 import Redis from "ioredis";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -193,4 +193,4 @@ This separation makes it easy to visually distinguish the 4 contracts, making it
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/serde`](https://daiso-tech.github.io/daiso-core/modules/Serde.html) API docs.
+For further information refer to [`eridu-tech/serde`](https://eridu-tech.github.io/eridu-tech/modules/Serde.html) API docs.

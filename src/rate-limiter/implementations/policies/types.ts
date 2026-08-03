@@ -12,7 +12,7 @@ import {
 } from "@/rate-limiter/implementations/policies/sliding-window-limiter/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/policies"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/policies"`
  * @group Policies
  */
 export const LIMITER_POLICIES = {
@@ -21,7 +21,7 @@ export const LIMITER_POLICIES = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/policies"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/policies"`
  * @group Policies
  */
 export type FixedWindowLimiterSettingsEnum = FixedWindowLimiterSettings & {
@@ -32,7 +32,7 @@ export type FixedWindowLimiterSettingsEnum = FixedWindowLimiterSettings & {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/policies"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/policies"`
  * @group Policies
  */
 export type SlidingWindowLimiterSettingsEnum = SlidingWindowLimiterSettings & {

@@ -19,13 +19,13 @@ The `CacheResolver` class provides a flexible way to configure and switch betwee
 To begin using the `CacheResolver`, you will need to register all required adapters during initialization.
 
 ```ts
-import { CacheResolver } from "@daiso-tech/core/cache";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import type { ISerde } from "@daiso-tech/core/serde/contracts";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { CacheResolver } from "eridu-tech/cache";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { RedisCacheAdapter } from "eridu-tech/cache/redis-cache-adapter";
+import { Serde } from "eridu-tech/serde";
+import type { ISerde } from "eridu-tech/serde/contracts";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
 import Redis from "ioredis";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -100,4 +100,4 @@ Note that the `CacheResolver` is immutable, meaning any configuration override r
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/cache`](https://daiso-tech.github.io/daiso-core/modules/Cache.html) API docs.
+For further information refer to [`eridu-tech/cache`](https://eridu-tech.github.io/eridu-tech/modules/Cache.html) API docs.

@@ -5,17 +5,17 @@
 import { isIterable } from "@/utilities/functions/is-iterable.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  */
 export type OneOrMore<TItem> = TItem | Iterable<TItem>;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  */
 export type OneOrAtLeastOne<TItem> = TItem | [TItem, ...Array<TItem>];
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  */
 export type OneOrArray<TItem> = TItem | Array<TItem>;
 

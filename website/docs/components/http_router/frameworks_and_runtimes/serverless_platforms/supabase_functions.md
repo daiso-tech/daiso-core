@@ -26,7 +26,7 @@ import {
     HttpRouter,
     HttpRes,
     defaultHttpRouterAdapter,
-} from "npm:@daiso-tech/core/http-router";
+} from "npm:eridu-tech/http-router";
 
 const router = new HttpRouter({ router: defaultHttpRouterAdapter });
 

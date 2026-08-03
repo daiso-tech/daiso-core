@@ -18,7 +18,7 @@ import { callInvocable, isInvocable, withJitter } from "@/utilities/_module.js";
  * Each retry waits for the same fixed `delay`, optionally randomised by a jitter
  * factor to spread out thundering-herd retries across multiple clients.
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  * @group Implementations
  */
@@ -27,7 +27,7 @@ export type ConstantBackoffSettings = {
      * Fixed wait duration applied between every retry attempt.
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromSeconds(1)
      * ```
@@ -77,7 +77,7 @@ export function resolveConstantBackoffSettings(
 /**
  * Constant backoff policy with jitter
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export function constantBackoff(

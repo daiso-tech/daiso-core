@@ -11,7 +11,7 @@ import { type ISerde } from "@/serde/contracts/serde.contract.js";
  * @template TDeserializedValue - The runtime/decoded type
  * @template TSerializedValue - The serialized/encoded representation
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Contracts
  */
 export type ISerdeTransformerAdapter<TDeserializedValue, TSerializedValue> = {
@@ -57,7 +57,7 @@ export type ISerdeTransformerAdapter<TDeserializedValue, TSerializedValue> = {
  *
  * @template TSerializedValue - The serialized format (JSON, binary, etc., defaults to unknown)
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Contracts
  */
 export type IFlexibleSerdeAdapter<TSerializedValue = unknown> =

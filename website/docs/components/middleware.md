@@ -9,7 +9,7 @@ keywords:
 
 # Middleware
 
-The `@daiso-tech/core/middleware` module provides a flexible middleware system for intercepting and composing function calls. It enables you to wrap functions with pre-processing and post-processing logic, similar to middleware patterns found in web frameworks like Express.js.
+The `eridu-tech/middleware` module provides a flexible middleware system for intercepting and composing function calls. It enables you to wrap functions with pre-processing and post-processing logic, similar to middleware patterns found in web frameworks like Express.js.
 
 ## Middleware basics
 
@@ -18,10 +18,7 @@ The `@daiso-tech/core/middleware` module provides a flexible middleware system f
 A middleware is a function that receives middleware arguments (containing the original arguments, a next function, and the name of the function) and returns the result:
 
 ```ts
-import {
-    type MiddlewareArgs,
-    type MiddlewareFn,
-} from "@daiso-tech/core/middleware";
+import { type MiddlewareArgs, type MiddlewareFn } from "eridu-tech/middleware";
 
 const createLoggingMiddleware = <TParameters extends Array<unknown>, TReturn>(
     prefix: string = "LOG",
@@ -137,10 +134,7 @@ type MiddlewareArgs<TParameters, TReturn> = {
 A helper function for defining middleware with accurate type inference. It ensures the provided handler conforms to the `MiddlewareFn` signature while preserving exact parameter and return types, without needing explicit generic annotations:
 
 ```ts
-import {
-    defineMiddleware,
-    type MiddlewareFn,
-} from "@daiso-tech/core/middleware";
+import { defineMiddleware, type MiddlewareFn } from "eridu-tech/middleware";
 
 const loggingMiddleware = defineMiddleware(
     <T extends unknown[], R>({ args, next }: MiddlewareArgs<T, R>): R => {
@@ -268,7 +262,7 @@ The `enhance` function provides a convenient way to apply middleware to methods 
 #### Usage Example
 
 ```ts
-import { enhance } from "@daiso-tech/core/middleware";
+import { enhance } from "eridu-tech/middleware";
 
 class Greeter {
     greet(name: string): string {
@@ -379,7 +373,7 @@ import {
     withPlugin,
     type PluginFn,
     type MiddlewareFn,
-} from "@daiso-tech/core/middleware";
+} from "eridu-tech/middleware";
 
 class UserService {
     async getUser(id: string): Promise<{ name: string }> {
@@ -478,10 +472,7 @@ const enhancedService = withPlugin(service, [
 For plugins with state or configuration, use the object form:
 
 ```ts
-import {
-    type IPluginObject,
-    type MiddlewareFn,
-} from "@daiso-tech/core/middleware";
+import { type IPluginObject, type MiddlewareFn } from "eridu-tech/middleware";
 
 class MetricsPlugin implements IPluginObject<UserService> {
     constructor(private readonly metricsClient: MetricsClient) {}
@@ -523,4 +514,4 @@ This pattern is ideal for building reusable feature packs (logging, monitoring) 
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/middleware`](https://daiso-tech.github.io/daiso-core/modules/Middleware.html) API docs.
+For further information refer to [`eridu-tech/middleware`](https://eridu-tech.github.io/eridu-tech/modules/Middleware.html) API docs.

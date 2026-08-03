@@ -19,9 +19,9 @@ The `FileStorageResolver` class provides a flexible way to configure and switch 
 To begin using the `IFileStorageFactory`, You will need to register all required adapters during initialization.
 
 ```ts
-import { FileStorageResolver } from "@daiso-tech/core/FileStorage";
-import { MemoryFileStorageAdapter } from "@daiso-tech/core/FileStorage/memory-FileStorage-adapter";
-import { FsFileStorageAdapter } from "@daiso-tech/core/FileStorage/fs-FileStorage-adapter";
+import { FileStorageResolver } from "eridu-tech/FileStorage";
+import { MemoryFileStorageAdapter } from "eridu-tech/FileStorage/memory-FileStorage-adapter";
+import { FsFileStorageAdapter } from "eridu-tech/FileStorage/fs-FileStorage-adapter";
 
 const fileStorageResolver = new FileStorageResolver({
     adapters: {
@@ -71,4 +71,4 @@ Note that the `FileStorageResolver` is immutable, meaning any configuration over
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/FileStorage`](https://daiso-tech.github.io/daiso-core/modules/FileStorage.html) API docs.
+For further information refer to [`eridu-tech/FileStorage`](https://eridu-tech.github.io/eridu-tech/modules/FileStorage.html) API docs.

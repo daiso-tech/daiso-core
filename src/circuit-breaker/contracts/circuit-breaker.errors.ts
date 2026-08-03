@@ -7,7 +7,7 @@ import { type InferInstance } from "@/utilities/_module.js";
 /**
  * The error is thrown when circuit breaker is in open state and will not allow any attempts.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Errors
  */
 export class OpenCircuitBreakerError extends Error {
@@ -50,7 +50,7 @@ export class IsolatedCircuitBreakerError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Errors
  */
 export const CIRCUIT_BREAKER_ERRORS = {
@@ -59,7 +59,7 @@ export const CIRCUIT_BREAKER_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Errors
  */
 export type AllCircuitBreakerErrors = InferInstance<
@@ -67,7 +67,7 @@ export type AllCircuitBreakerErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Errors
  */
 export function isCircuitBreakerError(

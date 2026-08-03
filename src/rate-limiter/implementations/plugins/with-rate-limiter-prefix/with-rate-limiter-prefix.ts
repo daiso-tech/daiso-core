@@ -16,7 +16,7 @@ import { type IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
  * @param prefix - The string to prepend to every rate-limiter key.
  * @returns A middleware plugin that wraps an `IRateLimiterAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/plugins"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/plugins"`
  * @group Plugins
  */
 export function withRateLimiterPrefix(

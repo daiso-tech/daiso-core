@@ -7,7 +7,7 @@ import { type InferInstance } from "@/utilities/_module.js";
 /**
  * The error is thrown when trying to acquire a semaphore slot, but all slots are already taken.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export class LimitReachedReaderSemaphoreError extends Error {
@@ -35,7 +35,7 @@ export class LimitReachedReaderSemaphoreError extends Error {
 /**
  * The error is thrown when trying to refresh a semaphore slot that is already expired.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export class FailedRefreshReaderSemaphoreError extends Error {
@@ -64,7 +64,7 @@ export class FailedRefreshReaderSemaphoreError extends Error {
 /**
  * The error is thrown when trying to release a semaphore slot that is already expired.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export class FailedReleaseReaderSemaphoreError extends Error {
@@ -91,7 +91,7 @@ export class FailedReleaseReaderSemaphoreError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export const READER_SEMAPHORE_ERRORS = {
@@ -101,7 +101,7 @@ export const READER_SEMAPHORE_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export type AllReaderSemaphoreErrors = InferInstance<
@@ -109,7 +109,7 @@ export type AllReaderSemaphoreErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export function isReaderSemaphoreError(
@@ -126,7 +126,7 @@ export function isReaderSemaphoreError(
 /**
  * The error is thrown when trying to acquire a shared-lock that is owned by a different owner.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export class FailedAcquireWriterLockError extends Error {
@@ -151,7 +151,7 @@ export class FailedAcquireWriterLockError extends Error {
 /**
  * The error is thrown when trying to release a shared-lock that is owned by a different owner.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export class FailedReleaseWriterLockError extends Error {
@@ -180,7 +180,7 @@ export class FailedReleaseWriterLockError extends Error {
 /**
  * The error is thrown when trying to refresh a shared-lock that is owned by a different owner.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export class FailedRefreshWriterLockError extends Error {
@@ -207,7 +207,7 @@ export class FailedRefreshWriterLockError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export const WRITER_LOCK_ERRORS = {
@@ -217,7 +217,7 @@ export const WRITER_LOCK_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export type AllWriterLockErrors = InferInstance<
@@ -225,7 +225,7 @@ export type AllWriterLockErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export function isWriterLockError(
@@ -240,7 +240,7 @@ export function isWriterLockError(
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export const SHARED_LOCK_ERRORS = {
@@ -249,7 +249,7 @@ export const SHARED_LOCK_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export type AllSharedLockErrors = InferInstance<
@@ -257,7 +257,7 @@ export type AllSharedLockErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export function isSharedLockError(

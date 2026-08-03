@@ -17,13 +17,13 @@ declare module "ioredis" {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     interface RedisCommander<Context> {
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_cache_increment(
+        eridu_cache_increment(
             key: string,
             number: string,
         ): Result<number, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_cache_get_or_add(
+        eridu_cache_get_or_add(
             key: string,
             value: string,
             ttlInMs: number,
@@ -35,7 +35,7 @@ declare module "ioredis" {
  * Configuration for `RedisCacheAdapter`.
  * Requires a Redis client and a serde for serialising cache values to strings.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/redis-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/redis-cache-adapter"`
  * @group Adapters
  */
 export type RedisCacheAdapterSettings = {
@@ -52,7 +52,7 @@ export type RedisCacheAdapterSettings = {
 /**
  * To utilize the `RedisCacheAdapter`, you must install the [`"ioredis"`](https://www.npmjs.com/package/ioredis) package and supply a {@link ISerde | `ISerde`}, with adapter like {@link SuperJsonSerdeAdapter | `SuperJsonSerdeAdapter`}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/redis-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/redis-cache-adapter"`
  * @group Adapters
  */
 export class RedisCacheAdapter<
@@ -76,9 +76,9 @@ export class RedisCacheAdapter<
     /**
      * @example
      * ```ts
-     * import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { RedisCacheAdapter } from "eridu-tech/cache/redis-cache-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import Redis from "ioredis";
      *
      * const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
@@ -98,11 +98,11 @@ export class RedisCacheAdapter<
     }
 
     private initGetOrAddCommand(): void {
-        if (typeof this.database.daiso_cache_get_or_add === "function") {
+        if (typeof this.database.eridu_cache_get_or_add === "function") {
             return;
         }
 
-        this.database.defineCommand("daiso_cache_get_or_add", {
+        this.database.defineCommand("eridu_cache_get_or_add", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1]
@@ -130,7 +130,7 @@ export class RedisCacheAdapter<
     ): Promise<TType> {
         const serializedValue = this.serde.serialize(valueToAdd);
         const ttlInMs = ttl?.toMilliseconds() ?? -1;
-        const result = await this.database.daiso_cache_get_or_add(
+        const result = await this.database.eridu_cache_get_or_add(
             key,
             serializedValue,
             ttlInMs,
@@ -139,11 +139,11 @@ export class RedisCacheAdapter<
     }
 
     private initIncrementCommand(): void {
-        if (typeof this.database.daiso_cache_increment === "function") {
+        if (typeof this.database.eridu_cache_increment === "function") {
             return;
         }
 
-        this.database.defineCommand("daiso_cache_increment", {
+        this.database.defineCommand("eridu_cache_increment", {
             numberOfKeys: 1,
             lua: `
                 local hasKey = redis.call("exists", KEYS[1])
@@ -243,7 +243,7 @@ export class RedisCacheAdapter<
         _context: IReadableContext,
     ): Promise<boolean> {
         try {
-            const redisResult = await this.database.daiso_cache_increment(
+            const redisResult = await this.database.eridu_cache_increment(
                 key,
                 this.serde.serialize(value),
             );

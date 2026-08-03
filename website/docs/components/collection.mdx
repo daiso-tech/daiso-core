@@ -8,7 +8,7 @@ keywords:
 
 # Collection
 
-The `@daiso-tech/core/collection` component provides a fluent, convenient wrapper for working with a `Array`, `Iterable` and `AsyncIterable`.
+The `eridu-tech/collection` component provides a fluent, convenient wrapper for working with a `Array`, `Iterable` and `AsyncIterable`.
 
 ## Creating a collection
 
@@ -17,7 +17,7 @@ You can create a collection from an any object thats implements the `Iterable` o
 Create a collection from an `Array`:
 
 ```ts
-import { ICollection, ListCollection } from "@daiso-tech/core/collection";
+import { ICollection, ListCollection } from "eridu-tech/collection";
 
 const fromArray = new ListCollection([1, 2, 3, 4]);
 
@@ -93,7 +93,7 @@ console.log(fromArrayLike.toArray());
 The collection is imutable, meaning that all methods will return a new collection and not modify the original collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 const original = new ListCollection([1, 2, 3]);
 const modified = original.map((item) => item * 2);
@@ -112,7 +112,7 @@ The [`get`](#get) method will return the item at the specified index.
 If the index is out of bounds, it will return null.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 const collection = new ListCollection([1, 2, 3]);
 
@@ -126,7 +126,7 @@ If you want to get the item at the specified index but return a default value if
 you can use the [`getOr`](#getor) method.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 const collection = new ListCollection([1, 2, 3]);
 const value = collection.getOr(1, -1);
@@ -142,7 +142,7 @@ If you want to get the item at the specified index and throw an error if the ind
 you can use the [`getOrFail`](#getorfail) method.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 const collection = new ListCollection([1, 2, 3]);
 const value = collection.getOrFail(1);
@@ -164,7 +164,7 @@ All methods that ends with `OrFail` it will return the item if it exists or thro
 Since it is `Iterable` you can also use the `for of` loop to iterate over a collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 const collection = new ListCollection([1, 2, 3]);
 
@@ -179,7 +179,7 @@ for (const item of collection) {
 You can modify the collection by using for example the [`map`](#map) method:
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 const collection = new ListCollection([1, 2, 3]).map((value) => value * value);
 
@@ -190,7 +190,7 @@ console.log(collection.toArray());
 You can filter the collection by using for example the [`filter`](#filter) method:
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 const collection = new ListCollection([1, 2, 3, 4, 5, 6]).filter(
     (value) => value % 2 === 0,
@@ -210,7 +210,7 @@ All methods that iterate, modify, or filter the collection expect a callback fun
 3.  `collection`: The original collection being traversed.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 const collection = new ListCollection([2, 3, 2, 3, 4, 3]).filter(
     (item, index, collection) => {
@@ -250,12 +250,9 @@ The `ListCollection` and `IterableCollection` classes supports serialization and
 Serializing and deserializing `ListCollection`:
 
 ```ts
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import {
-    ListCollection,
-    IterableCollection,
-} from "@daiso-tech/core/collection";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+import { ListCollection, IterableCollection } from "eridu-tech/collection";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 
@@ -275,12 +272,9 @@ console.log(listCollection.toArray(), deserializedListCollection.toArray());
 Serializing and deserializing `IterableCollection`:
 
 ```ts
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import {
-    ListCollection,
-    IterableCollection,
-} from "@daiso-tech/core/collection";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+import { ListCollection, IterableCollection } from "eridu-tech/collection";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 
@@ -485,7 +479,7 @@ The `after` method returns the item that comes after the first item that matches
 If the collection is empty or the `predicateFn` does not match or matches the last item then `null` is returned.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 new ListCollection([1, 2, 3, 4]).after((item) => item === 2);
 // 3
 ```
@@ -496,7 +490,7 @@ The `afterOr` method returns the item that comes after the first item that match
 If the collection is empty or the `predicateFn` does not match or matches the last item then `defaultValue` is returned.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).afterOr(-1, (item) => item === 4);
 // -1
@@ -508,7 +502,7 @@ The `afterOrFail` method returns the item that comes after the first item that m
 If the collection is empty or the `predicateFn` does not match or matches the last item then an error is thrown.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).afterOrFail((item) => item === 4);
 // throws error
@@ -519,7 +513,7 @@ new ListCollection([1, 2, 3, 4]).afterOrFail((item) => item === 4);
 The `append` method adds `Iterable` to the end of the collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5]).append([-1, -2]).toArray();
 // [1, 2, 3, 4, 5, -1, -2]
@@ -531,7 +525,7 @@ The `average` method returns the average of all items in the collection. If the 
 If the collection is empty an error will also be thrown.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3]).average();
 // 2
@@ -543,7 +537,7 @@ The `before` method returns the item that comes before the first item that match
 If the `predicateFn` does not match or matches the first item then null is returned.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).before((item) => item === 2);
 // 1
@@ -555,7 +549,7 @@ The `beforeOr` method returns the item that comes before the first item that mat
 If the collection is empty or the `predicateFn` does not match or matches the first item then `defaultValue` is returned.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).beforeOr(-1, (item) => item === 2);
 // 1
@@ -567,7 +561,7 @@ The `beforeOrFail` method returns the item that comes before the first item that
 If the collection is empty or the `predicateFn` does not match or matches the first item then an error is thrown.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).beforeOrFail((item) => item === 1);
 // throws error
@@ -578,7 +572,7 @@ new ListCollection([1, 2, 3, 4]).beforeOrFail((item) => item === 1);
 The `change` method changes only the items that passes `predicateFn` using `mapFn`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5])
 .change(item => item % 2 === 0, item => item \* 2)
@@ -592,7 +586,7 @@ The `chunk` method breaks the collection into multiple, smaller collections of s
 If `chunkSize` is not divisible with total number of items then the last chunk will contain the remaining items.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5, 6, 7])
     .chunk(4)
@@ -607,7 +601,7 @@ The `chunkWhile` method breaks the collection into multiple, smaller collections
 The chunk variable passed to the `predicateFn` may be used to inspect the previous item.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection("AABBCCCD")
     .chunkWhile((item, _index, chunk) => item === chunk.last())
@@ -621,7 +615,7 @@ new ListCollection("AABBCCCD")
 The `collapse` method collapses a collection of iterables into a single, flat collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([
     [1, 2],
@@ -637,7 +631,7 @@ new ListCollection([
 The `count` method returns the total number of items in the collection that passes `predicateFn`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5, 6]).count((value) => value % 2 === 0);
 // 3
@@ -649,7 +643,7 @@ The `countBy` method counts the occurrences of values in the collection by `sele
 By default the equality check occurs on the item.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection(["a", "a", "a", "b", "b", "c"]).countBy().toArray();
 // [["a", 3], ["b", 2], ["c", 1]]
@@ -660,7 +654,7 @@ new ListCollection(["a", "a", "a", "b", "b", "c"]).countBy().toArray();
 The `crossJoin` method cross joins the collection's values among `iterables`, returning a Cartesian product with all possible permutations.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2]).crossJoin(["a", "b"]).toArray();
 // [[1, "a"], [1, "b"], [2, "a"], [2, "b"]]
@@ -671,7 +665,7 @@ new ListCollection([1, 2]).crossJoin(["a", "b"]).toArray();
 The `entries` returns an ListCollection of key, value pairs for every entry in the collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 const collection = new ListCollection(["a", "b", "c", "d"]).entries().toArray();
 // [[0, "a"], [1, "b"], [2, "c"], [3, "d"]]
@@ -682,7 +676,7 @@ const collection = new ListCollection(["a", "b", "c", "d"]).entries().toArray();
 The `every` method determines whether all items in the collection matches `predicateFn`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 const isAllNumberLessThan6 = new ListCollection([0, 1, 2, 3, 4, 5]).every(
     (item) => item < 6,
@@ -695,7 +689,7 @@ const isAllNumberLessThan6 = new ListCollection([0, 1, 2, 3, 4, 5]).every(
 The `filter` method filters the collection using `predicateFn`, keeping only those items that pass `predicateFn`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([0, 1, 2, 3, 4, 5, 6])
     .filter((item) => 2 < item && item < 5)
@@ -709,7 +703,7 @@ The `validate` method filters all items that matches the `schema` and transforms
 The `schema` can be any [standard schema](https://standardschema.dev/).
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 import { z } from "zod";
 
 new ListCollection(["a", "1.2", "3", "null"])
@@ -724,7 +718,7 @@ The `first` method returns the first item in the collection that passes `predica
 By default it will get the first item. If the collection is empty or no items passes `predicateFn` than null i returned.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).first();
 // 1
@@ -736,7 +730,7 @@ The `firstOr` method returns the first item in the collection that passes `predi
 By default it will get the first item. If the collection is empty or no items passes `predicateFn` than `defaultValue`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).firstOr(-1, (item) => item > 10);
 // -1
@@ -748,7 +742,7 @@ The `firstOrFail` method returns the first item in the collection that passes `p
 By default it will get the first item. If the collection is empty or no items passes `predicateFn` than error is thrown.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).firstOrFail((item) => item === 5);
 // throws error
@@ -760,7 +754,7 @@ The `flatMap` method returns a new array formed by applying `mapFn` to each item
 It is identical to a `map` method followed by a `collapse` method.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([
     ["a", "b"],
@@ -776,7 +770,7 @@ new ListCollection([
 The `forEach` method iterates through all items in the collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3]).forEach((item) => console.log(item));
 // Logs: 1, 2, 3
@@ -787,7 +781,7 @@ new ListCollection([1, 2, 3]).forEach((item) => console.log(item));
 The `get` method returns the item by index. If the item is not found null will be returned.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 const collection = new ListCollection([1, 4, 2, 8, -2]);
 collection.get(2); // 2
@@ -799,7 +793,7 @@ collection.get(5); // null
 The `getOr` method returns the item by index. If the item is not found, a default value will be returned.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 const collection = new ListCollection([1, 4, 2, 8, -2]);
 collection.getOr(2, -1); // 2
@@ -811,7 +805,7 @@ collection.getOr(5, -1); // -1
 The `getOrFail` method returns the item by index. If the item is not found an error will be thrown.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 const collection = new ListCollection([1, 4, 2, 8, -2]);
 collection.getOrFail(2); // 2
@@ -824,7 +818,7 @@ The `groupBy` method groups the collection's items by `selectFn`.
 By default the equality check occurs on the item.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection(["a", "a", "a", "b", "b", "c"])
     .groupBy()
@@ -838,7 +832,7 @@ new ListCollection(["a", "a", "a", "b", "b", "c"])
 The `insertAfter` method adds `Iterable` after the first item that matches `predicateFn`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 2, 3, 4, 5])
     .insertAfter((item) => item === 2, [-1, 20])
@@ -851,7 +845,7 @@ new ListCollection([1, 2, 2, 3, 4, 5])
 The `insertBefore` method adds `Iterable` before the first item that matches `predicateFn`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 2, 3, 4, 5])
     .insertAfter((item) => item === 2, [-1, 20])
@@ -864,7 +858,7 @@ new ListCollection([1, 2, 2, 3, 4, 5])
 The `isEmpty` returns true if the collection is empty.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([]).isEmpty();
 // true
@@ -875,7 +869,7 @@ new ListCollection([]).isEmpty();
 The `isEmpty` returns true if the collection is empty.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([]).isEmpty();
 // true
@@ -886,14 +880,14 @@ new ListCollection([]).isEmpty();
 The `join` method joins the collection's items with `separator`. An error will be thrown when if a non-string item is encountered.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).map((item) => item.toString()).join();
 // "1,2,3,4"
 ```
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).map((item) => item.toString()).join("_");
 // "1_2_3_4"
@@ -909,7 +903,7 @@ The `last` method returns the last item in the collection that passes `predicate
 By default it will get the last item. If the collection is empty or no items passes `predicateFn` than null i returned.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).last();
 // 4
@@ -921,7 +915,7 @@ The `lastOr` method returns the last item in the collection that passes `predica
 By default it will get the last item. If the collection is empty or no items passes `predicateFn` than `defaultValue`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).lastOr(-1, (item) => item > 10);
 // -1
@@ -933,7 +927,7 @@ The `lastOrFail` method returns the last item in the collection that passes `pre
 By default it will get the last item. If the collection is empty or no items passes `predicateFn` than error is thrown.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).lastOrFail((item) => item === 5);
 // throws error
@@ -945,7 +939,7 @@ The `map` method iterates through the collection and passes each item to `mapFn`
 The `mapFn` is free to modify the item and return it, thus forming a new collection of modified items.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5]).map((item) => item * 2).toArray();
 // [2, 4, 6, 8, 10]
@@ -957,7 +951,7 @@ The `max` method returns the max of all items in the collection. If the collecti
 If the collection is empty an error will also be thrown.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3]).max();
 // 3
@@ -969,7 +963,7 @@ The `median` method returns the median of all items in the collection. If the co
 If the collection is empty an error will also be thrown.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3]).median();
 // 2
@@ -981,7 +975,7 @@ The `min` method returns the min of all items in the collection. If the collecti
 If the collection is empty an error will also be thrown.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3]).min();
 // 1
@@ -992,7 +986,7 @@ new ListCollection([1, 2, 3]).min();
 The `nth` method creates a new collection consisting of every n-th item.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection(["a", "b", "c", "d", "e", "f"]).nth(4).toArray();
 // ["a", "e"]
@@ -1004,7 +998,7 @@ The `padEnd` method pads this collection with `fillItems` until the resulting co
 The padding is applied from the end of this collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection("abc").padEnd(10, "foo").join("");
 // "abcfoofoof"
@@ -1016,7 +1010,7 @@ The `padStart` method pads this collection with `fillItems` until the resulting 
 The padding is applied from the start of this collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection("abc").padStart(10, "foo").join("");
 // "foofoofabc"
@@ -1027,7 +1021,7 @@ new ListCollection("abc").padStart(10, "foo").join("");
 The `page` method returns a new collection containing the items that would be present on `page` with custom `pageSize`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5, 6, 7, 8, 9])
     .page(
@@ -1043,7 +1037,7 @@ new ListCollection([1, 2, 3, 4, 5, 6, 7, 8, 9])
 The `partition` method is used to separate items that pass `predicateFn` from those that do not.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5, 6])
     .partition((nbr) => nbr % 2 === 0)
@@ -1058,7 +1052,7 @@ The `percentage` method may be used to quickly determine the percentage of items
 If the collection is empty an error will also be thrown.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 1, 2, 2, 2, 3]).percentage((value) => value === 1);
 // 33.333
@@ -1069,7 +1063,7 @@ new ListCollection([1, 1, 2, 2, 2, 3]).percentage((value) => value === 1);
 The `pipe` method passes the orignal collection to `callback` and returns the result from `callback`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, "2", "a", 1, 3, {}])
     .pipe((c) => c.map((item) => Number(item)).reject(isNaN))
@@ -1082,7 +1076,7 @@ new ListCollection([1, "2", "a", 1, 3, {}])
 The `prepend` method adds `Iterable` to the beginning of the collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5]).prepend([-1, 20]).toArray();
 // [-1, 20, 1, 2, 3, 4, 5]
@@ -1094,7 +1088,7 @@ The `reduce` method executes `reduceFn` function on each item of the array, pass
 The final result of running the reducer across all items of the array is a single value.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3]).reduce((sum, item) => sum + item);
 // 6
@@ -1105,7 +1099,7 @@ new ListCollection([1, 2, 3]).reduce((sum, item) => sum + item);
 The `reject` method filters the collection using `predicateFn`, keeping only those items that not pass `predicateFn`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5, 6])
     .reject((item) => 2 < item && item < 5)
@@ -1118,7 +1112,7 @@ new ListCollection([1, 2, 3, 4, 5, 6])
 The `repeat` method will repeat the original collection `amount` times.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3]).repeat(3).toArray();
 // [1, 2, 3, 1, 2, 3, 1, 2, 3]
@@ -1130,7 +1124,7 @@ The `reverse` method will reverse the order of the collection.
 The reversing of the collection will be applied in chunks that are the size of `chunkSize`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([-1, 2, 4, 3]).reverse().toArray();
 // [3, 4, 2, -1]
@@ -1141,7 +1135,7 @@ new ListCollection([-1, 2, 4, 3]).reverse().toArray();
 The `searchFirst` return the index of the first item that matches `predicateFn`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection(["a", "b", "b", "c"]).searchFirst((item) => item === "b");
 // 1
@@ -1152,7 +1146,7 @@ new ListCollection(["a", "b", "b", "c"]).searchFirst((item) => item === "b");
 The `searchLast` return the index of the last item that matches `predicateFn`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection(["a", "b", "b", "c"]).searchLast((item) => item === "b");
 // 2
@@ -1163,7 +1157,7 @@ new ListCollection(["a", "b", "b", "c"]).searchLast((item) => item === "b");
 The `set` method updates the specified index with new value.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5]).set(1, -1).toArray();
 // [1, -1, 3, 4, 5]
@@ -1174,7 +1168,7 @@ new ListCollection([1, 2, 3, 4, 5]).set(1, -1).toArray();
 The `shuffle` method randomly shuffles the items in the collection. You can provide a custom Math.random function by passing in `mathRandom`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).shuffle().toArray();
 // Random order, e.g., [3, 1, 4, 2]
@@ -1185,7 +1179,7 @@ new ListCollection([1, 2, 3, 4]).shuffle().toArray();
 The `size` returns the size of the collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3]).size();
 // 3
@@ -1196,7 +1190,7 @@ new ListCollection([1, 2, 3]).size();
 The `skip` method skips the first `offset` items.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).skip(4).toArray();
 // [5, 6, 7, 8, 9, 10]
@@ -1207,7 +1201,7 @@ new ListCollection([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).skip(4).toArray();
 The `skipUntil` method skips items until `predicateFn` returns true.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).skipUntil((item) => item >= 3).toArray();
 // [3, 4]
@@ -1218,7 +1212,7 @@ new ListCollection([1, 2, 3, 4]).skipUntil((item) => item >= 3).toArray();
 The `skipWhile` method skips items until `predicateFn` returns false.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).skipWhile((item) => item <= 3).toArray();
 // [4]
@@ -1230,7 +1224,7 @@ The `slice` method creates porition of the original collection selected from `st
 where `start` and `end` (end not included) represent the index of items in the collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection(["a", "b", "c", "d", "e", "f"]).slice(3).toArray();
 // ["d", "e", "f"]
@@ -1241,7 +1235,7 @@ new ListCollection(["a", "b", "c", "d", "e", "f"]).slice(3).toArray();
 The `sliding` method returns a new collection of chunks representing a "sliding window" view of the items in the collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5])
     .sliding(2)
@@ -1256,7 +1250,7 @@ The `sole` method returns the first item in the collection that passes `predicat
 If no items matches or multiple items are found an error will be thrown.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5]).sole((item) => item === 4);
 // 4
@@ -1267,7 +1261,7 @@ new ListCollection([1, 2, 3, 4, 5]).sole((item) => item === 4);
 The `some` method determines whether at least one item in the collection matches `predicateFn`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([0, 1, 2, 3, 4, 5]).some((item) => item === 1);
 // true
@@ -1278,7 +1272,7 @@ new ListCollection([0, 1, 2, 3, 4, 5]).some((item) => item === 1);
 The `sort` method sorts the collection. You can provide a `comparator` function.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([-1, 2, 4, 3]).sort().toArray();
 // [-1, 2, 3, 4]
@@ -1289,7 +1283,7 @@ new ListCollection([-1, 2, 4, 3]).sort().toArray();
 The `split` method breaks a collection evenly into `chunkAmount` of chunks.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5])
     .split(3)
@@ -1304,7 +1298,7 @@ The `sum` method returns the sum of all items in the collection. If the collecti
 If the collection is empty an error will also be thrown.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3]).sum();
 // 6
@@ -1315,14 +1309,14 @@ new ListCollection([1, 2, 3]).sum();
 The `take` method takes the first `limit` items.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([0, 1, 2, 3, 4, 5]).take(3).toArray();
 // [0, 1, 2]
 ```
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([0, 1, 2, 3, 4, 5]).take(-2).toArray();
 // [0, 1, 2, 3]
@@ -1333,7 +1327,7 @@ new ListCollection([0, 1, 2, 3, 4, 5]).take(-2).toArray();
 The `takeUntil` method takes items until `predicateFn` returns true.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).takeUntil((item) => item >= 3).toArray();
 // [1, 2]
@@ -1344,7 +1338,7 @@ new ListCollection([1, 2, 3, 4]).takeUntil((item) => item >= 3).toArray();
 The `takeWhile` method takes items until `predicateFn` returns false.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4]).takeWhile((item) => item < 4).toArray();
 // [1, 2, 3]
@@ -1355,7 +1349,7 @@ new ListCollection([1, 2, 3, 4]).takeWhile((item) => item < 4).toArray();
 The `tap` method passes a copy of the original collection to `callback`, allowing you to do something with the items while not affecting the original collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4, 5, 6])
     .tap((c) => c.filter((v) => v % 2 === 0).forEach(console.log))
@@ -1368,7 +1362,7 @@ new ListCollection([1, 2, 3, 4, 5, 6])
 The `toArray` method converts the collection to a new `Array`.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3]).toArray();
 // [1, 2, 3]
@@ -1393,7 +1387,7 @@ The `toMap` method converts the collection to a new `Map`.
 An error will be thrown if item is not a tuple of size 2.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([
     [0, "a"],
@@ -1408,7 +1402,7 @@ The `toRecord` method converts the collection to a new `Record`.
 An error will be thrown if item is not a tuple of size 2 where the first element is a string or a number.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([
     [0, "a"],
@@ -1423,7 +1417,7 @@ The `unique` method removes all duplicate values from the collection by `selectF
 By default the equality check occurs on the item.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 1, 2, 2, 3, 4, 2]).unique().toArray();
 // [1, 2, 3, 4]
@@ -1432,7 +1426,7 @@ new ListCollection([1, 1, 2, 2, 3, 4, 2]).unique().toArray();
 Equality check on a field in the item.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 type Phone = { name: string; brand: string; type: string };
 
@@ -1456,7 +1450,7 @@ new ListCollection([
 The `copy` method returns a copy of the collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 const collectionA = new ListCollection([1, 2, 3, 4]);
 const collectionB = collectionA.copy();
@@ -1473,7 +1467,7 @@ console.log(collectionA.toArray() === collectionB.toArray());
 The `when` method will execute `callback` when `condition` evaluates to true.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4])
     .when(true, (c) => c.append([-3]))
@@ -1487,14 +1481,14 @@ new ListCollection([1, 2, 3, 4])
 The `whenEmpty` method will execute `callback` when the collection is empty.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([]).whenEmpty((c) => c.append([-3])).toArray();
 // [-3]
 ```
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1]).whenEmpty((c) => c.append([-3])).toArray();
 // [1]
@@ -1505,7 +1499,7 @@ new ListCollection([1]).whenEmpty((c) => c.append([-3])).toArray();
 The `whenNot` method will execute `callback` when `condition` evaluates to false.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1, 2, 3, 4])
     .whenNot(true, (c) => c.append([-3]))
@@ -1519,14 +1513,14 @@ new ListCollection([1, 2, 3, 4])
 The `whenNotEmpty` method will execute `callback` when the collection is not empty.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([]).whenNotEmpty((c) => c.append([-3])).toArray();
 // []
 ```
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([1]).whenNotEmpty((c) => c.append([-3])).toArray();
 // [1, -3]
@@ -1539,7 +1533,7 @@ new ListCollection([1]).whenNotEmpty((c) => c.append([-3])).toArray();
 The `concat` method concatenates multiple `Iterable`'s and returns a new collection.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 ListCollection.concat([1, 2, 3], [4, 5, 6]).toArray();
 // [1, 2, 3, 4, 5, 6]
 ```
@@ -1557,7 +1551,7 @@ new ListCollection([1, 2, 2, 3, 4, 5]).difference([2, 4, 6, 8]).toArray();
 Equality check on a field in the item.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 new ListCollection([
     { name: "iPhone 6", brand: "Apple", type: "phone" },
@@ -1592,7 +1586,7 @@ The `zip` method merges together the values of `Iterable` with the values of the
 The returned collection has size of the shortest collection. The `zip` method is also available as a static method.
 
 ```ts
-import { ListCollection } from "@daiso-tech/core/collection";
+import { ListCollection } from "eridu-tech/collection";
 
 ListCollection.zip(["Chair", "Desk"], [100, 200]).toArray();
 // [["Chair", 100], ["Desk", 200]]
@@ -1600,4 +1594,4 @@ ListCollection.zip(["Chair", "Desk"], [100, 200]).toArray();
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/collection`](https://daiso-tech.github.io/daiso-core/modules/Collection.html) API docs.
+For further information refer to [`eridu-tech/collection`](https://eridu-tech.github.io/eridu-tech/modules/Collection.html) API docs.

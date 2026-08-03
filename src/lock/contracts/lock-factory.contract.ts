@@ -6,7 +6,7 @@ import { type ILock } from "@/lock/contracts/lock.contract.js";
 import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type LockFactoryCreateSettings = {
@@ -29,7 +29,7 @@ export type LockFactoryCreateSettings = {
  * The `ILockFactory` contract defines a way for managing locks independent of the underlying technology.
  * It comes with more convenient methods compared to `ILockAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type ILockFactory = {

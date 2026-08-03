@@ -8,7 +8,7 @@ import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 /**
  * Configuration settings for creating a semaphore instance through the factory.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type SemaphoreFactoryCreateSettings = {
@@ -38,7 +38,7 @@ export type SemaphoreFactoryCreateSettings = {
  * The `ISemaphoreFactory` contract defines a way for managing semaphores independent of the underlying technology.
  * It comes with more convenient methods compared to `ISemaphoreAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type ISemaphoreFactory = {

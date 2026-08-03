@@ -21,11 +21,11 @@ The Cache middleware intercepts function calls and caches their return values us
 ### Usage
 
 ```ts
-import { withCacheFactory } from "@daiso-tech/core/cache/middlewares";
-import { Cache } from "@daiso-tech/core/cache";
-import { use } from "@daiso-tech/core/middleware";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { withCacheFactory } from "eridu-tech/cache/middlewares";
+import { Cache } from "eridu-tech/cache";
+import { use } from "eridu-tech/middleware";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const cache = new Cache({
     adapter: new MemoryCacheAdapter(),
@@ -51,9 +51,9 @@ const userAgain = await cachedFetchUser("123"); // Cache hit — returns immedia
 ```
 
 :::info
-Here is a complete list of settings for the [`withCache`](https://daiso-tech.github.io/daiso-core/types/Cache.WithCacheSettings.html) function.
+Here is a complete list of settings for the [`withCache`](https://eridu-tech.github.io/eridu-tech/types/Cache.WithCacheSettings.html) function.
 :::
 
 ### Further information
 
-For further information refer to [`@daiso-tech/core/cache`](https://daiso-tech.github.io/daiso-core/modules/Cache.html) API docs.
+For further information refer to [`eridu-tech/cache`](https://eridu-tech.github.io/eridu-tech/modules/Cache.html) API docs.

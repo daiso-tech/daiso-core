@@ -226,7 +226,7 @@ function FeatureSection({ items }: { items: FeatureItemProps[] }) {
             <div className="container">
                 <div className="margin-bottom--xl">
                     <h2 className="daiso-section-title">
-                        Why @daiso-tech/core?
+                        Why eridu-tech?
                     </h2>
                     <p className="daiso-section-subtitle">
                         Designed from the ground up for real-world backend
@@ -253,7 +253,7 @@ function WhoIsThisFor() {
                 <div className="margin-bottom--xl">
                     <h2 className="daiso-section-title">Who is this for?</h2>
                     <p className="daiso-section-subtitle">
-                        @daiso-tech/core is built for backend and fullstack
+                        eridu-tech is built for backend and fullstack
                         TypeScript developers who value flexibility and
                         testability.
                     </p>
@@ -392,7 +392,7 @@ function GitHubStarBanner() {
                     Find this library useful? Give it a ⭐
                 </h2>
                 <p className="daiso-star-subtitle">
-                    If you see potential in @daiso-tech/core, starring the repo
+                    If you see potential in eridu-tech, starring the repo
                     on GitHub helps others discover it and motivates continued
                     development. It takes one click and means a lot.
                 </p>
@@ -501,7 +501,7 @@ function FrameworkComparison() {
             <div className="container">
                 <div className="daiso-section-header daiso-section-header--split">
                     <h2 className="daiso-section-title">
-                        How @daiso-tech/core compares
+                        How eridu-tech compares
                     </h2>
                     <div className="daiso-segmented-control">
                         {comparisons.map((comp, i) => (
@@ -546,10 +546,10 @@ function FrameworkComparison() {
                     <div className="col col--6">
                         <div className="daiso-comp-daiso">
                             <div className="daiso-comp-label-daiso">
-                                @daiso-tech/core
+                                eridu-tech
                             </div>
                             <ul>
-                                {comparisons[activeIndex].daiso.map(
+                                {comparisons[activeIndex].eriduTech.map(
                                     (point, i) => (
                                         <li key={i}>{point}</li>
                                     ),
@@ -592,9 +592,9 @@ export default function Home(): ReactNode {
         <Layout title={siteConfig.title} description={siteConfig.tagline}>
             <Header/>
             <main>
-                <CodeShowcase />
                 <StatsBar />
                 <FeatureSection items={Object.values(FEATURE_ITEMS)} />
+                <CodeShowcase />
                 <WhoIsThisFor />
                 <ComponentSection />
                 <UpcomingSection />

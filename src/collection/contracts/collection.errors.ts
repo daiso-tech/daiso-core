@@ -7,7 +7,7 @@ import { type InferInstance } from "@/utilities/_module.js";
 /**
  * The error is thrown when the item is not found.
  *
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  * @group Errors
  */
 export class ItemNotFoundCollectionError extends Error {
@@ -29,7 +29,7 @@ export class ItemNotFoundCollectionError extends Error {
 /**
  * The error is thrown when multiple items are found.
  *
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  * @group Errors
  */
 export class MultipleItemsFoundCollectionError extends Error {
@@ -54,7 +54,7 @@ export class MultipleItemsFoundCollectionError extends Error {
 /**
  * The error is thrown when calling a method that needs the collection not to be empty. For example, the `average` method requires the collection not to be empty.
  *
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  * @group Errors
  */
 export class EmptyCollectionError extends Error {
@@ -77,7 +77,7 @@ export class EmptyCollectionError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  * @group Errors
  */
 export const COLLECTION_ERRORS = {
@@ -87,7 +87,7 @@ export const COLLECTION_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  * @group Errors
  */
 export type AllCollectionErrors = InferInstance<
@@ -95,7 +95,7 @@ export type AllCollectionErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  * @group Errors
  */
 export function isCollectionError(

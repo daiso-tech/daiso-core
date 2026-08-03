@@ -9,7 +9,7 @@
  * This symbol prevents naming conflicts by using a unique symbol as the property key.
  * Objects implementing IFileSize use this symbol to provide byte conversion.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-size/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-size/contracts"`
  * @group Contracts
  */
 export const TO_BYTES = Symbol("TO_BYTES");
@@ -27,10 +27,10 @@ export const TO_BYTES = Symbol("TO_BYTES");
  *
  * Usage:
  * 1. Implement IFileSize on your file size class by computing the TO_BYTES method
- * 2. Pass instances to any daiso-core function accepting IFileSize
+ * 2. Pass instances to any eridu-tech function accepting IFileSize
  * 3. The library will call the method to get byte values for size calculations
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-size/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-size/contracts"`
  * @group Contracts
  */
 export type IFileSize = {

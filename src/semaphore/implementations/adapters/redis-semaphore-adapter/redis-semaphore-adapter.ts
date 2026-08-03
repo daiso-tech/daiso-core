@@ -24,7 +24,7 @@ declare module "ioredis" {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     interface RedisCommander<Context> {
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_semaphore_acquire(
+        eridu_semaphore_acquire(
             key: string,
             slotId: string,
             limit: number,
@@ -33,20 +33,20 @@ declare module "ioredis" {
         ): Result<1 | 0, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_semaphore_release(
+        eridu_semaphore_release(
             key: string,
             slotId: string,
             now: number,
         ): Result<1 | 0, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_semaphore_force_release_all(
+        eridu_semaphore_force_release_all(
             key: string,
             now: number,
         ): Result<1 | 0, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_semaphore_refresh(
+        eridu_semaphore_refresh(
             key: string,
             slotId: string,
             newExpiration: number,
@@ -57,7 +57,7 @@ declare module "ioredis" {
          * Returns {@link IRedisJsonSemaphoreState | `IRedisJsonSemaphoreState | null`} as json string.
          */
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_semaphore_get_state(
+        eridu_semaphore_get_state(
             key: string,
             now: number,
         ): Result<string, Context>;
@@ -71,12 +71,12 @@ declare module "ioredis" {
  *
  * Note in order to use `RedisSemaphoreAdapter` correctly, ensure you use a single, consistent database across all server instances.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/redis-semaphore-adapter"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/redis-semaphore-adapter"`
  * @group Adapters
  */
 export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
     constructor(private readonly database: Redis) {
-        this.initAquireCommand();
+        this.initAcquireCommand();
         this.initReleaseCommand();
         this.initRefreshCommand();
         this.initForceReleaseAllCommand();
@@ -182,12 +182,12 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
         `;
     }
 
-    private initAquireCommand(): void {
-        if (typeof this.database.daiso_semaphore_acquire === "function") {
+    private initAcquireCommand(): void {
+        if (typeof this.database.eridu_semaphore_acquire === "function") {
             return;
         }
 
-        this.database.defineCommand("daiso_semaphore_acquire", {
+        this.database.defineCommand("eridu_semaphore_acquire", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1];
@@ -225,10 +225,10 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
     }
 
     private initReleaseCommand(): void {
-        if (typeof this.database.daiso_semaphore_release === "function") {
+        if (typeof this.database.eridu_semaphore_release === "function") {
             return;
         }
-        this.database.defineCommand("daiso_semaphore_release", {
+        this.database.defineCommand("eridu_semaphore_release", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1];
@@ -256,13 +256,13 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
 
     private initForceReleaseAllCommand(): void {
         if (
-            typeof this.database.daiso_semaphore_force_release_all ===
+            typeof this.database.eridu_semaphore_force_release_all ===
             "function"
         ) {
             return;
         }
 
-        this.database.defineCommand("daiso_semaphore_force_release_all", {
+        this.database.defineCommand("eridu_semaphore_force_release_all", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1];
@@ -290,11 +290,11 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
     }
 
     private initRefreshCommand(): void {
-        if (typeof this.database.daiso_semaphore_refresh === "function") {
+        if (typeof this.database.eridu_semaphore_refresh === "function") {
             return;
         }
 
-        this.database.defineCommand("daiso_semaphore_refresh", {
+        this.database.defineCommand("eridu_semaphore_refresh", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1];
@@ -341,11 +341,11 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
     }
 
     private initGetStateCommand(): void {
-        if (typeof this.database.daiso_semaphore_get_state === "function") {
+        if (typeof this.database.eridu_semaphore_get_state === "function") {
             return;
         }
 
-        this.database.defineCommand("daiso_semaphore_get_state", {
+        this.database.defineCommand("eridu_semaphore_get_state", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1];
@@ -395,7 +395,7 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
 
     async acquire(settings: SemaphoreAcquireSettings): Promise<boolean> {
         const { key, slotId, limit, ttl } = settings;
-        const result = await this.database.daiso_semaphore_acquire(
+        const result = await this.database.eridu_semaphore_acquire(
             key,
             slotId,
             limit,
@@ -410,7 +410,7 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
         slotId: string,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const result = await this.database.daiso_semaphore_release(
+        const result = await this.database.eridu_semaphore_release(
             key,
             slotId,
             Date.now(),
@@ -423,7 +423,7 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
         _context: IReadableContext,
     ): Promise<boolean> {
         const hasDeleted =
-            await this.database.daiso_semaphore_force_release_all(
+            await this.database.eridu_semaphore_force_release_all(
                 key,
                 Date.now(),
             );
@@ -436,7 +436,7 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
         ttl: TimeSpan,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const result = await this.database.daiso_semaphore_refresh(
+        const result = await this.database.eridu_semaphore_refresh(
             key,
             slotId,
             ttl.toEndDate().getTime(),
@@ -450,7 +450,7 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
         _context: IReadableContext,
     ): Promise<ISemaphoreAdapterState | null> {
         const json = JSON.parse(
-            await this.database.daiso_semaphore_get_state(key, Date.now()),
+            await this.database.eridu_semaphore_get_state(key, Date.now()),
         ) as IRedisJsonSemaphoreState | null;
         if (json === null) {
             return null;

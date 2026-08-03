@@ -18,7 +18,7 @@ import {
  * The arguments passed to a request handler function or object.
  * Unlike middleware, handlers do not receive a `next` function.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpHandlerArgs = IHttpResHelpers & {
@@ -42,7 +42,7 @@ export type HttpHandlerArgs = IHttpResHelpers & {
  * An invocable object that handles an HTTP request.
  * Receives handler args ({@link HttpHandlerArgs}) and returns a response.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IHttpHandlerObject = IInvocableObject<
@@ -55,7 +55,7 @@ export type IHttpHandlerObject = IInvocableObject<
  * Receives handler args ({@link HttpHandlerArgs}) and returns a response.
  *
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpHandlerFn = InvocableFn<
@@ -66,7 +66,7 @@ export type HttpHandlerFn = InvocableFn<
 /**
  * A union of all handler forms: a function or an invocable object.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpHandler = HttpHandlerFn | IHttpHandlerObject;

@@ -75,7 +75,7 @@ import {
 /**
  * All methods that return {@link IAsyncCollection | `IAsyncCollection`} are executed lazly, meaning the execution will occur iterating the items withthe `forEach` method or `for await` loop.
  *
- * IMPORT_PATH: `"@daiso-tech/core/collection"`
+ * IMPORT_PATH: `"eridu-tech/collection"`
  * @group Implementations
  */
 export class AsyncIterableCollection<
@@ -85,7 +85,7 @@ export class AsyncIterableCollection<
      * The `concat` static method is a convenient utility for easily concatenating multiple {@link Iterable | `Iterable`} or {@link AsyncIterable | `AsyncIterable`}.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * class MyAsyncIterable implements AsyncIterable<number> {
      *   async *[Symbol.iterator](): Iterator<number> {
@@ -124,7 +124,7 @@ export class AsyncIterableCollection<
      * The `difference` static method is used to compute the difference between two {@link Iterable | `Iterable`} instances. By default, the equality check is performed on each item.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = AsyncIterableCollection.difference(
      *   [1, 2, 2, 3, 4, 5],
@@ -135,7 +135,7 @@ export class AsyncIterableCollection<
      * ```
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = AsyncIterableCollection.difference(
      *   [
@@ -174,7 +174,7 @@ export class AsyncIterableCollection<
      * The returned collection has size of the shortest collection.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = AsyncIterableCollection.zip(["Chair", "Desk"], [100, 200]);
      * await collection.toArray();
@@ -182,7 +182,7 @@ export class AsyncIterableCollection<
      * ```
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = AsyncIterableCollection.zip(["Chair", "Desk", "Couch"], [100, 200]);
      * await collection.toArray();
@@ -190,7 +190,7 @@ export class AsyncIterableCollection<
      * ```
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = AsyncIterableCollection.zip(["Chair", "Desk"], [100, 200, 300]);
      * await collection.toArray();
@@ -220,7 +220,7 @@ export class AsyncIterableCollection<
      * Works with `Array`.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = new AsyncIterableCollection([1, 2, 3, 4]);
      * ```
@@ -228,7 +228,7 @@ export class AsyncIterableCollection<
      * Works with `String`.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = new AsyncIterableCollection("ABCDE");
      * ```
@@ -236,7 +236,7 @@ export class AsyncIterableCollection<
      * Works with `Set`.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = new AsyncIterableCollection(new Set([1, 2, 2 4]));
      * ```
@@ -244,7 +244,7 @@ export class AsyncIterableCollection<
      * Works with `Map`.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = new AsyncIterableCollection(new Map([["a", 1], ["b", 2]]));
      * ```
@@ -252,7 +252,7 @@ export class AsyncIterableCollection<
      * Works with any `Iterable`.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * class MyIterable implements Iterable<number> {
      *   *[Symbol.iterator](): Iterator<number> {
@@ -267,7 +267,7 @@ export class AsyncIterableCollection<
      * Works with any `AsyncIterable`.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * class MyIterable implements AsyncIterable<number> {
      *   async *[Symbol.iterator](): Iterator<number> {

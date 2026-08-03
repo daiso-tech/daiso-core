@@ -11,7 +11,7 @@ import { validate } from "@/utilities/_module.js";
 /**
  * Settings for the {@link withCacheSchema} plugin.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
+ * IMPORT_PATH: `"eridu-tech/cache/plugins"`
  * @group Plugins
  */
 export type WithCacheSchemaSettings = {
@@ -49,7 +49,7 @@ export type WithCacheSchemaSettings = {
  *                                        @default true
  * @returns A middleware plugin that wraps an `ICacheAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
+ * IMPORT_PATH: `"eridu-tech/cache/plugins"`
  * @group Plugins
  */
 export function withCacheSchema(

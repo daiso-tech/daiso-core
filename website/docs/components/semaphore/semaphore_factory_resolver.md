@@ -19,9 +19,9 @@ The `SemaphoreFactoryResolver` class provides a flexible way to configure and sw
 To begin using the `ISemaphoreFactoryResolver`, you will need to register all required adapters during initialization.
 
 ```ts
-import { SemaphoreFactoryResolver } from "@daiso-tech/core/semaphore";
-import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
-import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
+import { SemaphoreFactoryResolver } from "eridu-tech/semaphore";
+import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
+import { RedisSemaphoreAdapter } from "eridu-tech/semaphore/redis-semaphore-adapter";
 import Redis from "ioredis";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -85,4 +85,4 @@ Note that the `SemaphoreFactoryResolver` is immutable, meaning any configuration
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/semaphore`](https://daiso-tech.github.io/daiso-core/modules/Semaphore.html) API docs.
+For further information refer to [`eridu-tech/semaphore`](https://eridu-tech.github.io/eridu-tech/modules/Semaphore.html) API docs.

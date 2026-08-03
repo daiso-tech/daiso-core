@@ -7,7 +7,7 @@ import { type HttpErrorStatus } from "@/http-router/contracts/http-status.js";
 /**
  * Settings for creating an {@link HttpError}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Errors
  */
 export type HttpErrorSettings = {
@@ -26,7 +26,7 @@ export type HttpErrorSettings = {
  *
  * Use the static {@link HttpError.create} factory method to instantiate.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Errors
  */
 export class HttpError extends Error {

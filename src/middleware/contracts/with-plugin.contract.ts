@@ -25,7 +25,7 @@ import {
  * @param instance - The target instance to configure
  * @param enhance - The {@link Enhance} utility for wrapping methods with middleware
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type PluginFn<TInstance> = InvocableFn<
@@ -46,7 +46,7 @@ export type PluginFn<TInstance> = InvocableFn<
  * @param instance - The target instance to configure
  * @param enhance - The {@link Enhance} utility for wrapping methods with middleware
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type IPluginObject<TInstance> = IInvocableObject<
@@ -64,7 +64,7 @@ export type IPluginObject<TInstance> = IInvocableObject<
  *
  * @typeParam TInstance - The type of the target instance being configured
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type Plugin<TInstance> = PluginFn<TInstance> | IPluginObject<TInstance>;
@@ -132,7 +132,7 @@ export type Plugin<TInstance> = PluginFn<TInstance> | IPluginObject<TInstance>;
  * @see {@link Plugin | `Plugin`}
  * @see {@link Enhance | `Enhance`}
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type WithPlugin = <TInstance>(

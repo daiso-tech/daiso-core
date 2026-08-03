@@ -20,7 +20,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
+ * IMPORT_PATH: `"eridu-tech/file-storage"`
  * @group Derivables
  */
 export type FileStorageAdapters<TAdapters extends string = string> = Partial<
@@ -31,7 +31,7 @@ export type FileStorageAdapters<TAdapters extends string = string> = Partial<
  * Configuration for `FileStorageResolver`.
  * Registers named file-storage adapters and optionally designates a default.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
+ * IMPORT_PATH: `"eridu-tech/file-storage"`
  * @group Derivables
  */
 export type FileStorageResolverSettings<TAdapters extends string = string> =
@@ -48,7 +48,7 @@ export type FileStorageResolverSettings<TAdapters extends string = string> =
     };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
+ * IMPORT_PATH: `"eridu-tech/file-storage"`
  * @group Derivables
  */
 export class FileStorageResolver<
@@ -57,11 +57,11 @@ export class FileStorageResolver<
     /**
      * @example
      * ```ts
-     * import { FileStorageResolver } from "@daiso-tech/core/file-storage";
-     * import { FsFileStorageAdapter } from "@daiso-tech/core/file-storage/fs-file-storage-adapter";
-     * import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { FileStorageResolver } from "eridu-tech/file-storage";
+     * import { FsFileStorageAdapter } from "eridu-tech/file-storage/fs-file-storage-adapter";
+     * import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
      * const fileStorageResolver = new FileStorageResolver({

@@ -11,7 +11,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  * Represents the persistent state of a writer lock in storage.
  * Contains information about ownership and expiration time.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type IWriterLockAdapterState = {
@@ -31,7 +31,7 @@ export type IWriterLockAdapterState = {
  * Represents the persistent state of a reader semaphore in storage.
  * Contains information about the slot limit and currently acquired slots with their expiration times.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type IReaderSemaphoreAdapterState = {
@@ -52,7 +52,7 @@ export type IReaderSemaphoreAdapterState = {
  * Represents the combined persistent state of a shared lock in storage.
  * Contains both writer lock and reader semaphore state information.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockAdapterState = {
@@ -71,7 +71,7 @@ export type ISharedLockAdapterState = {
  * Internal settings for shared lock acquisition operations.
  * This is used internally by the shared lock adapter implementations and should not be directly instantiated in application code.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type SharedLockAcquireSettings = {
@@ -108,7 +108,7 @@ export type SharedLockAcquireSettings = {
  * Implementations handle writer lock and reader semaphore acquisition, release, refresh, and state tracking independent of the underlying storage.
  * **Note:** This contract is low-level and typically not used directly - prefer {@link ISharedLockFactory | `ISharedLockFactory`} for shared lock usage.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockAdapter = {

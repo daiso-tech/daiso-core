@@ -16,7 +16,7 @@ import {
  * Provides safe (`get`, `first`) and throwing (`getOrFail`, `firstOrFail`)
  * accessors, iteration via `for...of`, and inspection of the file count.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IHttpFileCollection = Iterable<IHttpFile> & {

@@ -33,7 +33,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/test-utilities"`
  * @group Utilities
  */
 export type SharedLockFactoryTestSuiteSettings = {
@@ -60,7 +60,7 @@ export type SharedLockFactoryTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
@@ -70,7 +70,7 @@ export type SharedLockFactoryTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
@@ -80,7 +80,7 @@ export type SharedLockFactoryTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span"
+     * import { TimeSpan } from "eridu-tech/time-span"
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
@@ -91,19 +91,19 @@ export type SharedLockFactoryTestSuiteSettings = {
 /**
  * The `sharedLockFactoryTestSuite` function simplifies the process of testing your custom implementation of {@link ISharedLock | `ISharedLock`} with `vitest`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/test-utilities"`
  * @group Utilities
  * @example
  * ```ts
  * import { describe, expect, test, beforeEach } from "vitest";
- * import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
- * import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
- * import { EventBus } from "@daiso-tech/core/event-bus";
- * import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
- * import { sharedLockFactoryTestSuite } from "@daiso-tech/core/shared-lock/test-utilities";
- * import { Serde } from "@daiso-tech/core/serde";
- * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
- * import type { ISharedLockData } from "@daiso-tech/core/shared-lock/contracts";
+ * import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
+ * import { SharedLockFactory } from "eridu-tech/shared-lock";
+ * import { EventBus } from "eridu-tech/event-bus";
+ * import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+ * import { sharedLockFactoryTestSuite } from "eridu-tech/shared-lock/test-utilities";
+ * import { Serde } from "eridu-tech/serde";
+ * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+ * import type { ISharedLockData } from "eridu-tech/shared-lock/contracts";
  *
  * describe("class: SharedLockFactory", () => {
  *     sharedLockFactoryTestSuite({

@@ -13,7 +13,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
 /**
  * The `MemoryCacheAdapter` is used for easily faking{@link ICache | `ICache`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/memory-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/memory-cache-adapter"`
  * @group Adapters
  */
 export class MemoryCacheAdapter<
@@ -28,7 +28,7 @@ export class MemoryCacheAdapter<
      * You can provide an optional {@link Map | `Map`}, that will be used for storing the data.
      * @example
      * ```ts
-     * import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
+     * import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
      *
      * const map = new Map<any, any>();
      * const cacheAdapter = new MemoryCacheAdapter(map);

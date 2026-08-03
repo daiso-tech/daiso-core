@@ -18,7 +18,7 @@ import { callInvocable, isInvocable, withJitter } from "@/utilities/_module.js";
  * The wait time grows as `minDelay * attempt^degree`, clamped to `maxDelay`.
  * An optional `jitter` factor randomises the delay to reduce retry collisions.
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export type PolynomialBackoffSettings = {
@@ -26,7 +26,7 @@ export type PolynomialBackoffSettings = {
      * Upper bound on the computed delay. The wait time will never exceed this value.
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromSeconds(60)
      * ```
@@ -37,7 +37,7 @@ export type PolynomialBackoffSettings = {
      * Starting delay for the first retry. Subsequent delays grow from this base.
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(500)
      * ```
@@ -106,7 +106,7 @@ export function resolvePolynomialBackoffSettings(
 /**
  * Polynomial backoff policy with jitter
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export function polynomialBackoff(

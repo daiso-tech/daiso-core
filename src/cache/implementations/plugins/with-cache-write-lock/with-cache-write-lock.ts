@@ -12,7 +12,7 @@ import { type PluginFn } from "@/middleware/contracts/_module.js";
  * Only the mutable methods that modify cache state are eligible for write-lock
  * protection.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
+ * IMPORT_PATH: `"eridu-tech/cache/plugins"`
  * @group Plugins
  */
 export type WithCacheWriteLockMethods = keyof Pick<
@@ -29,7 +29,7 @@ export type WithCacheWriteLockMethods = keyof Pick<
 /**
  * Settings for the {@link withCacheWriteLock} plugin.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
+ * IMPORT_PATH: `"eridu-tech/cache/plugins"`
  * @group Plugins
  */
 export type WithCacheWriteLockSettings = {
@@ -69,7 +69,7 @@ export type WithCacheWriteLockSettings = {
  *                               lock. Defaults to all mutating methods.
  * @returns A middleware plugin that wraps an `ICacheAdapter`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/plugins"`
+ * IMPORT_PATH: `"eridu-tech/cache/plugins"`
  * @group Plugins
  */
 export function withCacheWriteLock(

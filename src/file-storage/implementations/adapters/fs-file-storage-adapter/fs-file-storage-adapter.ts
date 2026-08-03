@@ -28,7 +28,7 @@ import { type IDeinitizable, type IInitizable } from "@/utilities/_module.js";
  * Configuration for `FsFileStorageAdapter`.
  * Provides local filesystem-based file storage.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/fs-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/fs-file-storage-adapter"`
  * @group Adapters
  */
 export type FsFileStorageAdapterSettings = {
@@ -43,7 +43,7 @@ export type FsFileStorageAdapterSettings = {
     /**
      * @default
      * ```ts
-     * import { Base64Codec } from "@daiso-tech/core/codec/base-64-codec"
+     * import { Base64Codec } from "eridu-tech/codec/base-64-codec"
      *
      * new Base64Codec()
      * ```
@@ -55,7 +55,7 @@ export type FsFileStorageAdapterSettings = {
  * The `FsFileStorageAdapter` is used for local development when persistence is needed when restarting the dev server.
  * Note `FsFileStorageAdapter` lacks nested folder support. A flat hierarchy is used, requiring filename encoding/decoding.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/fs-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/fs-file-storage-adapter"`
  * @group Adapters
  */
 export class FsFileStorageAdapter
@@ -67,8 +67,8 @@ export class FsFileStorageAdapter
     /**
      * @example
      * ```ts
-     * import { Base64Codec } from "@daiso-tech/core/codex/base-64-codec";
-     * import { FsFileStorageAdapter } from "@daiso-tech/core/file-storage/fs-file-storage-adapter";
+     * import { Base64Codec } from "eridu-tech/codex/base-64-codec";
+     * import { FsFileStorageAdapter } from "eridu-tech/file-storage/fs-file-storage-adapter";
      *
      * const fileStorageAdapter = new FsFileStorageAdapter({
      *   // Both settings are optional

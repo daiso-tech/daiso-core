@@ -22,7 +22,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
 export type RateLimiterAdapters<TAdapters extends string> = Partial<
@@ -33,7 +33,7 @@ export type RateLimiterAdapters<TAdapters extends string> = Partial<
  * Configuration for `RateLimiterFactoryResolver`.
  * Registers named rate-limiter adapters and optionally designates a default.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
 export type RateLimiterFactoryResolverSettings<TAdapters extends string> =
@@ -52,7 +52,7 @@ export type RateLimiterFactoryResolverSettings<TAdapters extends string> =
 /**
  * The `RateLimiterFactoryResolver` class is immutable.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
 export class RateLimiterFactoryResolver<
@@ -61,12 +61,12 @@ export class RateLimiterFactoryResolver<
     /**
      * @example
      * ```ts
-     * import { RateLimiterFactoryResolver } from "@daiso-tech/core/rate-limiter";
-     * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storate-adapter";
-     * import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-     * import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { RateLimiterFactoryResolver } from "eridu-tech/rate-limiter";
+     * import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storate-adapter";
+     * import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+     * import { RedisRateLimiterAdapter } from "eridu-tech/rate-limiter/redis-rate-limiter-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -123,12 +123,12 @@ export class RateLimiterFactoryResolver<
     /**
      * @example
      * ```ts
-     * import { RateLimiterFactoryResolver } from "@daiso-tech/core/rate-limiter";
-     * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storate-adapter";
-     * import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-     * import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { RateLimiterFactoryResolver } from "eridu-tech/rate-limiter";
+     * import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storate-adapter";
+     * import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+     * import { RedisRateLimiterAdapter } from "eridu-tech/rate-limiter/redis-rate-limiter-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());

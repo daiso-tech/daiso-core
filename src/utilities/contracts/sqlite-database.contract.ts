@@ -7,7 +7,7 @@
  * Provides three execution modes: fetching all results, running a mutation,
  * or lazily iterating results one row at a time.
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Contracts
  */
 export type ISqliteStatement = {
@@ -52,7 +52,7 @@ export type ISqliteStatement = {
  * Minimal abstraction over a SQLite database connection.
  * Allows preparing and executing SQL statements.
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Contracts
  */
 export type ISqliteDatabase = {

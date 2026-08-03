@@ -8,7 +8,7 @@ import {
 } from "@/file-storage/contracts/file-storage-adapter.contract.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileStorageAdapterVariants =

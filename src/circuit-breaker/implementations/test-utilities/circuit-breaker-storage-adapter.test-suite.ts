@@ -16,7 +16,7 @@ import { ExecutionContext } from "@/execution-context/implementations/derivables
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/test-utilities"`
  * @group TestUtilities
  */
 export type CircuitBreakerStorageAdapterTestSuiteSettings = {
@@ -29,8 +29,8 @@ export type CircuitBreakerStorageAdapterTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -41,16 +41,16 @@ export type CircuitBreakerStorageAdapterTestSuiteSettings = {
 /**
  * The `circuitBreakerStorageAdapterTestSuite` function simplifies the process of testing your custom implementation of {@link ICircuitBreakerStorageAdapter | `ICircuitBreakerStorageAdapter`} with `vitest`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/test-utilities"`
  * @group TestUtilities
  * @example
  * ```ts
  * import { afterEach, beforeEach, describe, expect, test } from "vitest";
- * import { circuitBreakerStorageAdapterTestSuite } from "@daiso-tech/core/circuit-breaker/test-utilities";
- * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
- * import { TimeSpan } from "@daiso-tech/core/time-span";
- * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
- * import { Serde } from "@daiso-tech/core/serde";
+ * import { circuitBreakerStorageAdapterTestSuite } from "eridu-tech/circuit-breaker/test-utilities";
+ * import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storage-adapter";
+ * import { TimeSpan } from "eridu-tech/time-span";
+ * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+ * import { Serde } from "eridu-tech/serde";
  *
  * describe("class: MemoryCircuitBreakerStorageAdapter", () => {
  *     circuitBreakerStorageAdapterTestSuite({

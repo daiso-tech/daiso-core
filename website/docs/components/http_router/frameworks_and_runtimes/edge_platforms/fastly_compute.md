@@ -17,7 +17,7 @@ Use the [`@fastly/hono-fastly-compute`](https://github.com/fastly/hono-fastly-co
 ### 1. Install
 
 ```sh
-npm install @daiso-tech/core hono @fastly/hono-fastly-compute
+npm install eridu-tech hono @fastly/hono-fastly-compute
 ```
 
 ### 2. Create the handler
@@ -28,7 +28,7 @@ import {
     HttpRouter,
     HttpRes,
     defaultHttpRouterAdapter,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 import { fire } from "@fastly/hono-fastly-compute";
 
 const router = new HttpRouter({ router: defaultHttpRouterAdapter });

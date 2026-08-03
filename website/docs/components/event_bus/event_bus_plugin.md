@@ -42,9 +42,9 @@ Methods that do not accept an event name are unaffected.
 ### Usage
 
 ```ts
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { withEventBusPrefix } from "@daiso-tech/core/event-bus/plugins";
+import { withPlugin } from "eridu-tech/middleware";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+import { withEventBusPrefix } from "eridu-tech/event-bus/plugins";
 
 const adapter = new MemoryEventBusAdapter();
 
@@ -61,10 +61,10 @@ await prefixedAdapter.dispatch(context, "user.created", payload);
 The plugin can be applied directly to the adapter passed to the `EventBus` constructor:
 
 ```ts
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { withEventBusPrefix } from "@daiso-tech/core/event-bus/plugins";
+import { EventBus } from "eridu-tech/event-bus";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+import { withPlugin } from "eridu-tech/middleware";
+import { withEventBusPrefix } from "eridu-tech/event-bus/plugins";
 
 const adapter = new MemoryEventBusAdapter();
 const prefixedAdapter = withPlugin(adapter, withEventBusPrefix("app:"));
@@ -127,9 +127,9 @@ When `shouldValidateListeners` is `true` (default), the plugin also enhances `ad
 ### Usage
 
 ```ts
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { withEventBusSchema } from "@daiso-tech/core/event-bus/plugins";
+import { withPlugin } from "eridu-tech/middleware";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+import { withEventBusSchema } from "eridu-tech/event-bus/plugins";
 import { z } from "zod";
 
 const adapter = new MemoryEventBusAdapter();
@@ -188,13 +188,13 @@ await enhanced.addListener(context, "user.created", (event) => {
 #### Using with EventBus class
 
 ```ts
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { withPlugin } from "@daiso-tech/core/middleware";
+import { EventBus } from "eridu-tech/event-bus";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+import { withPlugin } from "eridu-tech/middleware";
 import {
     withEventBusSchema,
     defineEventMapSchema,
-} from "@daiso-tech/core/event-bus/plugins";
+} from "eridu-tech/event-bus/plugins";
 import { z } from "zod";
 
 const eventMapSchema = defineEventMapSchema({
@@ -277,12 +277,12 @@ The plugin execution order is:
 ### Usage
 
 ```ts
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
+import { withPlugin } from "eridu-tech/middleware";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
 import {
     withEventBusSchema,
     withListenerTracking,
-} from "@daiso-tech/core/event-bus/plugins";
+} from "eridu-tech/event-bus/plugins";
 import { z } from "zod";
 
 const adapter = new MemoryEventBusAdapter();
@@ -328,10 +328,10 @@ const enhancedAdapter = withPlugin(adapter, [
 #### Using with EventBus class
 
 ```ts
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { withPlugin } from "@daiso-tech/core/middleware";
-import { withListenerTracking } from "@daiso-tech/core/event-bus/plugins";
+import { EventBus } from "eridu-tech/event-bus";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+import { withPlugin } from "eridu-tech/middleware";
+import { withListenerTracking } from "eridu-tech/event-bus/plugins";
 
 const adapter = new MemoryEventBusAdapter();
 

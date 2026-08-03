@@ -14,7 +14,7 @@ import {
  * The next function in the middleware chain.
  * Calling it passes control to the next middleware or the final handler.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpNextFn = InvocableFn<[], Promisable<IHttpRes>>;
@@ -23,7 +23,7 @@ export type HttpNextFn = InvocableFn<[], Promisable<IHttpRes>>;
  * The arguments passed to a middleware function or object.
  * Extends {@link HttpHandlerArgs} with a `next` function.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpMiddlewareArgs = HttpHandlerArgs & {
@@ -38,7 +38,7 @@ export type HttpMiddlewareArgs = HttpHandlerArgs & {
  * Receives {@link HttpMiddlewareArgs} (request, response builder, context, next)
  * and returns a response.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type IHttpMiddlewareObject = IInvocableObject<
@@ -51,7 +51,7 @@ export type IHttpMiddlewareObject = IInvocableObject<
  * Receives {@link HttpMiddlewareArgs} (request, response builder, context, next)
  * and returns a response.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpMiddlewareFn = InvocableFn<
@@ -62,7 +62,7 @@ export type HttpMiddlewareFn = InvocableFn<
 /**
  * A union of all middleware forms: a function or an invocable object.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpMiddleware = HttpMiddlewareFn | IHttpMiddlewareObject;
@@ -80,7 +80,7 @@ export type HttpMiddleware = HttpMiddlewareFn | IHttpMiddlewareObject;
  * defineHttpMiddleware(async ({ req, next }) => { ... });
  * ```
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export function defineHttpMiddleware(

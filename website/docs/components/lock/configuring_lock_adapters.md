@@ -37,7 +37,7 @@ keywords:
 To use the `MemoryLockAdapter` you only need to create instance of it:
 
 ```ts
-import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
+import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
 
 const memoryLockAdapter = new MemoryLockAdapter();
 ```
@@ -45,7 +45,7 @@ const memoryLockAdapter = new MemoryLockAdapter();
 You can also provide an `Map` that will be used for storing the data in memory:
 
 ```ts
-import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
+import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
 
 const map = new Map<any, any>();
 const memoryLockAdapter = new MemoryLockAdapter(map);
@@ -66,7 +66,7 @@ To use the `MongodbLockAdapter`, you'll need to:
 1. Install the required dependency: [`mongodb`](https://www.npmjs.com/package/mongodb) package:
 
 ```ts
-import { MongodbLockAdapter } from "@daiso-tech/core/lock/mongodb-lock-adapter";
+import { MongodbLockAdapter } from "eridu-tech/lock/mongodb-lock-adapter";
 import { MongoClient } from "mongodb";
 
 const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
@@ -124,7 +124,7 @@ To use the `RedisLockAdapter`, you'll need to:
 1. Install the required dependency: [`ioredis`](https://www.npmjs.com/package/ioredis) package:
 
 ```ts
-import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
+import { RedisLockAdapter } from "eridu-tech/lock/redis-lock-adapter";
 import Redis from "ioredis";
 
 const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
@@ -148,8 +148,8 @@ To use the `KyselyLockAdapter`, you'll need to:
 You will need to install [`better-sqlite3`](https://www.npmjs.com/package/better-sqlite3) package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselyLockAdapter } from "@daiso-tech/core/lock/kysely-lock-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselyLockAdapter } from "eridu-tech/lock/kysely-lock-adapter";
 import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 
@@ -177,8 +177,8 @@ Note using `KyselyLockAdapter` with `sqlite` is limited to single server usage a
 You will need to install [`pg`](https://www.npmjs.com/package/pg) package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselyLockAdapter } from "@daiso-tech/core/lock/kysely-lock-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselyLockAdapter } from "eridu-tech/lock/kysely-lock-adapter";
 import { Pool } from "pg";
 import { Kysely, PostgresDialect } from "kysely";
 
@@ -214,8 +214,8 @@ Note in order to use `KyselyLockAdapter` with `postgres` correctly, ensure you u
 You will need to install [`mysql2`](https://www.npmjs.com/package/mysql2) package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselyLockAdapter } from "@daiso-tech/core/lock/kysely-lock-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselyLockAdapter } from "eridu-tech/lock/kysely-lock-adapter";
 import { createPool } from "mysql2";
 import { Kysely, MysqlDialect } from "kysely";
 
@@ -251,8 +251,8 @@ Note in order to use `KyselyLockAdapter` with `mysql` correctly, ensure you use 
 You will need to install `@libsql/kysely-libsql` package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselyLockAdapter } from "@daiso-tech/core/lock/kysely-lock-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselyLockAdapter } from "eridu-tech/lock/kysely-lock-adapter";
 import { LibsqlDialect } from "@libsql/kysely-libsql";
 import { Kysely } from "kysely";
 
@@ -303,15 +303,15 @@ await kyselyLockAdapter.deInit();
 The `NoOpLockAdapter` is a no-operation implementation, it performs no actions when called:
 
 ```ts
-import { NoOpLockAdapter } from "@daiso-tech/core/lock/no-op-lock-adpater";
+import { NoOpLockAdapter } from "eridu-tech/lock/no-op-lock-adpater";
 
 const noOpLockAdapter = new NoOpLockAdapter();
 ```
 
 :::info
-The `NoOpLockAdapter` is useful when you want to mock out or disable your [`LockFactory`](https://daiso-tech.github.io/daiso-core/classes/Lock.LockFactory.html) instance.
+The `NoOpLockAdapter` is useful when you want to mock out or disable your [`LockFactory`](https://eridu-tech.github.io/eridu-tech/classes/Lock.LockFactory.html) instance.
 :::
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/lock`](https://daiso-tech.github.io/daiso-core/modules/Lock.html) API docs.
+For further information refer to [`eridu-tech/lock`](https://eridu-tech.github.io/eridu-tech/modules/Lock.html) API docs.

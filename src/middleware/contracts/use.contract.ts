@@ -28,7 +28,7 @@ import {
  * @see {@link MiddlewareArgs | `MiddlewareArgs`}
  * @see {@link MiddlewareFn | `MiddlewareFn`}
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type NextFn<
@@ -58,7 +58,7 @@ export type NextFn<
  * @see {@link MiddlewareFn | `MiddlewareFn`}
  * @see {@link IContext | `IContext`}
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type MiddlewareArgs<
@@ -105,7 +105,7 @@ export type MiddlewareArgs<
  * @see {@link MiddlewareFn | `MiddlewareFn`}
  * @see {@link Middleware | `Middleware`}
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type IMiddlewareObject<
@@ -125,7 +125,7 @@ export type IMiddlewareObject<
  * @typeParam TParameters - Type of arguments passed to the function
  * @typeParam TReturn - Type of value returned from the function
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type MiddlewareFn<
@@ -160,7 +160,7 @@ export type MiddlewareFn<
  * });
  * ```
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export function defineMiddleware<
@@ -193,7 +193,7 @@ export function defineMiddleware<
  * @see {@link IMiddlewareObject | `IMiddlewareObject`}
  * @see {@link MiddlewareArgs | `MiddlewareArgs`}
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type Middleware<
@@ -241,7 +241,7 @@ export type Middleware<
  * @see {@link Middleware | `Middleware`}
  * @see {@link Invocable | `Invocable`}
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type Use = <TParameters extends Array<unknown>, TReturn>(

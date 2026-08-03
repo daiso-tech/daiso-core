@@ -27,7 +27,7 @@ import {
  * Base configuration shared by all `EventBus` variants.
  * Supports optional schema-based validation for event maps.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
+ * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Derivables
  */
 export type EventBusSettingsBase = {
@@ -35,8 +35,8 @@ export type EventBusSettingsBase = {
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -48,7 +48,7 @@ export type EventBusSettingsBase = {
  * Configuration for the `EventBus` class.
  * Extends {@link EventBusSettingsBase | `EventBusSettingsBase`} with a required adapter.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
+ * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Derivables
  */
 export type EventBusSettings = EventBusSettingsBase & {
@@ -67,7 +67,7 @@ export type EventBusSettings = EventBusSettingsBase & {
 /**
  * `EventBus` class can be derived from any {@link IEventBusAdapter | `IEventBusAdapter`}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
+ * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Derivables
  */
 export class EventBus<
@@ -85,8 +85,8 @@ export class EventBus<
     /**
      * @example
      * ```ts
-     * import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-     * import { EventBus } from "@daiso-tech/core/event-bus";
+     * import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+     * import { EventBus } from "eridu-tech/event-bus";
      *
      * const eventBus = new EventBus({
      *   adapter: new MemoryEventBusAdapter()

@@ -14,13 +14,13 @@ import { ogGenerator } from "./utilities/og-generator";
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-    title: "@daiso-tech/core",
+    title: "eridu-tech",
     tagline:
         "Write business logic once. Replace infrastructure anytime. The adapter-first backend toolkit for TypeScript.",
     favicon: "img/favicon.ico",
 
     // Set the production url of your site here
-    url: "https://www.daiso-tech.dev/",
+    url: "https://www.eridu-tech.dev/",
 
     // Set the /<baseUrl>/ pathname under which your site is served
     // For GitHub pages deployment, it is often '/<projectName>/'
@@ -29,7 +29,7 @@ const config: Config = {
     // GitHub pages deployment config.
     // If you aren't using GitHub pages, you don't need these.
     organizationName: "yousif-khalil-abdulkarim", // Usually your GitHub org/user name.
-    projectName: "daiso-core", // Usually your repo name.
+    projectName: "eridu-tech", // Usually your repo name.
 
     onBrokenLinks: "throw",
     markdown: {
@@ -50,9 +50,9 @@ const config: Config = {
         [
             docusaurusPluginLlmsTxt,
             {
-                siteTitle: "@daiso-tech/core",
+                siteTitle: "eridu-tech",
                 siteDescription:
-                    "Mastering @daiso-tech/core: Comprehensive Guides for the Backend Server Component Library",
+                    "Mastering eridu-tech: Comprehensive Guides for the Backend Server Component Library",
                 enableDescriptions: true,
                 content: {
                     relativePaths: true,
@@ -82,7 +82,7 @@ const config: Config = {
                     // Please change this to your repo.
                     // Remove this to remove the "edit this page" links.
                     editUrl:
-                        "https://github.com/daiso-tech/daiso-core/tree/main/website/",
+                        "https://github.com/eridu-tech/eridu-tech/tree/main/website/",
                 },
                 blog: {
                     showReadingTime: true,
@@ -93,11 +93,6 @@ const config: Config = {
                     onInlineTags: "warn",
                     onInlineAuthors: "warn",
                     onUntruncatedBlogPosts: "warn",
-                    // Please change this to your repo.
-                    // Remove this to remove the "edit this page" links.
-                    // editUrl:
-                    //     "https://github.com/daiso-tech/daiso-core/daiso-core/tree/main/website/",
-                    // Useful options to enforce blogging best practices
                 },
                 theme: {
                     customCss: "./src/css/custom.css",
@@ -120,9 +115,9 @@ const config: Config = {
         // Replace with your project's social card
         image: "img/docusaurus-social-card.jpg",
         navbar: {
-            title: "@daiso-tech/core",
+            title: "eridu-tech",
             logo: {
-                alt: "@daiso-tech/core Logo",
+                alt: "eridu-tech Logo",
                 src: "img/logo.svg",
             },
             items: [
@@ -134,16 +129,16 @@ const config: Config = {
                 },
                 {
                     label: "API docs",
-                    href: "https://daiso-tech.github.io/daiso-core/modules.html",
+                    href: "https://eridu-tech.github.io/eridu-tech/modules.html",
                     position: "left",
                 },
                 {
-                    href: "https://github.com/daiso-tech/daiso-core/",
+                    href: "https://github.com/eridu-tech/eridu-tech/",
                     label: "GitHub",
                     position: "right",
                 },
                 {
-                    href: "https://www.npmjs.com/package/@daiso-tech/core",
+                    href: "https://www.npmjs.com/package/eridu-tech",
                     label: "NPM",
                     position: "right",
                 },
@@ -151,7 +146,7 @@ const config: Config = {
         },
         footer: {
             style: "dark",
-            copyright: `© ${String(new Date().getFullYear())} @daiso-tech/core. Built with Docusaurus.`,
+            copyright: `© ${String(new Date().getFullYear())} eridu-tech. Built with Docusaurus.`,
         },
         prism: {
             theme: prismThemes.github,

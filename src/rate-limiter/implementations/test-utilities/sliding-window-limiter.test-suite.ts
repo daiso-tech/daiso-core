@@ -24,7 +24,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/test-utilities"`
  * @group TestUtilities
  */
 export type SlidingWindowLimiterTestSuiteSettings = {
@@ -37,7 +37,7 @@ export type SlidingWindowLimiterTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
@@ -64,17 +64,17 @@ const backoffPolicySettings: Required<ConstantBackoffSettingsEnum> = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/test-utilities"`
  * @group TestUtilities
  *
  * @example
  * ```ts
  * import { beforeEach, describe, expect, test } from "vitest";
- * import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
- * import { SlidingWindowLimiter } from "@daiso-tech/core/rate-limiter/policies";
- * import { slidingWindowLimiterTestSuite } from "@daiso-tech/core/rate-limiter/test-utilities";
- * import { constantBackoff } from "@daiso-tech/core/backoff-policies";
- * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
+ * import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+ * import { SlidingWindowLimiter } from "eridu-tech/rate-limiter/policies";
+ * import { slidingWindowLimiterTestSuite } from "eridu-tech/rate-limiter/test-utilities";
+ * import { constantBackoff } from "eridu-tech/backoff-policies";
+ * import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
  *
  * describe("sliding-window-limiter class: DatabaseRateLimiterAdapter", () => {
  *     slidingWindowLimiterTestSuite({

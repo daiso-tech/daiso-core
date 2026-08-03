@@ -17,7 +17,7 @@ Use the `hono/aws-lambda` adapter to wrap `HttpRouter` for AWS Lambda.
 ### 1. Install
 
 ```sh
-npm install @daiso-tech/core hono
+npm install eridu-tech hono
 npm install -D esbuild
 ```
 
@@ -29,7 +29,7 @@ import {
     HttpRouter,
     HttpRes,
     defaultHttpRouterAdapter,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 import { handle } from "hono/aws-lambda";
 
 const router = new HttpRouter({ router: defaultHttpRouterAdapter });

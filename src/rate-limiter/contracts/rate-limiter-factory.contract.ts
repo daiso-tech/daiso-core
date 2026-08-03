@@ -8,7 +8,7 @@ import { type ErrorPolicySettings } from "@/utilities/_module.js";
 /**
  * Configuration settings for creating a rate limiter instance through the factory.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type RateLimiterFactoryCreateSettings = ErrorPolicySettings & {
@@ -27,7 +27,7 @@ export type RateLimiterFactoryCreateSettings = ErrorPolicySettings & {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type IRateLimiterFactory = {

@@ -32,7 +32,7 @@ import {
 /**
  * Base configuration shared by all `SemaphoreFactory` variants.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
+ * IMPORT_PATH: `"eridu-tech/semaphore"`
  * @group Derivables
  */
 export type SemaphoreFactorySettingsBase = {
@@ -40,8 +40,8 @@ export type SemaphoreFactorySettingsBase = {
      * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link SemaphoreFactory | `SemaphoreFactory`} to register the semaphore's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { NoOpSerdeAdapter } from "@daiso-tech/core/serde/no-op-serde-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { NoOpSerdeAdapter } from "eridu-tech/serde/no-op-serde-adapter";
      *
      * new Serde(new NoOpSerdeAdapter())
      * ```
@@ -68,7 +68,7 @@ export type SemaphoreFactorySettingsBase = {
      * You can decide the default ttl value for {@link ISemaphore | `ISemaphore`} expiration. If null is passed then no ttl will be used by default.
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMinutes(5);
      * ```
@@ -78,7 +78,7 @@ export type SemaphoreFactorySettingsBase = {
     /**
      * The default refresh time used in the {@link ISemaphore | `ISemaphore`} `refresh` method.
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMinutes(5);
      * ```
@@ -89,8 +89,8 @@ export type SemaphoreFactorySettingsBase = {
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -102,7 +102,7 @@ export type SemaphoreFactorySettingsBase = {
  * Configuration for `SemaphoreFactory`.
  * Extends {@link SemaphoreFactorySettingsBase | `SemaphoreFactorySettingsBase`} with a required adapter.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
+ * IMPORT_PATH: `"eridu-tech/semaphore"`
  * @group Derivables
  */
 export type SemaphoreFactorySettings = SemaphoreFactorySettingsBase & {
@@ -119,7 +119,7 @@ export type SemaphoreFactorySettings = SemaphoreFactorySettingsBase & {
  * allowing them to be seamlessly transferred across different servers, processes, and databases.
  * This can be done directly using {@link ISerderRegister | `ISerderRegister`} or indirectly through components that rely on {@link ISerderRegister | `ISerderRegister`} internally.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
+ * IMPORT_PATH: `"eridu-tech/semaphore"`
  * @group Derivables
  */
 export class SemaphoreFactory implements ISemaphoreFactory {
@@ -134,10 +134,10 @@ export class SemaphoreFactory implements ISemaphoreFactory {
     /**
      * @example
      * ```ts
-     * import { KyselySemaphoreAdapter } from "@daiso-tech/core/semaphore/kysely-semaphore-adapter";
-     * import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { KyselySemaphoreAdapter } from "eridu-tech/semaphore/kysely-semaphore-adapter";
+     * import { SemaphoreFactory } from "eridu-tech/semaphore";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *

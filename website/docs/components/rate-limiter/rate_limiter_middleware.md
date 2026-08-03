@@ -19,10 +19,10 @@ The RateLimiter middleware wraps function calls with a rate limiter, controlling
 ## Usage
 
 ```ts
-import { withRateLimiterFactory } from "@daiso-tech/core/rate-limiter/middlewares";
-import { RateLimiterFactory } from "@daiso-tech/core/rate-limiter";
-import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
-import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
+import { withRateLimiterFactory } from "eridu-tech/rate-limiter/middlewares";
+import { RateLimiterFactory } from "eridu-tech/rate-limiter";
+import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
+import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
 
 const rateLimiterFactory = new RateLimiterFactory({
     adapter: new DatabaseRateLimiterAdapter({
@@ -52,9 +52,9 @@ await rateLimitedCall(
 ```
 
 :::info
-Here is a complete list of settings for the [`withRateLimiter`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.WithRateLimiterSettings.html) function.
+Here is a complete list of settings for the [`withRateLimiter`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.WithRateLimiterSettings.html) function.
 :::
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/rate-limiter`](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) API docs.
+For further information refer to [`eridu-tech/rate-limiter`](https://eridu-tech.github.io/eridu-tech/modules/RateLimiter.html) API docs.

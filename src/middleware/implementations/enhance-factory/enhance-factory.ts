@@ -50,7 +50,7 @@ export function enhanceFactory(use_: Use): Enhance {
 }
 
 /**
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Implementations
  */
 export const enhance = enhanceFactory(use);

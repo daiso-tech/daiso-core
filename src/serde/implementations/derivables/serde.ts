@@ -43,7 +43,7 @@ import {
 /**
  * Configuration for the `Serde` class.
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde"`
+ * IMPORT_PATH: `"eridu-tech/serde"`
  * @group Derivables
  */
 export type SerdeSettings = {
@@ -181,7 +181,7 @@ export type SerdeSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/serde"`
+ * IMPORT_PATH: `"eridu-tech/serde"`
  * @group Derivables
  */
 export type SerializedClass = {
@@ -192,7 +192,7 @@ export type SerializedClass = {
 /**
  * `Serde` class can be derived from any {@link IFlexibleSerdeAdapter | `IFlexibleSerdeAdapter`}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde"`
+ * IMPORT_PATH: `"eridu-tech/serde"`
  * @group Derivables
  */
 export class Serde<
@@ -201,9 +201,9 @@ export class Serde<
     /**
      * @example
      * ```ts
-     * import type { IFlexibleSerde } from "@daiso-tech/core/serde/contracts";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
+     * import type { IFlexibleSerde } from "eridu-tech/serde/contracts";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+     * import { Serde } from "eridu-tech/serde";
      *
      * const serde: IFlexibleSerde = new Serde(new SuperJsonSerdeAdapter());
      * ```
@@ -308,9 +308,9 @@ export class Serde<
     /**
      * @example
      * ```ts
-     * import type { IFlexibleSerde } from "@daiso-tech/core/serde/contracts";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
+     * import type { IFlexibleSerde } from "eridu-tech/serde/contracts";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+     * import { Serde } from "eridu-tech/serde";
      *
      * const serde: IFlexibleSerde = new Serde(new SuperJsonSerdeAdapter());
      *
@@ -328,9 +328,9 @@ export class Serde<
     /**
      * @example
      * ```ts
-     * import type { IFlexibleSerde } from "@daiso-tech/core/serde/contracts";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
+     * import type { IFlexibleSerde } from "eridu-tech/serde/contracts";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+     * import { Serde } from "eridu-tech/serde";
      *
      * const serde: IFlexibleSerde = new Serde(new SuperJsonSerdeAdapter());
      *
@@ -351,10 +351,10 @@ export class Serde<
     /**
      * @example
      * ```ts
-     * import type { IFlexibleSerde } from "@daiso-tech/core/serde/contracts";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { ISerializable } from "@daiso-tech/core/serde/contracts";
+     * import type { IFlexibleSerde } from "eridu-tech/serde/contracts";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { ISerializable } from "eridu-tech/serde/contracts";
      *
      * const serde: IFlexibleSerde = new Serde(new SuperJsonSerdeAdapter());
      *
@@ -433,9 +433,9 @@ export class Serde<
     /**
      * @example
      * ```ts
-     * import type { IFlexibleSerde, ISerializable } from "@daiso-tech/core/serde/contracts";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
+     * import type { IFlexibleSerde, ISerializable } from "eridu-tech/serde/contracts";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+     * import { Serde } from "eridu-tech/serde";
      *
      * const serde: IFlexibleSerde = new Serde(new SuperJsonSerdeAdapter());
      *

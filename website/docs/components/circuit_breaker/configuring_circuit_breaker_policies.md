@@ -11,7 +11,7 @@ pagination_label: Configuring CircuitBreaker policies
 The `ConsecutiveBreaker` breaks after n requests in a row fail.
 
 ```ts
-import { ConsecutiveBreaker } from "@daiso-tech/core/circuit-breaker/policies";
+import { ConsecutiveBreaker } from "eridu-tech/circuit-breaker/policies";
 
 new ConsecutiveBreaker({
     /**
@@ -33,7 +33,7 @@ new ConsecutiveBreaker({
 The `CountBreaker` breaks after a proportion of requests in a count based sliding window fail.
 
 ```ts
-import { CountBreaker } from "@daiso-tech/core/circuit-breaker/policies"
+import { CountBreaker } from "eridu-tech/circuit-breaker/policies"
 
 new CountBreaker({
     /**
@@ -67,8 +67,8 @@ new CountBreaker({
 The `SamplingBreaker` breaks after a proportion of requests over a time period fail.
 
 ```ts
-import { SamplingBreaker } from "@daiso-tech/core/circuit-breaker/policies";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { SamplingBreaker } from "eridu-tech/circuit-breaker/policies";
+import { TimeSpan } from "eridu-tech/time-span";
 
 new SamplingBreaker({
     /**
@@ -105,4 +105,4 @@ new SamplingBreaker({
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/circuit-breaker`](https://daiso-tech.github.io/daiso-core/modules/CircuitBreaker.html) API docs.
+For further information refer to [`eridu-tech/circuit-breaker`](https://eridu-tech.github.io/eridu-tech/modules/CircuitBreaker.html) API docs.

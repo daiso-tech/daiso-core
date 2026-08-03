@@ -20,7 +20,7 @@ import { TimeSpan } from "@/time-span/implementations/time-span.js";
 import { type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/test-utilities"`
  * @group TestUtilities
  */
 export type RateLimiterStorageAdapterTestSuiteSettings = {
@@ -33,8 +33,8 @@ export type RateLimiterStorageAdapterTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -45,16 +45,16 @@ export type RateLimiterStorageAdapterTestSuiteSettings = {
 /**
  * The `rateLimiterStorageAdapterTestSuite` function simplifies the process of testing your custom implementation of {@link IRateLimiterStorageAdapter | `IRateLimiterStorageAdapter`} with `vitest`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/test-utilities"`
  * @group TestUtilities
  * @example
  * ```ts
  * import { afterEach, beforeEach, describe, expect, test } from "vitest";
- * import { rateLimiterStorageAdapterTestSuite } from "@daiso-tech/core/rate-limiter/test-utilities";
- * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
- * import { TimeSpan } from "@daiso-tech/core/time-span";
- * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
- * import { Serde } from "@daiso-tech/core/serde";
+ * import { rateLimiterStorageAdapterTestSuite } from "eridu-tech/rate-limiter/test-utilities";
+ * import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
+ * import { TimeSpan } from "eridu-tech/time-span";
+ * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+ * import { Serde } from "eridu-tech/serde";
  *
  * describe("class: MemoryRateLimiterStorageAdapter", () => {
  *     rateLimiterStorageAdapterTestSuite({

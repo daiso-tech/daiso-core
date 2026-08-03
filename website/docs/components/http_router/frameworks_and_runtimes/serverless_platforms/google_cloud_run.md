@@ -83,7 +83,7 @@ gcloud auth login
 ### 3. Install dependencies
 
 ```sh
-npm install @daiso-tech/core hono @hono/node-server
+npm install eridu-tech hono @hono/node-server
 ```
 
 ### 4. Create the application
@@ -94,7 +94,7 @@ import {
     HttpRouter,
     HttpRes,
     defaultHttpRouterAdapter,
-} from "@daiso-tech/core/http-router";
+} from "eridu-tech/http-router";
 import { serve } from "@hono/node-server";
 
 const router = new HttpRouter({ router: defaultHttpRouterAdapter });

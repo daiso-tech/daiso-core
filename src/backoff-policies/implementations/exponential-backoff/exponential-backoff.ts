@@ -19,7 +19,7 @@ import { callInvocable, isInvocable, withJitter } from "@/utilities/_module.js";
  * `maxDelay`. An optional `jitter` factor randomises the delay to
  * avoid thundering-herd effects when multiple clients retry simultaneously.
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export type ExponentialBackoffSettings = {
@@ -27,7 +27,7 @@ export type ExponentialBackoffSettings = {
      * Upper bound on the computed delay. The wait time will never exceed this value.
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromSeconds(60)
      * ```
@@ -38,7 +38,7 @@ export type ExponentialBackoffSettings = {
      * Starting delay for the first retry. Subsequent delays grow from this base.
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(500)
      * ```
@@ -107,7 +107,7 @@ export function resolveExponentialBackoffSettings(
 /**
  * Exponential backoff policy with jitter
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export function exponentialBackoff(

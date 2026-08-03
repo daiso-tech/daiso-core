@@ -26,7 +26,7 @@ import {
  *   objects to wrap around the core handler.
  * @returns A new `WinterTcRequestHandler` with the middlewares applied.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/middlewares"`
+ * IMPORT_PATH: `"eridu-tech/http-router/middlewares"`
  * @group Implementations
  */
 export function use(

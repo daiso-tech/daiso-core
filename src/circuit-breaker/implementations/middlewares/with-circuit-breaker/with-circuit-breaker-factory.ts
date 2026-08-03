@@ -56,7 +56,7 @@ export type WithCircuitBreakerSettings<
  * @returns A function that accepts {@link WithCircuitBreakerSettings} and
  *          returns a middleware.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/middlewares"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/middlewares"`
  * @group Middleware
  */
 export function withCircuitBreakerFactory(

@@ -26,7 +26,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnRetryAttemptData<
@@ -37,7 +37,7 @@ export type OnRetryAttemptData<
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnExecutionAttempt<
@@ -45,7 +45,7 @@ export type OnExecutionAttempt<
 > = Invocable<[data: OnRetryAttemptData<TParameters>]>;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnRetryDelayData<
@@ -58,7 +58,7 @@ export type OnRetryDelayData<
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnRetryDelay<TParameters extends Array<unknown> = Array<unknown>> =
@@ -68,7 +68,7 @@ export type OnRetryDelay<TParameters extends Array<unknown> = Array<unknown>> =
  * Lifecycle callbacks for the `retry` middleware.
  * Invoked at key points during retry attempts: before execution and before the delay.
  *
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type RetryCallbacks<
@@ -90,7 +90,7 @@ export type RetryCallbacks<
  * Retries the wrapped function up to a maximum number of attempts.
  * Supports configurable backoff policies and lifecycle callbacks.
  *
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type RetrySettings<TParameters extends Array<unknown> = Array<unknown>> =
@@ -105,7 +105,7 @@ export type RetrySettings<TParameters extends Array<unknown> = Array<unknown>> =
             /**
              * @default
              * ```ts
-             * import { exponentialBackoff } from "@daiso-tech/core/backoff-policies";
+             * import { exponentialBackoff } from "eridu-tech/backoff-policies";
              *
              * exponentialBackoff();
              * ```
@@ -323,7 +323,7 @@ function throwErrors(settings: ThrowErrorsSettings): never {
 }
 
 /**
- * IMPORT_PATH: `@daiso-tech/core/resilience`
+ * IMPORT_PATH: `eridu-tech/resilience`
  * @group Middlewares
  * @throws {RetryResilienceError}
  */

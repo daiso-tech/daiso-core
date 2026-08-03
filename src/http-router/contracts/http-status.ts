@@ -6,7 +6,7 @@
  * HTTP informational status codes (1xx).
  * Indicates that the request was received and the process is continuing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpInformationalStatus = "100" | "101" | "102" | "103";
@@ -15,7 +15,7 @@ export type HttpInformationalStatus = "100" | "101" | "102" | "103";
  * HTTP success status codes (2xx).
  * Indicates that the request was successfully received, understood, and accepted.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpSuccessStatus =
@@ -34,7 +34,7 @@ export type HttpSuccessStatus =
  * HTTP redirection status codes (3xx).
  * Indicates that further action is needed to complete the request.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpRedirectStatus =
@@ -51,7 +51,7 @@ export type HttpRedirectStatus =
  * HTTP client error status codes (4xx).
  * Indicates that the request contains bad syntax or cannot be fulfilled.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpClientErrorStatus =
@@ -89,7 +89,7 @@ export type HttpClientErrorStatus =
  * HTTP server error status codes (5xx).
  * Indicates that the server failed to fulfill a valid request.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpServerErrorStatus =
@@ -109,7 +109,7 @@ export type HttpServerErrorStatus =
 /**
  * Union of all HTTP error status codes (4xx and 5xx).
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpErrorStatus = HttpClientErrorStatus | HttpServerErrorStatus;
@@ -118,7 +118,7 @@ export type HttpErrorStatus = HttpClientErrorStatus | HttpServerErrorStatus;
  * Union of all HTTP status codes (1xx through 5xx).
  * Provides autocompletion for well-known status codes while accepting any string.
  *
- * IMPORT_PATH: `"@daiso-tech/core/http-router/contracts"`
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
 export type HttpStatus =

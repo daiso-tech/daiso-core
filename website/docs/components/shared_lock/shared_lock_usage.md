@@ -12,16 +12,16 @@ keywords:
 
 # SharedLock usage
 
-The `@daiso-tech/core/shared-lock` component provides a way for managing shared-locks (a.k.a reader writer locks) independent of underlying platform or storage.
+The `eridu-tech/shared-lock` component provides a way for managing shared-locks (a.k.a reader writer locks) independent of underlying platform or storage.
 
 ## Initial configuration
 
 To begin using the `SharedLockFactory` class, you'll need to create and configure an instance:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
-import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
+import { TimeSpan } from "eridu-tech/time-span";
+import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
+import { SharedLockFactory } from "eridu-tech/shared-lock";
 
 const sharedLockFactory = new SharedLockFactory({
     // You can provide default TTL value
@@ -34,7 +34,7 @@ const sharedLockFactory = new SharedLockFactory({
 ```
 
 :::info
-Here is a complete list of settings for the [`SharedLockFactory`](https://daiso-tech.github.io/daiso-core/types/SharedLock.SharedLockFactorySettingsBase.html) class.
+Here is a complete list of settings for the [`SharedLockFactory`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.SharedLockFactorySettingsBase.html) class.
 :::
 
 ## SharedLock basics
@@ -158,10 +158,10 @@ const sharedLock = sharedLockFactory.create("shared-resource", {
 
 ### Checking shared-lock state
 
-You can get the shared-lock state by using the `getState` method, it returns [`ISharedLockState`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLockState.html).
+You can get the shared-lock state by using the `getState` method, it returns [`ISharedLockState`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.ISharedLockState.html).
 
 ```ts
-import { SHARED_LOCK_STATE } from "@daiso-tech/core/shared-lock/contracts";
+import { SHARED_LOCK_STATE } from "eridu-tech/shared-lock/contracts";
 
 const sharedLock = sharedLockFactory.create("shared-resource", {
     limit: 2,
@@ -457,9 +457,9 @@ To retry acquiring shared-lock as writer you can use the [`retry`](../resilience
 Retrying acquiring shared-lock as writer with `acquireWriterOrFail` method:
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { FailedAcquireWriterLockError } from "@daiso-tech/core/shared-lock/contracts";
-import { use } from "@daiso-tech/core/middleware";
+import { retry } from "eridu-tech/resilience";
+import { FailedAcquireWriterLockError } from "eridu-tech/shared-lock/contracts";
+import { use } from "eridu-tech/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2,
@@ -483,8 +483,8 @@ try {
 Retrying acquiring sharedLock as writer with `acquireWriter` method:
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { use } from "@daiso-tech/core/middleware";
+import { retry } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2,
@@ -513,9 +513,9 @@ if (hasAquired) {
 Retrying acquiring shared-lock as writer with `runWriterOrFail` method:
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { FailedAcquireWriterLockError } from "@daiso-tech/core/shared-lock/contracts";
-import { use } from "@daiso-tech/core/middleware";
+import { retry } from "eridu-tech/resilience";
+import { FailedAcquireWriterLockError } from "eridu-tech/shared-lock/contracts";
+import { use } from "eridu-tech/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2,
@@ -540,9 +540,9 @@ To retry acquiring shared-lock as reader you can use the [`retry`](../resilience
 Retrying acquiring shared-lock as reader with `acquireReaderOrFail` method:
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
-import { use } from "@daiso-tech/core/middleware";
+import { retry } from "eridu-tech/resilience";
+import { LimitReachedReaderSemaphoreError } from "eridu-tech/shared-lock/contracts";
+import { use } from "eridu-tech/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2,
@@ -566,8 +566,8 @@ try {
 Retrying acquiring sharedLock as reader with `acquireReader` method:
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { use } from "@daiso-tech/core/middleware";
+import { retry } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2,
@@ -596,9 +596,9 @@ if (hasAquired) {
 Retrying acquiring shared-lock as reader with `runReaderOrFail` method:
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
-import { use } from "@daiso-tech/core/middleware";
+import { retry } from "eridu-tech/resilience";
+import { LimitReachedReaderSemaphoreError } from "eridu-tech/shared-lock/contracts";
+import { use } from "eridu-tech/middleware";
 
 const sharedLock = sharedLockFactory.create("shared-lock", {
     limit: 2,
@@ -623,10 +623,10 @@ To retry acquiring shared-lockas as writer at regular intervals you can use the 
 Retrying acquiring shared-lock with `acquireWriterOrFail` method:
 
 ```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { FailedAcquireWriterLockError } from "@daiso-tech/core/shared-lock/contracts";
-import { use } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { retryInterval } from "eridu-tech/resilience";
+import { FailedAcquireWriterLockError } from "eridu-tech/shared-lock/contracts";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
@@ -653,9 +653,9 @@ try {
 Retrying acquiring shared-lock with `acquireWriter` method:
 
 ```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { use } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { retryInterval } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
@@ -685,10 +685,10 @@ if (hasAcquired) {
 Retrying acquiring shared-lock with `runWriterOrFail` method:
 
 ```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { FailedAcquireWriterLockError } from "@daiso-tech/core/shared-lock/contracts";
-import { use } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { retryInterval } from "eridu-tech/resilience";
+import { FailedAcquireWriterLockError } from "eridu-tech/shared-lock/contracts";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
@@ -718,10 +718,10 @@ To retry acquiring shared-lockas as reader at regular intervals you can use the 
 Retrying acquiring shared-lock with `acquireReaderOrFail` method:
 
 ```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
-import { use } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { retryInterval } from "eridu-tech/resilience";
+import { LimitReachedReaderSemaphoreError } from "eridu-tech/shared-lock/contracts";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
@@ -748,9 +748,9 @@ try {
 Retrying acquiring shared-lock with `acquireReader` method:
 
 ```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { use } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { retryInterval } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
@@ -780,10 +780,10 @@ if (hasAcquired) {
 Retrying acquiring shared-lock with `runReaderOrFail` method:
 
 ```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { LimitReachedReaderSemaphoreError } from "@daiso-tech/core/shared-lock/contracts";
-import { use } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { retryInterval } from "eridu-tech/resilience";
+import { LimitReachedReaderSemaphoreError } from "eridu-tech/shared-lock/contracts";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,
@@ -815,10 +815,10 @@ In order to serialize or deserialize a shared-lock you need pass an object that 
 Manually serializing and deserializing the shared-lock:
 
 ```ts
-import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
-import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RedisSharedLockAdapter } from "eridu-tech/shared-lock/redis-shared-lock-adapter";
+import { SharedLockFactory } from "eridu-tech/shared-lock";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 
@@ -848,13 +848,13 @@ Note you only need manuall serialization and deserialization when integrating wi
 As long you pass the same `Serde` instances with all other components you dont need to serialize and deserialize the shared-lock manually.
 
 ```ts
-import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
-import type { ISharedLock } from "@daiso-tech/core/shared-lock/contracts";
-import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
-import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RedisSharedLockAdapter } from "eridu-tech/shared-lock/redis-shared-lock-adapter";
+import type { ISharedLock } from "eridu-tech/shared-lock/contracts";
+import { SharedLockFactory } from "eridu-tech/shared-lock";
+import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
+import { EventBus } from "eridu-tech/event-bus";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 const redis = new Redis("YOUR_REDIS_CONNECTION");
@@ -899,14 +899,14 @@ await eventBus.addListener(
 
 The library includes 4 additional contracts:
 
-- [`ISharedLock`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLock.html) - Allows only for manipulating of the shared-lock.
+- [`ISharedLock`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.ISharedLock.html) - Allows only for manipulating of the shared-lock.
 
-- [`IWriterLock`](https://daiso-tech.github.io/daiso-core/types/SharedLock.IWriterLock.html) - Allows only for manipulating of the shared-lock as writer.
+- [`IWriterLock`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.IWriterLock.html) - Allows only for manipulating of the shared-lock as writer.
 
-- [`IReaderSemaphore`](https://daiso-tech.github.io/daiso-core/types/SharedLock.IReaderSemaphore.html) - Allows only for manipulating of the shared-lock as reader.
+- [`IReaderSemaphore`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.IReaderSemaphore.html) - Allows only for manipulating of the shared-lock as reader.
 
-- [`ISharedLockFactory`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLockFactory.html) - Allows only for creation of shared-locks.
+- [`ISharedLockFactory`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.ISharedLockFactory.html) - Allows only for creation of shared-locks.
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/shared-lock`](https://daiso-tech.github.io/daiso-core/modules/SharedLock.html) API docs.
+For further information refer to [`eridu-tech/shared-lock`](https://eridu-tech.github.io/eridu-tech/modules/SharedLock.html) API docs.

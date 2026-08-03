@@ -17,7 +17,7 @@ import {
 import { type AnyClass } from "@/utilities/types/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Utilities
  */
 export type ErrorPolicyBoolSetting = {
@@ -45,7 +45,7 @@ export function isErrorPolicyBoolSetting(
 /**
  * The `ErrorPolicy` can be a predicate function, {@link StandardSchemaV1 | `StandardSchemaV1`} and a class.
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Utilities
  */
 export type ErrorPolicy<TError = unknown> =
@@ -55,7 +55,7 @@ export type ErrorPolicy<TError = unknown> =
     | ErrorPolicyBoolSetting;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Utilities
  */
 export type ErrorPolicySettings<TError = unknown> = {

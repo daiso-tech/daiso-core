@@ -26,7 +26,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
+ * IMPORT_PATH: `"eridu-tech/file-storage"`
  * @group Derivables
  */
 export function defaultKeyValidator(key: string): string | null {
@@ -46,13 +46,13 @@ export function defaultKeyValidator(key: string): string | null {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
+ * IMPORT_PATH: `"eridu-tech/file-storage"`
  * @group Derivables
  */
 export type FileKeyValidator = InvocableFn<[key: string], string | null>;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
+ * IMPORT_PATH: `"eridu-tech/file-storage"`
  * @group Derivables
  */
 export type FileStorageSettingsBase = {
@@ -102,7 +102,7 @@ export type FileStorageSettingsBase = {
      * You can pass a key validator. The method should return string error message if unvalid or null if valid.
      * @default
      * ```ts
-     * import { defaultKeyValidator } from "@daiso-tech/core/file-storage";
+     * import { defaultKeyValidator } from "eridu-tech/file-storage";
      *
      * defaultKeyValidator
      * ```
@@ -118,8 +118,8 @@ export type FileStorageSettingsBase = {
      * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link FileStorage | `FileStorage`} to register the file's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { NoOpSerdeAdapter } from "@daiso-tech/core/serde/no-op-serde-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { NoOpSerdeAdapter } from "eridu-tech/serde/no-op-serde-adapter";
      *
      * new Serde(new NoOpSerdeAdapter())
      * ```
@@ -136,8 +136,8 @@ export type FileStorageSettingsBase = {
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -146,7 +146,7 @@ export type FileStorageSettingsBase = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
+ * IMPORT_PATH: `"eridu-tech/file-storage"`
  * @group Derivables
  */
 export type FileStorageSettings = FileStorageSettingsBase & {
@@ -163,7 +163,7 @@ export type FileStorageSettings = FileStorageSettingsBase & {
  * allowing them to be seamlessly transferred across different servers, processes, and databases.
  * This can be done directly using {@link ISerderRegister | `ISerderRegister`} or indirectly through components that rely on {@link ISerderRegister | `ISerderRegister`} internally.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
+ * IMPORT_PATH: `"eridu-tech/file-storage"`
  * @group Derivables
  */
 export class FileStorage implements IFileStorage {
@@ -183,10 +183,10 @@ export class FileStorage implements IFileStorage {
     /**
      * @example
      * ```ts
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
-     * import { FileStorag } from "@daiso-tech/core/file-storage";
-     * import { FsFileStorageAdapter } from "@daiso-tech/core/file-storage/fs-file-storage-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
+     * import { FileStorag } from "eridu-tech/file-storage";
+     * import { FsFileStorageAdapter } from "eridu-tech/file-storage/fs-file-storage-adapter";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
      * const fileStorageAdapter = new FsFileStorageAdapter();

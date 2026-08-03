@@ -12,7 +12,7 @@ import { type TimeSpan } from "@/time-span/implementations/_module.js";
  * Provides the current quota tracking metrics at the adapter level.
  * Contains information about success status, attempt count, and reset timing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type IRateLimiterAdapterState = {
@@ -44,7 +44,7 @@ export type IRateLimiterAdapterState = {
  * The adapter works with a policy interface that determines the blocking algorithm (e.g., fixed-window, sliding-window).
  * This separation allows multiple algorithm implementations to share the same storage layer.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type IRateLimiterAdapter = {

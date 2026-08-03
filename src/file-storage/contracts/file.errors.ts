@@ -7,7 +7,7 @@ import { type InferInstance } from "@/utilities/_module.js";
 /**
  * The error is thrown when a file key is not found
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Errors
  */
 export class KeyNotFoundFileError extends Error {
@@ -29,7 +29,7 @@ export class KeyNotFoundFileError extends Error {
 /**
  * The error is thrown when a file key already exists found
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Errors
  */
 export class KeyExistsFileError extends Error {
@@ -51,7 +51,7 @@ export class KeyExistsFileError extends Error {
 /**
  * The error is thrown when file key is invalid.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Errors
  */
 export class InvalidKeyFileError extends Error {
@@ -71,7 +71,7 @@ export class InvalidKeyFileError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Errors
  */
 export const FILE_STORAGE_ERRORS = {
@@ -81,7 +81,7 @@ export const FILE_STORAGE_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Errors
  */
 export type AllFileErrors = InferInstance<
@@ -89,7 +89,7 @@ export type AllFileErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Errors
  */
 export function isFileError(value: unknown): value is AllFileErrors {

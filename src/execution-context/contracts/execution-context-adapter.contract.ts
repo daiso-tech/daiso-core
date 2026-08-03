@@ -5,7 +5,7 @@
 import { type InvocableFn } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Adapter contract for managing execution context storage and lifecycle.
  *

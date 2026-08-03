@@ -18,7 +18,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay, type Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/test-utilities"`
  * @group Utilities
  */
 export type SemaphoreAdapterTestSuiteSettings = {
@@ -31,7 +31,7 @@ export type SemaphoreAdapterTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
@@ -41,8 +41,8 @@ export type SemaphoreAdapterTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -53,19 +53,19 @@ export type SemaphoreAdapterTestSuiteSettings = {
 /**
  * The `semaphoreAdapterTestSuite` function simplifies the process of testing your custom implementation of {@link ISemaphoreAdapter | `ISemaphoreAdapter`} with `vitest`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/test-utilities"`
  * @group Utilities
  * @example
  * ```ts
  * import { afterEach, beforeEach, describe, expect, test } from "vitest";
- * import { semaphoreAdapterTestSuite } from "@daiso-tech/core/semaphore/test-utilities";
- * import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
+ * import { semaphoreAdapterTestSuite } from "eridu-tech/semaphore/test-utilities";
+ * import { RedisSemaphoreAdapter } from "eridu-tech/semaphore/redis-semaphore-adapter";
  * import { Redis } from "ioredis";
  * import {
  *     RedisContainer,
  *     type StartedRedisContainer,
  * } from "@testcontainers/redis";
- * import { TimeSpan } from "@daiso-tech/core/time-span";
+ * import { TimeSpan } from "eridu-tech/time-span";
  *
  * const timeout = TimeSpan.fromMinutes(2);
  * describe("class: RedisSemaphoreAdapter", () => {

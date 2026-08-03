@@ -12,7 +12,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { callInvocable, type Invocable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnTimeoutData<TParameters extends Array<unknown> = Array<unknown>> =
@@ -22,14 +22,14 @@ export type OnTimeoutData<TParameters extends Array<unknown> = Array<unknown>> =
     };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnTimeout<TParameters extends Array<unknown> = Array<unknown>> =
     Invocable<[data: OnTimeoutData<TParameters>]>;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type TimeoutCallbacks<
@@ -45,7 +45,7 @@ export type TimeoutCallbacks<
  * Configuration for the `timeout` resilience middleware.
  * Rejects if the middleware result does not complete within the specified time; it does not cancel or abort next().
  *
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type TimeoutSettings<
@@ -56,7 +56,7 @@ export type TimeoutSettings<
      *
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromSeconds(2)
      * ```
@@ -67,7 +67,7 @@ export type TimeoutSettings<
 /**
  * The `timeout` middleware automatically cancels functions after a specified time period, throwing an error when aborted.
  *
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  * @throws {TimeoutResilienceError}
  */

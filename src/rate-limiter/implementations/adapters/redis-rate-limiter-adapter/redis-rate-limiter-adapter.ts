@@ -40,7 +40,7 @@ declare module "ioredis" {
          * @returns {string} {@link IRedisJsonRateLimiterState | `IRedisJsonRateLimiterState`} or `null` as json string.
          */
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_rate_limiter_update_state(
+        eridu_rate_limiter_update_state(
             key: string,
             limit: number,
             backoffSettings: string,
@@ -52,7 +52,7 @@ declare module "ioredis" {
          * @returns {string} {@link IRedisJsonRateLimiterState | `IRedisJsonRateLimiterState`} or `null` as json string.
          */
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_rate_limiter_get_state(
+        eridu_rate_limiter_get_state(
             key: string,
             backoffSettings: string,
             policySettings: string,
@@ -65,7 +65,7 @@ declare module "ioredis" {
  * Configuration for `RedisRateLimiterAdapter`.
  * Requires a Redis client and handles serialization internally with JSON.stringify/JSON.parse.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/redis-rate-limiter-adapter"`
  * @group Adapters
  */
 export type RedisRateLimiterAdapterSettings = {
@@ -94,7 +94,7 @@ export type RedisRateLimiterAdapterSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/redis-rate-limiter-adapter"`
  * @group Adapters
  */
 export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
@@ -107,7 +107,7 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
     /**
      * @example
      * ```ts
-     * import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
+     * import { RedisRateLimiterAdapter } from "eridu-tech/rate-limiter/redis-rate-limiter-adapter";
      * import Redis from "ioredis";
      *
      * const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
@@ -135,11 +135,11 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
     }
 
     private initGetStateCommand(): void {
-        if (typeof this.database.daiso_rate_limiter_get_state === "function") {
+        if (typeof this.database.eridu_rate_limiter_get_state === "function") {
             return;
         }
 
-        this.database.defineCommand("daiso_rate_limiter_get_state", {
+        this.database.defineCommand("eridu_rate_limiter_get_state", {
             numberOfKeys: 1,
             lua: `
             ${rateLimiterFactoryLua}
@@ -158,12 +158,12 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
 
     private initUpdateStateCommmand(): void {
         if (
-            typeof this.database.daiso_rate_limiter_update_state === "function"
+            typeof this.database.eridu_rate_limiter_update_state === "function"
         ) {
             return;
         }
 
-        this.database.defineCommand("daiso_rate_limiter_update_state", {
+        this.database.defineCommand("eridu_rate_limiter_update_state", {
             numberOfKeys: 1,
             lua: `
             ${rateLimiterFactoryLua}
@@ -185,7 +185,7 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
         key: string,
         _context: IReadableContext,
     ): Promise<IRateLimiterAdapterState | null> {
-        const json = await this.database.daiso_rate_limiter_get_state(
+        const json = await this.database.eridu_rate_limiter_get_state(
             key,
             JSON.stringify(serializeBackoffSettingsEnum(this.backoff)),
             JSON.stringify(serializeRateLimiterPolicySettingsEnum(this.policy)),
@@ -209,7 +209,7 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
         limit: number,
         _context: IReadableContext,
     ): Promise<IRateLimiterAdapterState> {
-        const json = await this.database.daiso_rate_limiter_update_state(
+        const json = await this.database.eridu_rate_limiter_update_state(
             key,
             limit,
             JSON.stringify(serializeBackoffSettingsEnum(this.backoff)),

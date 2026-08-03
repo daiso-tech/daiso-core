@@ -7,7 +7,7 @@ import { type InferInstance } from "@/utilities/_module.js";
 /**
  * The error is thrown when trying to acquire a lock that is owned by a different owner.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Errors
  */
 export class FailedAcquireLockError extends Error {
@@ -32,7 +32,7 @@ export class FailedAcquireLockError extends Error {
 /**
  * The error is thrown when trying to release a lock that is owned by a different owner.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Errors
  */
 export class FailedReleaseLockError extends Error {
@@ -61,7 +61,7 @@ export class FailedReleaseLockError extends Error {
 /**
  * The error is thrown when trying to refresh a lock that is owned by a different owner.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Errors
  */
 export class FailedRefreshLockError extends Error {
@@ -88,7 +88,7 @@ export class FailedRefreshLockError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Errors
  */
 export const LOCK_ERRORS = {
@@ -98,7 +98,7 @@ export const LOCK_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Errors
  */
 export type AllLockErrors = InferInstance<
@@ -106,7 +106,7 @@ export type AllLockErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Errors
  */
 export function isLockError(value: unknown): value is AllLockErrors {

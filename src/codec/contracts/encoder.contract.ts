@@ -14,7 +14,7 @@
  * @template TDecodedValue - The type of data before encoding (original/source format)
  * @template TEncodedValue - The type of data after encoding (target/transport format)
  *
- * IMPORT_PATH: `"@daiso-tech/core/codec/contracts"`
+ * IMPORT_PATH: `"eridu-tech/codec/contracts"`
  * @group Contracts
  */
 export type IEncoder<TDecodedValue, TEncodedValue> = {

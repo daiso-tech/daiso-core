@@ -22,7 +22,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
  * Tracks requests over a sliding time window and opens the circuit when the failure
  * percentage exceeds `failureThreshold`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/policies"`
  * @group Policies
  */
 export type SamplingBreakerSettings = {
@@ -48,7 +48,7 @@ export type SamplingBreakerSettings = {
      *
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMinutes(1)
      * ```
@@ -60,7 +60,7 @@ export type SamplingBreakerSettings = {
      *
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromTimeSpan(settings.timeSpan).divide(6)
      * ```
@@ -167,7 +167,7 @@ export function serializeSamplingBreakerSettings(
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/policies"`
  * @group Policies
  */
 export type Sample = {
@@ -177,7 +177,7 @@ export type Sample = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/policies"`
  * @group Policies
  */
 export type SamplingBreakerState = {
@@ -196,7 +196,7 @@ type ProccesedMetricData = {
 /**
  * The `SamplingBreaker` breaks after a proportion of requests over a time period fail.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/policies"`
  * @group Policies
  */
 export class SamplingBreaker implements ICircuitBreakerPolicy<SamplingBreakerState> {

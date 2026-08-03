@@ -41,7 +41,7 @@ import {
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/aws-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/aws-file-storage-adapter"`
  * @group Adapters
  */
 export type S3FilePublicUrlGenerator = Invocable<
@@ -53,7 +53,7 @@ export type S3FilePublicUrlGenerator = Invocable<
  * Configuration for `S3FileStorageAdapter`.
  * Provides AWS S3-backed file storage.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/aws-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/aws-file-storage-adapter"`
  * @group Adapters
  */
 export type S3FileStorageAdapterSettings = {
@@ -113,7 +113,7 @@ export type S3FileStorageAdapterSettings = {
      *
      * @default
      * ```ts
-     * import { defaultPublicUrlGenerator } from "@daiso-tech/core/file-storage/s3-file-storage-adapter"
+     * import { defaultPublicUrlGenerator } from "eridu-tech/file-storage/s3-file-storage-adapter"
      * defaultPublicUrlGenerator
      * ```
      */
@@ -121,7 +121,7 @@ export type S3FileStorageAdapterSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/aws-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/aws-file-storage-adapter"`
  * @group Adapters
  */
 export const defaultPublicUrlGenerator: S3FilePublicUrlGenerator = async ({
@@ -147,7 +147,7 @@ export const defaultPublicUrlGenerator: S3FilePublicUrlGenerator = async ({
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/aws-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/aws-file-storage-adapter"`
  * @group Adapters
  */
 export class S3FileStorageAdapter
@@ -167,7 +167,7 @@ export class S3FileStorageAdapter
      * @example
      * ```ts
      * import { S3Client } from "@aws-sdk/client-s3"
-     * import { S3FileStorageAdapter } from "@daiso-tech/core/file-storage/s3-file-storage-adapter";
+     * import { S3FileStorageAdapter } from "eridu-tech/file-storage/s3-file-storage-adapter";
      *
      * const s3FileStorageAdapter = new S3FileStorageAdapter({
      *   client: new S3Client({

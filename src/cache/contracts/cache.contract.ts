@@ -17,7 +17,7 @@ import {
  * It provides methods to retrieve values independent of the underlying cache storage backend (Redis, Memcached, database, etc.).
  * Use this contract when you need read-only access to cache data without mutation capabilities.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
+ * IMPORT_PATH: `"eridu-tech/cache/contracts"`
  * @group Contracts
  */
 export type IReadableCache<TType = unknown> = {
@@ -73,7 +73,7 @@ export type IReadableCache<TType = unknown> = {
 /**
  * The `ICache` contract defines a way for storing and reading as key-value pairs independent of data storage.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
+ * IMPORT_PATH: `"eridu-tech/cache/contracts"`
  * @group Contracts
  */
 export type ICache<TType = unknown> = IReadableCache<TType> & {

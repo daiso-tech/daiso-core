@@ -97,7 +97,7 @@ export type WithSharedLockFactorySettings<
  * @returns A function that accepts {@link WithSharedLockFactorySettings} and
  *          returns a middleware.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/middlewares"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/middlewares"`
  * @group Middleware
  */
 export function withSharedLockFactory(sharedLockFactory: ISharedLockFactory) {

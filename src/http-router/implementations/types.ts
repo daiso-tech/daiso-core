@@ -7,7 +7,7 @@ import {
 } from "@/http-router/contracts/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export type MiddlewareEntry = {
@@ -16,7 +16,7 @@ export type MiddlewareEntry = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export type EndpointEntry = {
@@ -25,7 +25,7 @@ export type EndpointEntry = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/http-router"`
+ * IMPORT_PATH: `"eridu-tech/http-router"`
  * @group Implementations
  */
 export type RouterEntry = MiddlewareEntry | EndpointEntry;

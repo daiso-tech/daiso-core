@@ -43,7 +43,7 @@ import {
     Package,
 } from "lucide-react";
 
-export const INSTALL_CMD = "npm install @daiso-tech/core";
+export const INSTALL_CMD = "npm install eridu-tech";
 
 // ─── Components Record ──────────────────────────────────────────
 // Single source of truth for every component — keyed by name.
@@ -555,7 +555,7 @@ export const COMPONENT_RECORD = {
         description: (
             <>
                 Native and performant MongoDB-backed implementations of every
-                Daiso component — rate limiters, circuit breakers, event bus,
+                Eridu-tech component — rate limiters, circuit breakers, event bus,
                 message queues, job schedulers, request-reply, transaction
                 context, and cache — all using MongoDB as the persistence layer.
                 No additional dependencies required.
@@ -569,7 +569,7 @@ export const COMPONENT_RECORD = {
         description: (
             <>
                 Native and performant PostgreSQL-backed implementations of every
-                Daiso component — rate limiters, circuit breakers, locks,
+                Eridu-tech component — rate limiters, circuit breakers, locks,
                 semaphores, shared locks, event bus, message queues, job
                 schedulers, request-reply, transaction context, and cache — all
                 using PostgreSQL as the persistence layer via Kysely. No
@@ -583,7 +583,7 @@ export const COMPONENT_RECORD = {
         title: <>SSH Deployment</>,
         description: (
             <>
-                Deploy and manage Daiso applications on any VPS or bare-metal
+                Deploy and manage Eridu-tech applications on any VPS or bare-metal
                 server via SSH. Push builds, manage processes, configure
                 environment, and run health checks — all from a single CLI
                 command, no Docker or orchestration required.
@@ -690,8 +690,8 @@ export const COMPONENT_RECORD = {
         title: <>Scaffolding CLI</>,
         description: (
             <>
-                Predefined CLI commands to scaffold Daiso projects and
-                components. Initialize a new Daiso project from scratch or add
+                Predefined CLI commands to scaffold Eridu-tech projects and
+                components. Initialize a new Eridu-tech project from scratch or add
                 individual components (DI, Cache, Scheduler, Auth, etc.) to an
                 existing project — with sensible defaults, config files, and
                 boilerplate code generated automatically.
@@ -1020,7 +1020,7 @@ export const NOT_IDEAL_FOR = {
         title: <>Frontend-only applications:</>,
         description: (
             <>
-                @daiso-tech/core is designed for backend and server-side
+                eridu-tech is designed for backend and server-side
                 development, not browser applications.
             </>
         ),
@@ -1092,8 +1092,8 @@ const deserializedLock = await cache.get(lock.key);`,
     } satisfies CodeFile,
     LOCK_FACTORY: {
         name: "lock-factory.ts",
-        code: `import { LockFactory } from "@daiso-tech/core/lock";
-import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
+        code: `import { LockFactory } from "eridu-tech/lock";
+import { RedisLockAdapter } from "eridu-tech/lock/redis-lock-adapter";
 import { serde } from "./serde.js";
 
 export const lockFactory = new LockFactory({
@@ -1103,8 +1103,8 @@ export const lockFactory = new LockFactory({
     } satisfies CodeFile,
     CACHE: {
         name: "cache.ts",
-        code: `import { Cache } from "@daiso-tech/core/cache";
-import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
+        code: `import { Cache } from "eridu-tech/cache";
+import { RedisCacheAdapter } from "eridu-tech/cache/redis-cache-adapter";
 import { serde } from "./serde.js";
 
 export const cache = new Cache({
@@ -1116,17 +1116,17 @@ export const cache = new Cache({
     } satisfies CodeFile,
     SERDE: {
         name: "serde.ts",
-        code: `import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+        code: `import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 export const serde = new Serde(new SuperJsonSerdeAdapter());`,
     } satisfies CodeFile,
     EXECUTION_CONTEXT: {
         name: "main.ts",
-        code: `import { Cache } from "@daiso-tech/core/cache";
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus";
+        code: `import { Cache } from "eridu-tech/cache";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { EventBus } from "eridu-tech/event-bus";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus";
 
 // A single context instance shared by every context-aware component
 const executionContext = new ExecutionContext(new AlsExecutionContextAdapter());
@@ -1143,9 +1143,9 @@ const eventBus = new EventBus({
     } satisfies CodeFile,
     MIDDLEWARE: {
         name: "middleware.ts",
-        code: `import { use } from "@daiso-tech/core/middleware";
-import { retry, timeout } from "@daiso-tech/core/resilience";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+        code: `import { use } from "eridu-tech/middleware";
+import { retry, timeout } from "eridu-tech/resilience";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const fetchUser = async (id: string) => {
     const res = await fetch(\`/api/users/\${id}\`);
@@ -1163,9 +1163,9 @@ const user = await resilientFetch("42");`,
     } satisfies CodeFile,
     ENHANCE: {
         name: "enhance.ts",
-        code: `import { enhance, defineMiddleware } from "@daiso-tech/core/middleware";
-import { retry, timeout } from "@daiso-tech/core/resilience";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+        code: `import { enhance, defineMiddleware } from "eridu-tech/middleware";
+import { retry, timeout } from "eridu-tech/resilience";
+import { TimeSpan } from "eridu-tech/time-span";
 
 class UserService {
     async getUser(id: string) {
@@ -1187,9 +1187,9 @@ await service.getUser("42");
     } satisfies CodeFile,
     PLUGIN: {
         name: "plugin.ts",
-        code: `import { withPlugin, type PluginFn } from "@daiso-tech/core/middleware";
-import { retry, timeout } from "@daiso-tech/core/resilience";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+        code: `import { withPlugin, type PluginFn } from "eridu-tech/middleware";
+import { retry, timeout } from "eridu-tech/resilience";
+import { TimeSpan } from "eridu-tech/time-span";
 
 class Fetcher {
     async getUser(id: string) {
@@ -1215,7 +1215,7 @@ await fetcher.getUser("42");
     } satisfies CodeFile,
     APP_API_USERS_ROUTE: {
         name: "app/api/users/route.ts",
-        code: `import { HttpRouter, defaultHttpRouterAdapter } from "@daiso-tech/core/http-router";
+        code: `import { HttpRouter, defaultHttpRouterAdapter } from "eridu-tech/http-router";
 import { z } from "zod";
 
 const router = new HttpRouter({
@@ -1242,7 +1242,7 @@ export const PATCH: RequestHandler = async ({ request }) => router.fetch(request
     } satisfies CodeFile,
     CONFIG_ACCESSOR: {
         name: "config.ts",
-        code: `import { ConfigAccessor } from "@daiso-tech/core/config-accessor";
+        code: `import { ConfigAccessor } from "eridu-tech/config-accessor";
 import { z } from "zod";
 
 // Typed schema for domain configuration
@@ -1271,7 +1271,7 @@ const missing = accessor.get("database.user"); // null`,
     } satisfies CodeFile,
     ENV_ACCESSOR: {
         name: "env.ts",
-        code: `import { EnvAccessor } from "@daiso-tech/core/env-accessor";
+        code: `import { EnvAccessor } from "eridu-tech/env-accessor";
 import { z } from "zod";
 import {
     SecretsManagerClient,
@@ -1328,7 +1328,7 @@ export const CODE_EXAMPLES = {
             </>
         ),
         bullets: [
-            <>Shared serialization engine used throughout Daiso</>,
+            <>Shared serialization engine used throughout Eridu-tech</>,
             <>Powers LockFactory, Cache, EventBus, and more</>,
             <>
                 Built-in SuperJSON adapter — Date, Map, Set & BigInt out of the
@@ -1521,7 +1521,7 @@ export const COMPARISONS = {
             "No shared serialization engine across components.",
             "No built-in transaction context.",
         ],
-        daiso: [
+        eriduTech: [
             "A library, not a framework — DI optional, no decorators, plain classes.",
             "Same cache/lock/event bus in any framework — no lock-in.",
             "Runs anywhere Winter TC runs — Node, Bun, Deno, edge.",
@@ -1549,7 +1549,7 @@ export const COMPARISONS = {
             "No shared serialization engine across components.",
             "No built-in transaction context.",
         ],
-        daiso: [
+        eriduTech: [
             "No app framework, ORM, or auth — just infrastructure behind adapters.",
             "Combine with any application layer — you bring the structure.",
             "Runs anywhere Winter TC runs — Node, Bun, Deno, edge.",
@@ -1570,11 +1570,11 @@ export const COMPARISONS = {
             "Excellent for type-safe full-stack APIs at the client-server boundary.",
             "No built-in battery included backend infrastructure",
         ],
-        daiso: [
+        eriduTech: [
             "Not an RPC framework — not a tRPC or ORPC replacement.",
             "Backend infrastructure behind pluggable adapters — caching, locks, rate limiting, scheduling, event buses.",
-            "Complementary — tRPC procedures can call services backed by @daiso-tech/core.",
-            "Choose tRPC for typed transport; add @daiso-tech/core for reusable server-side infra.",
+            "Complementary — tRPC procedures can call services backed by eridu-tech.",
+            "Choose tRPC for typed transport; add eridu-tech for reusable server-side infra.",
         ],
     } satisfies ComparisonItem,
     FULLSTACK_FRAMEWORKS: {
@@ -1587,11 +1587,11 @@ export const COMPARISONS = {
             "Backend logic locked into the meta-framework.",
             "No built-in battery included backend infrastructure",
         ],
-        daiso: [
+        eriduTech: [
             "Not a web or frontend framework — not a replacement for Next.js or Nuxt.",
             "Complements them — route handlers and server actions can use cache, locks, queues, and schedulers.",
             "Same backend logic moves between a meta-framework and a standalone API service or worker.",
-            "Add @daiso-tech/core for portable, testable server-side infra.",
+            "Add eridu-tech for portable, testable server-side infra.",
         ],
     } satisfies ComparisonItem,
     COMPOSING_YOUR_OWN_STACK: {
@@ -1604,7 +1604,7 @@ export const COMPARISONS = {
             "No shared conventions — you wire libraries together yourself.",
             "Locked into what you picked — adding more means more glue code.",
         ],
-        daiso: [
+        eriduTech: [
             "Consistent, integrated layer — shared patterns and common adapter interfaces.",
             "Heavier than a single raw library, but ships in-memory adapters for testing without Docker.",
             "Trade-off: an abstraction layer — raw libraries win for a single Redis call or a tiny script.",

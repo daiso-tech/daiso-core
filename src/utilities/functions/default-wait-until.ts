@@ -5,7 +5,7 @@
 import { type WaitUntil } from "@/utilities/types/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Utilities
  */
 export const defaultWaitUntil: WaitUntil = (promise) => {

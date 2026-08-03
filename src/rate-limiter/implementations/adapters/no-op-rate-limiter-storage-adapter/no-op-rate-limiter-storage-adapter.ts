@@ -13,7 +13,7 @@ import {
 import { type InvocableFn } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/no-op-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/no-op-rate-limiter-storage-adapter"`
  * @internal
  */
 class NoOpRateLimiterStorageAdapterTransaction<
@@ -39,7 +39,7 @@ class NoOpRateLimiterStorageAdapterTransaction<
 /**
  * The `NoOpRateLimiterStorageAdapterTransaction` will do nothing and is used for easily mocking {@link IRateLimiterFactory | `IRateLimiterFactory`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/no-op-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/no-op-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export class NoOpRateLimiterStorageAdapter<

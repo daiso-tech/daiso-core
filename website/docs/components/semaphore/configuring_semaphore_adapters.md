@@ -37,7 +37,7 @@ keywords:
 To use the `MemorySemaphoreAdapter` you only need to create instance of it:
 
 ```ts
-import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
+import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
 
 const memorySemaphoreAdapter = new MemorySemaphoreAdapter();
 ```
@@ -45,7 +45,7 @@ const memorySemaphoreAdapter = new MemorySemaphoreAdapter();
 You can also provide an `Map` that will be used for storing the data in memory:
 
 ```ts
-import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
+import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
 
 const map = new Map<any, any>();
 const memorySemaphoreAdapter = new MemorySemaphoreAdapter(map);
@@ -66,7 +66,7 @@ To use the `MongodbSemaphoreAdapter`, you'll need to:
 1. Install the required dependency: [`mongodb`](https://www.npmjs.com/package/mongodb) package:
 
 ```ts
-import { MongodbSemaphoreAdapter } from "@daiso-tech/core/semaphore/mongodb-semaphore-adapter";
+import { MongodbSemaphoreAdapter } from "eridu-tech/semaphore/mongodb-semaphore-adapter";
 import { MongoClient } from "mongodb";
 
 const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
@@ -124,7 +124,7 @@ To use the `RedisSemaphoreAdapter`, you'll need to:
 1. Install the required dependency: [`ioredis`](https://www.npmjs.com/package/ioredis) package:
 
 ```ts
-import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
+import { RedisSemaphoreAdapter } from "eridu-tech/semaphore/redis-semaphore-adapter";
 import Redis from "ioredis";
 
 const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
@@ -148,8 +148,8 @@ To use the `KyselySemaphoreAdapter`, you'll need to:
 You will need to install [`better-sqlite3`](https://www.npmjs.com/package/better-sqlite3) package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselySemaphoreAdapter } from "@daiso-tech/core/semaphore/kysely-semaphore-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselySemaphoreAdapter } from "eridu-tech/semaphore/kysely-semaphore-adapter";
 import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 
@@ -177,8 +177,8 @@ Note using `KyselySemaphoreAdapter` with `sqlite` is limited to single server us
 You will need to install [`pg`](https://www.npmjs.com/package/pg) package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselySemaphoreAdapter } from "@daiso-tech/core/semaphore/kysely-semaphore-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselySemaphoreAdapter } from "eridu-tech/semaphore/kysely-semaphore-adapter";
 import { Pool } from "pg";
 import { Kysely, PostgresDialect } from "kysely";
 
@@ -214,8 +214,8 @@ Note in order to use `KyselySemaphoreAdapter` with `postgres` correctly, ensure 
 You will need to install [`mysql2`](https://www.npmjs.com/package/mysql2) package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselySemaphoreAdapter } from "@daiso-tech/core/semaphore/kysely-semaphore-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselySemaphoreAdapter } from "eridu-tech/semaphore/kysely-semaphore-adapter";
 import { createPool } from "mysql2";
 import { Kysely, MysqlDialect } from "kysely";
 
@@ -251,8 +251,8 @@ Note in order to use `KyselySemaphoreAdapter` with `mysql` correctly, ensure you
 You will need to install `@libsql/kysely-libsql` package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselySemaphoreAdapter } from "@daiso-tech/core/semaphore/kysely-semaphore-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselySemaphoreAdapter } from "eridu-tech/semaphore/kysely-semaphore-adapter";
 import { LibsqlDialect } from "@libsql/kysely-libsql";
 import { Kysely } from "kysely";
 
@@ -303,15 +303,15 @@ await kyselySemaphoreAdapter.deInit();
 The `NoOpSemaphoreAdapter` is a no-operation implementation, it performs no actions when called:
 
 ```ts
-import { NoOpSemaphoreAdapter } from "@daiso-tech/core/semaphore/no-op-semaphore-adapter";
+import { NoOpSemaphoreAdapter } from "eridu-tech/semaphore/no-op-semaphore-adapter";
 
 const noOpSemaphoreAdapter = new NoOpSemaphoreAdapter();
 ```
 
 :::info
-The `NoOpSemaphoreAdapter` is useful when you want to mock out or disable your [`SemaphoreFactory`](https://daiso-tech.github.io/daiso-core/classes/Semaphore.SemaphoreFactory.html) instance.
+The `NoOpSemaphoreAdapter` is useful when you want to mock out or disable your [`SemaphoreFactory`](https://eridu-tech.github.io/eridu-tech/classes/Semaphore.SemaphoreFactory.html) instance.
 :::
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/semaphore`](https://daiso-tech.github.io/daiso-core/modules/Semaphore.html) API docs.
+For further information refer to [`eridu-tech/semaphore`](https://eridu-tech.github.io/eridu-tech/modules/Semaphore.html) API docs.

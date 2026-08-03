@@ -28,7 +28,7 @@ import {
 /**
  * Base configuration shared by all `RateLimiterFactory` variants.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
 export type RateLimiterFactorySettingsBase = {
@@ -59,8 +59,8 @@ export type RateLimiterFactorySettingsBase = {
      * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link RateLimiterFactory | `RateLimiterFactory`} to register the rate limiter's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { NoOpSerdeAdapter } from "@daiso-tech/core/serde/no-op-serde-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { NoOpSerdeAdapter } from "eridu-tech/serde/no-op-serde-adapter";
      *
      * new Serde(new NoOpSerdeAdapter())
      * ```
@@ -78,7 +78,7 @@ export type RateLimiterFactorySettingsBase = {
      * This is required when working with environments like Cloudflare Workers or Vercel Functions to ensure tasks complete after the response is sent.
      * @default
      * ```ts
-     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
+     * import { defaultWaitUntil } from "eridu-tech/utilities"
      * ```
      */
     waitUntil?: WaitUntil;
@@ -87,8 +87,8 @@ export type RateLimiterFactorySettingsBase = {
      * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -100,7 +100,7 @@ export type RateLimiterFactorySettingsBase = {
  * Configuration for `RateLimiterFactory`.
  * Extends {@link RateLimiterFactorySettingsBase | `RateLimiterFactorySettingsBase`} with a required adapter.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
 export type RateLimiterFactorySettings = RateLimiterFactorySettingsBase & {
@@ -113,7 +113,7 @@ export type RateLimiterFactorySettings = RateLimiterFactorySettingsBase & {
 /**
  * The `RateLimiterFactory` class can be derived from any {@link IRateLimiterAdapter | `IRateLimiterAdapter`}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
 export class RateLimiterFactory implements IRateLimiterFactory {
@@ -129,10 +129,10 @@ export class RateLimiterFactory implements IRateLimiterFactory {
     /**
      * @example
      * ```ts
-     * import { KyselyRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/kysely-rate-limiter-storage-adapter";
-     * import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { KyselyRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter";
+     * import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *
