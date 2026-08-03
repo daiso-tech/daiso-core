@@ -17,13 +17,13 @@ declare module "ioredis" {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     interface RedisCommander<Context> {
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_cache_increment(
+        eridu_cache_increment(
             key: string,
             number: string,
         ): Result<number, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_cache_get_or_add(
+        eridu_cache_get_or_add(
             key: string,
             value: string,
             ttlInMs: number,
@@ -98,11 +98,11 @@ export class RedisCacheAdapter<
     }
 
     private initGetOrAddCommand(): void {
-        if (typeof this.database.daiso_cache_get_or_add === "function") {
+        if (typeof this.database.eridu_cache_get_or_add === "function") {
             return;
         }
 
-        this.database.defineCommand("daiso_cache_get_or_add", {
+        this.database.defineCommand("eridu_cache_get_or_add", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1]
@@ -130,7 +130,7 @@ export class RedisCacheAdapter<
     ): Promise<TType> {
         const serializedValue = this.serde.serialize(valueToAdd);
         const ttlInMs = ttl?.toMilliseconds() ?? -1;
-        const result = await this.database.daiso_cache_get_or_add(
+        const result = await this.database.eridu_cache_get_or_add(
             key,
             serializedValue,
             ttlInMs,
@@ -139,11 +139,11 @@ export class RedisCacheAdapter<
     }
 
     private initIncrementCommand(): void {
-        if (typeof this.database.daiso_cache_increment === "function") {
+        if (typeof this.database.eridu_cache_increment === "function") {
             return;
         }
 
-        this.database.defineCommand("daiso_cache_increment", {
+        this.database.defineCommand("eridu_cache_increment", {
             numberOfKeys: 1,
             lua: `
                 local hasKey = redis.call("exists", KEYS[1])
@@ -243,7 +243,7 @@ export class RedisCacheAdapter<
         _context: IReadableContext,
     ): Promise<boolean> {
         try {
-            const redisResult = await this.database.daiso_cache_increment(
+            const redisResult = await this.database.eridu_cache_increment(
                 key,
                 this.serde.serialize(value),
             );

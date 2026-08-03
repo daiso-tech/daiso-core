@@ -62,7 +62,7 @@ declare module "ioredis" {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     interface RedisCommander<Context> {
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_circuit_breaker_update_state(
+        eridu_circuit_breaker_update_state(
             key: string,
             backoffSettings: string,
             policySettings: string,
@@ -70,7 +70,7 @@ declare module "ioredis" {
         ): Result<string, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_circuit_breaker_track_failure(
+        eridu_circuit_breaker_track_failure(
             key: string,
             backoffSettings: string,
             policySettings: string,
@@ -78,7 +78,7 @@ declare module "ioredis" {
         ): Result<void, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_circuit_breaker_track_success(
+        eridu_circuit_breaker_track_success(
             key: string,
             backoffSettings: string,
             policySettings: string,
@@ -132,13 +132,13 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
 
     private initUpdateStateCommmand(): void {
         if (
-            typeof this.database.daiso_circuit_breaker_update_state ===
+            typeof this.database.eridu_circuit_breaker_update_state ===
             "function"
         ) {
             return;
         }
 
-        this.database.defineCommand("daiso_circuit_breaker_update_state", {
+        this.database.defineCommand("eridu_circuit_breaker_update_state", {
             numberOfKeys: 1,
             lua: `
             ${circuitBreakerFactoryLua}
@@ -157,13 +157,13 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
 
     private initTrackFailureCommmand(): void {
         if (
-            typeof this.database.daiso_circuit_breaker_track_failure ===
+            typeof this.database.eridu_circuit_breaker_track_failure ===
             "function"
         ) {
             return;
         }
 
-        this.database.defineCommand("daiso_circuit_breaker_track_failure", {
+        this.database.defineCommand("eridu_circuit_breaker_track_failure", {
             numberOfKeys: 1,
             lua: `
             ${circuitBreakerFactoryLua}
@@ -181,13 +181,13 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
 
     private initTrackSuccessCommmand(): void {
         if (
-            typeof this.database.daiso_circuit_breaker_track_success ===
+            typeof this.database.eridu_circuit_breaker_track_success ===
             "function"
         ) {
             return;
         }
 
-        this.database.defineCommand("daiso_circuit_breaker_track_success", {
+        this.database.defineCommand("eridu_circuit_breaker_track_success", {
             numberOfKeys: 1,
             lua: `
             ${circuitBreakerFactoryLua}
@@ -219,7 +219,7 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
         key: string,
         _context: IReadableContext,
     ): Promise<CircuitBreakerStateTransition> {
-        const value = await this.database.daiso_circuit_breaker_update_state(
+        const value = await this.database.eridu_circuit_breaker_update_state(
             key,
             JSON.stringify(serializeBackoffSettingsEnum(this.backoff)),
             JSON.stringify(
@@ -240,7 +240,7 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
     }
 
     async trackFailure(key: string, _context: IReadableContext): Promise<void> {
-        await this.database.daiso_circuit_breaker_track_failure(
+        await this.database.eridu_circuit_breaker_track_failure(
             key,
             JSON.stringify(serializeBackoffSettingsEnum(this.backoff)),
             JSON.stringify(
@@ -251,7 +251,7 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
     }
 
     async trackSuccess(key: string, _context: IReadableContext): Promise<void> {
-        await this.database.daiso_circuit_breaker_track_success(
+        await this.database.eridu_circuit_breaker_track_success(
             key,
             JSON.stringify(serializeBackoffSettingsEnum(this.backoff)),
             JSON.stringify(
