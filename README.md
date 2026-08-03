@@ -16,7 +16,7 @@ The adapter-first backend toolkit for TypeScript — 17 officially maintained co
 
 > ## ⚠️ Deprecated — renamed to `eridu-tech`
 >
-> **`@daiso-tech/core` has been renamed to [`eridu-tech`](https://www.npmjs.com/package/eridu-tech) and is now deprecated.** The `eridu-tech` package will be **released ASAP** — it will replace `@daiso-tech/core` as soon as it is available. Please don't start new projects on `@daiso-tech/core`, and plan to migrate existing ones once `eridu-tech` ships.
+> **`@daiso-tech/core` will be renamed to [`eridu-tech`](https://www.npmjs.com/package/eridu-tech) and is now deprecated.** The `eridu-tech` package will be **released ASAP** — it will replace `@daiso-tech/core` as soon as it is available. Please don't start new projects on `@daiso-tech/core`, and plan to migrate existing ones once `eridu-tech` ships. The migration is simple replace all `@daiso-tech/core` import paths with `eridu-tech`.
 
 ---
 
