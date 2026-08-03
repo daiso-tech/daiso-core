@@ -592,9 +592,9 @@ export default function Home(): ReactNode {
         <Layout title={siteConfig.title} description={siteConfig.tagline}>
             <Header/>
             <main>
-                <CodeShowcase />
                 <StatsBar />
                 <FeatureSection items={Object.values(FEATURE_ITEMS)} />
+                <CodeShowcase />
                 <WhoIsThisFor />
                 <ComponentSection />
                 <UpcomingSection />

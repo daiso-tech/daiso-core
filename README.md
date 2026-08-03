@@ -43,60 +43,54 @@ A single serialization engine, a single execution context, and composable middle
 
 The Serde component provides a unified serialization and deserialization engine with fully type-safe schemas. It supports custom serializers for any type and includes a built-in SuperJSON adapter that handles Date, Map, Set, and BigInt out of the box. Serde is used internally across LockFactory, Cache, EventBus, and other components.
 
-- [x] Shared serialization engine used throughout Daiso
-- [x] Powers LockFactory, Cache, EventBus, and more
-- [x] Built-in SuperJSON adapter — Date, Map, Set & BigInt out of the box
-- [x] Register custom serializers for your own types
+- Shared serialization engine used throughout Daiso
+- Powers LockFactory, Cache, EventBus, and more
+- Built-in SuperJSON adapter — Date, Map, Set & BigInt out of the box
+- Register custom serializers for your own types
 
 ### ⚡ ExecutionContext — Propagate context across async boundaries.
 
 The ExecutionContext component propagates any kind of async context across execution boundaries. Most components use it to become implicitly execution-context-aware, allowing them to automatically share the same transaction and other contextual state.
 
-- [x] Type-safe context tokens
-- [x] Async context propagation
-- [x] No manual parameter passing
+- Type-safe context tokens
+- Async context propagation
+- No manual parameter passing
 
 ### 🔗 Middleware — AOP-style middleware. Compose behavior. Keep logic clean.
 
 The Middleware component provides a composable AOP-style middleware pipeline with before/after hooks, error handling, and context propagation. It supports wrapping standalone functions with `use()`, enhancing class methods with `enhance()`, and packaging reusable middleware into plugins with `withPlugin()`. Built-in middlewares include retry, timeout, fallback, and more.
 
-- [x] AOP with before/after hooks around any function
-- [x] Built-in retry, timeout, fallback middlewares and so many more
-- [x] Function wrapping with `use()`, class enhancement with `enhance()`, plugin system with `withPlugin()`
-- [x] Built-in prefixing plugins for majority of components and so many more
+- AOP with before/after hooks around any function
+- Built-in retry, timeout, fallback middlewares and so many more
+- Function wrapping with `use()`, class enhancement with `enhance()`, plugin system with `withPlugin()`
+- Built-in prefixing plugins for majority of components and so many more
 
 ### 🌐 HttpRouter — Define routes. Stay framework-agnostic.
 
 The HttpRouter component provides a framework-agnostic HTTP routing layer with type-safe endpoint definitions, standard-schema validation, and middleware support. It works with any Winter TC compatible runtime or adapter and can be used across Express, Fastify, Hono, Next.js, Nuxt, SvelteKit, and more.
 
-- [x] Type-safe route definitions with standard-schema validation
-- [x] Works with Next.js App Router, Nuxt, SvelteKit, and any winter tc compatible runtime or adapter
-- [x] Build on top of Hono.js Router adapters
-- [x] Middleware chains & route groups
+- Type-safe route definitions with standard-schema validation
+- Works with Next.js App Router, Nuxt, SvelteKit, and any winter tc compatible runtime or adapter
+- Build on top of Hono.js Router adapters
+- Middleware chains & route groups
 
 ### 🌍 EnvAccessor — Type-safe environment variables. From any source.
 
 The EnvAccessor component provides easy type-safe access to environment variables. It supports multiple sync and async sources (process.env, secrets managers), schema validation, and convenient access patterns.
 
-- [x] Type-safe reads with full autocompletion
-- [x] Multiple sources — process.env and async secret providers
-- [x] Optional Zod schema validation
-- [x] `get()` returns null on missing fields; `getOr()` falls back to a default
+- Type-safe reads with full autocompletion
+- Multiple sources — process.env and async secret providers
+- Optional Zod schema validation
+- `get()` returns null on missing fields; `getOr()` falls back to a default
 
 ### 🗂️ ConfigAccessor — Read config safely. Stay type-safe.
 
 The ConfigAccessor component provides standardized type-safe access to domain configuration variables. It supports optional schema validation — useful for dynamic configurations like per-tenant settings.
 
-- [x] Type-safe reads with full autocompletion
-- [x] Nested objects and arrays up to 2 levels deep
-- [x] Optional Zod schema validation
-- [x] `get()` returns null on missing paths; `getOr()` falls back to a default
-
-## 📊 At a glance
-
-| 17                               | 100%       | 4,640+                       | 0                       |
-| -------------------------------- | ---------- | ---------------------------- | ----------------------- |
-| Officially maintained components | TypeScript | Integration & behavior tests | Docker needed for tests |
+- Type-safe reads with full autocompletion
+- Nested objects and arrays up to 2 levels deep
+- Optional Zod schema validation
+- `get()` returns null on missing paths; `getOr()` falls back to a default
 
 ---
 
