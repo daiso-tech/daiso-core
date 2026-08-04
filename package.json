@@ -532,6 +532,9 @@
         "access": "public",
         "provenance": true
     },
+    "engines": {
+        "node": ">=24"
+    },
     "scripts": {
         "module-exports-files-check": "npx tsx --tsconfig ./tsconfig.json scripts/module-exports-files-check.ts",
         "test": "npx vitest run",
