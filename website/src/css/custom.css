@@ -821,6 +821,40 @@ html[data-theme='dark'] {
     padding: 1rem 1.1rem;
   }
 
+  /* Code showcase: order text → code → actions on mobile */
+  .daiso-showcase-text-col {
+    display: contents;
+  }
+  .daiso-carousel-text,
+  .daiso-showcase-actions {
+    flex: 0 0 100%;
+    max-width: 100%;
+    width: 100%;
+    padding-left: calc(var(--ifm-spacing-horizontal) / 2);
+    padding-right: calc(var(--ifm-spacing-horizontal) / 2);
+  }
+  .daiso-carousel-text {
+    order: 1;
+  }
+  .daiso-showcase-code-col {
+    order: 2;
+  }
+  .daiso-showcase-actions {
+    order: 3;
+  }
+
+  /* Code showcase: buttons take the full width on mobile */
+  .daiso-showcase-ctas {
+    flex-direction: column;
+    width: 100%;
+  }
+  .daiso-showcase-ctas .button {
+    width: 100%;
+  }
+  .daiso-install-command {
+    width: 100%;
+  }
+
   /* Code block: shorter on small screens */
   .daiso-carousel-body [class*="codeBlock"] {
     height: 320px;
