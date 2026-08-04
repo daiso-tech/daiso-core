@@ -11,7 +11,8 @@ import {
     type IEventBusAdapter,
 } from "@/event-bus/contracts/_module.js";
 import { type PluginFn } from "@/middleware/contracts/_module.js";
-import { validate } from "@/utilities/_module.js";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { validate, ValidationError } from "@/utilities/_module.js";
 
 /**
  * A map of event names to their corresponding standard schemas.
@@ -85,6 +86,8 @@ export type WithEventBusSchemaSettings = {
  *                                        functions. @default true
  * @returns A middleware plugin that wraps an `IEventBusAdapter`.
  *
+ * @throws {ValidationError}
+ *
  * IMPORT_PATH: `"eridu-tech/event-bus/plugins"`
  * @group Plugins
  */
@@ -98,7 +101,8 @@ export function withEventBusSchema(
             "dispatch",
             async ({ args: [eventName, eventData, context], next }) => {
                 const schema = eventMapSchema[eventName];
-                if (schema) {
+                console.log("SCHEMA:", schema);
+                if (schema !== undefined) {
                     return next([
                         eventName,
                         await validate(schema, eventData),
@@ -115,27 +119,13 @@ export function withEventBusSchema(
                 "addListener",
                 async ({ args: [eventName, listener, context], next }) => {
                     const schema = eventMapSchema[eventName];
-                    if (schema) {
+                    if (schema !== undefined) {
                         const wrappedListener: EventListenerFn<
                             BaseEvent
                         > = async (event) => {
                             return listener(await validate(schema, event));
                         };
                         return next([eventName, wrappedListener, context]);
-                    }
-                    return next([eventName, listener, context]);
-                },
-            );
-        }
-
-        if (shouldValidateListeners) {
-            enhance(
-                adapter,
-                "removeListener",
-                async ({ args: [eventName, listener, context], next }) => {
-                    const schema = eventMapSchema[eventName];
-                    if (schema) {
-                        return next([eventName, listener, context]);
                     }
                     return next([eventName, listener, context]);
                 },
