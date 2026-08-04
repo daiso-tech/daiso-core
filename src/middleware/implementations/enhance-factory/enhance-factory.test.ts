@@ -10,6 +10,7 @@ import { useFactory } from "@/middleware/implementations/use-factory/_module.js"
 
 describe("function: enhanceFactory", () => {
     afterEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
