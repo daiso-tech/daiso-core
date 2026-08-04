@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { type LockFactoryCreateSettings } from "@/lock/contracts/_module.js";
 import { NoOpLockAdapter } from "@/lock/implementations/adapters/_module.js";
@@ -10,14 +10,12 @@ import { use } from "@/middleware/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withLockFactory", () => {
-    let lockFactory: LockFactory;
+    const lockFactory = new LockFactory({
+        adapter: new NoOpLockAdapter(),
+    });
 
     beforeEach(() => {
-        lockFactory = new LockFactory({
-            adapter: new NoOpLockAdapter(),
-        });
-    });
-    afterEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
