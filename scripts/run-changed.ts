@@ -47,9 +47,8 @@ function getFiles(args: Array<string>): Array<string> {
         return execaSync("git", args, {
             stdio: ["pipe", "pipe", "ignore"],
         })
-            .stdout.split("\n")
-            .map((f) => f.trim())
-            .filter(Boolean);
+            .stdout.split("\0")
+            .filter((file) => file.length > 0);
     } catch {
         // Match the original behavior: a failed git call (e.g. an unknown
         // branch) yields no files instead of aborting the whole script.
@@ -65,11 +64,17 @@ function runTask(): void {
         "diff",
         "--name-only",
         "--diff-filter=d",
+        "-z",
         CONFIG.baseBranch,
     ]);
 
     // Get all new files not yet tracked by git
-    const untracked = getFiles(["ls-files", "--others", "--exclude-standard"]);
+    const untracked = getFiles([
+        "ls-files",
+        "--others",
+        "--exclude-standard",
+        "-z",
+    ]);
 
     const extensionRegex = new RegExp(`\\.(${CONFIG.extensions.join("|")})$`);
 
@@ -109,7 +114,7 @@ function runTask(): void {
         // each target file is its own argument, so whitespace in paths is
         // preserved and shell metacharacters can never execute commands.
         // On Windows, execa also runs .cmd/.bat shims (e.g. npx) safely.
-        execaSync(executable, [...commandArgs, ...targetFiles], {
+        execaSync(executable, [...commandArgs, "--", ...targetFiles], {
             stdio: "inherit",
         });
         console.log("✅ Done!");
