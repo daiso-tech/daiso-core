@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { NoOpCacheAdapter } from "@/cache/implementations/adapters/_module.js";
 import { Cache } from "@/cache/implementations/derivables/_module.js";
@@ -7,18 +7,15 @@ import { use } from "@/middleware/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withCacheFactory", () => {
-    let cache: Cache<string>;
-
-    beforeEach(() => {
-        cache = new Cache<string>({
-            adapter: new NoOpCacheAdapter(),
-        });
+    const cache = new Cache<string>({
+        adapter: new NoOpCacheAdapter(),
     });
-    afterEach(() => {
+    beforeEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
-    test("asd", async () => {
+    test("Should call getOrAdd with the key, loader and ttl", async () => {
         const spy = vi.spyOn(cache, "getOrAdd");
 
         const withCache = withCacheFactory(cache);
