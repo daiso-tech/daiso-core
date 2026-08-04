@@ -411,7 +411,7 @@ export function cacheAdapterTestSuite(
                 await delayWithBuffer(TTL.divide(4));
                 await expect(
                     adapter.increment("a", 1, context),
-                ).rejects.toBeInstanceOf(TypeError);
+                ).rejects.toThrow(TypeError);
             });
         });
         describe("method: removeMany", () => {
