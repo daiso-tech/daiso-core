@@ -183,7 +183,7 @@ describe("class: RateLimiterFactory", () => {
                             new UnexpectedErrorA("UNEXPECTED ERROR"),
                         );
                     });
-                    await expect(promise).rejects.toBeInstanceOf(
+                    await expect(promise).rejects.toThrow(
                         BlockedRateLimiterError,
                     );
                 });
@@ -312,7 +312,7 @@ describe("class: RateLimiterFactory", () => {
                             new UnexpectedErrorA("UNEXPECTED ERROR"),
                         );
                     });
-                    await expect(promise).rejects.toBeInstanceOf(
+                    await expect(promise).rejects.toThrow(
                         BlockedRateLimiterError,
                     );
                 });
