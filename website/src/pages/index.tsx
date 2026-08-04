@@ -151,7 +151,7 @@ function CodeShowcase() {
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col col--5">
+                    <div className="col col--5 daiso-showcase-text-col">
                         <div
                             className={`daiso-carousel-text${fading ? " daiso-carousel-text--fading" : ""}`}
                         >
@@ -192,7 +192,7 @@ function CodeShowcase() {
 
                         <CodeShowcaseActions />
                     </div>
-                    <div className="col col--7">
+                    <div className="col col--7 daiso-showcase-code-col">
                         {codeExamples[activeIndex].codeBlockDescription && (
                             <p className="daiso-carousel-description">
                                 {codeExamples[activeIndex].codeBlockDescription}
