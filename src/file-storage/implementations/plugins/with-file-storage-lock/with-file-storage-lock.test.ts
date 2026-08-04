@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { NoOpFileStorageAdapter } from "@/file-storage/implementations/adapters/no-op-file-storage-adapter/_module.js";
@@ -11,23 +11,20 @@ import { useFactory } from "@/middleware/implementations/use-factory/_module.js"
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
 
 describe("function: withFileStorageLock", () => {
-    const noOpContext = new NoOpContext();
+    const context = new NoOpContext();
+    const lockFactory = new LockFactory({ adapter: new NoOpLockAdapter() });
+    const adapter = new NoOpFileStorageAdapter();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
-    afterEach(() => {
+    beforeEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
-
-    function createLockFactory(): LockFactory {
-        return new LockFactory({ adapter: new NoOpLockAdapter() });
-    }
 
     describe("read methods", () => {
         describe("method: getPublicUrl", () => {
             test("Should acquire lock", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "getPublicUrl");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -36,7 +33,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.getPublicUrl("myKey", noOpContext);
+                await enhanced.getPublicUrl("myKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -44,21 +41,16 @@ describe("function: withFileStorageLock", () => {
             });
 
             test("Should pass through the underlying adapter response", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 vi.spyOn(adapter, "getPublicUrl").mockResolvedValue(
                     "https://example.com/file",
                 );
-                const lockFactory = createLockFactory();
 
                 const enhanced = withPlugin(
                     adapter,
                     withFileStorageLock({ lockFactory }),
                 );
 
-                const result = await enhanced.getPublicUrl(
-                    "myKey",
-                    noOpContext,
-                );
+                const result = await enhanced.getPublicUrl("myKey", context);
 
                 expect(result).toBe("https://example.com/file");
             });
@@ -66,9 +58,7 @@ describe("function: withFileStorageLock", () => {
 
         describe("method: exists", () => {
             test("Should acquire lock", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "exists");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -77,7 +67,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.exists("myKey", noOpContext);
+                await enhanced.exists("myKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -87,9 +77,7 @@ describe("function: withFileStorageLock", () => {
 
         describe("method: getStream", () => {
             test("Should acquire lock", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "getStream");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -98,7 +86,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.getStream("myKey", noOpContext);
+                await enhanced.getStream("myKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -108,9 +96,7 @@ describe("function: withFileStorageLock", () => {
 
         describe("method: getBytes", () => {
             test("Should acquire lock", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "getBytes");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -119,7 +105,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.getBytes("myKey", noOpContext);
+                await enhanced.getBytes("myKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -129,9 +115,7 @@ describe("function: withFileStorageLock", () => {
 
         describe("method: getMetaData", () => {
             test("Should acquire lock", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "getMetaData");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -140,7 +124,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.getMetaData("myKey", noOpContext);
+                await enhanced.getMetaData("myKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -150,9 +134,7 @@ describe("function: withFileStorageLock", () => {
 
         describe("method: getSignedDownloadUrl", () => {
             test("Should acquire lock", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "getSignedDownloadUrl");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -168,7 +150,7 @@ describe("function: withFileStorageLock", () => {
                         contentType: null,
                         contentDisposition: null,
                     },
-                    noOpContext,
+                    context,
                 );
 
                 expect(spy).toHaveBeenCalledOnce();
@@ -179,9 +161,7 @@ describe("function: withFileStorageLock", () => {
 
         describe("method: getSignedUploadUrl", () => {
             test("Should acquire lock", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "getSignedUploadUrl");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -196,7 +176,7 @@ describe("function: withFileStorageLock", () => {
                         expirationInSeconds: 3600,
                         contentType: null,
                     },
-                    noOpContext,
+                    context,
                 );
 
                 expect(spy).toHaveBeenCalledOnce();
@@ -209,9 +189,7 @@ describe("function: withFileStorageLock", () => {
     describe("mutation methods", () => {
         describe("method: add", () => {
             test("Should acquire lock", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "add");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -231,7 +209,7 @@ describe("function: withFileStorageLock", () => {
                         contentDisposition: null,
                         cacheControl: null,
                     },
-                    noOpContext,
+                    context,
                 );
 
                 expect(spy).toHaveBeenCalledOnce();
@@ -242,9 +220,7 @@ describe("function: withFileStorageLock", () => {
 
         describe("method: addStream", () => {
             test("Should acquire lock", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "addStream");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -264,7 +240,7 @@ describe("function: withFileStorageLock", () => {
                         contentDisposition: null,
                         cacheControl: null,
                     },
-                    noOpContext,
+                    context,
                 );
 
                 expect(spy).toHaveBeenCalledOnce();
@@ -275,9 +251,7 @@ describe("function: withFileStorageLock", () => {
 
         describe("method: update", () => {
             test("Should acquire lock", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "update");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -297,7 +271,7 @@ describe("function: withFileStorageLock", () => {
                         contentDisposition: null,
                         cacheControl: null,
                     },
-                    noOpContext,
+                    context,
                 );
 
                 expect(spy).toHaveBeenCalledOnce();
@@ -308,9 +282,7 @@ describe("function: withFileStorageLock", () => {
 
         describe("method: updateStream", () => {
             test("Should acquire lock", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "updateStream");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -330,7 +302,7 @@ describe("function: withFileStorageLock", () => {
                         contentDisposition: null,
                         cacheControl: null,
                     },
-                    noOpContext,
+                    context,
                 );
 
                 expect(spy).toHaveBeenCalledOnce();
@@ -341,9 +313,7 @@ describe("function: withFileStorageLock", () => {
 
         describe("method: put", () => {
             test("Should acquire lock", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "put");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -363,7 +333,7 @@ describe("function: withFileStorageLock", () => {
                         contentDisposition: null,
                         cacheControl: null,
                     },
-                    noOpContext,
+                    context,
                 );
 
                 expect(spy).toHaveBeenCalledOnce();
@@ -374,9 +344,7 @@ describe("function: withFileStorageLock", () => {
 
         describe("method: putStream", () => {
             test("Should acquire lock", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "putStream");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -396,7 +364,7 @@ describe("function: withFileStorageLock", () => {
                         contentDisposition: null,
                         cacheControl: null,
                     },
-                    noOpContext,
+                    context,
                 );
 
                 expect(spy).toHaveBeenCalledOnce();
@@ -409,9 +377,7 @@ describe("function: withFileStorageLock", () => {
     describe("copy/move methods", () => {
         describe("method: copy", () => {
             test("Should acquire lock on source key", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "copy");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -420,7 +386,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.copy("sourceKey", "destKey", noOpContext);
+                await enhanced.copy("sourceKey", "destKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("sourceKey");
@@ -430,9 +396,7 @@ describe("function: withFileStorageLock", () => {
 
         describe("method: copyAndReplace", () => {
             test("Should acquire lock on source key", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "copyAndReplace");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -441,11 +405,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.copyAndReplace(
-                    "sourceKey",
-                    "destKey",
-                    noOpContext,
-                );
+                await enhanced.copyAndReplace("sourceKey", "destKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("sourceKey");
@@ -455,9 +415,7 @@ describe("function: withFileStorageLock", () => {
 
         describe("method: move", () => {
             test("Should acquire lock on source key", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "move");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -466,7 +424,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.move("sourceKey", "destKey", noOpContext);
+                await enhanced.move("sourceKey", "destKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("sourceKey");
@@ -476,9 +434,7 @@ describe("function: withFileStorageLock", () => {
 
         describe("method: moveAndReplace", () => {
             test("Should acquire lock on source key", async () => {
-                const adapter = new NoOpFileStorageAdapter();
                 const spy = vi.spyOn(adapter, "moveAndReplace");
-                const lockFactory = createLockFactory();
                 const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
                 const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -487,11 +443,7 @@ describe("function: withFileStorageLock", () => {
                     withFileStorageLock({ lockFactory }),
                 );
 
-                await enhanced.moveAndReplace(
-                    "sourceKey",
-                    "destKey",
-                    noOpContext,
-                );
+                await enhanced.moveAndReplace("sourceKey", "destKey", context);
 
                 expect(spy).toHaveBeenCalledOnce();
                 expect(createSpy).toHaveBeenCalledWith("sourceKey");
@@ -502,9 +454,7 @@ describe("function: withFileStorageLock", () => {
 
     describe("method: removeMany", () => {
         test("Should acquire lock for each key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "removeMany");
-            const lockFactory = createLockFactory();
             const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
             const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -513,7 +463,7 @@ describe("function: withFileStorageLock", () => {
                 withFileStorageLock({ lockFactory }),
             );
 
-            await enhanced.removeMany(["key1", "key2", "key3"], noOpContext);
+            await enhanced.removeMany(["key1", "key2", "key3"], context);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("key1");
@@ -523,9 +473,7 @@ describe("function: withFileStorageLock", () => {
         });
 
         test("Should deduplicate keys when acquiring locks", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "removeMany");
-            const lockFactory = createLockFactory();
             const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
             const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -536,7 +484,7 @@ describe("function: withFileStorageLock", () => {
 
             await enhanced.removeMany(
                 ["key1", "key2", "key1", "key3"],
-                noOpContext,
+                context,
             );
 
             expect(spy).toHaveBeenCalledOnce();
@@ -548,19 +496,14 @@ describe("function: withFileStorageLock", () => {
         });
 
         test("Should pass through the underlying adapter response", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             vi.spyOn(adapter, "removeMany").mockResolvedValue(true);
-            const lockFactory = createLockFactory();
 
             const enhanced = withPlugin(
                 adapter,
                 withFileStorageLock({ lockFactory }),
             );
 
-            const result = await enhanced.removeMany(
-                ["key1", "key2"],
-                noOpContext,
-            );
+            const result = await enhanced.removeMany(["key1", "key2"], context);
 
             expect(result).toBe(true);
         });
@@ -568,9 +511,7 @@ describe("function: withFileStorageLock", () => {
 
     describe("options", () => {
         test("Should only lock specified methods when onlyMethods is provided", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const existsSpy = vi.spyOn(adapter, "exists");
-            const lockFactory = createLockFactory();
             const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
             const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -582,12 +523,13 @@ describe("function: withFileStorageLock", () => {
                 }),
             );
 
-            await enhanced.exists("myKey", noOpContext);
+            await enhanced.exists("myKey", context);
             expect(createSpy).toHaveBeenCalledWith("myKey");
             expect(runSpy).toHaveBeenCalledTimes(1);
 
+            vi.restoreAllMocks();
             vi.clearAllMocks();
-            await enhanced.getBytes("myKey", noOpContext);
+            await enhanced.getBytes("myKey", context);
             expect(createSpy).not.toHaveBeenCalled();
             expect(runSpy).not.toHaveBeenCalled();
             expect(existsSpy).not.toHaveBeenCalled();
