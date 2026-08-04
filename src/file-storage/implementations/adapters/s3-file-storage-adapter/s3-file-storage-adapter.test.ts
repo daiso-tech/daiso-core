@@ -648,7 +648,7 @@ describe("class: S3FileStorageAdapter", () => {
                     Bucket: bucket,
                 }),
             );
-            await expect(promise).rejects.toBeInstanceOf(NotFound);
+            await expect(promise).rejects.toThrow(NotFound);
         });
         test("Should not throw error when called multiple times", async () => {
             const bucket = "files";
