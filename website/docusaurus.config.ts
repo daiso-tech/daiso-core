@@ -10,11 +10,22 @@ import docusaurusPluginLlmsTxt, {
     type PluginOptions,
 } from "@signalwire/docusaurus-plugin-llms-txt";
 import { ogGenerator } from "./utilities/og-generator";
+import { readFileSync } from "fs";
+import { resolve } from "path";
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
+const packageJsonAsStr = readFileSync(
+    resolve(__dirname, "../package.json"),
+    "utf8",
+);
+const packageJson = JSON.parse(packageJsonAsStr);
+const packageName: string = packageJson.name;
+const packageVersion: number = packageJson.version;
+const title = `${packageName} ${packageVersion}`;
+
 const config: Config = {
-    title: "eridu-tech",
+    title: title,
     tagline:
         "Write business logic once. Replace infrastructure anytime. The adapter-first backend toolkit for TypeScript.",
     favicon: "img/favicon.ico",
@@ -29,7 +40,7 @@ const config: Config = {
     // GitHub pages deployment config.
     // If you aren't using GitHub pages, you don't need these.
     organizationName: "yousif-khalil-abdulkarim", // Usually your GitHub org/user name.
-    projectName: "eridu-tech", // Usually your repo name.
+    projectName: packageName, // Usually your repo name.
 
     onBrokenLinks: "throw",
     markdown: {
@@ -50,9 +61,8 @@ const config: Config = {
         [
             docusaurusPluginLlmsTxt,
             {
-                siteTitle: "eridu-tech",
-                siteDescription:
-                    "Mastering eridu-tech: Comprehensive Guides for the Backend Server Component Library",
+                siteTitle: packageName,
+                siteDescription: `Mastering ${packageName}: Comprehensive Guides for the Backend Server Component Library`,
                 enableDescriptions: true,
                 content: {
                     relativePaths: true,
@@ -115,9 +125,9 @@ const config: Config = {
         // Replace with your project's social card
         image: "img/docusaurus-social-card.jpg",
         navbar: {
-            title: "eridu-tech",
+            title: packageName,
             logo: {
-                alt: "eridu-tech Logo",
+                alt: `${packageName} Logo`,
                 src: "img/logo.svg",
             },
             items: [
@@ -146,7 +156,7 @@ const config: Config = {
         },
         footer: {
             style: "dark",
-            copyright: `© ${String(new Date().getFullYear())} eridu-tech. Built with Docusaurus.`,
+            copyright: `© ${String(new Date().getFullYear())} ${packageName}. Built with Docusaurus.`,
         },
         prism: {
             theme: prismThemes.github,

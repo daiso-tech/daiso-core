@@ -85,6 +85,35 @@ function StatsBar() {
     );
 }
 
+function CodeShowcaseActions() {
+    return (
+        <div className="daiso-showcase-actions">
+            <InstallCommand />
+            <div className="daiso-showcase-ctas">
+                <Link
+                    className="button button--secondary button--lg"
+                    to="./docs/installation"
+                >
+                    Get started{" "}
+                    <ArrowRight
+                        size="1rem"
+                        style={{
+                            marginLeft: "0.4rem",
+                            verticalAlign: "middle",
+                        }}
+                    />
+                </Link>
+                <Link
+                    className="button button--outline button--secondary button--lg"
+                    href="https://github.com/daiso-tech/daiso-core"
+                >
+                    View on GitHub
+                </Link>
+            </div>
+        </div>
+    );
+}
+
 function CodeShowcase() {
     const [activeIndex, setActiveIndex] = useState(0);
     const [fading, setFading] = useState(false);
@@ -161,30 +190,7 @@ function CodeShowcase() {
                             </ul>
                         </div>
 
-                        <div className="daiso-showcase-actions">
-                            <InstallCommand />
-                            <div className="daiso-showcase-ctas">
-                                <Link
-                                    className="button button--secondary button--lg"
-                                    to="./docs/installation"
-                                >
-                                    Get started{" "}
-                                    <ArrowRight
-                                        size="1rem"
-                                        style={{
-                                            marginLeft: "0.4rem",
-                                            verticalAlign: "middle",
-                                        }}
-                                    />
-                                </Link>
-                                <Link
-                                    className="button button--outline button--secondary button--lg"
-                                    href="https://github.com/daiso-tech/daiso-core"
-                                >
-                                    View on GitHub
-                                </Link>
-                            </div>
-                        </div>
+                        <CodeShowcaseActions />
                     </div>
                     <div className="col col--7">
                         {codeExamples[activeIndex].codeBlockDescription && (
@@ -225,9 +231,7 @@ function FeatureSection({ items }: { items: FeatureItemProps[] }) {
         <section className="padding-vert--xl daiso-section-alt">
             <div className="container">
                 <div className="margin-bottom--xl">
-                    <h2 className="daiso-section-title">
-                        Why eridu-tech?
-                    </h2>
+                    <h2 className="daiso-section-title">Why eridu-tech?</h2>
                     <p className="daiso-section-subtitle">
                         Designed from the ground up for real-world backend
                         challenges — no vendor lock-in, no Docker required for
@@ -253,9 +257,8 @@ function WhoIsThisFor() {
                 <div className="margin-bottom--xl">
                     <h2 className="daiso-section-title">Who is this for?</h2>
                     <p className="daiso-section-subtitle">
-                        eridu-tech is built for backend and fullstack
-                        TypeScript developers who value flexibility and
-                        testability.
+                        eridu-tech is built for backend and fullstack TypeScript
+                        developers who value flexibility and testability.
                     </p>
                 </div>
                 <div
@@ -392,8 +395,8 @@ function GitHubStarBanner() {
                     Find this library useful? Give it a ⭐
                 </h2>
                 <p className="daiso-star-subtitle">
-                    If you see potential in eridu-tech, starring the repo
-                    on GitHub helps others discover it and motivates continued
+                    If you see potential in eridu-tech, starring the repo on
+                    GitHub helps others discover it and motivates continued
                     development. It takes one click and means a lot.
                 </p>
                 <Link
@@ -590,7 +593,7 @@ export default function Home(): ReactNode {
 
     return (
         <Layout title={siteConfig.title} description={siteConfig.tagline}>
-            <Header/>
+            <Header />
             <main>
                 <StatsBar />
                 <FeatureSection items={Object.values(FEATURE_ITEMS)} />
