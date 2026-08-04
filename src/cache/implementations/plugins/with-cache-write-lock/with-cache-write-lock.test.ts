@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { NoOpCacheAdapter } from "@/cache/implementations/adapters/_module.js";
 import { withCacheWriteLock } from "@/cache/implementations/plugins/with-cache-write-lock/with-cache-write-lock.js";
@@ -12,22 +12,20 @@ import { withPluginFactory } from "@/middleware/implementations/with-plugin-fact
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withCacheWriteLock", () => {
-    const noOpContext = new NoOpContext();
+    const context = new NoOpContext();
+    const lockFactory = new LockFactory({ adapter: new NoOpLockAdapter() });
+    const adapter = new NoOpCacheAdapter();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
-    afterEach(() => {
+    beforeEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
-    function createLockFactory(): LockFactory {
-        return new LockFactory({ adapter: new NoOpLockAdapter() });
-    }
-
     describe("method: add", () => {
         test("Should acquire lock", async () => {
-            const adapter = new NoOpCacheAdapter<string>();
             const spy = vi.spyOn(adapter, "add");
-            const lockFactory = createLockFactory();
+
             const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
             const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -36,26 +34,22 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            console.log("1.");
             await enhanced.add(
                 "myKey",
                 "value",
                 TimeSpan.fromMinutes(5),
-                noOpContext,
+                context,
             );
-            console.log("2.");
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("myKey");
             expect(runSpy).toHaveBeenCalledOnce();
         });
     });
-
     describe("method: put", () => {
         test("Should acquire lock", async () => {
-            const adapter = new NoOpCacheAdapter<string>();
             const spy = vi.spyOn(adapter, "put");
-            const lockFactory = createLockFactory();
+
             const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
             const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -68,7 +62,7 @@ describe("function: withCacheWriteLock", () => {
                 "myKey",
                 "value",
                 TimeSpan.fromMinutes(5),
-                noOpContext,
+                context,
             );
 
             expect(spy).toHaveBeenCalledOnce();
@@ -76,12 +70,10 @@ describe("function: withCacheWriteLock", () => {
             expect(runSpy).toHaveBeenCalledOnce();
         });
     });
-
     describe("method: update", () => {
         test("Should acquire lock", async () => {
-            const adapter = new NoOpCacheAdapter<string>();
             const spy = vi.spyOn(adapter, "update");
-            const lockFactory = createLockFactory();
+
             const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
             const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -90,19 +82,17 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.update("myKey", "newValue", noOpContext);
+            await enhanced.update("myKey", "newValue", context);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("myKey");
             expect(runSpy).toHaveBeenCalledOnce();
         });
     });
-
     describe("method: increment", () => {
         test("Should acquire lock", async () => {
-            const adapter = new NoOpCacheAdapter<number>();
             const spy = vi.spyOn(adapter, "increment");
-            const lockFactory = createLockFactory();
+
             const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
             const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -111,19 +101,17 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.increment("myKey", 5, noOpContext);
+            await enhanced.increment("myKey", 5, context);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("myKey");
             expect(runSpy).toHaveBeenCalledOnce();
         });
     });
-
     describe("method: getAndRemove", () => {
         test("Should acquire lock", async () => {
-            const adapter = new NoOpCacheAdapter<string>();
             const spy = vi.spyOn(adapter, "getAndRemove");
-            const lockFactory = createLockFactory();
+
             const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
             const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -132,34 +120,29 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.getAndRemove("myKey", noOpContext);
+            await enhanced.getAndRemove("myKey", context);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("myKey");
             expect(runSpy).toHaveBeenCalledOnce();
         });
-
         test("Should pass through the underlying adapter response", async () => {
-            const adapter = new NoOpCacheAdapter<string>();
             vi.spyOn(adapter, "getAndRemove").mockResolvedValue("storedValue");
-            const lockFactory = createLockFactory();
 
             const enhanced = withPlugin(
                 adapter,
                 withCacheWriteLock({ lockFactory }),
             );
 
-            const result = await enhanced.getAndRemove("myKey", noOpContext);
+            const result = await enhanced.getAndRemove("myKey", context);
 
             expect(result).toBe("storedValue");
         });
     });
-
     describe("method: removeMany", () => {
         test("Should acquire lock for each key", async () => {
-            const adapter = new NoOpCacheAdapter<string>();
             const spy = vi.spyOn(adapter, "removeMany");
-            const lockFactory = createLockFactory();
+
             const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
             const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -168,7 +151,7 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.removeMany(["key1", "key2", "key3"], noOpContext);
+            await enhanced.removeMany(["key1", "key2", "key3"], context);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("key1");
@@ -176,11 +159,9 @@ describe("function: withCacheWriteLock", () => {
             expect(createSpy).toHaveBeenCalledWith("key3");
             expect(runSpy).toHaveBeenCalledTimes(3);
         });
-
         test("Should deduplicate keys when acquiring locks", async () => {
-            const adapter = new NoOpCacheAdapter<string>();
             const spy = vi.spyOn(adapter, "removeMany");
-            const lockFactory = createLockFactory();
+
             const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
             const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -191,7 +172,7 @@ describe("function: withCacheWriteLock", () => {
 
             await enhanced.removeMany(
                 ["key1", "key2", "key1", "key3"],
-                noOpContext,
+                context,
             );
 
             expect(spy).toHaveBeenCalledOnce();
@@ -201,31 +182,23 @@ describe("function: withCacheWriteLock", () => {
             expect(createSpy).toHaveBeenCalledWith("key3");
             expect(runSpy).toHaveBeenCalledTimes(3);
         });
-
         test("Should pass through the underlying adapter response", async () => {
-            const adapter = new NoOpCacheAdapter<string>();
             vi.spyOn(adapter, "removeMany").mockResolvedValue(true);
-            const lockFactory = createLockFactory();
 
             const enhanced = withPlugin(
                 adapter,
                 withCacheWriteLock({ lockFactory }),
             );
 
-            const result = await enhanced.removeMany(
-                ["key1", "key2"],
-                noOpContext,
-            );
+            const result = await enhanced.removeMany(["key1", "key2"], context);
 
             expect(result).toBe(true);
         });
     });
-
     describe("options", () => {
         test("Should only lock specified methods when onlyMethods is provided", async () => {
-            const adapter = new NoOpCacheAdapter<string>();
             const getSpy = vi.spyOn(adapter, "get");
-            const lockFactory = createLockFactory();
+
             const runSpy = vi.spyOn(Lock.prototype, "runOrFail");
             const createSpy = vi.spyOn(lockFactory, "create");
 
@@ -241,13 +214,14 @@ describe("function: withCacheWriteLock", () => {
                 "myKey",
                 "value",
                 TimeSpan.fromMinutes(5),
-                noOpContext,
+                context,
             );
             expect(createSpy).toHaveBeenCalledWith("myKey");
             expect(runSpy).toHaveBeenCalledTimes(1);
 
+            vi.restoreAllMocks();
             vi.clearAllMocks();
-            await enhanced.get("myKey", noOpContext);
+            await enhanced.get("myKey", context);
             expect(createSpy).not.toHaveBeenCalled();
             expect(runSpy).not.toHaveBeenCalled();
             expect(getSpy).toHaveBeenCalledOnce();
