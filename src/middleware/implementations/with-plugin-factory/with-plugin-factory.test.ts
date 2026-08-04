@@ -13,6 +13,7 @@ import { withPluginFactory } from "@/middleware/implementations/with-plugin-fact
 
 describe("function: withPluginFactory", () => {
     afterEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
