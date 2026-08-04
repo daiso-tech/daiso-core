@@ -1,0 +1,13 @@
+{
+    "skillsZipName": "eridu-tech-skills",
+    "skillsZipOutDir": "./static",
+    "skillsLicense": "MIT",
+    "tsconfig": "../tsconfig.json",
+    "entryPoints": ["../src/**/*.ts"],
+    "exclude": [
+        "../src/**/*.test.ts",
+        "../src/**/_module.ts",
+        "../src/**/_module-exports.ts"
+    ],
+    "plugin": ["@skillit/typedoc"]
+}
