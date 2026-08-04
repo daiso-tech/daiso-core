@@ -265,9 +265,7 @@ export function semaphoreFactoryTestSuite(
                         return Promise.reject(new UnexpectedErrorA());
                     });
 
-                    await expect(error).rejects.toBeInstanceOf(
-                        UnexpectedErrorA,
-                    );
+                    await expect(error).rejects.toThrow(UnexpectedErrorA);
                 });
                 test("Should call handler function when key doesnt exists", async () => {
                     const key = "a";
@@ -473,7 +471,7 @@ export function semaphoreFactoryTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         LimitReachedSemaphoreError,
                     );
                 });
@@ -491,7 +489,7 @@ export function semaphoreFactoryTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         LimitReachedSemaphoreError,
                     );
                 });
@@ -515,7 +513,7 @@ export function semaphoreFactoryTestSuite(
                             return Promise.resolve(RETURN_VALUE);
                         });
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         LimitReachedSemaphoreError,
                     );
                 });
@@ -539,7 +537,7 @@ export function semaphoreFactoryTestSuite(
                             return Promise.resolve(RETURN_VALUE);
                         });
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         LimitReachedSemaphoreError,
                     );
                 });
@@ -811,7 +809,7 @@ export function semaphoreFactoryTestSuite(
                     });
                     const result = semaphore3.acquireOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         LimitReachedSemaphoreError,
                     );
                 });
@@ -931,7 +929,7 @@ export function semaphoreFactoryTestSuite(
                         ttl,
                     });
                     const result1 = semaphore3.acquireOrFail();
-                    await expect(result1).rejects.toBeInstanceOf(
+                    await expect(result1).rejects.toThrow(
                         LimitReachedSemaphoreError,
                     );
 
@@ -1128,7 +1126,7 @@ export function semaphoreFactoryTestSuite(
                         })
                         .releaseOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseSemaphoreError,
                     );
                 });
@@ -1152,7 +1150,7 @@ export function semaphoreFactoryTestSuite(
                         })
                         .releaseOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseSemaphoreError,
                     );
                 });
@@ -1175,7 +1173,7 @@ export function semaphoreFactoryTestSuite(
                         })
                         .releaseOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseSemaphoreError,
                     );
                 });
@@ -1192,7 +1190,7 @@ export function semaphoreFactoryTestSuite(
                     await delayWithBuffer(ttl);
                     const result = semaphore.releaseOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseSemaphoreError,
                     );
                 });
@@ -1637,7 +1635,7 @@ export function semaphoreFactoryTestSuite(
                     );
                     const result = semaphore2.refreshOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshSemaphoreError,
                     );
                 });
@@ -1660,7 +1658,7 @@ export function semaphoreFactoryTestSuite(
                     });
                     const result = semaphore2.refreshOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshSemaphoreError,
                     );
                 });
@@ -1678,7 +1676,7 @@ export function semaphoreFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const result = semaphore.refreshOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshSemaphoreError,
                     );
                 });
@@ -1696,7 +1694,7 @@ export function semaphoreFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const result = semaphore.refreshOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshSemaphoreError,
                     );
                 });
@@ -1713,7 +1711,7 @@ export function semaphoreFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const result = semaphore.refreshOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshSemaphoreError,
                     );
                 });
