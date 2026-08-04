@@ -27,13 +27,11 @@ export async function startMongoReplicaSet(): Promise<{
                     },
                 });
             } catch (error: unknown) {
-                if (
-                    !(
-                        error instanceof MongoError &&
-                        error.code === 23 &&
-                        error.message.includes("already initialized")
-                    )
-                ) {
+                if (!(
+                    error instanceof MongoError &&
+                    error.code === 23 &&
+                    error.message.includes("already initialized")
+                )) {
                     throw error;
                 }
             }
@@ -69,10 +67,7 @@ export async function startMongoReplicaSet(): Promise<{
  * @internal
  */
 export type BinaryData =
-    | ArrayBuffer
-    | SharedArrayBuffer
-    | ArrayBufferView
-    | Buffer;
+    ArrayBuffer | SharedArrayBuffer | ArrayBufferView | Buffer;
 
 /**
  * @internal

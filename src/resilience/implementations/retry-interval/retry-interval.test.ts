@@ -50,10 +50,9 @@ describe("function: retryInterval", () => {
             const interval = TimeSpan.fromMilliseconds(20);
             const middleware = retryInterval({ time, interval });
 
-            try {
-                await middleware({ args: [], next: nextFn, name: "" });
-                expect.unreachable();
-            } catch (error: unknown) {
+            await expect(
+                middleware({ args: [], next: nextFn, name: "" }),
+            ).rejects.toSatisfy((error: unknown) => {
                 expect(error).toBeInstanceOf(RetryIntervalResilienceError);
                 const retryError = error as RetryIntervalResilienceError;
                 expect(retryError.time.toMilliseconds()).toBe(
@@ -62,7 +61,8 @@ describe("function: retryInterval", () => {
                 expect(retryError.interval.toMilliseconds()).toBe(
                     interval.toMilliseconds(),
                 );
-            }
+                return true;
+            });
         });
 
         test("Should succeed on first attempt without waiting", async () => {
@@ -111,15 +111,15 @@ describe("function: retryInterval", () => {
                 interval: TimeSpan.fromMilliseconds(15),
             });
 
-            try {
-                await middleware({ args: [], next: nextFn, name: "" });
-                expect.unreachable();
-            } catch (error: unknown) {
+            await expect(
+                middleware({ args: [], next: nextFn, name: "" }),
+            ).rejects.toSatisfy((error: unknown) => {
                 expect(error).toBeInstanceOf(RetryIntervalResilienceError);
                 const retryError = error as RetryIntervalResilienceError;
                 expect(retryError.errors.length).toBeGreaterThanOrEqual(1);
                 expect(retryError.attempts).toBeGreaterThanOrEqual(1);
-            }
+                return true;
+            });
         });
     });
 
@@ -180,17 +180,17 @@ describe("function: retryInterval", () => {
                 throwLastError: false,
             });
 
-            try {
-                await middleware({ args: [], next: nextFn, name: "" });
-                expect.unreachable();
-            } catch (error: unknown) {
+            await expect(
+                middleware({ args: [], next: nextFn, name: "" }),
+            ).rejects.toSatisfy((error: unknown) => {
                 expect(error).toBeInstanceOf(RetryIntervalResilienceError);
                 const retryError = error as RetryIntervalResilienceError;
                 expect(retryError.errors.length).toBeGreaterThanOrEqual(1);
                 for (const err of retryError.errors) {
                     expect(err).toBeInstanceOf(Error);
                 }
-            }
+                return true;
+            });
         });
     });
 
@@ -585,15 +585,15 @@ describe("function: retryInterval", () => {
                 errorPolicy: { treatFalseAsError: true },
             });
 
-            try {
-                await middleware({ args: [], next: nextFn, name: "" });
-                expect.unreachable();
-            } catch (error: unknown) {
+            await expect(
+                middleware({ args: [], next: nextFn, name: "" }),
+            ).rejects.toSatisfy((error: unknown) => {
                 expect(error).toBeInstanceOf(RetryIntervalResilienceError);
                 const retryError = error as RetryIntervalResilienceError;
                 expect(retryError.errors.length).toBeGreaterThanOrEqual(2);
                 expect(retryError.errors.every((e) => e === false)).toBe(true);
-            }
+                return true;
+            });
         });
     });
 

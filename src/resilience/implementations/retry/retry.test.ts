@@ -246,17 +246,17 @@ describe("function: retry", () => {
                 backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
-            try {
-                await middleware({ args: [], next: nextFn, name: "" });
-                expect.unreachable();
-            } catch (error: unknown) {
+            await expect(
+                middleware({ args: [], next: nextFn, name: "" }),
+            ).rejects.toSatisfy((error: unknown) => {
                 expect(error).toBeInstanceOf(RetryResilienceError);
                 const retryError = error as RetryResilienceError;
                 expect(retryError.errors).toHaveLength(2);
                 expect(retryError.errors[0]).toBe(error1);
                 expect(retryError.errors[1]).toBe(error2);
                 expect(retryError.maxAttempts).toBe(2);
-            }
+                return true;
+            });
         });
     });
 
@@ -586,15 +586,15 @@ describe("function: retry", () => {
                 backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
-            try {
-                await middleware({ args: [], next: nextFn, name: "" });
-                expect.unreachable();
-            } catch (error: unknown) {
+            await expect(
+                middleware({ args: [], next: nextFn, name: "" }),
+            ).rejects.toSatisfy((error: unknown) => {
                 expect(error).toBeInstanceOf(RetryResilienceError);
                 const retryError = error as RetryResilienceError;
                 expect(retryError.errors).toHaveLength(2);
                 expect(retryError.errors).toEqual([false, false]);
-            }
+                return true;
+            });
         });
     });
 

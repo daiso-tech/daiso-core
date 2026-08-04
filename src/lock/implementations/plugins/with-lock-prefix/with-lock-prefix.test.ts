@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { type ILockAdapter } from "@/lock/contracts/_module.js";
@@ -10,17 +10,18 @@ import { withPluginFactory } from "@/middleware/implementations/with-plugin-fact
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withLockPrefix", () => {
-    const noOpContext = new NoOpContext();
+    const context = new NoOpContext();
+    const adapter = new NoOpLockAdapter();
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
-    afterEach(() => {
+    beforeEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
     describe("method: acquire", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpLockAdapter();
             const spy = vi.spyOn(adapter, "acquire");
 
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
@@ -29,56 +30,45 @@ describe("function: withLockPrefix", () => {
                 "myKey",
                 "lockId",
                 TimeSpan.fromSeconds(30),
-                noOpContext,
+                context,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ILockAdapter["acquire"]>
-            >(
-                `${prefix}myKey`,
-                "lockId",
-                TimeSpan.fromSeconds(30),
-                noOpContext,
-            );
+            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
         });
     });
 
     describe("method: forceRelease", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpLockAdapter();
             const spy = vi.spyOn(adapter, "forceRelease");
 
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
 
-            await enhanced.forceRelease("myKey", noOpContext);
+            await enhanced.forceRelease("myKey", context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ILockAdapter["forceRelease"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
 
     describe("method: getState", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpLockAdapter();
             const spy = vi.spyOn(adapter, "getState");
 
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
 
-            await enhanced.getState("myKey", noOpContext);
+            await enhanced.getState("myKey", context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ILockAdapter["getState"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
 
     describe("method: refresh", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpLockAdapter();
             const spy = vi.spyOn(adapter, "refresh");
 
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
@@ -87,34 +77,26 @@ describe("function: withLockPrefix", () => {
                 "myKey",
                 "lockId",
                 TimeSpan.fromSeconds(30),
-                noOpContext,
+                context,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ILockAdapter["refresh"]>
-            >(
-                `${prefix}myKey`,
-                "lockId",
-                TimeSpan.fromSeconds(30),
-                noOpContext,
-            );
+            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
         });
     });
 
     describe("method: release", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpLockAdapter();
             const spy = vi.spyOn(adapter, "release");
 
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
 
-            await enhanced.release("myKey", "lockId", noOpContext);
+            await enhanced.release("myKey", "lockId", context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ILockAdapter["release"]>
-            >(`${prefix}myKey`, "lockId", noOpContext);
+            >(`${prefix}myKey`, "lockId", context);
         });
     });
 });

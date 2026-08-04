@@ -62,7 +62,7 @@ export function withRateLimiterFactory(
     return <TParameters extends Array<unknown>, TReturn>(
         settings: WithRateLimiterSettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
-        const { key = (...args) => JSON.stringify(args), ...rest } = settings;
+        const { key, ...rest } = settings;
         return ({ next, args }) => {
             return rateLimiterFactory
                 .create(callInvocable(key, ...args), rest)

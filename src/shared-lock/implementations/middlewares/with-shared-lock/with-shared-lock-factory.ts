@@ -104,12 +104,7 @@ export function withSharedLockFactory(sharedLockFactory: ISharedLockFactory) {
     return <TParameters extends Array<unknown>, TReturn>(
         settings: WithSharedLockFactorySettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
-        const {
-            key = (...args) => JSON.stringify(args),
-            lockId = () => v4(),
-            when,
-            ...rest
-        } = settings;
+        const { key, lockId = () => v4(), when, ...rest } = settings;
         return ({ next, args }) => {
             if (when === SHARED_LOCK_WHEN.READER) {
                 return sharedLockFactory

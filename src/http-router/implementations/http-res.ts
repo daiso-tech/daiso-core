@@ -48,11 +48,7 @@ export class HttpRes implements IHttpRes {
     private status: number | null;
     private statusText: string | null;
     private body:
-        | string
-        | ArrayBuffer
-        | Uint8Array
-        | AsyncIterable<unknown>
-        | null;
+        string | ArrayBuffer | Uint8Array | AsyncIterable<unknown> | null;
 
     constructor(settings: IHttpResSettings = {}) {
         const {

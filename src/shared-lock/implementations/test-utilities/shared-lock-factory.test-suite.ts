@@ -273,9 +273,7 @@ export function sharedLockFactoryTestSuite(
                         return Promise.reject(new UnexpectedErrorA());
                     });
 
-                    await expect(error).rejects.toBeInstanceOf(
-                        UnexpectedErrorA,
-                    );
+                    await expect(error).rejects.toThrow(UnexpectedErrorA);
                 });
                 test("Should call handler function when key doesnt exists", async () => {
                     const key = "a";
@@ -505,7 +503,7 @@ export function sharedLockFactoryTestSuite(
                             return Promise.resolve(RETURN_VALUE);
                         });
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedAcquireWriterLockError,
                     );
                 });
@@ -529,7 +527,7 @@ export function sharedLockFactoryTestSuite(
                             return Promise.resolve(RETURN_VALUE);
                         });
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedAcquireWriterLockError,
                     );
                 });
@@ -744,7 +742,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     const result = sharedLock2.acquireWriterOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedAcquireWriterLockError,
                     );
                 });
@@ -765,7 +763,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     const result = sharedLock2.acquireWriterOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedAcquireWriterLockError,
                     );
                 });
@@ -781,7 +779,7 @@ export function sharedLockFactoryTestSuite(
                     await sharedLock.acquireReader();
 
                     const result = sharedLock.acquireWriterOrFail();
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedAcquireWriterLockError,
                     );
                 });
@@ -1064,7 +1062,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     const result = sharedLock.releaseWriterOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseWriterLockError,
                     );
                 });
@@ -1085,7 +1083,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     const result = sharedLock2.releaseWriterOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseWriterLockError,
                     );
                 });
@@ -1106,7 +1104,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     const result = sharedLock2.releaseWriterOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseWriterLockError,
                     );
                 });
@@ -1128,7 +1126,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     const result = sharedLock2.releaseWriterOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseWriterLockError,
                     );
                 });
@@ -1146,7 +1144,7 @@ export function sharedLockFactoryTestSuite(
 
                     const result = sharedLock.releaseWriterOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseWriterLockError,
                     );
                 });
@@ -1283,7 +1281,7 @@ export function sharedLockFactoryTestSuite(
 
                     const result = sharedLock.releaseWriterOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseWriterLockError,
                     );
                 });
@@ -1547,7 +1545,7 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMinutes(1);
                     const result = sharedLock.refreshWriterOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshWriterLockError,
                     );
                 });
@@ -1569,7 +1567,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     const result = sharedLock2.refreshWriterOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshWriterLockError,
                     );
                 });
@@ -1591,7 +1589,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     const result = sharedLock2.refreshWriterOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshWriterLockError,
                     );
                 });
@@ -1614,7 +1612,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     const result = sharedLock2.refreshWriterOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshWriterLockError,
                     );
                 });
@@ -1633,7 +1631,7 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMinutes(1);
                     const result = sharedLock.refreshWriterOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshWriterLockError,
                     );
                 });
@@ -1651,7 +1649,7 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMinutes(1);
                     const result = sharedLock.refreshWriterOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshWriterLockError,
                     );
                 });
@@ -1746,7 +1744,7 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromSeconds(20);
                     const result = sharedLock.refreshWriterOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshWriterLockError,
                     );
                 });
@@ -2022,9 +2020,7 @@ export function sharedLockFactoryTestSuite(
                         return Promise.reject(new UnexpectedErrorA());
                     });
 
-                    await expect(error).rejects.toBeInstanceOf(
-                        UnexpectedErrorA,
-                    );
+                    await expect(error).rejects.toThrow(UnexpectedErrorA);
                 });
                 test("Should call handler function when key doesnt exists", async () => {
                     const key = "a";
@@ -2238,7 +2234,7 @@ export function sharedLockFactoryTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         LimitReachedReaderSemaphoreError,
                     );
                 });
@@ -2256,7 +2252,7 @@ export function sharedLockFactoryTestSuite(
                         return Promise.resolve(RETURN_VALUE);
                     });
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         LimitReachedReaderSemaphoreError,
                     );
                 });
@@ -2280,7 +2276,7 @@ export function sharedLockFactoryTestSuite(
                             return Promise.resolve(RETURN_VALUE);
                         });
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         LimitReachedReaderSemaphoreError,
                     );
                 });
@@ -2304,7 +2300,7 @@ export function sharedLockFactoryTestSuite(
                             return Promise.resolve(RETURN_VALUE);
                         });
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         LimitReachedReaderSemaphoreError,
                     );
                 });
@@ -2622,7 +2618,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     const result = sharedLock3.acquireReaderOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         LimitReachedReaderSemaphoreError,
                     );
                 });
@@ -2755,7 +2751,7 @@ export function sharedLockFactoryTestSuite(
                         limit,
                     });
                     const result2 = sharedLock3.acquireReaderOrFail();
-                    await expect(result2).rejects.toBeInstanceOf(
+                    await expect(result2).rejects.toThrow(
                         LimitReachedReaderSemaphoreError,
                     );
                 });
@@ -2772,7 +2768,7 @@ export function sharedLockFactoryTestSuite(
 
                     const result = sharedLock1.acquireReaderOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         LimitReachedReaderSemaphoreError,
                     );
                 });
@@ -3058,7 +3054,7 @@ export function sharedLockFactoryTestSuite(
                     );
                     const result = sharedLock2.releaseReaderOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseReaderSemaphoreError,
                     );
                 });
@@ -3081,7 +3077,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     const result = sharedLock2.releaseReaderOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseReaderSemaphoreError,
                     );
                 });
@@ -3103,7 +3099,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     const result = sharedLock2.releaseReaderOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseReaderSemaphoreError,
                     );
                 });
@@ -3120,7 +3116,7 @@ export function sharedLockFactoryTestSuite(
                     await delayWithBuffer(ttl);
                     const result = sharedLock.releaseReaderOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseReaderSemaphoreError,
                     );
                 });
@@ -3266,7 +3262,7 @@ export function sharedLockFactoryTestSuite(
 
                     const result = sharedLock.releaseReaderOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseReaderSemaphoreError,
                     );
                 });
@@ -3521,7 +3517,7 @@ export function sharedLockFactoryTestSuite(
                     );
                     const result = sharedLock2.refreshReaderOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshReaderSemaphoreError,
                     );
                 });
@@ -3545,7 +3541,7 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const result = sharedLock2.refreshReaderOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshReaderSemaphoreError,
                     );
                 });
@@ -3564,7 +3560,7 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const result = sharedLock.refreshReaderOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshReaderSemaphoreError,
                     );
                 });
@@ -3583,7 +3579,7 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const result = sharedLock.refreshReaderOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshReaderSemaphoreError,
                     );
                 });
@@ -3601,7 +3597,7 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMilliseconds(100);
                     const result = sharedLock.refreshReaderOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshReaderSemaphoreError,
                     );
                 });
@@ -3709,7 +3705,7 @@ export function sharedLockFactoryTestSuite(
                     const newTtl = TimeSpan.fromSeconds(20);
                     const result = sharedLock.refreshReaderOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshReaderSemaphoreError,
                     );
                 });

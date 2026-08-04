@@ -58,8 +58,7 @@ export class ExecutionContext implements IExecutionContext {
     contains<TValue>(
         token: ContextToken<Array<TValue>>,
         matchValue:
-            | NoInfer<TValue>
-            | Invocable<[value: NoInfer<TValue>], boolean>,
+            NoInfer<TValue> | Invocable<[value: NoInfer<TValue>], boolean>,
     ): boolean {
         return this.current.contains(token, matchValue);
     }

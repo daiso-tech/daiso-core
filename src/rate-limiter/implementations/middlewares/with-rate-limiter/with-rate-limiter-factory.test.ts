@@ -1,24 +1,19 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { use } from "@/middleware/implementations/_module.js";
-import {
-    type RateLimiterFactoryCreateSettings,
-    type IRateLimiterFactory,
-} from "@/rate-limiter/contracts/_module.js";
+import { type RateLimiterFactoryCreateSettings } from "@/rate-limiter/contracts/_module.js";
 import { NoOpRateLimiterAdapter } from "@/rate-limiter/implementations/adapters/_module.js";
 import { RateLimiterFactory } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/_module.js";
 import { RateLimiter } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
 import { withRateLimiterFactory } from "@/rate-limiter/implementations/middlewares/with-rate-limiter/with-rate-limiter-factory.js";
 
 describe("function: withRateLimiterFactory", () => {
-    let rateLimiterFactory: IRateLimiterFactory;
+    const rateLimiterFactory = new RateLimiterFactory({
+        adapter: new NoOpRateLimiterAdapter(),
+    });
 
     beforeEach(() => {
-        rateLimiterFactory = new RateLimiterFactory({
-            adapter: new NoOpRateLimiterAdapter(),
-        });
-    });
-    afterEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
@@ -43,8 +38,7 @@ describe("function: withRateLimiterFactory", () => {
             }),
         )(key);
 
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(key, settings);
+        expect(spy).toHaveBeenCalledExactlyOnceWith(key, settings);
     });
     test("Should call RateLimiter.run method", async () => {
         const spy = vi.spyOn(RateLimiter.prototype, "runOrFail");

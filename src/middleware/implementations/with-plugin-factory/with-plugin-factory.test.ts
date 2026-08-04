@@ -13,6 +13,7 @@ import { withPluginFactory } from "@/middleware/implementations/with-plugin-fact
 
 describe("function: withPluginFactory", () => {
     afterEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
@@ -89,8 +90,7 @@ describe("function: withPluginFactory", () => {
         const value = "value";
         enhancedInstance.methodA(value);
 
-        expect(middlewareA).toHaveBeenCalledOnce();
-        expect(middlewareA).toHaveBeenCalledWith({
+        expect(middlewareA).toHaveBeenCalledExactlyOnceWith({
             args: [value],
             next: expect.any(Function) as NextFn<[value: string]>,
             name: methodName,
@@ -163,8 +163,7 @@ describe("function: withPluginFactory", () => {
         const value = "value";
         enhancedInstance.methodA(value);
 
-        expect(middlewareA).toHaveBeenCalledOnce();
-        expect(middlewareA).toHaveBeenCalledWith({
+        expect(middlewareA).toHaveBeenCalledExactlyOnceWith({
             args: [value],
             next: expect.any(Function) as NextFn<[value: string]>,
             name: methodName,
@@ -355,7 +354,6 @@ describe("function: withPluginFactory", () => {
 
         withPlugin(obj, plugin);
 
-        expect(plugin).toHaveBeenCalledOnce();
-        expect(plugin).toHaveBeenCalledWith(obj, enhance);
+        expect(plugin).toHaveBeenCalledExactlyOnceWith(obj, enhance);
     });
 });

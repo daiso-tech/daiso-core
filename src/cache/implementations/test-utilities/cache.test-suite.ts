@@ -206,9 +206,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const result = cache.getOrFail(key);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should throw KeyNotFoundCacheError when key is expired", async () => {
                     const key = "a";
@@ -217,9 +215,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const result = cache.getOrFail(key);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should return value when key exists", async () => {
                     const key = "a";
@@ -568,9 +564,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     const result = cache.addOrFail(key, value2);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyExistsCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyExistsCacheError);
                 });
                 test("Should throw KeyExistsCacheError when key is unexpired", async () => {
                     const key = "a";
@@ -581,9 +575,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     const result = cache.addOrFail(key, value2);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyExistsCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyExistsCacheError);
                 });
                 test("Should not persist value when key exists", async () => {
                     const key = "a";
@@ -812,9 +804,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     const result = cache.updateOrFail(key, value);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should not persist value when key does not exists", async () => {
                     const key = "a";
@@ -840,9 +830,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     const result = cache.updateOrFail(key, value2);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
@@ -1004,9 +992,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     const result = cache.incrementOrFail(key, value);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should not persist value when key does not exists", async () => {
                     const key = "a";
@@ -1032,9 +1018,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     const result = cache.incrementOrFail(key, value2);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
@@ -1196,9 +1180,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     const result = cache.decrementOrFail(key, value);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should not persist value when key does not exists", async () => {
                     const key = "a";
@@ -1224,9 +1206,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     const result = cache.decrementOrFail(key, value2);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
@@ -1355,9 +1335,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const result = cache.removeOrFail(key);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should throw KeyNotFoundCacheError when key is expired", async () => {
                     const key = "a";
@@ -1366,9 +1344,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const result = cache.removeOrFail(key);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should not throw error when key exists", async () => {
                     const key = "a";

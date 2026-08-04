@@ -229,7 +229,7 @@ describe("class: FileStorage", () => {
 
             const result = fileStorage.create("a").getPublicUrlOrFail();
 
-            await expect(result).rejects.toBeInstanceOf(KeyNotFoundFileError);
+            await expect(result).rejects.toThrow(KeyNotFoundFileError);
         });
         test("Should call the adapter method when the adapter method is defined", async () => {
             const getPublicUrlSpy = vi.spyOn(
@@ -360,7 +360,7 @@ describe("class: FileStorage", () => {
 
             const result = fileStorage.create("a").getSignedDownloadUrlOrFail();
 
-            await expect(result).rejects.toBeInstanceOf(KeyNotFoundFileError);
+            await expect(result).rejects.toThrow(KeyNotFoundFileError);
         });
         test("Should call the adapter method when the adapter method is defined", async () => {
             const getSignedDownloadUrlSpy = vi.spyOn(

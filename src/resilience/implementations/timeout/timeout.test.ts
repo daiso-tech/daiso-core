@@ -34,16 +34,14 @@ describe("function: timeout", () => {
                 await delay(TimeSpan.fromMilliseconds(200));
                 return "late";
             }, [timeout({ waitTime })]);
-            try {
-                await fn();
-                expect.unreachable();
-            } catch (error: unknown) {
+            await expect(fn()).rejects.toSatisfy((error: unknown) => {
                 expect(error).toBeInstanceOf(TimeoutResilienceError);
                 const timeoutError = error as TimeoutResilienceError;
                 expect(timeoutError.waitTime.toMilliseconds()).toBe(
                     waitTime.toMilliseconds(),
                 );
-            }
+                return true;
+            });
         });
 
         test("Should rethrow non-timeout errors from the function", async () => {

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
@@ -10,34 +10,34 @@ import { withSemaphorePrefix } from "@/semaphore/implementations/plugins/with-se
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withSemaphorePrefix", () => {
-    const noOpContext = new NoOpContext();
+    const context = new NoOpContext();
+    const adapter = new NoOpSemaphoreAdapter();
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
-    afterEach(() => {
+    beforeEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
     describe("method: acquire", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSemaphoreAdapter();
             const spy = vi.spyOn(adapter, "acquire");
 
             const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
 
             await enhanced.acquire({
-                context: noOpContext,
+                context,
                 key: "myKey",
                 slotId: "slot1",
                 limit: 5,
                 ttl: TimeSpan.fromSeconds(30),
             });
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISemaphoreAdapter["acquire"]>
             >({
-                context: noOpContext,
+                context,
                 key: `${prefix}myKey`,
                 slotId: "slot1",
                 limit: 5,
@@ -48,39 +48,34 @@ describe("function: withSemaphorePrefix", () => {
 
     describe("method: forceReleaseAll", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSemaphoreAdapter();
             const spy = vi.spyOn(adapter, "forceReleaseAll");
 
             const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
 
-            await enhanced.forceReleaseAll("myKey", noOpContext);
+            await enhanced.forceReleaseAll("myKey", context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISemaphoreAdapter["forceReleaseAll"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
 
     describe("method: getState", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSemaphoreAdapter();
             const spy = vi.spyOn(adapter, "getState");
 
             const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
 
-            await enhanced.getState("myKey", noOpContext);
+            await enhanced.getState("myKey", context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISemaphoreAdapter["getState"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
 
     describe("method: refresh", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSemaphoreAdapter();
             const spy = vi.spyOn(adapter, "refresh");
 
             const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
@@ -89,29 +84,26 @@ describe("function: withSemaphorePrefix", () => {
                 "myKey",
                 "slot1",
                 TimeSpan.fromSeconds(30),
-                noOpContext,
+                context,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISemaphoreAdapter["refresh"]>
-            >(`${prefix}myKey`, "slot1", TimeSpan.fromSeconds(30), noOpContext);
+            >(`${prefix}myKey`, "slot1", TimeSpan.fromSeconds(30), context);
         });
     });
 
     describe("method: release", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSemaphoreAdapter();
             const spy = vi.spyOn(adapter, "release");
 
             const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
 
-            await enhanced.release("myKey", "slot1", noOpContext);
+            await enhanced.release("myKey", "slot1", context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISemaphoreAdapter["release"]>
-            >(`${prefix}myKey`, "slot1", noOpContext);
+            >(`${prefix}myKey`, "slot1", context);
         });
     });
 });

@@ -65,8 +65,7 @@ export type IWinterTcMiddlewareObject = InvocableFn<
  * @group Contracts
  */
 export type WinterTcMiddleware =
-    | WinterTcMiddlewareFn
-    | IWinterTcMiddlewareObject;
+    WinterTcMiddlewareFn | IWinterTcMiddlewareObject;
 
 /**
  * Defines a WinterTC middleware function with type inference.

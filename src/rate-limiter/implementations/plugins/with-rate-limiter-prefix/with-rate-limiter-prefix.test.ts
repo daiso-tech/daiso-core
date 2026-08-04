@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
@@ -9,57 +9,53 @@ import { NoOpRateLimiterAdapter } from "@/rate-limiter/implementations/adapters/
 import { withRateLimiterPrefix } from "@/rate-limiter/implementations/plugins/with-rate-limiter-prefix/with-rate-limiter-prefix.js";
 
 describe("function: withRateLimiterPrefix", () => {
-    const noOpContext = new NoOpContext();
+    const context = new NoOpContext();
+    const adapter = new NoOpRateLimiterAdapter();
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
-    afterEach(() => {
+    beforeEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
     describe("method: getState", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpRateLimiterAdapter();
             const spy = vi.spyOn(adapter, "getState");
 
             const enhanced = withPlugin(adapter, withRateLimiterPrefix(prefix));
 
-            await enhanced.getState("myKey", noOpContext);
+            await enhanced.getState("myKey", context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<IRateLimiterAdapter["getState"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
     describe("method: reset", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpRateLimiterAdapter();
             const spy = vi.spyOn(adapter, "reset");
 
             const enhanced = withPlugin(adapter, withRateLimiterPrefix(prefix));
 
-            await enhanced.reset("myKey", noOpContext);
+            await enhanced.reset("myKey", context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<IRateLimiterAdapter["reset"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
     describe("method: updateState", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpRateLimiterAdapter();
             const spy = vi.spyOn(adapter, "updateState");
 
             const enhanced = withPlugin(adapter, withRateLimiterPrefix(prefix));
 
-            await enhanced.updateState("myKey", 10, noOpContext);
+            await enhanced.updateState("myKey", 10, context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<IRateLimiterAdapter["updateState"]>
-            >(`${prefix}myKey`, 10, noOpContext);
+            >(`${prefix}myKey`, 10, context);
         });
     });
 });

@@ -53,8 +53,7 @@ export type CircuitBreakerClosedState<TMetrics = unknown> = {
  * @group Contracts
  */
 export type CircuitBreakerTrackState<TMetrics = unknown> =
-    | CircuitBreakerClosedState<TMetrics>
-    | CircuitBreakerHalfOpenState<TMetrics>;
+    CircuitBreakerClosedState<TMetrics> | CircuitBreakerHalfOpenState<TMetrics>;
 
 /**
  * Enumerated state transitions when circuit breaker is in CLOSED state.

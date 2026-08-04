@@ -38,14 +38,7 @@ export type HttpSuccessStatus =
  * @group Contracts
  */
 export type HttpRedirectStatus =
-    | "300"
-    | "301"
-    | "302"
-    | "303"
-    | "304"
-    | "305"
-    | "307"
-    | "308";
+    "300" | "301" | "302" | "303" | "304" | "305" | "307" | "308";
 
 /**
  * HTTP client error status codes (4xx).

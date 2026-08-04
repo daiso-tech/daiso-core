@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { use } from "@/middleware/implementations/_module.js";
 import { type SemaphoreFactoryCreateSettings } from "@/semaphore/contracts/_module.js";
@@ -10,14 +10,12 @@ import { withSemaphoreFactory } from "@/semaphore/implementations/middlewares/wi
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withSemaphoreFactory", () => {
-    let semaphoreFactory: SemaphoreFactory;
+    const semaphoreFactory = new SemaphoreFactory({
+        adapter: new NoOpSemaphoreAdapter(),
+    });
 
     beforeEach(() => {
-        semaphoreFactory = new SemaphoreFactory({
-            adapter: new NoOpSemaphoreAdapter(),
-        });
-    });
-    afterEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
@@ -43,8 +41,7 @@ describe("function: withSemaphoreFactory", () => {
             }),
         )(argValue);
 
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(argValue, settings);
+        expect(spy).toHaveBeenCalledExactlyOnceWith(argValue, settings);
     });
     test("Should call Semaphore.run method", async () => {
         const spy = vi.spyOn(Semaphore.prototype, "runOrFail");

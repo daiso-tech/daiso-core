@@ -146,9 +146,9 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should throw TypeError when given an empty array without initial value", async () => {
             const collection = new AsyncIterableCollection<string>([]);
-            await expect(async () => {
-                await collection.reduce((a, b) => a + b);
-            }).rejects.toThrowError(TypeError);
+            await expect(collection.reduce((a, b) => a + b)).rejects.toThrow(
+                TypeError,
+            );
         });
         test("Should return the same value when called more than 1 times", async () => {
             const arr = ["a", "b", "c", "d"],
@@ -438,13 +438,13 @@ describe("class: AsyncIterableCollection", () => {
     describe("method: getOrFail", () => {
         test("Should return null when index less than 0", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3]);
-            await expect(collection.getOrFail(-1)).rejects.toBeInstanceOf(
+            await expect(collection.getOrFail(-1)).rejects.toThrow(
                 ItemNotFoundCollectionError,
             );
         });
         test("Should return null when index greater than or equal to size of the collection", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3]);
-            await expect(collection.getOrFail(3)).rejects.toBeInstanceOf(
+            await expect(collection.getOrFail(3)).rejects.toThrow(
                 ItemNotFoundCollectionError,
             );
         });
@@ -511,9 +511,7 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should throw TypeError when containg a none number item", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, "a"]);
-            await expect(async () => {
-                await collection.sum();
-            }).rejects.toThrowError(TypeError);
+            await expect(collection.sum()).rejects.toThrow(TypeError);
         });
         test("Should return the same value when called more than 1 times", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4]);
@@ -523,7 +521,7 @@ describe("class: AsyncIterableCollection", () => {
         test("Should throw EmptyCollectionError when collection is empty", async () => {
             const collection = new AsyncIterableCollection([]);
             const promise = collection.sum();
-            await expect(promise).rejects.toBeInstanceOf(EmptyCollectionError);
+            await expect(promise).rejects.toThrow(EmptyCollectionError);
         });
     });
     describe("method: average", () => {
@@ -533,9 +531,7 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should throw TypeError when containg a none number item", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, "a"]);
-            await expect(async () => {
-                await collection.average();
-            }).rejects.toThrowError(TypeError);
+            await expect(collection.average()).rejects.toThrow(TypeError);
         });
         test("Should return the same value when called more than 1 times", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4]);
@@ -545,7 +541,7 @@ describe("class: AsyncIterableCollection", () => {
         test("Should throw EmptyCollectionError when collection is empty", async () => {
             const collection = new AsyncIterableCollection([]);
             const promise = collection.average();
-            await expect(promise).rejects.toBeInstanceOf(EmptyCollectionError);
+            await expect(promise).rejects.toThrow(EmptyCollectionError);
         });
     });
     describe("method: median", () => {
@@ -559,9 +555,7 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should throw TypeError when containg a none number item", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, "a"]);
-            await expect(async () => {
-                await collection.median();
-            }).rejects.toThrowError(TypeError);
+            await expect(collection.median()).rejects.toThrow(TypeError);
         });
         test("Should return the same value when called more than 1 times", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]);
@@ -571,7 +565,7 @@ describe("class: AsyncIterableCollection", () => {
         test("Should throw EmptyCollectionError when collection is empty", async () => {
             const collection = new AsyncIterableCollection([]);
             const promise = collection.median();
-            await expect(promise).rejects.toBeInstanceOf(EmptyCollectionError);
+            await expect(promise).rejects.toThrow(EmptyCollectionError);
         });
     });
     describe("method: min", () => {
@@ -588,9 +582,7 @@ describe("class: AsyncIterableCollection", () => {
                 4,
                 "-4",
             ]);
-            await expect(async () => {
-                await collection.min();
-            }).rejects.toThrowError(TypeError);
+            await expect(collection.min()).rejects.toThrow(TypeError);
         });
         test("Should return the same value when called more than 1 times", async () => {
             const collection = new AsyncIterableCollection([2, 1, 3, -2, 4]);
@@ -600,7 +592,7 @@ describe("class: AsyncIterableCollection", () => {
         test("Should throw EmptyCollectionError when collection is empty", async () => {
             const collection = new AsyncIterableCollection([]);
             const promise = collection.min();
-            await expect(promise).rejects.toBeInstanceOf(EmptyCollectionError);
+            await expect(promise).rejects.toThrow(EmptyCollectionError);
         });
     });
     describe("method: max", () => {
@@ -617,9 +609,7 @@ describe("class: AsyncIterableCollection", () => {
                 4,
                 "-4",
             ]);
-            await expect(async () => {
-                await collection.max();
-            }).rejects.toThrowError(TypeError);
+            await expect(collection.max()).rejects.toThrow(TypeError);
         });
         test("Should return the same value when called more than 1 times", async () => {
             const collection = new AsyncIterableCollection([2, 1, 3, -2, 4]);
@@ -629,7 +619,7 @@ describe("class: AsyncIterableCollection", () => {
         test("Should throw EmptyCollectionError when collection is empty", async () => {
             const collection = new AsyncIterableCollection([]);
             const promise = collection.max();
-            await expect(promise).rejects.toBeInstanceOf(EmptyCollectionError);
+            await expect(promise).rejects.toThrow(EmptyCollectionError);
         });
     });
     describe("method: percentage", () => {
@@ -691,7 +681,7 @@ describe("class: AsyncIterableCollection", () => {
         test("Should throw EmptyCollectionError when collection is empty", async () => {
             const collection = new AsyncIterableCollection([]);
             const promise = collection.percentage((item) => item === "a");
-            await expect(promise).rejects.toBeInstanceOf(EmptyCollectionError);
+            await expect(promise).rejects.toThrow(EmptyCollectionError);
         });
     });
     describe("method: some", () => {
@@ -2410,9 +2400,9 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should throw ItemNotFoundError when item not found", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]);
-            await expect(async () => {
-                await collection.firstOrFail((item) => item === 6);
-            }).rejects.toThrowError(ItemNotFoundCollectionError);
+            await expect(
+                collection.firstOrFail((item) => item === 6),
+            ).rejects.toThrow(ItemNotFoundCollectionError);
         });
         test("Should input correct indexes to predicate function", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]),
@@ -2688,9 +2678,9 @@ describe("class: AsyncIterableCollection", () => {
         });
         test("Should throw ItemNotFoundError when item not found", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]);
-            await expect(async () => {
-                await collection.lastOrFail((item) => item === 6);
-            }).rejects.toThrowError(ItemNotFoundCollectionError);
+            await expect(
+                collection.lastOrFail((item) => item === 6),
+            ).rejects.toThrow(ItemNotFoundCollectionError);
         });
         test("Should input correct indexes to predicate function", async () => {
             const collection = new AsyncIterableCollection([1, 2, 3, 4, 5]),
@@ -2887,9 +2877,9 @@ describe("class: AsyncIterableCollection", () => {
         });
         test(`Should throw ItemNotFoundError when searching for string "d" of ["a", "b", "c"]`, async () => {
             const collection = new AsyncIterableCollection(["a", "b", "c"]);
-            await expect(async () => {
-                await collection.beforeOrFail((item) => item === "d");
-            }).rejects.toThrowError(ItemNotFoundCollectionError);
+            await expect(
+                collection.beforeOrFail((item) => item === "d"),
+            ).rejects.toThrow(ItemNotFoundCollectionError);
         });
         test("Should input correct indexes to predicate function", async () => {
             const collection = new AsyncIterableCollection(["a", "b", "c"]),
@@ -3068,9 +3058,9 @@ describe("class: AsyncIterableCollection", () => {
         });
         test(`Should throw ItemNotFoundError when searching for string "d" of ["a", "b", "c"]`, async () => {
             const collection = new AsyncIterableCollection(["a", "b", "c"]);
-            await expect(async () => {
-                await collection.afterOrFail((item) => item === "d");
-            }).rejects.toThrowError(ItemNotFoundCollectionError);
+            await expect(
+                collection.afterOrFail((item) => item === "d"),
+            ).rejects.toThrow(ItemNotFoundCollectionError);
         });
         test("Should input correct indexes to predicate function", async () => {
             const collection = new AsyncIterableCollection(["a", "b", "c"]),
@@ -3113,9 +3103,9 @@ describe("class: AsyncIterableCollection", () => {
                 "c",
                 "b",
             ]);
-            await expect(async () => {
-                await collection.sole((item) => item === "f");
-            }).rejects.toThrowError(ItemNotFoundCollectionError);
+            await expect(
+                collection.sole((item) => item === "f"),
+            ).rejects.toThrow(ItemNotFoundCollectionError);
         });
         test("Should throw MultipleItemsFoundError when multiple item of same sort does exist", async () => {
             const collection = new AsyncIterableCollection([
@@ -3125,9 +3115,9 @@ describe("class: AsyncIterableCollection", () => {
                 "c",
                 "b",
             ]);
-            await expect(async () => {
-                await collection.sole((item) => item === "a");
-            }).rejects.toThrowError(MultipleItemsFoundCollectionError);
+            await expect(
+                collection.sole((item) => item === "a"),
+            ).rejects.toThrow(MultipleItemsFoundCollectionError);
         });
         test("Should return item when only one item of the same sort exist", async () => {
             const collection = new AsyncIterableCollection([
@@ -3449,51 +3439,35 @@ describe("class: AsyncIterableCollection", () => {
     describe("method: toRecord", () => {
         test("Should throw TypeError when given an item that is not array", async () => {
             const collection = new AsyncIterableCollection(["a"]);
-            await expect(collection.toRecord()).rejects.toBeInstanceOf(
-                TypeError,
-            );
+            await expect(collection.toRecord()).rejects.toThrow(TypeError);
         });
         test("Should throw TypeError when given an item that is empty array", async () => {
             const collection = new AsyncIterableCollection([[]]);
-            await expect(collection.toRecord()).rejects.toBeInstanceOf(
-                TypeError,
-            );
+            await expect(collection.toRecord()).rejects.toThrow(TypeError);
         });
         test("Should throw TypeError when given an item that is array of size 1", async () => {
             const collection = new AsyncIterableCollection([["a"]]);
-            await expect(collection.toRecord()).rejects.toBeInstanceOf(
-                TypeError,
-            );
+            await expect(collection.toRecord()).rejects.toThrow(TypeError);
         });
         test("Should throw TypeError when given an item that is array of size 2 and where first item boolean", async () => {
             const collection = new AsyncIterableCollection([[false, "a"]]);
-            await expect(collection.toRecord()).rejects.toBeInstanceOf(
-                TypeError,
-            );
+            await expect(collection.toRecord()).rejects.toThrow(TypeError);
         });
         test("Should throw TypeError when given an item that is array of size 2 and where first item is a object", async () => {
             const collection = new AsyncIterableCollection([[{}, "a"]]);
-            await expect(collection.toRecord()).rejects.toBeInstanceOf(
-                TypeError,
-            );
+            await expect(collection.toRecord()).rejects.toThrow(TypeError);
         });
         test("Should throw TypeError when given an item that is array of size 2 and where first item is a function", async () => {
             const collection = new AsyncIterableCollection([[() => {}, "a"]]);
-            await expect(collection.toRecord()).rejects.toBeInstanceOf(
-                TypeError,
-            );
+            await expect(collection.toRecord()).rejects.toThrow(TypeError);
         });
         test("Should throw TypeError when given an item that is array of size 2 and where first item is a bigint", async () => {
             const collection = new AsyncIterableCollection([[1n, "a"]]);
-            await expect(collection.toRecord()).rejects.toBeInstanceOf(
-                TypeError,
-            );
+            await expect(collection.toRecord()).rejects.toThrow(TypeError);
         });
         test("Should throw TypeError when given an item that is array of size 2 and where first item is a null", async () => {
             const collection = new AsyncIterableCollection([[null, "a"]]);
-            await expect(collection.toRecord()).rejects.toBeInstanceOf(
-                TypeError,
-            );
+            await expect(collection.toRecord()).rejects.toThrow(TypeError);
         });
         test("Should return Record when given items that is array of size 2 and where first items are string, number and symbols", async () => {
             const MY_SYMBOL = Symbol("MY_SYMBOL");
@@ -3512,15 +3486,15 @@ describe("class: AsyncIterableCollection", () => {
     describe("method: toMap", () => {
         test("Should throw TypeError when given an item that is not array", async () => {
             const collection = new AsyncIterableCollection(["a"]);
-            await expect(collection.toMap()).rejects.toBeInstanceOf(TypeError);
+            await expect(collection.toMap()).rejects.toThrow(TypeError);
         });
         test("Should throw TypeError when given an item that is empty array", async () => {
             const collection = new AsyncIterableCollection([[]]);
-            await expect(collection.toMap()).rejects.toBeInstanceOf(TypeError);
+            await expect(collection.toMap()).rejects.toThrow(TypeError);
         });
         test("Should throw TypeError when given an item that is array of size 1", async () => {
             const collection = new AsyncIterableCollection([["a"]]);
-            await expect(collection.toMap()).rejects.toBeInstanceOf(TypeError);
+            await expect(collection.toMap()).rejects.toThrow(TypeError);
         });
         test("Should return Map when given items that is array of size 2", async () => {
             const MY_SYMBOL = Symbol("MY_SYMBOL");

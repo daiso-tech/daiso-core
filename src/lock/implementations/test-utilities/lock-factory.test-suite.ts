@@ -233,9 +233,7 @@ export function lockFactoryTestSuite(
                         return Promise.reject(new UnexpectedErrorA());
                     });
 
-                    await expect(error).rejects.toBeInstanceOf(
-                        UnexpectedErrorA,
-                    );
+                    await expect(error).rejects.toThrow(UnexpectedErrorA);
                 });
                 test("Should call handler function when key doesnt exists", async () => {
                     const key = "a";
@@ -402,7 +400,7 @@ export function lockFactoryTestSuite(
                             return Promise.resolve(RETURN_VALUE);
                         });
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedAcquireLockError,
                     );
                 });
@@ -417,7 +415,7 @@ export function lockFactoryTestSuite(
                             return Promise.resolve(RETURN_VALUE);
                         });
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedAcquireLockError,
                     );
                 });
@@ -549,7 +547,7 @@ export function lockFactoryTestSuite(
                         .create(key, { ttl })
                         .acquireOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedAcquireLockError,
                     );
                 });
@@ -562,7 +560,7 @@ export function lockFactoryTestSuite(
                         .create(key, { ttl })
                         .acquireOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedAcquireLockError,
                     );
                 });
@@ -705,7 +703,7 @@ export function lockFactoryTestSuite(
                         })
                         .releaseOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseLockError,
                     );
                 });
@@ -718,7 +716,7 @@ export function lockFactoryTestSuite(
                         .create(key, { ttl })
                         .releaseOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseLockError,
                     );
                 });
@@ -731,7 +729,7 @@ export function lockFactoryTestSuite(
                         .create(key, { ttl })
                         .releaseOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseLockError,
                     );
                 });
@@ -745,7 +743,7 @@ export function lockFactoryTestSuite(
                         .create(key, { ttl })
                         .releaseOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseLockError,
                     );
                 });
@@ -758,7 +756,7 @@ export function lockFactoryTestSuite(
 
                     const result = lock.releaseOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedReleaseLockError,
                     );
                 });
@@ -1044,7 +1042,7 @@ export function lockFactoryTestSuite(
                         })
                         .refreshOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshLockError,
                     );
                 });
@@ -1058,7 +1056,7 @@ export function lockFactoryTestSuite(
                     const lock2 = lockFactory.create(key, { ttl });
                     const result = lock2.refreshOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshLockError,
                     );
                 });
@@ -1072,7 +1070,7 @@ export function lockFactoryTestSuite(
                     const lock2 = lockFactory.create(key, { ttl });
                     const result = lock2.refreshOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshLockError,
                     );
                 });
@@ -1087,7 +1085,7 @@ export function lockFactoryTestSuite(
                     const lock2 = lockFactory.create(key, { ttl });
                     const result = lock2.refreshOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshLockError,
                     );
                 });
@@ -1103,7 +1101,7 @@ export function lockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMinutes(1);
                     const result = lock.refreshOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshLockError,
                     );
                 });
@@ -1116,7 +1114,7 @@ export function lockFactoryTestSuite(
                     const newTtl = TimeSpan.fromMinutes(1);
                     const result = lock.refreshOrFail(newTtl);
 
-                    await expect(result).rejects.toBeInstanceOf(
+                    await expect(result).rejects.toThrow(
                         FailedRefreshLockError,
                     );
                 });

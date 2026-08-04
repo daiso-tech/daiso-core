@@ -31,6 +31,15 @@ function createMockFile(name: string): IHttpFile {
     };
 }
 
+function getThrownError<T = Error>(fn: () => unknown): T {
+    try {
+        fn();
+    } catch (error: unknown) {
+        return error as T;
+    }
+    throw new Error("Expected function to throw");
+}
+
 describe("class: HttpFileCollection", () => {
     describe("constructor", () => {
         test("Should create an empty collection that reports isEmpty as true", () => {
@@ -128,23 +137,20 @@ describe("class: HttpFileCollection", () => {
 
         test("Should include the field name in the error message", () => {
             const collection = new HttpFileCollection("myfield", []);
-            try {
-                collection.getOrFail(0);
-                expect.fail("Expected error was not thrown");
-            } catch (error) {
-                expect(error).toBeInstanceOf(FileIndexOutOfBoundsError);
-                expect((error as Error).message).toContain("myfield");
-            }
+            const error = getThrownError<FileIndexOutOfBoundsError>(() =>
+                collection.getOrFail(0),
+            );
+            expect(error).toBeInstanceOf(FileIndexOutOfBoundsError);
+            expect(error.message).toContain("myfield");
         });
 
         test("Should include the index in the error message", () => {
             const collection = new HttpFileCollection("field", []);
-            try {
-                collection.getOrFail(3);
-                expect.fail("Expected error was not thrown");
-            } catch (error) {
-                expect((error as Error).message).toContain("3");
-            }
+            const error = getThrownError<FileIndexOutOfBoundsError>(() =>
+                collection.getOrFail(3),
+            );
+            expect(error).toBeInstanceOf(FileIndexOutOfBoundsError);
+            expect(error.message).toContain("3");
         });
     });
 
@@ -184,13 +190,11 @@ describe("class: HttpFileCollection", () => {
 
         test("Should include the field name in the EmptyFileCollectionError message", () => {
             const collection = new HttpFileCollection("avatar", []);
-            try {
-                collection.firstOrFail();
-                expect.fail("Expected error was not thrown");
-            } catch (error) {
-                expect(error).toBeInstanceOf(EmptyFileCollectionError);
-                expect((error as Error).message).toContain("avatar");
-            }
+            const error = getThrownError<EmptyFileCollectionError>(() =>
+                collection.firstOrFail(),
+            );
+            expect(error).toBeInstanceOf(EmptyFileCollectionError);
+            expect(error.message).toContain("avatar");
         });
     });
 

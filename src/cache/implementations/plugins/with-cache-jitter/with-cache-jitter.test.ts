@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { type ICacheAdapter } from "@/cache/contracts/_module.js";
 import { NoOpCacheAdapter } from "@/cache/implementations/adapters/_module.js";
@@ -10,16 +10,17 @@ import { withPluginFactory } from "@/middleware/implementations/with-plugin-fact
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withCacheJitter", () => {
-    const noOpContext = new NoOpContext();
+    const context = new NoOpContext();
+    const adapter = new NoOpCacheAdapter<string>();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
-    afterEach(() => {
+    beforeEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
     describe("method: add", () => {
         test("Should apply jitter to TTL", async () => {
-            const adapter = new NoOpCacheAdapter<string>();
             const spy = vi.spyOn(adapter, "add");
             const mathRandom = vi.fn().mockReturnValue(0.5);
 
@@ -34,18 +35,13 @@ describe("function: withCacheJitter", () => {
             const ttl = TimeSpan.fromMinutes(1);
             const expectedMs = (1 - 0.2 * 0.5) * ttl.toMilliseconds();
 
-            await enhanced.add("myKey", "value", ttl, noOpContext);
+            await enhanced.add("myKey", "value", ttl, context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["add"]>>(
-                "myKey",
-                "value",
-                TimeSpan.fromMilliseconds(expectedMs),
-                noOpContext,
-            );
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
+                Parameters<ICacheAdapter["add"]>
+            >("myKey", "value", TimeSpan.fromMilliseconds(expectedMs), context);
         });
         test("Should not apply jitter when TTL is null", async () => {
-            const adapter = new NoOpCacheAdapter<string>();
             const spy = vi.spyOn(adapter, "add");
             const mathRandom = vi.fn().mockReturnValue(0.5);
 
@@ -54,14 +50,17 @@ describe("function: withCacheJitter", () => {
                 withCacheJitter({ _mathRandom: mathRandom }),
             );
 
-            await enhanced.add("myKey", "value", null, noOpContext);
+            await enhanced.add("myKey", "value", null, context);
 
             expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["add"]>>(
-                ...["myKey", "value", null, noOpContext],
+                "myKey",
+                "value",
+                null,
+                context,
             );
+            expect(mathRandom).not.toHaveBeenCalled();
         });
         test("Should use default jitter of 0.2 when not specified", async () => {
-            const adapter = new NoOpCacheAdapter<string>();
             const spy = vi.spyOn(adapter, "add");
             const mathRandom = vi.fn().mockReturnValue(0.5);
 
@@ -73,19 +72,18 @@ describe("function: withCacheJitter", () => {
             const ttl = TimeSpan.fromMinutes(1);
             const expectedMs = (1 - 0.2 * 0.5) * ttl.toMilliseconds();
 
-            await enhanced.add("myKey", "value", ttl, noOpContext);
+            await enhanced.add("myKey", "value", ttl, context);
 
             expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["add"]>>(
                 "myKey",
                 "value",
                 TimeSpan.fromMilliseconds(expectedMs),
-                noOpContext,
+                context,
             );
         });
     });
     describe("method: put", () => {
         test("Should apply jitter to TTL", async () => {
-            const adapter = new NoOpCacheAdapter<string>();
             const spy = vi.spyOn(adapter, "put");
             const mathRandom = vi.fn().mockReturnValue(0.3);
 
@@ -100,18 +98,13 @@ describe("function: withCacheJitter", () => {
             const ttl = TimeSpan.fromMinutes(1);
             const expectedMs = (1 - 0.5 * 0.3) * ttl.toMilliseconds();
 
-            await enhanced.put("myKey", "value", ttl, noOpContext);
+            await enhanced.put("myKey", "value", ttl, context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["put"]>>(
-                "myKey",
-                "value",
-                TimeSpan.fromMilliseconds(expectedMs),
-                noOpContext,
-            );
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
+                Parameters<ICacheAdapter["put"]>
+            >("myKey", "value", TimeSpan.fromMilliseconds(expectedMs), context);
         });
         test("Should not apply jitter when TTL is null", async () => {
-            const adapter = new NoOpCacheAdapter<string>();
             const spy = vi.spyOn(adapter, "put");
             const mathRandom = vi.fn().mockReturnValue(0.5);
 
@@ -120,14 +113,54 @@ describe("function: withCacheJitter", () => {
                 withCacheJitter({ _mathRandom: mathRandom }),
             );
 
-            await enhanced.put("myKey", "value", null, noOpContext);
+            await enhanced.put("myKey", "value", null, context);
 
             expect(spy).toHaveBeenCalledWith<Parameters<ICacheAdapter["put"]>>(
                 "myKey",
                 "value",
                 null,
-                noOpContext,
+                context,
             );
+            expect(mathRandom).not.toHaveBeenCalled();
+        });
+    });
+    describe("method: getOrAdd", () => {
+        test("Should apply jitter to TTL", async () => {
+            const spy = vi.spyOn(adapter, "getOrAdd");
+            const mathRandom = vi.fn().mockReturnValue(0.5);
+
+            const enhanced = withPlugin(
+                adapter,
+                withCacheJitter({
+                    defaultJitter: 0.2,
+                    _mathRandom: mathRandom,
+                }),
+            );
+
+            const ttl = TimeSpan.fromMinutes(1);
+            const expectedMs = (1 - 0.2 * 0.5) * ttl.toMilliseconds();
+
+            await enhanced.getOrAdd("myKey", "value", ttl, context);
+
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
+                Parameters<ICacheAdapter["getOrAdd"]>
+            >("myKey", "value", TimeSpan.fromMilliseconds(expectedMs), context);
+        });
+        test("Should not apply jitter when TTL is null", async () => {
+            const spy = vi.spyOn(adapter, "getOrAdd");
+            const mathRandom = vi.fn().mockReturnValue(0.5);
+
+            const enhanced = withPlugin(
+                adapter,
+                withCacheJitter({ _mathRandom: mathRandom }),
+            );
+
+            await enhanced.getOrAdd("myKey", "value", null, context);
+
+            expect(spy).toHaveBeenCalledWith<
+                Parameters<ICacheAdapter["getOrAdd"]>
+            >("myKey", "value", null, context);
+            expect(mathRandom).not.toHaveBeenCalled();
         });
     });
 });

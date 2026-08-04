@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { use } from "@/middleware/implementations/_module.js";
 import { type SharedLockFactoryCreateSettings } from "@/shared-lock/contracts/_module.js";
@@ -13,14 +13,12 @@ import {
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withSharedLockFactory", () => {
-    let sharedLockFactory: SharedLockFactory;
+    const sharedLockFactory = new SharedLockFactory({
+        adapter: new NoOpSharedLockAdapter(),
+    });
 
     beforeEach(() => {
-        sharedLockFactory = new SharedLockFactory({
-            adapter: new NoOpSharedLockAdapter(),
-        });
-    });
-    afterEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
@@ -48,8 +46,7 @@ describe("function: withSharedLockFactory", () => {
                 }),
             )(argValue);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(argValue, settings);
+            expect(spy).toHaveBeenCalledExactlyOnceWith(argValue, settings);
         });
         test("Should call SharedLock.run method", async () => {
             const spy = vi.spyOn(SharedLock.prototype, "runWriterOrFail");
@@ -95,8 +92,7 @@ describe("function: withSharedLockFactory", () => {
                 }),
             )(argValue);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith(argValue, settings);
+            expect(spy).toHaveBeenCalledExactlyOnceWith(argValue, settings);
         });
         test("Should call SharedLock.run method", async () => {
             const spy = vi.spyOn(SharedLock.prototype, "runReaderOrFail");

@@ -923,7 +923,7 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
             ...firstPart,
             ...resolveIterableValue(iterable),
             ...lastPart,
-        ]) as ICollection<TInput | TExtended>;
+        ]);
     }
 
     crossJoin<TExtended>(
@@ -1315,13 +1315,11 @@ export class ListCollection<TInput = unknown> implements ICollection<TInput> {
                 );
             }
             const [key, value] = item;
-            if (
-                !(
-                    typeof key === "string" ||
-                    typeof key === "number" ||
-                    typeof key === "symbol"
-                )
-            ) {
+            if (!(
+                typeof key === "string" ||
+                typeof key === "number" ||
+                typeof key === "symbol"
+            )) {
                 throw new TypeError(
                     "Item type is invalid must be a tuple of size 2 where first tuple item is a string or number or symbol",
                 );

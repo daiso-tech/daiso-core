@@ -12,5 +12,4 @@ import {
  * @group Contracts
  */
 export type FileStorageAdapterVariants =
-    | ISignedFileStorageAdapter
-    | IFileStorageAdapter;
+    ISignedFileStorageAdapter | IFileStorageAdapter;

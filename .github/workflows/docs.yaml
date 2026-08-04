@@ -22,7 +22,10 @@ jobs:
             - name: Install Node js
               uses: actions/setup-node@v5
               with:
-                  node-version: "22"
+                  node-version: "24"
+
+            - name: Clear node-gyp cache
+              run: rm -rf ~/.cache/node-gyp
 
             - name: Setup Pages
               uses: actions/configure-pages@v5

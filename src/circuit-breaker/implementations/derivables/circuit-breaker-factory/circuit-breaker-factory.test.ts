@@ -183,7 +183,7 @@ describe("class: CircuitBreakerFactory", () => {
                             new UnexpectedErrorA("UNEXPECTED ERROR"),
                         );
                     });
-                    await expect(promise).rejects.toBeInstanceOf(
+                    await expect(promise).rejects.toThrow(
                         OpenCircuitBreakerError,
                     );
                 });
@@ -206,7 +206,7 @@ describe("class: CircuitBreakerFactory", () => {
                             new UnexpectedErrorA("UNEXPECTED ERROR"),
                         );
                     });
-                    await expect(promise).rejects.toBeInstanceOf(
+                    await expect(promise).rejects.toThrow(
                         IsolatedCircuitBreakerError,
                     );
                 });
@@ -351,7 +351,7 @@ describe("class: CircuitBreakerFactory", () => {
                             new UnexpectedErrorA("UNEXPECTED ERROR"),
                         );
                     });
-                    await expect(promise).rejects.toBeInstanceOf(
+                    await expect(promise).rejects.toThrow(
                         OpenCircuitBreakerError,
                     );
                 });
@@ -374,7 +374,7 @@ describe("class: CircuitBreakerFactory", () => {
                             new UnexpectedErrorA("UNEXPECTED ERROR"),
                         );
                     });
-                    await expect(promise).rejects.toBeInstanceOf(
+                    await expect(promise).rejects.toThrow(
                         IsolatedCircuitBreakerError,
                     );
                 });
@@ -493,7 +493,7 @@ describe("class: CircuitBreakerFactory", () => {
                             new UnexpectedErrorA("UNEXPECTED ERROR"),
                         );
                     });
-                    await expect(promise).rejects.toBeInstanceOf(
+                    await expect(promise).rejects.toThrow(
                         OpenCircuitBreakerError,
                     );
                 });
@@ -516,7 +516,7 @@ describe("class: CircuitBreakerFactory", () => {
                             new UnexpectedErrorA("UNEXPECTED ERROR"),
                         );
                     });
-                    await expect(promise).rejects.toBeInstanceOf(
+                    await expect(promise).rejects.toThrow(
                         IsolatedCircuitBreakerError,
                     );
                 });

@@ -413,7 +413,7 @@ export class IterableCollection<
         }
         let fn: Map<TInput, ICollection<TInput>, TInput>;
         if (isInvocable(value)) {
-            fn = value as Map<TInput, ICollection<TInput>, TInput>;
+            fn = value;
         } else {
             fn = () => value;
         }
@@ -1211,13 +1211,11 @@ export class IterableCollection<
                 );
             }
             const [key, value] = item;
-            if (
-                !(
-                    typeof key === "string" ||
-                    typeof key === "number" ||
-                    typeof key === "symbol"
-                )
-            ) {
+            if (!(
+                typeof key === "string" ||
+                typeof key === "number" ||
+                typeof key === "symbol"
+            )) {
                 throw new TypeError(
                     "Item type is invalid must be a tuple of size 2 where first tuple item is a string or number or symbol",
                 );

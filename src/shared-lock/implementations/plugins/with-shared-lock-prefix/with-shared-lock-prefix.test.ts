@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
@@ -10,49 +10,46 @@ import { withSharedLockPrefix } from "@/shared-lock/implementations/plugins/with
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withSharedLockPrefix", () => {
-    const noOpContext = new NoOpContext();
+    const context = new NoOpContext();
+    const adapter = new NoOpSharedLockAdapter();
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
-    afterEach(() => {
+    beforeEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
     describe("method: forceRelease", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSharedLockAdapter();
             const spy = vi.spyOn(adapter, "forceRelease");
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.forceRelease("myKey", noOpContext);
+            await enhanced.forceRelease("myKey", context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["forceRelease"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
 
     describe("method: getState", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSharedLockAdapter();
             const spy = vi.spyOn(adapter, "getState");
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.getState("myKey", noOpContext);
+            await enhanced.getState("myKey", context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["getState"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
 
     describe("method: acquireWriter", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSharedLockAdapter();
             const spy = vi.spyOn(adapter, "acquireWriter");
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
@@ -61,40 +58,31 @@ describe("function: withSharedLockPrefix", () => {
                 "myKey",
                 "lockId",
                 TimeSpan.fromSeconds(30),
-                noOpContext,
+                context,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["acquireWriter"]>
-            >(
-                `${prefix}myKey`,
-                "lockId",
-                TimeSpan.fromSeconds(30),
-                noOpContext,
-            );
+            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
         });
     });
 
     describe("method: forceReleaseWriter", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSharedLockAdapter();
             const spy = vi.spyOn(adapter, "forceReleaseWriter");
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.forceReleaseWriter("myKey", noOpContext);
+            await enhanced.forceReleaseWriter("myKey", context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["forceReleaseWriter"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
 
     describe("method: refreshWriter", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSharedLockAdapter();
             const spy = vi.spyOn(adapter, "refreshWriter");
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
@@ -103,57 +91,47 @@ describe("function: withSharedLockPrefix", () => {
                 "myKey",
                 "lockId",
                 TimeSpan.fromSeconds(30),
-                noOpContext,
+                context,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["refreshWriter"]>
-            >(
-                `${prefix}myKey`,
-                "lockId",
-                TimeSpan.fromSeconds(30),
-                noOpContext,
-            );
+            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
         });
     });
 
     describe("method: releaseWriter", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSharedLockAdapter();
             const spy = vi.spyOn(adapter, "releaseWriter");
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.releaseWriter("myKey", "lockId", noOpContext);
+            await enhanced.releaseWriter("myKey", "lockId", context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["releaseWriter"]>
-            >(`${prefix}myKey`, "lockId", noOpContext);
+            >(`${prefix}myKey`, "lockId", context);
         });
     });
 
     describe("method: acquireReader", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSharedLockAdapter();
             const spy = vi.spyOn(adapter, "acquireReader");
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
             await enhanced.acquireReader({
-                context: noOpContext,
+                context,
                 key: "myKey",
                 lockId: "lock1",
                 limit: 5,
                 ttl: TimeSpan.fromSeconds(30),
             });
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["acquireReader"]>
             >({
-                context: noOpContext,
+                context,
                 key: `${prefix}myKey`,
                 lockId: "lock1",
                 limit: 5,
@@ -164,23 +142,20 @@ describe("function: withSharedLockPrefix", () => {
 
     describe("method: forceReleaseAllReaders", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSharedLockAdapter();
             const spy = vi.spyOn(adapter, "forceReleaseAllReaders");
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.forceReleaseAllReaders("myKey", noOpContext);
+            await enhanced.forceReleaseAllReaders("myKey", context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["forceReleaseAllReaders"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
 
     describe("method: refreshReader", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSharedLockAdapter();
             const spy = vi.spyOn(adapter, "refreshReader");
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
@@ -189,34 +164,26 @@ describe("function: withSharedLockPrefix", () => {
                 "myKey",
                 "lockId",
                 TimeSpan.fromSeconds(30),
-                noOpContext,
+                context,
             );
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["refreshReader"]>
-            >(
-                `${prefix}myKey`,
-                "lockId",
-                TimeSpan.fromSeconds(30),
-                noOpContext,
-            );
+            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
         });
     });
 
     describe("method: releaseReader", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpSharedLockAdapter();
             const spy = vi.spyOn(adapter, "releaseReader");
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.releaseReader("myKey", "lockId", noOpContext);
+            await enhanced.releaseReader("myKey", "lockId", context);
 
-            expect(spy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledWith<
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["releaseReader"]>
-            >(`${prefix}myKey`, "lockId", noOpContext);
+            >(`${prefix}myKey`, "lockId", context);
         });
     });
 });

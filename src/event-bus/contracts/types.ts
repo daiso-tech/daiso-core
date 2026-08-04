@@ -13,5 +13,4 @@ import {
  * @group Contracts
  */
 export type EventBusInput<TEventMap extends BaseEventMap = BaseEventMap> =
-    | IEventBusAdapter
-    | IEventBus<TEventMap>;
+    IEventBusAdapter | IEventBus<TEventMap>;

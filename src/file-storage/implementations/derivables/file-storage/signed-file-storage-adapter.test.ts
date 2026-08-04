@@ -148,6 +148,7 @@ describe("class: SignedFileStorageAdapter", () => {
     };
     const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
     beforeEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
         signedFileStorageAdapter = new SignedFileStorageAdapter(
             fileStorageAdapter,

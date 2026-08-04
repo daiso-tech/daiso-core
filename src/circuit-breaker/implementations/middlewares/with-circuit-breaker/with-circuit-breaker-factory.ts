@@ -65,7 +65,7 @@ export function withCircuitBreakerFactory(
     return <TParameters extends Array<unknown>, TReturn>(
         settings: WithCircuitBreakerSettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
-        const { key = (...args) => JSON.stringify(args), ...rest } = settings;
+        const { key, ...rest } = settings;
         return ({ next, args }) => {
             return circuitBreakerFactory
                 .create(callInvocable(key, ...args), rest)

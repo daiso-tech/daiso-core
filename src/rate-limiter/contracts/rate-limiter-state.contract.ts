@@ -131,6 +131,4 @@ export type RateLimiterBlockedState = {
  * @group Contracts
  */
 export type RateLimiterState =
-    | RateLimiterExpiredState
-    | RateLimiterBlockedState
-    | RateLimiterAllowedState;
+    RateLimiterExpiredState | RateLimiterBlockedState | RateLimiterAllowedState;

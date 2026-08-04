@@ -65,11 +65,7 @@ export function withLockFactory(lockFactory: ILockFactory) {
     return <TParameters extends Array<unknown>, TReturn>(
         settings: WithLockSettings<TParameters>,
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
-        const {
-            key = (...args) => JSON.stringify(args),
-            lockId = () => v4(),
-            ...rest
-        } = settings;
+        const { key, lockId = () => v4(), ...rest } = settings;
         return ({ next, args }) => {
             return lockFactory
                 .create(callInvocable(key, ...args), {

@@ -10,6 +10,7 @@ import { useFactory } from "@/middleware/implementations/use-factory/_module.js"
 
 describe("function: enhanceFactory", () => {
     afterEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
@@ -48,8 +49,7 @@ describe("function: enhanceFactory", () => {
         const value = "value";
         objectLiteral.methodA(value);
 
-        expect(middlewareA).toHaveBeenCalledOnce();
-        expect(middlewareA).toHaveBeenCalledWith({
+        expect(middlewareA).toHaveBeenCalledExactlyOnceWith({
             args: [value],
             next: expect.any(Function) as NextFn<[value: string]>,
             name: methodName,
@@ -71,7 +71,7 @@ describe("function: enhanceFactory", () => {
         const value = "value";
         objectLiteral.methodB(value);
 
-        expect(middlewareA).not.toBeCalled();
+        expect(middlewareA).not.toHaveBeenCalled();
     });
     test("Should call underlying Use when enhancing a class instance method", () => {
         const use = vi.fn(useFactory()) as Use;
@@ -110,9 +110,7 @@ describe("function: enhanceFactory", () => {
         const value = "value";
         instance.methodA(value);
 
-        expect(middlewareA).toHaveBeenCalledOnce();
-
-        expect(middlewareA).toHaveBeenCalledWith({
+        expect(middlewareA).toHaveBeenCalledExactlyOnceWith({
             args: [value],
             next: expect.any(Function) as NextFn<[value: string]>,
             name: methodName,
@@ -135,7 +133,7 @@ describe("function: enhanceFactory", () => {
         const value = "value";
         instance.methodB(value);
 
-        expect(middlewareA).not.toBeCalled();
+        expect(middlewareA).not.toHaveBeenCalled();
     });
 
     test("Should execute middlewares in last-in-first-out order when enhancing the same method multiple times", () => {

@@ -46,8 +46,7 @@ export class Context implements ICopyableContext {
     contains<TValue>(
         token: ContextToken<Array<TValue>>,
         matchValue:
-            | NoInfer<TValue>
-            | Invocable<[value: NoInfer<TValue>], boolean>,
+            NoInfer<TValue> | Invocable<[value: NoInfer<TValue>], boolean>,
     ): boolean {
         const arr = this.get(token);
         if (arr === null) {

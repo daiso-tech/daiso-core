@@ -1,9 +1,8 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import {
     CIRCUIT_BREAKER_TRIGGER,
     type CircuitBreakerFactoryCreateSettings,
-    type ICircuitBreakerFactory,
 } from "@/circuit-breaker/contracts/_module.js";
 import { NoOpCircuitBreakerAdapter } from "@/circuit-breaker/implementations/adapters/_module.js";
 import { CircuitBreakerFactory } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/_module.js";
@@ -13,14 +12,12 @@ import { use } from "@/middleware/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withCircuitBreakerFactory", () => {
-    let circuitBreakerFactory: ICircuitBreakerFactory;
+    const circuitBreakerFactory = new CircuitBreakerFactory({
+        adapter: new NoOpCircuitBreakerAdapter(),
+    });
 
     beforeEach(() => {
-        circuitBreakerFactory = new CircuitBreakerFactory({
-            adapter: new NoOpCircuitBreakerAdapter(),
-        });
-    });
-    afterEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
@@ -46,8 +43,7 @@ describe("function: withCircuitBreakerFactory", () => {
             }),
         )(key);
 
-        expect(spy).toHaveBeenCalledOnce();
-        expect(spy).toHaveBeenCalledWith(key, settings);
+        expect(spy).toHaveBeenCalledExactlyOnceWith(key, settings);
     });
     test("Should call CircuitBreaker.run method", async () => {
         const spy = vi.spyOn(CircuitBreaker.prototype, "runOrFail");
