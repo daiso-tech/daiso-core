@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import {
@@ -12,30 +12,30 @@ import { useFactory } from "@/middleware/implementations/use-factory/_module.js"
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
 
 describe("function: withFileStoragePrefix", () => {
-    const noOpContext = new NoOpContext();
+    const context = new NoOpContext();
+    const adapter = new NoOpFileStorageAdapter();
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
-    afterEach(() => {
+    beforeEach(() => {
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
     describe("method: getPublicUrl", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "getPublicUrl");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.getPublicUrl("myKey", noOpContext);
+            await enhanced.getPublicUrl("myKey", context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getPublicUrl"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
     describe("method: getSignedDownloadUrl", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "getSignedDownloadUrl");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
@@ -47,7 +47,7 @@ describe("function: withFileStoragePrefix", () => {
                     contentType: null,
                     contentDisposition: null,
                 },
-                noOpContext,
+                context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
@@ -59,13 +59,12 @@ describe("function: withFileStoragePrefix", () => {
                     contentType: null,
                     contentDisposition: null,
                 },
-                noOpContext,
+                context,
             );
         });
     });
     describe("method: getSignedUploadUrl", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "getSignedUploadUrl");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
@@ -76,7 +75,7 @@ describe("function: withFileStoragePrefix", () => {
                     expirationInSeconds: 3600,
                     contentType: null,
                 },
-                noOpContext,
+                context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
@@ -87,69 +86,64 @@ describe("function: withFileStoragePrefix", () => {
                     expirationInSeconds: 3600,
                     contentType: null,
                 },
-                noOpContext,
+                context,
             );
         });
     });
     describe("method: exists", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "exists");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.exists("myKey", noOpContext);
+            await enhanced.exists("myKey", context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["exists"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
     describe("method: getStream", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "getStream");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.getStream("myKey", noOpContext);
+            await enhanced.getStream("myKey", context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getStream"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
     describe("method: getBytes", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "getBytes");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.getBytes("myKey", noOpContext);
+            await enhanced.getBytes("myKey", context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getBytes"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
     describe("method: getMetaData", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "getMetaData");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.getMetaData("myKey", noOpContext);
+            await enhanced.getMetaData("myKey", context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getMetaData"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
     describe("method: add", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "add");
 
             const content: WritableFileAdapterContent = {
@@ -163,16 +157,15 @@ describe("function: withFileStoragePrefix", () => {
             };
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.add("myKey", content, noOpContext);
+            await enhanced.add("myKey", content, context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["add"]>
-            >(`${prefix}myKey`, content, noOpContext);
+            >(`${prefix}myKey`, content, context);
         });
     });
     describe("method: addStream", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "addStream");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
@@ -197,7 +190,7 @@ describe("function: withFileStoragePrefix", () => {
                     contentDisposition: null,
                     cacheControl: null,
                 },
-                noOpContext,
+                context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
@@ -213,13 +206,12 @@ describe("function: withFileStoragePrefix", () => {
                     contentDisposition: null,
                     cacheControl: null,
                 },
-                noOpContext,
+                context,
             );
         });
     });
     describe("method: update", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "update");
 
             const content: WritableFileAdapterContent = {
@@ -233,16 +225,15 @@ describe("function: withFileStoragePrefix", () => {
             };
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.update("myKey", content, noOpContext);
+            await enhanced.update("myKey", content, context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["update"]>
-            >(`${prefix}myKey`, content, noOpContext);
+            >(`${prefix}myKey`, content, context);
         });
     });
     describe("method: updateStream", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "updateStream");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
@@ -267,7 +258,7 @@ describe("function: withFileStoragePrefix", () => {
                     contentDisposition: null,
                     cacheControl: null,
                 },
-                noOpContext,
+                context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
@@ -283,13 +274,12 @@ describe("function: withFileStoragePrefix", () => {
                     contentDisposition: null,
                     cacheControl: null,
                 },
-                noOpContext,
+                context,
             );
         });
     });
     describe("method: put", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "put");
 
             const content: WritableFileAdapterContent = {
@@ -303,16 +293,15 @@ describe("function: withFileStoragePrefix", () => {
             };
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.put("myKey", content, noOpContext);
+            await enhanced.put("myKey", content, context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["put"]>
-            >(`${prefix}myKey`, content, noOpContext);
+            >(`${prefix}myKey`, content, context);
         });
     });
     describe("method: putStream", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "putStream");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
@@ -337,7 +326,7 @@ describe("function: withFileStoragePrefix", () => {
                     contentDisposition: null,
                     cacheControl: null,
                 },
-                noOpContext,
+                context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
@@ -353,92 +342,86 @@ describe("function: withFileStoragePrefix", () => {
                     contentDisposition: null,
                     cacheControl: null,
                 },
-                noOpContext,
+                context,
             );
         });
     });
     describe("method: copy", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "copy");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.copy("sourceKey", "destKey", noOpContext);
+            await enhanced.copy("sourceKey", "destKey", context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["copy"]>
-            >(`${prefix}sourceKey`, `${prefix}destKey`, noOpContext);
+            >(`${prefix}sourceKey`, `${prefix}destKey`, context);
         });
     });
     describe("method: copyAndReplace", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "copyAndReplace");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.copyAndReplace("sourceKey", "destKey", noOpContext);
+            await enhanced.copyAndReplace("sourceKey", "destKey", context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["copyAndReplace"]>
-            >(`${prefix}sourceKey`, `${prefix}destKey`, noOpContext);
+            >(`${prefix}sourceKey`, `${prefix}destKey`, context);
         });
     });
     describe("method: move", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "move");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.move("sourceKey", "destKey", noOpContext);
+            await enhanced.move("sourceKey", "destKey", context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["move"]>
-            >(`${prefix}sourceKey`, `${prefix}destKey`, noOpContext);
+            >(`${prefix}sourceKey`, `${prefix}destKey`, context);
         });
     });
     describe("method: moveAndReplace", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "moveAndReplace");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.moveAndReplace("sourceKey", "destKey", noOpContext);
+            await enhanced.moveAndReplace("sourceKey", "destKey", context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["moveAndReplace"]>
-            >(`${prefix}sourceKey`, `${prefix}destKey`, noOpContext);
+            >(`${prefix}sourceKey`, `${prefix}destKey`, context);
         });
     });
     describe("method: removeMany", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "removeMany");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.removeMany(["key1", "key2"], noOpContext);
+            await enhanced.removeMany(["key1", "key2"], context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["removeMany"]>
-            >([`${prefix}key1`, `${prefix}key2`], noOpContext);
+            >([`${prefix}key1`, `${prefix}key2`], context);
         });
     });
     describe("method: removeByPrefix", () => {
         test("Should prefix the key", async () => {
-            const adapter = new NoOpFileStorageAdapter();
             const spy = vi.spyOn(adapter, "removeByPrefix");
 
             const enhanced = withPlugin(adapter, withFileStoragePrefix(prefix));
 
-            await enhanced.removeByPrefix("myKey", noOpContext);
+            await enhanced.removeByPrefix("myKey", context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["removeByPrefix"]>
-            >(`${prefix}myKey`, noOpContext);
+            >(`${prefix}myKey`, context);
         });
     });
 });
