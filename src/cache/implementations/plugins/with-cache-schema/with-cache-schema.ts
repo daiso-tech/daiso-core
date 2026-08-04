@@ -6,7 +6,8 @@ import { type StandardSchemaV1 } from "@standard-schema/spec";
 
 import { type ICacheAdapter } from "@/cache/contracts/_module.js";
 import { type PluginFn } from "@/middleware/contracts/_module.js";
-import { validate } from "@/utilities/_module.js";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { validate, ValidationError } from "@/utilities/_module.js";
 
 /**
  * Settings for the {@link withCacheSchema} plugin.
@@ -48,6 +49,8 @@ export type WithCacheSchemaSettings = {
  *                                        by `get` and `getAndRemove`.
  *                                        @default true
  * @returns A middleware plugin that wraps an `ICacheAdapter`.
+ *
+ * @throws {ValidationError}
  *
  * IMPORT_PATH: `"eridu-tech/cache/plugins"`
  * @group Plugins
