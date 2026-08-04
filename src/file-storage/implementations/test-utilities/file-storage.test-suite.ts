@@ -104,9 +104,7 @@ export function fileStorageTestSuite(
                         .create(noneExistingKey)
                         .getTextOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should return text when key exists", async () => {
                     const key = "a";
@@ -149,9 +147,7 @@ export function fileStorageTestSuite(
                         .create(noneExistingKey)
                         .getBytesOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should return Uint8Array when key exists", async () => {
                     const key = "a";
@@ -193,9 +189,7 @@ export function fileStorageTestSuite(
                         .create(noneExistingKey)
                         .getArrayBufferOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should return ArrayBuffer when key exists", async () => {
                     const key = "a";
@@ -239,9 +233,7 @@ export function fileStorageTestSuite(
                         .create(noneExistingKey)
                         .getReadableStreamOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should return Readable when key exists", async () => {
                     const key = "a";
@@ -498,9 +490,7 @@ export function fileStorageTestSuite(
                 test("Should throw KeyNotFoundFileError when key does not exists", async () => {
                     const result = fileStorage.create("a").getMetadataOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should return initial metadata with a null updatedAt after add method", async () => {
                     const file = fileStorage.create("a.json");
@@ -848,9 +838,7 @@ export function fileStorageTestSuite(
                     );
                     const result = file.addOrFail({ data: newData });
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyExistsFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyExistsFileError);
                 });
                 test("Should persist data when key does not exists", async () => {
                     const key = "a";
@@ -1008,9 +996,7 @@ export function fileStorageTestSuite(
                         },
                     });
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyExistsFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyExistsFileError);
                 });
                 test("Should persist data when key does not exists", async () => {
                     const key = "a";
@@ -1122,9 +1108,7 @@ export function fileStorageTestSuite(
                         data,
                     });
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should not persist data when key doesnt exist", async () => {
                     const key = "a";
@@ -1258,9 +1242,7 @@ export function fileStorageTestSuite(
                         },
                     });
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should not persist data when key doesnt exist", async () => {
                     const key = "a";
@@ -1486,9 +1468,7 @@ export function fileStorageTestSuite(
 
                     const result = fileStorage.create(key).removeOrFail();
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should not throw error when key exist", async () => {
                     const key = "a";
@@ -1629,9 +1609,7 @@ export function fileStorageTestSuite(
                         .create(noneExistingSource)
                         .copyOrFail(noneExistingDestination);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should throw KeyNotFoundFileError when source does not exists and destination exists", async () => {
                     const noneExistingSource = "a";
@@ -1646,9 +1624,7 @@ export function fileStorageTestSuite(
                         .create(noneExistingSource)
                         .copyOrFail(destination);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should throw KeyExistsFileError when source exists and destination exists", async () => {
                     const source = "a";
@@ -1670,9 +1646,7 @@ export function fileStorageTestSuite(
 
                     const result = sourceFile.copyOrFail(destination);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyExistsFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyExistsFileError);
                 });
                 test("Should not persist when source exists and destination exists", async () => {
                     const source = "a";
@@ -1853,9 +1827,7 @@ export function fileStorageTestSuite(
                         .create(noneExistingSource)
                         .copyAndReplaceOrFail(noneExistingDestination);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should throw KeyNotFoundFileError when source does not exists and destination exists", async () => {
                     const noneExistingSource = "a";
@@ -1870,9 +1842,7 @@ export function fileStorageTestSuite(
                         .create(noneExistingSource)
                         .copyAndReplaceOrFail(destination);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should not throw error when source exists and destination exists", async () => {
                     const source = "a";
@@ -2085,9 +2055,7 @@ export function fileStorageTestSuite(
                         .create(noneExistingSource)
                         .moveOrFail(noneExistingDestination);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should throw KeyNotFoundFileError when source does not exists and destination exists", async () => {
                     const noneExistingSource = "a";
@@ -2102,9 +2070,7 @@ export function fileStorageTestSuite(
                         .create(noneExistingSource)
                         .moveOrFail(destination);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should throw KeyExistsFileError when source exists and destination exists", async () => {
                     const source = "a";
@@ -2126,9 +2092,7 @@ export function fileStorageTestSuite(
 
                     const result = sourceFile.moveOrFail(destination);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyExistsFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyExistsFileError);
                 });
                 test("Should not persist when source exists and destination exists", async () => {
                     const source = "a";
@@ -2341,9 +2305,7 @@ export function fileStorageTestSuite(
                         .create(noneExistingSource)
                         .moveAndReplaceOrFail(noneExistingDestination);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should throw KeyNotFoundFileError when source does not exists and destination exists", async () => {
                     const noneExistingSource = "a";
@@ -2358,9 +2320,7 @@ export function fileStorageTestSuite(
                         .create(noneExistingSource)
                         .moveAndReplaceOrFail(destination);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundFileError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundFileError);
                 });
                 test("Should not throw error when source exists and destination exists", async () => {
                     const source = "a";
