@@ -110,7 +110,10 @@ export function withCacheSchema(
                     ttl,
                     ...rest,
                 ]);
-                return await validate(schema, valueToReturn);
+                if (shouldValidateOutput) {
+                    return await validate(schema, valueToReturn);
+                }
+                return valueToReturn;
             },
         );
     };

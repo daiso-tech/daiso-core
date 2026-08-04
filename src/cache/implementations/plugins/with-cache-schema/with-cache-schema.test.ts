@@ -394,7 +394,7 @@ describe("function: withCacheSchema", () => {
         test("Should skip output validation when shouldValidateOutput is false and input value is valid", async () => {
             vi.spyOn(adapter, "getOrAdd").mockResolvedValue("someValue");
             const validateSpy = vi.spyOn(
-                failingSchema["~standard"],
+                passingSchema["~standard"],
                 "validate",
             );
             const enhanced = withPlugin(
@@ -413,7 +413,7 @@ describe("function: withCacheSchema", () => {
             );
 
             expect(result).toBe("someValue");
-            expect(validateSpy).not.toHaveBeenCalled();
+            expect(validateSpy).toHaveBeenCalledTimes(1);
         });
         test("Should skip output validation when shouldValidateOutput is false and input value is not valid", async () => {
             vi.spyOn(adapter, "getOrAdd").mockResolvedValue("someValue");
@@ -503,7 +503,7 @@ describe("function: withCacheSchema", () => {
                 context,
             );
 
-            expect(validateSpy).toHaveReturnedTimes(2);
+            expect(validateSpy).toHaveReturnedTimes(1);
             expect(spy).toHaveBeenCalledOnce();
         });
     });

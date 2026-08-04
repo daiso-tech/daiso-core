@@ -101,7 +101,6 @@ export function withEventBusSchema(
             "dispatch",
             async ({ args: [eventName, eventData, context], next }) => {
                 const schema = eventMapSchema[eventName];
-                console.log("SCHEMA:", schema);
                 if (schema !== undefined) {
                     return next([
                         eventName,

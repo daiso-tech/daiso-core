@@ -4,6 +4,8 @@
 
 Updated dependency versions.
 
+> **Minimum Node.js version is now `>=24`** — added via the `engines` field in `package.json`. Ensure your runtime uses Node.js 24 or newer.
+
 **dependencies**
 
 | Package     | From      | To        |
