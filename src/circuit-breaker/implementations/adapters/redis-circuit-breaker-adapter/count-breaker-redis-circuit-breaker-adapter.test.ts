@@ -1,13 +1,12 @@
-import {
-    RedisContainer,
-    type StartedRedisContainer,
-} from "@testcontainers/redis";
+import { RedisContainer } from "@testcontainers/redis";
 import { Redis } from "ioredis";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { RedisCircuitBreakerAdapter } from "@/circuit-breaker/implementations/adapters/redis-circuit-breaker-adapter/_module.js";
 import { countBreakerTestSuite } from "@/circuit-breaker/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedRedisContainer } from "@testcontainers/redis";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("count-breaker class: RedisCircuitBreakerAdapter", () => {

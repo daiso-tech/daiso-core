@@ -2,25 +2,25 @@
  * @module CircuitBreaker
  */
 
-import {
-    type ClientSession,
-    type Collection,
-    type CollectionOptions,
-    type Db,
-    type MongoClient,
-    type ObjectId,
+import type {
+    ClientSession,
+    Collection,
+    CollectionOptions,
+    Db,
+    MongoClient,
+    ObjectId,
 } from "mongodb";
 
-import {
-    type ICircuitBreakerStorageAdapter,
-    type ICircuitBreakerStorageAdapterTransaction,
+import type {
+    ICircuitBreakerStorageAdapter,
+    ICircuitBreakerStorageAdapterTransaction,
 } from "@/circuit-breaker/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type ISerde } from "@/serde/contracts/_module.js";
-import {
-    type IDeinitizable,
-    type IInitizable,
-    type InvocableFn,
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ISerde } from "@/serde/contracts/_module.js";
+import type {
+    IDeinitizable,
+    IInitizable,
+    InvocableFn,
 } from "@/utilities/_module.js";
 
 /**

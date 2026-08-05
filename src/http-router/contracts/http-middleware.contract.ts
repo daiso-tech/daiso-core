@@ -2,12 +2,12 @@
  * @module HttpRouter
  */
 
-import { type HttpHandlerArgs } from "@/http-router/contracts/http-handler.contract.js";
-import { type IHttpRes } from "@/http-router/contracts/http-res.contract.js";
-import {
-    type IInvocableObject,
-    type InvocableFn,
-    type Promisable,
+import type { HttpHandlerArgs } from "@/http-router/contracts/http-handler.contract.js";
+import type { IHttpRes } from "@/http-router/contracts/http-res.contract.js";
+import type {
+    IInvocableObject,
+    InvocableFn,
+    Promisable,
 } from "@/utilities/_module.js";
 
 /**

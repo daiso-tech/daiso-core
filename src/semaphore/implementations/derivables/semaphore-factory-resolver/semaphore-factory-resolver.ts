@@ -1,21 +1,20 @@
 /**
  * @module Semaphore
  */
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ISemaphoreFactoryResolver,
-    type ISemaphoreFactory,
-    type ISemaphoreAdapter,
-} from "@/semaphore/contracts/_module.js";
-import {
-    SemaphoreFactory,
-    type SemaphoreFactorySettingsBase,
-} from "@/semaphore/implementations/derivables/semaphore-factory/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import { SemaphoreFactory } from "@/semaphore/implementations/derivables/semaphore-factory/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
 } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISemaphoreFactoryResolver,
+    ISemaphoreFactory,
+    ISemaphoreAdapter,
+} from "@/semaphore/contracts/_module.js";
+import type { SemaphoreFactorySettingsBase } from "@/semaphore/implementations/derivables/semaphore-factory/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/semaphore"`

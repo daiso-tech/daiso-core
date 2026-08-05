@@ -2,22 +2,23 @@
  * @module FileStorage
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type IFileStorage,
-    type ISignedFileStorageAdapter,
-    type IFileStorageResolver,
-    type IFileUrlAdapter,
-} from "@/file-storage/contracts/_module.js";
-import {
-    FileStorage,
-    type FileKeyValidator,
-    type FileStorageSettingsBase,
-} from "@/file-storage/implementations/derivables/file-storage/_module.js";
+import { FileStorage } from "@/file-storage/implementations/derivables/file-storage/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
 } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IFileStorage,
+    ISignedFileStorageAdapter,
+    IFileStorageResolver,
+    IFileUrlAdapter,
+} from "@/file-storage/contracts/_module.js";
+import type {
+    FileKeyValidator,
+    FileStorageSettingsBase,
+} from "@/file-storage/implementations/derivables/file-storage/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/file-storage"`

@@ -4,12 +4,15 @@
 
 import {
     HALF_OPEN_TRANSITIONS,
-    type HalfOpenTransitions,
-    type CircuitBreakerTrackSettings,
-    type CircuitBreakerTrackState,
-    type ICircuitBreakerPolicy,
     CLOSED_TRANSITIONS,
-    type ClosedTransitions,
+} from "@/circuit-breaker/contracts/_module.js";
+
+import type {
+    HalfOpenTransitions,
+    CircuitBreakerTrackSettings,
+    CircuitBreakerTrackState,
+    ICircuitBreakerPolicy,
+    ClosedTransitions,
 } from "@/circuit-breaker/contracts/_module.js";
 
 /**

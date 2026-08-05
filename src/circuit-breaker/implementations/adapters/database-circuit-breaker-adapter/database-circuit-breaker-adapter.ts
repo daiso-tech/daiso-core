@@ -2,23 +2,22 @@
  * @module CircuitBreaker
  */
 
-import { type BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
 import { exponentialBackoff } from "@/backoff-policies/implementations/_module.js";
-import {
-    type ICircuitBreakerAdapter,
-    type ICircuitBreakerStorageAdapter,
-    type CircuitBreakerState,
-    type CircuitBreakerStateTransition,
-    type ICircuitBreakerPolicy,
-} from "@/circuit-breaker/contracts/_module.js";
 import { CircuitBreakerStateManager } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/circuit-breaker-state-manager.js";
 import { CircuitBreakerStorage } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/circuit-breaker-storage.js";
-import {
-    InternalCircuitBreakerPolicy,
-    type AllCircuitBreakerState,
-} from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/internal-circuit-breaker-policy.js";
+import { InternalCircuitBreakerPolicy } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/internal-circuit-breaker-policy.js";
 import { ConsecutiveBreaker } from "@/circuit-breaker/implementations/policies/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+
+import type { BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
+import type {
+    ICircuitBreakerAdapter,
+    ICircuitBreakerStorageAdapter,
+    CircuitBreakerState,
+    CircuitBreakerStateTransition,
+    ICircuitBreakerPolicy,
+} from "@/circuit-breaker/contracts/_module.js";
+import type { AllCircuitBreakerState } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/internal-circuit-breaker-policy.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * Configuration for `DatabaseCircuitBreakerAdapter`.

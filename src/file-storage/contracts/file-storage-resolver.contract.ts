@@ -2,7 +2,7 @@
  * @module FileStorage
  */
 
-import { type IFileStorage } from "@/file-storage/contracts/_module.js";
+import type { IFileStorage } from "@/file-storage/contracts/_module.js";
 
 /**
  * File storage resolver contract for dynamically selecting and switching between storage adapters.

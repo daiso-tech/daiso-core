@@ -2,7 +2,7 @@
  * @module ExecutionContext
  */
 
-import { type InvocableFn } from "@/utilities/_module.js";
+import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`

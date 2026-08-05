@@ -2,29 +2,32 @@
  * @module SharedLock
  */
 
-import {
-    type Collection,
-    type CollectionOptions,
-    type Db,
-    type Document,
-    type ObjectId,
-} from "mongodb";
-
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ISharedLockAdapter,
-    type ISharedLockAdapterState,
-    type SharedLockAcquireSettings,
-} from "@/shared-lock/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     OPTION,
     optionNone,
     optionSome,
     UnexpectedError,
-    type IDeinitizable,
-    type IInitizable,
-    type Option,
+} from "@/utilities/_module.js";
+
+import type {
+    Collection,
+    CollectionOptions,
+    Db,
+    Document,
+    ObjectId,
+} from "mongodb";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISharedLockAdapter,
+    ISharedLockAdapterState,
+    SharedLockAcquireSettings,
+} from "@/shared-lock/contracts/_module.js";
+import type {
+    IDeinitizable,
+    IInitizable,
+    Option,
 } from "@/utilities/_module.js";
 
 /**

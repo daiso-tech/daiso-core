@@ -2,20 +2,22 @@
  * @module Semaphore
  */
 
-import { MysqlAdapter, type Kysely } from "kysely";
+import { MysqlAdapter } from "kysely";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ISemaphoreAdapter,
-    type ISemaphoreAdapterState,
-    type SemaphoreAcquireSettings,
+import type { Kysely } from "kysely";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISemaphoreAdapter,
+    ISemaphoreAdapterState,
+    SemaphoreAcquireSettings,
 } from "@/semaphore/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    type IDeinitizable,
-    type IInitizable,
-    type InvocableFn,
-    type IPrunable,
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type {
+    IDeinitizable,
+    IInitizable,
+    InvocableFn,
+    IPrunable,
 } from "@/utilities/_module.js";
 
 /**

@@ -1,12 +1,13 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import {
-    type MiddlewareFn,
-    type NextFn,
-    type Use,
-} from "@/middleware/contracts/_module.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
+
+import type {
+    MiddlewareFn,
+    NextFn,
+    Use,
+} from "@/middleware/contracts/_module.js";
 
 describe("function: enhanceFactory", () => {
     afterEach(() => {

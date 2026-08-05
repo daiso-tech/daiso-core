@@ -2,13 +2,10 @@
  * @module Cache
  */
 
-import {
-    type ICacheAdapter,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ICache,
-} from "@/cache/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { ICacheAdapter, ICache } from "@/cache/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * The `MemoryCacheAdapter` is used for easily faking{@link ICache | `ICache`} for testing.

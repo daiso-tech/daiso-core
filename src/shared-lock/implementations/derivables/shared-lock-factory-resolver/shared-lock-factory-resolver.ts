@@ -1,22 +1,21 @@
 /**
  * @module SharedLock
  */
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ISharedLockFactoryResolver,
-    type ISharedLockFactory,
-    type ISharedLockAdapter,
-} from "@/shared-lock/contracts/_module.js";
-import {
-    SharedLockFactory,
-    type SharedLockFactorySettingsBase,
-} from "@/shared-lock/implementations/derivables/shared-lock-factory/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import { SharedLockFactory } from "@/shared-lock/implementations/derivables/shared-lock-factory/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
-    type Invocable,
 } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISharedLockFactoryResolver,
+    ISharedLockFactory,
+    ISharedLockAdapter,
+} from "@/shared-lock/contracts/_module.js";
+import type { SharedLockFactorySettingsBase } from "@/shared-lock/implementations/derivables/shared-lock-factory/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { Invocable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/shared-lock"`

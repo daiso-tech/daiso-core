@@ -2,19 +2,15 @@
  * @module Utilities
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
-import {
-    callInvocable,
-    isInvocable,
-    type Invocable,
-} from "@/utilities/functions/invocable.js";
+import { callInvocable, isInvocable } from "@/utilities/functions/invocable.js";
 import { isStandardSchema } from "@/utilities/functions/is-standard-schema.js";
-import {
-    resolveOneOrMore,
-    type OneOrMore,
-} from "@/utilities/functions/resolve-one-or-more.js";
-import { type AnyClass } from "@/utilities/types/_module.js";
+import { resolveOneOrMore } from "@/utilities/functions/resolve-one-or-more.js";
+
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+
+import type { Invocable } from "@/utilities/functions/invocable.js";
+import type { OneOrMore } from "@/utilities/functions/resolve-one-or-more.js";
+import type { AnyClass } from "@/utilities/types/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/utilities"`

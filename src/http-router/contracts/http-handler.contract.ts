@@ -2,16 +2,16 @@
  * @module HttpRouter
  */
 
-import { type IContext } from "@/execution-context/contracts/_module.js";
-import { type IHttpReq } from "@/http-router/contracts/http-req.contract.js";
-import {
-    type IHttpRes,
-    type IHttpResHelpers,
+import type { IContext } from "@/execution-context/contracts/_module.js";
+import type { IHttpReq } from "@/http-router/contracts/http-req.contract.js";
+import type {
+    IHttpRes,
+    IHttpResHelpers,
 } from "@/http-router/contracts/http-res.contract.js";
-import {
-    type IInvocableObject,
-    type InvocableFn,
-    type Promisable,
+import type {
+    IInvocableObject,
+    InvocableFn,
+    Promisable,
 } from "@/utilities/_module.js";
 
 /**

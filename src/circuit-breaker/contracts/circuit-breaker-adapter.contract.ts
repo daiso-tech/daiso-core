@@ -3,9 +3,9 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type ICircuitBreakerFactory } from "@/circuit-breaker/contracts/circuit-breaker-factory.contract.js";
-import { type CircuitBreakerState } from "@/circuit-breaker/contracts/circuit-breaker-state.contract.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ICircuitBreakerFactory } from "@/circuit-breaker/contracts/circuit-breaker-factory.contract.js";
+import type { CircuitBreakerState } from "@/circuit-breaker/contracts/circuit-breaker-state.contract.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * Represents a state transition event in a circuit breaker.

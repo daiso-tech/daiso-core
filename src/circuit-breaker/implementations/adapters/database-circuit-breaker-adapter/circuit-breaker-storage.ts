@@ -2,16 +2,16 @@
  * @module CircuitBreaker
  */
 
-import {
-    type ICircuitBreakerStorageAdapter,
-    type CircuitBreakerStateTransition,
+import type {
+    ICircuitBreakerStorageAdapter,
+    CircuitBreakerStateTransition,
 } from "@/circuit-breaker/contracts/_module.js";
-import {
-    type AllCircuitBreakerState,
-    type InternalCircuitBreakerPolicy,
+import type {
+    AllCircuitBreakerState,
+    InternalCircuitBreakerPolicy,
 } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/internal-circuit-breaker-policy.js";
-import { type DatabaseCircuitBreakerUpdateStateFn } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/types.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { DatabaseCircuitBreakerUpdateStateFn } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/types.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * @internal

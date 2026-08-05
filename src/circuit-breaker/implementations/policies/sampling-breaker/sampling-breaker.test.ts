@@ -5,11 +5,10 @@ import {
     CIRCUIT_BREAKER_STATE,
     HALF_OPEN_TRANSITIONS,
 } from "@/circuit-breaker/contracts/_module.js";
-import {
-    SamplingBreaker,
-    type SamplingBreakerState,
-} from "@/circuit-breaker/implementations/policies/sampling-breaker/sampling-breaker.js";
+import { SamplingBreaker } from "@/circuit-breaker/implementations/policies/sampling-breaker/sampling-breaker.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { SamplingBreakerState } from "@/circuit-breaker/implementations/policies/sampling-breaker/sampling-breaker.js";
 
 describe("class: SamplingBreaker", () => {
     describe("constructor", () => {

@@ -2,19 +2,14 @@
  * @module RateLimiter
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
-import {
-    RateLimiter,
-    type ISerializedRateLimiter,
-} from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
-import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
-import {
-    getConstructorName,
-    type ErrorPolicy,
-    type OneOrMore,
-    type WaitUntil,
-} from "@/utilities/_module.js";
+import { RateLimiter } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
+import { getConstructorName } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
+import type { ISerializedRateLimiter } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
+import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
+import type { ErrorPolicy, OneOrMore, WaitUntil } from "@/utilities/_module.js";
 
 /**
  * @internal

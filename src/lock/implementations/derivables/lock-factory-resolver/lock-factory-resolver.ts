@@ -1,22 +1,21 @@
 /**
  * @module Lock
  */
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ILockFactoryResolver,
-    type ILockFactory,
-    type ILockAdapter,
-} from "@/lock/contracts/_module.js";
-import {
-    LockFactory,
-    type LockFactorySettingsBase,
-} from "@/lock/implementations/derivables/lock-factory/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import { LockFactory } from "@/lock/implementations/derivables/lock-factory/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
-    type Invocable,
 } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ILockFactoryResolver,
+    ILockFactory,
+    ILockAdapter,
+} from "@/lock/contracts/_module.js";
+import type { LockFactorySettingsBase } from "@/lock/implementations/derivables/lock-factory/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { Invocable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/lock"`

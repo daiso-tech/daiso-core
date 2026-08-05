@@ -1,7 +1,7 @@
 /**
  * @module Utilities
  */
-import { type Invocable } from "@/utilities/functions/invocable.js";
+import type { Invocable } from "@/utilities/functions/invocable.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/utilities"`

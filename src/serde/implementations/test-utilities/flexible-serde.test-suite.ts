@@ -4,12 +4,14 @@
 
 import { Buffer } from "node:buffer";
 
-import { type TestAPI, type ExpectStatic, beforeEach, vi } from "vitest";
+import { beforeEach, vi } from "vitest";
 
-import {
-    type IFlexibleSerde,
-    type ISerdeTransformer,
-    type ISerializable,
+import type { TestAPI, ExpectStatic } from "vitest";
+
+import type {
+    IFlexibleSerde,
+    ISerdeTransformer,
+    ISerializable,
 } from "@/serde/contracts/_module.js";
 
 /**

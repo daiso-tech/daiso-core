@@ -1,15 +1,13 @@
 /**
  * @module HttpRouter
  */
-import {
-    type WinterTcMiddleware,
-    type WinterTcRequestHandler,
+import { callInvocable, resolveOneOrMore } from "@/utilities/_module.js";
+
+import type {
+    WinterTcMiddleware,
+    WinterTcRequestHandler,
 } from "@/http-router/contracts/_module.js";
-import {
-    callInvocable,
-    resolveOneOrMore,
-    type OneOrMore,
-} from "@/utilities/_module.js";
+import type { OneOrMore } from "@/utilities/_module.js";
 
 /**
  * Wraps a core {@link WinterTcRequestHandler} with one or more

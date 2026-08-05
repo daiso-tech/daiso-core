@@ -2,14 +2,15 @@
  * @module RateLimiter
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IRateLimiterFactory,
-    type IRateLimiterAdapter,
-    type IRateLimiterAdapterState,
-} from "@/rate-limiter/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/time-span.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    IRateLimiterFactory,
+    IRateLimiterAdapter,
+    IRateLimiterAdapterState,
+} from "@/rate-limiter/contracts/_module.js";
 
 /**
  * The `NoOpRateLimiterAdapter` will do nothing and is used for easily mocking {@link IRateLimiterFactory | `IRateLimiterFactory`} for testing.

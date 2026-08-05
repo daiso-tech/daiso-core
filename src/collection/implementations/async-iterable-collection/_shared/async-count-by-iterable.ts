@@ -2,11 +2,12 @@
  * @module Collection
  */
 
-import {
-    type AsyncMap,
-    type IAsyncCollection,
-} from "@/collection/contracts/_module.js";
 import { resolveInvocable } from "@/utilities/_module.js";
+
+import type {
+    AsyncMap,
+    IAsyncCollection,
+} from "@/collection/contracts/_module.js";
 
 /**
  * @internal

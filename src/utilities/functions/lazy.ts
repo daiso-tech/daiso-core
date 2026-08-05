@@ -3,11 +3,12 @@
  */
 
 import {
-    type Invocable,
     isInvocable,
     resolveInvocable,
 } from "@/utilities/functions/invocable.js";
-import { type Promisable } from "@/utilities/types/promiseable.type.js";
+
+import type { Invocable } from "@/utilities/functions/invocable.js";
+import type { Promisable } from "@/utilities/types/promiseable.type.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/utilities"`

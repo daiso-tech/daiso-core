@@ -2,10 +2,10 @@
  * @module Semaphore
  */
 
-import { type ISemaphoreState } from "@/semaphore/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import { type AsyncLazy } from "@/utilities/_module.js";
+import type { ISemaphoreState } from "@/semaphore/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { AsyncLazy } from "@/utilities/_module.js";
 
 /**
  * State and metadata methods for a semaphore instance.

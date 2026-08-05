@@ -3,14 +3,15 @@
  */
 
 import {
-    type AsyncPredicate,
-    type IAsyncCollection,
-} from "@/collection/contracts/_module.js";
-import {
     resolveAsyncIterableValue,
     resolveInvocable,
-    type AsyncIterableValue,
 } from "@/utilities/_module.js";
+
+import type {
+    AsyncPredicate,
+    IAsyncCollection,
+} from "@/collection/contracts/_module.js";
+import type { AsyncIterableValue } from "@/utilities/_module.js";
 
 /**
  * @internal

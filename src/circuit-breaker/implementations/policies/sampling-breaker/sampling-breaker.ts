@@ -3,19 +3,20 @@
  */
 
 import {
-    type HalfOpenTransitions,
-    type CircuitBreakerTrackSettings,
-    type CircuitBreakerTrackState,
-    type ICircuitBreakerPolicy,
-    type ClosedTransitions,
     CLOSED_TRANSITIONS,
     HALF_OPEN_TRANSITIONS,
 } from "@/circuit-breaker/contracts/_module.js";
-import {
-    TO_MILLISECONDS,
-    type ITimeSpan,
-} from "@/time-span/contracts/_module.js";
+import { TO_MILLISECONDS } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type {
+    HalfOpenTransitions,
+    CircuitBreakerTrackSettings,
+    CircuitBreakerTrackState,
+    ICircuitBreakerPolicy,
+    ClosedTransitions,
+} from "@/circuit-breaker/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
  * Configuration for the time-based sampling circuit breaker policy.

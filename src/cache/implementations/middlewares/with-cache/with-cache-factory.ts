@@ -2,10 +2,12 @@
  * @module Cache
  */
 
-import { type ICache } from "@/cache/contracts/_module.js";
-import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import { callInvocable, type Invocable } from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
+
+import type { ICache } from "@/cache/contracts/_module.js";
+import type { MiddlewareFn } from "@/middleware/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { Invocable } from "@/utilities/_module.js";
 
 /**
  * Settings for the cache middleware.

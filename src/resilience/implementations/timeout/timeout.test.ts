@@ -3,12 +3,11 @@ import { describe, expect, test, vi } from "vitest";
 import { use } from "@/middleware/implementations/_module.js";
 import { TimeoutResilienceError } from "@/resilience/implementations/resilience.errors.js";
 import { timeout } from "@/resilience/implementations/timeout/timeout.js";
-import {
-    TO_MILLISECONDS,
-    type ITimeSpan,
-} from "@/time-span/contracts/time-span.contract.js";
+import { TO_MILLISECONDS } from "@/time-span/contracts/time-span.contract.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay } from "@/utilities/functions/delay.js";
+
+import type { ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 
 describe("function: timeout", () => {
     describe("basic timeout behavior", () => {

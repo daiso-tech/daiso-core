@@ -1,7 +1,4 @@
-import {
-    MongoDBContainer,
-    type StartedMongoDBContainer,
-} from "@testcontainers/mongodb";
+import { MongoDBContainer } from "@testcontainers/mongodb";
 import { MongoClient } from "mongodb";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
@@ -10,6 +7,8 @@ import { cacheAdapterTestSuite } from "@/cache/implementations/test-utilities/_m
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedMongoDBContainer } from "@testcontainers/mongodb";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("class: MongodbCacheAdapter", () => {

@@ -1,10 +1,9 @@
 import { describe, expect, test } from "vitest";
 
-import {
-    FixedWindowLimiter,
-    type FixedWindowLimiterState,
-} from "@/rate-limiter/implementations/policies/fixed-window-limiter/fixed-window-limiter.js";
+import { FixedWindowLimiter } from "@/rate-limiter/implementations/policies/fixed-window-limiter/fixed-window-limiter.js";
 import { TimeSpan } from "@/time-span/implementations/time-span.js";
+
+import type { FixedWindowLimiterState } from "@/rate-limiter/implementations/policies/fixed-window-limiter/fixed-window-limiter.js";
 
 describe("class: FixedWindowLimiter", () => {
     describe("method: initialMetrics", () => {

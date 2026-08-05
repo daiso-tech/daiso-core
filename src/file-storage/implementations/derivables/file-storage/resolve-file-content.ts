@@ -1,7 +1,7 @@
 /**
  * @module FileStorage
  */
-import { type FileContent } from "@/file-storage/contracts/_module.js";
+import type { FileContent } from "@/file-storage/contracts/_module.js";
 
 /**
  * @internal

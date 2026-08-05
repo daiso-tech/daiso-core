@@ -4,8 +4,8 @@
 
 import { AsyncLocalStorage } from "node:async_hooks";
 
-import { type IExecutionContextAdapter } from "@/execution-context/contracts/_module.js";
-import { type InvocableFn } from "@/utilities/_module.js";
+import type { IExecutionContextAdapter } from "@/execution-context/contracts/_module.js";
+import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/execution-context/als-execution-context-adapter"`

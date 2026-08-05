@@ -2,22 +2,24 @@
  * @module SharedLock
  */
 
-import { MysqlAdapter, type Kysely } from "kysely";
+import { MysqlAdapter } from "kysely";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type IReaderSemaphoreAdapterState,
-    type ISharedLockAdapter,
-    type ISharedLockAdapterState,
-    type IWriterLockAdapterState,
-    type SharedLockAcquireSettings,
+import type { Kysely } from "kysely";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IReaderSemaphoreAdapterState,
+    ISharedLockAdapter,
+    ISharedLockAdapterState,
+    IWriterLockAdapterState,
+    SharedLockAcquireSettings,
 } from "@/shared-lock/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    type IDeinitizable,
-    type IInitizable,
-    type InvocableFn,
-    type IPrunable,
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type {
+    IDeinitizable,
+    IInitizable,
+    InvocableFn,
+    IPrunable,
 } from "@/utilities/_module.js";
 
 /**

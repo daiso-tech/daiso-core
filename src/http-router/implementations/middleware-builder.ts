@@ -1,9 +1,9 @@
 /**
  * @module HttpRouter
  */
-import {
-    type HttpMiddleware,
-    type IMiddlewareBuilder,
+import type {
+    HttpMiddleware,
+    IMiddlewareBuilder,
 } from "@/http-router/contracts/_module.js";
 
 /**

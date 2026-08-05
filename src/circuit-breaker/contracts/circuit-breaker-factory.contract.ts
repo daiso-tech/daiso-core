@@ -2,9 +2,9 @@
  * @module CircuitBreaker
  */
 
-import { type ICircuitBreaker } from "@/circuit-breaker/contracts/circuit-breaker.contract.js";
-import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
-import { type ErrorPolicySettings } from "@/utilities/_module.js";
+import type { ICircuitBreaker } from "@/circuit-breaker/contracts/circuit-breaker.contract.js";
+import type { ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
+import type { ErrorPolicySettings } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`

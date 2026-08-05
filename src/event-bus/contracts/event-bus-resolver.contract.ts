@@ -2,9 +2,9 @@
  * @module EventBus
  */
 
-import {
-    type BaseEventMap,
-    type IEventBus,
+import type {
+    BaseEventMap,
+    IEventBus,
 } from "@/event-bus/contracts/event-bus.contract.js";
 
 /**

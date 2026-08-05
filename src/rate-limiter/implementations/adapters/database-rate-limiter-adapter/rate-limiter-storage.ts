@@ -2,18 +2,19 @@
  * @module RateLimiter
  */
 
-import { type BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    RATE_LIMITER_STATE,
-    type IRateLimiterData,
-    type IRateLimiterStorageAdapter,
+import { RATE_LIMITER_STATE } from "@/rate-limiter/contracts/_module.js";
+
+import type { BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IRateLimiterData,
+    IRateLimiterStorageAdapter,
 } from "@/rate-limiter/contracts/_module.js";
-import {
-    type AllRateLimiterState,
-    type InternalRateLimiterPolicy,
+import type {
+    AllRateLimiterState,
+    InternalRateLimiterPolicy,
 } from "@/rate-limiter/implementations/adapters/database-rate-limiter-adapter/internal-rate-limiter-policy.js";
-import { type InvocableFn } from "@/utilities/_module.js";
+import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
  * @internal

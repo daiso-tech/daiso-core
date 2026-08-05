@@ -1,20 +1,17 @@
-import Sqlite, { type Database } from "better-sqlite3";
-import {
-    Kysely,
-    SqliteDialect,
-    type ColumnMetadata,
-    type TableMetadata,
-} from "kysely";
+import Sqlite from "better-sqlite3";
+import { Kysely, SqliteDialect } from "kysely";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    KyselyLockAdapter,
-    type KyselyLockTables,
-} from "@/lock/implementations/adapters/kysely-lock-adapter/_module.js";
+import { KyselyLockAdapter } from "@/lock/implementations/adapters/kysely-lock-adapter/_module.js";
 import { lockAdapterTestSuite } from "@/lock/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { Database } from "better-sqlite3";
+import type { ColumnMetadata, TableMetadata } from "kysely";
+
+import type { KyselyLockTables } from "@/lock/implementations/adapters/kysely-lock-adapter/_module.js";
 
 describe("sqlite class: KyselyLockAdapter", () => {
     let database: Database;

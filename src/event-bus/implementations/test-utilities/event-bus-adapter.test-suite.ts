@@ -2,24 +2,21 @@
  * @module EventBus
  */
 
-import {
-    type TestAPI,
-    type SuiteAPI,
-    type ExpectStatic,
-    type beforeEach,
-    describe,
-    vi,
-} from "vitest";
+import { describe, vi } from "vitest";
 
-import {
-    type BaseEvent,
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay, type Promisable } from "@/utilities/_module.js";
+import { delay } from "@/utilities/_module.js";
+
+import type { TestAPI, SuiteAPI, ExpectStatic, beforeEach } from "vitest";
+
+import type {
+    BaseEvent,
+    IEventBusAdapter,
+} from "@/event-bus/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/event-bus/test-utilities"`

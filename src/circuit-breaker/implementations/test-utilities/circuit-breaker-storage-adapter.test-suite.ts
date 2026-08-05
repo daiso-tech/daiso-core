@@ -2,18 +2,14 @@
  * @module CircuitBreaker
  */
 
-import {
-    type TestAPI,
-    type SuiteAPI,
-    type ExpectStatic,
-    type beforeEach,
-} from "vitest";
-
-import { type ICircuitBreakerStorageAdapter } from "@/circuit-breaker/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type Promisable } from "@/utilities/_module.js";
+
+import type { TestAPI, SuiteAPI, ExpectStatic, beforeEach } from "vitest";
+
+import type { ICircuitBreakerStorageAdapter } from "@/circuit-breaker/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/circuit-breaker/test-utilities"`

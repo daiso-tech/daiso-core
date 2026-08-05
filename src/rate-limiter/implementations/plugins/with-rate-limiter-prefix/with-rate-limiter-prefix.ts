@@ -2,8 +2,8 @@
  * @module RateLimiter
  */
 
-import { type PluginFn } from "@/middleware/contracts/_module.js";
-import { type IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
+import type { PluginFn } from "@/middleware/contracts/_module.js";
+import type { IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
 
 /**
  * Creates a plugin that prefixes all keys passed to a rate-limiter adapter.

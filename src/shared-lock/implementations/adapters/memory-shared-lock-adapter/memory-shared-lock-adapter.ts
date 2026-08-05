@@ -2,23 +2,23 @@
  * @module SharedLock
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ISharedLockFactory,
-    type ISharedLockAdapter,
-    type ISharedLockAdapterState,
-    type SharedLockAcquireSettings,
-} from "@/shared-lock/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     OPTION,
     optionNone,
     optionSome,
     UnexpectedError,
-    type IDeinitizable,
-    type Option,
 } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ISharedLockFactory,
+    ISharedLockAdapter,
+    ISharedLockAdapterState,
+    SharedLockAcquireSettings,
+} from "@/shared-lock/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { IDeinitizable, Option } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/shared-lock/memory-shared-lock-adapter"`

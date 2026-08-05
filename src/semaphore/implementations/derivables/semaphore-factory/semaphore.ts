@@ -2,19 +2,23 @@
  * @module Semaphore
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
-    type ISemaphoreAdapter,
-    type ISemaphore,
     FailedRefreshSemaphoreError,
     LimitReachedSemaphoreError,
     FailedReleaseSemaphoreError,
     SEMAPHORE_STATE,
-    type ISemaphoreState,
 } from "@/semaphore/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { resolveLazyable, type AsyncLazy } from "@/utilities/_module.js";
+import { resolveLazyable } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISemaphoreAdapter,
+    ISemaphore,
+    ISemaphoreState,
+} from "@/semaphore/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { AsyncLazy } from "@/utilities/_module.js";
 
 /**
  * @internal

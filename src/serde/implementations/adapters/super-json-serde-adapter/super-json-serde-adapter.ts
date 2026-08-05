@@ -5,10 +5,13 @@
 import { SuperJSON } from "superjson";
 
 import {
-    type ISerdeTransformerAdapter,
-    type IFlexibleSerdeAdapter,
     DeserializationSerdeError,
     SerializationSerdeError,
+} from "@/serde/contracts/_module.js";
+
+import type {
+    ISerdeTransformerAdapter,
+    IFlexibleSerdeAdapter,
 } from "@/serde/contracts/_module.js";
 
 /**

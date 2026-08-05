@@ -2,28 +2,27 @@
  * @module Resilience
  */
 
-import {
-    type MiddlewareFn,
-    type NextFn,
-} from "@/middleware/contracts/_module.js";
 import { RetryIntervalResilienceError } from "@/resilience/implementations/resilience.errors.js";
 import {
     handleOnExecutionAttempt,
     handleOnRetryDelay,
-    type OnExecutionAttempt,
-    type OnRetryDelay,
-    type RetryCallbacks,
 } from "@/resilience/implementations/retry/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callErrorPolicyOnThrow,
     callErrorPolicyOnValue,
     delay,
     UnexpectedError,
-    type ErrorPolicy,
-    type ErrorPolicySettings,
 } from "@/utilities/_module.js";
+
+import type { MiddlewareFn, NextFn } from "@/middleware/contracts/_module.js";
+import type {
+    OnExecutionAttempt,
+    OnRetryDelay,
+    RetryCallbacks,
+} from "@/resilience/implementations/retry/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { ErrorPolicy, ErrorPolicySettings } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/resilience"`

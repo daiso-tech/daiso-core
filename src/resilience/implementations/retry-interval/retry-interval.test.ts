@@ -1,9 +1,10 @@
 import { describe, expect, test, vi } from "vitest";
 
-import { type NextFn } from "@/middleware/contracts/_module.js";
 import { RetryIntervalResilienceError } from "@/resilience/implementations/resilience.errors.js";
 import { retryInterval } from "@/resilience/implementations/retry-interval/retry-interval.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { NextFn } from "@/middleware/contracts/_module.js";
 
 describe("function: retryInterval", () => {
     describe("setting: time and interval", () => {

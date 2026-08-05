@@ -2,7 +2,7 @@
  * @module Cache
  */
 
-import { type ICache } from "@/cache/contracts/cache.contract.js";
+import type { ICache } from "@/cache/contracts/cache.contract.js";
 
 /**
  * Cache resolver contract for dynamically selecting and switching between cache adapters.

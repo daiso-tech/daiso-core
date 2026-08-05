@@ -3,10 +3,11 @@
  */
 
 import {
-    type ISerde,
     DeserializationSerdeError,
     SerializationSerdeError,
 } from "@/serde/contracts/_module.js";
+
+import type { ISerde } from "@/serde/contracts/_module.js";
 
 /**
  * @internal

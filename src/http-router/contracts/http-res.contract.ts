@@ -2,20 +2,20 @@
  * @module HttpRouter
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
-import { type IFileSize } from "@/file-size/contracts/_module.js";
-import {
-    type HttpResCacheControl,
-    type HttpResContentDisposition,
-    type HttpResContentEncoding,
-    type HttpResContentLanguage,
-    type HttpResContentRange,
-    type HttpResContentType,
-    type HttpResETag,
+import type { IFileSize } from "@/file-size/contracts/_module.js";
+import type {
+    HttpResCacheControl,
+    HttpResContentDisposition,
+    HttpResContentEncoding,
+    HttpResContentLanguage,
+    HttpResContentRange,
+    HttpResContentType,
+    HttpResETag,
 } from "@/http-router/contracts/http-res-headers.js";
-import { type HttpStatus } from "@/http-router/contracts/http-status.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { HttpStatus } from "@/http-router/contracts/http-status.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
  * Defines the scope of a cookie — the `Path`, `Secure`, and `Domain` attributes

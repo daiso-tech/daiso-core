@@ -2,9 +2,9 @@
  * @module Cache
  */
 
-import { type Redis } from "ioredis";
-
 import { UnexpectedError } from "@/utilities/errors.js";
+
+import type { Redis } from "ioredis";
 
 /**
  * @internal

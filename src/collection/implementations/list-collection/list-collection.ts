@@ -2,44 +2,45 @@
  * @module Collection
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
 import {
-    type Collapse,
-    type Comparator,
-    type PredicateInvocable,
-    type ICollection,
     ItemNotFoundCollectionError,
-    type Map,
-    type Modifier,
     MultipleItemsFoundCollectionError,
-    type Tap,
-    type Transform,
-    type Reduce,
-    type ForEach,
     EmptyCollectionError,
-    type CrossJoinResult,
-    type EnsureMap,
-    type EnsureRecord,
-    type SerializedCollection,
 } from "@/collection/contracts/_module.js";
 import {
     isInvocable,
     isIterable,
     resolveInvocable,
     resolveIterableValue,
-    type IterableValue,
-    type Lazyable,
     resolveLazyable,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     UnexpectedError,
     OPTION,
-    type Option,
     optionSome,
     optionNone,
     ValidationError,
     validateSync,
 } from "@/utilities/_module.js";
+
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+
+import type {
+    Collapse,
+    Comparator,
+    PredicateInvocable,
+    ICollection,
+    Map,
+    Modifier,
+    Tap,
+    Transform,
+    Reduce,
+    ForEach,
+    CrossJoinResult,
+    EnsureMap,
+    EnsureRecord,
+    SerializedCollection,
+} from "@/collection/contracts/_module.js";
+import type { IterableValue, Lazyable, Option } from "@/utilities/_module.js";
 
 /**
  * All methods in `ListCollection` are executed eagerly.

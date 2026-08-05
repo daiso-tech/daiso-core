@@ -1,22 +1,19 @@
-import Sqlite, { type Database } from "better-sqlite3";
-import {
-    Kysely,
-    SqliteDialect,
-    type ColumnMetadata,
-    type TableMetadata,
-} from "kysely";
+import Sqlite from "better-sqlite3";
+import { Kysely, SqliteDialect } from "kysely";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    KyselyRateLimiterStorageAdapter,
-    type KyselyRateLimiterStorageTables,
-} from "@/rate-limiter/implementations/adapters/kysely-rate-limiter-storage-adapter/_module.js";
+import { KyselyRateLimiterStorageAdapter } from "@/rate-limiter/implementations/adapters/kysely-rate-limiter-storage-adapter/_module.js";
 import { rateLimiterStorageAdapterTestSuite } from "@/rate-limiter/implementations/test-utilities/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/serde.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { Database } from "better-sqlite3";
+import type { ColumnMetadata, TableMetadata } from "kysely";
+
+import type { KyselyRateLimiterStorageTables } from "@/rate-limiter/implementations/adapters/kysely-rate-limiter-storage-adapter/_module.js";
 
 describe("sqlite class: KyselyRateLimiterStorageAdapter", () => {
     let database: Database;

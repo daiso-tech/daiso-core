@@ -2,18 +2,16 @@
  * @module Middleware
  */
 
-import {
-    type Plugin,
-    type WithPlugin,
-} from "@/middleware/contracts/_module.js";
-import { type Enhance } from "@/middleware/contracts/enhance.contract.js";
 import { enhance } from "@/middleware/implementations/enhance-factory/_module.js";
 import {
     callInvocable,
     copyObj,
     resolveOneOrMore,
-    type OneOrMore,
 } from "@/utilities/_module.js";
+
+import type { Plugin, WithPlugin } from "@/middleware/contracts/_module.js";
+import type { Enhance } from "@/middleware/contracts/enhance.contract.js";
+import type { OneOrMore } from "@/utilities/_module.js";
 
 /**
  * @internal

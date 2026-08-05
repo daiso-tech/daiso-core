@@ -2,12 +2,14 @@
  * @module Serde
  */
 
-import { type TestAPI, type ExpectStatic, beforeEach, vi } from "vitest";
+import { beforeEach, vi } from "vitest";
 
-import {
-    type IFlexibleSerdeAdapter,
-    type ISerdeTransformerAdapter,
-    type ISerializable,
+import type { TestAPI, ExpectStatic } from "vitest";
+
+import type {
+    IFlexibleSerdeAdapter,
+    ISerdeTransformerAdapter,
+    ISerializable,
 } from "@/serde/contracts/_module.js";
 
 /**

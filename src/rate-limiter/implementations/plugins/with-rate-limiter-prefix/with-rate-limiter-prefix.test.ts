@@ -4,9 +4,10 @@ import { NoOpContext } from "@/execution-context/implementations/derivables/exec
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
-import { type IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
 import { NoOpRateLimiterAdapter } from "@/rate-limiter/implementations/adapters/_module.js";
 import { withRateLimiterPrefix } from "@/rate-limiter/implementations/plugins/with-rate-limiter-prefix/with-rate-limiter-prefix.js";
+
+import type { IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
 
 describe("function: withRateLimiterPrefix", () => {
     const context = new NoOpContext();

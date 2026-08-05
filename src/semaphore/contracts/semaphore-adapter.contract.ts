@@ -2,10 +2,10 @@
  * @module Semaphore
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type ISemaphoreFactory } from "@/semaphore/contracts/semaphore-factory.contract.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { ISemaphoreFactory } from "@/semaphore/contracts/semaphore-factory.contract.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * Internal settings for semaphore slot acquisition operations.

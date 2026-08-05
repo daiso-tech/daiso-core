@@ -2,21 +2,20 @@
  * @module EventBus
  */
 
-import {
-    type IEventBus,
-    type IEventBusResolver,
-    type BaseEventMap,
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import {
-    EventBus,
-    type EventBusSettingsBase,
-} from "@/event-bus/implementations/derivables/event-bus/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import { EventBus } from "@/event-bus/implementations/derivables/event-bus/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
 } from "@/utilities/_module.js";
+
+import type {
+    IEventBus,
+    IEventBusResolver,
+    BaseEventMap,
+    IEventBusAdapter,
+} from "@/event-bus/contracts/_module.js";
+import type { EventBusSettingsBase } from "@/event-bus/implementations/derivables/event-bus/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/event-bus"`

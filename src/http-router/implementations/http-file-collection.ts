@@ -3,10 +3,13 @@
  */
 
 import {
-    type IHttpFileCollection,
-    type IHttpFile,
     EmptyFileCollectionError,
     FileIndexOutOfBoundsError,
+} from "@/http-router/contracts/_module.js";
+
+import type {
+    IHttpFileCollection,
+    IHttpFile,
 } from "@/http-router/contracts/_module.js";
 
 /**

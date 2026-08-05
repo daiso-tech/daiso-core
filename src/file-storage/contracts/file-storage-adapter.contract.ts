@@ -2,7 +2,7 @@
  * @module FileStorage
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * Configuration for generating temporary signed download URLs for files.

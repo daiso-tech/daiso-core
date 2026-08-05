@@ -2,26 +2,24 @@
  * @module CircuitBreaker
  */
 
-import {
-    type ICircuitBreakerFactoryResolver,
-    type CircuitBreakerTrigger,
-    type ICircuitBreakerFactory,
-    type ICircuitBreakerAdapter,
-} from "@/circuit-breaker/contracts/_module.js";
-import {
-    CircuitBreakerFactory,
-    type CircuitBreakerFactorySettingsBase,
-} from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import { CircuitBreakerFactory } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     UnregisteredAdapterError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     DefaultAdapterNotDefinedError,
-    type ErrorPolicy,
-    type WaitUntil,
 } from "@/utilities/_module.js";
+
+import type {
+    ICircuitBreakerFactoryResolver,
+    CircuitBreakerTrigger,
+    ICircuitBreakerFactory,
+    ICircuitBreakerAdapter,
+} from "@/circuit-breaker/contracts/_module.js";
+import type { CircuitBreakerFactorySettingsBase } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { ErrorPolicy, WaitUntil } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/circuit-breaker"`

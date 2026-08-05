@@ -2,23 +2,18 @@
  * @module CircuitBreaker
  */
 
-import {
-    type CircuitBreakerTrigger,
-    type ICircuitBreakerAdapter,
+import { CircuitBreaker } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
+import { getConstructorName } from "@/utilities/_module.js";
+
+import type {
+    CircuitBreakerTrigger,
+    ICircuitBreakerAdapter,
 } from "@/circuit-breaker/contracts/_module.js";
-import {
-    CircuitBreaker,
-    type ISerializedCircuitBreaker,
-} from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    getConstructorName,
-    type ErrorPolicy,
-    type OneOrMore,
-    type WaitUntil,
-} from "@/utilities/_module.js";
+import type { ISerializedCircuitBreaker } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { ErrorPolicy, OneOrMore, WaitUntil } from "@/utilities/_module.js";
 
 /**
  * @internal

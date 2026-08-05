@@ -2,25 +2,26 @@
  * @module RateLimiter
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     BlockedRateLimiterError,
     RATE_LIMITER_STATE,
-    type IRateLimiter,
-    type IRateLimiterAdapter,
-    type IRateLimiterAdapterState,
-    type RateLimiterAllowedState,
-    type RateLimiterBlockedState,
-    type RateLimiterState,
 } from "@/rate-limiter/contracts/_module.js";
 import {
     callErrorPolicyOnThrow,
     callInvocable,
     resolveAsyncLazyable,
-    type AsyncLazy,
-    type ErrorPolicy,
-    type WaitUntil,
 } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IRateLimiter,
+    IRateLimiterAdapter,
+    IRateLimiterAdapterState,
+    RateLimiterAllowedState,
+    RateLimiterBlockedState,
+    RateLimiterState,
+} from "@/rate-limiter/contracts/_module.js";
+import type { AsyncLazy, ErrorPolicy, WaitUntil } from "@/utilities/_module.js";
 
 /**
  * @internal

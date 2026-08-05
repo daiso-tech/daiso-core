@@ -1,24 +1,19 @@
-import {
-    type StartedMySqlContainer,
-    MySqlContainer,
-} from "@testcontainers/mysql";
-import {
-    Kysely,
-    MysqlDialect,
-    type ColumnMetadata,
-    type TableMetadata,
-} from "kysely";
-import { createPool, type Pool } from "mysql2";
+import { MySqlContainer } from "@testcontainers/mysql";
+import { Kysely, MysqlDialect } from "kysely";
+import { createPool } from "mysql2";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    KyselyLockAdapter,
-    type KyselyLockTables,
-} from "@/lock/implementations/adapters/kysely-lock-adapter/_module.js";
+import { KyselyLockAdapter } from "@/lock/implementations/adapters/kysely-lock-adapter/_module.js";
 import { lockAdapterTestSuite } from "@/lock/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedMySqlContainer } from "@testcontainers/mysql";
+import type { ColumnMetadata, TableMetadata } from "kysely";
+import type { Pool } from "mysql2";
+
+import type { KyselyLockTables } from "@/lock/implementations/adapters/kysely-lock-adapter/_module.js";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("mysql class: KyselyLockAdapter", () => {

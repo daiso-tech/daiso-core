@@ -2,7 +2,7 @@
  * @module SharedLock
  */
 
-import { type ISharedLockFactory } from "@/shared-lock/contracts/shared-lock-factory.contract.js";
+import type { ISharedLockFactory } from "@/shared-lock/contracts/shared-lock-factory.contract.js";
 
 /**
  * The `ISharedLockFactoryResolver` contract makes it easy to configure and switch between different {@link ISharedLockFactory | `ISharedLockFactory`} dynamically.

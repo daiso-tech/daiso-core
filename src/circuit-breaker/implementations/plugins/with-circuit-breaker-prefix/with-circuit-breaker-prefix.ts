@@ -2,8 +2,8 @@
  * @module CircuitBreaker
  */
 
-import { type ICircuitBreakerAdapter } from "@/circuit-breaker/contracts/_module.js";
-import { type PluginFn } from "@/middleware/contracts/_module.js";
+import type { ICircuitBreakerAdapter } from "@/circuit-breaker/contracts/_module.js";
+import type { PluginFn } from "@/middleware/contracts/_module.js";
 
 /**
  * Creates a plugin that prefixes all keys passed to a circuit-breaker adapter.

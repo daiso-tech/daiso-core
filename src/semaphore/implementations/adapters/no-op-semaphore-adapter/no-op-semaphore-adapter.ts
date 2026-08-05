@@ -2,15 +2,15 @@
  * @module Semaphore
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ISemaphoreAdapter,
-    type ISemaphoreAdapterState,
-    type SemaphoreAcquireSettings,
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISemaphoreAdapter,
+    ISemaphoreAdapterState,
+    SemaphoreAcquireSettings,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ISemaphoreFactory,
+    ISemaphoreFactory,
 } from "@/semaphore/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * The `NoOpSemaphoreAdapter` will do nothing and is used for easily mocking {@link ISemaphoreFactory | `ISemaphoreFactory`} for testing.

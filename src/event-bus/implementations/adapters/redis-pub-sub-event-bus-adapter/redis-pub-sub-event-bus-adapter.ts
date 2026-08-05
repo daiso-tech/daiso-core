@@ -4,19 +4,20 @@
 
 import { EventEmitter } from "node:events";
 
-import { type Redis } from "ioredis";
-
-import {
-    type BaseEvent,
-    type EventListenerFn,
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type ISerde } from "@/serde/contracts/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     SuperJsonSerdeAdapter,
 } from "@/serde/implementations/adapters/_module.js";
+
+import type { Redis } from "ioredis";
+
+import type {
+    BaseEvent,
+    EventListenerFn,
+    IEventBusAdapter,
+} from "@/event-bus/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ISerde } from "@/serde/contracts/_module.js";
 
 /**
  * Configuration for `RedisPubSubEventBusAdapter`.

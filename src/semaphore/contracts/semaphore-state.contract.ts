@@ -2,7 +2,7 @@
  * @module Semaphore
  */
 
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * Enumeration of semaphore operational states.

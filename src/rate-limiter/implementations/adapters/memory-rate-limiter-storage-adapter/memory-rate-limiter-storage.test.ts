@@ -2,12 +2,11 @@ import { beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    MemoryRateLimiterStorageAdapter,
-    type MemoryRateLimiterData,
-} from "@/rate-limiter/implementations/adapters/memory-rate-limiter-storage-adapter/_module.js";
+import { MemoryRateLimiterStorageAdapter } from "@/rate-limiter/implementations/adapters/memory-rate-limiter-storage-adapter/_module.js";
 import { rateLimiterStorageAdapterTestSuite } from "@/rate-limiter/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/time-span.js";
+
+import type { MemoryRateLimiterData } from "@/rate-limiter/implementations/adapters/memory-rate-limiter-storage-adapter/_module.js";
 
 describe("class: MemoryRateLimiterStorageAdapter", () => {
     const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());

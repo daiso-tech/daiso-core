@@ -4,29 +4,25 @@
 
 import { v4 } from "uuid";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    type ILock,
-    type LockFactoryCreateSettings,
-    type ILockFactory,
-    type ILockAdapter,
-} from "@/lock/contracts/_module.js";
 import { LockSerdeTransformer } from "@/lock/implementations/derivables/lock-factory/lock-serde-transformer.js";
 import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
-import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    type OneOrMore,
-    CORE,
-    resolveOneOrMore,
-    type Invocable,
-    callInvocable,
-} from "@/utilities/_module.js";
+import { CORE, resolveOneOrMore, callInvocable } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ILock,
+    LockFactoryCreateSettings,
+    ILockFactory,
+    ILockAdapter,
+} from "@/lock/contracts/_module.js";
+import type { ISerderRegister } from "@/serde/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { OneOrMore, Invocable } from "@/utilities/_module.js";
 
 /**
  * Base configuration shared by all `LockFactory` variants.

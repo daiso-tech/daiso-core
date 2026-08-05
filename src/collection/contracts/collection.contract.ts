@@ -2,31 +2,31 @@
  * @module Collection
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
-import {
-    type Comparator,
-    type PredicateInvocable,
-    type ForEach,
-    type Map,
-    type Modifier,
-    type Tap,
-    type Transform,
-    type Reduce,
-    type CrossJoinResult,
-    type EnsureMap,
-    type EnsureRecord,
+import type {
+    Comparator,
+    PredicateInvocable,
+    ForEach,
+    Map,
+    Modifier,
+    Tap,
+    Transform,
+    Reduce,
+    CrossJoinResult,
+    EnsureMap,
+    EnsureRecord,
 } from "@/collection/contracts/_shared/_module.js";
-import {
+import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ItemNotFoundCollectionError,
+    ItemNotFoundCollectionError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type MultipleItemsFoundCollectionError,
+    MultipleItemsFoundCollectionError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type EmptyCollectionError,
+    EmptyCollectionError,
 } from "@/collection/contracts/collection.errors.js";
-import { type ISerializable } from "@/serde/contracts/_module.js";
-import { type IterableValue, type Lazyable } from "@/utilities/_module.js";
+import type { ISerializable } from "@/serde/contracts/_module.js";
+import type { IterableValue, Lazyable } from "@/utilities/_module.js";
 
 /**
  * Collapses 1 layer of nested array, iterable, or collection types into their element type.

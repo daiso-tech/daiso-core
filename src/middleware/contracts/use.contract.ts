@@ -2,11 +2,11 @@
  * @module Middleware
  */
 
-import {
-    type InvocableFn,
-    type IInvocableObject,
-    type OneOrMore,
-    type Invocable,
+import type {
+    InvocableFn,
+    IInvocableObject,
+    OneOrMore,
+    Invocable,
 } from "@/utilities/_module.js";
 
 /**

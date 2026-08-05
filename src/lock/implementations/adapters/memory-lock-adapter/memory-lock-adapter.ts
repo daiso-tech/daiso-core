@@ -2,15 +2,15 @@
  * @module Lock
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ILockFactory,
-    type ILockAdapter,
-    type ILockAdapterState,
+    ILockFactory,
+    ILockAdapter,
+    ILockAdapterState,
 } from "@/lock/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import { type IDeinitizable } from "@/utilities/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { IDeinitizable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/lock/memory-lock-adapter"`

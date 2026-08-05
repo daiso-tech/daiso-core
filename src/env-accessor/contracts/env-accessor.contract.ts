@@ -2,11 +2,9 @@
  * @module EnvAccessor
  */
 
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type UninitializedEnvAccessorError,
-} from "@/env-accessor/contracts/env-accessor.errors.js";
-import { type IInitizable, type UndefinedToNull } from "@/utilities/_module.js";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { UninitializedEnvAccessorError } from "@/env-accessor/contracts/env-accessor.errors.js";
+import type { IInitizable, UndefinedToNull } from "@/utilities/_module.js";
 
 /**
  * @group Contracts

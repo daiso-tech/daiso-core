@@ -2,13 +2,13 @@
  * @module FileStorage
  */
 
-import {
-    type IFileUrlAdapter,
-    type IFileStorageAdapter,
-    type ISignedFileStorageAdapter,
+import type {
+    IFileUrlAdapter,
+    IFileStorageAdapter,
+    ISignedFileStorageAdapter,
 } from "@/file-storage/contracts/_module.js";
-import { type ILockFactory } from "@/lock/contracts/_module.js";
-import { type PluginFn } from "@/middleware/contracts/_module.js";
+import type { ILockFactory } from "@/lock/contracts/_module.js";
+import type { PluginFn } from "@/middleware/contracts/_module.js";
 
 /**
  * All methods of {@link ISignedFileStorageAdapter | `ISignedFileStorageAdapter`} that can be protected by a lock,

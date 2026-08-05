@@ -2,20 +2,17 @@
  * @module HttpRouter
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
-import {
-    type StringInputs,
-    type RawFormData,
-    type FileInputs,
-    type ReqInputs,
-    type MultiStringInputs,
+import type {
+    StringInputs,
+    RawFormData,
+    FileInputs,
+    ReqInputs,
+    MultiStringInputs,
 } from "@/http-router/contracts/_shared.js";
-import { type IHttpFileCollection } from "@/http-router/contracts/http-file-collection.contract.js";
-import {
-    type StrIntellisense,
-    type UndefinedToNull,
-} from "@/utilities/_module.js";
+import type { IHttpFileCollection } from "@/http-router/contracts/http-file-collection.contract.js";
+import type { StrIntellisense, UndefinedToNull } from "@/utilities/_module.js";
 
 /**
  * Represents the HTTP request method.

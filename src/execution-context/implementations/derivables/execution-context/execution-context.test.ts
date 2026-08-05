@@ -4,7 +4,8 @@ import { contextToken } from "@/execution-context/contracts/execution-context.co
 import { NotFoundExecutionContextError } from "@/execution-context/contracts/execution-context.errors.js";
 import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/als-execution-context-adapter.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/execution-context/execution-context.js";
-import { type InvocableFn } from "@/utilities/_module.js";
+
+import type { InvocableFn } from "@/utilities/_module.js";
 
 describe("class: ExecutionContext", () => {
     let context: ExecutionContext;

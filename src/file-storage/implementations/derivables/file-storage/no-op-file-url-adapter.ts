@@ -1,11 +1,11 @@
 /**
  * @module FileStorage
  */
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type FileAdapterSignedDownloadUrlSettings,
-    type FileAdapterSignedUploadUrlSettings,
-    type IFileUrlAdapter,
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    FileAdapterSignedDownloadUrlSettings,
+    FileAdapterSignedUploadUrlSettings,
+    IFileUrlAdapter,
 } from "@/file-storage/contracts/_module.js";
 
 /**

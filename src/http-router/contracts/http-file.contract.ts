@@ -2,7 +2,7 @@
  * @module HttpRouter
  */
 
-import { type FileSize } from "@/file-size/implementations/_module.js";
+import type { FileSize } from "@/file-size/implementations/_module.js";
 
 /**
  * Represents a file that was uploaded as part of an HTTP request (typically via `multipart/form-data`).

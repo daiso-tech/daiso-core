@@ -6,7 +6,7 @@
  * @module Utilities
  */
 
-import  { type AnyClass } from "@/utilities/types/_module.js";
+import type {AnyClass} from "@/utilities/types/_module.js";
 
 /**
  * 

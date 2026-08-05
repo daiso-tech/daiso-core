@@ -2,7 +2,7 @@
  * @module HttpRouter
  */
 
-import { type StrIntellisense } from "@/utilities/_module.js";
+import type { StrIntellisense } from "@/utilities/_module.js";
 
 /**
  * Well-known `Cache-Control` directive values for HTTP responses.

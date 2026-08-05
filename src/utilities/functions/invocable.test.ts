@@ -7,8 +7,11 @@ import {
     isInvocableFn,
     isInvocableObject,
     resolveInvocable,
-    type IInvocableObject,
-    type InvocableFn,
+} from "@/utilities/functions/_module.js";
+
+import type {
+    IInvocableObject,
+    InvocableFn,
 } from "@/utilities/functions/_module.js";
 
 describe("file: invocable.ts", () => {

@@ -2,20 +2,15 @@
  * @module Lock
  */
 
-import {
-    type Collection,
-    type CollectionOptions,
-    type Db,
-    type ObjectId,
-} from "mongodb";
+import type { Collection, CollectionOptions, Db, ObjectId } from "mongodb";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ILockAdapter,
-    type ILockAdapterState,
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ILockAdapter,
+    ILockAdapterState,
 } from "@/lock/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import { type IDeinitizable, type IInitizable } from "@/utilities/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { IDeinitizable, IInitizable } from "@/utilities/_module.js";
 
 /**
  * Configuration for `MongodbLockAdapter`.

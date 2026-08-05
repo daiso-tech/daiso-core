@@ -1,17 +1,14 @@
-import Sqlite, { type Database } from "better-sqlite3";
-import {
-    Kysely,
-    SqliteDialect,
-    type ColumnMetadata,
-    type TableMetadata,
-} from "kysely";
+import Sqlite from "better-sqlite3";
+import { Kysely, SqliteDialect } from "kysely";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
-import {
-    KyselySharedLockAdapter,
-    type KyselySharedLockTables,
-} from "@/shared-lock/implementations/adapters/kysely-shared-lock-adapter/_module.js";
+import { KyselySharedLockAdapter } from "@/shared-lock/implementations/adapters/kysely-shared-lock-adapter/_module.js";
 import { sharedLockAdapterTestSuite } from "@/shared-lock/implementations/test-utilities/_module.js";
+
+import type { Database } from "better-sqlite3";
+import type { ColumnMetadata, TableMetadata } from "kysely";
+
+import type { KyselySharedLockTables } from "@/shared-lock/implementations/adapters/kysely-shared-lock-adapter/_module.js";
 
 describe("sqlite class: KyselySharedLockAdapter", () => {
     let database: Database;

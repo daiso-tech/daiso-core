@@ -5,10 +5,9 @@ import {
     HALF_OPEN_TRANSITIONS,
 } from "@/circuit-breaker/contracts/circuit-breaker-policy.contract.js";
 import { CIRCUIT_BREAKER_STATE } from "@/circuit-breaker/contracts/circuit-breaker-state.contract.js";
-import {
-    ConsecutiveBreaker,
-    type ConsecutiveBreakerState,
-} from "@/circuit-breaker/implementations/policies/consecutive-breaker/consecutive-breaker.js";
+import { ConsecutiveBreaker } from "@/circuit-breaker/implementations/policies/consecutive-breaker/consecutive-breaker.js";
+
+import type { ConsecutiveBreakerState } from "@/circuit-breaker/implementations/policies/consecutive-breaker/consecutive-breaker.js";
 
 describe("class: ConsecutiveBreaker", () => {
     describe("method: initialMetrics", () => {

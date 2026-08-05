@@ -2,11 +2,11 @@
  * @module FileStorage
  */
 
-import {
-    type IFileUrlAdapter,
-    type IFileStorageAdapter,
+import type {
+    IFileUrlAdapter,
+    IFileStorageAdapter,
 } from "@/file-storage/contracts/_module.js";
-import { type PluginFn } from "@/middleware/contracts/_module.js";
+import type { PluginFn } from "@/middleware/contracts/_module.js";
 
 /**
  * Creates a plugin that prefixes all file keys passed to a file-storage adapter.

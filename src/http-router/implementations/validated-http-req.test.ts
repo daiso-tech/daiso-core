@@ -6,9 +6,10 @@
 import { describe, expect, test, vi } from "vitest";
 import { email, z } from "zod";
 
-import { type IHttpReqBase } from "@/http-router/contracts/_module.js";
 import { ValidatedHttpReq } from "@/http-router/implementations/validated-http-req.js";
 import { ValidationError } from "@/utilities/_module.js";
+
+import type { IHttpReqBase } from "@/http-router/contracts/_module.js";
 
 describe("class: ValidatedHttpReq", () => {
     function createMockReq(

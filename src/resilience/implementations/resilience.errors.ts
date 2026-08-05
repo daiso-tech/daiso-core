@@ -2,7 +2,7 @@
  * @module Resilience
  */
 
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/resilience"`

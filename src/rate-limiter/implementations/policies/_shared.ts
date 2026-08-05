@@ -10,10 +10,11 @@ import {
     resolveSlidingWindowLimiterSettings,
     serializeSlidingWindowLimiterSettings,
 } from "@/rate-limiter/implementations/policies/sliding-window-limiter/_module.js";
-import {
-    LIMITER_POLICIES,
-    type RateLimiterPolicySettingsEnum,
-    type SerializedRateLimiterPolicySettingsEnum,
+import { LIMITER_POLICIES } from "@/rate-limiter/implementations/policies/types.js";
+
+import type {
+    RateLimiterPolicySettingsEnum,
+    SerializedRateLimiterPolicySettingsEnum,
 } from "@/rate-limiter/implementations/policies/types.js";
 
 /**

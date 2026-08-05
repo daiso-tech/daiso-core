@@ -5,11 +5,12 @@
 import { describe, expect, test, vi } from "vitest";
 
 import {
-    type IHttpFile,
     EmptyFileCollectionError,
     FileIndexOutOfBoundsError,
 } from "@/http-router/contracts/_module.js";
 import { HttpFileCollection } from "@/http-router/implementations/http-file-collection.js";
+
+import type { IHttpFile } from "@/http-router/contracts/_module.js";
 
 function createMockFile(name: string): IHttpFile {
     const file = new File([name], name);

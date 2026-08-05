@@ -1,22 +1,17 @@
-import {
-    type StartedMySqlContainer,
-    MySqlContainer,
-} from "@testcontainers/mysql";
-import {
-    Kysely,
-    MysqlDialect,
-    type ColumnMetadata,
-    type TableMetadata,
-} from "kysely";
-import { createPool, type Pool } from "mysql2";
+import { MySqlContainer } from "@testcontainers/mysql";
+import { Kysely, MysqlDialect } from "kysely";
+import { createPool } from "mysql2";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
-import {
-    KyselySharedLockAdapter,
-    type KyselySharedLockTables,
-} from "@/shared-lock/implementations/adapters/kysely-shared-lock-adapter/_module.js";
+import { KyselySharedLockAdapter } from "@/shared-lock/implementations/adapters/kysely-shared-lock-adapter/_module.js";
 import { sharedLockAdapterTestSuite } from "@/shared-lock/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedMySqlContainer } from "@testcontainers/mysql";
+import type { ColumnMetadata, TableMetadata } from "kysely";
+import type { Pool } from "mysql2";
+
+import type { KyselySharedLockTables } from "@/shared-lock/implementations/adapters/kysely-shared-lock-adapter/_module.js";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("mysql class: KyselySharedLockAdapter", () => {

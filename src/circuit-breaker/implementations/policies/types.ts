@@ -2,11 +2,11 @@
  * @module CircuitBreaker
  */
 
-import { type ConsecutiveBreakerSettings } from "@/circuit-breaker/implementations/policies/consecutive-breaker/_module.js";
-import { type CountBreakerSettings } from "@/circuit-breaker/implementations/policies/count-breaker/_module.js";
-import {
-    type SamplingBreakerSettings,
-    type SerializedSamplingBreakerSettings,
+import type { ConsecutiveBreakerSettings } from "@/circuit-breaker/implementations/policies/consecutive-breaker/_module.js";
+import type { CountBreakerSettings } from "@/circuit-breaker/implementations/policies/count-breaker/_module.js";
+import type {
+    SamplingBreakerSettings,
+    SerializedSamplingBreakerSettings,
 } from "@/circuit-breaker/implementations/policies/sampling-breaker/_module.js";
 
 /**

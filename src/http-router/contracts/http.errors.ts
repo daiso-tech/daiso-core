@@ -2,7 +2,7 @@
  * @module HttpRouter
  */
 
-import { type HttpErrorStatus } from "@/http-router/contracts/http-status.js";
+import type { HttpErrorStatus } from "@/http-router/contracts/http-status.js";
 
 /**
  * Settings for creating an {@link HttpError}.

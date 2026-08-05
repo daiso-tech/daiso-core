@@ -5,12 +5,16 @@
 import {
     CIRCUIT_BREAKER_STATE,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ICircuitBreakerFactory,
-    type CircuitBreakerState,
-    type CircuitBreakerStateTransition,
-    type ICircuitBreakerAdapter,
 } from "@/circuit-breaker/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+
+import type {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ICircuitBreakerFactory,
+    CircuitBreakerState,
+    CircuitBreakerStateTransition,
+    ICircuitBreakerAdapter,
+} from "@/circuit-breaker/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * The `NoOpCircuitBreakerAdapter` will do nothing and is used for easily mocking {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} for testing.

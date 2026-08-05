@@ -2,15 +2,15 @@
  * @module SharedLock
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ISharedLockAdapter,
-    type ISharedLockAdapterState,
-    type SharedLockAcquireSettings,
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISharedLockAdapter,
+    ISharedLockAdapterState,
+    SharedLockAcquireSettings,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ISharedLockFactory,
+    ISharedLockFactory,
 } from "@/shared-lock/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * The `NoOpSharedLockAdapter` will do nothing and is used for easily mocking {@link ISharedLockFactory | `ISharedLockFactory`} for testing.

@@ -2,26 +2,23 @@
  * @module EventBus
  */
 
-import {
-    type IEventBus,
-    type IEventBusAdapter,
-    type BaseEvent,
-    type BaseEventMap,
-    type EventListener,
-    type EventListenerFn,
-    type Unsubscribe,
-    type InferEvent,
-} from "@/event-bus/contracts/_module.js";
 import { ListenerStore } from "@/event-bus/implementations/derivables/event-bus/listener-store.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    resolveInvocable,
-    type OneOrArray,
-    type InvocableFn,
-    resolveOneOrMore,
-} from "@/utilities/_module.js";
+import { resolveInvocable, resolveOneOrMore } from "@/utilities/_module.js";
+
+import type {
+    IEventBus,
+    IEventBusAdapter,
+    BaseEvent,
+    BaseEventMap,
+    EventListener,
+    EventListenerFn,
+    Unsubscribe,
+    InferEvent,
+} from "@/event-bus/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { OneOrArray, InvocableFn } from "@/utilities/_module.js";
 
 /**
  * Base configuration shared by all `EventBus` variants.

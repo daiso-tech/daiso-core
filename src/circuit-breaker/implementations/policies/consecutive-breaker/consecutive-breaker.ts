@@ -3,14 +3,17 @@
  */
 
 import {
-    type HalfOpenTransitions,
-    type CircuitBreakerTrackSettings,
-    type CircuitBreakerTrackState,
-    type ICircuitBreakerPolicy,
-    type ClosedTransitions,
     CIRCUIT_BREAKER_STATE,
     HALF_OPEN_TRANSITIONS,
     CLOSED_TRANSITIONS,
+} from "@/circuit-breaker/contracts/_module.js";
+
+import type {
+    HalfOpenTransitions,
+    CircuitBreakerTrackSettings,
+    CircuitBreakerTrackState,
+    ICircuitBreakerPolicy,
+    ClosedTransitions,
 } from "@/circuit-breaker/contracts/_module.js";
 
 /**

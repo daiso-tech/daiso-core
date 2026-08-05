@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { type IEventBusAdapter } from "@/event-bus/contracts/_module.js";
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { withEventBusPrefix } from "@/event-bus/implementations/plugins/with-event-bus-prefix/with-event-bus-prefix.js";
 import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
+
+import type { IEventBusAdapter } from "@/event-bus/contracts/_module.js";
 
 describe("function: withEventBusPrefix", () => {
     const context = new NoOpContext();

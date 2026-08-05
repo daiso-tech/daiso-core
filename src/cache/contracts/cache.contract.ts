@@ -2,14 +2,14 @@
  * @module Cache
  */
 
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import {
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type Invocable,
-    type AsyncLazyable,
-    type NoneFunc,
+    Invocable,
+    AsyncLazyable,
+    NoneFunc,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ValidationError,
+    ValidationError,
 } from "@/utilities/_module.js";
 
 /**

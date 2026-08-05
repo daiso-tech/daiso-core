@@ -1,48 +1,44 @@
 /**
  * @module HttpRouter
  */
-import {
-    type ParamIndexMap,
-    type Params,
-    type ParamStash,
-    type Router,
-} from "hono/router";
 import { RegExpRouter } from "hono/router/reg-exp-router";
 import { SmartRouter } from "hono/router/smart-router";
 import { TrieRouter } from "hono/router/trie-router";
 
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
-import {
-    type HttpMiddleware,
-    type HttpRouteGroup,
-    type IHttpEndpoint,
-    type IHttpRouter,
-    type IHttpRouterBase,
-    type StringInputs,
-    type IHttpRes,
-    type WinterTcMiddleware,
-    type WinterTcRequestHandler,
-    type HttpHandlerArgs,
-    type HttpMiddlewareArgs,
-    type HttpHandlerFn,
-    HttpError,
-} from "@/http-router/contracts/_module.js";
+import { HttpError } from "@/http-router/contracts/_module.js";
 import { HttpReq } from "@/http-router/implementations/http-req.js";
 import { httpResHelpers } from "@/http-router/implementations/http-res-helpers.js";
 import { HttpRes } from "@/http-router/implementations/http-res.js";
 import { HttpRouterBase } from "@/http-router/implementations/http-router-base.js";
-import {
-    type EndpointEntry,
-    type MiddlewareEntry,
-    type RouterEntry,
-} from "@/http-router/implementations/types.js";
 import { use } from "@/http-router/middlewares/_module.js";
-import {
-    callInvocable,
-    isInvocable,
-    type InvocableFn,
-    type OneOrMore,
-    type Promisable,
+import { callInvocable, isInvocable } from "@/utilities/_module.js";
+
+import type { ParamIndexMap, Params, ParamStash, Router } from "hono/router";
+
+import type {
+    HttpMiddleware,
+    HttpRouteGroup,
+    IHttpEndpoint,
+    IHttpRouter,
+    IHttpRouterBase,
+    StringInputs,
+    IHttpRes,
+    WinterTcMiddleware,
+    WinterTcRequestHandler,
+    HttpHandlerArgs,
+    HttpMiddlewareArgs,
+    HttpHandlerFn,
+} from "@/http-router/contracts/_module.js";
+import type {
+    EndpointEntry,
+    MiddlewareEntry,
+    RouterEntry,
+} from "@/http-router/implementations/types.js";
+import type {
+    InvocableFn,
+    OneOrMore,
+    Promisable,
 } from "@/utilities/_module.js";
 
 /**

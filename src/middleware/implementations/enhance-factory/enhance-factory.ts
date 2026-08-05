@@ -2,16 +2,17 @@
  * @module Middleware
  */
 
-import {
-    type Enhance,
-    type InferMethodNames,
-    type InferParameters,
-    type InferReturn,
-    type Middleware,
-    type Use,
-} from "@/middleware/contracts/_module.js";
 import { use } from "@/middleware/implementations/use-factory/_module.js";
-import { type InvocableFn, type OneOrMore } from "@/utilities/_module.js";
+
+import type {
+    Enhance,
+    InferMethodNames,
+    InferParameters,
+    InferReturn,
+    Middleware,
+    Use,
+} from "@/middleware/contracts/_module.js";
+import type { InvocableFn, OneOrMore } from "@/utilities/_module.js";
 
 /**
  * @internal

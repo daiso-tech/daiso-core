@@ -2,10 +2,9 @@
  * @module Collection
  */
 
-import {
-    resolveAsyncIterableValue,
-    type AsyncIterableValue,
-} from "@/utilities/_module.js";
+import { resolveAsyncIterableValue } from "@/utilities/_module.js";
+
+import type { AsyncIterableValue } from "@/utilities/_module.js";
 
 /**
  * @internal

@@ -2,33 +2,30 @@
  * @module Collection
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
-import {
-    type AsyncReduce,
-    type CrossJoinResult,
-    type AsyncPredicate,
-    type AsyncForEach,
-    type AsyncMap,
-    type AsyncModifier,
-    type Tap,
-    type AsyncTransform,
-    type Comparator,
-    type EnsureRecord,
-    type EnsureMap,
+import type {
+    AsyncReduce,
+    CrossJoinResult,
+    AsyncPredicate,
+    AsyncForEach,
+    AsyncMap,
+    AsyncModifier,
+    Tap,
+    AsyncTransform,
+    Comparator,
+    EnsureRecord,
+    EnsureMap,
 } from "@/collection/contracts/_shared/_module.js";
-import {
+import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ItemNotFoundCollectionError,
+    ItemNotFoundCollectionError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type MultipleItemsFoundCollectionError,
+    MultipleItemsFoundCollectionError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type EmptyCollectionError,
+    EmptyCollectionError,
 } from "@/collection/contracts/collection.errors.js";
-import {
-    type AsyncLazyable,
-    type AsyncIterableValue,
-} from "@/utilities/_module.js";
+import type { AsyncLazyable, AsyncIterableValue } from "@/utilities/_module.js";
 
 /**
  * Collapses 1 layer of nested array, iterable, async iterable, or async-collection types into their element type.

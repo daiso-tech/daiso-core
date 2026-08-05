@@ -2,15 +2,15 @@
  * @module RateLimiter
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IRateLimiterFactory,
-    type IRateLimiterData,
-    type IRateLimiterStorageAdapter,
-    type IRateLimiterStorageAdapterTransaction,
+    IRateLimiterFactory,
+    IRateLimiterData,
+    IRateLimiterStorageAdapter,
+    IRateLimiterStorageAdapterTransaction,
 } from "@/rate-limiter/contracts/_module.js";
-import { type InvocableFn } from "@/utilities/_module.js";
+import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/rate-limiter/no-op-rate-limiter-storage-adapter"`

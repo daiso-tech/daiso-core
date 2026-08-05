@@ -2,21 +2,20 @@
  * @module Cache
  */
 
-import {
-    type ICache,
-    type ICacheAdapter,
-    type ICacheResolver,
-} from "@/cache/contracts/_module.js";
-import {
-    Cache,
-    type CacheSettingsBase,
-} from "@/cache/implementations/derivables/cache/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import { Cache } from "@/cache/implementations/derivables/cache/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
 } from "@/utilities/_module.js";
+
+import type {
+    ICache,
+    ICacheAdapter,
+    ICacheResolver,
+} from "@/cache/contracts/_module.js";
+import type { CacheSettingsBase } from "@/cache/implementations/derivables/cache/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/cache"`

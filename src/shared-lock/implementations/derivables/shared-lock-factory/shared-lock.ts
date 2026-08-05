@@ -2,7 +2,6 @@
  * @module SharedLock
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     FailedAcquireWriterLockError,
     FailedRefreshReaderSemaphoreError,
@@ -11,13 +10,7 @@ import {
     FailedReleaseWriterLockError,
     LimitReachedReaderSemaphoreError,
     SHARED_LOCK_STATE,
-    type ISharedLock,
-    type ISharedLockAdapter,
-    type ISharedLockAdapterState,
-    type ISharedLockExpiredState,
-    type ISharedLockState,
 } from "@/shared-lock/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     OPTION,
@@ -25,9 +18,18 @@ import {
     optionSome,
     resolveLazyable,
     UnexpectedError,
-    type AsyncLazy,
-    type Option,
 } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISharedLock,
+    ISharedLockAdapter,
+    ISharedLockAdapterState,
+    ISharedLockExpiredState,
+    ISharedLockState,
+} from "@/shared-lock/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { AsyncLazy, Option } from "@/utilities/_module.js";
 
 /**
  * @internal

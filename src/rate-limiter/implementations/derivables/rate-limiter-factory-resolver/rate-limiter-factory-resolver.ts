@@ -2,24 +2,22 @@
  * @module RateLimiter
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type IRateLimiterFactoryResolver,
-    type IRateLimiterFactory,
-    type IRateLimiterAdapter,
-} from "@/rate-limiter/contracts/_module.js";
-import {
-    RateLimiterFactory,
-    type RateLimiterFactorySettingsBase,
-} from "@/rate-limiter/implementations/derivables/rate-limiter-factory/_module.js";
+import { RateLimiterFactory } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     UnregisteredAdapterError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     DefaultAdapterNotDefinedError,
-    type ErrorPolicy,
-    type WaitUntil,
 } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IRateLimiterFactoryResolver,
+    IRateLimiterFactory,
+    IRateLimiterAdapter,
+} from "@/rate-limiter/contracts/_module.js";
+import type { RateLimiterFactorySettingsBase } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/_module.js";
+import type { ErrorPolicy, WaitUntil } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/rate-limiter"`

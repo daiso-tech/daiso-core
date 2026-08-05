@@ -2,10 +2,10 @@
  * @module Lock
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type ILockFactory } from "@/lock/contracts/lock-factory.contract.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { ILockFactory } from "@/lock/contracts/lock-factory.contract.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * Represents the persistent state of a lock in storage.

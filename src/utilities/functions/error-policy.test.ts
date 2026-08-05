@@ -5,9 +5,10 @@ import {
     callErrorPolicyOnThrow,
     callErrorPolicyOnValue,
     isErrorPolicyBoolSetting,
-    type ErrorPolicyBoolSetting,
 } from "@/utilities/functions/error-policy.js";
-import { type IInvocableObject } from "@/utilities/functions/invocable.js";
+
+import type { ErrorPolicyBoolSetting } from "@/utilities/functions/error-policy.js";
+import type { IInvocableObject } from "@/utilities/functions/invocable.js";
 
 describe("file: error-policy.ts", () => {
     describe("function: isErrorPolicyBoolSetting", () => {

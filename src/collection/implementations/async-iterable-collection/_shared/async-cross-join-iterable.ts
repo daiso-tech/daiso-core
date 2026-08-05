@@ -3,15 +3,16 @@
  */
 
 import {
-    type IAsyncCollection,
-    type CrossJoinResult,
-} from "@/collection/contracts/_module.js";
-import {
     resolveAsyncIterableValue,
-    type AsyncIterableValue,
     isAsyncIterable,
     isIterable,
 } from "@/utilities/_module.js";
+
+import type {
+    IAsyncCollection,
+    CrossJoinResult,
+} from "@/collection/contracts/_module.js";
+import type { AsyncIterableValue } from "@/utilities/_module.js";
 
 /**
  * @internal

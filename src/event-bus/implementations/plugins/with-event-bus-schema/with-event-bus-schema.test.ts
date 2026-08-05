@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
-import { type IEventBusAdapter } from "@/event-bus/contracts/_module.js";
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { withEventBusSchema } from "@/event-bus/implementations/plugins/with-event-bus-schema/with-event-bus-schema.js";
 import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
@@ -9,6 +8,8 @@ import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enh
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
 import { ValidationError } from "@/utilities/_module.js";
+
+import type { IEventBusAdapter } from "@/event-bus/contracts/_module.js";
 
 describe("function: withEventBusSchema", () => {
     const context = new NoOpContext();

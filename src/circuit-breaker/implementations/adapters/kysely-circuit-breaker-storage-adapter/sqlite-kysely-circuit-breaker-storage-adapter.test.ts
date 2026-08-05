@@ -1,19 +1,16 @@
-import Sqlite, { type Database } from "better-sqlite3";
-import {
-    Kysely,
-    SqliteDialect,
-    type ColumnMetadata,
-    type TableMetadata,
-} from "kysely";
+import Sqlite from "better-sqlite3";
+import { Kysely, SqliteDialect } from "kysely";
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
 
-import {
-    KyselyCircuitBreakerStorageAdapter,
-    type KyselyCircuitBreakerStorageTables,
-} from "@/circuit-breaker/implementations/adapters/kysely-circuit-breaker-storage-adapter/kysely-circuit-breaker-storage-adapter.js";
+import { KyselyCircuitBreakerStorageAdapter } from "@/circuit-breaker/implementations/adapters/kysely-circuit-breaker-storage-adapter/kysely-circuit-breaker-storage-adapter.js";
 import { circuitBreakerStorageAdapterTestSuite } from "@/circuit-breaker/implementations/test-utilities/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/super-json-serde-adapter/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
+
+import type { Database } from "better-sqlite3";
+import type { ColumnMetadata, TableMetadata } from "kysely";
+
+import type { KyselyCircuitBreakerStorageTables } from "@/circuit-breaker/implementations/adapters/kysely-circuit-breaker-storage-adapter/kysely-circuit-breaker-storage-adapter.js";
 
 describe("sqlite class: KyselyCircuitBreakerStorageAdapter", () => {
     let database: Database;

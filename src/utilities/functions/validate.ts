@@ -2,7 +2,7 @@
  * @module Utilities
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
 export class ValidationError extends Error {
     static create(

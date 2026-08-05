@@ -1,24 +1,18 @@
-import {
-    type StartedPostgreSqlContainer,
-    PostgreSqlContainer,
-} from "@testcontainers/postgresql";
-import {
-    Kysely,
-    PostgresDialect,
-    type ColumnMetadata,
-    type TableMetadata,
-} from "kysely";
+import { PostgreSqlContainer } from "@testcontainers/postgresql";
+import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    KyselySemaphoreAdapter,
-    type KyselySemaphoreTables,
-} from "@/semaphore/implementations/adapters/kysely-semaphore-adapter/_module.js";
+import { KyselySemaphoreAdapter } from "@/semaphore/implementations/adapters/kysely-semaphore-adapter/_module.js";
 import { semaphoreAdapterTestSuite } from "@/semaphore/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
+import type { ColumnMetadata, TableMetadata } from "kysely";
+
+import type { KyselySemaphoreTables } from "@/semaphore/implementations/adapters/kysely-semaphore-adapter/_module.js";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("postgres class: KyselySemaphoreAdapter", () => {

@@ -2,28 +2,27 @@
  * @module RateLimiter
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    type IRateLimiter,
-    type IRateLimiterAdapter,
-    type IRateLimiterFactory,
-    type RateLimiterFactoryCreateSettings,
-} from "@/rate-limiter/contracts/_module.js";
 import { RateLimiterSerdeTransformer } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter-serde-transformer.js";
 import { RateLimiter } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
-import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import {
     CORE,
     defaultWaitUntil,
     resolveOneOrMore,
-    type ErrorPolicy,
-    type OneOrMore,
-    type WaitUntil,
 } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IRateLimiter,
+    IRateLimiterAdapter,
+    IRateLimiterFactory,
+    RateLimiterFactoryCreateSettings,
+} from "@/rate-limiter/contracts/_module.js";
+import type { ISerderRegister } from "@/serde/contracts/_module.js";
+import type { ErrorPolicy, OneOrMore, WaitUntil } from "@/utilities/_module.js";
 
 /**
  * Base configuration shared by all `RateLimiterFactory` variants.

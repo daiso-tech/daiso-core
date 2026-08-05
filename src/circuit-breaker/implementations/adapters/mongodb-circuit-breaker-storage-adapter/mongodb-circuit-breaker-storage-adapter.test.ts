@@ -1,4 +1,3 @@
-import { type StartedMongoDBContainer } from "@testcontainers/mongodb";
 import { MongoClient } from "mongodb";
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
 
@@ -8,6 +7,8 @@ import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/super-js
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { startMongoReplicaSet } from "@/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedMongoDBContainer } from "@testcontainers/mongodb";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("class: MongodbCircuitBreakerStorageAdapter", () => {

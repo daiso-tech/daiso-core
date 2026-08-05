@@ -2,7 +2,7 @@
  * @module Serde
  */
 
-import { type ISerde } from "@/serde/contracts/serde.contract.js";
+import type { ISerde } from "@/serde/contracts/serde.contract.js";
 
 /**
  * Adapter interface for custom serialization transformers without version support.
