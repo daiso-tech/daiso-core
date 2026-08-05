@@ -10,15 +10,19 @@ export const REGISTER_ELEMENT_TYPE = {
     FUNC: "func",
 } as const;
 
+const VALUE_KEY = "value";
+const TYPE_KEY = "type";
+
 type TRegisterValueElement = {
-    type: typeof REGISTER_ELEMENT_TYPE.DIRECT;
-    value: unknown;
+    [TYPE_KEY]: typeof REGISTER_ELEMENT_TYPE.DIRECT;
+    [VALUE_KEY]: unknown;
 };
 
 type TRegisterFunctionElement = {
     type: typeof REGISTER_ELEMENT_TYPE.FUNC;
-    value: () => Promise<unknown>;
+    [VALUE_KEY]: () => Promise<unknown>;
 };
+
 export type TRegisterElement = TRegisterValueElement | TRegisterFunctionElement;
 
 export type TRegisterValueType =
@@ -29,17 +33,17 @@ export type TCurrentRegistry<T> = {
     set(registry: Registry<T>): void;
 };
 
-export type TCurrentLevel = {
-    get(): number | null;
-    set(registry: number): void;
-};
-
 export class RegistryManager {
     private baseRegistry: Registry<TRegisterElement> =
         new Registry<TRegisterElement>();
+    private currentScopedRegistry: TCurrentRegistry<TRegisterElement>;
 
-    public currentScopedOrBaseRegistry(): Registry<TRegisterElement> {
-        const scopedRegistry = this.args.currentScopedRegistry.get();
+    constructor(currentReg: TCurrentRegistry<TRegisterElement>) {
+        this.currentScopedRegistry = currentReg;
+    }
+
+    private currentScopedOrBaseRegistry(): Registry<TRegisterElement> {
+        const scopedRegistry = this.currentScopedRegistry.get();
         const noScopedRegistry = scopedRegistry === null;
         if (noScopedRegistry) {
             return this.baseRegistry;
@@ -48,45 +52,22 @@ export class RegistryManager {
         return scopedRegistry;
     }
 
-    public static withExecutionContext(
+    static withExecutionContext(
         executionContext: IExecutionContext,
     ): RegistryManager {
-        const SCOPE_DEPTH_KEY = genericToken<number>(
-            "the depth level associated with current scope",
-        );
         const REGISTRY_KEY = genericToken<Registry<TRegisterElement>>(
             "the registry associated with current scope",
         );
 
-        return new RegistryManager({
-            currentScopeDepth: {
-                get: () => executionContext.get(SCOPE_DEPTH_KEY),
-                set: (depth) => executionContext.put(SCOPE_DEPTH_KEY, depth),
-            },
+        const currentScopedRegistry: TCurrentRegistry<TRegisterElement> = {
+            get: () => executionContext.get(REGISTRY_KEY),
+            set: (registry) => executionContext.put(REGISTRY_KEY, registry),
+        };
+        const registryManager = new RegistryManager(currentScopedRegistry);
 
-            currentScopedRegistry: {
-                get: () => executionContext.get(REGISTRY_KEY),
-                set: (registry) => executionContext.put(REGISTRY_KEY, registry),
-            },
-        });
+        return registryManager;
     }
 
-    public currentScopeDepthOrZero(): number {
-        const scopeDepth = this.args.currentScopeDepth.get();
-        const scopeDepthIsZero = scopeDepth === null;
-
-        if (scopeDepthIsZero) {
-            return 0;
-        }
-        return scopeDepth;
-    }
-
-    constructor(
-        private args: {
-            currentScopedRegistry: TCurrentRegistry<TRegisterElement>;
-            currentScopeDepth: TCurrentLevel;
-        },
-    ) {}
     has(token: DiToken): boolean {
         return this.currentScopedOrBaseRegistry().has(token);
     }
@@ -97,25 +78,28 @@ export class RegistryManager {
         return this.currentScopedOrBaseRegistry().getOrThrow(token);
     }
 
-    getAsValueOrThrow(token: DiToken): TRegisterValueElement["value"] {
+    getAsValueOrThrow(token: DiToken): TRegisterValueElement[typeof VALUE_KEY] {
         const element = this.getOrThrow(token);
-        if (element.type !== REGISTER_ELEMENT_TYPE.DIRECT) {
+        if (element[TYPE_KEY] !== REGISTER_ELEMENT_TYPE.DIRECT) {
             throw new Error();
         }
-        return element.value;
+        return element[VALUE_KEY];
     }
 
-    getAsFunctionOrThrow(token: DiToken): TRegisterFunctionElement["value"] {
+    getAsFunctionOrThrow(
+        token: DiToken,
+    ): TRegisterFunctionElement[typeof VALUE_KEY] {
         const element = this.getOrThrow(token);
-        if (element.type !== REGISTER_ELEMENT_TYPE.FUNC) {
+        if (element[TYPE_KEY] !== REGISTER_ELEMENT_TYPE.FUNC) {
             throw new Error();
         }
-        return element.value;
+        return element[VALUE_KEY];
     }
 
-    saveInBaseRegistry(token: DiToken, value: TRegisterElement): void {
+    // should be used for saving non dynamic elements
+    saveInBaseRegistry(token: DiToken, element: TRegisterElement): void {
         this.throwErrorIfElementExistAlready(token);
-        this.baseRegistry.set(token, value);
+        this.baseRegistry.set(token, element);
     }
 
     private throwErrorIfElementExistAlready(token: DiToken) {
@@ -126,18 +110,15 @@ export class RegistryManager {
 
     saveInCurrentScopedOrBaseRegistry(
         token: DiToken,
-        value: TRegisterElement,
+        element: TRegisterElement,
     ): void {
-        this.currentScopedOrBaseRegistry().set(token, value);
+        this.currentScopedOrBaseRegistry().set(token, element);
     }
 
-    public initNewScope(): void {
+    initNewScopedRegistry(): void {
         const oldLayer: Registry<TRegisterElement> =
             this.currentScopedOrBaseRegistry();
-        const level = this.currentScopeDepthOrZero();
-
         const newLayer = new Registry(oldLayer);
-        this.args.currentScopedRegistry.set(newLayer);
-        this.args.currentScopeDepth.set(level + 1);
+        this.currentScopedRegistry.set(newLayer);
     }
 }

@@ -1,15 +1,7 @@
 import {
-    type ClassRegistration,
-    type ContextRegistration,
-    type DiHook,
     type DiToken,
     type FactoryRegistration,
-    type IServiceLifetime,
-    type IServiceOverrider,
-    type IServiceRegister,
     type ServiceFactory,
-    type ServiceProvider,
-    type ValueRegistration,
 } from "@/di/contracts/_module-exports.js";
 import {
     type NodeProps,
@@ -19,7 +11,12 @@ import {
     type ScopedNodeProps,
     type DynamicNodeProps,
 } from "@/di/implementations/container.js";
-import { visitedNodes } from "@/di/implementations/graph-algorithms.js";
+import {
+    cycleDetected,
+    undeclaredNodesExist,
+    someEdgeIsInvalid,
+    visitedNodes,
+} from "@/di/implementations/graph-algorithms.js";
 import { Graph } from "@/di/implementations/graph.js";
 import {
     type TNode,
@@ -28,31 +25,61 @@ import {
     LIFESPAN,
 } from "@/di/implementations/utils.js";
 
+// TODO throw specific error classes
 export class GraphManager {
-    private baseGraph: Graph<NodeProps, EdgeProps>;
-    private overrideGraph: Graph<NodeProps, EdgeProps>;
+    private graph: Graph<NodeProps, EdgeProps>;
+    private overrideSet = new Set<TNode>();
 
-    private constructor(args?: {
-        baseGraph?: Graph<NodeProps, EdgeProps>;
-        overrideGraph?: Graph<NodeProps, EdgeProps>;
+    constructor(args?: {
+        graph?: Graph<NodeProps, EdgeProps>;
+        overrideSet?: Set<TNode>;
     }) {
-        this.baseGraph = args?.baseGraph ?? new Graph<NodeProps, EdgeProps>();
-        this.overrideGraph =
-            args?.overrideGraph ?? new Graph<NodeProps, EdgeProps>();
-
-        this.overrideGraph.setParent(this.baseGraph);
+        this.graph = args?.graph ?? new Graph<NodeProps, EdgeProps>();
     }
 
-    public copy(): GraphManager {
-        const baseGraphCopy = this.baseGraph.flattenedGraphCopy();
-        const overrideCopy = this.overrideGraph.shallowGraphCopy();
+    copy(): GraphManager {
+        const graphCopy = this.graph.copy();
+        const overrideSetCopy = new Set(this.overrideSet);
 
         const graphManagerCopy = new GraphManager({
-            baseGraph: baseGraphCopy,
-            overrideGraph: overrideCopy,
+            graph: graphCopy,
+            overrideSet: overrideSetCopy,
         });
 
         return graphManagerCopy;
+    }
+
+    // TODO give detailed graph validation information instead of boolean
+    validateGraph(): void {
+        const nodes = this.nodes();
+        const getSuccessor = (node: TNode) => this.getSuccessorsOf(node);
+
+        const dependencyIsBroken = undeclaredNodesExist({
+            getSuccessor,
+            nodes,
+        });
+        if (dependencyIsBroken) {
+            throw new Error();
+        }
+
+        const cycleIsDetected = cycleDetected({
+            getSuccessor,
+            nodes,
+        });
+        if (cycleIsDetected) {
+            throw new Error();
+        }
+
+        const edgeIsInvalid = someEdgeIsInvalid({
+            edges: this.edges(),
+            isSingletonNode: (node) => this.isSingleton(node),
+            isScopedNode: (node) => this.isScoped(node),
+            isTransientNode: (node) => this.isTransient(node),
+            isDynamicNode: (node) => this.isDynamic(node),
+        });
+        if (edgeIsInvalid) {
+            throw new Error();
+        }
     }
 
     registerFactory<
@@ -83,22 +110,22 @@ export class GraphManager {
         });
     }
 
-    registerContext<TWhen = unknown, TNeeds = unknown>(
-        settings: ContextRegistration<TWhen, TNeeds>,
-    ): void {
-        throw new Error("Method not implemented.");
-    }
-
     overrideFactory<
         TDeps extends Array<unknown> = [],
         TRegisteredType = unknown,
     >(settings: FactoryRegistration<TDeps, TRegisteredType>): void {
-        const possibleToOverride = this.hasNodeProperty(settings.token);
+        const nodeDoNotExist = !this.hasNodeProperty(settings.token);
+        const nodeAlreadyOverridden = this.overrideSet.has(settings.token);
 
-        // TODO check new graph is good (no cycle, edge valid and so on)
-        if (!possibleToOverride) {
+        if (nodeDoNotExist) {
             throw new Error();
         }
+
+        if (nodeAlreadyOverridden) {
+            throw new Error();
+        }
+
+        this.overrideSet.add(settings.token);
 
         const nodeProps = this.getNodePropertyOrThrow(settings.token);
 
@@ -108,7 +135,7 @@ export class GraphManager {
 
         const factory = settings.factory as ServiceFactory;
 
-        this.setNodePropertyInOverrideLayer(settings.token, {
+        this.graph.setNodeProperty(settings.token, {
             lifespan: nodeProps.lifespan,
             service: factory,
         });
@@ -117,7 +144,7 @@ export class GraphManager {
 
         // remove old edges
         edgesToBeDeleted.forEach((edge) => {
-            this.removeEdgeFromOverrideLayer(edge);
+            this.graph.removeEdge(edge);
         });
 
         const newEdgesToBeAdded: Array<[TEdge, EdgeProps]> = [
@@ -126,69 +153,20 @@ export class GraphManager {
 
         // new edges added
         newEdgesToBeAdded.forEach(([edge, value]) => {
-            this.setEdgePropertyInOverrideLayer(edge, value);
+            this.graph.setEdgeProperty(edge, value);
         });
     }
 
-    createNodeFilter(lifeSpan: TLifespan): Array<TNode> {
-        return this.nodes().filter(
-            (nodeId) =>
-                this.getNodePropertyOrThrow(nodeId).lifespan === lifeSpan,
-        );
-    }
-
-    getArgIndexOfNode(nodeId: TNode, depsId: TNode): number {
-        const edges = this.getSuccessorEdgesOf(nodeId).filter(
-            ([fromNode, toNode]) => nodeId === fromNode && toNode === depsId,
-        );
-
-        if (edges.length !== 1) {
-            throw new Error();
-        }
-        const edge = edges[0];
-
-        if (edge === undefined) {
-            throw new Error();
-        }
-
-        const argIndex = this.getEdgePropertyOrThrow(edge).argIndex;
-
-        return argIndex;
-    }
-
-    createNeighborFilter(x: TNode, lifeSpan: TLifespan): Array<TNode> {
-        const neighbors = this.getSuccessorsOf(x).filter(
-            (successor) =>
-                this.getNodePropertyOrThrow(successor).lifespan === lifeSpan,
-        );
-
-        return neighbors;
-    }
-
-    createCanResolveTransientFunc(
-        nodeId: TNode,
-        depthIsZero: boolean,
-    ): boolean {
-        const lifespan = this.getNodePropertyOrThrow(nodeId).lifespan;
-
-        if (lifespan !== LIFESPAN.TRANSIENT) {
-            throw new Error();
-        }
-
+    ancestorIncludeScopedNodes(nodeId: TNode): boolean {
         const nodesVisited = visitedNodes({
             getNeighbors: (node) => this.getSuccessorsOf(node),
             node: nodeId,
         });
-        const scopedNodeVisited = nodesVisited.some(
-            (visited) =>
-                this.getNodePropertyOrThrow(visited).lifespan ===
-                LIFESPAN.SCOPED,
+        const scopedNodeVisited = nodesVisited.some((visited) =>
+            this.isScoped(visited),
         );
-        if (depthIsZero && scopedNodeVisited) {
-            return false;
-        }
 
-        return true;
+        return scopedNodeVisited;
     }
 
     dependencyOf(node: TNode): Array<TNode> {
@@ -268,69 +246,53 @@ export class GraphManager {
         return this.getEdgePropertyOrThrow(edge).argIndex;
     }
 
-    // -------------------------------------------
     setNodeProperty(key: TNode, value: NodeProps): void {
-        this.baseGraph.setNodeProperty(key, value);
+        this.graph.setNodeProperty(key, value);
     }
 
     setEdgeProperty(edge: TEdge, value: EdgeProps): void {
-        this.baseGraph.setEdgeProperty(edge, value);
-    }
-
-    setNodePropertyInOverrideLayer(key: TNode, value: NodeProps): void {
-        this.overrideGraph.setNodeProperty(key, value);
-    }
-
-    setEdgePropertyInOverrideLayer(edge: TEdge, value: EdgeProps): void {
-        this.overrideGraph.setEdgeProperty(edge, value);
-    }
-
-    removeEdgeFromOverrideLayer(edge: TEdge): void {
-        this.overrideGraph.removeEdge(edge);
-    }
-    removeNodeFromOverrideLayer(node: TNode): void {
-        this.overrideGraph.removeNode(node);
+        this.graph.setEdgeProperty(edge, value);
     }
 
     hasNodeProperty(node: TNode): boolean {
-        return this.overrideGraph.hasNodeProperty(node);
+        return this.graph.hasNodeProperty(node);
     }
     hasEdgeProperty(edge: TEdge): boolean {
-        return this.overrideGraph.hasEdgeProperty(edge);
+        return this.graph.hasEdgeProperty(edge);
     }
     getNodeProperty(nodeId: TNode): NodeProps | null {
-        return this.overrideGraph.getNodeProperty(nodeId);
+        return this.graph.getNodeProperty(nodeId);
     }
 
     getEdgeProperty(edge: TEdge): EdgeProps | null {
-        return this.overrideGraph.getEdgeProperty(edge);
+        return this.graph.getEdgeProperty(edge);
     }
 
     getNodePropertyOrThrow(key: TNode): NodeProps {
-        return this.overrideGraph.getNodePropertyOrThrow(key);
+        return this.graph.getNodePropertyOrThrow(key);
     }
 
     getEdgePropertyOrThrow(edge: TEdge): EdgeProps {
-        return this.overrideGraph.getEdgePropertyOrThrow(edge);
+        return this.graph.getEdgePropertyOrThrow(edge);
     }
     nodes(): Array<TNode> {
-        return this.overrideGraph.nodes();
+        return this.graph.nodes();
     }
     edges(): Array<TEdge> {
-        return this.overrideGraph.edges();
+        return this.graph.edges();
     }
     getSuccessorEdgesOf(node: TNode): Array<TEdge> {
-        return this.overrideGraph.getSuccessorEdgesOf(node);
+        return this.graph.getSuccessorEdgesOf(node);
     }
 
     getPredecessorEdgesOf(node: TNode): Array<TEdge> {
-        return this.overrideGraph.getPredecessorEdgesOf(node);
+        return this.graph.getPredecessorEdgesOf(node);
     }
 
     getPredecessorsOf(node: TNode): Array<TNode> {
-        return this.overrideGraph.getPredecessorsOf(node);
+        return this.graph.getPredecessorsOf(node);
     }
     getSuccessorsOf(node: TNode): Array<TNode> {
-        return this.overrideGraph.getSuccessorsOf(node);
+        return this.graph.getSuccessorsOf(node);
     }
 }

@@ -189,26 +189,28 @@ describe("multiple container instances", () => {
         expect(resultA).not.toBe(resultB);
     });
 
-    test("when containerB created inside run of containerA, containerB resolves scoped node outside of its run block then resolve should fail", async () => {
+    test("when containerB created inside run of containerA, containerB resolves scoped node outside of its run block then resolve should return null", async () => {
         const executionContext = new ExecutionContext(
             new AlsExecutionContextAdapter(),
         );
         const containerA = new Container({ executionContext });
         await containerA.init();
 
-        await expect(async () => {
-            await containerA.run({
-                scope: async () => {
-                    const node = dependency()
-                        .factory(() => ({}))
-                        .tokenDescription("A");
-                    const containerB = new Container({ executionContext });
-                    containerB.registerFactory(node).scoped();
-                    await containerB.init();
-                    return await containerB.resolve(node.token);
-                },
-            });
-        }).rejects.toThrowError();
+        let resultA: object | null | undefined = undefined;
+
+        await containerA.run({
+            scope: async () => {
+                const node = dependency()
+                    .factory(() => ({}))
+                    .tokenDescription("A");
+                const containerB = new Container({ executionContext });
+                containerB.registerFactory(node).scoped();
+                await containerB.init();
+                resultA = await containerB.resolve(node.token);
+            },
+        });
+
+        expect(resultA).toBeNull();
     });
 });
 
@@ -430,6 +432,58 @@ describe("single container", () => {
             test("class");
             test("factory");
             test("value");
+        });
+    });
+
+    describe("graph validation", () => {
+        test("should throw when a cycle is detected", async () => {
+            const tokenA = genericToken<string>("A");
+            const tokenB = genericToken<string>("B");
+
+            const nodeA = dependency(tokenB)
+                .factory(() => "A")
+                .token(tokenA);
+
+            const nodeB = dependency(tokenA)
+                .factory(() => "B")
+                .token(tokenB);
+
+            container.registerFactory(nodeA).singleton();
+            container.registerFactory(nodeB).singleton();
+
+            await expect(container.init()).rejects.toThrowError();
+        });
+
+        test("should throw when an edge is invalid", async () => {
+            const tokenA = genericToken<string>("A");
+            const tokenB = genericToken<string>("B");
+
+            const nodeA = dependency(tokenB)
+                .factory(() => "A")
+                .token(tokenA);
+
+            const nodeB = dependency()
+                .factory(() => "B")
+                .token(tokenB);
+
+            // singleton -> transient is an invalid edge
+            container.registerFactory(nodeA).singleton();
+            container.registerFactory(nodeB).transient();
+
+            await expect(container.init()).rejects.toThrowError();
+        });
+
+        test("should throw when undeclared nodes exist", async () => {
+            const tokenA = genericToken<string>("A");
+            const undeclaredToken = genericToken<string>("undeclared");
+
+            const nodeA = dependency(undeclaredToken)
+                .factory(() => "A")
+                .token(tokenA);
+
+            container.registerFactory(nodeA).singleton();
+
+            await expect(container.init()).rejects.toThrowError();
         });
     });
 
@@ -1459,7 +1513,7 @@ describe("single container", () => {
             }).toThrowError();
         });
 
-        test("when double should use latest override", async () => {
+        test("when double should fail", () => {
             const nodeA = dependency()
                 .factory(() => `A`)
                 .tokenDescription("A");
@@ -1475,15 +1529,10 @@ describe("single container", () => {
             container.registerFactory(nodeA).singleton();
 
             container.overrideFactory(nodeAOverride1);
-            container.overrideFactory(nodeAOverride2);
 
-            await container.init();
-
-            const correctA = await nodeAOverride2.callFunc();
-
-            const resolvedA = await container.resolve(nodeAOverride2.token);
-
-            expect(resolvedA).toBe(correctA);
+            expect(() => {
+                container.overrideFactory(nodeAOverride2);
+            }).toThrowError();
         });
 
         test("when override A where B -> A should effect both A and B value", async () => {
@@ -1804,39 +1853,6 @@ describe("forked container", () => {
         expect(resolvedContainerB).toBe(correctContainerB);
     });
 
-    test("overriding a node in original does not affect the fork", async () => {
-        const nodeA = dependency()
-            .factory(() => "A")
-            .tokenDescription("A");
-
-        const nodeAOverride1 = dependency()
-            .factory(() => "A overridden first")
-            .token(nodeA.token);
-
-        const nodeAOverride2 = dependency()
-            .factory(() => "A overridden second")
-            .token(nodeA.token);
-
-        containerA.registerFactory(nodeA).singleton();
-        containerA.overrideFactory(nodeAOverride1);
-
-        const containerB = containerA.fork();
-
-        containerA.overrideFactory(nodeAOverride2);
-
-        await containerA.init();
-        await containerB.init();
-
-        const correctContainerA = await nodeAOverride2.callFunc();
-        const correctContainerB = await nodeAOverride1.callFunc();
-
-        const resolvedContainerA = await containerA.resolve(nodeA.token);
-        const resolvedContainerB = await containerB.resolve(nodeA.token);
-
-        expect(resolvedContainerA).toBe(correctContainerA);
-        expect(resolvedContainerB).toBe(correctContainerB);
-    });
-
     test("resolving a singleton in fork and original yields different instances", async () => {
         const nodeA = dependency()
             .factory(() => ({}))
@@ -1926,7 +1942,7 @@ describe("forked container", () => {
         expect(resultContainerB).toBe("dynamic value");
     });
 
-    // TODO dedice if it good thing to copy init and deInit hooks from original? 
+    // TODO dedice if it good thing to copy init and deInit hooks from original?
     test("fork inherits init and deInit hooks from the original", async () => {
         let inheritedInitCalls = 0;
         let inheritedDeInitCalls = 0;
@@ -2012,7 +2028,7 @@ describe("forked container", () => {
         await containerA.deInit();
     });
 
-    // TODO dedice if it good thing to copy init and deInit hooks from original? 
+    // TODO dedice if it good thing to copy init and deInit hooks from original?
     test("hooks added to original after forking do not run on the fork", async () => {
         let originalHookCalls = 0;
 
@@ -2088,7 +2104,7 @@ describe("forked container", () => {
         expect(resolvedContainerB).toBe(null);
     });
 
-     //TODO decide to make resuable function containing all single container test and input a forked
+    //TODO decide to make resuable function containing all single container test and input a forked
     test("scoped node in fork resolves same instance within its run-scope", async () => {
         const nodeA = dependency()
             .factory(() => ({}))

@@ -57,6 +57,8 @@ export async function eagerInitialization<T>(args: {
         currentBatch = nextBatch;
     }
 }
+
+// TODO make few tests
 export function findEffectedNodes<T>(args: {
     predecessorOf: (node: T) => Array<T>;
     startNodeId: T;
@@ -82,6 +84,7 @@ export function findEffectedNodes<T>(args: {
     return [...effectedNodes];
 }
 
+// TODO make few tests
 export function visitedNodes<T>(args: {
     node: T;
     getNeighbors: (node: T) => Array<T>;
@@ -105,4 +108,179 @@ export function visitedNodes<T>(args: {
     dfs(node);
 
     return Array.from(visited);
+}
+
+/**
+ * Detects whether the directed graph contains a cycle using a three-color DFS.
+ *
+ * Colors:
+ * - WHITE: not yet visited
+ * - GRAY: currently on the DFS stack (on the path being explored)
+ * - BLACK: fully explored, no cycle found through it
+ *
+ * If DFS reaches a GRAY node, a cycle exists.
+ */
+
+// TODO make few tests
+export function cycleDetected<TNode>(args: {
+    getSuccessor: (node: TNode) => Array<TNode>;
+    nodes: Array<TNode>;
+}): boolean {
+    const { getSuccessor, nodes } = args;
+
+    const WHITE = 0;
+    const GRAY = 1;
+    const BLACK = 2;
+    const color = new Map<TNode, number>();
+
+    for (const node of nodes) {
+        color.set(node, WHITE);
+    }
+
+    const hasCycle = (startNode: TNode): boolean => {
+        type TFrame = { node: TNode; successors: Array<TNode> };
+        const stack: Array<TFrame> = [
+            { node: startNode, successors: getSuccessor(startNode) },
+        ];
+        color.set(startNode, GRAY);
+
+        while (stack.length > 0) {
+            const frame = stack[stack.length - 1];
+
+            if (frame === undefined) {
+                throw new Error();
+            }
+
+            const successor = frame.successors.pop();
+
+            if (successor === undefined) {
+                color.set(frame.node, BLACK);
+                stack.pop();
+                continue;
+            }
+
+            const successorColor = color.get(successor) ?? WHITE;
+
+            if (successorColor === GRAY) {
+                return true;
+            }
+
+            if (successorColor === WHITE) {
+                color.set(successor, GRAY);
+                stack.push({
+                    node: successor,
+                    successors: getSuccessor(successor),
+                });
+            }
+        }
+
+        return false;
+    };
+
+    for (const node of nodes) {
+        if (color.get(node) === WHITE && hasCycle(node)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Checks whether any dependency (successor) of a node is not declared, meaning
+ * the dependency graph is broken.
+ *
+ * Collects all unique successors across all nodes and verifies that each one
+ * exists in the provided `nodes` list.
+ */
+
+// TODO make few tests
+export function undeclaredNodesExist<TNode>(args: {
+    getSuccessor: (node: TNode) => Array<TNode>;
+    nodes: Array<TNode>;
+}): boolean {
+    const { getSuccessor, nodes } = args;
+
+    const nodeSet = new Set<TNode>(nodes);
+    if (nodeSet.size !== nodes.length) {
+        throw new Error();
+    }
+
+    const dependencies = new Set<TNode>();
+
+    for (const node of nodes) {
+        for (const successor of getSuccessor(node)) {
+            dependencies.add(successor);
+        }
+    }
+
+    for (const dependency of dependencies) {
+        if (!nodeSet.has(dependency)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Checks whether any edge is invalid according to the DI lifespan rules.
+ *
+ * - singleton node can not point to transient or scoped
+ * - scoped node can not point to transient
+ * - transient node can not point to dynamic
+ * - dynamic node can not point to any other node
+ * - only scoped node can point to dynamic node
+ *
+ * Returns `true` when at least one invalid edge is found.
+ */
+// TODO make more general and create few test later
+export function someEdgeIsInvalid<TNode>(args: {
+    edges: Array<[TNode, TNode]>;
+    isSingletonNode: (node: TNode) => boolean;
+    isScopedNode: (node: TNode) => boolean;
+    isTransientNode: (node: TNode) => boolean;
+    isDynamicNode: (node: TNode) => boolean;
+}): boolean {
+    const {
+        edges,
+        isSingletonNode,
+        isScopedNode,
+        isTransientNode,
+        isDynamicNode,
+    } = args;
+
+    const hasInvalidEdge = edges.some(([source, target]) => {
+        // dynamic node can not point to any other node
+        if (isDynamicNode(source)) {
+            return true;
+        }
+
+        // transient node can not point to dynamic node
+        if (isTransientNode(source) && isDynamicNode(target)) {
+            return true;
+        }
+
+        // only scoped node can point to dynamic node
+        if (isDynamicNode(target)) {
+            return !isScopedNode(source);
+        }
+
+        // singleton node can not point to transient or scoped node
+        if (
+            isSingletonNode(source) &&
+            (isTransientNode(target) || isScopedNode(target))
+        ) {
+            return true;
+        }
+
+        // scoped node can not point to transient node
+        if (isScopedNode(source) && isTransientNode(target)) {
+            return true;
+        }
+
+        return false;
+    });
+
+    return hasInvalidEdge;
 }

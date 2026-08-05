@@ -1,41 +1,15 @@
 import { type TNode, type TEdge } from "@/di/implementations/utils.js";
 
-const stopParentSearch = Symbol("represents removed value");
-type TStopSearchSymbol = typeof stopParentSearch;
-
 export class Graph<TNodeProp, TEdgeProp> {
-    private nodeProps = new Map<TNode, TNodeProp | TStopSearchSymbol>();
-    private edgeProps = new Map<
-        TNode,
-        Map<TNode, TEdgeProp | TStopSearchSymbol>
-    >();
-
-    private parentGraphOriginal?:
-        | Graph<TNodeProp, TEdgeProp>
-        | (() => Graph<TNodeProp, TEdgeProp>);
-
-    private get parentGraph(): Graph<TNodeProp, TEdgeProp> | undefined {
-        if (this.parentGraphOriginal === undefined) {
-            return undefined;
-        }
-
-        if (this.parentGraphOriginal instanceof Graph) {
-            return this.parentGraphOriginal;
-        }
-
-        return this.parentGraphOriginal();
-    }
+    private nodeProps = new Map<TNode, TNodeProp>();
+    private edgeProps = new Map<TNode, Map<TNode, TEdgeProp>>();
 
     constructor(args?: {
         nodeProps?: Array<[TNode, TNodeProp]>;
         edgeProps?: Array<[TEdge, TEdgeProp]>;
-        parentGraph?:
-            | Graph<TNodeProp, TEdgeProp>
-            | (() => Graph<TNodeProp, TEdgeProp>);
     }) {
         const nodeProps = args?.nodeProps;
         const edgeProps = args?.edgeProps;
-        this.parentGraphOriginal = args?.parentGraph;
 
         if (nodeProps !== undefined) {
             this.throwIfDuplicateNodesFound(nodeProps);
@@ -54,12 +28,11 @@ export class Graph<TNodeProp, TEdgeProp> {
         }
     }
     /**
-     * Make new Graph copy that includes edges and nodes from itself and from its ancestor
+     * Make new Graph copy that includes its edges and nodes.
      * The new Graph have no parent link set.
      * @returns
      */
-
-    public flattenedGraphCopy(): Graph<TNodeProp, TEdgeProp> {
+    public copy(): Graph<TNodeProp, TEdgeProp> {
         const nodeProps = this.nodes().map(
             (node) =>
                 [node, this.getNodePropertyOrThrow(node)] satisfies [
@@ -76,39 +49,6 @@ export class Graph<TNodeProp, TEdgeProp> {
         );
 
         return new Graph({ edgeProps, nodeProps });
-    }
-
-    /**
-     * Make new Graph copy that includes edges and nodes from itself but not from its ancestor
-     * The new Graph have no parent link set.
-     * @returns
-     */
-    public shallowGraphCopy(): Graph<TNodeProp, TEdgeProp> {
-        const nodeProps = this.nodesAtCurrentLayer().map(
-            (node) =>
-                [node, this.getNodePropertyOrThrow(node)] satisfies [
-                    TNode,
-                    TNodeProp,
-                ],
-        );
-
-        const edgeProps = this.edgesAtCurrentLayer().map(
-            (edge) =>
-                [edge, this.getEdgePropertyOrThrow(edge)] satisfies [
-                    TEdge,
-                    TEdgeProp,
-                ],
-        );
-
-        return new Graph({ edgeProps, nodeProps });
-    }
-
-    public setParent(parentGraph: Graph<TNodeProp, TEdgeProp>): void {
-        this.parentGraphOriginal = parentGraph;
-    }
-
-    public removeParent(): void {
-        this.parentGraphOriginal = undefined;
     }
 
     private throwIfDuplicateNodesFound(props: Array<[TNode, TNodeProp]>) {
@@ -140,114 +80,20 @@ export class Graph<TNodeProp, TEdgeProp> {
         }
     }
 
-    private edgesAtCurrentLayer(): Array<TEdge> {
-        const edges = [...this.edgeProps.entries()]
-            .flatMap(([node, neighborsMap]) => {
-                return [...neighborsMap.keys()].map(
-                    (neighborNode) => [node, neighborNode] satisfies TEdge,
-                );
-            })
-            .filter((item) => this.getEdgeProperty(item) !== null);
-
-        return edges;
-    }
-
-    private nodesAtCurrentLayer(): Array<TNode> {
-        return [...this.nodeProps.keys()].filter(
-            (item) => this.getNodeProperty(item) !== null,
-        );
-    }
-
-    private hasNodePropertyAtCurrentLayer(node: TNode): boolean {
+    hasNodeProperty(node: TNode): boolean {
         return this.nodeProps.has(node);
     }
 
-    private hasEdgePropertyAtCurrentLayer(edge: TEdge): boolean {
+    hasEdgeProperty(edge: TEdge): boolean {
         return this.edgeProps.get(edge[0])?.has(edge[1]) ?? false;
     }
 
-    private getEdgePropertyAtCurrentLayer(
-        edge: TEdge,
-    ): TEdgeProp | null | TStopSearchSymbol {
-        return this.edgeProps.get(edge[0])?.get(edge[1]) ?? null;
-    }
-
-    private getNodePropertyAtCurrentLayer(
-        nodeId: TNode,
-    ): TNodeProp | null | TStopSearchSymbol {
+    getNodeProperty(nodeId: TNode): TNodeProp | null {
         return this.nodeProps.get(nodeId) ?? null;
     }
 
-    hasNodeProperty(node: TNode): boolean {
-        const value = this.getNodePropertyAtCurrentLayer(node);
-
-        if (value === stopParentSearch) {
-            return false;
-        }
-
-        if (value !== null) {
-            return true;
-        }
-
-        if (this.parentGraph === undefined) {
-            return false;
-        }
-
-        return this.parentGraph.hasNodeProperty(node);
-    }
-
-    hasEdgeProperty(edge: TEdge): boolean {
-        const value = this.getEdgePropertyAtCurrentLayer(edge);
-
-        if (value === stopParentSearch) {
-            return false;
-        }
-
-        if (value !== null) {
-            return true;
-        }
-
-        if (this.parentGraph === undefined) {
-            return false;
-        }
-
-        return this.parentGraph.hasEdgeProperty(edge);
-    }
-
-    getNodeProperty(nodeId: TNode): TNodeProp | null {
-        const value = this.getNodePropertyAtCurrentLayer(nodeId);
-
-        if (value === stopParentSearch) {
-            return null;
-        }
-
-        if (value !== null) {
-            return value;
-        }
-
-        if (this.parentGraph === undefined) {
-            return null;
-        }
-
-        return this.parentGraph.getNodeProperty(nodeId);
-    }
-
     getEdgeProperty(edge: TEdge): TEdgeProp | null {
-        const value = this.getEdgePropertyAtCurrentLayer(edge);
-
-        if (value === stopParentSearch) {
-            return null;
-        }
-
-        if (value !== null) {
-            return value;
-        }
-
-        if (this.parentGraph === undefined) {
-            return null;
-        }
-
-        return this.parentGraph.getEdgeProperty(edge);
+        return this.edgeProps.get(edge[0])?.get(edge[1]) ?? null;
     }
 
     getNodePropertyOrThrow(key: TNode): TNodeProp {
@@ -266,80 +112,35 @@ export class Graph<TNodeProp, TEdgeProp> {
         return value;
     }
 
-    private setNodePropertyOrStopSymbol(
-        key: TNode,
-        value: TNodeProp | TStopSearchSymbol,
-    ): void {
+    setNodeProperty(key: TNode, value: TNodeProp): void {
         this.nodeProps.set(key, value);
     }
 
-    setNodeProperty(key: TNode, value: TNodeProp): void {
-        this.setNodePropertyOrStopSymbol(key, value);
-    }
-
-    private setEdgePropertyOrStopSymbol(
-        edge: TEdge,
-        value: TEdgeProp | TStopSearchSymbol,
-    ): void {
+    setEdgeProperty(edge: TEdge, value: TEdgeProp): void {
         const neighbor =
             this.edgeProps.get(edge[0]) ?? new Map<TNode, TEdgeProp>();
         neighbor.set(edge[1], value);
         this.edgeProps.set(edge[0], neighbor);
     }
 
-    setEdgeProperty(edge: TEdge, value: TEdgeProp): void {
-        this.setEdgePropertyOrStopSymbol(edge, value);
-    }
-
     removeEdge(edge: TEdge): void {
-        this.setEdgePropertyOrStopSymbol(edge, stopParentSearch);
+        this.edgeProps.get(edge[0])?.delete(edge[1]);
     }
 
     removeNode(node: TNode): void {
-        this.setNodePropertyOrStopSymbol(node, stopParentSearch);
+        this.nodeProps.delete(node);
     }
 
     nodes(): Array<TNode> {
-        const currentNodes = this.nodesAtCurrentLayer();
-        const parentNodes = this.parentGraph?.nodes() ?? [];
-        const nodesOnlyInParent = parentNodes.filter((node) => {
-            const value = this.getNodePropertyAtCurrentLayer(node);
-            const explicitExclude = value === stopParentSearch;
-
-            if (explicitExclude) {
-                return false;
-            }
-
-            const onlyInParent = value === null;
-
-            if (onlyInParent) {
-                return true;
-            }
-            return false;
-        });
-        return [...currentNodes, ...nodesOnlyInParent];
+        return [...this.nodeProps.keys()];
     }
 
     edges(): Array<TEdge> {
-        const currentEdges = this.edgesAtCurrentLayer();
-        const parentEdges = this.parentGraph?.edges() ?? [];
-        const edgesOnlyInParent = parentEdges.filter((edge) => {
-            const value = this.getEdgePropertyAtCurrentLayer(edge);
-            const explicitExclude = value === stopParentSearch;
-
-            if (explicitExclude) {
-                return false;
-            }
-
-            const onlyInParent = value === null;
-
-            if (onlyInParent) {
-                return true;
-            }
-            return false;
-        });
-
-        return [...currentEdges, ...edgesOnlyInParent];
+        return [...this.edgeProps.entries()].flatMap(([node, neighborsMap]) =>
+            [...neighborsMap.keys()].map(
+                (neighborNode) => [node, neighborNode] satisfies TEdge,
+            ),
+        );
     }
 
     getSuccessorEdgesOf(node: TNode): Array<TEdge> {
