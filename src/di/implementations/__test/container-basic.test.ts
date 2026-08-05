@@ -87,7 +87,132 @@ function dependency<TDeps extends Array<unknown> = Array<unknown>>(
 
 // TWO divide a diamond case into 2 cases: 1) multiple dependcy, multiple multiple dependee
 
-describe("container", () => {
+describe("multiple container instances", () => {
+    test("when nodeA added to only containerA, containerB should not have nodeA", async () => {
+        const executionContext = new ExecutionContext(
+            new AlsExecutionContextAdapter(),
+        );
+        const containerA = new Container({ executionContext });
+        const containerB = new Container({ executionContext });
+        const nodeA = dependency()
+            .factory(() => "")
+            .tokenDescription("A");
+
+        containerA.registerFactory(nodeA).singleton();
+
+        await containerA.init();
+        await containerB.init();
+
+        const hasNodeAContainerA = await containerA.has(nodeA.token);
+        const hasNodeAContainerB = await containerB.has(nodeA.token);
+
+        expect(hasNodeAContainerA).toBe(true);
+        expect(hasNodeAContainerB).toBe(false);
+    });
+
+    test("when singleton nodeA added to containerA and containerB, resolved value for each should be not equal by reference", async () => {
+        const executionContext = new ExecutionContext(
+            new AlsExecutionContextAdapter(),
+        );
+        const containerA = new Container({ executionContext });
+        const containerB = new Container({ executionContext });
+        const node = dependency()
+            .factory(() => ({}))
+            .tokenDescription("A");
+
+        containerA.registerFactory(node).singleton();
+        containerB.registerFactory(node).singleton();
+
+        await containerA.init();
+        await containerB.init();
+
+        const nodeAFromContainerA = await containerA.resolve(node.token);
+        const nodeAFromContainerB = await containerB.resolve(node.token);
+
+        expect(nodeAFromContainerA).not.toBeNull();
+        expect(nodeAFromContainerB).not.toBeNull();
+
+        expect(nodeAFromContainerA).not.toBe(nodeAFromContainerB);
+    });
+
+    test("when singleton nodeA added to containerA, containerB created inside run of containerA then containerB should not have nodeA", async () => {
+        const executionContext = new ExecutionContext(
+            new AlsExecutionContextAdapter(),
+        );
+        const containerA = new Container({ executionContext });
+        const node = dependency()
+            .factory(() => ({}))
+            .tokenDescription("A");
+
+        containerA.registerFactory(node).singleton();
+
+        await containerA.init();
+        let item: boolean | undefined = undefined;
+        await containerA.run({
+            scope: async () => {
+                const containerB = new Container({ executionContext });
+                await containerB.init();
+                item = await containerB.has(node.token);
+            },
+        });
+
+        expect(item).toBe(false);
+    });
+
+    test("when singleton nodeA added to both containerA,containerB created inside run of containerA, nodeA added to containerB then resolving nodeA from containerA and containerB should be not equal by reference", async () => {
+        const executionContext = new ExecutionContext(
+            new AlsExecutionContextAdapter(),
+        );
+        const containerA = new Container({ executionContext });
+        const node = dependency()
+            .factory(() => ({}))
+            .tokenDescription("A");
+
+        containerA.registerFactory(node).singleton();
+
+        await containerA.init();
+
+        const resultA = containerA.resolve(node.token);
+
+        let resultB: object | undefined | null = undefined;
+        await containerA.run({
+            scope: async () => {
+                const containerB = new Container({ executionContext });
+                containerB.registerFactory(node).singleton();
+                await containerB.init();
+                resultB = await containerB.resolve(node.token);
+            },
+        });
+
+        expect(resultA).not.toBeNull();
+        expect(resultB).not.toBeNull();
+        expect(resultA).not.toBe(resultB);
+    });
+
+    test("when containerB created inside run of containerA, containerB resolves scoped node outside of its run block then resolve should fail", async () => {
+        const executionContext = new ExecutionContext(
+            new AlsExecutionContextAdapter(),
+        );
+        const containerA = new Container({ executionContext });
+        await containerA.init();
+
+        await expect(async () => {
+            await containerA.run({
+                scope: async () => {
+                    const node = dependency()
+                        .factory(() => ({}))
+                        .tokenDescription("A");
+                    const containerB = new Container({ executionContext });
+                    containerB.registerFactory(node).scoped();
+                    await containerB.init();
+                    return await containerB.resolve(node.token);
+                },
+            });
+        }).rejects.toThrowError();
+    });
+});
+
+describe("single container", () => {
     let container: Container;
     beforeEach(() => {
         const executionContext = new ExecutionContext(
@@ -1139,35 +1264,6 @@ describe("container", () => {
 
             expect(resultA).toEqual(literalString);
         });
-
-        // ask Yousef if correct behavior
-        test("registering value for dynamic twice value should cause failure", async () => {
-            const nodeA = genericToken<string>("nodeA");
-            container.registerDynamic(nodeA);
-            const literalString = "A";
-
-            await container.init();
-
-            await expect(() =>
-                container.run({
-                    scope: async () => container.resolve(nodeA),
-
-                    dynamicRegistration: {
-                        invoke: async (register) => {
-                            await register.set({
-                                token: nodeA,
-                                value: literalString,
-                            });
-
-                            await register.set({
-                                token: nodeA,
-                                value: literalString,
-                            });
-                        },
-                    },
-                }),
-            ).rejects.toThrowError();
-        });
     });
 
     // TODO divide to much smaller test per situation
@@ -1543,5 +1639,527 @@ describe("container", () => {
         test.todo("override + fork");
 
         test.todo("override after init fails");
+    });
+});
+
+// written by AI read later if correct
+describe("forked container", () => {
+    let containerA: Container;
+    beforeEach(() => {
+        const executionContext = new ExecutionContext(
+            new AlsExecutionContextAdapter(),
+        );
+        containerA = new Container({ executionContext });
+    });
+
+    test("adding a node in fork does not affect the original container", async () => {
+        const nodeA = dependency()
+            .factory(() => "A")
+            .tokenDescription("A");
+
+        const containerB = containerA.fork();
+
+        containerB.registerFactory(nodeA).transient();
+
+        await containerA.init();
+        await containerB.init();
+
+        const hasNodeBContainerA = await containerA.has(nodeA.token);
+        const hasNodeBContainerB = await containerB.has(nodeA.token);
+
+        expect(hasNodeBContainerA).toBe(false);
+        expect(hasNodeBContainerB).toBe(true);
+    });
+
+    test("adding a node in original does not affect the fork", async () => {
+        const nodeA = dependency()
+            .factory(() => "A")
+            .tokenDescription("A");
+
+        const containerB = containerA.fork();
+
+        containerA.registerFactory(nodeA).transient();
+
+        await containerA.init();
+        await containerB.init();
+
+        const hasNodeBContainerA = await containerA.has(nodeA.token);
+        const hasNodeBContainerB = await containerB.has(nodeA.token);
+
+        expect(hasNodeBContainerA).toBe(true);
+        expect(hasNodeBContainerB).toBe(false);
+    });
+
+    test("fork can only be called before init", async () => {
+        const nodeA = dependency()
+            .factory(() => "A")
+            .tokenDescription("A");
+
+        containerA.registerFactory(nodeA).singleton();
+
+        // before init fork should not throw and should produce a working container
+        const containerB = containerA.fork();
+        await containerB.init();
+        await containerB.deInit();
+
+        await containerA.init();
+
+        // after init fork should throw
+        expect(() => {
+            containerA.fork();
+        }).toThrowError(ContainerAlreadyInitializedException);
+
+        await containerA.deInit();
+
+        // after deInit fork should throw
+        expect(() => {
+            containerA.fork();
+        }).toThrowError(ContainerAlreadyInitializedException);
+    });
+
+    test("fork copies all non-override nodes from the original", async () => {
+        // eslint-disable-next-line @typescript-eslint/no-extraneous-class
+        class NodeA {}
+
+        const nodeB = dependency()
+            .factory(() => "B")
+            .tokenDescription("B");
+
+        const tokenC = genericToken<string>("C");
+
+        containerA.registerClass({ deps: [], impl: NodeA }).singleton();
+        containerA.registerFactory(nodeB).transient();
+        containerA.registerValue({ token: tokenC, value: "C" });
+
+        const containerB = containerA.fork();
+
+        await containerA.init();
+        await containerB.init();
+
+        const hasNodeA = await containerB.has(NodeA);
+        const hasNodeB = await containerB.has(nodeB.token);
+        const hasTokenC = await containerB.has(tokenC);
+
+        expect(hasNodeA).toBe(true);
+        expect(hasNodeB).toBe(true);
+        expect(hasTokenC).toBe(true);
+    });
+
+    test("fork copies all override nodes from the original", async () => {
+        const nodeA = dependency()
+            .factory(() => "A")
+            .tokenDescription("A");
+
+        const nodeAOverride1 = dependency()
+            .factory(() => "A overridden first")
+            .token(nodeA.token);
+
+        containerA.registerFactory(nodeA).singleton();
+        containerA.overrideFactory(nodeAOverride1);
+
+        const containerB = containerA.fork();
+
+        await containerA.init();
+        await containerB.init();
+
+        const resolvedContainerA = await containerA.resolve(nodeA.token);
+        const resolvedContainerB = await containerB.resolve(nodeA.token);
+
+        const correctA = await nodeAOverride1.callFunc();
+
+        expect(resolvedContainerA).toBe(correctA);
+        expect(resolvedContainerB).toBe(correctA);
+    });
+
+    test("overriding a node in fork does not affect the original container", async () => {
+        const nodeA = dependency()
+            .factory(() => "A")
+            .tokenDescription("A");
+
+        const nodeAOverride1 = dependency()
+            .factory(() => "A overridden first")
+            .token(nodeA.token);
+
+        const nodeAOverride2 = dependency()
+            .factory(() => "A overridden second")
+            .token(nodeA.token);
+
+        containerA.registerFactory(nodeA).singleton();
+        containerA.overrideFactory(nodeAOverride1);
+
+        const containerB = containerA.fork();
+
+        containerB.overrideFactory(nodeAOverride2);
+
+        await containerA.init();
+        await containerB.init();
+
+        const correctContainerA = await nodeAOverride1.callFunc();
+        const correctContainerB = await nodeAOverride2.callFunc();
+
+        const resolvedContainerA = await containerA.resolve(nodeA.token);
+        const resolvedContainerB = await containerB.resolve(nodeA.token);
+
+        expect(resolvedContainerA).toBe(correctContainerA);
+        expect(resolvedContainerB).toBe(correctContainerB);
+    });
+
+    test("overriding a node in original does not affect the fork", async () => {
+        const nodeA = dependency()
+            .factory(() => "A")
+            .tokenDescription("A");
+
+        const nodeAOverride1 = dependency()
+            .factory(() => "A overridden first")
+            .token(nodeA.token);
+
+        const nodeAOverride2 = dependency()
+            .factory(() => "A overridden second")
+            .token(nodeA.token);
+
+        containerA.registerFactory(nodeA).singleton();
+        containerA.overrideFactory(nodeAOverride1);
+
+        const containerB = containerA.fork();
+
+        containerA.overrideFactory(nodeAOverride2);
+
+        await containerA.init();
+        await containerB.init();
+
+        const correctContainerA = await nodeAOverride2.callFunc();
+        const correctContainerB = await nodeAOverride1.callFunc();
+
+        const resolvedContainerA = await containerA.resolve(nodeA.token);
+        const resolvedContainerB = await containerB.resolve(nodeA.token);
+
+        expect(resolvedContainerA).toBe(correctContainerA);
+        expect(resolvedContainerB).toBe(correctContainerB);
+    });
+
+    test("resolving a singleton in fork and original yields different instances", async () => {
+        const nodeA = dependency()
+            .factory(() => ({}))
+            .tokenDescription("A");
+
+        containerA.registerFactory(nodeA).singleton();
+
+        const containerB = containerA.fork();
+
+        await containerA.init();
+        await containerB.init();
+
+        const resolvedContainerA = await containerA.resolve(nodeA.token);
+        const resolvedContainerB = await containerB.resolve(nodeA.token);
+
+        expect(resolvedContainerA).not.toBeNull();
+        expect(resolvedContainerB).not.toBeNull();
+        expect(resolvedContainerA).not.toBe(resolvedContainerB);
+    });
+
+    test("deInit of fork does not deInit the original container", async () => {
+        const nodeA = dependency()
+            .factory(() => "A")
+            .tokenDescription("A");
+
+        containerA.registerFactory(nodeA).singleton();
+
+        const containerB = containerA.fork();
+
+        await containerA.init();
+        await containerB.init();
+
+        await containerB.deInit();
+
+        await expect(containerA.resolve(nodeA.token)).resolves.toBe("A");
+        await expect(containerB.resolve(nodeA.token)).rejects.toThrowError(
+            ContainerNotActiveException,
+        );
+    });
+
+    test("deInit of original does not deInit the fork", async () => {
+        const nodeA = dependency()
+            .factory(() => "A")
+            .tokenDescription("A");
+
+        containerA.registerFactory(nodeA).singleton();
+
+        const containerB = containerA.fork();
+
+        await containerA.init();
+        await containerB.init();
+
+        await containerA.deInit();
+
+        await expect(containerB.resolve(nodeA.token)).resolves.toBe("A");
+        await expect(containerA.resolve(nodeA.token)).rejects.toThrowError(
+            ContainerNotActiveException,
+        );
+    });
+
+    test("fork copies dynamic registrations", async () => {
+        const tokenA = genericToken<string>("dynamic");
+
+        containerA.registerDynamic(tokenA);
+
+        const containerB = containerA.fork();
+
+        await containerA.init();
+        await containerB.init();
+
+        let resultContainerB: string | null = null;
+
+        await containerB.run({
+            dynamicRegistration: {
+                invoke: async (register) => {
+                    await register.set({
+                        token: tokenA,
+                        value: "dynamic value",
+                    });
+                },
+            },
+            scope: async () => {
+                resultContainerB = await containerB.resolve(tokenA);
+            },
+        });
+
+        expect(resultContainerB).toBe("dynamic value");
+    });
+
+    // TODO dedice if it good thing to copy init and deInit hooks from original? 
+    test("fork inherits init and deInit hooks from the original", async () => {
+        let inheritedInitCalls = 0;
+        let inheritedDeInitCalls = 0;
+
+        containerA.onContainerInit(() => {
+            inheritedInitCalls += 1;
+        });
+        containerA.onContainerDeInit(() => {
+            inheritedDeInitCalls += 1;
+        });
+
+        const containerB = containerA.fork();
+
+        await containerA.init();
+        await containerB.init();
+
+        // the hook registered before forking runs for both containers
+        expect(inheritedInitCalls).toBe(2);
+
+        await containerA.deInit();
+        await containerB.deInit();
+
+        expect(inheritedDeInitCalls).toBe(2);
+    });
+
+    test("fork resolves nodes with dependencies using the copied graph", async () => {
+        const nodeA = dependency()
+            .factory(() => "A")
+            .tokenDescription("A");
+        const nodeB = dependency(nodeA.token)
+            .factory((a) => wrapInParenthesis("B", a))
+            .tokenDescription("B");
+
+        containerA.registerFactory(nodeA).singleton();
+        containerA.registerFactory(nodeB).singleton();
+
+        const containerB = containerA.fork();
+
+        await containerA.init();
+        await containerB.init();
+
+        const correctB = await nodeB.callFunc("A");
+
+        const resolvedContainerA = await containerA.resolve(nodeB.token);
+        const resolvedContainerB = await containerB.resolve(nodeB.token);
+
+        expect(resolvedContainerA).toBe(correctB);
+        expect(resolvedContainerB).toBe(correctB);
+    });
+
+    // TODO  remove when IServiceLifetime is removed
+    test("fork throws when a class node has no lifetime", () => {
+        // eslint-disable-next-line @typescript-eslint/no-extraneous-class
+        class NodeA {}
+
+        containerA.registerClass({ deps: [], impl: NodeA });
+
+        expect(() => {
+            containerA.fork();
+        }).toThrowError();
+    });
+
+    test("fork throws when a node has no lifetime", () => {
+        const nodeA = dependency()
+            .factory(() => "A")
+            .tokenDescription("A");
+
+        containerA.registerFactory(nodeA);
+
+        expect(() => {
+            containerA.fork();
+        }).toThrowError();
+    });
+
+    // TODO move this to a basic test section
+    test("forking an empty container works and can be initialized", async () => {
+        const containerB = containerA.fork();
+
+        await containerA.init();
+        await containerB.init();
+
+        await containerB.deInit();
+        await containerA.deInit();
+    });
+
+    // TODO dedice if it good thing to copy init and deInit hooks from original? 
+    test("hooks added to original after forking do not run on the fork", async () => {
+        let originalHookCalls = 0;
+
+        const containerB = containerA.fork();
+
+        containerA.onContainerInit(() => {
+            originalHookCalls += 1;
+        });
+
+        await containerA.init();
+        await containerB.init();
+
+        expect(originalHookCalls).toBe(1);
+
+        await containerA.deInit();
+        await containerB.deInit();
+    });
+
+    test("nested fork inherits from parent and stays isolated from both parents", async () => {
+        const nodeA = dependency()
+            .factory(() => "A")
+            .tokenDescription("A");
+        const nodeB = dependency()
+            .factory(() => "B")
+            .tokenDescription("B");
+        const nodeC = dependency()
+            .factory(() => "C")
+            .tokenDescription("C");
+
+        containerA.registerFactory(nodeA).singleton();
+
+        const containerB = containerA.fork();
+        containerB.registerFactory(nodeB).transient();
+
+        const containerC = containerB.fork();
+        containerC.registerFactory(nodeC).transient();
+
+        await containerA.init();
+        await containerB.init();
+        await containerC.init();
+
+        // grandchild inherits nodes from both the parent and the grandparent
+        const hasNodeAContainerC = await containerC.has(nodeA.token);
+        const hasNodeBContainerC = await containerC.has(nodeB.token);
+        const hasNodeCContainerC = await containerC.has(nodeC.token);
+
+        expect(hasNodeAContainerC).toBe(true);
+        expect(hasNodeBContainerC).toBe(true);
+        expect(hasNodeCContainerC).toBe(true);
+
+        // grandchild mutations do not reach the parent or the grandparent
+        const hasNodeCContainerB = await containerB.has(nodeC.token);
+        const hasNodeCContainerA = await containerA.has(nodeC.token);
+
+        expect(hasNodeCContainerB).toBe(false);
+        expect(hasNodeCContainerA).toBe(false);
+    });
+
+    //TODO decide to make resuable function containing all single container test and input a forked
+    test("scoped node in fork resolves null outside run-scope", async () => {
+        const nodeA = dependency()
+            .factory(() => ({}))
+            .tokenDescription("A");
+
+        containerA.registerFactory(nodeA).scoped();
+
+        const containerB = containerA.fork();
+
+        await containerA.init();
+        await containerB.init();
+
+        const resolvedContainerB = await containerB.resolve(nodeA.token);
+        expect(resolvedContainerB).toBe(null);
+    });
+
+     //TODO decide to make resuable function containing all single container test and input a forked
+    test("scoped node in fork resolves same instance within its run-scope", async () => {
+        const nodeA = dependency()
+            .factory(() => ({}))
+            .tokenDescription("A");
+
+        containerA.registerFactory(nodeA).scoped();
+
+        const containerB = containerA.fork();
+
+        await containerA.init();
+        await containerB.init();
+
+        let resultB0: object | null = null;
+        let resultB1: object | null = null;
+
+        await containerB.run({
+            scope: async () => {
+                resultB0 = await containerB.resolve(nodeA.token);
+                resultB1 = await containerB.resolve(nodeA.token);
+            },
+        });
+
+        expect(resultB0).not.toBeNull();
+        expect(resultB1).not.toBeNull();
+        expect(resultB0).toBe(resultB1);
+    });
+
+    //TODO decide to make resuable function containing all single container test and input a forked
+    test("singleton is shared within fork but not across fork and original", async () => {
+        const nodeA = dependency()
+            .factory(() => ({}))
+            .tokenDescription("A");
+
+        containerA.registerFactory(nodeA).singleton();
+
+        const containerB = containerA.fork();
+
+        await containerA.init();
+        await containerB.init();
+
+        const resolvedContainerA0 = await containerA.resolve(nodeA.token);
+        const resolvedContainerA1 = await containerA.resolve(nodeA.token);
+        const resolvedContainerB0 = await containerB.resolve(nodeA.token);
+        const resolvedContainerB1 = await containerB.resolve(nodeA.token);
+
+        expect(resolvedContainerA0).toBe(resolvedContainerA1);
+        expect(resolvedContainerB0).toBe(resolvedContainerB1);
+        expect(resolvedContainerA0).not.toBe(resolvedContainerB0);
+    });
+
+    //TODO decide to make resuable function containing all single container test and input a forked
+    test("transient node in fork resolves to new instances not shared with original", async () => {
+        const nodeA = dependency()
+            .factory(() => ({}))
+            .tokenDescription("A");
+
+        containerA.registerFactory(nodeA).transient();
+
+        const containerB = containerA.fork();
+
+        await containerA.init();
+        await containerB.init();
+
+        const resolvedContainerA = await containerA.resolve(nodeA.token);
+        const resolvedContainerB0 = await containerB.resolve(nodeA.token);
+        const resolvedContainerB1 = await containerB.resolve(nodeA.token);
+
+        expect(resolvedContainerA).not.toBeNull();
+        expect(resolvedContainerB0).not.toBeNull();
+        expect(resolvedContainerB1).not.toBeNull();
+        expect(resolvedContainerA).not.toBe(resolvedContainerB0);
+        expect(resolvedContainerB0).not.toBe(resolvedContainerB1);
     });
 });

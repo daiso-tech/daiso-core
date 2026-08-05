@@ -22,7 +22,7 @@ export type TNode = DiToken;
 
 type CachedFunc<T, T2> = (cacheArgs: {
     nodeId: T;
-    newFunc: () => Promise<T2>;
+    func: () => Promise<T2>;
 }) => () => Promise<T2>;
 
 export function createFunctionCache<T1, T2>(): CachedFunc<T1, T2> {
@@ -30,7 +30,7 @@ export function createFunctionCache<T1, T2>(): CachedFunc<T1, T2> {
 
     const reusedFunc = (cacheArgs: {
         nodeId: T1;
-        newFunc: () => Promise<T2>;
+        func: () => Promise<T2>;
     }): (() => Promise<T2>) => {
         const cachedFunc = functionCache.get(cacheArgs.nodeId);
 
@@ -40,9 +40,9 @@ export function createFunctionCache<T1, T2>(): CachedFunc<T1, T2> {
             return cachedFunc;
         }
 
-        functionCache.set(cacheArgs.nodeId, cacheArgs.newFunc);
+        functionCache.set(cacheArgs.nodeId, cacheArgs.func);
 
-        return cacheArgs.newFunc;
+        return cacheArgs.func;
     };
 
     return reusedFunc;

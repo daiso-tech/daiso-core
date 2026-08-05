@@ -81,3 +81,28 @@ export function findEffectedNodes<T>(args: {
 
     return [...effectedNodes];
 }
+
+export function visitedNodes<T>(args: {
+    node: T;
+    getNeighbors: (node: T) => Array<T>;
+}): Array<T> {
+    const { node, getNeighbors } = args;
+
+    const visited = new Set<T>();
+
+    function dfs(current: T): void {
+        if (visited.has(current)) {
+            return;
+        }
+
+        visited.add(current);
+
+        for (const neighbor of getNeighbors(current)) {
+            dfs(neighbor);
+        }
+    }
+
+    dfs(node);
+
+    return Array.from(visited);
+}

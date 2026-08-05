@@ -53,6 +53,63 @@ export class Graph<TNodeProp, TEdgeProp> {
             }
         }
     }
+    /**
+     * Make new Graph copy that includes edges and nodes from itself and from its ancestor
+     * The new Graph have no parent link set.
+     * @returns
+     */
+
+    public flattenedGraphCopy(): Graph<TNodeProp, TEdgeProp> {
+        const nodeProps = this.nodes().map(
+            (node) =>
+                [node, this.getNodePropertyOrThrow(node)] satisfies [
+                    TNode,
+                    TNodeProp,
+                ],
+        );
+        const edgeProps = this.edges().map(
+            (edge) =>
+                [edge, this.getEdgePropertyOrThrow(edge)] satisfies [
+                    TEdge,
+                    TEdgeProp,
+                ],
+        );
+
+        return new Graph({ edgeProps, nodeProps });
+    }
+
+    /**
+     * Make new Graph copy that includes edges and nodes from itself but not from its ancestor
+     * The new Graph have no parent link set.
+     * @returns
+     */
+    public shallowGraphCopy(): Graph<TNodeProp, TEdgeProp> {
+        const nodeProps = this.nodesAtCurrentLayer().map(
+            (node) =>
+                [node, this.getNodePropertyOrThrow(node)] satisfies [
+                    TNode,
+                    TNodeProp,
+                ],
+        );
+
+        const edgeProps = this.edgesAtCurrentLayer().map(
+            (edge) =>
+                [edge, this.getEdgePropertyOrThrow(edge)] satisfies [
+                    TEdge,
+                    TEdgeProp,
+                ],
+        );
+
+        return new Graph({ edgeProps, nodeProps });
+    }
+
+    public setParent(parentGraph: Graph<TNodeProp, TEdgeProp>): void {
+        this.parentGraphOriginal = parentGraph;
+    }
+
+    public removeParent(): void {
+        this.parentGraphOriginal = undefined;
+    }
 
     private throwIfDuplicateNodesFound(props: Array<[TNode, TNodeProp]>) {
         const nodeSet = new Set<TNode>();
@@ -300,77 +357,4 @@ export class Graph<TNodeProp, TEdgeProp> {
     getSuccessorsOf(node: TNode): Array<TNode> {
         return this.getSuccessorEdgesOf(node).map(([_, neighbor]) => neighbor);
     }
-}
-
-export class GraphManager<TNodeProps, TEdgeProps> {
-    private baseGraph = new Graph<TNodeProps, TEdgeProps>();
-    private overrideGraph = new Graph<TNodeProps, TEdgeProps>({
-        parentGraph: this.baseGraph,
-    });
-
-    setNodeProperty(key: TNode, value: TNodeProps): void {
-        this.baseGraph.setNodeProperty(key, value);
-    }
-
-    setEdgeProperty(edge: TEdge, value: TEdgeProps): void {
-        this.baseGraph.setEdgeProperty(edge, value);
-    }
-
-    setNodePropertyInOverrideLayer(key: TNode, value: TNodeProps): void {
-        this.overrideGraph.setNodeProperty(key, value);
-    }
-
-    setEdgePropertyInOverrideLayer(edge: TEdge, value: TEdgeProps): void {
-        this.overrideGraph.setEdgeProperty(edge, value);
-    }
-
-    removeEdgeFromOverrideLayer(edge: TEdge): void {
-        this.overrideGraph.removeEdge(edge);
-    }
-    removeNodeFromOverrideLayer(node: TNode): void {
-        this.overrideGraph.removeNode(node);
-    }
-
-    hasNodeProperty(node: TNode): boolean {
-        return this.overrideGraph.hasNodeProperty(node);
-    }
-    hasEdgeProperty(edge: TEdge): boolean {
-        return this.overrideGraph.hasEdgeProperty(edge);
-    }
-    getNodeProperty(nodeId: TNode): TNodeProps | null {
-        return this.overrideGraph.getNodeProperty(nodeId);
-    }
-
-    getEdgeProperty(edge: TEdge): TEdgeProps | null {
-        return this.overrideGraph.getEdgeProperty(edge);
-    }
-
-    getNodePropertyOrThrow(key: TNode): TNodeProps {
-        return this.overrideGraph.getNodePropertyOrThrow(key);
-    }
-
-    getEdgePropertyOrThrow(edge: TEdge): TEdgeProps {
-        return this.overrideGraph.getEdgePropertyOrThrow(edge);
-    }
-    nodes(): Array<TNode> {
-        return this.overrideGraph.nodes();
-    }
-    edges(): Array<TEdge> {
-        return this.overrideGraph.edges();
-    }
-    getSuccessorEdgesOf(node: TNode): Array<TEdge> {
-        return this.overrideGraph.getSuccessorEdgesOf(node);
-    }
-    getPredecessorEdgesOf(node: TNode): Array<TEdge> {
-        return this.overrideGraph.getPredecessorEdgesOf(node);
-    }
-    getPredecessorsOf(node: TNode): Array<TNode> {
-        return this.overrideGraph.getPredecessorsOf(node);
-    }
-    getSuccessorsOf(node: TNode): Array<TNode> {
-        return this.overrideGraph.getSuccessorsOf(node);
-    }
-
-
-    
 }
