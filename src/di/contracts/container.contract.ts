@@ -270,17 +270,17 @@ export type IServiceRegisterBase = {
      */
     registerDynamic(token: DiToken): void;
 
-    /**
-     * Registers a contextual binding so that when the specified consumer
-     * (`when`) requires an abstract dependency (`needs`), a specific
-     * implementation (`give`) is provided instead.
-     *
-     * Useful for targeting overrides to a single consumer without affecting
-     * other consumers of the same abstract dependency.
-     */
-    registerContext<TWhen = unknown, TNeeds = unknown>(
-        settings: ContextRegistration<TWhen, TNeeds>,
-    ): void;
+    // /**
+    //  * Registers a contextual binding so that when the specified consumer
+    //  * (`when`) requires an abstract dependency (`needs`), a specific
+    //  * implementation (`give`) is provided instead.
+    //  *
+    //  * Useful for targeting overrides to a single consumer without affecting
+    //  * other consumers of the same abstract dependency.
+    //  */
+    // registerContext<TWhen = unknown, TNeeds = unknown>(
+    //     settings: ContextRegistration<TWhen, TNeeds>,
+    // ): void;
 };
 
 /**
@@ -331,7 +331,7 @@ export type IServiceRegister = IServiceRegisterBase &
  */
 export type ServiceProviderFn = InvokableFn<
     [serviceRegister: IServiceRegister],
-    Promisable<void>
+    void
 >;
 
 /**
