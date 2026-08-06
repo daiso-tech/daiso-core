@@ -164,16 +164,20 @@ export class MemoryCacheAdapter<
         return Promise.resolve(deleteCount > 0);
     }
 
-    removeAll(): Promise<void> {
+    private removeAll(_context: IReadableContext): Promise<void> {
         this.map.clear();
         this.timeoutMap.clear();
         return Promise.resolve();
     }
 
-    removeByKeyPrefix(
+    async removeByPrefix(
         prefix: string,
-        _context: IReadableContext,
+        context: IReadableContext,
     ): Promise<void> {
+        if (prefix === "") {
+            await this.removeAll(context);
+            return;
+        }
         for (const key of this.map.keys()) {
             if (key.startsWith(prefix)) {
                 clearTimeout(this.timeoutMap.get(key));

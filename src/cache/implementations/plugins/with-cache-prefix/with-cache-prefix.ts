@@ -39,13 +39,9 @@ export function withCachePrefix(prefix: string): PluginFn<ICacheAdapter> {
         enhance(adapter, "put", ({ args: [key, ...rest], next }) => {
             return next([withPrefix(key), ...rest]);
         });
-        enhance(
-            adapter,
-            "removeByKeyPrefix",
-            ({ args: [key, ...rest], next }) => {
-                return next([withPrefix(key), ...rest]);
-            },
-        );
+        enhance(adapter, "removeByPrefix", ({ args: [key, ...rest], next }) => {
+            return next([withPrefix(key), ...rest]);
+        });
         enhance(adapter, "removeMany", ({ args: [keys, ...rest], next }) => {
             return next([keys.map(withPrefix), ...rest]);
         });

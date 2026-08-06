@@ -279,6 +279,6 @@ export class Cache<TType = unknown> implements ICache<TType> {
     }
 
     async clear(): Promise<void> {
-        await this.adapter.removeByKeyPrefix("", this.context);
+        await this.adapter.removeByPrefix("", this.context);
     }
 }

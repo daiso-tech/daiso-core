@@ -458,14 +458,18 @@ export class KyselyCacheAdapter<TType = unknown>
         return Number(result[0]?.numDeletedRows ?? 0n) > 0;
     }
 
-    async removeAll(_context: IReadableContext): Promise<void> {
+    private async removeAll(_context: IReadableContext): Promise<void> {
         await this.kysely.deleteFrom("cache").execute();
     }
 
-    async removeByKeyPrefix(
+    async removeByPrefix(
         prefix: string,
-        _context: IReadableContext,
+        context: IReadableContext,
     ): Promise<void> {
+        if (prefix === "") {
+            await this.removeAll(context);
+            return;
+        }
         await this.kysely
             .deleteFrom("cache")
             .where("cache.key", "like", `${prefix}%`)
