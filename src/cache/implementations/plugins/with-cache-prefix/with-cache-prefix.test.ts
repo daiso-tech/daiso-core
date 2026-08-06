@@ -96,16 +96,16 @@ describe("function: withCachePrefix", () => {
             >(`${prefix}myKey`, "value", TimeSpan.fromMinutes(5), context);
         });
     });
-    describe("method: removeByKeyPrefix", () => {
+    describe("method: removeByPrefix", () => {
         test("Should prefix keys", async () => {
-            const spy = vi.spyOn(adapter, "removeByKeyPrefix");
+            const spy = vi.spyOn(adapter, "removeByPrefix");
 
             const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-            await enhanced.removeByKeyPrefix("myKey", context);
+            await enhanced.removeByPrefix("myKey", context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
-                Parameters<ICacheAdapter["removeByKeyPrefix"]>
+                Parameters<ICacheAdapter["removeByPrefix"]>
             >(`${prefix}myKey`, context);
         });
     });

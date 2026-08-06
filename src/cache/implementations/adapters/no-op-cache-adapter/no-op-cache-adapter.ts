@@ -76,14 +76,7 @@ export class NoOpCacheAdapter<TType = unknown> implements ICacheAdapter<TType> {
         return Promise.resolve(true);
     }
 
-    removeAll(_context: IReadableContext): Promise<void> {
-        return Promise.resolve();
-    }
-
-    removeByKeyPrefix(
-        _prefix: string,
-        _context: IReadableContext,
-    ): Promise<void> {
+    removeByPrefix(_prefix: string, _context: IReadableContext): Promise<void> {
         return Promise.resolve();
     }
 }

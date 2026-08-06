@@ -130,19 +130,11 @@ export type ICacheAdapter<TType = unknown> = {
     ): Promise<boolean>;
 
     /**
-     * Removes all cache entries.
-     * Use with caution as this completely clears the cache.
-     *
-     * @param context - Readable execution context for the operation
-     */
-    removeAll(context: IReadableContext): Promise<void>;
-
-    /**
      * Removes all cache entries whose keys start with a given prefix.
      * Useful for invalidating groups of related cache entries.
      *
      * @param prefix - Key prefix to match for removal
      * @param context - Readable execution context for the operation
      */
-    removeByKeyPrefix(prefix: string, context: IReadableContext): Promise<void>;
+    removeByPrefix(prefix: string, context: IReadableContext): Promise<void>;
 };

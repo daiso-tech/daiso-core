@@ -448,28 +448,13 @@ export function cacheAdapterTestSuite(
                 expect(result).toEqual([null, null, 3]);
             });
         });
-        describe("method: removeAll", () => {
-            test("Should remove all keys", async () => {
-                await adapter.add("cache/a", 1, null, context);
-                await adapter.add("cache/b", 2, null, context);
-                await adapter.add("c", 3, null, context);
-                await delayWithBuffer(TTL.divide(4));
-                await adapter.removeAll(context);
-                await delayWithBuffer(TTL.divide(4));
-                expect([
-                    await adapter.get("cache/a", context),
-                    await adapter.get("cache/b", context),
-                    await adapter.get("c", context),
-                ]).toEqual([null, null, null]);
-            });
-        });
-        describe("method: removeByKeyPrefix", () => {
+        describe("method: removeByPrefix", () => {
             test(`Should remove all keys that start with prefix "cache"`, async () => {
                 await adapter.add("cache/a", 1, null, context);
                 await adapter.add("cache/b", 2, null, context);
                 await adapter.add("c", 3, null, context);
                 await delayWithBuffer(TTL.divide(4));
-                await adapter.removeByKeyPrefix("cache", context);
+                await adapter.removeByPrefix("cache", context);
                 await delayWithBuffer(TTL.divide(4));
                 const result = [
                     await adapter.get("cache/a", context),
@@ -477,6 +462,19 @@ export function cacheAdapterTestSuite(
                     await adapter.get("c", context),
                 ];
                 expect(result).toEqual([null, null, 3]);
+            });
+            test("Should remove all keys when prefix is empty string", async () => {
+                await adapter.add("cache/a", 1, null, context);
+                await adapter.add("cache/b", 2, null, context);
+                await adapter.add("c", 3, null, context);
+                await delayWithBuffer(TTL.divide(4));
+                await adapter.removeByPrefix("", context);
+                await delayWithBuffer(TTL.divide(4));
+                expect([
+                    await adapter.get("cache/a", context),
+                    await adapter.get("cache/b", context),
+                    await adapter.get("c", context),
+                ]).toEqual([null, null, null]);
             });
         });
     });

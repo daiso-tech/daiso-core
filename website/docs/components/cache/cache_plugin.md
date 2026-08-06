@@ -33,16 +33,16 @@ The `withCachePrefix` function returns a [`PluginFn`](/docs/components/middlewar
 
 The plugin prefixes keys for the following methods:
 
-| Method              | Key argument             | Pattern                     |
-| ------------------- | ------------------------ | --------------------------- |
-| `add`               | Second argument (`key`)  | `prefix + key`              |
-| `get`               | Second argument (`key`)  | `prefix + key`              |
-| `getAndRemove`      | Second argument (`key`)  | `prefix + key`              |
-| `increment`         | Second argument (`key`)  | `prefix + key`              |
-| `put`               | Second argument (`key`)  | `prefix + key`              |
-| `removeByKeyPrefix` | Second argument (`key`)  | `prefix + key`              |
-| `removeMany`        | Second argument (`keys`) | `keys.map(k => prefix + k)` |
-| `update`            | Second argument (`key`)  | `prefix + key`              |
+| Method           | Key argument             | Pattern                     |
+| ---------------- | ------------------------ | --------------------------- |
+| `add`            | Second argument (`key`)  | `prefix + key`              |
+| `get`            | Second argument (`key`)  | `prefix + key`              |
+| `getAndRemove`   | Second argument (`key`)  | `prefix + key`              |
+| `increment`      | Second argument (`key`)  | `prefix + key`              |
+| `put`            | Second argument (`key`)  | `prefix + key`              |
+| `removeByPrefix` | Second argument (`key`)  | `prefix + key`              |
+| `removeMany`     | Second argument (`keys`) | `keys.map(k => prefix + k)` |
+| `update`         | Second argument (`key`)  | `prefix + key`              |
 
 Methods that do not accept a key (`removeAll`) are unaffected.
 
@@ -347,7 +347,7 @@ By default, all mutating methods are protected:
 | `getAndRemove` | Single key      | Acquires lock for the key before removing     |
 | `removeMany`   | Multiple keys   | Acquires locks for each key sequentially      |
 
-Read-only methods (`get`, `removeAll`, `removeByKeyPrefix`) are unaffected.
+Read-only methods (`get`, `removeAll`, `removeByPrefix`) are unaffected.
 
 ### Usage
 

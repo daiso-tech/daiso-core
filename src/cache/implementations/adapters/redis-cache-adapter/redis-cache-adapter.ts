@@ -270,14 +270,18 @@ export class RedisCacheAdapter<
         return deleteResult > 0;
     }
 
-    async removeAll(_context: IReadableContext): Promise<void> {
+    private async removeAll(_context: IReadableContext): Promise<void> {
         await this.database.flushdb();
     }
 
-    async removeByKeyPrefix(
+    async removeByPrefix(
         prefix: string,
-        _context: IReadableContext,
+        context: IReadableContext,
     ): Promise<void> {
+        if (prefix === "") {
+            await this.removeAll(context);
+            return;
+        }
         for await (const _ of new ClearIterable(this.database, prefix)) {
             /* Empty */
         }
