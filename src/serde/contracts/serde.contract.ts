@@ -2,8 +2,8 @@
  * @module Serde
  */
 
-import { type IDeserializer } from "@/serde/contracts/deserializer.contract.js";
-import { type ISerializer } from "@/serde/contracts/serializer.contract.js";
+import type { IDeserializer } from "@/serde/contracts/deserializer.contract.js";
+import type { ISerializer } from "@/serde/contracts/serializer.contract.js";
 
 /**
  * Complete serde (serialization/deserialization) contract for bidirectional data transformation.

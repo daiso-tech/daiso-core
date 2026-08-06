@@ -1,18 +1,19 @@
 import { describe, expect, test } from "vitest";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type FileAdapterSignedDownloadUrlSettings,
-    type FileAdapterMetadata,
-    type FileAdapterStream,
-    type FileAdapterSignedUploadUrlSettings,
-    type FileWriteEnum,
-    type IFileStorageAdapter,
-    type ISignedFileStorageAdapter,
-    type WritableFileAdapterContent,
-    type WritableFileAdapterStream,
-} from "@/file-storage/contracts/_module.js";
 import { isSignedFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/is-signed-file-storage-adapter.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    FileAdapterSignedDownloadUrlSettings,
+    FileAdapterMetadata,
+    FileAdapterStream,
+    FileAdapterSignedUploadUrlSettings,
+    FileWriteEnum,
+    IFileStorageAdapter,
+    ISignedFileStorageAdapter,
+    WritableFileAdapterContent,
+    WritableFileAdapterStream,
+} from "@/file-storage/contracts/_module.js";
 
 describe("function: isSignedFileStorageAdapter", () => {
     test("Should return true when given ISignedFileStorageAdapter", () => {

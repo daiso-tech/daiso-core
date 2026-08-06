@@ -3,25 +3,30 @@
  */
 
 import {
-    type CircuitBreakerState,
-    type CircuitBreakerTrigger,
-    type ICircuitBreaker,
     OpenCircuitBreakerError,
     IsolatedCircuitBreakerError,
     CIRCUIT_BREAKER_TRIGGER,
-    type ICircuitBreakerAdapter,
     CIRCUIT_BREAKER_STATE,
 } from "@/circuit-breaker/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     callErrorPolicyOnThrow,
     callInvocable,
     resolveAsyncLazyable,
-    type AsyncLazy,
-    type ErrorPolicy,
-    type InvocableFn,
-    type WaitUntil,
+} from "@/utilities/_module.js";
+
+import type {
+    CircuitBreakerState,
+    CircuitBreakerTrigger,
+    ICircuitBreaker,
+    ICircuitBreakerAdapter,
+} from "@/circuit-breaker/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    AsyncLazy,
+    ErrorPolicy,
+    InvocableFn,
+    WaitUntil,
 } from "@/utilities/_module.js";
 
 /**

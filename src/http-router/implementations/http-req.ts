@@ -2,21 +2,22 @@
  * @module HttpRouter
  */
 
-import {
-    type HttpMethod,
-    type HttpReqSchemas,
-    type IHttpFile,
-    type IHttpReq,
-    type RawFormData,
-    type MultiStringInputs,
-    type StringInputs,
-    type FileDef,
-    type FileInputs,
-    type IValidatedHttpReq,
-    type ReqInputs,
-} from "@/http-router/contracts/_module.js";
 import { HttpFile } from "@/http-router/implementations/http-file.js";
 import { ValidatedHttpReq } from "@/http-router/implementations/validated-http-req.js";
+
+import type {
+    HttpMethod,
+    HttpReqSchemas,
+    IHttpFile,
+    IHttpReq,
+    RawFormData,
+    MultiStringInputs,
+    StringInputs,
+    FileDef,
+    FileInputs,
+    IValidatedHttpReq,
+    ReqInputs,
+} from "@/http-router/contracts/_module.js";
 
 /**
  * Configuration for creating an {@link HttpReq} from a standard Web API `Request`.

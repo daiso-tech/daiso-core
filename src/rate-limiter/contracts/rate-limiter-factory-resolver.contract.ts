@@ -2,7 +2,7 @@
  * @module RateLimiter
  */
 
-import { type IRateLimiterFactory } from "@/rate-limiter/contracts/rate-limiter-factory.contract.js";
+import type { IRateLimiterFactory } from "@/rate-limiter/contracts/rate-limiter-factory.contract.js";
 
 /**
  * Rate limiter factory resolver contract for dynamically selecting rate limiter factory implementations.

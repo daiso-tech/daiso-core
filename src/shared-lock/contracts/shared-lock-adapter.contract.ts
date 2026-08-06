@@ -2,10 +2,10 @@
  * @module SharedLock
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type ISharedLockFactory } from "@/shared-lock/contracts/shared-lock-factory.contract.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { ISharedLockFactory } from "@/shared-lock/contracts/shared-lock-factory.contract.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * Represents the persistent state of a writer lock in storage.

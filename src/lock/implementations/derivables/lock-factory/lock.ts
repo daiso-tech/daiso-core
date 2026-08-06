@@ -2,22 +2,26 @@
  * @module Lock
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
-    type ILock,
-    type ILockAdapter,
     FailedAcquireLockError,
     FailedReleaseLockError,
     FailedRefreshLockError,
     LOCK_STATE,
-    type ILockState,
-    type ILockExpiredState,
-    type ILockAcquiredState,
-    type ILockUnavailableState,
 } from "@/lock/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type AsyncLazy, resolveLazyable } from "@/utilities/_module.js";
+import { resolveLazyable } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ILock,
+    ILockAdapter,
+    ILockState,
+    ILockExpiredState,
+    ILockAcquiredState,
+    ILockUnavailableState,
+} from "@/lock/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { AsyncLazy } from "@/utilities/_module.js";
 
 /**
  * @internal

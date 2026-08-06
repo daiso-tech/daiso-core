@@ -2,14 +2,15 @@
  * @module HttpRouter
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
-import {
-    type IHttpRes,
-    type IHttpResHelpers,
-} from "@/http-router/contracts/_module.js";
 import { HttpRes } from "@/http-router/implementations/http-res.js";
 import { validateSync } from "@/utilities/_module.js";
+
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+
+import type {
+    IHttpRes,
+    IHttpResHelpers,
+} from "@/http-router/contracts/_module.js";
 
 /**
  * @internal

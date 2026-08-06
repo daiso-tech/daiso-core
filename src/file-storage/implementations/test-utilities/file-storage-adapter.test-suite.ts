@@ -2,26 +2,22 @@
  * @module FileStorage
  */
 
-import {
-    type beforeEach,
-    type ExpectStatic,
-    type SuiteAPI,
-    type TestAPI,
-} from "vitest";
-
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    FILE_WRITE_ENUM,
-    type FileAdapterMetadata,
-    type IFileStorageAdapter,
-} from "@/file-storage/contracts/_module.js";
+import { FILE_WRITE_ENUM } from "@/file-storage/contracts/_module.js";
 import {
     isUint8ByteArrayEqualityTester,
     resolveStream,
 } from "@/test-utilities/_module.js";
-import { type Promisable } from "@/utilities/_module.js";
+
+import type { beforeEach, ExpectStatic, SuiteAPI, TestAPI } from "vitest";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    FileAdapterMetadata,
+    IFileStorageAdapter,
+} from "@/file-storage/contracts/_module.js";
+import type { Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/file-storage/test-utilities"`

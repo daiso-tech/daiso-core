@@ -2,17 +2,15 @@
  * @module CircuitBreaker
  */
 
-import {
-    type CircuitBreakerTrigger,
-    type ICircuitBreakerFactory,
+import { callInvocable } from "@/utilities/_module.js";
+
+import type {
+    CircuitBreakerTrigger,
+    ICircuitBreakerFactory,
 } from "@/circuit-breaker/contracts/_module.js";
-import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import {
-    callInvocable,
-    type Invocable,
-    type ErrorPolicySettings,
-} from "@/utilities/_module.js";
+import type { MiddlewareFn } from "@/middleware/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { Invocable, ErrorPolicySettings } from "@/utilities/_module.js";
 
 /**
  * Settings for the circuit-breaker middleware.

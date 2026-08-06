@@ -2,13 +2,13 @@
  * @module RateLimiter
  */
 
-import {
-    type FixedWindowLimiterSettings,
-    type SerializedFixedWindowLimiterSettings,
+import type {
+    FixedWindowLimiterSettings,
+    SerializedFixedWindowLimiterSettings,
 } from "@/rate-limiter/implementations/policies/fixed-window-limiter/_module.js";
-import {
-    type SlidingWindowLimiterSettings,
-    type SerializedSlidingWindowLimiterSettings,
+import type {
+    SlidingWindowLimiterSettings,
+    SerializedSlidingWindowLimiterSettings,
 } from "@/rate-limiter/implementations/policies/sliding-window-limiter/_module.js";
 
 /**

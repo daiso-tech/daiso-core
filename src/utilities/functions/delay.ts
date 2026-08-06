@@ -2,8 +2,9 @@
  * @module Utilities
  */
 
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/time-span.js";
+
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/utilities"`

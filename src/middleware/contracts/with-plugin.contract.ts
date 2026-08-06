@@ -2,11 +2,11 @@
  * @module Middleware
  */
 
-import { type Enhance } from "@/middleware/contracts/enhance.contract.js";
-import {
-    type InvocableFn,
-    type IInvocableObject,
-    type OneOrMore,
+import type { Enhance } from "@/middleware/contracts/enhance.contract.js";
+import type {
+    InvocableFn,
+    IInvocableObject,
+    OneOrMore,
 } from "@/utilities/_module.js";
 
 /**

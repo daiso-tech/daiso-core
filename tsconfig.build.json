@@ -5,7 +5,8 @@
         "outDir": "./dist",
         "sourceMap": true,
         "declaration": true,
-        "incremental": false
+        "incremental": false,
+        "verbatimModuleSyntax": true
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules/*", "vite.config.ts", "**/*.test.ts"]

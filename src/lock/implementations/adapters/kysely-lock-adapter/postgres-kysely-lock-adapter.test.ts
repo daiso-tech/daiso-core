@@ -1,24 +1,18 @@
-import {
-    type StartedPostgreSqlContainer,
-    PostgreSqlContainer,
-} from "@testcontainers/postgresql";
-import {
-    Kysely,
-    PostgresDialect,
-    type ColumnMetadata,
-    type TableMetadata,
-} from "kysely";
+import { PostgreSqlContainer } from "@testcontainers/postgresql";
+import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    KyselyLockAdapter,
-    type KyselyLockTables,
-} from "@/lock/implementations/adapters/kysely-lock-adapter/_module.js";
+import { KyselyLockAdapter } from "@/lock/implementations/adapters/kysely-lock-adapter/_module.js";
 import { lockAdapterTestSuite } from "@/lock/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
+import type { ColumnMetadata, TableMetadata } from "kysely";
+
+import type { KyselyLockTables } from "@/lock/implementations/adapters/kysely-lock-adapter/_module.js";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("postgres class: KyselyLockAdapter", () => {

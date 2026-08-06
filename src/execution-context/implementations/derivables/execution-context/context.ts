@@ -2,15 +2,6 @@
  * @module ExecutionContext
  */
 
-import {
-    type ContextToken,
-    type DecrementSettings,
-    type IContext,
-    type ICopyableContext,
-    type IncrementSettings,
-    type PutDecrementSettings,
-    type PutIncrementSettings,
-} from "@/execution-context/contracts/_module.js";
 import { NotFoundExecutionContextError } from "@/execution-context/contracts/execution-context.errors.js";
 import {
     callInvocable,
@@ -19,10 +10,18 @@ import {
     optionNone,
     optionSome,
     resolveLazyable,
-    type Invocable,
-    type Lazyable,
-    type Option,
 } from "@/utilities/_module.js";
+
+import type {
+    ContextToken,
+    DecrementSettings,
+    IContext,
+    ICopyableContext,
+    IncrementSettings,
+    PutDecrementSettings,
+    PutIncrementSettings,
+} from "@/execution-context/contracts/_module.js";
+import type { Invocable, Lazyable, Option } from "@/utilities/_module.js";
 
 /**
  * @internal

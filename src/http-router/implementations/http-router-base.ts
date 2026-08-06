@@ -1,17 +1,18 @@
 /**
  * @module HttpRouter
  */
-import { type Router } from "hono/router";
-
-import {
-    type HttpMiddleware,
-    type HttpRouteGroup,
-    type IHttpEndpoint,
-    type IHttpRouterBase,
-} from "@/http-router/contracts/_module.js";
 import { MiddlewareBuilder } from "@/http-router/implementations/middleware-builder.js";
-import { type RouterEntry } from "@/http-router/implementations/types.js";
 import { callInvocable, isInvocable } from "@/utilities/_module.js";
+
+import type { Router } from "hono/router";
+
+import type {
+    HttpMiddleware,
+    HttpRouteGroup,
+    IHttpEndpoint,
+    IHttpRouterBase,
+} from "@/http-router/contracts/_module.js";
+import type { RouterEntry } from "@/http-router/implementations/types.js";
 
 /**
  * @internal

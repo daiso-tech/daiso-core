@@ -2,12 +2,13 @@
  * @module Collection
  */
 
-import {
-    type AsyncPredicate,
-    type AsyncMap,
-    type IAsyncCollection,
-} from "@/collection/contracts/_module.js";
 import { resolveInvocable } from "@/utilities/_module.js";
+
+import type {
+    AsyncPredicate,
+    AsyncMap,
+    IAsyncCollection,
+} from "@/collection/contracts/_module.js";
 
 /**
  * @internal

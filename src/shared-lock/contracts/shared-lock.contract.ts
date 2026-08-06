@@ -2,11 +2,11 @@
  * @module SharedLock
  */
 
-import { type ISharedLockState } from "@/shared-lock/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { ISharedLockState } from "@/shared-lock/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type AsyncLazy, type Invocable } from "@/utilities/_module.js";
+import type { AsyncLazy, Invocable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`

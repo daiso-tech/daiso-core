@@ -2,7 +2,7 @@
  * @module Cache
  */
 
-import { type InferInstance } from "@/utilities/_module.js";
+import type { InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error is thrown when a key is not found

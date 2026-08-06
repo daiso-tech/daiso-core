@@ -2,7 +2,7 @@
  * @module CircuitBreaker
  */
 
-import { type InferInstance } from "@/utilities/_module.js";
+import type { InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error is thrown when circuit breaker is in open state and will not allow any attempts.

@@ -2,19 +2,21 @@
  * @module HttpRouter
  */
 
-import { type Router, type Result } from "hono/router";
 /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 import { RegExpRouter } from "hono/router/reg-exp-router";
 import { SmartRouter } from "hono/router/smart-router";
 import { TrieRouter } from "hono/router/trie-router";
 import { describe, expect, test, vi } from "vitest";
 
-import {
-    type HttpHandlerFn,
-    type HttpMiddlewareFn,
-} from "@/http-router/contracts/_module.js";
 import { HttpRouterBase } from "@/http-router/implementations/http-router-base.js";
-import { type RouterEntry } from "@/http-router/implementations/types.js";
+
+import type { Router, Result } from "hono/router";
+
+import type {
+    HttpHandlerFn,
+    HttpMiddlewareFn,
+} from "@/http-router/contracts/_module.js";
+import type { RouterEntry } from "@/http-router/implementations/types.js";
 
 function createHonoRouter(): Router<RouterEntry> {
     return new SmartRouter<RouterEntry>({

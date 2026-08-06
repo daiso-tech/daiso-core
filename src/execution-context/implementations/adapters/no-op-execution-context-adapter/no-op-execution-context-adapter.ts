@@ -2,8 +2,10 @@
  * @module ExecutionContext
  */
 
-import { type IExecutionContextAdapter } from "@/execution-context/contracts/_module.js";
-import { callInvocable, type InvocableFn } from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
+
+import type { IExecutionContextAdapter } from "@/execution-context/contracts/_module.js";
+import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/execution-context/no-op-execution-context-adapter"`

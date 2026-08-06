@@ -2,13 +2,14 @@
  * @module FileStorage
  */
 
-import {
-    type FileStorageAdapterVariants,
-    type IFileUrlAdapter,
-    type ISignedFileStorageAdapter,
-} from "@/file-storage/contracts/_module.js";
 import { isSignedFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/is-signed-file-storage-adapter.js";
 import { SignedFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/signed-file-storage-adapter.js";
+
+import type {
+    FileStorageAdapterVariants,
+    IFileUrlAdapter,
+    ISignedFileStorageAdapter,
+} from "@/file-storage/contracts/_module.js";
 
 /**
  * @internal

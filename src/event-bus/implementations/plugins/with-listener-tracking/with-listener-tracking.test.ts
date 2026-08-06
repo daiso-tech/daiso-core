@@ -1,13 +1,14 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { type IEventBusAdapter } from "@/event-bus/contracts/_module.js";
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { withListenerTracking } from "@/event-bus/implementations/plugins/with-listener-tracking/with-listener-tracking.js";
 import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
-import { type PluginFn } from "@/middleware/contracts/_module.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
+
+import type { IEventBusAdapter } from "@/event-bus/contracts/_module.js";
+import type { PluginFn } from "@/middleware/contracts/_module.js";
 
 describe("function: withListenerTracking", () => {
     const context = new NoOpContext();

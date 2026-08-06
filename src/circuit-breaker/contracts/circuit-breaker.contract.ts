@@ -2,8 +2,8 @@
  * @module CircuitBreaker
  */
 
-import { type CircuitBreakerState } from "@/circuit-breaker/contracts/_module.js";
-import { type AsyncLazy } from "@/utilities/_module.js";
+import type { CircuitBreakerState } from "@/circuit-breaker/contracts/_module.js";
+import type { AsyncLazy } from "@/utilities/_module.js";
 
 /**
  * State and metadata methods for a circuit breaker instance.

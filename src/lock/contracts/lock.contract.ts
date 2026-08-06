@@ -2,10 +2,10 @@
  * @module Lock
  */
 
-import { type ILockState } from "@/lock/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import { type AsyncLazy } from "@/utilities/_module.js";
+import type { ILockState } from "@/lock/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { AsyncLazy } from "@/utilities/_module.js";
 
 /**
  * State and metadata methods for a lock instance.

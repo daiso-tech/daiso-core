@@ -2,7 +2,7 @@
  * @module Collection
  */
 
-import { type Invocable, type Promisable } from "@/utilities/_module.js";
+import type { Invocable, Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/collection/contracts"`

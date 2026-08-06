@@ -3,20 +3,6 @@
  */
 
 import { TO_BYTES } from "@/file-size/contracts/_module.js";
-import {
-    type ReqInputs,
-    type FileInputs,
-    type StringInputs,
-    type IValidatedHttpReq,
-    type HttpReqFiles,
-    type IHttpFileCollection,
-    type StaticFileDef,
-    type IHttpFile,
-    type HttpReqSchemas,
-    type IHttpReqBase,
-    type MultiStringInputs,
-    type FileDef,
-} from "@/http-router/contracts/_module.js";
 import { HttpFileCollection } from "@/http-router/implementations/http-file-collection.js";
 import {
     callInvocable,
@@ -24,8 +10,23 @@ import {
     validate,
     validateSync,
     ValidationError,
-    type UndefinedToNull,
 } from "@/utilities/_module.js";
+
+import type {
+    ReqInputs,
+    FileInputs,
+    StringInputs,
+    IValidatedHttpReq,
+    HttpReqFiles,
+    IHttpFileCollection,
+    StaticFileDef,
+    IHttpFile,
+    HttpReqSchemas,
+    IHttpReqBase,
+    MultiStringInputs,
+    FileDef,
+} from "@/http-router/contracts/_module.js";
+import type { UndefinedToNull } from "@/utilities/_module.js";
 
 /**
  * @internal

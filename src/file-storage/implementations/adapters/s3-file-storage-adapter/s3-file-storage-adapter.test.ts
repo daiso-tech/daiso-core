@@ -4,10 +4,7 @@ import {
     PutBucketPolicyCommand,
     S3Client,
 } from "@aws-sdk/client-s3";
-import {
-    type StartedMinioContainer,
-    MinioContainer,
-} from "@testcontainers/minio";
+import { MinioContainer } from "@testcontainers/minio";
 import { Wait } from "testcontainers";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
@@ -16,6 +13,8 @@ import { ExecutionContext } from "@/execution-context/implementations/derivables
 import { S3FileStorageAdapter } from "@/file-storage/implementations/adapters/s3-file-storage-adapter/_module.js";
 import { fileStorageAdapterTestSuite } from "@/file-storage/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedMinioContainer } from "@testcontainers/minio";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("class: S3FileStorageAdapter", () => {

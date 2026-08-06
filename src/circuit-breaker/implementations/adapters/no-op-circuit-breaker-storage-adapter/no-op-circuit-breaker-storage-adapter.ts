@@ -2,14 +2,14 @@
  * @module CircuitBreaker
  */
 
-import {
+import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ICircuitBreakerFactory,
-    type ICircuitBreakerStorageAdapter,
-    type ICircuitBreakerStorageAdapterTransaction,
+    ICircuitBreakerFactory,
+    ICircuitBreakerStorageAdapter,
+    ICircuitBreakerStorageAdapterTransaction,
 } from "@/circuit-breaker/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type InvocableFn } from "@/utilities/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
  * The `NoOpCircuitBreakerStorageAdapter` will do nothing and is used for easily mocking {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} for testing.

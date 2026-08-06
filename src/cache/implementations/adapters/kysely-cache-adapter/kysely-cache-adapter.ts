@@ -2,17 +2,19 @@
  * @module Cache
  */
 
-import { MysqlAdapter, type Kysely } from "kysely";
+import { MysqlAdapter } from "kysely";
 
-import { type ICacheAdapter } from "@/cache/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type ISerde } from "@/serde/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    type IDeinitizable,
-    type IInitizable,
-    type InvocableFn,
-    type IPrunable,
+import type { Kysely } from "kysely";
+
+import type { ICacheAdapter } from "@/cache/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ISerde } from "@/serde/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type {
+    IDeinitizable,
+    IInitizable,
+    InvocableFn,
+    IPrunable,
 } from "@/utilities/_module.js";
 
 /**

@@ -2,15 +2,15 @@
  * @module EventBus
  */
 
-import {
-    type BaseEvent,
-    type EventListenerFn,
+import type {
+    BaseEvent,
+    EventListenerFn,
 } from "@/event-bus/contracts/event-bus-adapter.contract.js";
-import {
-    type IInvocableObject,
-    type OneOrArray,
+import type {
+    IInvocableObject,
+    OneOrArray,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ValidationError,
+    ValidationError,
 } from "@/utilities/_module.js";
 
 /**

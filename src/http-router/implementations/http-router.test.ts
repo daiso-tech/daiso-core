@@ -4,20 +4,22 @@
 
 /* eslint-disable @typescript-eslint/require-await, @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call */
 
-import { type Router } from "hono/router";
 import { RegExpRouter } from "hono/router/reg-exp-router";
 import { SmartRouter } from "hono/router/smart-router";
 import { TrieRouter } from "hono/router/trie-router";
 import { describe, expect, test, vi } from "vitest";
 
 import { contextToken } from "@/execution-context/contracts/execution-context.contract.js";
-import {
-    type HttpHandlerFn,
-    type HttpMiddlewareFn,
-} from "@/http-router/contracts/_module.js";
 import { HttpError } from "@/http-router/contracts/http.errors.js";
 import { HttpRouter } from "@/http-router/implementations/http-router.js";
-import { type RouterEntry } from "@/http-router/implementations/types.js";
+
+import type { Router } from "hono/router";
+
+import type {
+    HttpHandlerFn,
+    HttpMiddlewareFn,
+} from "@/http-router/contracts/_module.js";
+import type { RouterEntry } from "@/http-router/implementations/types.js";
 
 function createHonoRouter(): Router<RouterEntry> {
     return new SmartRouter<RouterEntry>({

@@ -2,16 +2,16 @@
  * @module Semaphore
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ISemaphoreFactory,
-    type ISemaphoreAdapter,
-    type ISemaphoreAdapterState,
-    type SemaphoreAcquireSettings,
+    ISemaphoreFactory,
+    ISemaphoreAdapter,
+    ISemaphoreAdapterState,
+    SemaphoreAcquireSettings,
 } from "@/semaphore/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import { type IDeinitizable } from "@/utilities/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { IDeinitizable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/semaphore/memory-semaphore-adapter"`

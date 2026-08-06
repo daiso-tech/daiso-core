@@ -7,9 +7,10 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type FileAdapterMetadata } from "@/file-storage/contracts/file-storage-adapter.contract.js";
 import { FsFileStorageAdapter } from "@/file-storage/implementations/adapters/fs-file-storage-adapter/_module.js";
 import { fileStorageAdapterTestSuite } from "@/file-storage/implementations/test-utilities/_module.js";
+
+import type { FileAdapterMetadata } from "@/file-storage/contracts/file-storage-adapter.contract.js";
 
 describe("class: FsFileStorageAdapter", () => {
     let adapter_: FsFileStorageAdapter;

@@ -2,17 +2,19 @@
  * @module EventBus
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
-import {
-    type BaseEvent,
-    type BaseEventMap,
-    type EventListenerFn,
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import { type PluginFn } from "@/middleware/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { validate, ValidationError } from "@/utilities/_module.js";
+
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+
+import type {
+    BaseEvent,
+    BaseEventMap,
+    EventListenerFn,
+    IEventBusAdapter,
+} from "@/event-bus/contracts/_module.js";
+import type { PluginFn } from "@/middleware/contracts/_module.js";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 /**
  * A map of event names to their corresponding standard schemas.

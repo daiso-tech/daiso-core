@@ -3,13 +3,8 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
     IsolatedCircuitBreakerError,
     OpenCircuitBreakerError,
-    type CircuitBreakerStateTransition,
-    type ICircuitBreakerAdapter,
     CIRCUIT_BREAKER_TRIGGER,
-    type ICircuitBreakerFactory,
     CIRCUIT_BREAKER_STATE,
-    type CircuitBreakerState,
-    type ICircuitBreaker,
 } from "@/circuit-breaker/contracts/_module.js";
 import {
     DatabaseCircuitBreakerAdapter,
@@ -17,11 +12,19 @@ import {
 } from "@/circuit-breaker/implementations/adapters/_module.js";
 import { CircuitBreakerFactory } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker-factory.js";
 import { ConsecutiveBreaker } from "@/circuit-breaker/implementations/policies/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/serde.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay } from "@/utilities/_module.js";
+
+import type {
+    CircuitBreakerStateTransition,
+    ICircuitBreakerAdapter,
+    ICircuitBreakerFactory,
+    CircuitBreakerState,
+    ICircuitBreaker,
+} from "@/circuit-breaker/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 describe("class: CircuitBreakerFactory", () => {
     const adapter: ICircuitBreakerAdapter = {

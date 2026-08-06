@@ -4,14 +4,14 @@
 
 import { EventEmitter } from "node:events";
 
-import {
-    type BaseEvent,
-    type EventListenerFn,
-    type IEventBusAdapter,
+import type {
+    BaseEvent,
+    EventListenerFn,
+    IEventBusAdapter,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IEventBus,
+    IEventBus,
 } from "@/event-bus/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * The `MemoryEventBusAdapter` is used for easily faking{@link IEventBus | `IEventBus`} for testing.

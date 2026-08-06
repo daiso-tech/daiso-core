@@ -2,22 +2,23 @@
  * @module Semaphore
  */
 
-import {
-    type Document,
-    type Collection,
-    type CollectionOptions,
-    type Db,
-    type ObjectId,
+import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type {
+    Document,
+    Collection,
+    CollectionOptions,
+    Db,
+    ObjectId,
 } from "mongodb";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ISemaphoreAdapter,
-    type ISemaphoreAdapterState,
-    type SemaphoreAcquireSettings,
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISemaphoreAdapter,
+    ISemaphoreAdapterState,
+    SemaphoreAcquireSettings,
 } from "@/semaphore/contracts/_module.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type IDeinitizable, type IInitizable } from "@/utilities/_module.js";
+import type { IDeinitizable, IInitizable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/semaphore/mongodb-semaphore-adapter"`

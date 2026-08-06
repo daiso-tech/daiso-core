@@ -1,9 +1,9 @@
 /**
  * @module Serde
  */
-import {
-    type IFlexibleSerdeAdapter,
-    type ISerdeTransformerAdapter,
+import type {
+    IFlexibleSerdeAdapter,
+    ISerdeTransformerAdapter,
 } from "@/serde/contracts/_module.js";
 
 /**

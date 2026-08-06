@@ -2,7 +2,7 @@
  * @module CircuitBreaker
  */
 
-import { type ICircuitBreakerFactory } from "@/circuit-breaker/contracts/circuit-breaker-factory.contract.js";
+import type { ICircuitBreakerFactory } from "@/circuit-breaker/contracts/circuit-breaker-factory.contract.js";
 
 /**
  * Factory resolver contract for dynamically selecting circuit breaker factory implementations.

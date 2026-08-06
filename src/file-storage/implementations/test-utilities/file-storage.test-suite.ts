@@ -2,27 +2,25 @@
  * @module FileStorage
  */
 
-import {
-    type beforeEach,
-    type ExpectStatic,
-    type SuiteAPI,
-    type TestAPI,
-} from "vitest";
-
 import { FileSize } from "@/file-size/implementations/_module.js";
 import {
     KeyExistsFileError,
     KeyNotFoundFileError,
-    type FileMetadata,
-    type IFile,
-    type IFileStorage,
 } from "@/file-storage/contracts/_module.js";
-import { type ISerde } from "@/serde/contracts/_module.js";
 import {
     isBytesArrayEqualityTester,
     resolveStream,
 } from "@/test-utilities/_module.js";
-import { type Promisable } from "@/utilities/_module.js";
+
+import type { beforeEach, ExpectStatic, SuiteAPI, TestAPI } from "vitest";
+
+import type {
+    FileMetadata,
+    IFile,
+    IFileStorage,
+} from "@/file-storage/contracts/_module.js";
+import type { ISerde } from "@/serde/contracts/_module.js";
+import type { Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/file-storage/test-utilities"`

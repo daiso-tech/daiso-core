@@ -2,8 +2,8 @@
  * @module RateLimiter
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type InvocableFn } from "@/utilities/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
  * Persisted rate limiter state data.

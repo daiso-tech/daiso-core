@@ -2,17 +2,18 @@
  * @module FileStorage
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    FILE_WRITE_ENUM,
-    type ISignedFileStorageAdapter,
-    type FileAdapterMetadata,
-    type FileAdapterStream,
-    type FileWriteEnum,
-    type WritableFileAdapterContent,
-    type WritableFileAdapterStream,
-    type FileAdapterSignedDownloadUrlSettings,
-    type FileAdapterSignedUploadUrlSettings,
+import { FILE_WRITE_ENUM } from "@/file-storage/contracts/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISignedFileStorageAdapter,
+    FileAdapterMetadata,
+    FileAdapterStream,
+    FileWriteEnum,
+    WritableFileAdapterContent,
+    WritableFileAdapterStream,
+    FileAdapterSignedDownloadUrlSettings,
+    FileAdapterSignedUploadUrlSettings,
 } from "@/file-storage/contracts/_module.js";
 
 /**

@@ -3,20 +3,19 @@
  */
 
 import {
-    type IMiddlewareObject,
-    type Middleware,
-    type NextFn,
-    type Use,
-} from "@/middleware/contracts/_module.js";
-import {
-    type InvocableFn,
-    type OneOrMore,
-    type Invocable,
     resolveOneOrMore,
     isInvocableObject,
     resolveInvocable,
     getInvocableName,
 } from "@/utilities/_module.js";
+
+import type {
+    IMiddlewareObject,
+    Middleware,
+    NextFn,
+    Use,
+} from "@/middleware/contracts/_module.js";
+import type { InvocableFn, OneOrMore, Invocable } from "@/utilities/_module.js";
 
 /**
  * @internal

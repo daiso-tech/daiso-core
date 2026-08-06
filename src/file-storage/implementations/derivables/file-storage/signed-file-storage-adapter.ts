@@ -2,20 +2,21 @@
  * @module FileStorage
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type FileAdapterSignedDownloadUrlSettings,
-    type FileAdapterSignedUploadUrlSettings,
-    type FileAdapterMetadata,
-    type FileAdapterStream,
-    type FileWriteEnum,
-    type IFileStorageAdapter,
-    type IFileUrlAdapter,
-    type ISignedFileStorageAdapter,
-    type WritableFileAdapterContent,
-    type WritableFileAdapterStream,
-} from "@/file-storage/contracts/_module.js";
 import { MergedFileUrlAdapter } from "@/file-storage/implementations/derivables/file-storage/merged-file-url-adapter.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    FileAdapterSignedDownloadUrlSettings,
+    FileAdapterSignedUploadUrlSettings,
+    FileAdapterMetadata,
+    FileAdapterStream,
+    FileWriteEnum,
+    IFileStorageAdapter,
+    IFileUrlAdapter,
+    ISignedFileStorageAdapter,
+    WritableFileAdapterContent,
+    WritableFileAdapterStream,
+} from "@/file-storage/contracts/_module.js";
 
 /**
  * @internal

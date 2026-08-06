@@ -2,32 +2,31 @@
  * @module CircuitBreaker
  */
 
-import {
-    CIRCUIT_BREAKER_TRIGGER,
-    type CircuitBreakerFactoryCreateSettings,
-    type ICircuitBreaker,
-    type ICircuitBreakerFactory,
-    type ICircuitBreakerAdapter,
-    type CircuitBreakerTrigger,
-} from "@/circuit-breaker/contracts/_module.js";
+import { CIRCUIT_BREAKER_TRIGGER } from "@/circuit-breaker/contracts/_module.js";
 import { CircuitBreakerSerdeTransformer } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker-serde-transformer.js";
 import { CircuitBreaker } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/serde.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     CORE,
     defaultWaitUntil,
     resolveOneOrMore,
-    type ErrorPolicy,
-    type OneOrMore,
-    type WaitUntil,
 } from "@/utilities/_module.js";
+
+import type {
+    CircuitBreakerFactoryCreateSettings,
+    ICircuitBreaker,
+    ICircuitBreakerFactory,
+    ICircuitBreakerAdapter,
+    CircuitBreakerTrigger,
+} from "@/circuit-breaker/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ISerderRegister } from "@/serde/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { ErrorPolicy, OneOrMore, WaitUntil } from "@/utilities/_module.js";
 
 /**
  * Base configuration shared by all `CircuitBreakerFactory` variants.

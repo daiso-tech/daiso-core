@@ -2,9 +2,9 @@
  * @module HttpRouter
  */
 
-import { type IFileSize } from "@/file-size/contracts/file-size.contract.js";
-import { type IHttpFile } from "@/http-router/contracts/http-file.contract.js";
-import { type Invocable } from "@/utilities/_module.js";
+import type { IFileSize } from "@/file-size/contracts/file-size.contract.js";
+import type { IHttpFile } from "@/http-router/contracts/http-file.contract.js";
+import type { Invocable } from "@/utilities/_module.js";
 
 /**
  * Raw request input values before parsing and validation.

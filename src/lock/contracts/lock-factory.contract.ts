@@ -2,8 +2,8 @@
  * @module Lock
  */
 
-import { type ILock } from "@/lock/contracts/lock.contract.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { ILock } from "@/lock/contracts/lock.contract.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/lock/contracts"`

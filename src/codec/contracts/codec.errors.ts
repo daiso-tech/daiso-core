@@ -2,7 +2,7 @@
  * @module Codec
  */
 
-import { type InferInstance } from "@/utilities/_module.js";
+import type { InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error occurs when a value is unable to be encoded.

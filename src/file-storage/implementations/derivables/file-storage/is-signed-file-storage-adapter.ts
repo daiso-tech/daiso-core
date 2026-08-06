@@ -1,9 +1,9 @@
 /**
  * @module FileStorage
  */
-import {
-    type FileStorageAdapterVariants,
-    type ISignedFileStorageAdapter,
+import type {
+    FileStorageAdapterVariants,
+    ISignedFileStorageAdapter,
 } from "@/file-storage/contracts/_module.js";
 
 /**

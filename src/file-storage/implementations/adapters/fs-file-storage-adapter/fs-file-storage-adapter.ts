@@ -10,19 +10,20 @@ import { pipeline } from "node:stream/promises";
 import etag from "etag";
 import { lookup } from "mime-types";
 
-import { type ICodec } from "@/codec/contracts/_module.js";
 import { Base64Codec } from "@/codec/implementations/base-64-codec/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    FILE_WRITE_ENUM,
-    type FileAdapterMetadata,
-    type FileAdapterStream,
-    type FileWriteEnum,
-    type IFileStorageAdapter,
-    type WritableFileAdapterContent,
-    type WritableFileAdapterStream,
+import { FILE_WRITE_ENUM } from "@/file-storage/contracts/_module.js";
+
+import type { ICodec } from "@/codec/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    FileAdapterMetadata,
+    FileAdapterStream,
+    FileWriteEnum,
+    IFileStorageAdapter,
+    WritableFileAdapterContent,
+    WritableFileAdapterStream,
 } from "@/file-storage/contracts/_module.js";
-import { type IDeinitizable, type IInitizable } from "@/utilities/_module.js";
+import type { IDeinitizable, IInitizable } from "@/utilities/_module.js";
 
 /**
  * Configuration for `FsFileStorageAdapter`.

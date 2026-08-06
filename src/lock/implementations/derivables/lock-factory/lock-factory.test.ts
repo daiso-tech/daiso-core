@@ -2,7 +2,6 @@ import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { type ILock } from "@/lock/contracts/lock.contract.js";
 import {
     KyselyLockAdapter,
     MemoryLockAdapter,
@@ -11,6 +10,8 @@ import { LockFactory } from "@/lock/implementations/derivables/_module.js";
 import { lockFactoryTestSuite } from "@/lock/implementations/test-utilities/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
+
+import type { ILock } from "@/lock/contracts/lock.contract.js";
 
 describe("class: LockFactory", () => {
     lockFactoryTestSuite({

@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
-import { type ICacheAdapter } from "@/cache/contracts/_module.js";
 import { NoOpCacheAdapter } from "@/cache/implementations/adapters/_module.js";
 import { withCacheSchema } from "@/cache/implementations/plugins/with-cache-schema/with-cache-schema.js";
 import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
@@ -10,6 +9,8 @@ import { useFactory } from "@/middleware/implementations/use-factory/_module.js"
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { ValidationError } from "@/utilities/_module.js";
+
+import type { ICacheAdapter } from "@/cache/contracts/_module.js";
 
 describe("function: withCacheSchema", () => {
     const context = new NoOpContext();

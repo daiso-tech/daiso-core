@@ -1,9 +1,10 @@
 import { describe, test, expect } from "vitest";
 import { z } from "zod";
 
-import { type BaseConfig } from "@/config-accessor/contracts/_module.js";
 import { ConfigAccessor } from "@/config-accessor/implementations/_module.js";
 import { ValidationError } from "@/utilities/_module.js";
+
+import type { BaseConfig } from "@/config-accessor/contracts/_module.js";
 
 describe("class: ConfigAccessor", () => {
     describe("class: ConfigAccessor", () => {

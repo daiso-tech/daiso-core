@@ -1,8 +1,8 @@
 /**
  * @module Cache
  */
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * Low-level adapter contract for cache storage operations.

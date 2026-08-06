@@ -2,25 +2,22 @@
  * @module ExecutionContext
  */
 
-import {
-    type ContextToken,
-    type DecrementSettings,
-    type IContext,
-    type ICopyableContext,
-    type IExecutionContext,
-    type IExecutionContextAdapter,
-    type IncrementSettings,
-    type PutDecrementSettings,
-    type PutIncrementSettings,
-} from "@/execution-context/contracts/_module.js";
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
 import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
-import {
-    callInvocable,
-    type Invocable,
-    type InvocableFn,
-    type Lazyable,
-} from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
+
+import type {
+    ContextToken,
+    DecrementSettings,
+    IContext,
+    ICopyableContext,
+    IExecutionContext,
+    IExecutionContextAdapter,
+    IncrementSettings,
+    PutDecrementSettings,
+    PutIncrementSettings,
+} from "@/execution-context/contracts/_module.js";
+import type { Invocable, InvocableFn, Lazyable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/execution-context"`

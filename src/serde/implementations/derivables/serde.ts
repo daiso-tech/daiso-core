@@ -3,14 +3,6 @@
  */
 
 import {
-    type IFlexibleSerde,
-    type IFlexibleSerdeAdapter,
-    type ISerdeTransformer,
-    type ISerializable,
-    type SerializableClass,
-    type SerializedValueBase,
-} from "@/serde/contracts/_module.js";
-import {
     ArrayBufferSerdeTransformer,
     BufferSerdeTransformer,
     Uint8ArraySerdeTransformer,
@@ -37,8 +29,17 @@ import {
 import {
     getConstructorName,
     resolveOneOrMoreStr,
-    type OneOrMore,
 } from "@/utilities/_module.js";
+
+import type {
+    IFlexibleSerde,
+    IFlexibleSerdeAdapter,
+    ISerdeTransformer,
+    ISerializable,
+    SerializableClass,
+    SerializedValueBase,
+} from "@/serde/contracts/_module.js";
+import type { OneOrMore } from "@/utilities/_module.js";
 
 /**
  * Configuration for the `Serde` class.

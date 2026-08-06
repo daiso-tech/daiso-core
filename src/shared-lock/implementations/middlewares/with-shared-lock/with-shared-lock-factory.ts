@@ -4,10 +4,12 @@
 
 import { v4 } from "uuid";
 
-import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
-import { type ISharedLockFactory } from "@/shared-lock/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
-import { callInvocable, type Invocable } from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
+
+import type { MiddlewareFn } from "@/middleware/contracts/_module.js";
+import type { ISharedLockFactory } from "@/shared-lock/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
+import type { Invocable } from "@/utilities/_module.js";
 
 /**
  * Constants that specify whether the middleware should acquire the shared lock

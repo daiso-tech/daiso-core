@@ -4,27 +4,30 @@
 
 import { lookup } from "mime-types";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { TO_BYTES } from "@/file-size/contracts/_module.js";
 import { FileSize } from "@/file-size/implementations/_module.js";
 import {
-    type IFile,
-    type ISignedFileStorageAdapter,
-    type FileMetadata,
-    type WritableFileStream,
     KeyExistsFileError,
     KeyNotFoundFileError,
-    type FileDownloadUrlOptions,
     FILE_WRITE_ENUM,
-    type WritableFileContent,
-    type FileStorageAdapterVariants,
     InvalidKeyFileError,
-    type FileUploadUrlOptions,
 } from "@/file-storage/contracts/_module.js";
 import { resolveFileContent } from "@/file-storage/implementations/derivables/file-storage/resolve-file-content.js";
 import { ResolveFileStream } from "@/file-storage/implementations/derivables/file-storage/resolve-file-stream.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type InvocableFn } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IFile,
+    ISignedFileStorageAdapter,
+    FileMetadata,
+    WritableFileStream,
+    FileDownloadUrlOptions,
+    WritableFileContent,
+    FileStorageAdapterVariants,
+    FileUploadUrlOptions,
+} from "@/file-storage/contracts/_module.js";
+import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
  * @internal

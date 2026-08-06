@@ -1,21 +1,22 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    FILE_WRITE_ENUM,
-    type FileAdapterMetadata,
-    type FileAdapterSignedDownloadUrlSettings,
-    type FileAdapterSignedUploadUrlSettings,
-    type FileAdapterStream,
-    type FileWriteEnum,
-    type IFileStorageAdapter,
-    type IFileUrlAdapter,
-    type WritableFileAdapterContent,
-    type WritableFileAdapterStream,
-} from "@/file-storage/contracts/_module.js";
+import { FILE_WRITE_ENUM } from "@/file-storage/contracts/_module.js";
 import { SignedFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/signed-file-storage-adapter.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    FileAdapterMetadata,
+    FileAdapterSignedDownloadUrlSettings,
+    FileAdapterSignedUploadUrlSettings,
+    FileAdapterStream,
+    FileWriteEnum,
+    IFileStorageAdapter,
+    IFileUrlAdapter,
+    WritableFileAdapterContent,
+    WritableFileAdapterStream,
+} from "@/file-storage/contracts/_module.js";
 
 describe("class: SignedFileStorageAdapter", () => {
     let signedFileStorageAdapter: SignedFileStorageAdapter;

@@ -2,7 +2,7 @@
  * @module Utilities
  */
 
-import { type WaitUntil } from "@/utilities/types/_module.js";
+import type { WaitUntil } from "@/utilities/types/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/utilities"`

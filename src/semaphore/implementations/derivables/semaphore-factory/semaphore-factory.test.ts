@@ -2,13 +2,14 @@ import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { type ISemaphore } from "@/semaphore/contracts/_module.js";
 import { MemorySemaphoreAdapter } from "@/semaphore/implementations/adapters/_module.js";
 import { KyselySemaphoreAdapter } from "@/semaphore/implementations/adapters/kysely-semaphore-adapter/_module.js";
 import { SemaphoreFactory } from "@/semaphore/implementations/derivables/_module.js";
 import { semaphoreFactoryTestSuite } from "@/semaphore/implementations/test-utilities/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
+
+import type { ISemaphore } from "@/semaphore/contracts/_module.js";
 
 describe("class: SemaphoreFactory", () => {
     semaphoreFactoryTestSuite({

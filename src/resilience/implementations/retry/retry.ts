@@ -2,27 +2,27 @@
  * @module Resilience
  */
 
-import { type BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
 import { exponentialBackoff } from "@/backoff-policies/implementations/_module.js";
-import {
-    type MiddlewareFn,
-    type NextFn,
-} from "@/middleware/contracts/_module.js";
 import { RetryResilienceError } from "@/resilience/implementations/resilience.errors.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
-    type Invocable,
-    type ErrorPolicySettings,
     callInvocable,
     callErrorPolicyOnValue,
     delay,
     callErrorPolicyOnThrow,
     UnexpectedError,
-    type ErrorPolicy,
-    type Option,
     optionSome,
     optionNone,
+} from "@/utilities/_module.js";
+
+import type { BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
+import type { MiddlewareFn, NextFn } from "@/middleware/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type {
+    Invocable,
+    ErrorPolicySettings,
+    ErrorPolicy,
+    Option,
 } from "@/utilities/_module.js";
 
 /**

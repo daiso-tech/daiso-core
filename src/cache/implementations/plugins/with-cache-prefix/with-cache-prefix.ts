@@ -2,8 +2,8 @@
  * @module Cache
  */
 
-import { type ICacheAdapter } from "@/cache/contracts/_module.js";
-import { type PluginFn } from "@/middleware/contracts/_module.js";
+import type { ICacheAdapter } from "@/cache/contracts/_module.js";
+import type { PluginFn } from "@/middleware/contracts/_module.js";
 
 /**
  * Creates a plugin that prefixes all keys passed to a cache adapter.

@@ -2,8 +2,8 @@
  * @module SharedLock
  */
 
-import { type PluginFn } from "@/middleware/contracts/_module.js";
-import { type ISharedLockAdapter } from "@/shared-lock/contracts/_module.js";
+import type { PluginFn } from "@/middleware/contracts/_module.js";
+import type { ISharedLockAdapter } from "@/shared-lock/contracts/_module.js";
 
 /**
  * Creates a plugin that prefixes all keys passed to a shared-lock adapter.

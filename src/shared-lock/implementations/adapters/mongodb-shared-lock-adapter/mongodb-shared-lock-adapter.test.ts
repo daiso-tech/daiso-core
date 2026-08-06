@@ -1,18 +1,16 @@
-import {
-    type StartedMongoDBContainer,
-    MongoDBContainer,
-} from "@testcontainers/mongodb";
+import { MongoDBContainer } from "@testcontainers/mongodb";
 import { MongoClient } from "mongodb";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    MongodbSharedLockAdapter,
-    type MongodbSharedLockDocument,
-} from "@/shared-lock/implementations/adapters/mongodb-shared-lock-adapter/mongodb-shared-lock-adapter.js";
+import { MongodbSharedLockAdapter } from "@/shared-lock/implementations/adapters/mongodb-shared-lock-adapter/mongodb-shared-lock-adapter.js";
 import { sharedLockAdapterTestSuite } from "@/shared-lock/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedMongoDBContainer } from "@testcontainers/mongodb";
+
+import type { MongodbSharedLockDocument } from "@/shared-lock/implementations/adapters/mongodb-shared-lock-adapter/mongodb-shared-lock-adapter.js";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("class: MongodbSharedLockAdapter", () => {

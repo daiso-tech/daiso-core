@@ -2,14 +2,13 @@
  * @module Collection
  */
 
-import {
-    type AsyncMap,
-    type IAsyncCollection,
+import { resolveInvocable } from "@/utilities/_module.js";
+
+import type {
+    AsyncMap,
+    IAsyncCollection,
 } from "@/collection/contracts/_module.js";
-import {
-    resolveInvocable,
-    type AsyncIterableValue,
-} from "@/utilities/_module.js";
+import type { AsyncIterableValue } from "@/utilities/_module.js";
 
 /**
  * @internal

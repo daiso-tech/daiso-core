@@ -2,8 +2,8 @@
  * @module EventBus
  */
 
-import { type IEventBusAdapter } from "@/event-bus/contracts/_module.js";
-import { type PluginFn } from "@/middleware/contracts/_module.js";
+import type { IEventBusAdapter } from "@/event-bus/contracts/_module.js";
+import type { PluginFn } from "@/middleware/contracts/_module.js";
 
 /**
  * Creates a plugin that prefixes all event names passed to an event bus adapter.

@@ -18,10 +18,11 @@ import {
     resolvePolynomialBackoffSettings,
     serializePolynomialBackoffSettings,
 } from "@/backoff-policies/implementations/polynomial-backoff/_module.js";
-import {
-    BACKOFFS,
-    type BackoffSettingsEnum,
-    type SerializedBackoffSettingsEnum,
+import { BACKOFFS } from "@/backoff-policies/implementations/types.js";
+
+import type {
+    BackoffSettingsEnum,
+    SerializedBackoffSettingsEnum,
 } from "@/backoff-policies/implementations/types.js";
 
 /**

@@ -3,21 +3,18 @@
  */
 
 import {
-    type ICache,
-    type ICacheAdapter,
     KeyNotFoundCacheError,
     KeyExistsCacheError,
 } from "@/cache/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    resolveAsyncLazyable,
-    type AsyncLazyable,
-    type NoneFunc,
-} from "@/utilities/_module.js";
+import { resolveAsyncLazyable } from "@/utilities/_module.js";
+
+import type { ICache, ICacheAdapter } from "@/cache/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { AsyncLazyable, NoneFunc } from "@/utilities/_module.js";
 
 /**
  * Base configuration shared by all `Cache` variants.

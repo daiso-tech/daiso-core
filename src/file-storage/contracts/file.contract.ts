@@ -2,9 +2,9 @@
  * @module FileStorage
  */
 
-import { type IFileSize } from "@/file-size/contracts/_module.js";
-import { type FileSize } from "@/file-size/implementations/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { IFileSize } from "@/file-size/contracts/_module.js";
+import type { FileSize } from "@/file-size/implementations/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
  * Configuration options for generating signed download URLs.

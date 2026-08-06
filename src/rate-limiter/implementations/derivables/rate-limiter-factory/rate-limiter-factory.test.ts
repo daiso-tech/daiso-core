@@ -1,16 +1,8 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import {
     BlockedRateLimiterError,
     RATE_LIMITER_STATE,
-    type IRateLimiterFactory,
-    type RateLimiterExpiredState,
-    type IRateLimiterAdapter,
-    type IRateLimiterAdapterState,
-    type RateLimiterAllowedState,
-    type RateLimiterBlockedState,
-    type IRateLimiter,
 } from "@/rate-limiter/contracts/_module.js";
 import {
     DatabaseRateLimiterAdapter,
@@ -21,6 +13,17 @@ import { FixedWindowLimiter } from "@/rate-limiter/implementations/policies/_mod
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IRateLimiterFactory,
+    RateLimiterExpiredState,
+    IRateLimiterAdapter,
+    IRateLimiterAdapterState,
+    RateLimiterAllowedState,
+    RateLimiterBlockedState,
+    IRateLimiter,
+} from "@/rate-limiter/contracts/_module.js";
 
 describe("class: RateLimiterFactory", () => {
     const adapter: IRateLimiterAdapter = {

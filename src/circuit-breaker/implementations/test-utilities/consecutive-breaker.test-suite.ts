@@ -2,32 +2,25 @@
  * @module CircuitBreaker
  */
 
-import {
-    type TestAPI,
-    type SuiteAPI,
-    type ExpectStatic,
-    type beforeEach,
-} from "vitest";
-
-import {
-    BACKOFFS,
-    type ConstantBackoffSettingsEnum,
-} from "@/backoff-policies/implementations/_module.js";
-import {
-    CIRCUIT_BREAKER_STATE,
-    type CircuitBreakerStateTransition,
-    type ICircuitBreakerAdapter,
-} from "@/circuit-breaker/contracts/_module.js";
-import {
-    BREAKER_POLICIES,
-    type ConsecutiveBreakerSettingsEnum,
-} from "@/circuit-breaker/implementations/policies/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import { BACKOFFS } from "@/backoff-policies/implementations/_module.js";
+import { CIRCUIT_BREAKER_STATE } from "@/circuit-breaker/contracts/_module.js";
+import { BREAKER_POLICIES } from "@/circuit-breaker/implementations/policies/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay, type Promisable } from "@/utilities/_module.js";
+import { delay } from "@/utilities/_module.js";
+
+import type { TestAPI, SuiteAPI, ExpectStatic, beforeEach } from "vitest";
+
+import type { ConstantBackoffSettingsEnum } from "@/backoff-policies/implementations/_module.js";
+import type {
+    CircuitBreakerStateTransition,
+    ICircuitBreakerAdapter,
+} from "@/circuit-breaker/contracts/_module.js";
+import type { ConsecutiveBreakerSettingsEnum } from "@/circuit-breaker/implementations/policies/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/circuit-breaker/test-utilities"`

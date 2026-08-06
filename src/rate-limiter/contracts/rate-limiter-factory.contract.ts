@@ -2,8 +2,8 @@
  * @module RateLimiter
  */
 
-import { type IRateLimiter } from "@/rate-limiter/contracts/rate-limiter.contract.js";
-import { type ErrorPolicySettings } from "@/utilities/_module.js";
+import type { IRateLimiter } from "@/rate-limiter/contracts/rate-limiter.contract.js";
+import type { ErrorPolicySettings } from "@/utilities/_module.js";
 
 /**
  * Configuration settings for creating a rate limiter instance through the factory.

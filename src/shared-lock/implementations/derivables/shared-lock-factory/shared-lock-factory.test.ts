@@ -4,13 +4,14 @@ import { beforeEach, describe, expect, test } from "vitest";
 
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
-import { type ISharedLock } from "@/shared-lock/contracts/_module.js";
 import {
     KyselySharedLockAdapter,
     MemorySharedLockAdapter,
 } from "@/shared-lock/implementations/adapters/_module.js";
 import { SharedLockFactory } from "@/shared-lock/implementations/derivables/_module.js";
 import { sharedLockFactoryTestSuite } from "@/shared-lock/implementations/test-utilities/_module.js";
+
+import type { ISharedLock } from "@/shared-lock/contracts/_module.js";
 
 describe("class: SharedLockFactory", () => {
     sharedLockFactoryTestSuite({

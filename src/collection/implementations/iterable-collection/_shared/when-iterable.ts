@@ -2,11 +2,9 @@
  * @module Collection
  */
 
-import {
-    type ICollection,
-    type Modifier,
-} from "@/collection/contracts/_module.js";
 import { resolveInvocable } from "@/utilities/_module.js";
+
+import type { ICollection, Modifier } from "@/collection/contracts/_module.js";
 
 /**
  * @internal

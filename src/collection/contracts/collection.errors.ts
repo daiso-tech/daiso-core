@@ -2,7 +2,7 @@
  * @module Collection
  */
 
-import { type InferInstance } from "@/utilities/_module.js";
+import type { InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error is thrown when the item is not found.

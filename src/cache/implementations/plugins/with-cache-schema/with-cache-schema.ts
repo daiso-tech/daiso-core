@@ -2,12 +2,14 @@
  * @module Cache
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
-import { type ICacheAdapter } from "@/cache/contracts/_module.js";
-import { type PluginFn } from "@/middleware/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { validate, ValidationError } from "@/utilities/_module.js";
+
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+
+import type { ICacheAdapter } from "@/cache/contracts/_module.js";
+import type { PluginFn } from "@/middleware/contracts/_module.js";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 /**
  * Settings for the {@link withCacheSchema} plugin.

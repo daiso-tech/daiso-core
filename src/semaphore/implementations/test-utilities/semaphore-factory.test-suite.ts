@@ -1,35 +1,34 @@
 /**
  * @module Semaphore
  */
-import {
-    type TestAPI,
-    type SuiteAPI,
-    type ExpectStatic,
-    type beforeEach,
-    vi,
-} from "vitest";
+import { vi } from "vitest";
 
 import {
-    type ISemaphoreFactory,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ISemaphore,
+
     LimitReachedSemaphoreError,
     FailedReleaseSemaphoreError,
     FailedRefreshSemaphoreError,
     SEMAPHORE_STATE,
-    type ISemaphoreExpiredState,
-    type ISemaphoreUnacquiredState,
-    type ISemaphoreLimitReachedState,
-    type ISemaphoreAcquiredState,
 } from "@/semaphore/contracts/_module.js";
-import { type ISerde } from "@/serde/contracts/_module.js";
 import { createIsTimeSpanEqualityTester } from "@/test-utilities/_module.js";
-import {
-    TO_MILLISECONDS,
-    type ITimeSpan,
-} from "@/time-span/contracts/_module.js";
+import { TO_MILLISECONDS } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay, type Promisable } from "@/utilities/_module.js";
+import { delay } from "@/utilities/_module.js";
+
+import type { TestAPI, SuiteAPI, ExpectStatic, beforeEach } from "vitest";
+
+import type {
+    ISemaphoreFactory,
+    ISemaphore,
+    ISemaphoreExpiredState,
+    ISemaphoreUnacquiredState,
+    ISemaphoreLimitReachedState,
+    ISemaphoreAcquiredState,
+} from "@/semaphore/contracts/_module.js";
+import type { ISerde } from "@/serde/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/semaphore/test-utilities"`

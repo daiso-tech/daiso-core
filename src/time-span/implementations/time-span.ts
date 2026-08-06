@@ -4,12 +4,12 @@
 
 import { parse, format } from "@lukeed/ms";
 
-import { type ISerializable } from "@/serde/contracts/_module.js";
-import {
-    TO_MILLISECONDS,
-    type ITimeSpan,
-} from "@/time-span/contracts/_module.js";
-import { UnexpectedError, type IComparable } from "@/utilities/_module.js";
+import { TO_MILLISECONDS } from "@/time-span/contracts/_module.js";
+import { UnexpectedError } from "@/utilities/_module.js";
+
+import type { ISerializable } from "@/serde/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { IComparable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/time-span"`

@@ -1,24 +1,19 @@
-import {
-    MySqlContainer,
-    type StartedMySqlContainer,
-} from "@testcontainers/mysql";
-import {
-    Kysely,
-    MysqlDialect,
-    type ColumnMetadata,
-    type TableMetadata,
-} from "kysely";
-import { createPool, type Pool } from "mysql2";
+import { MySqlContainer } from "@testcontainers/mysql";
+import { Kysely, MysqlDialect } from "kysely";
+import { createPool } from "mysql2";
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
 
-import {
-    KyselyCircuitBreakerStorageAdapter,
-    type KyselyCircuitBreakerStorageTables,
-} from "@/circuit-breaker/implementations/adapters/kysely-circuit-breaker-storage-adapter/kysely-circuit-breaker-storage-adapter.js";
+import { KyselyCircuitBreakerStorageAdapter } from "@/circuit-breaker/implementations/adapters/kysely-circuit-breaker-storage-adapter/kysely-circuit-breaker-storage-adapter.js";
 import { circuitBreakerStorageAdapterTestSuite } from "@/circuit-breaker/implementations/test-utilities/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/super-json-serde-adapter/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedMySqlContainer } from "@testcontainers/mysql";
+import type { ColumnMetadata, TableMetadata } from "kysely";
+import type { Pool } from "mysql2";
+
+import type { KyselyCircuitBreakerStorageTables } from "@/circuit-breaker/implementations/adapters/kysely-circuit-breaker-storage-adapter/kysely-circuit-breaker-storage-adapter.js";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("mysql class: KyselyCircuitBreakerStorageAdapter", () => {

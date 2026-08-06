@@ -2,26 +2,26 @@
  * @module RateLimiter
  */
 
-import {
-    type ClientSession,
-    type Collection,
-    type CollectionOptions,
-    type Db,
-    type MongoClient,
-    type ObjectId,
+import type {
+    ClientSession,
+    Collection,
+    CollectionOptions,
+    Db,
+    MongoClient,
+    ObjectId,
 } from "mongodb";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type IRateLimiterData,
-    type IRateLimiterStorageAdapter,
-    type IRateLimiterStorageAdapterTransaction,
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IRateLimiterData,
+    IRateLimiterStorageAdapter,
+    IRateLimiterStorageAdapterTransaction,
 } from "@/rate-limiter/contracts/_module.js";
-import { type ISerde } from "@/serde/contracts/_module.js";
-import {
-    type IDeinitizable,
-    type IInitizable,
-    type InvocableFn,
+import type { ISerde } from "@/serde/contracts/_module.js";
+import type {
+    IDeinitizable,
+    IInitizable,
+    InvocableFn,
 } from "@/utilities/_module.js";
 
 /**

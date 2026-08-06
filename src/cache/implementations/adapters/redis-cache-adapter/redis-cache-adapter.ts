@@ -2,16 +2,19 @@
  * @module Cache
  */
 
-import { ReplyError, type Redis, type Result } from "ioredis";
+import { ReplyError } from "ioredis";
 
-import { type ICacheAdapter } from "@/cache/contracts/_module.js";
 import { RedisCacheAdapterSerde } from "@/cache/implementations/adapters/redis-cache-adapter/redis-cache-adapter-serde.js";
 import { ClearIterable } from "@/cache/implementations/adapters/redis-cache-adapter/utilities.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type ISerde } from "@/serde/contracts/_module.js";
+
+import type { Redis, Result } from "ioredis";
+
+import type { ICacheAdapter } from "@/cache/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ISerde } from "@/serde/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 declare module "ioredis" {
     // eslint-disable-next-line @typescript-eslint/naming-convention

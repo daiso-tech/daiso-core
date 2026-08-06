@@ -2,26 +2,10 @@
  * @module Collection
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
 import {
-    type Collapse,
-    type Comparator,
-    type PredicateInvocable,
-    type ForEach,
-    type ICollection,
     ItemNotFoundCollectionError,
-    type Map,
-    type Modifier,
     MultipleItemsFoundCollectionError,
-    type Tap,
-    type Transform,
-    type Reduce,
     EmptyCollectionError,
-    type CrossJoinResult,
-    type EnsureMap,
-    type EnsureRecord,
-    type SerializedCollection,
 } from "@/collection/contracts/_module.js";
 import {
     CrossJoinIterable,
@@ -62,16 +46,33 @@ import {
     isInvocable,
     resolveInvocable,
     resolveIterableValue,
-    type IterableValue,
-    type Lazyable,
     resolveLazyable,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     UnexpectedError,
-    type Option,
     optionSome,
     optionNone,
     OPTION,
 } from "@/utilities/_module.js";
+
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+
+import type {
+    Collapse,
+    Comparator,
+    PredicateInvocable,
+    ForEach,
+    ICollection,
+    Map,
+    Modifier,
+    Tap,
+    Transform,
+    Reduce,
+    CrossJoinResult,
+    EnsureMap,
+    EnsureRecord,
+    SerializedCollection,
+} from "@/collection/contracts/_module.js";
+import type { IterableValue, Lazyable, Option } from "@/utilities/_module.js";
 
 /**
  * All methods that return {@link ICollection | `ICollection`} are executed lazly, meaning the execution will occur iterating the items withthe `forEach` method or `for of` loop.

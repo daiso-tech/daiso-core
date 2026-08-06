@@ -2,15 +2,15 @@
  * @module HttpRouter
  */
 
-import { type HttpHandler } from "@/http-router/contracts/http-handler.contract.js";
-import { type HttpMiddleware } from "@/http-router/contracts/http-middleware.contract.js";
-import { type HttpMethod } from "@/http-router/contracts/http-req.contract.js";
-import { type IWinterTcFetch } from "@/http-router/contracts/winter-tc-fetch.contract.js";
-import {
-    type InvocableFn,
-    type IInvocableObject,
-    type OneOrAtLeastOne,
-    type Invocable,
+import type { HttpHandler } from "@/http-router/contracts/http-handler.contract.js";
+import type { HttpMiddleware } from "@/http-router/contracts/http-middleware.contract.js";
+import type { HttpMethod } from "@/http-router/contracts/http-req.contract.js";
+import type { IWinterTcFetch } from "@/http-router/contracts/winter-tc-fetch.contract.js";
+import type {
+    InvocableFn,
+    IInvocableObject,
+    OneOrAtLeastOne,
+    Invocable,
 } from "@/utilities/_module.js";
 
 /**

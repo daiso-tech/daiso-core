@@ -3,8 +3,10 @@
  */
 import { Buffer } from "node:buffer";
 
-import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
-import { getConstructorName, type OneOrMore } from "@/utilities/_module.js";
+import { getConstructorName } from "@/utilities/_module.js";
+
+import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
+import type { OneOrMore } from "@/utilities/_module.js";
 
 /**
  * @internal

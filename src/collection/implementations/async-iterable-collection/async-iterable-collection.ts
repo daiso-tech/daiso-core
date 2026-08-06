@@ -2,25 +2,10 @@
  * @module Collection
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
 import {
-    type AsyncCollapse,
-    type AsyncPredicate,
-    type AsyncForEach,
-    type AsyncMap,
-    type AsyncModifier,
-    type AsyncTap,
-    type AsyncTransform,
-    type Comparator,
-    type IAsyncCollection,
     ItemNotFoundCollectionError,
     MultipleItemsFoundCollectionError,
-    type AsyncReduce,
     EmptyCollectionError,
-    type CrossJoinResult,
-    type EnsureMap,
-    type EnsureRecord,
 } from "@/collection/contracts/_module.js";
 import {
     AsyncCrossJoinIterable,
@@ -61,15 +46,35 @@ import {
     isInvocable,
     resolveAsyncIterableValue,
     resolveInvocable,
-    type AsyncIterableValue,
-    type AsyncLazyable,
     resolveAsyncLazyable,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     UnexpectedError,
-    type Option,
     OPTION,
     optionSome,
     optionNone,
+} from "@/utilities/_module.js";
+
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+
+import type {
+    AsyncCollapse,
+    AsyncPredicate,
+    AsyncForEach,
+    AsyncMap,
+    AsyncModifier,
+    AsyncTap,
+    AsyncTransform,
+    Comparator,
+    IAsyncCollection,
+    AsyncReduce,
+    CrossJoinResult,
+    EnsureMap,
+    EnsureRecord,
+} from "@/collection/contracts/_module.js";
+import type {
+    AsyncIterableValue,
+    AsyncLazyable,
+    Option,
 } from "@/utilities/_module.js";
 
 /**

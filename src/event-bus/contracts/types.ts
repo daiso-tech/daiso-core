@@ -2,10 +2,10 @@
  * @module EventBus
  */
 
-import { type IEventBusAdapter } from "@/event-bus/contracts/event-bus-adapter.contract.js";
-import {
-    type BaseEventMap,
-    type IEventBus,
+import type { IEventBusAdapter } from "@/event-bus/contracts/event-bus-adapter.contract.js";
+import type {
+    BaseEventMap,
+    IEventBus,
 } from "@/event-bus/contracts/event-bus.contract.js";
 
 /**

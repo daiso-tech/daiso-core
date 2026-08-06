@@ -1,15 +1,8 @@
 /**
  * @module SharedLock
  */
-import {
-    type TestAPI,
-    type SuiteAPI,
-    type ExpectStatic,
-    type beforeEach,
-    vi,
-} from "vitest";
+import { vi } from "vitest";
 
-import { type ISerde } from "@/serde/contracts/_module.js";
 import {
     FailedAcquireWriterLockError,
     FailedRefreshReaderSemaphoreError,
@@ -18,19 +11,26 @@ import {
     FailedReleaseWriterLockError,
     LimitReachedReaderSemaphoreError,
     SHARED_LOCK_STATE,
-    type ISharedLock,
-    type ISharedLockExpiredState,
-    type ISharedLockFactory,
-    type ISharedLockReaderAcquiredState,
-    type ISharedLockReaderLimitReachedState,
-    type ISharedLockReaderUnacquiredState,
-    type ISharedLockWriterAcquiredState,
-    type ISharedLockWriterUnavailableState,
 } from "@/shared-lock/contracts/_module.js";
 import { createIsTimeSpanEqualityTester } from "@/test-utilities/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay, type Promisable } from "@/utilities/_module.js";
+import { delay } from "@/utilities/_module.js";
+
+import type { TestAPI, SuiteAPI, ExpectStatic, beforeEach } from "vitest";
+
+import type { ISerde } from "@/serde/contracts/_module.js";
+import type {
+    ISharedLock,
+    ISharedLockExpiredState,
+    ISharedLockFactory,
+    ISharedLockReaderAcquiredState,
+    ISharedLockReaderLimitReachedState,
+    ISharedLockReaderUnacquiredState,
+    ISharedLockWriterAcquiredState,
+    ISharedLockWriterUnavailableState,
+} from "@/shared-lock/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { Promisable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/shared-lock/test-utilities"`

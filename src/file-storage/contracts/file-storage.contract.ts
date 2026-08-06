@@ -1,7 +1,7 @@
 /**
  * @module FileStorage
  */
-import { type IFile } from "@/file-storage/contracts/file.contract.js";
+import type { IFile } from "@/file-storage/contracts/file.contract.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`

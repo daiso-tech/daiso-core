@@ -2,14 +2,14 @@
  * @module CircuitBreaker
  */
 
-import {
-    type ICircuitBreakerStorageAdapter,
-    type ICircuitBreakerStorageAdapterTransaction,
+import type {
+    ICircuitBreakerStorageAdapter,
+    ICircuitBreakerStorageAdapterTransaction,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ICircuitBreakerFactory,
+    ICircuitBreakerFactory,
 } from "@/circuit-breaker/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type IDeinitizable, type InvocableFn } from "@/utilities/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { IDeinitizable, InvocableFn } from "@/utilities/_module.js";
 
 /**
  * The `MemoryCircuitBreakerStorageAdapter` is used for easily facking {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} for testing.

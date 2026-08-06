@@ -2,8 +2,8 @@
  * @module Codec
  */
 
-import { type IDecoder } from "@/codec/contracts/decoder.contract.js";
-import { type IEncoder } from "@/codec/contracts/encoder.contract.js";
+import type { IDecoder } from "@/codec/contracts/decoder.contract.js";
+import type { IEncoder } from "@/codec/contracts/encoder.contract.js";
 
 /**
  * Complete codec contract combining encoding and decoding capabilities.

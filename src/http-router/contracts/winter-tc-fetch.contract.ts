@@ -1,7 +1,7 @@
 /**
  * @module HttpRouter
  */
-import { type InvocableFn, type Promisable } from "@/utilities/_module.js";
+import type { InvocableFn, Promisable } from "@/utilities/_module.js";
 
 /**
  * A function that handles an HTTP request using the WinterTC fetch signature.

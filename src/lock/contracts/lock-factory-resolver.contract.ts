@@ -2,7 +2,7 @@
  * @module Lock
  */
 
-import { type ILockFactory } from "@/lock/contracts/lock-factory.contract.js";
+import type { ILockFactory } from "@/lock/contracts/lock-factory.contract.js";
 
 /**
  * Factory resolver contract for dynamically selecting lock factory implementations.

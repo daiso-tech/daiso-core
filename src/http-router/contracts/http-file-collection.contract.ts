@@ -2,13 +2,14 @@
  * @module HttpRouter
  */
 
-import { type IHttpFile } from "@/http-router/contracts/http-file.contract.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     FileIndexOutOfBoundsError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     EmptyFileCollectionError,
 } from "@/http-router/contracts/http-file.errors.js";
+
+import type { IHttpFile } from "@/http-router/contracts/http-file.contract.js";
 
 /**
  * A collection of validated uploaded files for a single file field.

@@ -4,10 +4,11 @@ import { NoOpContext } from "@/execution-context/implementations/derivables/exec
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
-import { type ISemaphoreAdapter } from "@/semaphore/contracts/_module.js";
 import { NoOpSemaphoreAdapter } from "@/semaphore/implementations/adapters/_module.js";
 import { withSemaphorePrefix } from "@/semaphore/implementations/plugins/with-semaphore-prefix/with-semaphore-prefix.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { ISemaphoreAdapter } from "@/semaphore/contracts/_module.js";
 
 describe("function: withSemaphorePrefix", () => {
     const context = new NoOpContext();

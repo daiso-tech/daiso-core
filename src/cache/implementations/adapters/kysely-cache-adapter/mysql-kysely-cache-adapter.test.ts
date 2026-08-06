@@ -1,9 +1,6 @@
-import {
-    type StartedMySqlContainer,
-    MySqlContainer,
-} from "@testcontainers/mysql";
+import { MySqlContainer } from "@testcontainers/mysql";
 import { Kysely, MysqlDialect } from "kysely";
-import { createPool, type Pool } from "mysql2";
+import { createPool } from "mysql2";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { KyselyCacheAdapter } from "@/cache/implementations/adapters/kysely-cache-adapter/_module.js";
@@ -11,6 +8,9 @@ import { cacheAdapterTestSuite } from "@/cache/implementations/test-utilities/_m
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedMySqlContainer } from "@testcontainers/mysql";
+import type { Pool } from "mysql2";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("mysql class: KyselyCacheAdapter", () => {
