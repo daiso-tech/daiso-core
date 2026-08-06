@@ -1,5 +1,11 @@
 # @daiso-tech/core
 
+## 0.57.4
+
+### Patch Changes
+
+- 95bc7f2: Changed all type-only imports to the top-level `import type` form and adjusted the ESLint config accordingly, so the compiled output no longer emits runtime side-effect imports for type-only packages like `@standard-schema/spec` (fixes `ERR_MODULE_NOT_FOUND` for consumers).
+
 ## 0.57.3
 
 ### Patch Changes
