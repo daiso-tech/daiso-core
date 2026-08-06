@@ -92,7 +92,7 @@ function CodeShowcaseActions() {
             <div className="daiso-showcase-ctas">
                 <Link
                     className="button button--secondary button--lg"
-                    to="./docs/installation"
+                    to="./docs/getting_started"
                 >
                     Get started{" "}
                     <ArrowRight
@@ -434,7 +434,7 @@ function CtaSection() {
                 <div className="daiso-hero-ctas">
                     <Link
                         className="button button--secondary button--lg"
-                        to="./docs/installation"
+                        to="./docs/getting_started"
                     >
                         Get started{" "}
                         <ArrowRight
@@ -574,7 +574,7 @@ function Header() {
             <div className="container">
                 <h1 className="hero__title">{siteConfig.title}</h1>
                 <p className="daiso-hero-badge margin-bottom--md">
-                    The adapter-first backend toolkit for TypeScript
+                    The adapter-first backend platform for TypeScript
                 </p>
                 <p className="hero__subtitle daiso-hero-tagline">
                     Write business logic once.
