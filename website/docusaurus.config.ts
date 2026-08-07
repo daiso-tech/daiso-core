@@ -138,6 +138,11 @@ const config: Config = {
                     label: "Docs",
                 },
                 {
+                    to: "/blog",
+                    label: "Blog",
+                    position: "left",
+                },
+                {
                     label: "API docs",
                     href: "https://eridu-tech.github.io/eridu-tech/modules.html",
                     position: "left",
