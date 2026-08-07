@@ -21,5 +21,5 @@ Guides are coming soon — as of now there are no guides published yet.
 ## Getting started
 
 If you haven't already, start with the
-**[Installation](/docs/installation)** page to get `eridu-tech` set up in your
+**[Getting started](/docs/getting_started)** page to get `eridu-tech` set up in your
 project, then come back here to explore the guides.

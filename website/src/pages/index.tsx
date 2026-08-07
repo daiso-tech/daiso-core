@@ -136,7 +136,7 @@ function CodeShowcase() {
             <div className="container">
                 <div className="daiso-section-header daiso-section-header--split">
                     <h2 className="daiso-section-title">
-                        Unified architecture
+                        Shared foundation
                     </h2>
                     <div className="daiso-segmented-control">
                         {codeExamples.map((ex, i) => (
