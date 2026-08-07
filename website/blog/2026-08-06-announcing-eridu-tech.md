@@ -1,100 +1,110 @@
 ---
-slug: announcing-eridu-tech
+slug: 2026-08-06-announcing-eridu-tech
 title: eridu-tech Announcement - A Modular Backend Platform for TypeScript
 authors: [yousif]
 tags: [announcement]
 date: 2026-08-06
 ---
-<!-- - ta punkt form. 
-- läg in "Four years ago, in a project I tried ..."
--  skriv is still inte lika enkelt: "It wasnt that easy as I though. I tried ..." 
--  minska på hela text -->
 
+# eridu-tech Announcement
 
-**eridu-tech Announcement - A Modular Backend Platform for TypeScript**
-
-<!-- ## Adasda
-
-Four years ago, I tried running NestJS inside Next.js, but neither approach worked: embedding NestJS's server relied on Next.js config that was untyped, and using NestJS as a DI container depended on TypeScript's experimental decorators, which didn't work well with Next.js.
-
-So I split the app into separate frontend and backend parts, first two repos, then a monorepo. Both added overhead: monorepos are complex to set up, and separate repos mean separate servers and deploys to keep in sync. I then tried embedding Hono directly into Next.js, but Hono isn't battery-included, so I ended up patching together different libraries to fill the gaps.
-
-At work, I ended up with a monorepo containing a frontend and backend. Beyond the monorepo overhead, new pains showed up. Transactions, logging, and observability cluttered my business logic. That made the code genuinely hard to read, test, and maintain, and even AI couldn't help. Deployment had no blue-green deployments, no rollbacks, and no integrated CI/CD. It was a slow, manual, and risky process.
-
-Those pains are why I built eridu-tech: adapter-first components, framework-agnostic middleware, an embeddable router, and a deployment CLI, all type-safe and built to work together. -->
-
+**eridu-tech is a framework-agnostic backend platform for TypeScript: composable infrastructure components, middleware, configuration, and routing that can be embedded into the framework you already use.**
 
 ## My story
 
-Four years ago, I tried running NestJS inside Next.js, but neither approach worked: embedding NestJS's server relied on Next.js config that was untyped, and using NestJS as a DI container depended on TypeScript's experimental decorators, which didn't work well with Next.js.
+Four years ago, I tried running NestJS inside Next.js. It wasn't as simple as I expected. Embedding NestJS's server meant relying on Next.js configuration that wasn't typed, while using NestJS as a DI container depended on TypeScript's experimental decorators, which didn't work well with Next.js.
 
-So I split the app into separate frontend and backend parts, first two repos, then a monorepo. Both added overhead: monorepos are complex to set up, and separate repos mean separate servers and deploys to keep in sync. I then tried embedding Hono directly into Next.js, but Hono isn't battery-included, so I ended up patching together different libraries to fill the gaps.
+So I split the application into separate frontend and backend parts. First, I used two repositories; later, I moved to a monorepo. Neither approach was ideal. Separate repositories meant separate servers and deployments to keep in sync, while the monorepo added its own setup and maintenance overhead.
 
-At work, I ended up with a monorepo containing a frontend and backend. Beyond the monorepo overhead, new pains showed up. Transactions, logging, and observability cluttered my business logic. That made the code genuinely hard to read, test, and maintain, and even AI couldn't help. Deployment had no blue-green deployments, no rollbacks, and no integrated CI/CD. It was a slow, manual, and risky process. All of these problems came from extremely tight deadlines: there was never time to do things properly.
+I then tried embedding Hono directly into Next.js. That solved the routing problem, but Hono is intentionally lightweight, so I ended up patching together different libraries to fill the gaps.
 
-Those pains are why I built eridu-tech. It answers exactly these problems: adapter-first components, framework-agnostic middleware, an embeddable router, and a deployment CLI, all type-safe and built to work together. It's built for speed, so under tight deadlines you can ship quality instead of cutting corners and wasting time patching together different libraries.
+At work, I ran into another set of problems with a frontend and backend in a monorepo. Transactions, logging, and observability started leaking into business logic, making the code harder to read, test, and maintain. Deployment was also slow and manual, without blue-green deployments, easy rollbacks, or integrated CI/CD.
 
----
+These problems were amplified by tight deadlines. There was rarely enough time to build the surrounding infrastructure properly, so we ended up cutting corners or spending time stitching libraries together.
+
+**That's why I built eridu-tech: to provide the reusable backend infrastructure I kept needing without tying it to a specific application framework.** It combines adapter-first components, framework-agnostic middleware, an embeddable HTTP router, and a common type-safe foundation.
+
+The goal is simple: **make it easier to ship maintainable backend systems under real-world time constraints, without sacrificing architecture just to move faster.**
 
 ## 💡 The idea behind eridu-tech
 
-### 🔄 Switch infrastructure without rewriting business logic:
-Postgres today, Redis tomorrow, no refactoring required, switch to different adapters.
+eridu-tech is built around a few core ideas.
 
-### 🧪 Test everything without Docker:
-Every component ships with an in-memory adapter making application tests faster. Most component comes with built-in reusable tests making it easier creating custom adapters.
+#### 🧩 Bring your own framework
 
-### 🧩 Bring your own framework:
-eridu-tech doesn't require a DI container, so you can plug it into Express, NestJS, AdonisJS, Next.js, Nuxt, or TanStack Start. A package tied to a framework's container forces you to work with that DI container, and its scopes and lifecycle become implicit constraints on your architecture. Moving it elsewhere means untangling or rewriting those bindings. eridu-tech has none of that.
+**Your backend infrastructure shouldn't force you to adopt a particular application framework.**
 
-### 🛡️ Type-safe from day one:
-Full TypeScript support with precise generics, standard schema validation built in, and ESM-native, no CommonJS baggage.
+eridu-tech doesn't require its own DI container, so it can be integrated with frameworks such as Express, NestJS, AdonisJS, Next.js, Nuxt, or TanStack Start. A package tied to a framework's container also ties you to that container's scopes and lifecycle, which can become implicit constraints on your architecture. Moving the package elsewhere can then mean untangling or rewriting those bindings.
 
-### 🏗️ The shared foundation:
-- **Serde** — a single serialization engine, shared across every component.
-- **Execution context** — a single execution context, shared across every component.
-- **Config & env access** — standard type-safe patterns for reading configuration and environment variables (ConfigAccessor and EnvAccessor), works across every component.
-- **Middleware** — composable, agnostic middleware that can be applied to any method or function, works across every component.
-- **Transaction context (coming soon)** — used across every component for transaction awareness.
-- **Observability (coming soon)** — traces, logs, and metrics, works across every component.
-- **Dependency injection (coming soon)** — Integrates across every component.
-- **HttpRouter** — a framework-agnostic HTTP router built on the Hono engine, implements the Winter TC Fetch API that can be embedded directly into fullstack frameworks like Next.js.
-- **CLI & deployment (coming soon)** — a prebuilt CLI that deploys your app and its infrastructure to a VPS via SSH with blue-green deployments, easy rollbacks, and GitHub Actions CI/CD scripts for automation.
-- **Introspection (coming soon)** — every component implements its own introspection API, so the CLI can inspect each component's runtime data during production and development.
+eridu-tech keeps those concerns separate.
 
----
+#### 🔄 Switch infrastructure without rewriting business logic
+
+**Infrastructure choices should stay behind stable adapters.**
+
+Postgres today, another storage implementation tomorrow. Adapter-based components let you change infrastructure implementations without coupling your business logic directly to them.
+
+#### 🧪 Test components without Docker
+
+**Every component ships with an in-memory adapter where practical, making application tests faster and easier to run.**
+
+Components also come with reusable tests that can be used when creating custom adapters, helping verify that different implementations behave consistently.
+
+#### 🛡️ Type-safe from day one
+
+**TypeScript is part of the design rather than an afterthought.**
+
+eridu-tech uses precise generics, schema validation, and ESM-native packages without CommonJS baggage.
+
+## 🏗️ A shared foundation
+
+**The components are designed to work together through a small set of shared primitives rather than through a framework-specific runtime.**
+
+- **Serde** — a shared serialization engine used across components.
+- **Execution context** — a shared execution context that can travel across components.
+- **Config & env access** — standardized, type-safe patterns for reading configuration and environment variables through `ConfigAccessor` and `EnvAccessor`.
+- **Middleware** — composable, framework-agnostic middleware that can be applied to methods or functions.
+- **HttpRouter** — a framework-agnostic HTTP router built on the Hono engine and implementing the WinterTC Fetch API, designed to embed directly into full-stack frameworks such as Next.js.
+
+The platform is also being extended with **transaction context, observability, dependency injection, deployment tooling, and component introspection**. These are part of the roadmap rather than capabilities I want to present as finished today.
 
 ## 🧑‍💻 The developer workflow
 
-Here's what building with eridu-tech looks like, step by step:
-1. 🔑 Reading environment variables is usually done **inconsistently** — **missing validation, runtime errors, and duplicated parsing logic everywhere**. eridu-tech gives you a **standardized, type-safe way** to read and validate them, so what's in your environment is exactly what your code expects.
+Here's the workflow I'm building toward with eridu-tech: **start with validated inputs, keep configuration structured, wire dependencies consistently, and keep infrastructure concerns out of business logic.**
 
-2. ⚙️ You start with one small, untyped configuration — but as the app grows you end up with a large, heavily nested config that's still untyped, or a handful of smaller untyped configs scattered across the codebase. eridu-tech gives you a **standardized, type-safe pattern for defining domain configurations** — with a **maximum nesting depth of two** — where you derive values from your validated environment variables, keeping config **simple, typed, and maintainable**.
+1. 🔑 **Environment variables are often read inconsistently** — missing validation, runtime errors, and duplicated parsing logic can spread throughout an application. eridu-tech provides a **standardized, type-safe way to read and validate environment variables**, so your application gets the values it expects.
 
-3. 🔌 Wiring services, infrastructure, and dependencies **by hand gets harder to maintain** as your app grows. eridu-tech gives you a **structured way to wire up your own services and its infrastructure components**, using your **domain configuration to drive the process** — so wiring stays **consistent and maintainable**.
+2. ⚙️ **Configuration becomes difficult to maintain as applications grow.** A small configuration can turn into a deeply nested, untyped object or a collection of smaller configurations scattered across the codebase. eridu-tech provides a **standardized, type-safe pattern for defining domain configurations**, with a **maximum nesting depth of two**, and deriving values from validated environment variables.
 
-4. 🛠️ Cross-cutting concerns like retries, timeouts, and observability normally end up **scattered through business logic**, making it harder to read, test, and maintain. eridu-tech applies them **automatically with predefined, framework-agnostic middleware**, keeping your **business logic clean**. Here are some of the predefined middlewares:
-    - 🔁 Retry
-    - ⏱️ Timeout
-    - 🚦 Rate limiting
-    - 🧯 Circuit breaking
-    - 🔒 Concurrency control — distributed locks, semaphores, and reader-writer locks
-    - 📊 Observability — logging, tracing, and metrics
+3. 🔌 **Manually wiring services and infrastructure gets harder to maintain as an application grows.** eridu-tech provides a **structured way to wire your own services and infrastructure components** by dependency injection container, using domain configuration to drive the setup so the wiring remains consistent and maintainable.
 
-5. 🔁 Manually coordinating transactions across databases, event buses, and job schedulers is **error-prone** and can leave **state inconsistent or event delivery unreliable**. In eridu-tech, every component is **transaction-aware and joins the same transaction** — wrap your business logic in **transaction middleware**, and **events are dispatched only after a successful commit** while **scheduled jobs reliably join in**. (coming soon)
+4. 🛠️ **Cross-cutting concerns can quickly leak into business logic.** Retries, timeouts, rate limiting, circuit breaking, concurrency control, and observability can make otherwise simple methods difficult to read and test. eridu-tech provides **predefined, framework-agnostic middleware** so these concerns can be applied without cluttering business logic.
 
-6. 📡 Propagating execution context like request or correlation IDs across servers, processes, and async boundaries normally takes **significant boilerplate and is easy to get wrong**. eridu-tech **serializes and propagates execution context across runtimes automatically** — no developer intervention — so **observability stays continuous** throughout distributed systems. (coming soon)
+   - 🔁 Retry
+   - ⏱️ Timeout
+   - 🚦 Rate limiting
+   - 🧯 Circuit breaking
+   - 🔒 Concurrency control — distributed locks, semaphores, and reader-writer locks
+   - 📊 Observability — logging, tracing, and metrics
 
-7. 🌐 Full-stack apps usually mean **maintaining separate backend services, repositories, and deployments**. eridu-tech wires everything together with a **framework-agnostic HTTP router that embeds directly into frameworks like Next.js** — so your backend and frontend **deploy together as a single app**, with no separate servers, repositories, or monorepo to manage. (coming soon)
+5. 🔁 **Coordinating transactions across databases, event buses, and job schedulers is error-prone.** The roadmap includes a **shared transaction context and transaction middleware** so components can participate in the same transaction, with event dispatch coordinated around successful commits and scheduled jobs able to participate in the transaction model.
 
-8. 🚀 Deploying an app along with its infrastructure is usually **slow and error-prone** — provisioning servers, wiring things up, and getting the first deploy out can take days. eridu-tech ships a **prebuilt CLI that deploys your app and its infrastructure to a VPS** via SSH with **blue-green deployments and easy rollbacks**, plus **GitHub Actions CI/CD scripts** to automate it all — so you're up and running fast, and safe to ship often. (coming soon)
+6. 📡 **Propagating execution context across servers, processes, and asynchronous boundaries can require significant boilerplate.** The roadmap includes **serialization and propagation of execution context across runtimes**, so request and correlation information can remain available throughout distributed systems.
 
-9. 🔍 When something goes wrong, you're often left guessing — **component runtime state is hidden and hard to inspect**. eridu-tech's CLI lets you **introspect every component's runtime data** during production and development, because every component implements **its own introspection API** — so you can see exactly what's happening and **debug with confidence**. (coming soon)
+7. 🌐 **Full-stack applications can require separate backend services, repositories, and deployments.** The embeddable `HttpRouter` is designed to let the backend run directly inside full-stack frameworks such as Next.js, providing a path toward deploying the frontend and backend together without maintaining a separate backend service.
 
----
+8. 🚀 **Deploying an application and its infrastructure can be slow and manual.** The roadmap includes a **deployment CLI** for deploying applications and infrastructure to a VPS via SSH, with blue-green deployments, rollbacks, and GitHub Actions CI/CD scripts.
 
-## 🔗 Learn more
+9. 🔍 **When something goes wrong, component runtime state can be difficult to inspect.** The roadmap includes **component-level introspection APIs** that would allow the CLI to inspect runtime data during development and production.
 
-The [component overview](/docs/components/overview) walks through every eridu-tech component — the foundation, storage, and infrastructure building blocks — each with in-memory adapters for fast testing and pluggable adapters for real infrastructure. The [roadmap](/docs/roadmap) shows everything planned and in progress across the ecosystem, so you can see what's shipping next.
+## What's available today
 
-eridu-tech is pre-v1 and evolving fast. Try the components, check the roadmap, and I'd love your feedback.
+**The current focus is the composable foundation and the components that are already usable.** The roadmap features above are being developed incrementally rather than being presented as completed capabilities.
+
+The [component overview](/docs/components/overview) walks through the available eridu-tech components — including the foundation, storage, and infrastructure building blocks — with in-memory adapters for fast testing and pluggable adapters for real infrastructure.
+
+## 🔗 What's next
+
+eridu-tech is pre-v1 and evolving quickly. The [roadmap](/docs/roadmap) shows what's planned and in progress across the ecosystem.
+
+If the problems behind eridu-tech sound familiar, **try the components, explore the architecture, and let me know what you think.** I'm especially interested in feedback from developers who have dealt with the same problems around framework coupling, infrastructure abstractions, testing, and keeping backend code maintainable under tight deadlines.
