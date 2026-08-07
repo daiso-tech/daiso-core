@@ -8,7 +8,7 @@ date: 2026-08-06
 
 # Announcing eridu-tech
 
-**eridu-tech is a framework-agnostic backend platform for TypeScript: composable infrastructure components, middleware, configuration, and routing that can be embedded into the framework you already use.**
+**eridu-tech is a framework-agnostic backend platform for TypeScript: composable infrastructure components, middleware, configuration, and HTTP routing that can be embedded into the framework you already use.**
 
 ## My story
 
@@ -16,7 +16,7 @@ Four years ago, I tried running NestJS inside Next.js. It wasn't as simple as I 
 
 So I split the application into separate frontend and backend parts. First, I used two repositories; later, I moved to a monorepo. Neither approach was ideal. Separate repositories meant separate servers and deployments to keep in sync, while the monorepo added its own setup and maintenance overhead.
 
-I then tried embedding Hono directly into Next.js. That solved the routing problem, but Hono is intentionally lightweight, so I ended up patching together different libraries to fill the gaps.
+I then tried embedding Hono directly into Next.js. That solved the HTTP routing problem, but Hono is intentionally lightweight, so I ended up patching together different libraries to fill the gaps.
 
 At work, I ran into another set of problems with a frontend and backend in a monorepo. Transactions, logging, and observability started leaking into business logic, making the code harder to read, test, and maintain. Deployment was also slow and manual, without blue-green deployments, easy rollbacks, or integrated CI/CD.
 
