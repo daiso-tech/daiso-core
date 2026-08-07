@@ -10,7 +10,7 @@
 
 **Write business logic once. Replace infrastructure anytime.**
 
-The adapter-first backend toolkit for TypeScript — 17 officially maintained components with 4,640+ integration and behavior tests.
+The adapter-first backend toolkit for TypeScript — 20 officially maintained components with 4,640+ integration and behavior tests.
 
 [**Explore the Docs**](https://www.eridu-tech.io/docs/installation) · [**API docs**](https://eridu-tech.github.io/eridu-tech-core/modules.html) · [**GitHub**](https://github.com/eridu-tech/eridu-tech-core) · [**NPM**](https://www.npmjs.com/package/eridu-tech)
 

@@ -64,7 +64,7 @@ eridu-tech uses precise generics, schema validation, and ESM-native packages wit
 - **Execution context** — a shared execution context that can travel across components.
 - **Config & env access** — standardized, type-safe patterns for reading configuration and environment variables through `ConfigAccessor` and `EnvAccessor`.
 - **Middleware** — composable, framework-agnostic middleware that can be applied to methods or functions.
-- **HttpRouter** — a framework-agnostic HTTP router built on the Hono engine and implementing the WinterTC Fetch API, designed to embed directly into full-stack frameworks such as Next.js.
+- **HttpRouter** — a framework-agnostic HTTP router built on the performant Hono router engine and implementing the WinterTC Fetch API, designed to embed directly into full-stack frameworks such as Next.js.
 
 The platform is also being extended with **transaction context, observability, dependency injection, deployment tooling, and component introspection**. These are part of the roadmap rather than capabilities I want to present as finished today.
 

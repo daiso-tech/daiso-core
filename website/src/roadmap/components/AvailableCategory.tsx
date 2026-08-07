@@ -19,8 +19,8 @@ export function AvailableCategory({ label, items }: { label: string; items: read
           const card = <FeatureItem {...item} badge={badge} />;
           return (
             <div className="col col--4 margin-bottom--lg" key={i}>
-              {item.href ? (
-                <Link to={item.href} style={{ textDecoration: "none", color: "inherit", display: "block", height: "100%" }}>{card}</Link>
+              {item.link ? (
+                <Link to={item.link} style={{ textDecoration: "none", color: "inherit", display: "block", height: "100%" }}>{card}</Link>
               ) : (
                 card
               )}

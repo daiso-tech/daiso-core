@@ -1,0 +1,63 @@
+---
+sidebar_position: 0
+---
+
+import {
+    FOUNDATION_EXISTING_ITEMS,
+    STORAGE_EXISTING_ITEMS,
+    RELIABILITY_EXISTING_ITEMS,
+    CONCURRENCY_EXISTING_ITEMS,
+    MESSAGING_EXISTING_ITEMS,
+    WEB_EXISTING_ITEMS,
+    UTILITIES_EXISTING_ITEMS,
+} from "../../src/data/data";
+import { ComponentIndex } from "../../src/components/ComponentIndex";
+
+# Overview
+
+`eridu-tech` is a modular, adapter-first TypeScript library for building
+production-ready backend applications. Every component ships with in-memory
+adapters for fast, deterministic testing — and pluggable adapters to swap in
+real infrastructure without touching your business logic.
+
+Here is an index of every component, grouped by responsibility.
+
+<ComponentIndex
+    sections={[
+        {
+            label: "Foundation",
+            intro: "The building blocks that power the rest of the ecosystem.",
+            items: FOUNDATION_EXISTING_ITEMS,
+        },
+        {
+            label: "Storage",
+            intro: "Persist and retrieve data behind a single, portable API.",
+            items: STORAGE_EXISTING_ITEMS,
+        },
+        {
+            label: "Reliability",
+            intro: "Keep your services available and responsive under load and failure.",
+            items: RELIABILITY_EXISTING_ITEMS,
+        },
+        {
+            label: "Concurrency",
+            intro: "Coordinate access to shared resources across processes and machines.",
+            items: CONCURRENCY_EXISTING_ITEMS,
+        },
+        {
+            label: "Messaging",
+            intro: "Decouple your services with reliable, asynchronous communication.",
+            items: MESSAGING_EXISTING_ITEMS,
+        },
+        {
+            label: "Web",
+            intro: "Serve HTTP and build framework-agnostic APIs.",
+            items: WEB_EXISTING_ITEMS,
+        },
+        {
+            label: "Utilities",
+            intro: "Small, focused helpers shared across the ecosystem.",
+            items: UTILITIES_EXISTING_ITEMS,
+        },
+    ]}
+/>
