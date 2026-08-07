@@ -10,20 +10,9 @@ import docusaurusPluginLlmsTxt, {
     type PluginOptions,
 } from "@signalwire/docusaurus-plugin-llms-txt";
 import { ogGenerator } from "./utilities/og-generator";
-import { readFileSync } from "fs";
-import { resolve } from "path";
+import { PACKAGE_NAME, PACKAGE_VERSION } from "./utilities/package-json-data";
 
-// This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
-
-const packageJsonAsStr = readFileSync(
-    resolve(__dirname, "../package.json"),
-    "utf8",
-);
-const packageJson = JSON.parse(packageJsonAsStr);
-const packageName: string = packageJson.name;
-const packageVersion: number = packageJson.version;
-const title = `${packageName} ${packageVersion}`;
-
+const title = `${PACKAGE_NAME} ${PACKAGE_VERSION}`;
 const config: Config = {
     title: title,
     tagline:
@@ -40,7 +29,7 @@ const config: Config = {
     // GitHub pages deployment config.
     // If you aren't using GitHub pages, you don't need these.
     organizationName: "yousif-khalil-abdulkarim", // Usually your GitHub org/user name.
-    projectName: packageName, // Usually your repo name.
+    projectName: PACKAGE_NAME, // Usually your repo name.
 
     onBrokenLinks: "throw",
     markdown: {
@@ -61,8 +50,8 @@ const config: Config = {
         [
             docusaurusPluginLlmsTxt,
             {
-                siteTitle: packageName,
-                siteDescription: `Mastering ${packageName}: Comprehensive Guides for the Backend Server Component Library`,
+                siteTitle: PACKAGE_NAME,
+                siteDescription: `Mastering ${PACKAGE_NAME}: Comprehensive Guides for the Backend Server Component Library`,
                 enableDescriptions: true,
                 content: {
                     relativePaths: true,
@@ -125,9 +114,9 @@ const config: Config = {
         // Replace with your project's social card
         image: "img/docusaurus-social-card.jpg",
         navbar: {
-            title: packageName,
+            title: PACKAGE_NAME,
             logo: {
-                alt: `${packageName} Logo`,
+                alt: `${PACKAGE_NAME} Logo`,
                 src: "img/logo.svg",
             },
             items: [
@@ -161,7 +150,7 @@ const config: Config = {
         },
         footer: {
             style: "dark",
-            copyright: `© ${String(new Date().getFullYear())} ${packageName}. Built with Docusaurus.`,
+            copyright: `© ${String(new Date().getFullYear())} ${PACKAGE_NAME}. Built with Docusaurus.`,
         },
         prism: {
             theme: prismThemes.github,

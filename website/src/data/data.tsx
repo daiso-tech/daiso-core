@@ -49,7 +49,7 @@ export const INSTALL_CMD = "npm install eridu-tech";
 // Single source of truth for every component — keyed by name.
 // Each curated list below references entries from this record.
 
-export const COMPONENT_RECORD = {
+const EXISTING_FOUNDATION_RECORD = {
     // ─── Existing: Foundation ──────────────────────────────────
     MIDDLEWARE_AND_AOP: {
         name: "Middleware and AOP",
@@ -148,6 +148,9 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
+};
+
+const EXISTING_STORAGE_RECORD = {
     // ─── Existing: Storage ────────────────────────────────────
     CACHE: {
         name: "Cache",
@@ -176,6 +179,9 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
+};
+
+const EXISTING_RELIABILITY_RECORD = {
     // ─── Existing: Reliability ────────────────────────────────
     CIRCUIT_BREAKER: {
         name: "Circuit Breaker",
@@ -217,6 +223,9 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
+};
+
+const EXISTING_CONCURRENCY_RECORD = {
     // ─── Existing: Concurrency ────────────────────────────────
     LOCK: {
         name: "Lock",
@@ -257,6 +266,9 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
+};
+
+const EXISTING_MESSAGING_RECORD = {
     // ─── Existing: Messaging ──────────────────────────────────
     EVENT_BUS: {
         name: "Event Bus",
@@ -272,6 +284,9 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
+};
+
+const EXISTING_WEB_RECORD = {
     // ─── Existing: Web ───────────────────────────────────────
     HTTP_ROUTER: {
         name: "HTTP Router",
@@ -287,6 +302,53 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
+};
+
+const EXISTING_UTILITIES_RECORD = {
+    // ─── Existing: Utilities ─────────────────────────────────
+    TIME_SPAN: {
+        name: "TimeSpan",
+        icon: <Clock size="1.5rem" strokeWidth={1.5} />,
+        title: <>TimeSpan</>,
+        href: "/docs/components/time_span",
+        maturity: 90,
+        description: (
+            <>
+                Define, manipulate, and compare durations with a typed,
+                immutable API — integrates easily with time libraries like
+                Luxon and Dayjs.
+            </>
+        ),
+    } satisfies ComponentItemProps,
+    FILE_SIZE: {
+        name: "FileSize",
+        icon: <HardDrive size="1.5rem" strokeWidth={1.5} />,
+        title: <>FileSize</>,
+        href: "/docs/components/file_size",
+        maturity: 90,
+        description: (
+            <>
+                Define, manipulate, and compare file sizes with a typed API —
+                from bytes to gigabytes, with easy unit conversion.
+            </>
+        ),
+    } satisfies ComponentItemProps,
+    BACKOFF_POLICIES: {
+        name: "Backoff Policies",
+        icon: <RefreshCw size="1.5rem" strokeWidth={1.5} />,
+        title: <>Backoff Policies</>,
+        href: "/docs/components/backoff_policies",
+        maturity: 90,
+        description: (
+            <>
+                Predefined retry backoff policies — constant and exponential —
+                with configurable delay and jitter.
+            </>
+        ),
+    } satisfies ComponentItemProps,
+};
+
+const UPCOMING_FOUNDATION_RUNTIME_RECORD = {
     // ─── Upcoming: Foundation & Runtime ──────────────────────
     DI_CONTAINER: {
         name: "DI Container",
@@ -374,6 +436,9 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
+};
+
+const UPCOMING_RELIABILITY_MESSAGING_RECORD = {
     // ─── Upcoming: Reliability & Messaging ───────────────────
     JOB_SCHEDULER: {
         name: "Job Scheduler",
@@ -460,6 +525,9 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
+};
+
+const UPCOMING_SECURITY_RECORD = {
     // ─── Upcoming: Security ──────────────────────────────────
     AUTHENTICATION: {
         name: "Authentication",
@@ -508,6 +576,9 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
+};
+
+const UPCOMING_INTEGRATIONS_RECORD = {
     // ─── Upcoming: Integrations ──────────────────────────────
     TEXT_SEARCH: {
         name: "Text Search",
@@ -616,6 +687,9 @@ export const COMPONENT_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
+};
+
+const UPCOMING_DEV_TOOLING_RECORD = {
     // ─── Upcoming: Dev Tooling ───────────────────────────────
     DI_AUTODISCOVERY_VITE_PLUGIN: {
         name: "DI Autodiscovery Vite Plugin",
@@ -700,6 +774,21 @@ export const COMPONENT_RECORD = {
     } satisfies ComponentItemProps,
 };
 
+export const COMPONENT_RECORD = {
+    ...EXISTING_FOUNDATION_RECORD,
+    ...EXISTING_STORAGE_RECORD,
+    ...EXISTING_RELIABILITY_RECORD,
+    ...EXISTING_CONCURRENCY_RECORD,
+    ...EXISTING_MESSAGING_RECORD,
+    ...EXISTING_WEB_RECORD,
+    ...EXISTING_UTILITIES_RECORD,
+    ...UPCOMING_FOUNDATION_RUNTIME_RECORD,
+    ...UPCOMING_RELIABILITY_MESSAGING_RECORD,
+    ...UPCOMING_SECURITY_RECORD,
+    ...UPCOMING_INTEGRATIONS_RECORD,
+    ...UPCOMING_DEV_TOOLING_RECORD,
+};
+
 // ─── Existing — Production-Ready Components ──────────────────────
 
 export const FOUNDATION_EXISTING_ITEMS: ComponentItemProps[] = [
@@ -737,6 +826,12 @@ export const WEB_EXISTING_ITEMS: ComponentItemProps[] = [
     COMPONENT_RECORD.HTTP_ROUTER,
 ];
 
+export const UTILITIES_EXISTING_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.TIME_SPAN,
+    COMPONENT_RECORD.FILE_SIZE,
+    COMPONENT_RECORD.BACKOFF_POLICIES,
+];
+
 export const EXISTING_ITEMS: ComponentItemProps[] = [
     ...FOUNDATION_EXISTING_ITEMS,
     ...STORAGE_EXISTING_ITEMS,
@@ -744,6 +839,7 @@ export const EXISTING_ITEMS: ComponentItemProps[] = [
     ...CONCURRENCY_EXISTING_ITEMS,
     ...MESSAGING_EXISTING_ITEMS,
     ...WEB_EXISTING_ITEMS,
+    ...UTILITIES_EXISTING_ITEMS,
 ];
 
 // ─── Foundation & Runtime ────────────────────────────────────────

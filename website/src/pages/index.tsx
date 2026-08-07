@@ -25,6 +25,7 @@ import Layout from "@theme/Layout";
 import CodeBlock from "@theme/CodeBlock";
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
+import { COMPONENT_COUNT } from "../../utilities/package-json-data";
 
 function InstallCommand() {
     const [copied, setCopied] = useState(false);
@@ -70,7 +71,7 @@ function StatsBar() {
             <div className="container">
                 <div className="daiso-stats-inner">
                     <StatItem
-                        value="17"
+                        value={String(COMPONENT_COUNT)}
                         label="Officially maintained components"
                     />
                     <StatItem value="100%" label="TypeScript" />
