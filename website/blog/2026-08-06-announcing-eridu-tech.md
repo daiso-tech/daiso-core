@@ -56,7 +56,7 @@ Components also come with reusable tests that can be used when creating custom a
 
 eridu-tech uses precise generics, schema validation, and ESM-native packages without CommonJS baggage.
 
-## 🏗️ A shared foundation
+## 🏗️ A unified foundation
 
 **The components are designed to work together through a small set of shared primitives rather than through a framework-specific runtime.**
 
