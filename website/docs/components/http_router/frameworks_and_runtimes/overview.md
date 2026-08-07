@@ -1,14 +1,14 @@
 ---
 sidebar_position: 1
-sidebar_label: Intro
-pagination_label: Intro
+sidebar_label: Overview
+pagination_label: Overview
 tags:
     - HttpRouter
 keywords:
     - HttpRouter
 ---
 
-# Intro
+# Frameworks, Runtimes, and Platforms
 
 `HttpRouter` implements the WinterTC fetch standard, exposing a `fetch(request: Request): Response | Promise<Response>` method. This makes it compatible with any framework, runtime, or platform adapter that accepts a standard fetch handler.
 

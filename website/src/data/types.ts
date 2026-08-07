@@ -8,7 +8,7 @@ export type FeatureItemProps = {
 };
 
 export type ComponentItemProps = FeatureItemProps & {
-    href?: string;
+    link?: string;
     badges?: ReactNode[];
     subItems?: ReactNode[];
     maturity?: number;
