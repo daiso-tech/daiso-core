@@ -1,12 +1,12 @@
 ---
 slug: 2026-08-06-announcing-eridu-tech
-title: eridu-tech Announcement - A Modular Backend Platform for TypeScript
+title: Announcing eridu-tech - A Modular Backend Platform for TypeScript
 authors: [yousif]
 tags: [announcement]
 date: 2026-08-06
 ---
 
-# eridu-tech Announcement
+# Announcing eridu-tech
 
 **eridu-tech is a framework-agnostic backend platform for TypeScript: composable infrastructure components, middleware, configuration, and routing that can be embedded into the framework you already use.**
 
