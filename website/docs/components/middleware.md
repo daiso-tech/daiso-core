@@ -255,11 +255,11 @@ const errorHandlingMiddleware = createErrorHandlingMiddleware((error) =>
 );
 ```
 
-### Enhancing Methods with `enhance`
+## Enhancing Methods with `enhance`
 
 The `enhance` function provides a convenient way to apply middleware to methods of class instances, enabling interception and augmentation of method calls without manually wrapping each function.
 
-#### Usage Example
+### Usage Example
 
 ```ts
 import { enhance } from "eridu-tech/middleware";
@@ -294,7 +294,7 @@ greeter.greet("Alice");
 // Result: Hello, Alice!
 ```
 
-#### Enhancing Object Literal Methods
+### Enhancing Object Literal Methods
 
 You can enhance methods on plain object literals as well:
 
@@ -312,7 +312,7 @@ obj.add(2, 3);
 // Result: 5
 ```
 
-#### Enhancing Static Methods
+### Enhancing Static Methods
 
 Static methods on classes can also be enhanced:
 
@@ -330,7 +330,7 @@ MathUtils.multiply(4, 5);
 // Result: 20
 ```
 
-#### Enhancing Class Prototype Methods
+### Enhancing Class Prototype Methods
 
 You can enhance all instances of a class by enhancing its prototype:
 
@@ -350,7 +350,7 @@ alice.say("Hello!");
 // Result: Person says: Hello!
 ```
 
-#### How it Works
+### How it Works
 
 - The `enhance` function replaces the specified method on the object with a wrapped version that runs the provided middleware pipeline.
 - If the target property is not a function, a `TypeError` is thrown.
@@ -362,11 +362,11 @@ Because `enhance` mutates the object **in-place**, when one enhanced method inte
 
 This pattern is useful for adding cross-cutting concerns (logging, validation, authorization, etc.) to class methods in a reusable and declarative way.
 
-### Applying Plugins with `withPlugin` {#plugin}
+## Applying Plugins with `withPlugin` {#plugin}
 
 The `withPlugin` function provides a way to apply one or more plugins to a class instance or object literal, where each plugin can use the `enhance` function to wrap methods with middleware. This is useful for encapsulating cross-cutting concerns into reusable plugin units.
 
-#### Usage with Class Instances
+### Usage with Class Instances
 
 ```ts
 import {
@@ -418,7 +418,7 @@ await enhancedService.getUser("123");
 // The original service is NOT modified — a copy is returned instead
 ```
 
-#### Usage with Object Literals
+### Usage with Object Literals
 
 `withPlugin` also works with plain object literals:
 
@@ -446,7 +446,7 @@ enhancedCalc.add(2, 3);
 // The original calculator object is NOT modified — a copy is returned instead
 ```
 
-#### Applying Multiple Plugins
+### Applying Multiple Plugins
 
 You can apply multiple plugins at once by passing an array:
 
@@ -467,7 +467,7 @@ const enhancedService = withPlugin(service, [
 ]);
 ```
 
-#### Object-based Plugins
+### Object-based Plugins
 
 For plugins with state or configuration, use the object form:
 
@@ -497,7 +497,7 @@ const service = new UserService();
 const enhancedService = withPlugin(service, new MetricsPlugin(client));
 ```
 
-#### How it Works
+### How it Works
 
 - `withPlugin` **always** creates a copy of the target (whether a class instance or object literal), preserving the original unchanged.
 - Each plugin is invoked in order, receiving the copied target and the `enhance` function.

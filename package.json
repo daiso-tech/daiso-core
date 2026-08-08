@@ -6,15 +6,22 @@
     "license": "Apache-2.0",
     "type": "module",
     "homepage": "http://eridu-tech.io/",
-    "description": "The library offers flexible, framework-agnostic solutions for modern web applications, built on adaptable components that integrate seamlessly with popular frameworks like Next Js.",
+    "description": "eridu-tech - The adapter-first, modular and  framework agnostic backend platform for TypeScript",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/eridu-tech/eridu-tech-core.git"
+    },
+    "bugs": {
+        "url": "https://github.com/eridu-tech/eridu-tech-core/issues"
     },
     "files": [
         "./dist"
     ],
     "keywords": [
+        "adapter-pattern",
+        "framework-agnostic",
+        "distributed-systems",
+        "backend",
         "array",
         "array-like",
         "collection",
@@ -41,7 +48,7 @@
         "timeout",
         "deadline",
         "fallback",
-        "polly",
+        "polly-js",
         "cockatail",
         "serialization",
         "deserialization",
@@ -67,9 +74,9 @@
         "http-router",
         "winter-tc",
         "hono",
-        "elysiajs",
+        "elysia",
         "h3",
-        "HatTip",
+        "hatip",
         "next",
         "nuxt",
         "analogjs",

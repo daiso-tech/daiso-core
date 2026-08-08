@@ -15,21 +15,19 @@ export interface DocusaurusMetadata {
     [key: string]: any;
 }
 
-export interface CanvasGeneratorParams {
+export interface OgGeneratorParams {
     metadata: DocusaurusMetadata;
     assetsDir: string;
 }
 
-export type CanvasGenerator = (
-    params: CanvasGeneratorParams,
-) => Promise<Buffer> | Buffer;
+export type OgGenerator = (params: OgGeneratorParams) => Promise<Buffer> | Buffer;
 
 export interface PluginOptions {
-    canvasGenerator?: CanvasGenerator;
+    ogGenerator?: OgGenerator;
     assetsDir?: string;
 }
 
 export interface GenerateImageOptions {
-    canvasGenerator: CanvasGenerator;
+    ogGenerator: OgGenerator;
     assetsDir: string;
 }
