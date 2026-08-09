@@ -1318,15 +1318,18 @@ const router = new HttpRouter({
     router: defaultHttpRouterAdapter,
 });
 
+const jsonSchema = z.object({
+    name: z.string(),
+    email: z.string().email()
+});
 router.endpoint({
     url: "/",
     method: "POST",
-    validation: {
-        json: z.object({ name: z.string(), email: z.string().email() }),
-    },
     handler: async ({ req, json }) => {
-        const { name, email } = await req.json();
-        return json({ success: true, name, email });
+        const { json: validatedJson } = await req.withSchema({
+          json: jsonSchema
+        });
+        return json({ success: true, ...validatedJson });
     },
 });
 
