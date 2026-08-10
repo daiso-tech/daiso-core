@@ -106,12 +106,12 @@ html[data-theme='dark'] {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #eaf6f0;
+  border: 1px solid var(--ifm-color-primary);
   border-radius: 0.5rem;
   padding: 0.7rem 1rem 0.7rem 1.75rem;
   font-family: var(--ifm-font-family-monospace);
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--ifm-color-primary-dark);
 }
 
 .daiso-install-command code {
@@ -127,10 +127,10 @@ html[data-theme='dark'] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: var(--ifm-color-emphasis-200);
+  border: 1px solid var(--ifm-color-emphasis-400);
   border-radius: 0.35rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--ifm-color-emphasis-800);
   cursor: pointer;
   padding: 0.3rem 0.45rem;
   transition: background 0.15s ease, color 0.15s ease;
@@ -138,12 +138,41 @@ html[data-theme='dark'] {
 }
 
 .daiso-copy-btn:hover {
+  background: var(--ifm-color-emphasis-300);
+  color: var(--ifm-color-emphasis-900);
+}
+
+.daiso-copy-btn:active {
+  background: var(--ifm-color-emphasis-400);
+}
+
+/* Dark-green CTA section (same in both themes): translucent dark pill variant */
+.daiso-cta-section .daiso-install-command {
+  background: rgba(0, 0, 0, 0.28);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.daiso-cta-section .daiso-copy-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.daiso-cta-section .daiso-copy-btn:hover {
   background: rgba(255, 255, 255, 0.22);
   color: #fff;
 }
 
-.daiso-copy-btn:active {
+.daiso-cta-section .daiso-copy-btn:active {
   background: rgba(255, 255, 255, 0.3);
+}
+
+/* Dark mode: green-tinted pill to match the light-theme style */
+html[data-theme='dark'] .daiso-install-command {
+  background: var(--daiso-icon-bg);
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary-lighter);
 }
 
 .daiso-hero-ctas {
@@ -166,6 +195,19 @@ html[data-theme='dark'] {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+}
+
+/* Code showcase "Get started": brand green in both themes */
+.daiso-showcase-ctas .button--secondary:not(.button--outline) {
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.daiso-showcase-ctas .button--secondary:not(.button--outline):hover {
+  background: var(--ifm-color-primary-dark);
+  border-color: var(--ifm-color-primary-dark);
+  color: #fff;
 }
 
 /* ================================================================
@@ -381,15 +423,18 @@ html[data-theme='dark'] {
   margin-bottom: 0.75rem;
 }
 
-/* Make outlined GitHub button always white, on hover light bg and dark text */
+/* GitHub outline button: native Infima outline on light backgrounds,
+   white-on-dark only inside the dark-green CTA section */
 .button--outline.button--secondary[href*="github.com"] {
+  transition: background 0.15s, color 0.15s;
+}
+.daiso-cta-section .button--outline.button--secondary[href*="github.com"] {
   color: #fff !important;
   border-color: #fff !important;
   background: transparent !important;
-  transition: background 0.15s, color 0.15s;
 }
-.button--outline.button--secondary[href*="github.com"]:hover,
-.button--outline.button--secondary[href*="github.com"]:focus {
+.daiso-cta-section .button--outline.button--secondary[href*="github.com"]:hover,
+.daiso-cta-section .button--outline.button--secondary[href*="github.com"]:focus {
   background: #fff !important;
   color: #222 !important;
   border-color: #fff !important;

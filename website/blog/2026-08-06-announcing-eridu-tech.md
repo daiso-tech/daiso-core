@@ -80,12 +80,12 @@ Here's the workflow I'm building toward with eridu-tech: **start with validated 
 
 4. 🛠️ **Cross-cutting concerns can quickly leak into business logic.** Retries, timeouts, rate limiting, circuit breaking, concurrency control, and observability can make otherwise simple methods difficult to read and test. eridu-tech provides **predefined, framework-agnostic middleware** so these concerns can be applied without cluttering business logic.
 
-   - 🔁 Retry
-   - ⏱️ Timeout
-   - 🚦 Rate limiting
-   - 🧯 Circuit breaking
-   - 🔒 Concurrency control — distributed locks, semaphores, and reader-writer locks
-   - 📊 Observability — logging, tracing, and metrics
+    - 🔁 Retry
+    - ⏱️ Timeout
+    - 🚦 Rate limiting
+    - 🧯 Circuit breaking
+    - 🔒 Concurrency control — distributed locks, semaphores, and reader-writer locks
+    - 📊 Observability — logging, tracing, and metrics
 
 5. 🔁 **Coordinating transactions across databases, event buses, and job schedulers is error-prone.** The roadmap includes a **shared transaction context and transaction middleware** so components can participate in the same transaction, with event dispatch coordinated around successful commits and scheduled jobs able to participate in the transaction model.
 
