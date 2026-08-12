@@ -45,6 +45,10 @@ import {
 
 export const INSTALL_CMD = "npm install eridu-tech";
 
+// ─── External Links ────────────────────────────────────────────
+// Single source of truth for external URLs referenced across the site.
+export const GITHUB_REPO_URL = "https://github.com/daiso-tech/daiso-core";
+
 // ─── Components Record ──────────────────────────────────────────
 // Single source of truth for every component — keyed by name.
 // Each curated list below references entries from this record.

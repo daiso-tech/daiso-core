@@ -12,6 +12,7 @@ import {
     CODE_EXAMPLES,
     COMPARISONS,
     INSTALL_CMD,
+    GITHUB_REPO_URL,
 } from "../data/data";
 import type { FeatureItemProps } from "../data/types";
 import { AvailableCategory } from "../roadmap/components/AvailableCategory";
@@ -106,7 +107,7 @@ function CodeShowcaseActions() {
                 </Link>
                 <Link
                     className="button button--outline button--secondary button--lg"
-                    href="https://github.com/daiso-tech/daiso-core"
+                    href={GITHUB_REPO_URL}
                 >
                     View on GitHub
                 </Link>
@@ -402,7 +403,7 @@ function GitHubStarBanner() {
                 </p>
                 <Link
                     className="button button--primary button--lg"
-                    href="https://github.com/daiso-tech/daiso-core"
+                    href={GITHUB_REPO_URL}
                 >
                     <Star
                         size="1rem"
@@ -448,7 +449,7 @@ function CtaSection() {
                     </Link>
                     <Link
                         className="button button--outline button--secondary button--lg"
-                        href="https://github.com/daiso-tech/daiso-core"
+                        href={GITHUB_REPO_URL}
                     >
                         View on GitHub
                     </Link>
