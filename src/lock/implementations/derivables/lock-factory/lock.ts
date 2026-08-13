@@ -53,19 +53,19 @@ export class Lock implements ILock {
     /**
      * @internal
      */
-    static _serialize(deserializedValue: Lock): ISerializedLock {
+    static internalSerialize(deserializedValue: Lock): ISerializedLock {
         return {
             version: "1",
             key: deserializedValue.key,
             lockId: deserializedValue.lockId,
-            ttlInMs: deserializedValue._ttl?.toMilliseconds() ?? null,
+            ttlInMs: deserializedValue.internalTtl?.toMilliseconds() ?? null,
         };
     }
 
     private readonly adapter: ILockAdapter;
-    private readonly _key: string;
+    private readonly internalKey: string;
     private readonly lockId: string;
-    private _ttl: TimeSpan | null;
+    private internalTtl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly context: IReadableContext;
@@ -84,17 +84,17 @@ export class Lock implements ILock {
         this.context = context;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
-        this._key = key;
+        this.internalKey = key;
         this.lockId = lockId;
-        this._ttl = ttl;
+        this.internalTtl = ttl;
         this.defaultRefreshTime = defaultRefreshTime;
     }
 
-    _getSerdeTransformerName(): string {
+    internalGetSerdeTransformerName(): string {
         return this.serdeTransformerName;
     }
 
-    _getAdapter(): ILockAdapter {
+    internalGetAdapter(): ILockAdapter {
         return this.adapter;
     }
 
@@ -111,9 +111,9 @@ export class Lock implements ILock {
 
     async acquire(): Promise<boolean> {
         return await this.adapter.acquire(
-            this._key,
+            this.internalKey,
             this.lockId,
-            this._ttl,
+            this.internalTtl,
             this.context,
         );
     }
@@ -121,34 +121,38 @@ export class Lock implements ILock {
     async acquireOrFail(): Promise<void> {
         const hasAcquired = await this.acquire();
         if (!hasAcquired) {
-            throw FailedAcquireLockError.create(this._key);
+            throw FailedAcquireLockError.create(this.internalKey);
         }
     }
 
     async release(): Promise<boolean> {
-        return await this.adapter.release(this._key, this.lockId, this.context);
+        return await this.adapter.release(
+            this.internalKey,
+            this.lockId,
+            this.context,
+        );
     }
 
     async releaseOrFail(): Promise<void> {
         const hasRelased = await this.release();
         if (!hasRelased) {
-            throw FailedReleaseLockError.create(this._key, this.lockId);
+            throw FailedReleaseLockError.create(this.internalKey, this.lockId);
         }
     }
 
     async forceRelease(): Promise<boolean> {
-        return await this.adapter.forceRelease(this._key, this.context);
+        return await this.adapter.forceRelease(this.internalKey, this.context);
     }
 
     async refresh(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
         const hasRefreshed = await this.adapter.refresh(
-            this._key,
+            this.internalKey,
             this.lockId,
             TimeSpan.fromTimeSpan(ttl),
             this.context,
         );
         if (hasRefreshed) {
-            this._ttl = TimeSpan.fromTimeSpan(ttl);
+            this.internalTtl = TimeSpan.fromTimeSpan(ttl);
         }
         return hasRefreshed;
     }
@@ -156,12 +160,12 @@ export class Lock implements ILock {
     async refreshOrFail(ttl?: ITimeSpan): Promise<void> {
         const hasRefreshed = await this.refresh(ttl);
         if (!hasRefreshed) {
-            throw FailedRefreshLockError.create(this._key, this.lockId);
+            throw FailedRefreshLockError.create(this.internalKey, this.lockId);
         }
     }
 
     get key(): string {
-        return this._key;
+        return this.internalKey;
     }
 
     get id(): string {
@@ -169,11 +173,14 @@ export class Lock implements ILock {
     }
 
     get ttl(): TimeSpan | null {
-        return this._ttl;
+        return this.internalTtl;
     }
 
     async getState(): Promise<ILockState> {
-        const state = await this.adapter.getState(this._key, this.context);
+        const state = await this.adapter.getState(
+            this.internalKey,
+            this.context,
+        );
         if (state === null) {
             return {
                 type: LOCK_STATE.EXPIRED,

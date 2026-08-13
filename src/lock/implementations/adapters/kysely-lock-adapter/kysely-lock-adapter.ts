@@ -94,7 +94,7 @@ export class KyselyLockAdapter
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
     }
 
-    private _transaction<TValue>(
+    private transaction<TValue>(
         trxFn: InvocableFn<[trx: Kysely<KyselyLockTables>], Promise<TValue>>,
     ): Promise<TValue> {
         return this.kysely
@@ -196,7 +196,7 @@ export class KyselyLockAdapter
         ttl: TimeSpan | null,
         _context: IReadableContext,
     ): Promise<boolean> {
-        return await this._transaction(async (trx) => {
+        return await this.transaction(async (trx) => {
             const existing = await trx
                 .selectFrom("lock")
                 .where("lock.key", "=", key)
@@ -246,7 +246,7 @@ export class KyselyLockAdapter
         _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
-            return await this._transaction(async (trx) => {
+            return await this.transaction(async (trx) => {
                 const existing = await trx
                     .selectFrom("lock")
                     .where("lock.key", "=", key)
@@ -295,7 +295,7 @@ export class KyselyLockAdapter
         _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
-            return await this._transaction(async (trx) => {
+            return await this.transaction(async (trx) => {
                 const existing = await trx
                     .selectFrom("lock")
                     .where("lock.key", "=", key)
