@@ -52,21 +52,23 @@ export class Semaphore implements ISemaphore {
     /**
      * @internal
      */
-    static _serialize(deserializedValue: Semaphore): ISerializedSemaphore {
+    static internalSerialize(
+        deserializedValue: Semaphore,
+    ): ISerializedSemaphore {
         return {
             version: "1",
-            key: deserializedValue._key,
+            key: deserializedValue.internalKey,
             limit: deserializedValue.limit,
             slotId: deserializedValue.slotId,
-            ttlInMs: deserializedValue._ttl?.toMilliseconds() ?? null,
+            ttlInMs: deserializedValue.internalTtl?.toMilliseconds() ?? null,
         };
     }
 
     private readonly slotId: string;
     private readonly limit: number;
     private readonly adapter: ISemaphoreAdapter;
-    private readonly _key: string;
-    private _ttl: TimeSpan | null;
+    private readonly internalKey: string;
+    private internalTtl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly context: IReadableContext;
@@ -88,16 +90,16 @@ export class Semaphore implements ISemaphore {
         this.limit = limit;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
-        this._key = key;
-        this._ttl = ttl;
+        this.internalKey = key;
+        this.internalTtl = ttl;
         this.defaultRefreshTime = defaultRefreshTime;
     }
 
-    _getSerdeTransformerName(): string {
+    internalGetSerdeTransformerName(): string {
         return this.serdeTransformerName;
     }
 
-    _getAdapter(): ISemaphoreAdapter {
+    internalGetAdapter(): ISemaphoreAdapter {
         return this.adapter;
     }
 
@@ -114,44 +116,54 @@ export class Semaphore implements ISemaphore {
     async acquire(): Promise<boolean> {
         return await this.adapter.acquire({
             context: this.context,
-            key: this._key,
+            key: this.internalKey,
             slotId: this.slotId,
             limit: this.limit,
-            ttl: this._ttl,
+            ttl: this.internalTtl,
         });
     }
 
     async acquireOrFail(): Promise<void> {
         const hasAcquired = await this.acquire();
         if (!hasAcquired) {
-            throw LimitReachedSemaphoreError.create(this._key);
+            throw LimitReachedSemaphoreError.create(this.internalKey);
         }
     }
 
     async release(): Promise<boolean> {
-        return await this.adapter.release(this._key, this.slotId, this.context);
+        return await this.adapter.release(
+            this.internalKey,
+            this.slotId,
+            this.context,
+        );
     }
 
     async releaseOrFail(): Promise<void> {
         const hasReleased = await this.release();
         if (!hasReleased) {
-            throw FailedReleaseSemaphoreError.create(this._key, this.slotId);
+            throw FailedReleaseSemaphoreError.create(
+                this.internalKey,
+                this.slotId,
+            );
         }
     }
 
     async forceReleaseAll(): Promise<boolean> {
-        return await this.adapter.forceReleaseAll(this._key, this.context);
+        return await this.adapter.forceReleaseAll(
+            this.internalKey,
+            this.context,
+        );
     }
 
     async refresh(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
         const hasRefreshed = await this.adapter.refresh(
-            this._key,
+            this.internalKey,
             this.slotId,
             TimeSpan.fromTimeSpan(ttl),
             this.context,
         );
         if (hasRefreshed) {
-            this._ttl = TimeSpan.fromTimeSpan(ttl);
+            this.internalTtl = TimeSpan.fromTimeSpan(ttl);
         }
         return hasRefreshed;
     }
@@ -159,7 +171,10 @@ export class Semaphore implements ISemaphore {
     async refreshOrFail(ttl?: ITimeSpan): Promise<void> {
         const hasRefreshed = await this.refresh(ttl);
         if (!hasRefreshed) {
-            throw FailedRefreshSemaphoreError.create(this._key, this.slotId);
+            throw FailedRefreshSemaphoreError.create(
+                this.internalKey,
+                this.slotId,
+            );
         }
     }
 
@@ -168,15 +183,18 @@ export class Semaphore implements ISemaphore {
     }
 
     get ttl(): TimeSpan | null {
-        return this._ttl;
+        return this.internalTtl;
     }
 
     get key(): string {
-        return this._key;
+        return this.internalKey;
     }
 
     async getState(): Promise<ISemaphoreState> {
-        const state = await this.adapter.getState(this._key, this.context);
+        const state = await this.adapter.getState(
+            this.internalKey,
+            this.context,
+        );
         if (state === null) {
             return {
                 type: SEMAPHORE_STATE.EXPIRED,

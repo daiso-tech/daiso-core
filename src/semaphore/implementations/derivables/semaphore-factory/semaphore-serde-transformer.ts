@@ -61,11 +61,12 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
         }
 
         const isSerdTransformerNameMathcing =
-            value._getSerdeTransformerName() === this.serdeTransformerName;
+            value.internalGetSerdeTransformerName() ===
+            this.serdeTransformerName;
 
         const isAdapterMatching =
             getConstructorName(this.adapter) ===
-            getConstructorName(value._getAdapter());
+            getConstructorName(value.internalGetAdapter());
 
         return isSerdTransformerNameMathcing && isAdapterMatching;
     }
@@ -85,6 +86,6 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
     }
 
     serialize(deserializedValue: Semaphore): ISerializedSemaphore {
-        return Semaphore._serialize(deserializedValue);
+        return Semaphore.internalSerialize(deserializedValue);
     }
 }
