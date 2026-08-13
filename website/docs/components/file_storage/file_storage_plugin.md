@@ -408,7 +408,7 @@ The FileStorage read content-type plugin infers the content type from the file k
 ### Use cases
 
 - **Accurate metadata** — Report the correct content type for files based on their key extension
-- **Backend compatibility** — Normalize content types for backends that cannot store a real content type and fall back to a generic MIME type
+- **Backend compatibility** — Normalize content types for backends that store generic or missing types
 
 ### How it works
 

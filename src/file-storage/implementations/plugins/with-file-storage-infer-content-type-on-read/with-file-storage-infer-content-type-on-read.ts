@@ -13,11 +13,10 @@ import type { PluginFn } from "@/middleware/contracts/_module.js";
  *
  * When the `getMetaData` method is called, the plugin resolves the `contentType`
  * from the file key extension (via MIME lookup) and overrides the metadata's
- * content type. A successful lookup overrides the content type with the
- * inferred MIME type; when the extension is unknown, the content type falls
- * back to `application/octet-stream`, the most generic MIME type. When the
- * underlying adapter returns `null` (the file does not exist), the plugin
- * passes `null` through.
+ * content type. When the metadata's `contentType` is `null` and the extension
+ * is unknown, the content type falls back to `application/octet-stream`, the
+ * most generic MIME type. When the underlying adapter returns `null` (the file
+ * does not exist), the plugin passes `null` through.
  *
  * @returns A middleware plugin that wraps a file-storage adapter.
  *

@@ -32,11 +32,11 @@ The new plugin-based architecture keeps the core classes focused on a single res
 
 **Changed contracts:**
 
-- `FileAdapterMetadata.contentType` is always a `string`. Storage backends that cannot store a real content type report `application/octet-stream` as a fallback instead of `null`; apply the `withFileStorageInferContentTypeOnRead` or `withFileStorageInferFileTypeOnRead` plugins to restore content-type inference.
+- `FileAdapterMetadata.contentType` is now `string | null`. A `null` value indicates the storage backend does not store or expose a content type for the file; reading such metadata through `FileStorage` falls back to `application/octet-stream` unless a content-type inference plugin is applied.
 
 **Changed adapter behaviour:**
 
-- `FsFileStorageAdapter.getMetaData` no longer infers the content type from the file key extension and now reports `application/octet-stream` as the default content type. Apply the `withFileStorageInferContentTypeOnRead` or `withFileStorageInferFileTypeOnRead` plugins to restore content-type inference.
+- `FsFileStorageAdapter.getMetaData` no longer infers the content type from the file key extension and now reports `null` for the content type. Apply the `withFileStorageInferContentTypeOnRead` or `withFileStorageInferFileTypeOnRead` plugins to restore content-type inference.
 
 ### New Plugins
 
