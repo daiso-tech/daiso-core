@@ -10,7 +10,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 import type { StartedMongoDBContainer } from "@testcontainers/mongodb";
 
-import type { MongodbSemaphoreDocument } from "@/semaphore/implementations/adapters/mongodb-semaphore-adapter/mongodb-semaphore-adapter.js";
+import type { MongodbSemaphoreEntryDocument } from "@/semaphore/implementations/adapters/mongodb-semaphore-adapter/mongodb-semaphore-adapter.js";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("class: MongodbSemaphoreAdapter", () => {
@@ -103,7 +103,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbSemaphoreDocument>(collectionName);
+                database.collection<MongodbSemaphoreEntryDocument>(collectionName);
             const adapter = new MongodbSemaphoreAdapter({
                 database,
                 collectionName,
@@ -127,14 +127,14 @@ describe("class: MongodbSemaphoreAdapter", () => {
             expect(doc).toEqual(
                 expect.objectContaining({
                     expiration: null,
-                } satisfies Partial<MongodbSemaphoreDocument>),
+                } satisfies Partial<MongodbSemaphoreEntryDocument>),
             );
         });
         test("Should set expiration of the first acquired slot when slot is unexpired", async () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbSemaphoreDocument>(collectionName);
+                database.collection<MongodbSemaphoreEntryDocument>(collectionName);
             const adapter = new MongodbSemaphoreAdapter({
                 database,
                 collectionName,
@@ -159,14 +159,14 @@ describe("class: MongodbSemaphoreAdapter", () => {
             expect(doc).toEqual(
                 expect.objectContaining({
                     expiration,
-                } satisfies Partial<MongodbSemaphoreDocument>),
+                } satisfies Partial<MongodbSemaphoreEntryDocument>),
             );
         });
         test("Should set expiration to null when first slot is unexpireable and seconds slot is unexpired", async () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbSemaphoreDocument>(collectionName);
+                database.collection<MongodbSemaphoreEntryDocument>(collectionName);
             const adapter = new MongodbSemaphoreAdapter({
                 database,
                 collectionName,
@@ -200,14 +200,14 @@ describe("class: MongodbSemaphoreAdapter", () => {
             expect(doc).toEqual(
                 expect.objectContaining({
                     expiration: null,
-                } satisfies Partial<MongodbSemaphoreDocument>),
+                } satisfies Partial<MongodbSemaphoreEntryDocument>),
             );
         });
         test("Should set expiration to null when first slot is unexpired and seconds slot is unexpireable", async () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbSemaphoreDocument>(collectionName);
+                database.collection<MongodbSemaphoreEntryDocument>(collectionName);
             const adapter = new MongodbSemaphoreAdapter({
                 database,
                 collectionName,
@@ -241,14 +241,14 @@ describe("class: MongodbSemaphoreAdapter", () => {
             expect(doc).toEqual(
                 expect.objectContaining({
                     expiration: null,
-                } satisfies Partial<MongodbSemaphoreDocument>),
+                } satisfies Partial<MongodbSemaphoreEntryDocument>),
             );
         });
         test("Should set expiration to longest expiration when first slot is unexpired and seconds slot is unexpired and has longest expiration", async () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbSemaphoreDocument>(collectionName);
+                database.collection<MongodbSemaphoreEntryDocument>(collectionName);
             const adapter = new MongodbSemaphoreAdapter({
                 database,
                 collectionName,
@@ -291,7 +291,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbSemaphoreDocument>(collectionName);
+                database.collection<MongodbSemaphoreEntryDocument>(collectionName);
             const adapter = new MongodbSemaphoreAdapter({
                 database,
                 collectionName,
@@ -334,7 +334,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbSemaphoreDocument>(collectionName);
+                database.collection<MongodbSemaphoreEntryDocument>(collectionName);
             const adapter = new MongodbSemaphoreAdapter({
                 database,
                 collectionName,
