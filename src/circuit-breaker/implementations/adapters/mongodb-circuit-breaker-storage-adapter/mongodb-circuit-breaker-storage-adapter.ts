@@ -177,7 +177,7 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
         );
     }
 
-    private async _transaction<TValue>(
+    private async internalTransaction<TValue>(
         trxFn: InvocableFn<[session?: ClientSession], Promise<TValue>>,
     ): Promise<TValue> {
         return await this.client.withSession(async (session) => {
@@ -194,7 +194,7 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
         >,
         _context: IReadableContext,
     ): Promise<TValue> {
-        return await this._transaction(async (session) => {
+        return await this.internalTransaction(async (session) => {
             return await fn({
                 upsert: (key, state, context) =>
                     this.upsert(key, state, context, session),
