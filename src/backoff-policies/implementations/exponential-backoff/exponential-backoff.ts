@@ -62,7 +62,7 @@ export type ExponentialBackoffSettings = {
      * @internal
      * Should only be used for testing
      */
-    _mathRandom?: () => number;
+    internalMathRandom?: () => number;
 };
 
 /**
@@ -76,7 +76,7 @@ export function resolveExponentialBackoffSettings(
         minDelay = TimeSpan.fromMilliseconds(500),
         multiplier = 2,
         jitter = 0.5,
-        _mathRandom = Math.random,
+        internalMathRandom = Math.random,
     } = settings;
 
     if (!(minDelay[TO_MILLISECONDS]() > 0)) {
@@ -99,7 +99,7 @@ export function resolveExponentialBackoffSettings(
         minDelay,
         multiplier,
         jitter,
-        _mathRandom,
+        internalMathRandom,
     };
 }
 
@@ -121,7 +121,7 @@ export function exponentialBackoff(
                 settings = dynamicSettings;
             }
         }
-        const { jitter, _mathRandom, multiplier, maxDelay, minDelay } =
+        const { jitter, internalMathRandom, multiplier, maxDelay, minDelay } =
             resolveExponentialBackoffSettings(settings);
 
         const exponential = Math.min(
@@ -132,7 +132,7 @@ export function exponentialBackoff(
             withJitter({
                 jitter,
                 value: exponential,
-                randomValue: _mathRandom(),
+                randomValue: internalMathRandom(),
             }),
         );
     };
@@ -150,7 +150,7 @@ export type SerializedExponentialBackoffSettings = {
 
     jitter?: number | null;
 
-    _mathRandom?: number;
+    internalMathRandom?: number;
 };
 
 /**
@@ -159,13 +159,13 @@ export type SerializedExponentialBackoffSettings = {
 export function serializeExponentialBackoffSettings(
     settings: ExponentialBackoffSettings,
 ): Required<SerializedExponentialBackoffSettings> {
-    const { maxDelay, minDelay, multiplier, jitter, _mathRandom } =
+    const { maxDelay, minDelay, multiplier, jitter, internalMathRandom } =
         resolveExponentialBackoffSettings(settings);
     return {
         maxDelay: maxDelay[TO_MILLISECONDS](),
         minDelay: minDelay[TO_MILLISECONDS](),
         multiplier,
         jitter,
-        _mathRandom: _mathRandom(),
+        internalMathRandom: internalMathRandom(),
     };
 }

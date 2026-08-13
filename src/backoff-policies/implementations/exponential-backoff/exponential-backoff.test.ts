@@ -187,7 +187,7 @@ describe("function: exponentialBackoff", () => {
             maxDelay: TimeSpan.fromSeconds(60),
             multiplier: 2,
             jitter: 0.5,
-            _mathRandom: () => 0.5,
+            internalMathRandom: () => 0.5,
         });
 
         // attempt=1: 500 * 2^1 = 1000, jitter: (1 - 0.5 * 0.5) * 1000 = 750

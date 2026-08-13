@@ -25,7 +25,7 @@ local function constantBackoff(settings)
         return withJitter({
             jitter = settings.jitter,
             value = settings.delay,
-            mathRandom = settings._mathRandom,
+            mathRandom = settings.internalMathRandom,
         })
     end
 end
@@ -40,7 +40,7 @@ local function exponentialBackoff(settings)
         return withJitter({
             jitter = settings.jitter,
             value = exponential,
-            mathRandom = settings._mathRandom,
+            mathRandom = settings.internalMathRandom,
         })
     end
 end
@@ -55,7 +55,7 @@ local function linearBackoff(settings)
         return withJitter({
             jitter = settings.jitter,
             value = linear,
-            mathRandom = settings._mathRandom,
+            mathRandom = settings.internalMathRandom,
         })
     end
 end
@@ -71,7 +71,7 @@ local function polynomialBackoff(settings)
         return withJitter({
             jitter = settings.jitter,
             value = polynomial,
-            mathRandom = settings._mathRandom,
+            mathRandom = settings.internalMathRandom,
         })
     end
 end

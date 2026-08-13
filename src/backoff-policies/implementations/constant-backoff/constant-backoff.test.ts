@@ -120,7 +120,7 @@ describe("function: constantBackoff", () => {
         const backoff = constantBackoff({
             delay: TimeSpan.fromMilliseconds(1000),
             jitter: 0.5,
-            _mathRandom: () => 0.5,
+            internalMathRandom: () => 0.5,
         });
 
         const result = callInvocable(backoff, 1, undefined);

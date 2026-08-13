@@ -50,7 +50,7 @@ export type BackoffsLiterals = (typeof BACKOFFS)[keyof typeof BACKOFFS];
  */
 export type ConstantBackoffSettingsEnum = Omit<
     ConstantBackoffSettings,
-    "_mathRandom"
+    "internalMathRandom"
 > & {
     /**
      * Discriminant identifying this as the constant backoff algorithm.
@@ -67,7 +67,7 @@ export type ConstantBackoffSettingsEnum = Omit<
  */
 export type ExponentialBackoffSettingsEnum = Omit<
     ExponentialBackoffSettings,
-    "_mathRandom"
+    "internalMathRandom"
 > & {
     /**
      * Discriminant identifying this as the exponential backoff algorithm.
@@ -84,7 +84,7 @@ export type ExponentialBackoffSettingsEnum = Omit<
  */
 export type LinearBackoffSettingsEnum = Omit<
     LinearBackoffSettings,
-    "_mathRandom"
+    "internalMathRandom"
 > & {
     /**
      * Discriminant identifying this as the linear backoff algorithm.
@@ -101,7 +101,7 @@ export type LinearBackoffSettingsEnum = Omit<
  */
 export type PolynomialBackoffSettingsEnum = Omit<
     PolynomialBackoffSettings,
-    "_mathRandom"
+    "internalMathRandom"
 > & {
     /**
      * Discriminant identifying this as the polynomial backoff algorithm.
@@ -127,7 +127,7 @@ export type BackoffSettingsEnum =
  */
 export type SerializedConstantBackoffSettingsEnum = Omit<
     SerializedConstantBackoffSettings,
-    "_mathRandom"
+    "internalMathRandom"
 > & {
     type: (typeof BACKOFFS)["CONSTANT"];
 };
@@ -137,7 +137,7 @@ export type SerializedConstantBackoffSettingsEnum = Omit<
  */
 export type SerializedExponentialBackoffSettingsEnum = Omit<
     SerializedExponentialBackoffSettings,
-    "_mathRandom"
+    "internalMathRandom"
 > & {
     type: (typeof BACKOFFS)["EXPONENTIAL"];
 };
@@ -147,7 +147,7 @@ export type SerializedExponentialBackoffSettingsEnum = Omit<
  */
 export type SerializedLinearBackoffSettingsEnum = Omit<
     SerializedLinearBackoffSettings,
-    "_mathRandom"
+    "internalMathRandom"
 > & {
     type: (typeof BACKOFFS)["LINEAR"];
 };
@@ -157,7 +157,7 @@ export type SerializedLinearBackoffSettingsEnum = Omit<
  */
 export type SerializedPolynomialBackoffSettingsEnum = Omit<
     SerializedPolynomialBackoffSettings,
-    "_mathRandom"
+    "internalMathRandom"
 > & {
     type: (typeof BACKOFFS)["POLYNOMIAL"];
 };
