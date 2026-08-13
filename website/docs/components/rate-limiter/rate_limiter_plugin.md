@@ -50,48 +50,27 @@ const adapter = new DatabaseRateLimiterAdapter({
     adapter: new MemoryRateLimiterStorageAdapter(),
 });
 
-// Apply the prefix plugin
+// Apply the prefix plugin to the adapter
 const prefixedAdapter = withPlugin(
     adapter,
     withRateLimiterPrefix("tenant-42:"),
 );
-
-// The key "api:login" is automatically prefixed to "tenant-42:api:login"
-const state = await prefixedAdapter.getState(context, "api:login");
-```
-
-#### Using with RateLimiterFactory
-
-The plugin can be applied directly to the adapter passed to the `RateLimiterFactory` constructor:
-
-```ts
-import { RateLimiterFactory } from "eridu-tech/rate-limiter";
-import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
-import { withPlugin } from "eridu-tech/middleware";
-import { withRateLimiterPrefix } from "eridu-tech/rate-limiter/plugins";
-
-const adapter = new DatabaseRateLimiterAdapter({ ... });
-const prefixedAdapter = withPlugin(adapter, withRateLimiterPrefix("free-tier:"));
-
-const factory = new RateLimiterFactory({
-    adapter: prefixedAdapter,
-});
 ```
 
 ### Before/after behavior
 
 **Before** — Rate-limiter keys are used as-is:
 
-```
-adapter.getState(context, "api:login")
-→ checks rate limit for "api:login"
+```ts
+adapter.getState("api:login", context);
+// -> checks rate limit for "api:login"
 ```
 
 **After** — Rate-limiter keys are automatically prefixed:
 
-```
-adapter.getState(context, "api:login")
-→ checks rate limit for "tenant-42:api:login"
+```ts
+prefixedAdapter.getState("api:login", context);
+// -> checks rate limit for "tenant-42:api:login"
 ```
 
 :::danger

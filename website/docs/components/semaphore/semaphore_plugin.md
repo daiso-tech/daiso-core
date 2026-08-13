@@ -59,51 +59,24 @@ import { withSemaphorePrefix } from "eridu-tech/semaphore/plugins";
 
 const adapter = new MemorySemaphoreAdapter();
 
-// Apply the prefix plugin
+// Apply the prefix plugin to the adapter
 const prefixedAdapter = withPlugin(adapter, withSemaphorePrefix("pool-1:"));
-
-// The key "db-connections" is prefixed to "pool-1:db-connections"
-const acquired = await prefixedAdapter.acquire({
-    context,
-    key: "db-connections",
-    slotId: "slot-1",
-    limit: 10,
-    ttl: TimeSpan.fromMinutes(5),
-});
-```
-
-#### Using with SemaphoreFactory
-
-The plugin can be applied directly to the adapter passed to the `SemaphoreFactory` constructor:
-
-```ts
-import { SemaphoreFactory } from "eridu-tech/semaphore";
-import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
-import { withPlugin } from "eridu-tech/middleware";
-import { withSemaphorePrefix } from "eridu-tech/semaphore/plugins";
-
-const adapter = new MemorySemaphoreAdapter();
-const prefixedAdapter = withPlugin(adapter, withSemaphorePrefix("worker:"));
-
-const factory = new SemaphoreFactory({
-    adapter: prefixedAdapter,
-});
 ```
 
 ### Before/after behavior
 
 **Before** — Semaphore keys are used as-is:
 
-```
+```ts
 adapter.acquire({ context, key: "connections", ... })
-→ acquires slot on "connections"
+// -> acquires slot on "connections"
 ```
 
 **After** — Semaphore keys are automatically prefixed:
 
-```
-adapter.acquire({ context, key: "connections", ... })
-→ acquires slot on "pool-1:connections"
+```ts
+prefixedAdapter.acquire({ context, key: "connections", ... })
+// -> acquires slot on "pool-1:connections"
 ```
 
 :::danger

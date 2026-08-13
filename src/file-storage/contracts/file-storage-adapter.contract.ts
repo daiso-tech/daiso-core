@@ -142,7 +142,7 @@ export type FileAdapterMetadata = {
      * MIME type of the file content.
      * Determines how browsers/clients should handle the file (e.g., display vs. download).
      */
-    contentType: string;
+    contentType: string | null;
 
     /**
      * Size of the file in bytes.

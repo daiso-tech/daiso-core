@@ -55,47 +55,24 @@ import { withCachePrefix } from "eridu-tech/cache/plugins";
 
 const adapter = new MemoryCacheAdapter();
 
-// Apply the prefix plugin
+// Apply the prefix plugin to the adapter
 const prefixedAdapter = withPlugin(adapter, withCachePrefix("tenant-42:"));
-
-// The key "my-key" is automatically prefixed to "tenant-42:my-key"
-await prefixedAdapter.add(context, "my-key", "value");
-await prefixedAdapter.get(context, "my-key"); // -> "value"
-```
-
-#### Using with Cache class
-
-The plugin can be applied directly to the adapter passed to the `Cache` constructor:
-
-```ts
-import { Cache } from "eridu-tech/cache";
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-import { withPlugin } from "eridu-tech/middleware";
-import { withCachePrefix } from "eridu-tech/cache/plugins";
-
-const adapter = new MemoryCacheAdapter();
-const prefixedAdapter = withPlugin(adapter, withCachePrefix("v2:"));
-
-const cache = new Cache({
-    adapter: prefixedAdapter,
-});
-
-// All operations through `cache` will use "v2:..." keys
-await cache.add("user:123", data);
 ```
 
 ### Before/after behavior
 
 **Before** — Keys are stored as-is:
 
-```
-adapter.get(context, "user:123")  →  looks up key "user:123"
+```ts
+adapter.get("user:123", context);
+// -> looks up key "user:123"
 ```
 
 **After** — Keys are automatically prefixed:
 
-```
-adapter.get(context, "user:123")  →  looks up key "tenant:user:123"
+```ts
+prefixedAdapter.get("user:123", context);
+// -> looks up key "tenant-42:user:123"
 ```
 
 :::danger
@@ -111,8 +88,8 @@ For more information about the `withPlugin` function and applying plugins to ada
 The `removeMany` method receives an array of keys. The plugin maps over the array, prefixing each entry:
 
 ```ts
-adapter.removeMany(context, ["a", "b", "c"]);
-// -> adapter.removeMany(context, ["prefix:a", "prefix:b", "prefix:c"])
+prefixedAdapter.removeMany(["a", "b", "c"], context);
+// -> prefixedAdapter.removeMany(["tenant-42:a", "tenant-42:b", "tenant-42:c"], context)
 ```
 
 ## withCacheJitter plugin
@@ -144,46 +121,11 @@ Methods that do not accept a TTL are unaffected.
 import { withPlugin } from "eridu-tech/middleware";
 import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
 import { withCacheJitter } from "eridu-tech/cache/plugins";
-import { TimeSpan } from "eridu-tech/time-span";
 
 const adapter = new MemoryCacheAdapter();
 
-// Apply the jitter plugin with default jitter factor (0.2)
+// Apply the jitter plugin to the adapter
 const jitteredAdapter = withPlugin(adapter, withCacheJitter());
-
-// Apply with custom jitter factor (30 %)
-const customJitterAdapter = withPlugin(
-    adapter,
-    withCacheJitter({ defaultJitter: 0.3 }),
-);
-
-// The TTL will be randomly adjusted by ±20 %
-await jitteredAdapter.add(context, "my-key", "value", TimeSpan.fromMinutes(1));
-await jitteredAdapter.put(
-    context,
-    "my-key",
-    "new-value",
-    TimeSpan.fromMinutes(5),
-);
-```
-
-#### Using with Cache class
-
-```ts
-import { Cache } from "eridu-tech/cache";
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-import { withPlugin } from "eridu-tech/middleware";
-import { withCacheJitter } from "eridu-tech/cache/plugins";
-
-const adapter = new MemoryCacheAdapter();
-const jitteredAdapter = withPlugin(adapter, withCacheJitter());
-
-const cache = new Cache({
-    adapter: jitteredAdapter,
-});
-
-// TTLs passed through the Cache class will also be jittered
-await cache.add("my-key", data, TimeSpan.fromMinutes(1));
 ```
 
 ### Settings
@@ -228,56 +170,7 @@ The `withCacheSchema` function returns a [`PluginFn`](/docs/components/middlewar
 ```ts
 import { withPlugin } from "eridu-tech/middleware";
 import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-import { withCacheSchema } from "eridu-tech/cache/plugins";
-import { z } from "zod"; // or any StandardSchemaV1-compatible library
-
-const UserSchema = z.object({
-    id: z.string(),
-    name: z.string(),
-    email: z.string().email(),
-});
-
-const adapter = new MemoryCacheAdapter();
-
-// Apply the schema plugin
-const validatedAdapter = withPlugin(
-    adapter,
-    withCacheSchema({ schema: UserSchema }),
-);
-
-// Valid data is stored successfully
-await validatedAdapter.add(context, "user:1", {
-    id: "1",
-    name: "Alice",
-    email: "alice@example.com",
-});
-
-// Invalid data throws a validation error
-await validatedAdapter.add(context, "user:2", {
-    id: "2",
-    name: "Bob",
-    email: "not-an-email", // throws
-});
-```
-
-#### Disabling output validation
-
-```ts
-const adapter = withPlugin(
-    adapter,
-    withCacheSchema({
-        schema: UserSchema,
-        shouldValidateOutput: false, // only validate on writes
-    }),
-);
-```
-
-#### Using with Cache class
-
-```ts
 import { Cache } from "eridu-tech/cache";
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-import { withPlugin } from "eridu-tech/middleware";
 import { withCacheSchema } from "eridu-tech/cache/plugins";
 import { z } from "zod";
 
@@ -288,6 +181,8 @@ const UserSchema = z.object({
 });
 
 const adapter = new MemoryCacheAdapter();
+
+// Apply the schema plugin to the adapter
 const validatedAdapter = withPlugin(
     adapter,
     withCacheSchema({ schema: UserSchema }),
@@ -295,12 +190,6 @@ const validatedAdapter = withPlugin(
 
 const cache = new Cache<z.infer<typeof UserSchema>>({
     adapter: validatedAdapter,
-});
-
-await cache.add("user:1", {
-    id: "1",
-    name: "Alice",
-    email: "alice@example.com",
 });
 ```
 
@@ -360,47 +249,8 @@ import { MemoryLockFactory } from "eridu-tech/lock/memory-lock-factory";
 const adapter = new MemoryCacheAdapter();
 const lockFactory = new MemoryLockFactory();
 
-// Apply the write lock plugin
+// Apply the write lock plugin to the adapter
 const lockedAdapter = withPlugin(adapter, withCacheWriteLock({ lockFactory }));
-
-// Concurrent writes to the same key are serialised
-await Promise.all([
-    lockedAdapter.add(context, "my-key", "value1"),
-    lockedAdapter.add(context, "my-key", "value2"),
-]);
-```
-
-#### Restricting protected methods
-
-```ts
-const adapter = withPlugin(
-    adapter,
-    withCacheWriteLock({
-        lockFactory,
-        onlyMethods: ["add", "put", "update"], // only protect these methods
-    }),
-);
-```
-
-#### Using with Cache class
-
-```ts
-import { Cache } from "eridu-tech/cache";
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-import { withPlugin } from "eridu-tech/middleware";
-import { withCacheWriteLock } from "eridu-tech/cache/plugins";
-import { MemoryLockFactory } from "eridu-tech/lock/memory-lock-factory";
-
-const adapter = new MemoryCacheAdapter();
-const lockFactory = new MemoryLockFactory();
-const lockedAdapter = withPlugin(adapter, withCacheWriteLock({ lockFactory }));
-
-const cache = new Cache({
-    adapter: lockedAdapter,
-});
-
-// Mutating operations through `cache` will acquire locks
-await cache.add("my-key", data);
 ```
 
 ### Settings

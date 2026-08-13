@@ -48,50 +48,28 @@ import { withEventBusPrefix } from "eridu-tech/event-bus/plugins";
 
 const adapter = new MemoryEventBusAdapter();
 
-// Apply the prefix plugin
+// Apply the prefix plugin to the adapter
 const prefixedAdapter = withPlugin(adapter, withEventBusPrefix("tenant-42:"));
-
-// The event name "user.created" is automatically prefixed to "tenant-42:user.created"
-await prefixedAdapter.addListener(context, "user.created", listener);
-await prefixedAdapter.dispatch(context, "user.created", payload);
-```
-
-#### Using with EventBus class
-
-The plugin can be applied directly to the adapter passed to the `EventBus` constructor:
-
-```ts
-import { EventBus } from "eridu-tech/event-bus";
-import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
-import { withPlugin } from "eridu-tech/middleware";
-import { withEventBusPrefix } from "eridu-tech/event-bus/plugins";
-
-const adapter = new MemoryEventBusAdapter();
-const prefixedAdapter = withPlugin(adapter, withEventBusPrefix("app:"));
-
-const eventBus = new EventBus({
-    adapter: prefixedAdapter,
-});
-
-// All operations through `eventBus` will use "app:..." event names
-await eventBus.addListener("user.created", listener);
-await eventBus.dispatch("user.created", data);
 ```
 
 ### Before/after behavior
 
 **Before** — Event names are used as-is:
 
-```
-adapter.dispatch(context, "user.created", data)     → dispatches "user.created"
-adapter.addListener(context, "user.created", listener) → listens to "user.created"
+```ts
+adapter.dispatch("user.created", data, context);
+// -> dispatches "user.created"
+adapter.addListener("user.created", listener, context);
+// -> listens to "user.created"
 ```
 
 **After** — Event names are automatically prefixed:
 
-```
-adapter.dispatch(context, "user.created", data)     → dispatches "app:user.created"
-adapter.addListener(context, "user.created", listener) → listens to "app:user.created"
+```ts
+prefixedAdapter.dispatch("user.created", data, context);
+// -> dispatches "tenant-42:user.created"
+prefixedAdapter.addListener("user.created", listener, context);
+// -> listens to "tenant-42:user.created"
 ```
 
 :::danger
@@ -129,33 +107,29 @@ When `shouldValidateListeners` is `true` (default), the plugin also enhances `ad
 ```ts
 import { withPlugin } from "eridu-tech/middleware";
 import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
-import { withEventBusSchema } from "eridu-tech/event-bus/plugins";
+import {
+    withEventBusSchema,
+    defineEventMapSchema,
+} from "eridu-tech/event-bus/plugins";
+import { EventBus } from "eridu-tech/event-bus";
 import { z } from "zod";
 
 const adapter = new MemoryEventBusAdapter();
 
-const enhanced = withPlugin(
+const eventMapSchema = defineEventMapSchema({
+    "user.created": z.object({ userId: z.string() }),
+});
+
+// Apply the schema plugin to the adapter
+const validatedAdapter = withPlugin(
     adapter,
     withEventBusSchema({
-        eventMapSchema: {
-            "user.created": z.object({
-                userId: z.string(),
-            }),
-        },
+        eventMapSchema,
     }),
 );
 
-// Valid event data passes through
-await enhanced.dispatch(context, "user.created", { userId: "123" });
-
-// Invalid event data throws
-await enhanced.dispatch(context, "user.created", {
-    userId: 123,
-} as never); // throws
-
-// Listeners receive validated event data
-await enhanced.addListener(context, "user.created", (event) => {
-    console.log(event.userId); // event is validated
+const eventBus = new EventBus<typeof eventMapSchema>({
+    adapter: validatedAdapter,
 });
 ```
 
@@ -177,43 +151,16 @@ const enhanced = withPlugin(
 );
 
 // Dispatch is still validated
-await enhanced.dispatch(context, "user.created", { userId: "123" });
+await enhanced.dispatch("user.created", { userId: "123" }, context);
 
 // Listeners receive the raw event data without validation
-await enhanced.addListener(context, "user.created", (event) => {
-    console.log(event);
-});
-```
-
-#### Using with EventBus class
-
-```ts
-import { EventBus } from "eridu-tech/event-bus";
-import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
-import { withPlugin } from "eridu-tech/middleware";
-import {
-    withEventBusSchema,
-    defineEventMapSchema,
-} from "eridu-tech/event-bus/plugins";
-import { z } from "zod";
-
-const eventMapSchema = defineEventMapSchema({
-    "user.created": z.object({ userId: z.string() }),
-});
-const adapter = new MemoryEventBusAdapter();
-const enhancedAdapter = withPlugin(
-    adapter,
-    withEventBusSchema({
-        eventMapSchema,
-    }),
+await enhanced.addListener(
+    "user.created",
+    (event) => {
+        console.log(event);
+    },
+    context,
 );
-
-const eventBus = new EventBus<typeof eventMapSchema>({
-    adapter: enhancedAdapter,
-});
-
-// Both dispatch and listener delivery are validated
-await eventBus.dispatch("user.created", { userId: "123" });
 ```
 
 ### Settings
@@ -228,13 +175,13 @@ await eventBus.dispatch("user.created", { userId: "123" });
 When combining `withEventBusSchema` with `withEventBusPrefix`, the schema must come **first** in the array so it validates the original event names before `withEventBusPrefix` transforms them:
 
 ```ts
-// ✅ Correct: schema is first in array → outermost → validates original "user.created"
+// ✅ Correct: schema is first in array -> outermost -> validates original "user.created"
 const enhanced = withPlugin(adapter, [
     withEventBusSchema({ eventMapSchema }),
     withEventBusPrefix("app:"),
 ]);
 
-// ❌ Wrong: prefix is first in array → outermost → schema receives "app:user.created"
+// ❌ Wrong: prefix is first in array -> outermost -> schema receives "app:user.created"
 const enhanced = withPlugin(adapter, [
     withEventBusPrefix("app:"),
     withEventBusSchema({ eventMapSchema }),
@@ -287,31 +234,17 @@ import { z } from "zod";
 
 const adapter = new MemoryEventBusAdapter();
 
-// When a schema validates listeners, it wraps the listener function.
-// withListenerTracking ensures removeListener still works with the original
-// listener reference.
+// Apply listener tracking around a plugin that wraps listeners
 const enhancedAdapter = withPlugin(
     adapter,
     withListenerTracking(
         withEventBusSchema({
             eventMapSchema: {
-                "user.created": z.object({
-                    userId: z.string(),
-                }),
+                "user.created": z.object({ userId: z.string() }),
             },
         }),
     ),
 );
-
-const listener = (event: any) => {
-    console.log(event);
-};
-
-await enhancedAdapter.addListener(context, "user.created", listener);
-
-// removeListener with the original listener reference works correctly
-// even though the schema plugin wrapped it internally
-await enhancedAdapter.removeListener(context, "user.created", listener);
 ```
 
 #### Chaining multiple tracking calls
@@ -323,34 +256,6 @@ const enhancedAdapter = withPlugin(adapter, [
     withListenerTracking(pluginA),
     withListenerTracking(pluginB),
 ]);
-```
-
-#### Using with EventBus class
-
-```ts
-import { EventBus } from "eridu-tech/event-bus";
-import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
-import { withPlugin } from "eridu-tech/middleware";
-import { withListenerTracking } from "eridu-tech/event-bus/plugins";
-
-const adapter = new MemoryEventBusAdapter();
-
-// Apply tracking around a prefix plugin
-const trackedAdapter = withPlugin(
-    adapter,
-    withListenerTracking(withEventBusPrefix("app:")),
-);
-
-const eventBus = new EventBus({
-    adapter: trackedAdapter,
-});
-
-const listener = (event: any) => {
-    console.log(event);
-};
-
-await eventBus.addListener("user.created", listener);
-await eventBus.removeListener("user.created", listener);
 ```
 
 :::danger
