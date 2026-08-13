@@ -38,6 +38,9 @@ export function withFileStorageInferFileTypeOnRead(): PluginFn<IFileStorageAdapt
                 if (metadata === null) {
                     return null;
                 }
+                if (metadata.contentType !== null) {
+                    return metadata;
+                }
                 const stream = await adapter.getStream(key, context);
                 if (stream === null) {
                     return metadata;

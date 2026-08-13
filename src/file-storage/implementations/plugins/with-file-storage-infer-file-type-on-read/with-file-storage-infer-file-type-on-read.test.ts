@@ -52,10 +52,10 @@ describe("function: withFileStorageInferFileTypeOnRead", () => {
         vi.clearAllMocks();
     });
     describe("method: getMetaData", () => {
-        test("Should infer the content type from the file content", async () => {
+        test("Should infer the content type from the file content when the metadata content type is null", async () => {
             const spy = vi
                 .spyOn(adapter, "getMetaData")
-                .mockResolvedValue(metadata);
+                .mockResolvedValue({ ...metadata, contentType: null });
             const streamSpy = vi
                 .spyOn(adapter, "getStream")
                 .mockResolvedValue(iterableOf(zipBytes));
@@ -76,10 +76,10 @@ describe("function: withFileStorageInferFileTypeOnRead", () => {
                 contentType: "application/zip",
             });
         });
-        test("Should fall back to application/octet-stream when the file type is unknown", async () => {
+        test("Should fall back to application/octet-stream when the metadata content type is null and the file type is unknown", async () => {
             const spy = vi
                 .spyOn(adapter, "getMetaData")
-                .mockResolvedValue(metadata);
+                .mockResolvedValue({ ...metadata, contentType: null });
             const streamSpy = vi
                 .spyOn(adapter, "getStream")
                 .mockResolvedValue(iterableOf(unknownBytes));
@@ -103,7 +103,7 @@ describe("function: withFileStorageInferFileTypeOnRead", () => {
         test("Should keep the metadata content type when the stream is null", async () => {
             const spy = vi
                 .spyOn(adapter, "getMetaData")
-                .mockResolvedValue(metadata);
+                .mockResolvedValue({ ...metadata, contentType: null });
             const streamSpy = vi
                 .spyOn(adapter, "getStream")
                 .mockResolvedValue(null);
@@ -119,6 +119,27 @@ describe("function: withFileStorageInferFileTypeOnRead", () => {
                 Parameters<ISignedFileStorageAdapter["getMetaData"]>
             >("myKey", context);
             expect(streamSpy).toHaveBeenCalledWith("myKey", context);
+            expect(result).toEqual({ ...metadata, contentType: null });
+        });
+        test("Should not read the stream when the metadata content type is not null", async () => {
+            const spy = vi
+                .spyOn(adapter, "getMetaData")
+                .mockResolvedValue(metadata);
+            const streamSpy = vi
+                .spyOn(adapter, "getStream")
+                .mockResolvedValue(null);
+
+            const enhanced = withPlugin(
+                adapter,
+                withFileStorageInferFileTypeOnRead(),
+            );
+
+            const result = await enhanced.getMetaData("myKey", context);
+
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
+                Parameters<ISignedFileStorageAdapter["getMetaData"]>
+            >("myKey", context);
+            expect(streamSpy).not.toHaveBeenCalled();
             expect(result).toEqual(metadata);
         });
         test("Should return null when the adapter returns null", async () => {
