@@ -27,7 +27,7 @@ export type WithCacheJitterSettings = {
     /**
      * @internal
      */
-    _mathRandom?: () => number;
+    internalMathRandom?: () => number;
 };
 
 /**
@@ -50,7 +50,8 @@ export type WithCacheJitterSettings = {
 export function withCacheJitter(
     settings: WithCacheJitterSettings = {},
 ): PluginFn<ICacheAdapter> {
-    const { defaultJitter = 0.2, _mathRandom = () => Math.random() } = settings;
+    const { defaultJitter = 0.2, internalMathRandom = () => Math.random() } =
+        settings;
     function ttlWithJitter(ttl: TimeSpan | null): TimeSpan | null {
         if (ttl === null) {
             return null;
@@ -58,7 +59,7 @@ export function withCacheJitter(
         return TimeSpan.fromMilliseconds(
             withJitter({
                 jitter: defaultJitter,
-                randomValue: _mathRandom(),
+                randomValue: internalMathRandom(),
                 value: ttl.toMilliseconds(),
             }),
         );
