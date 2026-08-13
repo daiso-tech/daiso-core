@@ -6,7 +6,7 @@
 
 The file-storage module has undergone a significant architectural refactoring. Cross-cutting behaviours that were previously hard-coded into `FileStorage`, `FileStorageResolver`, and even `FsFileStorageAdapter` (key validation, lowercase normalisation, and content-type inference) have been extracted into standalone, composable plugins built on the middleware plugin system (`PluginFn`/`withPlugin`). The core `FileStorage` class is now a thin passthrough, while optional capabilities are layered on via plugins.
 
-### Motivation
+## Motivation
 
 The previous architecture baked key validation, lowercase normalisation, and content-type inference directly into the core classes and the filesystem adapter. This made these behaviours difficult to opt out of, mix, reorder, or reuse across different adapters, and forced every consumer to pay the cost of behaviour they might not need.
 
