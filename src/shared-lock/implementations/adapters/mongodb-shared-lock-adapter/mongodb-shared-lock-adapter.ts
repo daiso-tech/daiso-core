@@ -57,7 +57,7 @@ export type MongodbSharedLockAdapterSettings = {
  * IMPORT_PATH: `"eridu-tech/shared-lock/mongodb-shared-lock"`
  * @group Adapters
  */
-export type MongodbWriterLockSubDocument = {
+export type MongodbWriterLockEntryDocument = {
     owner: string;
     expiration: Date | null;
 };
@@ -66,7 +66,7 @@ export type MongodbWriterLockSubDocument = {
  * IMPORT_PATH: `"eridu-tech/semaphore/mongodb-shared-lock"`
  * @group Adapters
  */
-export type MongodbReaderSemaphoreSlotSubDocument = {
+export type MongodbReaderSemaphoreSlotEntryDocument = {
     id: string;
     expiration: Date | null;
 };
@@ -75,21 +75,21 @@ export type MongodbReaderSemaphoreSlotSubDocument = {
  * IMPORT_PATH: `"eridu-tech/semaphore/mongodb-shared-lock"`
  * @group Adapters
  */
-export type MongodbReaderSemaphoreDocument = {
+export type MongodbReaderSemaphoreEntryDocument = {
     limit: number;
-    slots: Array<MongodbReaderSemaphoreSlotSubDocument>;
+    slots: Array<MongodbReaderSemaphoreSlotEntryDocument>;
 };
 
 /**
  * IMPORT_PATH: `"eridu-tech/shared-lock/mongodb-shared-lock-adapter"`
  * @group Adapters
  */
-export type MongodbSharedLockDocument = {
+export type MongodbSharedLockEntryDocument = {
     _id: ObjectId;
     key: string;
     expiration: Date | null;
-    writer: MongodbWriterLockSubDocument | null;
-    reader: MongodbReaderSemaphoreDocument | null;
+    writer: MongodbWriterLockEntryDocument | null;
+    reader: MongodbReaderSemaphoreEntryDocument | null;
 };
 
 /**
@@ -104,10 +104,10 @@ export class MongodbSharedLockAdapter
     implements ISharedLockAdapter, IDeinitizable, IInitizable
 {
     private static isSlotNotExpired = (
-        slot: MongodbReaderSemaphoreSlotSubDocument,
+        slot: MongodbReaderSemaphoreSlotEntryDocument,
     ) => slot.expiration === null || slot.expiration > new Date();
 
-    private readonly collection: Collection<MongodbSharedLockDocument>;
+    private readonly collection: Collection<MongodbSharedLockEntryDocument>;
 
     /**
      * @example
@@ -700,7 +700,7 @@ export class MongodbSharedLockAdapter
                                                 id: lockId,
                                                 expiration:
                                                     ttl?.toEndDate() ?? null,
-                                            } satisfies MongodbReaderSemaphoreSlotSubDocument,
+                                            } satisfies MongodbReaderSemaphoreSlotEntryDocument,
                                         ],
                                     ],
                                 },
@@ -981,8 +981,8 @@ export class MongodbSharedLockAdapter
     }
 
     private static extractWriterState(
-        reader: MongodbReaderSemaphoreDocument | null,
-        writer: MongodbWriterLockSubDocument | null,
+        reader: MongodbReaderSemaphoreEntryDocument | null,
+        writer: MongodbWriterLockEntryDocument | null,
     ): Option<ISharedLockAdapterState | null> {
         if (reader === null && writer !== null && writer.expiration === null) {
             return optionSome({
@@ -1014,8 +1014,8 @@ export class MongodbSharedLockAdapter
     }
 
     private static extractReaderState(
-        reader: MongodbReaderSemaphoreDocument | null,
-        writer: MongodbWriterLockSubDocument | null,
+        reader: MongodbReaderSemaphoreEntryDocument | null,
+        writer: MongodbWriterLockEntryDocument | null,
     ): Option<ISharedLockAdapterState | null> {
         const unexpiredSlots = reader?.slots.filter((slot) => {
             return slot.expiration === null || slot.expiration > new Date();
