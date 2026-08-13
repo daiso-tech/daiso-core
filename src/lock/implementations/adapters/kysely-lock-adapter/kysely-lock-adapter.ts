@@ -23,7 +23,7 @@ import type {
  * IMPORT_PATH: `"eridu-tech/lock/kysely-lock-adapter"`
  * @group Adapters
  */
-export type KyselyLockTable = {
+export type KyselyLockEntryTable = {
     key: string;
     owner: string;
     // In ms since unix epoch.
@@ -37,7 +37,7 @@ export type KyselyLockTable = {
  * @group Adapters
  */
 export type KyselyLockTables = {
-    lock: KyselyLockTable;
+    lock: KyselyLockEntryTable;
 };
 
 /**

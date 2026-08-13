@@ -10,7 +10,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 import type { StartedMongoDBContainer } from "@testcontainers/mongodb";
 
-import type { MongodbLockDocument } from "@/lock/implementations/adapters/mongodb-lock-adapter/mongodb-lock-adapter.js";
+import type { MongodbLockEntryDocument } from "@/lock/implementations/adapters/mongodb-lock-adapter/mongodb-lock-adapter.js";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("class: MongodbLockAdapter", () => {
@@ -103,7 +103,7 @@ describe("class: MongodbLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbLockDocument>(collectionName);
+                database.collection<MongodbLockEntryDocument>(collectionName);
             const adapter = new MongodbLockAdapter({
                 database,
                 collectionName,
@@ -123,14 +123,14 @@ describe("class: MongodbLockAdapter", () => {
             expect(doc).toEqual(
                 expect.objectContaining({
                     expiration: null,
-                } satisfies Partial<MongodbLockDocument>),
+                } satisfies Partial<MongodbLockEntryDocument>),
             );
         });
         test("Should set expiration field to Date when given expiration", async () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbLockDocument>(collectionName);
+                database.collection<MongodbLockEntryDocument>(collectionName);
             const adapter = new MongodbLockAdapter({
                 database,
                 collectionName,
