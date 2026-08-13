@@ -130,7 +130,7 @@ export class KyselySharedLockAdapter
         this.currentDate = currentDate;
     }
 
-    private _transaction<TValue>(
+    private transaction<TValue>(
         trxFn: InvocableFn<
             [trx: Kysely<KyselySharedLockTables>],
             Promise<TValue>
@@ -314,7 +314,7 @@ export class KyselySharedLockAdapter
         ttl: TimeSpan | null,
         _context: IReadableContext,
     ): Promise<boolean> {
-        return await this._transaction(async (trx) => {
+        return await this.transaction(async (trx) => {
             // Check if a non-expired writer lock exists held by a different owner
             const existing = await trx
                 .selectFrom("writerLock")
@@ -386,7 +386,7 @@ export class KyselySharedLockAdapter
         _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
-            return await this._transaction(async (trx) => {
+            return await this.transaction(async (trx) => {
                 const existing = await trx
                     .selectFrom("writerLock")
                     .where("writerLock.key", "=", key)
@@ -443,7 +443,7 @@ export class KyselySharedLockAdapter
         _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
-            return await this._transaction(async (trx) => {
+            return await this.transaction(async (trx) => {
                 const existing = await trx
                     .selectFrom("writerLock")
                     .where("writerLock.key", "=", key)
@@ -616,7 +616,7 @@ export class KyselySharedLockAdapter
     async acquireReader(settings: SharedLockAcquireSettings): Promise<boolean> {
         const { context: _context, key, lockId, limit, ttl } = settings;
 
-        return await this._transaction(async (trx) => {
+        return await this.transaction(async (trx) => {
             if (await this.checkWriterInTransaction(trx, key)) {
                 return false;
             }
@@ -654,7 +654,7 @@ export class KyselySharedLockAdapter
         _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
-            return await this._transaction(async (trx) => {
+            return await this.transaction(async (trx) => {
                 const existing = await trx
                     .selectFrom("readerSemaphoreSlot")
                     .where("readerSemaphoreSlot.key", "=", key)
@@ -711,7 +711,7 @@ export class KyselySharedLockAdapter
         _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
-            return await this._transaction(async (trx) => {
+            return await this.transaction(async (trx) => {
                 const existing = await trx
                     .selectFrom("readerSemaphoreSlot")
                     .where("readerSemaphoreSlot.key", "=", key)
@@ -789,7 +789,7 @@ export class KyselySharedLockAdapter
 
     private async deleteNonExpiredWriter(key: string): Promise<boolean> {
         if (this.isMysql) {
-            return await this._transaction(async (trx) => {
+            return await this.transaction(async (trx) => {
                 const existing = await trx
                     .selectFrom("writerLock")
                     .where("writerLock.key", "=", key)
@@ -840,7 +840,7 @@ export class KyselySharedLockAdapter
 
     private async deleteNonExpiredReaderSlots(key: string): Promise<boolean> {
         if (this.isMysql) {
-            return await this._transaction(async (trx) => {
+            return await this.transaction(async (trx) => {
                 const existing = await trx
                     .selectFrom("readerSemaphoreSlot")
                     .where("readerSemaphoreSlot.key", "=", key)
