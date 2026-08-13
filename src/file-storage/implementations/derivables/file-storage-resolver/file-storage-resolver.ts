@@ -15,10 +15,7 @@ import type {
     IFileStorageResolver,
     IFileUrlAdapter,
 } from "@/file-storage/contracts/_module.js";
-import type {
-    FileKeyValidator,
-    FileStorageSettingsBase,
-} from "@/file-storage/implementations/derivables/file-storage/_module.js";
+import type { FileStorageSettingsBase } from "@/file-storage/implementations/derivables/file-storage/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/file-storage"`
@@ -79,13 +76,6 @@ export class FileStorageResolver<
         private readonly settings: FileStorageResolverSettings<TAdapters>,
     ) {}
 
-    setDefaultContentType(contentType: string): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            defaultContentType: contentType,
-        });
-    }
-
     setDefaultContentDisposition(
         contentDisposition: string | null,
     ): FileStorageResolver<TAdapters> {
@@ -128,22 +118,6 @@ export class FileStorageResolver<
         return new FileStorageResolver({
             ...this.settings,
             urlAdapter,
-        });
-    }
-
-    setOnlyLowercase(onlyLowercase: boolean): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            onlyLowercase,
-        });
-    }
-
-    setKeyValidator(
-        keyValidator: FileKeyValidator,
-    ): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            keyValidator,
         });
     }
 

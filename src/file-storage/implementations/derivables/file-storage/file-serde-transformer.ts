@@ -12,13 +12,12 @@ import type {
 } from "@/file-storage/contracts/_module.js";
 import type { ISerializedFile } from "@/file-storage/implementations/derivables/file-storage/file.js";
 import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
-import type { InvocableFn, OneOrMore } from "@/utilities/_module.js";
+import type { OneOrMore } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
 export type FileSerdeTransformerSettings = {
-    defaultContentType: string;
     defaultContentDisposition: string | null;
     defaultContentEncoding: string | null;
     defaultCacheControl: string | null;
@@ -26,8 +25,6 @@ export type FileSerdeTransformerSettings = {
     originalAdapter: FileStorageAdapterVariants;
     adapter: ISignedFileStorageAdapter;
     serdeTransformerName: string;
-    onlyLowercase: boolean;
-    keyValidator: InvocableFn<[key: string], string | null>;
     context: IReadableContext;
 };
 
@@ -38,12 +35,9 @@ export class FileSerdeTransformer implements ISerdeTransformer<
     File,
     ISerializedFile
 > {
-    private readonly onlyLowercase: boolean;
-    private readonly keyValidator: InvocableFn<[key: string], string | null>;
     private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
     private readonly serdeTransformerName: string;
-    private readonly defaultContentType: string;
     private readonly defaultContentDisposition: string | null;
     private readonly defaultContentEncoding: string | null;
     private readonly defaultCacheControl: string | null;
@@ -52,11 +46,8 @@ export class FileSerdeTransformer implements ISerdeTransformer<
 
     constructor(settings: FileSerdeTransformerSettings) {
         const {
-            onlyLowercase,
-            keyValidator,
             adapter,
             serdeTransformerName,
-            defaultContentType,
             defaultCacheControl,
             defaultContentDisposition,
             defaultContentEncoding,
@@ -66,12 +57,9 @@ export class FileSerdeTransformer implements ISerdeTransformer<
         } = settings;
 
         this.context = context;
-        this.onlyLowercase = onlyLowercase;
-        this.keyValidator = keyValidator;
         this.originalAdapter = originalAdapter;
         this.adapter = adapter;
         this.serdeTransformerName = serdeTransformerName;
-        this.defaultContentType = defaultContentType;
         this.defaultCacheControl = defaultCacheControl;
         this.defaultContentDisposition = defaultContentDisposition;
         this.defaultContentEncoding = defaultContentEncoding;
@@ -109,10 +97,7 @@ export class FileSerdeTransformer implements ISerdeTransformer<
         return new File({
             originalKey: key,
             context: this.context,
-            onlyLowercase: this.onlyLowercase,
-            keyValidator: this.keyValidator,
             originalAdapter: this.originalAdapter,
-            defaultContentType: this.defaultContentType,
             defaultCacheControl: this.defaultCacheControl,
             defaultContentDisposition: this.defaultContentDisposition,
             defaultContentEncoding: this.defaultContentEncoding,
