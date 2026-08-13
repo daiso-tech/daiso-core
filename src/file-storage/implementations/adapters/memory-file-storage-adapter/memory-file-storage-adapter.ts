@@ -53,7 +53,7 @@ export class MemoryFileStorageAdapter
      * ```ts
      * import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
      *
-     * const map = new Map<any, any>();
+     * const map = new Map<string, any>();
      * const fileStorageAdapter = new MemoryFileStorageAdapter(map);
      * ```
      */
