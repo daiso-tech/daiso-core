@@ -11,17 +11,20 @@ import type { PluginFn } from "@/middleware/contracts/_module.js";
  * Creates a plugin that infers the content type from the actual file content
  * when reading file metadata.
  *
- * When the `getMetaData` method is called, the plugin opens the object and reads
- * a leading sample of its content (via `getStream`) to detect the type using
- * `file-type`. When a type is detected, the metadata's `contentType` is
- * overridden with the detected MIME type; otherwise the content type falls back
- * to `application/octet-stream`, the most generic MIME type. When the file does
- * not exist, the plugin passes `null` through.
+ * When the `getMetaData` method is called and the metadata's `contentType` is
+ * `null`, the plugin opens the object and reads a leading sample of its content
+ * (via `getStream`) to detect the type using `file-type`. When a type is
+ * detected, the metadata's `contentType` is overridden with the detected MIME
+ * type; otherwise the content type falls back to `application/octet-stream`,
+ * the most generic MIME type. When the metadata already carries a content type,
+ * the plugin returns it as-is without any extra read. When the file does not
+ * exist, the plugin passes `null` through.
  *
- * Note that this extra read is additional I/O on every `getMetaData` call. If
- * you only need the content type for files whose keys carry a well-known
- * extension, prefer the extension-based `withFileStorageInferContentTypeOnRead`
- * plugin, which inspects only the file key and performs no extra read.
+ * Note that this extra read is additional I/O on every `getMetaData` call that
+ * requires inference. If you only need the content type for files whose keys
+ * carry a well-known extension, prefer the extension-based
+ * `withFileStorageInferContentTypeOnRead` plugin, which inspects only the file
+ * key and performs no extra read.
  *
  * @returns A middleware plugin that wraps a file-storage adapter.
  *

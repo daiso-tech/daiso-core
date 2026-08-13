@@ -412,7 +412,7 @@ The FileStorage read content-type plugin infers the content type from the file k
 
 ### How it works
 
-The `withFileStorageInferContentTypeOnRead` function returns a [`PluginFn`](/docs/components/middleware) that enhances the `getMetaData` method. When invoked, the plugin calls the underlying adapter to obtain the metadata, then resolves the `contentType` from the file key extension (via MIME lookup). If the extension is unknown, the content type falls back to `application/octet-stream`, the most generic MIME type. If the file does not exist, `null` is passed through.
+The `withFileStorageInferContentTypeOnRead` function returns a [`PluginFn`](/docs/components/middleware) that enhances the `getMetaData` method. When invoked, the plugin calls the underlying adapter to obtain the metadata, then resolves the `contentType` from the file key extension (via MIME lookup) only when the metadata's `contentType` is `null`; otherwise the existing content type is preserved. If the extension is unknown, the content type falls back to `application/octet-stream`, the most generic MIME type. If the file does not exist, `null` is passed through.
 
 The plugin only affects the `getMetaData` method.
 
@@ -496,9 +496,9 @@ The FileStorage read file-type plugin infers the content type from the actual fi
 
 ### How it works
 
-The `withFileStorageInferFileTypeOnRead` function returns a [`PluginFn`](/docs/components/middleware) that enhances the `getMetaData` method. When invoked, the plugin calls the underlying adapter to obtain the metadata, then reads the file stream and detects its type via `file-type`. When a type is detected, the metadata content type is overridden; otherwise the content type falls back to `application/octet-stream`, the most generic MIME type. If the file does not exist, `null` is passed through.
+The `withFileStorageInferFileTypeOnRead` function returns a [`PluginFn`](/docs/components/middleware) that enhances the `getMetaData` method. When invoked, the plugin calls the underlying adapter to obtain the metadata. When the metadata's `contentType` is `null`, the plugin reads the file stream and detects its type via `file-type`. When a type is detected, the metadata content type is overridden; otherwise the content type falls back to `application/octet-stream`, the most generic MIME type. When the metadata already carries a content type, the plugin returns it as-is without any extra read. If the file does not exist, `null` is passed through.
 
-Because the type is detected from the actual content, `getMetaData` additionally opens and reads a leading sample of the object (via `getStream`). This extra read is additional I/O on every `getMetaData` call. If you only need the content type for files whose keys carry a well-known extension, prefer the extension-based [`withFileStorageInferContentTypeOnRead`](#withfilestorageinfercontenttypeonread-plugin) plugin, which inspects only the file key and performs no extra read.
+Because the type is detected from the actual content, `getMetaData` additionally opens and reads a leading sample of the object (via `getStream`) whenever inference is required. This extra read is additional I/O on every `getMetaData` call that needs inference. If you only need the content type for files whose keys carry a well-known extension, prefer the extension-based [`withFileStorageInferContentTypeOnRead`](#withfilestorageinfercontenttypeonread-plugin) plugin, which inspects only the file key and performs no extra read.
 
 The plugin only affects the `getMetaData` method.
 
