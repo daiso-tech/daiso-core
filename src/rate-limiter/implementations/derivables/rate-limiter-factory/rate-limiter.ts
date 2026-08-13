@@ -54,16 +54,18 @@ export class RateLimiter implements IRateLimiter {
     /**
      * @internal
      */
-    static _serialize(deserializedValue: RateLimiter): ISerializedRateLimiter {
+    static internalSerialize(
+        deserializedValue: RateLimiter,
+    ): ISerializedRateLimiter {
         return {
             version: "1",
-            key: deserializedValue._key,
+            key: deserializedValue.internalKey,
             limit: deserializedValue._limit,
         };
     }
 
     private readonly waitUntil: WaitUntil;
-    private readonly _key: string;
+    private readonly internalKey: string;
     private readonly _limit: number;
     private readonly errorPolicy: ErrorPolicy;
     private readonly onlyError: boolean;
@@ -90,17 +92,17 @@ export class RateLimiter implements IRateLimiter {
         this.serdeTransformerName = serdeTransformerName;
         this._limit = limit;
         this.enableAsyncTracking = enableAsyncTracking;
-        this._key = key;
+        this.internalKey = key;
         this.errorPolicy = errorPolicy;
         this.onlyError = onlyError;
         this.adapter = adapter;
     }
 
-    _getSerdeTransformerName(): string {
+    internalGetSerdeTransformerName(): string {
         return this.serdeTransformerName;
     }
 
-    _getAdapter(): IRateLimiterAdapter {
+    internalGetAdapter(): IRateLimiterAdapter {
         return this.adapter;
     }
 
@@ -132,13 +134,16 @@ export class RateLimiter implements IRateLimiter {
     }
 
     async getState(): Promise<RateLimiterState> {
-        const state = await this.adapter.getState(this._key, this.context);
+        const state = await this.adapter.getState(
+            this.internalKey,
+            this.context,
+        );
 
         return this.toRateLimiterState(state);
     }
 
     get key(): string {
-        return this._key;
+        return this.internalKey;
     }
 
     get limit(): number {
@@ -149,12 +154,12 @@ export class RateLimiter implements IRateLimiter {
         asyncFn: AsyncLazy<TValue>,
     ): Promise<TValue> {
         const state = this.toRateLimiterState(
-            await this.adapter.getState(this._key, this.context),
+            await this.adapter.getState(this.internalKey, this.context),
         );
 
         if (state.type === RATE_LIMITER_STATE.BLOCKED) {
             const { type: _type, ...rest } = state;
-            throw BlockedRateLimiterError.create(rest, this._key);
+            throw BlockedRateLimiterError.create(rest, this.internalKey);
         }
 
         try {
@@ -168,7 +173,7 @@ export class RateLimiter implements IRateLimiter {
             if (isErrorMatching) {
                 const fn = async () => {
                     await this.adapter.updateState(
-                        this._key,
+                        this.internalKey,
                         this.limit,
                         this.context,
                     );
@@ -188,12 +193,16 @@ export class RateLimiter implements IRateLimiter {
         asyncFn: AsyncLazy<TValue>,
     ): Promise<TValue> {
         const state = this.toRateLimiterState(
-            await this.adapter.updateState(this._key, this.limit, this.context),
+            await this.adapter.updateState(
+                this.internalKey,
+                this.limit,
+                this.context,
+            ),
         );
 
         if (state.type === RATE_LIMITER_STATE.BLOCKED) {
             const { type: _type, ...rest } = state;
-            throw BlockedRateLimiterError.create(rest, this._key);
+            throw BlockedRateLimiterError.create(rest, this.internalKey);
         }
 
         return await resolveAsyncLazyable(asyncFn);
@@ -209,6 +218,6 @@ export class RateLimiter implements IRateLimiter {
     }
 
     async reset(): Promise<void> {
-        await this.adapter.reset(this._key, this.context);
+        await this.adapter.reset(this.internalKey, this.context);
     }
 }

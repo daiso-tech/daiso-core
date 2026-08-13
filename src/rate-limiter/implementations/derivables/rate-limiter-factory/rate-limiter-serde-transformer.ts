@@ -77,11 +77,12 @@ export class RateLimiterSerdeTransformer implements ISerdeTransformer<
         }
 
         const isSerdTransformerNameMathcing =
-            this.serdeTransformerName === value._getSerdeTransformerName();
+            this.serdeTransformerName ===
+            value.internalGetSerdeTransformerName();
 
         const isAdapterMatching =
             getConstructorName(this.adapter) ===
-            getConstructorName(value._getAdapter());
+            getConstructorName(value.internalGetAdapter());
 
         return isSerdTransformerNameMathcing && isAdapterMatching;
     }
@@ -103,6 +104,6 @@ export class RateLimiterSerdeTransformer implements ISerdeTransformer<
     }
 
     serialize(deserializedValue: RateLimiter): ISerializedRateLimiter {
-        return RateLimiter._serialize(deserializedValue);
+        return RateLimiter.internalSerialize(deserializedValue);
     }
 }
