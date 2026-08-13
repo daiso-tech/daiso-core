@@ -42,7 +42,10 @@ export function withFileStorageInferContentTypeOnRead(): PluginFn<IFileStorageAd
                 }
                 return {
                     ...metadata,
-                    contentType: inferContentType(key),
+                    contentType:
+                        metadata.contentType === null
+                            ? inferContentType(key)
+                            : metadata.contentType,
                 };
             },
         );

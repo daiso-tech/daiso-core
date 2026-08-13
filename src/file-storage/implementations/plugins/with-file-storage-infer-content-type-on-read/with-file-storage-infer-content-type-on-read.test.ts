@@ -28,10 +28,10 @@ describe("function: withFileStorageInferContentTypeOnRead", () => {
         vi.clearAllMocks();
     });
     describe("method: getMetaData", () => {
-        test("Should infer the content type from the file key extension", async () => {
+        test("Should infer the content type from the file key extension when the metadata content type is null", async () => {
             const spy = vi
                 .spyOn(adapter, "getMetaData")
-                .mockResolvedValue(metadata);
+                .mockResolvedValue({ ...metadata, contentType: null });
 
             const enhanced = withPlugin(
                 adapter,
@@ -49,29 +49,6 @@ describe("function: withFileStorageInferContentTypeOnRead", () => {
             expect(result).toEqual({
                 ...metadata,
                 contentType: "text/plain",
-            });
-        });
-        test("Should fall back to application/octet-stream when the extension is unknown", async () => {
-            const spy = vi
-                .spyOn(adapter, "getMetaData")
-                .mockResolvedValue(metadata);
-
-            const enhanced = withPlugin(
-                adapter,
-                withFileStorageInferContentTypeOnRead(),
-            );
-
-            const result = await enhanced.getMetaData(
-                "folder/file.unknownExtension",
-                context,
-            );
-
-            expect(spy).toHaveBeenCalledExactlyOnceWith<
-                Parameters<ISignedFileStorageAdapter["getMetaData"]>
-            >("folder/file.unknownExtension", context);
-            expect(result).toEqual({
-                ...metadata,
-                contentType: "application/octet-stream",
             });
         });
         test("Should fall back to application/octet-stream when the metadata content type is null and the extension is unknown", async () => {
@@ -96,6 +73,26 @@ describe("function: withFileStorageInferContentTypeOnRead", () => {
                 ...metadata,
                 contentType: "application/octet-stream",
             });
+        });
+        test("Should keep the metadata content type when it is not null", async () => {
+            const spy = vi
+                .spyOn(adapter, "getMetaData")
+                .mockResolvedValue(metadata);
+
+            const enhanced = withPlugin(
+                adapter,
+                withFileStorageInferContentTypeOnRead(),
+            );
+
+            const result = await enhanced.getMetaData(
+                "folder/file.txt",
+                context,
+            );
+
+            expect(spy).toHaveBeenCalledExactlyOnceWith<
+                Parameters<ISignedFileStorageAdapter["getMetaData"]>
+            >("folder/file.txt", context);
+            expect(result).toEqual(metadata);
         });
         test("Should return null when the adapter returns null", async () => {
             const spy = vi
