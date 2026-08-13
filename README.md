@@ -139,7 +139,7 @@ A growing collection of officially maintained components. Every component ships 
 ### Storage
 
 - [**Cache**](https://www.eridu-tech.io/docs/components/cache/cache_usage) — `Near-stable` — Caching with pluggable stores (in-memory, Redis, etc.), TTL policies, and stampede protection.
-- [**File Storage**](https://www.eridu-tech.io/docs/components/file_storage/file_storage_usage) — `Near-stable` — Abstract file storage with adapters for local disk, S3-compatible, and other backends — upload, stream, and serve with one API.
+- [**File Storage**](https://www.eridu-tech.io/docs/components/file_storage/file_storage_usage) — `Near-stable` — Abstract file storage with adapters for local disk, S3-compatible, and other backends — upload, stream, and serve with one API. Composable plugins add key validation, key lowercasing, and content-type inference from the file key extension or the actual file bytes (via `file-type`).
 
 ### Resilience
 
