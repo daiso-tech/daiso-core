@@ -73,54 +73,24 @@ import { withSharedLockPrefix } from "eridu-tech/shared-lock/plugins";
 
 const adapter = new MemorySharedLockAdapter();
 
-// Apply the prefix plugin
+// Apply the prefix plugin to the adapter
 const prefixedAdapter = withPlugin(adapter, withSharedLockPrefix("tenant-42:"));
-
-// Writer lock — key is prefixed
-await prefixedAdapter.acquireWriter(context, "resource:42", "lock-id", ttl);
-
-// Reader lock — key within settings object is prefixed
-await prefixedAdapter.acquireReader({
-    context,
-    key: "resource:42",
-    lockId: "reader-1",
-    limit: 10,
-    ttl: TimeSpan.fromMinutes(5),
-});
-```
-
-#### Using with SharedLockFactory
-
-The plugin can be applied directly to the adapter passed to the `SharedLockFactory` constructor:
-
-```ts
-import { SharedLockFactory } from "eridu-tech/shared-lock";
-import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
-import { withPlugin } from "eridu-tech/middleware";
-import { withSharedLockPrefix } from "eridu-tech/shared-lock/plugins";
-
-const adapter = new MemorySharedLockAdapter();
-const prefixedAdapter = withPlugin(adapter, withSharedLockPrefix("prod:"));
-
-const factory = new SharedLockFactory({
-    adapter: prefixedAdapter,
-});
 ```
 
 ### Before/after behavior
 
 **Before** — Shared lock keys are used as-is:
 
-```
-adapter.acquireWriter(context, "doc:42", "writer-1", ttl)
-→ acquires writer lock on "doc:42"
+```ts
+adapter.acquireWriter("doc:42", "writer-1", ttl, context);
+// -> acquires writer lock on "doc:42"
 ```
 
 **After** — Shared lock keys are automatically prefixed:
 
-```
-adapter.acquireWriter(context, "doc:42", "writer-1", ttl)
-→ acquires writer lock on "tenant:doc:42"
+```ts
+prefixedAdapter.acquireWriter("doc:42", "writer-1", ttl, context);
+// -> acquires writer lock on "tenant-42:doc:42"
 ```
 
 :::danger

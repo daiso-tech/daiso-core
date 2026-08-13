@@ -49,52 +49,24 @@ import { withLockPrefix } from "eridu-tech/lock/plugins";
 
 const adapter = new MemoryLockAdapter();
 
-// Apply the prefix plugin
+// Apply the prefix plugin to the adapter
 const prefixedAdapter = withPlugin(adapter, withLockPrefix("tenant-42:"));
-
-// The key "job:123" is automatically prefixed to "tenant-42:job:123"
-const acquired = await prefixedAdapter.acquire(
-    context,
-    "job:123",
-    "lock-id",
-    ttl,
-);
-```
-
-#### Using with LockFactory
-
-The plugin can be applied directly to the adapter passed to the `LockFactory` constructor:
-
-```ts
-import { LockFactory } from "eridu-tech/lock";
-import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
-import { withPlugin } from "eridu-tech/middleware";
-import { withLockPrefix } from "eridu-tech/lock/plugins";
-
-const adapter = new MemoryLockAdapter();
-const prefixedAdapter = withPlugin(adapter, withLockPrefix("worker:"));
-
-const lockFactory = new LockFactory({
-    adapter: prefixedAdapter,
-});
-
-// All locks acquired through lockFactory will use "worker:..." keys
 ```
 
 ### Before/after behavior
 
 **Before** — Lock keys are used as-is:
 
-```
-adapter.acquire(context, "resource:42", "lock-id", ttl)
-→ acquires lock on "resource:42"
+```ts
+adapter.acquire("resource:42", "lock-id", ttl, context);
+// -> acquires lock on "resource:42"
 ```
 
 **After** — Lock keys are automatically prefixed:
 
-```
-adapter.acquire(context, "resource:42", "lock-id", ttl)
-→ acquires lock on "prod:resource:42"
+```ts
+prefixedAdapter.acquire("resource:42", "lock-id", ttl, context);
+// -> acquires lock on "tenant-42:resource:42"
 ```
 
 :::danger
