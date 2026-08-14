@@ -1555,7 +1555,7 @@ describe("register & container.init & resolve", () => {
         });
 
         // TODO better name
-        // short version: two scoped at different levels but refer to same dynamic item and dynamic is set twice: one before scope resolve refernce and other afther.
+        // short version: two scoped at different levels but refer to same dynamic item and dynamic is set twice: one before scope resolve to reference and other after.
         test("should equal by reference when comparing field reference of two scoped item referencing dynamic at different scope level and dynamic set twice", async () => {
             const tokenA = genericToken<object>("A");
             const nodeB = dependency(tokenA)
@@ -1597,7 +1597,7 @@ describe("register & container.init & resolve", () => {
             });
 
             expect(valueAScope0).not.toBeUndefined();
-            expect(valueAScope0).not.null();
+            expect(valueAScope0).not.toBeNull();
             expect(valueAScope0).not.toBe(valueAScope1);
         });
     });
