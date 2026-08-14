@@ -1814,76 +1814,41 @@ describe("graph validation", () => {
         container = createContainer().container;
     });
 
-    test("should throw when a singleton cycle is detected", async () => {
-        const tokenA = genericToken<string>("A");
-        const tokenB = genericToken<string>("B");
+    /**
+     * Cycle detection can implemented independent of node type.
+     * Therefore only singleton tested.
+     */
+    describe("cycle detection", () => {
+        test("should throw when a singleton cycle A->B->A is detected", async () => {
+            const tokenA = genericToken<string>("A");
+            const tokenB = genericToken<string>("B");
 
-        const nodeA = dependency(tokenB)
-            .factory(() => "A")
-            .reuseToken(tokenA);
+            const nodeA = dependency(tokenB)
+                .factory(() => "A")
+                .reuseToken(tokenA);
 
-        const nodeB = dependency(tokenA)
-            .factory(() => "B")
-            .reuseToken(tokenB);
+            const nodeB = dependency(tokenA)
+                .factory(() => "B")
+                .reuseToken(tokenB);
 
-        container.registerFactory(nodeA).singleton();
-        container.registerFactory(nodeB).singleton();
+            container.registerFactory(nodeA).singleton();
+            container.registerFactory(nodeB).singleton();
 
-        await expect(container.init()).rejects.toThrowError();
-    });
+            await expect(container.init()).rejects.toThrowError();
+        });
 
-    test("should throw when a transient cycle is detected", async () => {
-        const tokenA = genericToken<string>("A");
-        const tokenB = genericToken<string>("B");
+        test("should throw when a singleton cycle A->A is detected", async () => {
+            const tokenA = genericToken("A");
+            container
+                .registerFactory({
+                    deps: [tokenA],
+                    factory: () => "_",
+                    token: tokenA,
+                })
+                .singleton();
 
-        const nodeA = dependency(tokenB)
-            .factory(() => "A")
-            .reuseToken(tokenA);
-
-        const nodeB = dependency(tokenA)
-            .factory(() => "B")
-            .reuseToken(tokenB);
-
-        container.registerFactory(nodeA).transient();
-        container.registerFactory(nodeB).transient();
-
-        await expect(container.init()).rejects.toThrowError();
-    });
-
-    test("should throw when a scoped cycle is detected", async () => {
-        const tokenA = genericToken<string>("A");
-        const tokenB = genericToken<string>("B");
-
-        const nodeA = dependency(tokenB)
-            .factory(() => "A")
-            .reuseToken(tokenA);
-
-        const nodeB = dependency(tokenA)
-            .factory(() => "B")
-            .reuseToken(tokenB);
-
-        container.registerFactory(nodeA).scoped();
-        container.registerFactory(nodeB).scoped();
-
-        await expect(container.init()).rejects.toThrowError();
-    });
-
-    test("should throw when an singleton -> scoped edge is detected", async () => {
-        const tokenA = genericToken<string>("A");
-        const tokenB = genericToken<string>("B");
-
-        const nodeA = dependency(tokenB)
-            .factory(() => "A")
-            .reuseToken(tokenA);
-
-        const nodeB = dependency()
-            .factory(() => "B")
-            .reuseToken(tokenB);
-
-        container.registerFactory(nodeA).singleton();
-        container.registerFactory(nodeB).scoped();
-
-        await expect(container.init()).rejects.toThrowError();
+            await expect(container.init()).rejects.toThrowError();
+        });
     });
 
     test("should throw when an singleton -> transient edge is detected", async () => {
