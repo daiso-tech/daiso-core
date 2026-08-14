@@ -3,7 +3,8 @@
  */
 
 import { type DiToken } from "@/di/contracts/container.contract.js";
-import { isClass } from "@/utilities/_module.js";
+import { tokenToString } from "@/di/implementations/utils.js";
+import { isClass, UnexpectedError } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -21,15 +22,15 @@ function tokenToString(diToken: DiToken): string {
  * @group Errors
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-export class ServiceNotFoundDiError extends Error {
+export class ServiceCanNotBeResolvedError extends Error {
     /**
-     * Creates a new {@link ServiceNotFoundDiError} instance.
+     * Creates a new {@link ServiceCanNotBeResolvedError} instance.
      *
      * @param token - The DI token that could not be resolved.
      * @returns A new error instance.
      */
-    static create(token: DiToken): ServiceNotFoundDiError {
-        return new ServiceNotFoundDiError(
+    static create(token: DiToken): ServiceCanNotBeResolvedError {
+        return new ServiceCanNotBeResolvedError(
             `Failed to resolve service for token: "${tokenToString(token)}". The service could not be constructed or located.`,
         );
     }
@@ -144,5 +145,129 @@ export class ServiceExistsDiError extends Error {
      */
     constructor(message: string, cause?: unknown) {
         super(message, { cause });
+    }
+}
+/**
+ * Thrown when a node dependency or neighbor was referenced during graph traversal
+ * but was not declared in the `nodeIds` list.
+ */
+export class UndeclaredDependencyDiError extends Error {
+    public readonly nodeId: DiToken;
+
+    private constructor(nodeId: DiToken) {
+        super(
+            `Node "${String(tokenToString(nodeId))}" was referenced as a neighbor/dependency but not listed in nodeIds.`,
+        );
+        this.name = "UndeclaredDependencyError";
+        this.nodeId = nodeId;
+    }
+
+    /**
+     * Creates a new {@link UndeclaredDependencyDiError} instance.
+     *
+     * @param nodeId - The node that was referenced but not declared.
+     * @returns A new error instance.
+     */
+    static create(nodeId: DiToken): UndeclaredDependencyDiError {
+        return new UndeclaredDependencyDiError(nodeId);
+    }
+}
+// TODO for Container*Exception Give tips what do
+// For example for ContainerNotActiveException:"Illegal method call ... . Move method call to ..."
+
+/**
+ * Thrown when a container method only valid to call between `container.init()` to `container.deInit()` but called either before  `container.init()` or after `container.deInit()`.
+ *
+ * @group Errors
+ */
+export class ContainerNotActiveException extends Error {
+    /**
+     * @param methodName - The name of the method that was called illegally.
+     */
+    constructor(methodName: string) {
+        super(
+            `Illegal method call: "${methodName}" was called before container.init() or after container.deInit() was invoked.`,
+        );
+    }
+}
+
+/**
+ * Thrown when a container method only valid to call before `container.init()` but was called after `container.init()`.
+ *
+ * @group Errors
+ */
+export class ContainerAlreadyInitializedException extends Error {
+    /**
+     * @param methodName - The name of the method that was called illegally.
+     */
+    constructor(methodName: string) {
+        super(
+            `Illegal method call: "${methodName}" was called after container.init() was invoked.`,
+        );
+    }
+}
+/**
+ * Thrown when a container method only valid to call after `container.deInit()` but was called before `container.deInit()
+ *
+ * @group Errors
+ */
+
+export class ContainerNotTerminatedException extends Error {
+    /**
+     * @param methodName - The name of the method that was called illegally.
+     */
+    constructor(methodName: string) {
+        super(
+            `Illegal method call: "${methodName}" was called after container.deInit() was invoked.`,
+        );
+    }
+}
+/**
+ * Thrown when a container method that is forbidden inside a run scope is
+ * called from within `container.run()`.
+ *
+ * @group Errors
+ */
+
+export class MethodCallInsideRunError extends UnexpectedError {
+    /**
+     * The name of the method that was called illegally.
+     */
+    public readonly methodName: string;
+
+    constructor(methodName: string) {
+        super(`the method ${methodName} was called inside run block`);
+        this.name = MethodCallInsideRunError.name;
+        this.methodName = methodName;
+    }
+
+    /**
+     * Creates a new {@link MethodCallInsideRunError} error.
+     *
+     * @param methodName - The name of the method that was called illegally.
+     * @returns A new error instance.
+     */
+    static create(methodName: string): MethodCallInsideRunError {
+        return new MethodCallInsideRunError(methodName);
+    }
+}
+
+/**
+ * Thrown when attempting to set a dynamic value for a token outside of a
+ * `container.run()` scope. Dynamic registrations are only allowed inside a
+ * run scope.
+ *
+ * @group Errors
+ */
+export class MethodOutsideOfRunError extends Error {
+    constructor(token: DiToken) {
+        super(
+            `Cannot set dynamic value for registered token ${tokenToString(token)}: registration is only allowed inside a run scope. Call set() within container.run().`,
+        );
+        this.name = MethodOutsideOfRunError.name;
+    }
+
+    static create(token: DiToken): MethodOutsideOfRunError {
+        return new MethodOutsideOfRunError(token);
     }
 }

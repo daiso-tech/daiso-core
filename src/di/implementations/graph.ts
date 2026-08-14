@@ -1,4 +1,15 @@
 import { type TNode, type TEdge } from "@/di/implementations/utils.js";
+import { isClass, UnexpectedError } from "@/utilities/_module.js";
+
+const tokenToString = (token: TNode): string => {
+    if (isClass(token)) {
+        return token.name;
+    }
+    return token.id.toString();
+};
+
+const edgeToString = (edge: TEdge): string =>
+    `[${tokenToString(edge[0])}, ${tokenToString(edge[1])}]`;
 
 export class Graph<TNodeProp, TEdgeProp> {
     private nodeProps = new Map<TNode, TNodeProp>();
@@ -53,30 +64,47 @@ export class Graph<TNodeProp, TEdgeProp> {
 
     private throwIfDuplicateNodesFound(props: Array<[TNode, TNodeProp]>) {
         const nodeSet = new Set<TNode>();
+        const duplicates: Array<TNode> = [];
 
         for (const [node, _] of props) {
-            const nodeExist = nodeSet.has(node);
-            if (nodeExist) {
-                throw new Error();
+            if (nodeSet.has(node)) {
+                duplicates.push(node);
             }
 
             nodeSet.add(node);
+        }
+
+        if (duplicates.length > 0) {
+            throw new UnexpectedError(
+                `Duplicate nodes found in graph: "${duplicates
+                    .map(tokenToString)
+                    .join(", ")}". Each node must appear only once.`,
+            );
         }
     }
 
     private throwIfDuplicateEdgeFound(props: Array<[TEdge, TEdgeProp]>) {
         const edgesMap = new Map<TNode, Set<TNode>>();
+        const duplicates: Array<TEdge> = [];
 
         for (const [[node0, node1], _] of props) {
             const edgeExist = edgesMap.get(node0)?.has(node1) === true;
 
             if (edgeExist) {
-                throw new Error();
+                duplicates.push([node0, node1]);
             }
 
             const neighbors = edgesMap.get(node0) ?? new Set<TNode>();
             neighbors.add(node1);
             edgesMap.set(node0, neighbors);
+        }
+
+        if (duplicates.length > 0) {
+            throw new UnexpectedError(
+                `Duplicate edges found in graph: "${duplicates
+                    .map(edgeToString)
+                    .join(", ")}". Each edge must appear only once.`,
+            );
         }
     }
 
@@ -99,7 +127,11 @@ export class Graph<TNodeProp, TEdgeProp> {
     getNodePropertyOrThrow(key: TNode): TNodeProp {
         const value = this.getNodeProperty(key);
         if (value === null) {
-            throw new Error();
+            throw new UnexpectedError(
+                `Node property not found for node: "${tokenToString(
+                    key,
+                )}". No property is registered for this node.`,
+            );
         }
         return value;
     }
@@ -107,7 +139,11 @@ export class Graph<TNodeProp, TEdgeProp> {
     getEdgePropertyOrThrow(edge: TEdge): TEdgeProp {
         const value = this.getEdgeProperty(edge);
         if (value === null) {
-            throw new Error();
+            throw new UnexpectedError(
+                `Edge property not found for edge: "${edgeToString(
+                    edge,
+                )}". No property is registered for this edge.`,
+            );
         }
         return value;
     }

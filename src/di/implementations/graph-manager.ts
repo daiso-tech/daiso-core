@@ -72,10 +72,37 @@ export class GraphManager {
 
         const edgeIsInvalid = someEdgeIsInvalid({
             edges: this.edges(),
-            isSingletonNode: (node) => this.isSingleton(node),
-            isScopedNode: (node) => this.isScoped(node),
-            isTransientNode: (node) => this.isTransient(node),
-            isDynamicNode: (node) => this.isDynamic(node),
+            edgeIsValid: ([source, target]) => {
+                // dynamic node can not point to any other node
+                if (this.isDynamic(source)) {
+                    return true;
+                }
+
+                // transient node can not point to dynamic node
+                if (this.isTransient(source) && this.isDynamic(target)) {
+                    return true;
+                }
+
+                // only scoped node can point to dynamic node
+                if (this.isDynamic(target)) {
+                    return !this.isScoped(source);
+                }
+
+                // singleton node can not point to transient or scoped node
+                if (
+                    this.isSingleton(source) &&
+                    (this.isTransient(target) || this.isScoped(target))
+                ) {
+                    return true;
+                }
+
+                // scoped node can not point to transient node
+                if (this.isScoped(source) && this.isTransient(target)) {
+                    return true;
+                }
+
+                return false;
+            },
         });
         if (edgeIsInvalid) {
             throw new Error();

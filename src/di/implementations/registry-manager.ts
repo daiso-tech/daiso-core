@@ -3,7 +3,9 @@ import {
     type DiToken,
 } from "@/di/contracts/container.contract.js";
 import { Registry } from "@/di/implementations/registry.js";
+import { tokenToString } from "@/di/implementations/utils.js";
 import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
+import { UnexpectedError } from "@/utilities/errors.js";
 
 export const REGISTER_ELEMENT_TYPE = {
     DIRECT: "value",
@@ -81,7 +83,9 @@ export class RegistryManager {
     getAsValueOrThrow(token: DiToken): TRegisterValueElement[typeof VALUE_KEY] {
         const element = this.getOrThrow(token);
         if (element[TYPE_KEY] !== REGISTER_ELEMENT_TYPE.DIRECT) {
-            throw new Error();
+            throw new UnexpectedError(
+                `Registry element for token: "${tokenToString(token)}" is not a value. Expected a direct value element ("value") but the registered element is a function.`,
+            );
         }
         return element[VALUE_KEY];
     }
@@ -91,21 +95,15 @@ export class RegistryManager {
     ): TRegisterFunctionElement[typeof VALUE_KEY] {
         const element = this.getOrThrow(token);
         if (element[TYPE_KEY] !== REGISTER_ELEMENT_TYPE.FUNC) {
-            throw new Error();
+            throw new UnexpectedError(
+                `Registry element for token: "${tokenToString(token)}" is not a function. Expected a function element ("func") but the registered element is not callable.`,
+            );
         }
         return element[VALUE_KEY];
     }
 
-    // should be used for saving non dynamic elements
     saveInBaseRegistry(token: DiToken, element: TRegisterElement): void {
-        this.throwErrorIfElementExistAlready(token);
         this.baseRegistry.set(token, element);
-    }
-
-    private throwErrorIfElementExistAlready(token: DiToken) {
-        if (this.currentScopedOrBaseRegistry().has(token)) {
-            throw new Error();
-        }
     }
 
     saveInCurrentScopedOrBaseRegistry(

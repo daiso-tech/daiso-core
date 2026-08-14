@@ -1,5 +1,6 @@
 import {
     genericToken,
+    ServiceExistsDiError,
     type ClassRegistration,
     type DiHook,
     type DiToken,
@@ -12,12 +13,14 @@ import {
     type ServiceProvider,
     type ValueRegistration,
 } from "@/di/contracts/_module.js";
-import { DynamicServiceRegister } from "@/di/implementations/dynamic-service-register.js";
 import {
     ContainerAlreadyInitializedException,
     ContainerNotActiveException,
     ContainerNotTerminatedException,
-} from "@/di/implementations/errors.js";
+    MethodCallInsideRunError,
+    ServiceCanNotBeResolvedError,
+} from "@/di/contracts/container.errors.js";
+import { DynamicServiceRegister } from "@/di/implementations/dynamic-service-register.js";
 import { eagerInitialization } from "@/di/implementations/graph-algorithms.js";
 import { GraphManager } from "@/di/implementations/graph-manager.js";
 import {
@@ -27,11 +30,12 @@ import {
 import { ServiceLifetimeSetter } from "@/di/implementations/service-lifetime.js";
 import {
     createFunctionCache,
+    tokenToString,
     type LIFESPAN,
     type TNode,
 } from "@/di/implementations/utils.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { callInvokable } from "@/utilities/_module.js";
+import { callInvokable, UnexpectedError } from "@/utilities/_module.js";
 
 /**
  * @group Implementations
@@ -86,15 +90,53 @@ export type EdgeProps = {
     argIndex: number;
 };
 
-// TODO make/use specific error classes
+/**
+ * TODO remove this error
+ * Thrown when one or more registered services are missing a lifetime
+ * configuration when the container is initialized.
+ *
+ * @group Errors
+ */
+export class NodesMissingLifetimePropertyError extends UnexpectedError {
+    /**
+     * The tokens that are missing a lifetime property.
+     */
+    public readonly nodes: ReadonlySet<DiToken>;
+
+    private constructor(nodes: Set<DiToken>) {
+        const nodeList = [...nodes].map(tokenToString).join(", ");
+        super(
+            `Missing lifetime property for nodes: "${nodeList}". Each registered service must have a lifetime (singleton, scoped, or transient) configured before init.`,
+        );
+        this.name = NodesMissingLifetimePropertyError.name;
+        this.nodes = nodes;
+    }
+
+    /**
+     * Creates a new {@link NodesMissingLifetimePropertyError} error.
+     *
+     * @param nodes - The tokens missing a lifetime property.
+     * @returns A new error instance.
+     */
+    static create(nodes: Set<DiToken>): NodesMissingLifetimePropertyError {
+        return new NodesMissingLifetimePropertyError(nodes);
+    }
+}
+
+/**
+ * TODO make methods that require active container (throwIfContainerNotActive is called at top)
+ * to throw unexpected error instead of MethodCallInsideRunError (remove call to throwIfInsideRun) since
+ * ContainerNotActiveException will always be thrown first.
+ */
+
 export class Container implements IContainer {
     private readonly SCOPE_DEPTH_KEY = genericToken<number>(
         "the depth level associated with current scope",
     );
     private graphManager: GraphManager = new GraphManager();
     private nodesMissingLifetimeProperty = new Set<DiToken>();
-    private initHandler?: DiHook;
-    private deInitHandler?: DiHook;
+    private initHandlers: Array<DiHook> = [];
+    private deInitHandlers: Array<DiHook> = [];
     private registryManager: RegistryManager;
     private currentState: TState = BEFORE_ACTIVE_STATE;
 
@@ -112,7 +154,9 @@ export class Container implements IContainer {
 
     private throwIfAnyNodeMissLifetimeProp() {
         if (this.nodesMissingLifetimeProperty.size !== 0) {
-            throw new Error();
+            throw NodesMissingLifetimePropertyError.create(
+                this.nodesMissingLifetimeProperty,
+            );
         }
     }
 
@@ -130,13 +174,13 @@ export class Container implements IContainer {
 
     private throwIfTokenAlreadyRegistered(token: DiToken) {
         if (this.graphManager.hasNodeProperty(token)) {
-            throw new Error("double registered node");
+            throw ServiceExistsDiError.create(token);
         }
     }
 
     private throwIfInsideRunScope(methodName: string) {
         if (this.isInsideRunScope()) {
-            throw Error(`the method ${methodName} was called inside run block`);
+            throw MethodCallInsideRunError.create(methodName);
         }
     }
 
@@ -144,7 +188,7 @@ export class Container implements IContainer {
         const tokenExistInGraph = this.graphManager.hasNodeProperty(token);
 
         if (!tokenExistInGraph) {
-            throw new Error();
+            throw new UnexpectedError("is bro");
         }
     }
 
@@ -336,8 +380,11 @@ export class Container implements IContainer {
 
         this.currentState = IN_ACTIVE_STATE;
 
-        if (this.initHandler !== undefined) {
-            await callInvokable(this.initHandler, this);
+        if (this.initHandlers.length !== 0) {
+            const handlers = this.initHandlers.map(async (hanlder) => {
+                await callInvokable(hanlder, this);
+            });
+            await Promise.all(handlers);
         }
     }
 
@@ -346,8 +393,11 @@ export class Container implements IContainer {
         this.throwIfContainerNotActive(this.deInit.name);
         this.throwIfInsideRunScope(this.deInit.name);
 
-        if (this.deInitHandler !== undefined) {
-            await callInvokable(this.deInitHandler, this);
+        if (this.deInitHandlers.length !== 0) {
+            const handlers = this.deInitHandlers.map(async (hanlder) => {
+                await callInvokable(hanlder, this);
+            });
+            await Promise.all(handlers);
         }
         this.currentState = AFTER_ACTIVE_STATE;
     }
@@ -357,15 +407,15 @@ export class Container implements IContainer {
         this.throwIfContainerAlreadyInitialized(this.onContainerInit.name);
         this.throwIfInsideRunScope(this.onContainerInit.name);
 
-        this.initHandler = handler;
+        this.initHandlers.push(handler);
     }
 
-    // TODO make possible  for adding/compounding multiple hooks ?
+    // TODO make possible for adding/compounding multiple hooks ?
     onContainerDeInit(handler: DiHook): void {
         this.throwIfContainerAlreadyInitialized(this.onContainerDeInit.name);
         this.throwIfInsideRunScope(this.onContainerDeInit.name);
 
-        this.deInitHandler = handler;
+        this.deInitHandlers.push(handler);
     }
 
     async run<TValue = void>(settings: RunSettings<TValue>): Promise<void> {
@@ -374,6 +424,7 @@ export class Container implements IContainer {
         await this.settings.executionContext.run(async () => {
             const dynamicServiceRegister: IDynamicServiceRegister =
                 new DynamicServiceRegister({
+                    executionContext: this.settings.executionContext,
                     setValueFor: (token, value) => {
                         this.registryManager.saveInCurrentScopedOrBaseRegistry(
                             token,
@@ -385,7 +436,6 @@ export class Container implements IContainer {
 
             this.increaseOrInitRunScopeDepthCounter();
             this.registryManager.initNewScopedRegistry();
-            await this.initScopedValues();
 
             if (settings.dynamicRegistration !== undefined) {
                 await callInvokable(
@@ -393,6 +443,7 @@ export class Container implements IContainer {
                     dynamicServiceRegister,
                 );
             }
+            await this.initScopedValues();
 
             const value = await callInvokable(settings.scope);
             return value;
@@ -414,6 +465,7 @@ export class Container implements IContainer {
             notifyLifetimeIsSet: () =>
                 this.nodesMissingLifetimeProperty.delete(settings.token),
             settings,
+            token: settings.token,
         });
     }
 
@@ -446,7 +498,7 @@ export class Container implements IContainer {
     registerDynamic(token: DiToken): void {
         this.throwIfContainerAlreadyInitialized(this.registerDynamic.name);
         this.throwIfInsideRunScope(this.registerDynamic.name);
-
+        this.throwIfTokenAlreadyRegistered(token);
         this.graphManager.registerDynamic(token);
     }
 
@@ -460,26 +512,36 @@ export class Container implements IContainer {
         this.throwIfContainerNotActive(this.resolve.name);
         const tokenExistInRegistry = this.registryManager.has(token);
 
-        if (tokenExistInRegistry) {
-            // graph should always contain more tokens than registry.
-            // if not the case then it is bugged
-            // This check exist for throwing error early
-            this.throwIfNodeNotExistInGraph(token);
+        const tokenExistInGraph = this.graphManager.hasNodeProperty(token);
+
+        if (!tokenExistInGraph && !tokenExistInRegistry) {
+            return null;
+        }
+
+        if (tokenExistInRegistry && !tokenExistInGraph) {
+            throw new UnexpectedError(
+                `Token "${tokenToString(token)}" exists in the registry but is missing from the graph. This indicates an internal inconsistency: the graph should always contain every registered token.`,
+                { token },
+            );
         }
 
         if (!tokenExistInRegistry) {
             return null;
-        } else if (this.graphManager.isSingleton(token)) {
+        }
+        if (this.graphManager.isSingleton(token)) {
             return this.resolveSingleton(token);
-        } else if (this.graphManager.isTransient(token)) {
+        }
+        if (this.graphManager.isTransient(token)) {
             return this.resolveTransient(token);
-        } else if (this.graphManager.isScoped(token)) {
+        }
+        if (this.graphManager.isScoped(token)) {
             return this.resolveScoped(token);
-        } else if (this.graphManager.isDynamic(token)) {
+        }
+        if (this.graphManager.isDynamic(token)) {
             return this.resolveDynamic(token);
         }
 
-        throw new Error();
+        throw new UnexpectedError("unknown type");
     }
 
     private assumeType<TType>(value: unknown): TType {
@@ -491,7 +553,12 @@ export class Container implements IContainer {
     ): Promise<TType> {
         await Promise.resolve();
         if (!this.graphManager.isSingleton(token)) {
-            throw new Error();
+            throw new UnexpectedError(
+                `Excepted token to exist in graph and be singleton`,
+                {
+                    token,
+                },
+            );
         }
         const value = this.registryManager.getAsValueOrThrow(token);
         return this.assumeType<TType>(value);
@@ -501,7 +568,12 @@ export class Container implements IContainer {
         token: DiToken<TType>,
     ): Promise<TType | null> {
         if (!this.graphManager.isTransient(token)) {
-            throw new Error();
+            throw new UnexpectedError(
+                `Excepted token to exist in graph and be transient`,
+                {
+                    token,
+                },
+            );
         }
 
         const canNotResolve =
@@ -523,7 +595,12 @@ export class Container implements IContainer {
         token: DiToken<TType>,
     ): Promise<TType | null> {
         if (!this.graphManager.isScoped(token)) {
-            throw new Error();
+            throw new UnexpectedError(
+                `Excepted token to exist in graph and be scoped`,
+                {
+                    token,
+                },
+            );
         }
 
         await Promise.resolve();
@@ -540,7 +617,12 @@ export class Container implements IContainer {
     ): Promise<TType | null> {
         await Promise.resolve();
         if (!this.graphManager.isDynamic(token)) {
-            throw new Error();
+            throw new UnexpectedError(
+                `Excepted token to exist in graph and be dynamic`,
+                {
+                    token,
+                },
+            );
         }
         const canResolve = this.isInsideRunScope();
         if (canResolve) {
@@ -566,7 +648,7 @@ export class Container implements IContainer {
         this.throwIfContainerNotActive(this.resolveOrFail.name);
         const value = await this.resolve(token);
         if (value === null) {
-            throw Error();
+            throw ServiceCanNotBeResolvedError.create(token);
         }
         return value;
     }
@@ -620,12 +702,14 @@ export class Container implements IContainer {
         this.throwIfInsideRunScope(this.fork.name);
 
         if (this.nodesMissingLifetimeProperty.size !== 0) {
-            throw new Error();
+            throw NodesMissingLifetimePropertyError.create(
+                this.nodesMissingLifetimeProperty,
+            );
         }
 
         const copy = new Container(this.settings);
-        copy.initHandler = this.initHandler;
-        copy.deInitHandler = this.deInitHandler;
+        copy.initHandlers.push(...this.initHandlers);
+        copy.deInitHandlers.push(...this.deInitHandlers);
         copy.graphManager = this.graphManager.copy();
         return copy;
     }

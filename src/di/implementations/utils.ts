@@ -1,4 +1,21 @@
 import { type DiToken } from "@/di/contracts/container.contract.js";
+import { isClass } from "@/utilities/_module.js";
+
+/**
+ * Converts a DI token to a readable string representation.
+ *
+ * Class tokens are rendered using their class name; other tokens are
+ * rendered using their id.
+ *
+ * @param token - The token to format.
+ * @returns A string representation of the token.
+ */
+export function tokenToString(token: DiToken): string {
+    if (isClass(token)) {
+        return token.name;
+    }
+    return token.id.toString();
+}
 
 /**
  * All possible service lifetime scopes.

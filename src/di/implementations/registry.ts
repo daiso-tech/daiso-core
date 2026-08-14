@@ -1,4 +1,6 @@
 import { type DiToken } from "@/di/contracts/container.contract.js";
+import { tokenToString } from "@/di/implementations/utils.js";
+import { UnexpectedError } from "@/utilities/errors.js";
 
 export interface IRegister<T> {
     has(token: DiToken): boolean;
@@ -41,13 +43,21 @@ export class Registry<T> implements IRegister<T> {
 
     public getOrThrow(token: DiToken): T {
         if (!this.has(token)) {
-            throw new Error();
+            throw new UnexpectedError(
+                `Token not found in registry: "${tokenToString(
+                    token,
+                )}". No value is registered for this token.`,
+            );
         }
 
         const value = this.get(token);
 
         if (value === null) {
-            throw new Error();
+            throw new UnexpectedError(
+                `Token not found in registry: "${tokenToString(
+                    token,
+                )}". No value is registered for this token.`,
+            );
         }
 
         return value;

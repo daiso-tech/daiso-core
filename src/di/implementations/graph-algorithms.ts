@@ -1,4 +1,4 @@
-import { UndeclaredDependencyError } from "@/di/implementations/errors.js";
+import { UnexpectedError } from "@/utilities/errors.js";
 
 /**
  * Kahn's Algorithm for eager initialization.
@@ -23,7 +23,9 @@ export async function eagerInitialization<T>(args: {
     const getPendingDependencyCount = (id: T): number => {
         const unInitialized = pending.get(id);
         if (unInitialized === undefined) {
-            throw new UndeclaredDependencyError(id);
+            throw new UnexpectedError(
+                `Expected node id "${String(id)}" to exist in the pending dependency counts. Each node must be declared in nodeIds before it is referenced as a dependency.`,
+            );
         }
         return unInitialized;
     };
@@ -235,50 +237,17 @@ export function undeclaredNodesExist<TNode>(args: {
  * Returns `true` when at least one invalid edge is found.
  */
 // TODO make more general and create few test later
-export function someEdgeIsInvalid<TNode>(args: {
-    edges: Array<[TNode, TNode]>;
-    isSingletonNode: (node: TNode) => boolean;
-    isScopedNode: (node: TNode) => boolean;
-    isTransientNode: (node: TNode) => boolean;
-    isDynamicNode: (node: TNode) => boolean;
+export function someEdgeIsInvalid<TEdge>(args: {
+    edges: Array<TEdge>;
+    edgeIsValid: (edge: TEdge) => boolean;
 }): boolean {
-    const {
-        edges,
-        isSingletonNode,
-        isScopedNode,
-        isTransientNode,
-        isDynamicNode,
-    } = args;
+    const { edges, edgeIsValid } = args;
 
-    const hasInvalidEdge = edges.some(([source, target]) => {
+    const hasInvalidEdge = edges.some((edge) => {
         // dynamic node can not point to any other node
-        if (isDynamicNode(source)) {
+        if (edgeIsValid(edge)) {
             return true;
         }
-
-        // transient node can not point to dynamic node
-        if (isTransientNode(source) && isDynamicNode(target)) {
-            return true;
-        }
-
-        // only scoped node can point to dynamic node
-        if (isDynamicNode(target)) {
-            return !isScopedNode(source);
-        }
-
-        // singleton node can not point to transient or scoped node
-        if (
-            isSingletonNode(source) &&
-            (isTransientNode(target) || isScopedNode(target))
-        ) {
-            return true;
-        }
-
-        // scoped node can not point to transient node
-        if (isScopedNode(source) && isTransientNode(target)) {
-            return true;
-        }
-
         return false;
     });
 

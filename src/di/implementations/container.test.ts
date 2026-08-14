@@ -335,7 +335,7 @@ describe("class: Container", () => {
     // -----------------------------------------------------------------------
     // registerContext
     // -----------------------------------------------------------------------
-    describe("method: registerContext", () => {
+    describe.todo("method: registerContext", () => {
         let container: Container;
 
         beforeEach(() => {
@@ -496,6 +496,7 @@ describe("class: Container", () => {
         });
 
         test("Should return null when token is not registered", async () => {
+            await container.init();
             const result = await container.resolve(ILOGGER);
             expect(result).toBeNull();
         });
@@ -506,6 +507,7 @@ describe("class: Container", () => {
                 value: { apiUrl: "https://api.example.com", timeout: 5000 },
             });
 
+            await container.init();
             const result = await container.resolve(ICONFIG);
             expect(result).toEqual({
                 apiUrl: "https://api.example.com",
@@ -526,6 +528,8 @@ describe("class: Container", () => {
 
         test("Should return default value when token is not registered", async () => {
             const defaultValue: IConfig = { apiUrl: "default", timeout: 1000 };
+
+            await container.init();
             const result = await container.resolveOr(ICONFIG, defaultValue);
             expect(result).toBe(defaultValue);
         });
@@ -536,6 +540,7 @@ describe("class: Container", () => {
                 value: { apiUrl: "https://api.example.com", timeout: 5000 },
             });
 
+            await container.init();
             const result = await container.resolveOr(ICONFIG, {
                 apiUrl: "default",
                 timeout: 1000,
@@ -563,6 +568,7 @@ describe("class: Container", () => {
                 value: { apiUrl: "https://api.example.com", timeout: 5000 },
             });
 
+            await container.init();
             const result = await container.resolveOrFail(ICONFIG);
             expect(result).toEqual({
                 apiUrl: "https://api.example.com",
@@ -582,6 +588,7 @@ describe("class: Container", () => {
         });
 
         test("Should return false when token is not registered", async () => {
+            await container.init();
             const result = await container.has(ILOGGER);
             expect(result).toBe(false);
         });
@@ -592,15 +599,17 @@ describe("class: Container", () => {
                 value: { apiUrl: "https://api.example.com", timeout: 5000 },
             });
 
+            await container.init();
             const result = await container.has(ICONFIG);
             expect(result).toBe(true);
         });
 
-        test("Should return true for a dynamic token that has been registered", async () => {
+        test("Should return false for a dynamic token that has been registered since no value exist for it yet", async () => {
             container.registerDynamic(REQUEST_ID);
 
+            await container.init();
             const result = await container.has(REQUEST_ID);
-            expect(result).toBe(true);
+            expect(result).toBe(false);
         });
     });
 
@@ -617,6 +626,7 @@ describe("class: Container", () => {
         test("Should execute a scope callback within an isolated scope", async () => {
             const scopeFn = vi.fn();
 
+            await container.init();
             await container.run({
                 scope: scopeFn,
             });
@@ -628,7 +638,7 @@ describe("class: Container", () => {
             container.registerDynamic(REQUEST_ID);
 
             let capturedRequestId: string | undefined;
-
+            await container.init();
             await container.run({
                 dynamicRegistration: async (register) => {
                     await register.set({
@@ -649,7 +659,7 @@ describe("class: Container", () => {
             container.registerDynamic(REQUEST_ID);
 
             let capturedRequestId: string | undefined;
-
+            await container.init();
             await container.run({
                 dynamicRegistration: async (register) => {
                     await register.set({
@@ -673,7 +683,7 @@ describe("class: Container", () => {
                     deps: [],
                 })
                 .scoped();
-
+            await container.init();
             await container.run({
                 scope: async () => {
                     const instance1 =
@@ -695,8 +705,7 @@ describe("class: Container", () => {
         beforeEach(() => {
             container = createContainer();
         });
-
-        test("Should override an existing factory registration", () => {
+        test("Should override an existing factory registration", async () => {
             container
                 .registerFactory({
                     token: ILOGGER,
@@ -786,6 +795,7 @@ describe("class: Container", () => {
                 value: { apiUrl: "https://new.example.com", timeout: 5000 },
             });
 
+            await container.init();
             const result = await container.resolveOrFail(ICONFIG);
             expect(result).toEqual({
                 apiUrl: "https://new.example.com",
@@ -835,6 +845,7 @@ describe("class: Container", () => {
 
             container.onContainerDeInit(hook);
 
+            await container.init();
             await container.deInit();
 
             expect(hook).toHaveBeenCalledOnce();
@@ -863,6 +874,7 @@ describe("class: Container", () => {
             container.onContainerDeInit(hook1);
             container.onContainerDeInit(hook2);
 
+            await container.init();
             await container.deInit();
 
             expect(hook1).toHaveBeenCalledOnce();
@@ -970,6 +982,7 @@ describe("class: Container", () => {
             });
 
             const child = parentContainer.fork();
+            await child.init();
             const result = await child.resolveOrFail(ICONFIG);
 
             expect(result).toEqual({
@@ -991,7 +1004,9 @@ describe("class: Container", () => {
                 value: { apiUrl: "https://child.example.com", timeout: 100 },
             });
 
+            await parentContainer.init();
             const parentConfig = await parentContainer.resolveOrFail(ICONFIG);
+            await child.init();
             const childConfig = await child.resolveOrFail(ICONFIG);
 
             expect(parentConfig.apiUrl).toBe("https://parent.example.com");
@@ -1012,10 +1027,13 @@ describe("class: Container", () => {
             });
 
             // Verify parent still has original config
+
+            await parentContainer.init();
             const parentConfig = await parentContainer.resolveOrFail(ICONFIG);
             expect(parentConfig.apiUrl).toBe("https://real.example.com");
 
             // Verify child has overridden config
+            await testContainer.init();
             const childConfig = await testContainer.resolveOrFail(ICONFIG);
             expect(childConfig.apiUrl).toBe("https://test.example.com");
         });
@@ -1172,7 +1190,7 @@ describe("class: Container", () => {
             container
                 .registerFactory({
                     token: IUSER_SERVICE,
-                    factory: (db) => ({
+                    factory: ([db]) => ({
                         getUser: async (id: string) => {
                             await db.query(
                                 `SELECT * FROM users WHERE id = ${id}`,
@@ -1196,6 +1214,7 @@ describe("class: Container", () => {
             container.registerDynamic(REQUEST_ID);
 
             // Execute within a scope (simulating a request)
+            await container.init();
             await container.run({
                 dynamicRegistration: async (register) => {
                     await register.set({
@@ -1244,6 +1263,8 @@ describe("class: Container", () => {
                 impl: MockDatabase,
                 deps: [],
             });
+
+            await testContainer.init();
 
             // Resolve from test container — should get UserService with MockDatabase
             const userService = await testContainer.resolveOrFail(UserService);

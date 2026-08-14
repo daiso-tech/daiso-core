@@ -4,7 +4,7 @@
 
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ServiceNotFoundDiError,
+    ServiceCanNotBeResolvedError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     InvalidLifetimeDiError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -395,12 +395,13 @@ export type IServiceResolver = {
     ): Promise<TType>;
 
     /**
-     * Resolves a service by token, throwing {@link ServiceNotFoundDiError} if not found.
+     * Resolves a service by token, throwing {@link ServiceCanNotBeResolvedError} if not found.
      */
     resolveOrFail<TType>(token: DiToken<TType>): Promise<TType>;
 
     /**
-     * Checks whether a token exists.
+     * TODO find better name?
+     * Checks whether a token have a resolved value
      */
     has(token: DiToken): Promise<boolean>;
 };
@@ -563,7 +564,7 @@ export type IServiceOverrider = {
  * single cohesive API.
  *
  * The following errors can be thrown any method listed in `IContainer` dependent on the algorithm used:
- * @throws {ServiceNotFoundDiError} When a required service cannot be resolved.
+ * @throws {ServiceCanNotBeResolvedError} When a required service cannot be resolved.
  * @throws {InvalidLifetimeDiError} When a lifetime configuration is invalid
  *   (e.g. singleton depending on transient).
  * @throws {CircularDependencyDiError} When a circular dependency is detected
