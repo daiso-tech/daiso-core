@@ -1,5 +1,3 @@
-import { create } from "node:domain";
-
 import { beforeEach, describe, expect, test } from "vitest";
 
 import {
@@ -511,35 +509,6 @@ describe("register & container.init & resolve", () => {
             );
         });
 
-        // TODO  remove?
-        // test("Should resolve successfully when resolving singleton dependency at top with container.resolveOr", async () => {
-        //     const nodeA = dependency()
-        //         .factory(() => "_")
-        //         .createToken("A");
-
-        //     container.registerFactory(nodeA).singleton();
-        //     await container.init();
-
-        //     const correctValue = await nodeA.callFunc();
-        //     await expect(container.resolveOr(nodeA.token, "")).resolves.toBe(
-        //         correctValue,
-        //     );
-        // });
-
-        // test("Should resolve successfully when resolving singleton dependency at top with container.resolveOrFail", async () => {
-        //     const nodeA = dependency()
-        //         .factory(() => "_")
-        //         .createToken("A");
-
-        //     container.registerFactory(nodeA).singleton();
-        //     await container.init();
-
-        //     const correctValue = await nodeA.callFunc();
-        //     await expect(container.resolveOrFail(nodeA.token)).resolves.toBe(
-        //         correctValue,
-        //     );
-        // });
-
         test("Should resolve successfully deep singleton dependency chain at top with container.resolve", async () => {
             const nodeA = dependency()
                 .factory(() => "1")
@@ -808,34 +777,6 @@ describe("register & container.init & resolve", () => {
             );
         });
 
-        // test("Should resolve successfully when resolving transient dependency at top  with container.resolveOr", async () => {
-        //     const nodeA = dependency()
-        //         .factory(() => "_")
-        //         .createToken("A");
-
-        //     container.registerFactory(nodeA).transient();
-        //     await container.init();
-
-        //     const correctValue = await nodeA.callFunc();
-        //     await expect(container.resolveOr(nodeA.token, "")).resolves.toBe(
-        //         correctValue,
-        //     );
-        // });
-
-        // test("Should resolve successfully when resolving transient dependency at top with container.resolveOrFail", async () => {
-        //     const nodeA = dependency()
-        //         .factory(() => "_")
-        //         .createToken("A");
-
-        //     container.registerFactory(nodeA).transient();
-        //     await container.init();
-
-        //     const correctValue = await nodeA.callFunc();
-        //     await expect(container.resolveOrFail(nodeA.token)).resolves.toBe(
-        //         correctValue,
-        //     );
-        // });
-
         test("Should resolve successfully deep transient dependency chain at top with container.resolve", async () => {
             const nodeA = dependency()
                 .factory(() => "1")
@@ -874,35 +815,6 @@ describe("register & container.init & resolve", () => {
             expect(value).toBe(correctValue);
         });
 
-        // test("Should resolve to default when resolving transient dependency at top where its factory return null with container.resolveOr", async () => {
-        //     const nodeA = dependency()
-        //         .factory(() => null as null | string)
-        //         .createToken("A");
-
-        //     container.registerFactory(nodeA).transient();
-        //     await container.init();
-
-        //     const defaultValue = "_";
-        //     await expect(
-        //         container.resolveOr(nodeA.token, defaultValue),
-        //     ).resolves.toBe(defaultValue);
-        // });
-
-        // test("Should fail when resolving transient dependency at top where its factory return null with container.resolveOrFail", async () => {
-        //     const nodeA = dependency()
-        //         .factory(() => null as null | string)
-        //         .createToken("A");
-
-        //     container.registerFactory(nodeA).transient();
-        //     await container.init();
-
-        //     await expect(
-        //         container.resolveOrFail(nodeA.token),
-        //     ).rejects.toThrowError();
-        // });
-
-        // TODO ask if arguments for IExecutionContext is utilized correctly in this test
-        
         test("Should resolve successfully a transient dependency defined by factory that uses executionContext with container.resolve", async () => {
             const tokenA = genericToken<Date>("A");
             const dateKey = genericToken<Date>("date");
@@ -1440,43 +1352,6 @@ describe("register & container.init & resolve", () => {
             await expect(container.resolve(tokenA)).resolves.toBe(null);
         });
 
-        // test("should fail when resolving scoped dynamic at top with container.resolveOrFail", async () => {
-        //     const tokenA = genericToken<string>("A");
-        //     container.registerDynamic(tokenA);
-
-        //     await container.init();
-        //     await expect(async () =>
-        //         container.resolveOrFail(tokenA),
-        //     ).rejects.toThrowError();
-        // });
-
-        // test("should return default value when resolving dynamic dependency at top with container.resolveOr", async () => {
-        //     const tokenA = genericToken<string>("A");
-        //     container.registerDynamic(tokenA);
-
-        //     await container.init();
-        //     await expect(container.resolveOr(tokenA, "_")).resolves.toBe("_");
-        // });
-
-        // test("Should resolve to default when resolving dynamic dependency inside run scope block where its factory return null with container.resolveOr", async () => {
-        //     const tokenA = genericToken<string | null>("A");
-
-        //     container.registerDynamic(tokenA);
-        //     await container.init();
-
-        //     const defaultValue = "_";
-
-        //     let value: undefined | null | string = undefined;
-
-        //     await container.run({
-        //         scope: async () => {
-        //             value = await container.resolveOr(tokenA, defaultValue);
-        //         },
-        //     });
-
-        //     expect(value).toBe(defaultValue);
-        // });
-
         test("Should fail when resolving dynamic dependency inside run scope block where its factory return null with container.resolveOrFail", async () => {
             const tokenA = genericToken<string | null>("A");
 
@@ -1636,36 +1511,6 @@ describe("register & container.init & resolve", () => {
 
             expect(value).toBe(null);
         });
-
-        // test("should fail when resolving existent dynamic token with no value provided inside run block scope with with container.resolveOrFail", async () => {
-        //     const tokenA = genericToken<string>("A");
-        //     container.registerDynamic(tokenA);
-
-        //     await container.init();
-        //     await expect(async () =>
-        //         container.run({
-        //             scope: async () => {
-        //                 return await container.resolveOrFail(tokenA);
-        //             },
-        //         }),
-        //     ).rejects.toThrowError();
-        // });
-
-        // test("should return default value when resolving existent dynamic token with no value provided inside run block scope with container.resolveOr", async () => {
-        //     const tokenA = genericToken<string>("A");
-        //     const defaultValue = "_";
-        //     let value: undefined | string = undefined as undefined | string;
-        //     container.registerDynamic(tokenA);
-
-        //     await container.init();
-        //     await container.run({
-        //         scope: async () => {
-        //             value = await container.resolveOr(tokenA, defaultValue);
-        //         },
-        //     });
-
-        //     expect(value).toBe(defaultValue);
-        // });
     });
 
     describe("scoped & dynamic", () => {
