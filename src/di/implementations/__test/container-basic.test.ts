@@ -1815,6 +1815,91 @@ describe("graph validation", () => {
     });
 
     /**
+     * Undeclared detection can implemented independent of node type.
+     * Therefore only singleton tested.
+     */
+    describe("undeclared nodes", () => {
+        test("should throw when undeclared nodes exist", async () => {
+            const tokenA = genericToken<string>("A");
+            const undeclaredToken = genericToken<string>("undeclared");
+
+            const nodeA = dependency(undeclaredToken)
+                .factory(() => "A")
+                .reuseToken(tokenA);
+
+            container.registerFactory(nodeA).singleton();
+
+            await expect(container.init()).rejects.toThrowError();
+        });
+    });
+
+    describe("invalid edge detection", () => {
+        test("should throw when an singleton -> transient edge is detected", async () => {
+            const tokenA = genericToken<string>("A");
+            const tokenB = genericToken<string>("B");
+
+            const nodeA = dependency(tokenB)
+                .factory(() => "A")
+                .reuseToken(tokenA);
+
+            const nodeB = dependency()
+                .factory(() => "B")
+                .reuseToken(tokenB);
+
+            container.registerFactory(nodeA).singleton();
+            container.registerFactory(nodeB).transient();
+
+            await expect(container.init()).rejects.toThrowError();
+        });
+
+        test("should throw when an singleton -> dynamic edge is detected", async () => {
+            const tokenA = genericToken<string>("A");
+            const tokenB = genericToken<string>("B");
+
+            const nodeA = dependency(tokenB)
+                .factory(() => "A")
+                .reuseToken(tokenA);
+
+            container.registerFactory(nodeA).singleton();
+            container.registerDynamic(tokenB);
+
+            await expect(container.init()).rejects.toThrowError();
+        });
+
+        test("should throw when an scoped -> transient edge is detected", async () => {
+            const tokenA = genericToken<string>("A");
+            const tokenB = genericToken<string>("B");
+
+            const nodeA = dependency(tokenB)
+                .factory(() => "A")
+                .reuseToken(tokenA);
+
+            const nodeB = dependency()
+                .factory(() => "B")
+                .reuseToken(tokenB);
+
+            container.registerFactory(nodeA).scoped();
+            container.registerFactory(nodeB).transient();
+
+            await expect(container.init()).rejects.toThrowError();
+        });
+
+        test("should throw when an transient -> dynamic edge is detected", async () => {
+            const tokenA = genericToken<string>("A");
+            const tokenB = genericToken<string>("B");
+
+            const nodeA = dependency(tokenB)
+                .factory(() => "A")
+                .reuseToken(tokenA);
+
+            container.registerFactory(nodeA).transient();
+            container.registerDynamic(tokenB);
+
+            await expect(container.init()).rejects.toThrowError();
+        });
+    });
+
+    /**
      * Cycle detection can implemented independent of node type.
      * Therefore only singleton tested.
      */
@@ -1849,83 +1934,6 @@ describe("graph validation", () => {
 
             await expect(container.init()).rejects.toThrowError();
         });
-    });
-
-    test("should throw when an singleton -> transient edge is detected", async () => {
-        const tokenA = genericToken<string>("A");
-        const tokenB = genericToken<string>("B");
-
-        const nodeA = dependency(tokenB)
-            .factory(() => "A")
-            .reuseToken(tokenA);
-
-        const nodeB = dependency()
-            .factory(() => "B")
-            .reuseToken(tokenB);
-
-        container.registerFactory(nodeA).singleton();
-        container.registerFactory(nodeB).transient();
-
-        await expect(container.init()).rejects.toThrowError();
-    });
-
-    test("should throw when an singleton -> dynamic edge is detected", async () => {
-        const tokenA = genericToken<string>("A");
-        const tokenB = genericToken<string>("B");
-
-        const nodeA = dependency(tokenB)
-            .factory(() => "A")
-            .reuseToken(tokenA);
-
-        container.registerFactory(nodeA).singleton();
-        container.registerDynamic(tokenB);
-
-        await expect(container.init()).rejects.toThrowError();
-    });
-
-    test("should throw when an scoped -> transient edge is detected", async () => {
-        const tokenA = genericToken<string>("A");
-        const tokenB = genericToken<string>("B");
-
-        const nodeA = dependency(tokenB)
-            .factory(() => "A")
-            .reuseToken(tokenA);
-
-        const nodeB = dependency()
-            .factory(() => "B")
-            .reuseToken(tokenB);
-
-        container.registerFactory(nodeA).scoped();
-        container.registerFactory(nodeB).transient();
-
-        await expect(container.init()).rejects.toThrowError();
-    });
-
-    test("should throw when an transient -> dynamic edge is detected", async () => {
-        const tokenA = genericToken<string>("A");
-        const tokenB = genericToken<string>("B");
-
-        const nodeA = dependency(tokenB)
-            .factory(() => "A")
-            .reuseToken(tokenA);
-
-        container.registerFactory(nodeA).transient();
-        container.registerDynamic(tokenB);
-
-        await expect(container.init()).rejects.toThrowError();
-    });
-
-    test("should throw when undeclared nodes exist", async () => {
-        const tokenA = genericToken<string>("A");
-        const undeclaredToken = genericToken<string>("undeclared");
-
-        const nodeA = dependency(undeclaredToken)
-            .factory(() => "A")
-            .reuseToken(tokenA);
-
-        container.registerFactory(nodeA).singleton();
-
-        await expect(container.init()).rejects.toThrowError();
     });
 });
 
