@@ -491,9 +491,6 @@ describe("register & container.init & resolve", () => {
         executionContext = value.executionContext;
     });
 
-    test.todo("invcoable");
-    test.todo("registerProvider");
-
     describe("singleton", () => {
         test("Should resolve successfully when resolving singleton dependency at top with container.resolve", async () => {
             const nodeA = dependency()
@@ -546,7 +543,30 @@ describe("register & container.init & resolve", () => {
         });
 
         /**
-         *  This behavior is independent of node type and should apply for singleton scoped, dynamic and transient nodes.
+         * container.registerProvider is shortcut for registering multiple factories at once and is independent of node type.
+         * Only singleton registration through container.registerProvider is tested because implementation of container.registerProvider can done independent of node type.
+         * The method lambda argument to container.registerProvider can be implemented as proxy object of IContainer.
+         */
+        test("Should resolve successfully when resolving singleton dependency through container.registerProvider with container.resolve", async () => {
+            const nodeA = dependency()
+                .factory(() => "_")
+                .createToken("A");
+
+            container.registerFactory(nodeA).singleton();
+            container.registerProvider((provider) => {
+                provider.registerFactory(nodeA).singleton();
+            });
+
+            await container.init();
+
+            const correctValue = await nodeA.callFunc();
+            await expect(container.resolve(nodeA.token)).resolves.toBe(
+                correctValue,
+            );
+        });
+
+        /**
+         * This behavior is independent of node type and should apply for singleton scoped, dynamic and transient nodes.
          * Only singleton is tested because behavior and implementation of container.resolveOr can done independent of node type.
          */
         test("Should resolve to default when resolving singleton dependency at top where its factory return null with container.resolveOr", async () => {
