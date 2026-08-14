@@ -1834,7 +1834,7 @@ describe("graph validation", () => {
     });
 
     describe("invalid edge detection", () => {
-        test("should throw when an singleton -> transient edge is detected", async () => {
+        test("should throw when an singleton -> scoped edge is detected", async () => {
             const tokenA = genericToken<string>("A");
             const tokenB = genericToken<string>("B");
 
@@ -1847,7 +1847,7 @@ describe("graph validation", () => {
                 .reuseToken(tokenB);
 
             container.registerFactory(nodeA).singleton();
-            container.registerFactory(nodeB).transient();
+            container.registerFactory(nodeB).scoped();
 
             await expect(container.init()).rejects.toThrowError();
         });
@@ -1862,6 +1862,24 @@ describe("graph validation", () => {
 
             container.registerFactory(nodeA).singleton();
             container.registerDynamic(tokenB);
+
+            await expect(container.init()).rejects.toThrowError();
+        });
+
+        test("should throw when an singleton -> transient edge is detected", async () => {
+            const tokenA = genericToken<string>("A");
+            const tokenB = genericToken<string>("B");
+
+            const nodeA = dependency(tokenB)
+                .factory(() => "A")
+                .reuseToken(tokenA);
+
+            const nodeB = dependency()
+                .factory(() => "B")
+                .reuseToken(tokenB);
+
+            container.registerFactory(nodeA).singleton();
+            container.registerFactory(nodeB).transient();
 
             await expect(container.init()).rejects.toThrowError();
         });
