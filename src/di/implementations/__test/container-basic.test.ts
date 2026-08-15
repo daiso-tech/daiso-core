@@ -1804,7 +1804,9 @@ describe("register & container.init & resolve", () => {
         });
     });
 
-    // describe("singleton scoped dynamic transient");
+    describe("singleton,scoped, dynamic and transient", () => {
+        test.todo("grand test", () => {});
+    });
 });
 
 describe("graph validation", () => {
