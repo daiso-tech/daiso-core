@@ -371,6 +371,36 @@ describe("illegal method call inside DynamicServiceProvider in run block", () =>
             }),
         ).rejects.toThrow(MethodCallInsideDynamicRegistrationError);
     });
+
+    test("resolveOr method should fail inside DynamicServiceProvider", async () => {
+        const container = createContainer().container;
+        await container.init();
+        const tokenA = genericToken("A");
+
+        await expect(() =>
+            container.run({
+                dynamicRegistration: async () => {
+                    await container.resolveOr(tokenA, "_");
+                },
+                scope: async () => {},
+            }),
+        ).rejects.toThrow(MethodCallInsideDynamicRegistrationError);
+    });
+
+    test("resolveOrFail method should fail inside DynamicServiceProvider", async () => {
+        const container = createContainer().container;
+        await container.init();
+        const tokenA = genericToken("A");
+
+        await expect(() =>
+            container.run({
+                dynamicRegistration: async () => {
+                    await container.resolveOrFail(tokenA);
+                },
+                scope: async () => {},
+            }),
+        ).rejects.toThrow(MethodCallInsideDynamicRegistrationError);
+    });
 });
 
 describe("illegal method call outside run", () => {
