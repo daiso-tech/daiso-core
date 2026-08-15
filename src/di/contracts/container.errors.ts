@@ -3,7 +3,7 @@
  */
 
 import { type DiToken } from "@/di/contracts/container.contract.js";
-import { tokenToString } from "@/di/implementations/utils.js";
+import { type TLifespan } from "@/di/implementations/utils.js";
 import { isClass, UnexpectedError } from "@/utilities/_module.js";
 
 /**
@@ -66,9 +66,18 @@ export class InvalidLifetimeDiError extends Error {
      * @param token - The DI token with an invalid lifetime configuration.
      * @returns A new error instance.
      */
-    static create(token: DiToken): InvalidLifetimeDiError {
+    static create(args: {
+        from_: {
+            token: DiToken;
+            nodeType: TLifespan;
+        };
+        to: {
+            token: DiToken;
+            nodeType: TLifespan;
+        };
+    }): InvalidLifetimeDiError {
         return new InvalidLifetimeDiError(
-            `Invalid dependency graph detected for token: "${tokenToString(token)}". Check for singleton depending on transient/scoped or scoped depending on transient.`,
+            `Invalid edge: "${tokenToString(args.from_.token)}" of type ${args.from_.nodeType} is dependent on "${tokenToString(args.to.token)}" of type ${args.to.nodeType}.`,
         );
     }
 
