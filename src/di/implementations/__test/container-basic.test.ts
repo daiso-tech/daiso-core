@@ -1999,7 +1999,7 @@ describe("override", () => {
      * Where is A is a class and constructorDepsArgs is the dependencies.
      * Therefore, container.overrideClass is tested only once.
      */
-    test("should override  with overrideClass", async () => {
+    test("should override with overrideClass", async () => {
         class A {
             constructor(public arg: unknown) {}
         }
@@ -2392,37 +2392,43 @@ describe("forked container & override", () => {
             .factory(() => "A")
             .createToken("A");
 
-        const nodeAOverride1 = dependency()
-            .factory(() => "A overridden first")
-            .reuseToken(nodeA.token);
 
-        const nodeAOverride2 = dependency()
+        const nodeAOverride = dependency()
             .factory(() => "A overridden second")
             .reuseToken(nodeA.token);
 
         containerA.registerFactory(nodeA).singleton();
-        containerA.overrideFactory(nodeAOverride1);
-
         const containerB = containerA.fork();
-
-        containerB.overrideFactory(nodeAOverride2);
+        containerB.overrideFactory(nodeAOverride);
 
         await containerA.init();
         await containerB.init();
 
-        const correctContainerA = await nodeAOverride1.callFunc();
-        const correctContainerB = await nodeAOverride2.callFunc();
-
-        const resolvedContainerA = await containerA.resolve(nodeA.token);
+        const correctContainerB = await nodeAOverride.callFunc();
         const resolvedContainerB = await containerB.resolve(nodeA.token);
-
-        expect(resolvedContainerA).toBe(correctContainerA);
         expect(resolvedContainerB).toBe(correctContainerB);
     });
 
-    test.todo(
-        "overriding a node in original does not affect the forked container",
-    );
+    test("overriding a node in original does not affect the forked container", async () => {
+        const nodeA = dependency()
+            .factory(() => "A")
+            .createToken("A");
+
+        const nodeAOverride = dependency()
+            .factory(() => "A overridden second")
+            .reuseToken(nodeA.token);
+
+        containerA.registerFactory(nodeA).singleton();
+        const containerB = containerA.fork();
+        containerA.overrideFactory(nodeAOverride);
+
+        await containerA.init();
+        await containerB.init();
+
+        const correctContainerA = await nodeAOverride.callFunc();
+        const resolvedContainerA = await containerA.resolve(nodeA.token);
+        expect(resolvedContainerA).toBe(correctContainerA);
+    });
 });
 
 describe("forked container & hooks", () => {
