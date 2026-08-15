@@ -422,7 +422,7 @@ describe("illegal method call outside run", () => {
     });
 });
 
-describe(, () => {
+describe("onContainerInit & init", () => {
     let container: IContainer;
     beforeEach(() => {
         container = createContainer().container;
