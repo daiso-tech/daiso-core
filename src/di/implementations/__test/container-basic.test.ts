@@ -1955,13 +1955,17 @@ describe("graph validation", () => {
     });
 });
 
+/**
+ * container.overrideFactory & overrideClass can implemented independent of node type.
+ * Therefore only singleton tested.
+ */
 describe("override", () => {
     let container: IContainer;
     beforeEach(() => {
         container = createContainer().container;
     });
 
-    test("simple override", async () => {
+    test("should override  nodeA with overrideFactory", async () => {
         const nodeA = dependency()
             .factory(() => `A`)
             .createToken("A");
@@ -1981,6 +1985,44 @@ describe("override", () => {
         const resolvedA = await container.resolve(nodeAOverridden.token);
 
         expect(resolvedA).toBe(correctA);
+    });
+
+    /**
+     * Container.overrideClass is shortcut for:
+     * ```ts
+     * container.overrideFactory({
+     *       deps: constructorDepsArgs,
+     *       token: A,
+     *       factory: (args) => new A(...args),
+     *   });
+     * ```
+     * Where is A is a class and constructorDepsArgs is the dependencies.
+     * Therefore, container.overrideClass is tested only once.
+     */
+    test("should override  with overrideClass", async () => {
+        class A {
+            constructor(public arg: unknown) {}
+        }
+
+        const nodeB = dependency()
+            .factory(() => "0")
+            .createToken("A");
+
+        const nodeC = dependency()
+            .factory(() => "1")
+            .createToken("C");
+
+        container.registerFactory(nodeB).singleton();
+        container.registerFactory(nodeC).singleton();
+        container.registerClass({ deps: [nodeB.token], impl: A }).singleton();
+
+        container.overrideClass({ deps: [nodeC.token], impl: A });
+
+        await container.init();
+
+        const resolvedA = await container.resolve(A);
+
+        expect(resolvedA?.arg).toBe(await nodeC.callFunc());
     });
 
     test("when nonexistent node should throw", () => {
@@ -2165,8 +2207,6 @@ describe("override", () => {
         expect(resolvedB).toBe(correctB);
         expect(resolvedB).not.toBe(inCorrectB);
     });
-
-    test.todo("override node lifetime ?");
 });
 
 describe("graph validation & override", () => {
