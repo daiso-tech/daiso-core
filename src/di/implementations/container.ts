@@ -222,7 +222,14 @@ export class Container implements IContainer {
         return (
             this.settings.executionContext.get(
                 this.INSIDE_DYNAMIC_SERVICE_PROVIDER_STATUS_KEY,
-            ) === true
+            ) ?? false
+        );
+    }
+
+    private setInsideDynamicServiceProviderStatusTo(status: boolean): void {
+        this.settings.executionContext.put(
+            this.INSIDE_DYNAMIC_SERVICE_PROVIDER_STATUS_KEY,
+            status,
         );
     }
 
@@ -458,10 +465,12 @@ export class Container implements IContainer {
             this.registryManager.initNewScopedRegistry();
 
             if (settings.dynamicRegistration !== undefined) {
+                this.setInsideDynamicServiceProviderStatusTo(true);
                 await callInvokable(
                     settings.dynamicRegistration,
                     dynamicServiceRegister,
                 );
+                this.setInsideDynamicServiceProviderStatusTo(false);
             }
             await this.initScopedValues();
 

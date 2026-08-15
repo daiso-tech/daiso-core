@@ -12,6 +12,7 @@ import {
     MethodCallInsideRunError,
     ServiceExistsDiError,
     MethodOutsideOfRunError,
+    MethodCallInsideDynamicRegistrationError,
 } from "@/di/contracts/container.errors.js";
 import { Container } from "@/di/implementations/container.js";
 import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
@@ -352,6 +353,23 @@ describe("illegal method call inside run", () => {
                 },
             }),
         ).rejects.toThrow(MethodCallInsideRunError);
+    });
+});
+
+describe("illegal method call inside DynamicServiceProvider in run block", () => {
+    test("resolve method should fail inside DynamicServiceProvider", async () => {
+        const container = createContainer().container;
+        await container.init();
+        const tokenA = genericToken("A");
+
+        await expect(() =>
+            container.run({
+                dynamicRegistration: async () => {
+                    await container.resolve(tokenA);
+                },
+                scope: async () => {},
+            }),
+        ).rejects.toThrow(MethodCallInsideDynamicRegistrationError);
     });
 });
 
