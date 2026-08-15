@@ -2211,7 +2211,7 @@ describe("override", () => {
 });
 
 describe("graph validation & override", () => {
-    let container: Container;
+    let container: IContainer;
     beforeEach(() => {
         container = createContainer().container;
     });
