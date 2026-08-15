@@ -17,6 +17,7 @@ import {
     ContainerAlreadyInitializedException,
     ContainerNotActiveException,
     ContainerNotTerminatedException,
+    MethodCallInsideDynamicRegistrationError,
     MethodCallInsideRunError,
     ServiceCanNotBeResolvedError,
 } from "@/di/contracts/container.errors.js";
@@ -191,9 +192,7 @@ export class Container implements IContainer {
 
     private throwIfInsideDynamicServiceProvider(methodName: string) {
         if (this.isInsideDynamicServiceProvider()) {
-            throw new UnexpectedError(
-                `The method ${methodName} was called inside dynamicRegistration in run block`,
-            );
+            throw MethodCallInsideDynamicRegistrationError.create(methodName);
         }
     }
 

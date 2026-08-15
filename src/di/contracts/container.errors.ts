@@ -253,6 +253,40 @@ export class MethodCallInsideRunError extends UnexpectedError {
 }
 
 /**
+ * Thrown when a container method that is forbidden inside a run scope is
+ * called from within `container.run()`.
+ *
+ * @group Errors
+ */
+
+export class MethodCallInsideDynamicRegistrationError extends UnexpectedError {
+    /**
+     * The name of the method that was called illegally.
+     */
+    public readonly methodName: string;
+
+    constructor(methodName: string) {
+        super(
+            `the method ${methodName} was called inside DynamicRegistration in run block`,
+        );
+        this.name = MethodCallInsideDynamicRegistrationError.name;
+        this.methodName = methodName;
+    }
+
+    /**
+     * Creates a new {@link MethodCallInsideRunError} error.
+     *
+     * @param methodName - The name of the method that was called illegally.
+     * @returns A new error instance.
+     */
+    static create(
+        methodName: string,
+    ): MethodCallInsideDynamicRegistrationError {
+        return new MethodCallInsideDynamicRegistrationError(methodName);
+    }
+}
+
+/**
  * Thrown when attempting to set a dynamic value for a token outside of a
  * `container.run()` scope. Dynamic registrations are only allowed inside a
  * run scope.
