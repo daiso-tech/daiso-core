@@ -462,8 +462,48 @@ describe("onContainerInit & init", () => {
     });
 });
 
-describe.todo("onContainerDeInit  & deInit", () => {
-    test("should register all and call deInit hooks in order", () => {});
+describe("onContainerDeInit & deInit", () => {
+    let container: IContainer;
+    beforeEach(() => {
+        container = createContainer().container;
+    });
+
+    test("should register all and call deInit hooks in correct order", async () => {
+        const spyFunc0 = vi.fn();
+        const spyFunc1 = vi.fn();
+        const spyFunc2 = vi.fn();
+
+        container.onContainerDeInit(spyFunc0);
+        container.onContainerDeInit(spyFunc1);
+        container.onContainerDeInit(spyFunc2);
+
+        await container.init();
+        await container.deInit();
+
+        expect(spyFunc0).toHaveBeenCalledBefore(spyFunc1);
+        expect(spyFunc1).toHaveBeenCalledBefore(spyFunc2);
+    });
+
+    test("should resolve successfully in deInit handler", async () => {
+        const nodeA = dependency()
+            .factory(() => "_")
+            .createToken("A");
+
+        container.registerFactory(nodeA).singleton();
+        let value: string | null | undefined = undefined as
+            | string
+            | null
+            | undefined;
+
+        container.onContainerDeInit(async (serviceResolver) => {
+            value = await serviceResolver.resolve(nodeA.token);
+        });
+
+        await container.init();
+        await container.deInit();
+
+        expect(value).toBe(await nodeA.callFunc());
+    });
 });
 
 describe.todo("has", () => {
