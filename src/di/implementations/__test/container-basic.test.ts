@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import {
     genericToken,
@@ -422,14 +422,49 @@ describe("illegal method call outside run", () => {
     });
 });
 
-describe.todo("onContainerInit & init", () => {
-    test("should register all and call init hooks in order", () => {});
+describe(, () => {
+    let container: IContainer;
+    beforeEach(() => {
+        container = createContainer().container;
+    });
+
+    test("should register all and call init hooks in correct order", async () => {
+        const spyFunc0 = vi.fn();
+        const spyFunc1 = vi.fn();
+        const spyFunc2 = vi.fn();
+
+        container.onContainerInit(spyFunc0);
+        container.onContainerInit(spyFunc1);
+        container.onContainerInit(spyFunc2);
+
+        await container.init();
+        expect(spyFunc0).toHaveBeenCalledBefore(spyFunc1);
+        expect(spyFunc1).toHaveBeenCalledBefore(spyFunc2);
+    });
+
+    test("should resolve successfully in init handler", async () => {
+        const nodeA = dependency()
+            .factory(() => "_")
+            .createToken("A");
+
+        container.registerFactory(nodeA).singleton();
+        let value: string | null | undefined = undefined as
+            | string
+            | null
+            | undefined;
+
+        container.onContainerInit(async (serviceResolver) => {
+            value = await serviceResolver.resolve(nodeA.token);
+        });
+
+        await container.init();
+        expect(value).toBe(await nodeA.callFunc());
+    });
 });
 
 describe.todo("onContainerDeInit  & deInit", () => {
     test("should register all and call deInit hooks in order", () => {});
 });
-
 
 describe.todo("has", () => {
     test("should return true when called on singleton node", () => {});
