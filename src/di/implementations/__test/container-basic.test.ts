@@ -506,14 +506,57 @@ describe("onContainerDeInit & deInit", () => {
     });
 });
 
-describe.todo("has", () => {
-    test("should return true when called on singleton node", () => {});
+describe("has", () => {
+    let container: IContainer;
+    beforeEach(() => {
+        container = createContainer().container;
+    });
 
-    test("should return true when called on transient node", () => {});
+    test("should return true when called on singleton node", async () => {
+        const nodeA = dependency()
+            .factory(() => "_")
+            .createToken("A");
 
-    test("should return false when called on scoped node at top", () => {});
+        container.registerFactory(nodeA).singleton();
+        await container.init();
 
-    test("should return false when called on dynamic node at top", () => {});
+        const value = await container.has(nodeA.token);
+        expect(value).toBe(true);
+    });
+
+    test("should return true when called on transient node", async () => {
+        const nodeA = dependency()
+            .factory(() => "_")
+            .createToken("A");
+
+        container.registerFactory(nodeA).transient();
+        await container.init();
+
+        const value = await container.has(nodeA.token);
+        expect(value).toBe(true);
+    });
+
+    test("should return false when called on scoped node at top", async () => {
+        const nodeA = dependency()
+            .factory(() => "_")
+            .createToken("A");
+
+        container.registerFactory(nodeA).scoped();
+        await container.init();
+
+        const value = await container.has(nodeA.token);
+        expect(value).toBe(false);
+    });
+
+    test("should return false when called on dynamic node at top", async () => {
+        const tokenA = genericToken<string>("A");
+
+        container.registerDynamic(tokenA);
+        await container.init();
+
+        const value = await container.has(tokenA);
+        expect(value).toBe(false);
+    });
 });
 
 describe("register", () => {
