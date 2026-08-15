@@ -422,13 +422,24 @@ describe("illegal method call outside run", () => {
     });
 });
 
-describe.todo("onContainerInit");
+describe.todo("onContainerInit & init", () => {
+    test("should register all and call init hooks in order", () => {});
+});
 
-describe.todo("onContainerDeInit");
+describe.todo("onContainerDeInit  & deInit", () => {
+    test("should register all and call deInit hooks in order", () => {});
+});
 
-describe.todo("deInit");
 
-describe.todo("has");
+describe.todo("has", () => {
+    test("should return true when called on singleton node", () => {});
+
+    test("should return true when called on transient node", () => {});
+
+    test("should return false when called on scoped node at top", () => {});
+
+    test("should return false when called on dynamic node at top", () => {});
+});
 
 describe("register", () => {
     let container: IContainer;
