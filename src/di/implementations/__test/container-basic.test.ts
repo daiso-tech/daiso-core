@@ -13,6 +13,7 @@ import {
     ServiceExistsDiError,
     MethodOutsideOfRunError,
     MethodCallInsideDynamicRegistrationError,
+    ServiceCanNotBeResolvedError,
 } from "@/di/contracts/container.errors.js";
 import { Container } from "@/di/implementations/container.js";
 import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
@@ -606,7 +607,7 @@ describe("resolve & container.init & container.run", () => {
         test("should fail when resolving nonexistent at top with container.resolveOrFail", async () => {
             await expect(async () =>
                 container.resolveOrFail(tokenA),
-            ).rejects.toThrowError();
+            ).rejects.toThrowError(ServiceCanNotBeResolvedError);
         });
 
         /**
@@ -649,7 +650,7 @@ describe("resolve & container.init & container.run", () => {
                         return await container.resolveOrFail(tokenA);
                     },
                 }),
-            ).rejects.toThrowError();
+            ).rejects.toThrowError(ServiceCanNotBeResolvedError);
         });
 
         test("should return default value when resolving nonexistent token inside run block scope with container.resolveOr", async () => {
@@ -781,7 +782,7 @@ describe("register & container.init & resolve", () => {
 
             await expect(
                 container.resolveOrFail(nodeA.token),
-            ).rejects.toThrowError();
+            ).rejects.toThrowError(ServiceCanNotBeResolvedError);
         });
 
         // TODO ask if arguments for IExecutionContext is utilized correctly in this test
@@ -1568,7 +1569,7 @@ describe("register & container.init & resolve", () => {
                         await container.resolveOrFail(tokenA);
                     },
                 }),
-            ).rejects.toThrowError();
+            ).rejects.toThrowError(ServiceCanNotBeResolvedError);
         });
 
         test("Should resolve successfully when resolving dynamic dependency inside run block scope with container.resolve", async () => {
