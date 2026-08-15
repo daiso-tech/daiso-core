@@ -133,6 +133,11 @@ export class Container implements IContainer {
     private readonly SCOPE_DEPTH_KEY = genericToken<number>(
         "the depth level associated with current scope",
     );
+
+    private readonly INSIDE_DYNAMIC_SERVICE_PROVIDER_STATUS_KEY =
+        genericToken<boolean>(
+            "Boolean indicator if container is inside DynamicServiceProvider",
+        );
     private graphManager: GraphManager = new GraphManager();
     private nodesMissingLifetimeProperty = new Set<DiToken>();
     private initHandlers: Array<DiHook> = [];
@@ -184,6 +189,14 @@ export class Container implements IContainer {
         }
     }
 
+    private throwIfInsideDynamicServiceProvider(methodName: string) {
+        if (this.isInsideDynamicServiceProvider()) {
+            throw new UnexpectedError(
+                `The method ${methodName} was called inside dynamicRegistration in run block`,
+            );
+        }
+    }
+
     private throwIfNodeNotExistInGraph(token: TNode) {
         const tokenExistInGraph = this.graphManager.hasNodeProperty(token);
 
@@ -203,6 +216,14 @@ export class Container implements IContainer {
     private isInsideRunScope(): boolean {
         return (
             this.settings.executionContext.get(this.SCOPE_DEPTH_KEY) !== null
+        );
+    }
+
+    private isInsideDynamicServiceProvider(): boolean {
+        return (
+            this.settings.executionContext.get(
+                this.INSIDE_DYNAMIC_SERVICE_PROVIDER_STATUS_KEY,
+            ) === true
         );
     }
 
@@ -510,6 +531,8 @@ export class Container implements IContainer {
 
     async resolve<TType>(token: DiToken<TType>): Promise<TType | null> {
         this.throwIfContainerNotActive(this.resolve.name);
+        this.throwIfInsideDynamicServiceProvider(this.resolve.name);
+
         const tokenExistInRegistry = this.registryManager.has(token);
 
         const tokenExistInGraph = this.graphManager.hasNodeProperty(token);
@@ -637,6 +660,8 @@ export class Container implements IContainer {
         defaultValue: NoInfer<TType>,
     ): Promise<TType> {
         this.throwIfContainerNotActive(this.resolveOr.name);
+        this.throwIfInsideDynamicServiceProvider(this.resolveOr.name);
+
         const value = await this.resolve(token);
         if (value === null) {
             return defaultValue;
@@ -646,6 +671,8 @@ export class Container implements IContainer {
 
     async resolveOrFail<TType>(token: DiToken<TType>): Promise<TType> {
         this.throwIfContainerNotActive(this.resolveOrFail.name);
+        this.throwIfInsideDynamicServiceProvider(this.resolveOrFail.name);
+
         const value = await this.resolve(token);
         if (value === null) {
             throw ServiceCanNotBeResolvedError.create(token);
