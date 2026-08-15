@@ -422,6 +422,14 @@ describe("illegal method call outside run", () => {
     });
 });
 
+describe.todo("onContainerInit");
+
+describe.todo("onContainerDeInit");
+
+describe.todo("deInit");
+
+describe.todo("has");
+
 describe("register", () => {
     let container: IContainer;
     beforeEach(() => {
