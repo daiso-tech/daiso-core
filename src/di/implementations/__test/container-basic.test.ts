@@ -552,7 +552,6 @@ describe("register & container.init & resolve", () => {
                 .factory(() => "_")
                 .createToken("A");
 
-            container.registerFactory(nodeA).singleton();
             container.registerProvider((provider) => {
                 provider.registerFactory(nodeA).singleton();
             });
@@ -2391,7 +2390,6 @@ describe("forked container & override", () => {
         const nodeA = dependency()
             .factory(() => "A")
             .createToken("A");
-
 
         const nodeAOverride = dependency()
             .factory(() => "A overridden second")
