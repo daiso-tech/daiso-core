@@ -576,12 +576,10 @@ function Header() {
             <div className="container">
                 <h1 className="hero__title">{siteConfig.title}</h1>
                 <p className="daiso-hero-badge margin-bottom--md">
-                    The adapter-first backend platform for TypeScript
+                    Cradle of Composable Backends
                 </p>
                 <p className="hero__subtitle daiso-hero-tagline">
-                    Write business logic once.
-                    <br />
-                    Replace infrastructure anytime.
+                    Backend foundation for TypeScript.
                 </p>
             </div>
         </header>
