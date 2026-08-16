@@ -75,12 +75,16 @@ function StatsBar() {
                         value={String(COMPONENT_COUNT)}
                         label="Officially maintained components"
                     />
-                    <StatItem value="100%" label="TypeScript" />
+                    <StatItem value="45" label="Adapters" />
+                    <StatItem
+                        value="18"
+                        label="Adapter plugins"
+                    />
+                    <StatItem value="6" label="AOP-style Middlewares" />
                     <StatItem
                         value="4,640+"
                         label="Integration & behavior tests"
                     />
-                    <StatItem value="0" label="Docker needed for tests" />
                 </div>
             </div>
         </div>

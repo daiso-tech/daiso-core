@@ -994,10 +994,11 @@ export const FEATURE_ITEMS = {
         title: <>Small runtime footprint</>,
         description: (
             <>
-                A minimal core ships by default. Client libraries and drivers
-                (Redis, Postgres, and more) are optional peer dependencies that
-                you install when needed. Fewer dependencies mean less to audit
-                and a smaller supply-chain attack surface.
+                Every component is built from scratch in a modular way, keeping
+                the runtime minimal with no framework or component baggage.
+                Only the client libraries and drivers (Redis, Postgres, MongoDB,
+                and more) are optional peer dependencies, installed when you
+                need them.
             </>
         ),
     } satisfies FeatureItemProps,
