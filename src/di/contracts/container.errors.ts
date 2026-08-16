@@ -16,37 +16,6 @@ function tokenToString(diToken: DiToken): string {
     return diToken.id.toString();
 }
 
-/**
- * Thrown when a service cannot be resolved because it was never registered.
- *
- * @group Errors
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
- */
-export class ServiceCanNotBeResolvedError extends Error {
-    /**
-     * Creates a new {@link ServiceCanNotBeResolvedError} instance.
-     *
-     * @param token - The DI token that could not be resolved.
-     * @returns A new error instance.
-     */
-    static create(token: DiToken): ServiceCanNotBeResolvedError {
-        return new ServiceCanNotBeResolvedError(
-            `Failed to resolve service for token: "${tokenToString(token)}". The service could not be constructed or located.`,
-        );
-    }
-
-    /**
-     * Note: Do not instantiate `ServiceNotFoundDiError` directly via the constructor. Use the static `create()` factory method instead.
-     * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
-     *
-     * @param message - A descriptive error message.
-     * @param cause - The underlying cause of the error, if any.
-     */
-    constructor(message: string, cause?: unknown) {
-        super(message, { cause });
-    }
-}
-
 export type EdgeErrorInfo = {
     edge: [DiToken, DiToken];
     edgeType: [TLifespan, TLifespan];
@@ -173,38 +142,6 @@ export class CycleDependencyDiError extends Error {
     }
 }
 
-/**
- * Thrown when attempting to register a service with a token that already
- * has an existing registration.
- *
- * @group Errors
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
- */
-export class ServiceExistsDiError extends Error {
-    /**
-     * Creates a new {@link ServiceExistsDiError} instance.
-     *
-     * @param token - The DI token that already has a registration.
-     * @returns A new error instance.
-     */
-    static create(token: DiToken): ServiceExistsDiError {
-        return new ServiceExistsDiError(
-            `Failed to register service for token: "${tokenToString(token)}". A registration with this token already exists and cannot be replaced.`,
-        );
-    }
-
-    /**
-     * Note: Do not instantiate `ServiceExistsDiError` directly via the constructor. Use the static {@link ServiceExistsDiError.create | `create()`} factory method instead.
-     * The constructor remains public only to maintain compatibility with error types and prevent type errors.
-     *
-     * @param message - A descriptive error message.
-     * @param cause - The underlying cause of the error, if any.
-     */
-    constructor(message: string, cause?: unknown) {
-        super(message, { cause });
-    }
-}
-
 export type UndeclaredDependencyInfo<T = DiToken> = {
     missingDependency: T;
     dependents: Array<T>;
@@ -318,7 +255,7 @@ export class ContainerNotTerminatedException extends Error {
  * @group Errors
  */
 
-export class MethodCallInsideRunError extends UnexpectedError {
+export class MethodCallInsideOfRunError extends UnexpectedError {
     /**
      * The name of the method that was called illegally.
      */
@@ -326,18 +263,18 @@ export class MethodCallInsideRunError extends UnexpectedError {
 
     constructor(methodName: string) {
         super(`the method ${methodName} was called inside run block`);
-        this.name = MethodCallInsideRunError.name;
+        this.name = MethodCallInsideOfRunError.name;
         this.methodName = methodName;
     }
 
     /**
-     * Creates a new {@link MethodCallInsideRunError} error.
+     * Creates a new {@link MethodCallInsideOfRunError} error.
      *
      * @param methodName - The name of the method that was called illegally.
      * @returns A new error instance.
      */
-    static create(methodName: string): MethodCallInsideRunError {
-        return new MethodCallInsideRunError(methodName);
+    static create(methodName: string): MethodCallInsideOfRunError {
+        return new MethodCallInsideOfRunError(methodName);
     }
 }
 
@@ -348,7 +285,7 @@ export class MethodCallInsideRunError extends UnexpectedError {
  * @group Errors
  */
 
-export class MethodCallInsideDynamicRegistrationError extends UnexpectedError {
+export class MethodCallInsideOfDynamicRegistrationError extends UnexpectedError {
     /**
      * The name of the method that was called illegally.
      */
@@ -358,20 +295,20 @@ export class MethodCallInsideDynamicRegistrationError extends UnexpectedError {
         super(
             `the method ${methodName} was called inside DynamicRegistration in run block`,
         );
-        this.name = MethodCallInsideDynamicRegistrationError.name;
+        this.name = MethodCallInsideOfDynamicRegistrationError.name;
         this.methodName = methodName;
     }
 
     /**
-     * Creates a new {@link MethodCallInsideRunError} error.
+     * Creates a new {@link MethodCallInsideOfRunError} error.
      *
      * @param methodName - The name of the method that was called illegally.
      * @returns A new error instance.
      */
     static create(
         methodName: string,
-    ): MethodCallInsideDynamicRegistrationError {
-        return new MethodCallInsideDynamicRegistrationError(methodName);
+    ): MethodCallInsideOfDynamicRegistrationError {
+        return new MethodCallInsideOfDynamicRegistrationError(methodName);
     }
 }
 
@@ -382,15 +319,112 @@ export class MethodCallInsideDynamicRegistrationError extends UnexpectedError {
  *
  * @group Errors
  */
-export class MethodOutsideOfRunError extends Error {
+export class MethodCallOutsideOfRunError extends Error {
     constructor(token: DiToken) {
         super(
             `Cannot set dynamic value for registered token ${tokenToString(token)}: registration is only allowed inside a run scope. Call set() within container.run().`,
         );
-        this.name = MethodOutsideOfRunError.name;
+        this.name = MethodCallOutsideOfRunError.name;
     }
 
-    static create(token: DiToken): MethodOutsideOfRunError {
-        return new MethodOutsideOfRunError(token);
+    static create(token: DiToken): MethodCallOutsideOfRunError {
+        return new MethodCallOutsideOfRunError(token);
+    }
+}
+
+/**
+ * Thrown when a service cannot be resolved.
+ *
+ * @group Errors
+ * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
+ */
+export class ServiceCanNotBeResolvedError extends Error {
+    /**
+     * Creates a new {@link ServiceCanNotBeResolvedError} instance.
+     *
+     * @param token - The DI token that could not be resolved.
+     * @returns A new error instance.
+     */
+    static create(token: DiToken): ServiceCanNotBeResolvedError {
+        return new ServiceCanNotBeResolvedError(
+            `Failed to resolve service for token: "${tokenToString(token)}".`,
+        );
+    }
+
+    /**
+     * Note: Do not instantiate `ServiceNotFoundDiError` directly via the constructor. Use the static `create()` factory method instead.
+     * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
+     *
+     * @param message - A descriptive error message.
+     * @param cause - The underlying cause of the error, if any.
+     */
+    constructor(message: string, cause?: unknown) {
+        super(message, { cause });
+    }
+}
+
+/**
+ * Thrown when attempting to register a service with a token that already
+ * has an existing registration.
+ *
+ * @group Errors
+ * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
+ */
+export class ServiceExistsDiError extends Error {
+    /**
+     * Creates a new {@link ServiceExistsDiError} instance.
+     *
+     * @param token - The DI token that already has a registration.
+     * @returns A new error instance.
+     */
+    static create(token: DiToken): ServiceExistsDiError {
+        return new ServiceExistsDiError(
+            `Failed to register service for token: "${tokenToString(token)}". A registration with this token already exists and cannot be replaced.`,
+        );
+    }
+
+    /**
+     * Note: Do not instantiate `ServiceExistsDiError` directly via the constructor. Use the static {@link ServiceExistsDiError.create | `create()`} factory method instead.
+     * The constructor remains public only to maintain compatibility with error types and prevent type errors.
+     *
+     * @param message - A descriptive error message.
+     * @param cause - The underlying cause of the error, if any.
+     */
+    constructor(message: string, cause?: unknown) {
+        super(message, { cause });
+    }
+}
+
+/**
+ * Thrown when a service cannot be overridden, either because its type does
+ * not support overriding (e.g., dynamic nodes) or because the service has
+ * already been overridden.
+ *
+ * @group Errors
+ * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
+ */
+export class CanNotOverrideService extends Error {
+    /**
+     * Creates a new {@link CanNotOverrideService} instance.
+     *
+     * @param token - The DI token that cannot be overridden.
+     * @returns A new error instance.
+     */
+    static create(token: DiToken): CanNotOverrideService {
+        return new CanNotOverrideService(
+            `Failed to override service for token: "${tokenToString(token)}". Either the service is not registered, the service type cannot be overridden (e.g., dynamic nodes), or the service has already been overridden.`,
+        );
+    }
+
+    /**
+     * Note: Do not instantiate `CanNotOverrideService` directly via the constructor. Use the static {@link CanNotOverrideService.create | `create()`} factory method instead.
+     * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
+     *
+     * @param message - A descriptive error message.
+     * @param cause - The underlying cause of the error, if any.
+     */
+    constructor(message: string, cause?: unknown) {
+        super(message, { cause });
+        this.name = CanNotOverrideService.name;
     }
 }

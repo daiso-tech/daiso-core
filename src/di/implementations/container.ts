@@ -17,8 +17,8 @@ import {
     ContainerAlreadyInitializedException,
     ContainerNotActiveException,
     ContainerNotTerminatedException,
-    MethodCallInsideDynamicRegistrationError,
-    MethodCallInsideRunError,
+    MethodCallInsideOfDynamicRegistrationError,
+    MethodCallInsideOfRunError,
     ServiceCanNotBeResolvedError,
 } from "@/di/contracts/container.errors.js";
 import { DynamicServiceRegister } from "@/di/implementations/dynamic-service-register.js";
@@ -195,13 +195,13 @@ export class Container implements IContainer {
 
     private throwIfInsideRunScope(methodName: string) {
         if (this.isInsideRunScope()) {
-            throw MethodCallInsideRunError.create(methodName);
+            throw MethodCallInsideOfRunError.create(methodName);
         }
     }
 
     private throwIfInsideDynamicServiceProvider(methodName: string) {
         if (this.isInsideDynamicServiceProvider()) {
-            throw MethodCallInsideDynamicRegistrationError.create(methodName);
+            throw MethodCallInsideOfDynamicRegistrationError.create(methodName);
         }
     }
 
@@ -460,6 +460,7 @@ export class Container implements IContainer {
 
     async run<TValue = void>(settings: RunSettings<TValue>): Promise<void> {
         this.throwIfContainerNotActive(this.run.name);
+        this.throwIfInsideDynamicServiceProvider(this.run.name);
 
         await this.settings.executionContext.run(async () => {
             const dynamicServiceRegister: IDynamicServiceRegister =
@@ -714,7 +715,10 @@ export class Container implements IContainer {
         this.throwIfContainerAlreadyInitialized(this.overrideFactory.name);
         this.throwIfInsideRunScope(this.overrideFactory.name);
 
-        this.graphManager.overrideFactory(settings);
+        const status = this.graphManager.overrideFactory(settings);
+        if (!status.success) {
+            throw status.error;
+        }
     }
 
     overrideClass<TDeps extends Array<unknown> = [], TRegisteredType = unknown>(

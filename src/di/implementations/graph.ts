@@ -1,19 +1,19 @@
-import { type TNode, type TEdge } from "@/di/implementations/utils.js";
-import { isClass, UnexpectedError } from "@/utilities/_module.js";
-
-const tokenToString = (token: TNode): string => {
-    if (isClass(token)) {
-        return token.name;
-    }
-    return token.id.toString();
-};
+import {
+    type TNode,
+    type TEdge,
+    tokenToString,
+} from "@/di/implementations/utils.js";
+import { UnexpectedError } from "@/utilities/_module.js";
 
 const edgeToString = (edge: TEdge): string =>
     `[${tokenToString(edge[0])}, ${tokenToString(edge[1])}]`;
 
-export class Graph<TNodeProp, TEdgeProp> {
-    private nodeProps = new Map<TNode, TNodeProp>();
-    private edgeProps = new Map<TNode, Map<TNode, TEdgeProp>>();
+/**
+ * A directed graph that stores arbitrary properties on its nodes and edges.
+ */
+export class Graph<TNodeProp = unknown, TEdgeProp = unknown> {
+    private nodeProps = new Map<TNode, TNodeProp | null>();
+    private edgeProps = new Map<TNode, Map<TNode, TEdgeProp | null>>();
     private reversedEdges = new Map<TNode, Set<TNode>>();
 
     constructor(args?: {
@@ -40,9 +40,9 @@ export class Graph<TNodeProp, TEdgeProp> {
         }
     }
     /**
-     * Make new Graph copy that includes its edges and nodes.
-     * The new Graph have no parent link set.
-     * @returns
+     * Creates a deep copy of this graph, including all of its nodes and edges.
+     *
+     * @returns A new {@link Graph} instance with the same nodes, edges, and properties.
      */
     public copy(): Graph<TNodeProp, TEdgeProp> {
         const nodeProps = this.nodes().map(
@@ -88,16 +88,17 @@ export class Graph<TNodeProp, TEdgeProp> {
         const edgesMap = new Map<TNode, Set<TNode>>();
         const duplicates: Array<TEdge> = [];
 
-        for (const [[node0, node1], _] of props) {
-            const edgeExist = edgesMap.get(node0)?.has(node1) === true;
+        for (const [[sourceNode, targetNode], _] of props) {
+            const edgeExist =
+                edgesMap.get(sourceNode)?.has(targetNode) === true;
 
             if (edgeExist) {
-                duplicates.push([node0, node1]);
+                duplicates.push([sourceNode, targetNode]);
             }
 
-            const neighbors = edgesMap.get(node0) ?? new Set<TNode>();
-            neighbors.add(node1);
-            edgesMap.set(node0, neighbors);
+            const neighbors = edgesMap.get(sourceNode) ?? new Set<TNode>();
+            neighbors.add(targetNode);
+            edgesMap.set(sourceNode, neighbors);
         }
 
         if (duplicates.length > 0) {
@@ -110,11 +111,20 @@ export class Graph<TNodeProp, TEdgeProp> {
     }
 
     hasNodeProperty(node: TNode): boolean {
-        return this.nodeProps.has(node);
+        return this.getNodeProperty(node) !== null;
     }
 
     hasEdgeProperty(edge: TEdge): boolean {
-        return this.edgeProps.get(edge[0])?.has(edge[1]) ?? false;
+        return this.getEdgeProperty(edge) !== null;
+    }
+
+    hasNode(node: TNode): boolean {
+        return this.nodeProps.has(node);
+    }
+
+    hasEdge(edge: TEdge): boolean {
+        const [sourceNode, targetNode] = edge;
+        return this.edgeProps.get(sourceNode)?.has(targetNode) ?? false;
     }
 
     getNodeProperty(nodeId: TNode): TNodeProp | null {
@@ -122,7 +132,8 @@ export class Graph<TNodeProp, TEdgeProp> {
     }
 
     getEdgeProperty(edge: TEdge): TEdgeProp | null {
-        return this.edgeProps.get(edge[0])?.get(edge[1]) ?? null;
+        const [sourceNode, targetNode] = edge;
+        return this.edgeProps.get(sourceNode)?.get(targetNode) ?? null;
     }
 
     getNodePropertyOrThrow(key: TNode): TNodeProp {
@@ -153,43 +164,89 @@ export class Graph<TNodeProp, TEdgeProp> {
         this.nodeProps.set(key, value);
     }
 
+    addNode(node: TNode): void {
+        if (!this.nodeProps.has(node)) {
+            this.nodeProps.set(node, null);
+        }
+    }
+
     setEdgeProperty(edge: TEdge, value: TEdgeProp): void {
+        const [sourceNode, targetNode] = edge;
+        if (!this.hasNode(sourceNode)) {
+            this.addNode(sourceNode);
+        }
+        if (!this.hasNode(targetNode)) {
+            this.addNode(targetNode);
+        }
+
         const neighbor =
-            this.edgeProps.get(edge[0]) ?? new Map<TNode, TEdgeProp>();
-        neighbor.set(edge[1], value);
-        this.edgeProps.set(edge[0], neighbor);
+            this.edgeProps.get(sourceNode) ?? new Map<TNode, TEdgeProp>();
+        neighbor.set(targetNode, value);
+        this.edgeProps.set(sourceNode, neighbor);
 
-        const inNeighbor = this.reversedEdges.get(edge[1]) ?? new Set<TNode>();
-        inNeighbor.add(edge[0]);
-        this.reversedEdges.set(edge[1], inNeighbor);
+        const inNeighbor =
+            this.reversedEdges.get(targetNode) ?? new Set<TNode>();
+        inNeighbor.add(sourceNode);
+        this.reversedEdges.set(targetNode, inNeighbor);
     }
 
-    removeEdge(edge: TEdge): void {
-        this.edgeProps.get(edge[0])?.delete(edge[1]);
-        this.reversedEdges.get(edge[1])?.delete(edge[0]);
+    // addEdge(edge: TEdge): void {
+    //     const [sourceNode, targetNode] = edge;
 
-        if (this.edgeProps.get(edge[0])?.size === 0) {
-            this.edgeProps.delete(edge[0]);
+    //     const neighbor =
+    //         this.edgeProps.get(sourceNode) ?? new Map<TNode, TEdgeProp>();
+
+    //     const inNeighbor =
+    //         this.reversedEdges.get(targetNode) ?? new Set<TNode>();
+
+    //     if (!neighbor.has(targetNode)) {
+    //         neighbor.set(targetNode, null);
+    //     }
+    //     this.edgeProps.set(sourceNode, neighbor);
+
+    //     if (!inNeighbor.has(sourceNode)) {
+    //         inNeighbor.add(sourceNode);
+    //     }
+
+    //     this.reversedEdges.set(targetNode, inNeighbor);
+
+    //     this.addNode(sourceNode);
+    //     this.addNode(targetNode);
+    // }
+
+    removeEdgeProperty(edge: TEdge): void {
+        const [sourceNode, targetNode] = edge;
+        this.edgeProps.get(sourceNode)?.delete(targetNode);
+        this.reversedEdges.get(targetNode)?.delete(sourceNode);
+
+        if (this.edgeProps.get(sourceNode)?.size === 0) {
+            this.edgeProps.delete(sourceNode);
         }
 
-        if (this.reversedEdges.get(edge[1])?.size === 0) {
-            this.reversedEdges.delete(edge[1]);
+        if (this.reversedEdges.get(targetNode)?.size === 0) {
+            this.reversedEdges.delete(targetNode);
         }
     }
 
-    removeNode(node: TNode): void {
+    removeNodeProperty(node: TNode): void {
         this.nodeProps.delete(node);
-
         this.edgeProps.delete(node);
-        for (const fromNode of this.edgeProps.keys()) {
-            const toNode = node;
-            this.edgeProps.get(fromNode)?.delete(toNode);
+        this.reversedEdges.delete(node);
+
+        for (const sourceNode of this.edgeProps.keys()) {
+            const targetNode = node;
+            this.edgeProps.get(sourceNode)?.delete(targetNode);
+            if (this.edgeProps.get(sourceNode)?.size === 0) {
+                this.edgeProps.delete(sourceNode);
+            }
         }
 
-        this.reversedEdges.delete(node);
-        for (const fromNode of this.reversedEdges.keys()) {
-            const toNode = node;
-            this.edgeProps.get(fromNode)?.delete(toNode);
+        for (const targetNode of this.reversedEdges.keys()) {
+            const sourceNode = node;
+            this.reversedEdges.get(targetNode)?.delete(sourceNode);
+            if (this.reversedEdges.get(targetNode)?.size === 0) {
+                this.reversedEdges.delete(targetNode);
+            }
         }
     }
 

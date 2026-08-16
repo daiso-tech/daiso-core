@@ -9,11 +9,15 @@ import {
 import {
     ContainerAlreadyInitializedException,
     ContainerNotActiveException,
-    MethodCallInsideRunError,
+    MethodCallInsideOfRunError,
     ServiceExistsDiError,
-    MethodOutsideOfRunError,
-    MethodCallInsideDynamicRegistrationError,
+    MethodCallOutsideOfRunError,
+    MethodCallInsideOfDynamicRegistrationError,
     ServiceCanNotBeResolvedError,
+    UndeclaredDependenciesDiError,
+    InvalidEdgeRelationshipDiError,
+    CycleDependencyDiError,
+    CanNotOverrideService,
 } from "@/di/contracts/container.errors.js";
 import { Container } from "@/di/implementations/container.js";
 import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
@@ -353,7 +357,7 @@ describe("illegal method call inside run", () => {
                     await container.deInit();
                 },
             }),
-        ).rejects.toThrow(MethodCallInsideRunError);
+        ).rejects.toThrow(MethodCallInsideOfRunError);
     });
 });
 
@@ -370,7 +374,7 @@ describe("illegal method call inside DynamicServiceProvider in run block", () =>
                 },
                 scope: async () => {},
             }),
-        ).rejects.toThrow(MethodCallInsideDynamicRegistrationError);
+        ).rejects.toThrow(MethodCallInsideOfDynamicRegistrationError);
     });
 
     test("resolveOr method should fail inside DynamicServiceProvider", async () => {
@@ -385,7 +389,7 @@ describe("illegal method call inside DynamicServiceProvider in run block", () =>
                 },
                 scope: async () => {},
             }),
-        ).rejects.toThrow(MethodCallInsideDynamicRegistrationError);
+        ).rejects.toThrow(MethodCallInsideOfDynamicRegistrationError);
     });
 
     test("resolveOrFail method should fail inside DynamicServiceProvider", async () => {
@@ -400,7 +404,7 @@ describe("illegal method call inside DynamicServiceProvider in run block", () =>
                 },
                 scope: async () => {},
             }),
-        ).rejects.toThrow(MethodCallInsideDynamicRegistrationError);
+        ).rejects.toThrow(MethodCallInsideOfDynamicRegistrationError);
     });
 });
 
@@ -419,7 +423,7 @@ describe("illegal method call outside run", () => {
         const token = genericToken("_");
         await expect(async () => {
             await regCapture?.set({ token, value: "_" });
-        }).rejects.toThrowError(MethodOutsideOfRunError);
+        }).rejects.toThrowError(MethodCallOutsideOfRunError);
     });
 });
 
@@ -1122,72 +1126,6 @@ describe("register & container.init & resolve", () => {
             await expect(container.resolve(nodeA.token)).resolves.toBe(null);
         });
 
-        // test("should fail when resolving scoped dependency at top with container.resolveOrFail", async () => {
-        //     const nodeA = dependency()
-        //         .factory(() => "")
-        //         .createToken("A");
-
-        //     container.registerFactory(nodeA).scoped();
-        //     await container.init();
-        //     await expect(async () =>
-        //         container.resolveOrFail(nodeA.token),
-        //     ).rejects.toThrowError();
-        // });
-
-        // test("should return default value when resolving scoped dependency at top with container.resolveOr", async () => {
-        //     const nodeA = dependency()
-        //         .factory(() => "")
-        //         .createToken("A");
-
-        //     container.registerFactory(nodeA).scoped();
-
-        //     await container.init();
-        //     await expect(container.resolveOr(nodeA.token, "_")).resolves.toBe(
-        //         "_",
-        //     );
-        // });
-
-        // test("Should resolve to default when resolving scoped dependency inside run scope block where its factory return null with container.resolveOr", async () => {
-        //     const nodeA = dependency()
-        //         .factory(() => null as null | string)
-        //         .createToken("A");
-
-        //     container.registerFactory(nodeA).scoped();
-        //     await container.init();
-
-        //     const defaultValue = "_";
-
-        //     let value: undefined | null | string = undefined;
-
-        //     await container.run({
-        //         scope: async () => {
-        //             value = await container.resolveOr(
-        //                 nodeA.token,
-        //                 defaultValue,
-        //             );
-        //         },
-        //     });
-
-        //     expect(value).toBe(defaultValue);
-        // });
-
-        // test("Should fail when resolving scoped dependency inside run scope block where its factory return null with container.resolveOrFail", async () => {
-        //     const nodeA = dependency()
-        //         .factory(() => null as null | string)
-        //         .createToken("A");
-
-        //     container.registerFactory(nodeA).scoped();
-        //     await container.init();
-
-        //     await expect(
-        //         container.run({
-        //             scope: async () => {
-        //                 await container.resolveOrFail(nodeA.token);
-        //             },
-        //         }),
-        //     ).rejects.toThrowError();
-        // });
-
         test("Should resolve successfully when resolving scoped dependency inside run block scope with container.resolve", async () => {
             const nodeA = dependency()
                 .factory(() => "_")
@@ -1226,93 +1164,6 @@ describe("register & container.init & resolve", () => {
 
             expect(value).toBe(null);
         });
-
-        // test("Should resolve successfully when resolving scoped dependency inside run block scope with container.resolveOr", async () => {
-        //     const nodeA = dependency()
-        //         .factory(() => "_")
-        //         .createToken("A");
-
-        //     container.registerFactory(nodeA).scoped();
-        //     await container.init();
-
-        //     let value: undefined | string | null = undefined as
-        //         | undefined
-        //         | string
-        //         | null;
-
-        //     await container.run({
-        //         scope: async () => {
-        //             value = await container.resolveOr(nodeA.token, "_");
-        //         },
-        //     });
-
-        //     const correctValue = await nodeA.callFunc();
-        //     expect(value).toBe(correctValue);
-        // });
-
-        // test("Should resolve successfully when resolving scoped dependency inside run block scope with container.resolveOrFail", async () => {
-        //     const nodeA = dependency()
-        //         .factory(() => "_")
-        //         .createToken("A");
-
-        //     container.registerFactory(nodeA).scoped();
-        //     await container.init();
-
-        //     let value: undefined | string | null = undefined as
-        //         | undefined
-        //         | string
-        //         | null;
-
-        //     await container.run({
-        //         scope: async () => {
-        //             value = await container.resolveOrFail(nodeA.token);
-        //         },
-        //     });
-
-        //     const correctValue = await nodeA.callFunc();
-        //     expect(value).toBe(correctValue);
-        // });
-
-        // test("Should resolve successfully deep scoped chain dependency at top inside run block scope with container.resolve", async () => {
-        //     const nodeA = dependency()
-        //         .factory(() => "1")
-        //         .createToken("A");
-
-        //     const nodeB = dependency(nodeA.token)
-        //         .factory((a) => [a, "2"].join(""))
-        //         .createToken("B");
-
-        //     const nodeC = dependency(nodeB.token)
-        //         .factory((b) => [b, "3"].join(""))
-        //         .createToken("C");
-
-        //     const nodeD = dependency(nodeC.token)
-        //         .factory((c) => [c, "4"].join(""))
-        //         .createToken("D");
-
-        //     container.registerFactory(nodeA).scoped();
-
-        //     container.registerFactory(nodeB).scoped();
-
-        //     container.registerFactory(nodeC).scoped();
-
-        //     container.registerFactory(nodeD).scoped();
-
-        //     let value: string | undefined | null = undefined;
-        //     await container.init();
-        //     await container.run({
-        //         scope: async () => {
-        //             value = await container.resolve(nodeD.token);
-        //         },
-        //     });
-
-        //     const correctValue = await nodeD.callFunc(
-        //         await nodeC.callFunc(
-        //             await nodeB.callFunc(await nodeA.callFunc()),
-        //         ),
-        //     );
-        //     expect(value).toBe(correctValue);
-        // });
 
         test("Should resolve a scoped dependency defined by factory that uses executionContext with container.resolve", async () => {
             const tokenA = genericToken<Date>("A");
@@ -1989,10 +1840,6 @@ describe("register & container.init & resolve", () => {
             expect(valueB?.nodeAValue).not.toBe(valueC?.nodeAValue);
         });
     });
-
-    describe("singleton,scoped, dynamic and transient", () => {
-        test.todo("grand test", () => {});
-    });
 });
 
 describe("graph validation", () => {
@@ -2007,16 +1854,17 @@ describe("graph validation", () => {
      */
     describe("undeclared nodes", () => {
         test("should throw when undeclared nodes exist", async () => {
-            const tokenA = genericToken<string>("A");
             const undeclaredToken = genericToken<string>("undeclared");
 
             const nodeA = dependency(undeclaredToken)
                 .factory(() => "A")
-                .reuseToken(tokenA);
+                .createToken("A");
 
             container.registerFactory(nodeA).singleton();
 
-            await expect(container.init()).rejects.toThrowError();
+            await expect(container.init()).rejects.toThrowError(
+                UndeclaredDependenciesDiError,
+            );
         });
     });
 
@@ -2036,7 +1884,9 @@ describe("graph validation", () => {
             container.registerFactory(nodeA).singleton();
             container.registerFactory(nodeB).scoped();
 
-            await expect(container.init()).rejects.toThrowError();
+            await expect(container.init()).rejects.toThrowError(
+                InvalidEdgeRelationshipDiError,
+            );
         });
 
         test("should throw when an singleton -> dynamic edge is detected", async () => {
@@ -2050,7 +1900,9 @@ describe("graph validation", () => {
             container.registerFactory(nodeA).singleton();
             container.registerDynamic(tokenB);
 
-            await expect(container.init()).rejects.toThrowError();
+            await expect(container.init()).rejects.toThrowError(
+                InvalidEdgeRelationshipDiError,
+            );
         });
 
         test("should throw when an singleton -> transient edge is detected", async () => {
@@ -2068,7 +1920,9 @@ describe("graph validation", () => {
             container.registerFactory(nodeA).singleton();
             container.registerFactory(nodeB).transient();
 
-            await expect(container.init()).rejects.toThrowError();
+            await expect(container.init()).rejects.toThrowError(
+                InvalidEdgeRelationshipDiError,
+            );
         });
 
         test("should throw when an scoped -> transient edge is detected", async () => {
@@ -2086,7 +1940,9 @@ describe("graph validation", () => {
             container.registerFactory(nodeA).scoped();
             container.registerFactory(nodeB).transient();
 
-            await expect(container.init()).rejects.toThrowError();
+            await expect(container.init()).rejects.toThrowError(
+                InvalidEdgeRelationshipDiError,
+            );
         });
 
         test("should throw when an transient -> dynamic edge is detected", async () => {
@@ -2100,7 +1956,9 @@ describe("graph validation", () => {
             container.registerFactory(nodeA).transient();
             container.registerDynamic(tokenB);
 
-            await expect(container.init()).rejects.toThrowError();
+            await expect(container.init()).rejects.toThrowError(
+                InvalidEdgeRelationshipDiError,
+            );
         });
     });
 
@@ -2124,7 +1982,9 @@ describe("graph validation", () => {
             container.registerFactory(nodeA).singleton();
             container.registerFactory(nodeB).singleton();
 
-            await expect(container.init()).rejects.toThrowError();
+            await expect(container.init()).rejects.toThrowError(
+                CycleDependencyDiError,
+            );
         });
 
         test("should throw when a singleton cycle A->A is detected", async () => {
@@ -2137,7 +1997,9 @@ describe("graph validation", () => {
                 })
                 .singleton();
 
-            await expect(container.init()).rejects.toThrowError();
+            await expect(container.init()).rejects.toThrowError(
+                CycleDependencyDiError,
+            );
         });
     });
 });
@@ -2152,7 +2014,7 @@ describe("override", () => {
         container = createContainer().container;
     });
 
-    test("should override  nodeA with overrideFactory", async () => {
+    test("should override nodeA with overrideFactory", async () => {
         const nodeA = dependency()
             .factory(() => `A`)
             .createToken("A");
@@ -2219,7 +2081,7 @@ describe("override", () => {
 
         expect(() => {
             container.overrideFactory(nodeA);
-        }).toThrowError();
+        }).toThrowError(CanNotOverrideService);
     });
 
     test("when dynamic node should throw", () => {
@@ -2234,7 +2096,7 @@ describe("override", () => {
         // TODO add specific error object
         expect(() => {
             container.overrideFactory(nodeAOverridden);
-        }).toThrowError();
+        }).toThrowError(CanNotOverrideService);
     });
 
     test("when double should fail", () => {
@@ -2256,7 +2118,7 @@ describe("override", () => {
 
         expect(() => {
             container.overrideFactory(nodeAOverride2);
-        }).toThrowError();
+        }).toThrowError(CanNotOverrideService);
     });
 
     test("when override A where B -> A should effect both A and B value", async () => {
@@ -2424,7 +2286,9 @@ describe("graph validation & override", () => {
         container.registerFactory(nodeC).singleton();
 
         container.overrideFactory(nodeCOverridden);
-        await expect(container.init()).rejects.toThrowError();
+        await expect(container.init()).rejects.toThrowError(
+            InvalidEdgeRelationshipDiError,
+        );
     });
 
     test("when override introduce cycle graph validation should fail", async () => {
@@ -2443,7 +2307,9 @@ describe("graph validation & override", () => {
         container.registerFactory(nodeB).singleton();
         container.overrideFactory(nodeAOverridden);
 
-        await expect(container.init()).rejects.toThrowError();
+        await expect(container.init()).rejects.toThrowError(
+            CycleDependencyDiError,
+        );
     });
 
     test("when override introduce non existent dependency graph validation should fail", async () => {
@@ -2458,7 +2324,9 @@ describe("graph validation & override", () => {
 
         container.registerFactory(nodeA).singleton();
         container.overrideFactory(nodeAOverridden);
-        await expect(container.init()).rejects.toThrowError();
+        await expect(container.init()).rejects.toThrowError(
+            UndeclaredDependenciesDiError,
+        );
     });
 });
 
@@ -2647,7 +2515,6 @@ describe("forked container & hooks", () => {
         );
     });
 
-    // uncessary ?
     test("deInit of original does not deInit the fork", async () => {
         const nodeA = dependency()
             .factory(() => "A")

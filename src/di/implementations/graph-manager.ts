@@ -1,4 +1,5 @@
 import {
+    CanNotOverrideService,
     CycleDependencyDiError,
     InvalidEdgeRelationshipDiError,
     UndeclaredDependenciesDiError,
@@ -27,7 +28,9 @@ import {
     type TEdge,
     type TLifespan,
     LIFESPAN,
+    tokenToString,
 } from "@/di/implementations/utils.js";
+import { UnexpectedError } from "@/utilities/errors.js";
 
 export type GraphValidationStatus =
     | {
@@ -38,7 +41,6 @@ export type GraphValidationStatus =
           error: AggregateError | CycleDependencyDiError;
       };
 
-// TODO throw specific error classes
 export class GraphManager {
     private graph: Graph<NodeProps, EdgeProps>;
     private overrideSet = new Set<TNode>();
@@ -72,24 +74,15 @@ export class GraphManager {
         return graphManagerCopy;
     }
 
-    private validateNoCycleExists(): Array<Array<TNode>> {
-        const nodes = this.nodes();
-        const getSuccessor = (node: TNode) => this.getSuccessorsOf(node);
-
-        return findAllCycles({
-            getSuccessor,
-            nodes,
-        });
-    }
-
-    // TODO give detailed graph validation information instead of boolean
     validateGraph(): GraphValidationStatus {
-        const nodes = this.nodes();
+        const declaredNodes = this.nodes().filter((node) =>
+            this.hasNodeProperty(node),
+        );
         const getSuccessor = (node: TNode) => this.getSuccessorsOf(node);
 
         const missing = getMissingDependencies({
             getSuccessor,
-            nodes,
+            nodes: declaredNodes,
         });
 
         if (missing.length !== 0) {
@@ -162,7 +155,7 @@ export class GraphManager {
 
         const cycles = findAllCycles({
             getSuccessor,
-            nodes,
+            nodes: declaredNodes,
         });
 
         if (cycles.length !== 0) {
@@ -209,25 +202,35 @@ export class GraphManager {
     overrideFactory<
         TDeps extends Array<unknown> = [],
         TRegisteredType = unknown,
-    >(settings: FactoryRegistration<TDeps, TRegisteredType>): void {
+    >(
+        settings: FactoryRegistration<TDeps, TRegisteredType>,
+    ): { success: true } | { success: false; error: CanNotOverrideService } {
         const nodeDoNotExist = !this.hasNodeProperty(settings.token);
         const nodeAlreadyOverridden = this.overrideSet.has(settings.token);
 
         if (nodeDoNotExist) {
-            throw new Error();
+            return {
+                success: false,
+                error: CanNotOverrideService.create(settings.token),
+            };
         }
 
         if (nodeAlreadyOverridden) {
-            throw new Error();
+            return {
+                success: false,
+                error: CanNotOverrideService.create(settings.token),
+            };
         }
-
-        this.overrideSet.add(settings.token);
-
         const nodeProps = this.getNodePropertyOrThrow(settings.token);
 
         if (nodeProps.lifespan === LIFESPAN.DYNAMIC) {
-            throw new Error();
+            return {
+                success: false,
+                error: CanNotOverrideService.create(settings.token),
+            };
         }
+
+        this.overrideSet.add(settings.token);
 
         const factory = settings.factory as ServiceFactory;
 
@@ -240,7 +243,7 @@ export class GraphManager {
 
         // remove old edges
         edgesToBeDeleted.forEach((edge) => {
-            this.graph.removeEdge(edge);
+            this.graph.removeEdgeProperty(edge);
         });
 
         const newEdgesToBeAdded: Array<[TEdge, EdgeProps]> = [
@@ -251,6 +254,8 @@ export class GraphManager {
         newEdgesToBeAdded.forEach(([edge, value]) => {
             this.graph.setEdgeProperty(edge, value);
         });
+
+        return { success: true };
     }
 
     ancestorIncludeScopedNodes(nodeId: TNode): boolean {
@@ -308,7 +313,9 @@ export class GraphManager {
         if (node.lifespan === LIFESPAN.SINGLETON) {
             return node;
         }
-        throw new Error();
+        throw new UnexpectedError(
+            `Node with token "${tokenToString(nodeId)}" is not registered as a singleton node.`,
+        );
     }
 
     public getTransientNodeOrThrow(nodeId: TNode): TransientNodeProps {
@@ -316,14 +323,18 @@ export class GraphManager {
         if (node.lifespan === LIFESPAN.TRANSIENT) {
             return node;
         }
-        throw new Error();
+        throw new UnexpectedError(
+            `Node with token "${tokenToString(nodeId)}" is not registered as a transient node.`,
+        );
     }
     public getScopedNodeOrThrow(nodeId: TNode): ScopedNodeProps {
         const node = this.getNodePropertyOrThrow(nodeId);
         if (node.lifespan === LIFESPAN.SCOPED) {
             return node;
         }
-        throw new Error();
+        throw new UnexpectedError(
+            `Node with token "${tokenToString(nodeId)}" is not registered as a scoped node.`,
+        );
     }
 
     public getDynamicNodeOrThrow(nodeId: TNode): DynamicNodeProps {
@@ -331,13 +342,17 @@ export class GraphManager {
         if (node.lifespan === LIFESPAN.DYNAMIC) {
             return node;
         }
-        throw new Error();
+        throw new UnexpectedError(
+            `Node with token "${tokenToString(nodeId)}" is not registered as a dynamic node.`,
+        );
     }
 
     public getServiceFactory(nodeId: TNode): ServiceFactory {
         const node = this.getNodePropertyOrThrow(nodeId);
         if (node.lifespan === LIFESPAN.DYNAMIC) {
-            throw new Error();
+            throw new UnexpectedError(
+                `Node with token "${tokenToString(nodeId)}" is registered as a dynamic node and therefore does not have a service factory.`,
+            );
         }
         return node.service;
     }

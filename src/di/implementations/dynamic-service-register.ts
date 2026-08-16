@@ -3,7 +3,7 @@ import {
     type DynamicValue,
     type IDynamicServiceRegister,
 } from "@/di/contracts/container.contract.js";
-import { MethodOutsideOfRunError } from "@/di/contracts/container.errors.js";
+import { MethodCallOutsideOfRunError } from "@/di/contracts/container.errors.js";
 import { type TNode } from "@/di/implementations/utils.js";
 import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
 import { callInvokable, isInvokable } from "@/utilities/_module.js";
@@ -29,7 +29,7 @@ export class DynamicServiceRegister implements IDynamicServiceRegister {
         settings: DynamicRegistration<TRegisteredType>,
     ): Promise<void> {
         if (this.isOutsideRunScope()) {
-            throw MethodOutsideOfRunError.create(settings.token);
+            throw MethodCallOutsideOfRunError.create(settings.token);
         }
 
         const value = isInvokable(settings.value)
