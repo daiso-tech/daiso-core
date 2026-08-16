@@ -43,6 +43,9 @@ import { callInvokable, UnexpectedError } from "@/utilities/_module.js";
  */
 export type ContainerSettings = {
     executionContext: IExecutionContext;
+    maxInvalidEdgeInError?: number;
+    maxCyclesInError?: number;
+    maxUndeclaredDependenciesInError?: number;
 };
 
 /**
@@ -139,7 +142,7 @@ export class Container implements IContainer {
         genericToken<boolean>(
             "Boolean indicator if container is inside DynamicServiceProvider",
         );
-    private graphManager: GraphManager = new GraphManager();
+    private graphManager: GraphManager;
     private nodesMissingLifetimeProperty = new Set<DiToken>();
     private initHandlers: Array<DiHook> = [];
     private deInitHandlers: Array<DiHook> = [];
@@ -150,6 +153,12 @@ export class Container implements IContainer {
         this.registryManager = RegistryManager.withExecutionContext(
             this.settings.executionContext,
         );
+        this.graphManager = new GraphManager({
+            maxCyclesInError: settings.maxCyclesInError,
+            maxInvalidEdgeInError: settings.maxInvalidEdgeInError,
+            maxUndeclaredDependenciesInError:
+                settings.maxUndeclaredDependenciesInError,
+        });
     }
 
     private throwIfContainerAlreadyInitialized(methodName: string) {
@@ -400,7 +409,11 @@ export class Container implements IContainer {
         this.throwIfInsideRunScope(this.init.name);
         this.throwIfAnyNodeMissLifetimeProp();
 
-        this.graphManager.validateGraph();
+        console.log("validating graphs");
+        const status = this.graphManager.validateGraph();
+        if (!status.valid) {
+            throw status.error;
+        }
 
         await this.initSingletonsValues();
         await this.initTransientFactories();

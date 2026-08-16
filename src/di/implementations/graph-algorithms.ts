@@ -1,3 +1,4 @@
+import { type UndeclaredDependencyInfo } from "@/di/implementations/container-errors-extenstion.js";
 import { UnexpectedError } from "@/utilities/errors.js";
 
 /**
@@ -124,22 +125,23 @@ export function visitedNodes<T>(args: {
  */
 
 // TODO make few tests
-export function cycleDetected<TNode>(args: {
+export function findAllCycles<TNode>(args: {
     getSuccessor: (node: TNode) => Array<TNode>;
     nodes: Array<TNode>;
-}): boolean {
+}): Array<Array<TNode>> {
     const { getSuccessor, nodes } = args;
 
     const WHITE = 0;
     const GRAY = 1;
     const BLACK = 2;
     const color = new Map<TNode, number>();
+    const allCycles: Array<Array<TNode>> = [];
 
     for (const node of nodes) {
         color.set(node, WHITE);
     }
 
-    const hasCycle = (startNode: TNode): boolean => {
+    const collectCyclesFrom = (startNode: TNode): void => {
         type TFrame = { node: TNode; successors: Array<TNode> };
         const stack: Array<TFrame> = [
             { node: startNode, successors: getSuccessor(startNode) },
@@ -164,7 +166,21 @@ export function cycleDetected<TNode>(args: {
             const successorColor = color.get(successor) ?? WHITE;
 
             if (successorColor === GRAY) {
-                return true;
+                // Find index of the GRAY successor on the active DFS path stack
+                const cycleStartIndex = stack.findIndex(
+                    (f) => f.node === successor,
+                );
+
+                if (cycleStartIndex !== -1) {
+                    // Extract path from the start of the cycle to current frame node
+                    const cyclePath = stack
+                        .slice(cycleStartIndex)
+                        .map((f) => f.node);
+
+                    allCycles.push(cyclePath);
+                }
+                // Continue exploring other successors rather than terminating early
+                continue;
             }
 
             if (successorColor === WHITE) {
@@ -175,81 +191,58 @@ export function cycleDetected<TNode>(args: {
                 });
             }
         }
-
-        return false;
     };
 
     for (const node of nodes) {
-        if (color.get(node) === WHITE && hasCycle(node)) {
-            return true;
+        if (color.get(node) === WHITE) {
+            collectCyclesFrom(node);
         }
     }
 
-    return false;
+    return allCycles;
 }
-
-/**
- * Checks whether any dependency (successor) of a node is not declared, meaning
- * the dependency graph is broken.
- *
- * Collects all unique successors across all nodes and verifies that each one
- * exists in the provided `nodes` list.
- */
 
 // TODO make few tests
-export function undeclaredNodesExist<TNode>(args: {
-    getSuccessor: (node: TNode) => Array<TNode>;
-    nodes: Array<TNode>;
-}): boolean {
+export function getMissingNodes<T>(args: {
+    getSuccessor: (node: T) => Array<T>;
+    nodes: Array<T>;
+}): Array<UndeclaredDependencyInfo<T>> {
     const { getSuccessor, nodes } = args;
+    const missingDependenciesMap = new Map<T, Array<T>>();
 
-    const nodeSet = new Set<TNode>(nodes);
-    if (nodeSet.size !== nodes.length) {
-        throw new Error();
+    const allNodes = new Set<T>(nodes);
+    if (allNodes.size !== nodes.length) {
+        throw new UnexpectedError("Nodes argument contain duplicates");
     }
-
-    const dependencies = new Set<TNode>();
 
     for (const node of nodes) {
-        for (const successor of getSuccessor(node)) {
-            dependencies.add(successor);
+        const dependent = node;
+        for (const successor of getSuccessor(dependent)) {
+            const dependency = successor;
+            const isUndeclaredDependency = !allNodes.has(dependency);
+            if (isUndeclaredDependency) {
+                const dependents = missingDependenciesMap.get(dependency) ?? [];
+                dependents.push(dependent);
+                missingDependenciesMap.set(dependency, dependents);
+            }
         }
     }
 
-    for (const dependency of dependencies) {
-        if (!nodeSet.has(dependency)) {
-            return true;
-        }
-    }
-
-    return false;
+    return [...missingDependenciesMap.entries()].map(
+        ([missingDependency, dependents]) => ({
+            missingDependency,
+            dependents,
+        }),
+    ) satisfies Array<UndeclaredDependencyInfo<T>>;
 }
 
-/**
- * Checks whether any edge is invalid according to the DI lifespan rules.
- *
- * - singleton node can not point to transient or scoped
- * - scoped node can not point to transient
- * - transient node can not point to dynamic
- * - dynamic node can not point to any other node
- * - only scoped node can point to dynamic node
- *
- * Returns `true` when at least one invalid edge is found.
- */
-// TODO make more general and create few test later
-export function someEdgeIsInvalid<TEdge>(args: {
+export function getInvalidEdges<TEdge>(args: {
     edges: Array<TEdge>;
-    edgeIsValid: (edge: TEdge) => boolean;
-}): boolean {
-    const { edges, edgeIsValid } = args;
+    edgeIsNotValid: (edge: TEdge) => boolean;
+}): Array<TEdge> {
+    const { edges, edgeIsNotValid } = args;
 
-    const hasInvalidEdge = edges.some((edge) => {
-        // dynamic node can not point to any other node
-        if (edgeIsValid(edge)) {
-            return true;
-        }
-        return false;
-    });
+    const invalidEdges = edges.filter((edge) => edgeIsNotValid(edge));
 
-    return hasInvalidEdge;
+    return invalidEdges;
 }
