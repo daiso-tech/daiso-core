@@ -20,8 +20,9 @@ In order to create an adapter you need to implement the [`IEventBusAdapter`](htt
 
 We provide a complete test suite to verify your event-bus adapter implementation. Simply use the [`eventBusAdapterTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/EventBus.eventBusAdapterTestSuite.html) function:
 
-- Preconfigured Vitest test cases
-- Common edge case coverage
+The suite provides preconfigured Vitest test cases with common edge
+case coverage and standardized event-bus adapter contract conformance
+testing.
 
 Usage example:
 
@@ -51,9 +52,8 @@ In some cases, you may need to implement a custom [`EventBus`](https://eridu-tec
 
 We provide a complete test suite to verify your custom event-bus class implementation. Simply use the [`eventBusTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/EventBus.eventBusTestSuite.html) function:
 
-- Preconfigured Vitest test cases
-- Standardized event-bus behavior validation
-- Common edge case coverage
+The suite provides preconfigured Vitest test cases with common edge
+case coverage and standardized event-bus contract conformance testing.
 
 Usage example:
 

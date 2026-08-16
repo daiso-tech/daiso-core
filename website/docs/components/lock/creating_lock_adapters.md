@@ -20,8 +20,9 @@ In order to create an adapter you need to implement the [`ILockAdapter`](https:/
 
 We provide a complete test suite to test your lock adapter implementation. Simply use the [`lockAdapterTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/Lock.lockAdapterTestSuite.html) function:
 
-- Preconfigured Vitest test cases
-- Common edge case coverage
+The suite provides preconfigured Vitest test cases with common edge
+case coverage and standardized lock adapter contract conformance
+testing.
 
 Usage example:
 
@@ -51,9 +52,9 @@ In some cases, you may need to implement a custom [`LockFactory`](https://eridu-
 
 We provide a complete test suite to verify your custom lock factory class implementation. Simply use the [`lockFactoryTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/Lock.lockFactoryTestSuite.html) function:
 
-- Preconfigured Vitest test cases
-- Standardized lock factory behavior validation
-- Common edge case coverage
+The suite provides preconfigured Vitest test cases with common edge
+case coverage and standardized lock factory contract conformance
+testing.
 
 Usage example:
 
