@@ -20,8 +20,9 @@ In order to create an adapter you need to implement the [`ICacheAdapter`](https:
 
 We provide a complete test suite to test your cache adapter implementation. Simply use the [`cacheAdapterTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/Cache.cacheAdapterTestSuite.html) function:
 
-- Preconfigured Vitest test cases
-- Common edge case coverage
+The suite provides preconfigured Vitest test cases with common edge
+case coverage and standardized cache adapter contract conformance
+testing.
 
 Usage example:
 
@@ -51,9 +52,8 @@ In some cases, you may need to implement a custom [`Cache`](https://eridu-tech.g
 
 We provide a complete test suite to verify your custom cache class implementation. Simply use the [`cacheTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/Cache.cacheTestSuite.html) function:
 
-- Preconfigured Vitest test cases
-- Standardized cache behavior validation
-- Common edge case coverage
+The suite provides preconfigured Vitest test cases with common edge
+case coverage and standardized cache contract conformance testing.
 
 Usage example:
 

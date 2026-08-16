@@ -929,15 +929,29 @@ export const FEATURE_ITEMS = {
             </>
         ),
     } satisfies FeatureItemProps,
-    TEST_EVERYTHING_WITHOUT_DOCKER: {
-        name: "Test everything without Docker",
-        icon: <SiVitest size="1.5rem" />,
-        title: <>Test everything without Docker</>,
+    COMPOSABLE_AND_EXTENDABLE: {
+        name: "Composable and extendable",
+        icon: <Plug size="1.5rem" strokeWidth={1.5} />,
+        title: <>Composable and extendable</>,
         description: (
             <>
-                Every component ships with an in-memory adapter and built-in
-                Vitest helpers. Write fast, isolated tests — no external
-                services needed.
+                Agnostic AOP-style middlewares and adapter plugins let you
+                extend your own code or existing adapters with additional
+                behavior that isn't included by default, keeping every component
+                composable and extendable. Predefined plugins and middlewares
+                are included out of the box.
+            </>
+        ),
+    } satisfies FeatureItemProps,
+    UNIFIED_FOUNDATION: {
+        name: "Unified foundation",
+        icon: <Layers size="1.5rem" strokeWidth={1.5} />,
+        title: <>Unified foundation</>,
+        description: (
+            <>
+                Every component is built on a single shared foundation,
+                reusing common abstractions like Serde, Execution Context, and
+                the AOP middleware system, so they work together seamlessly.
             </>
         ),
     } satisfies FeatureItemProps,
@@ -952,42 +966,6 @@ export const FEATURE_ITEMS = {
             </>
         ),
     } satisfies FeatureItemProps,
-    TYPE_SAFE_FROM_DAY_ONE: {
-        name: "Type-safe from day one",
-        icon: <SiTypescript size="1.5rem" />,
-        title: <>Type-safe from day one</>,
-        description: (
-            <>
-                Full TypeScript support with precise generics, rich
-                intellisense, and auto-import friendly APIs — errors caught at
-                compile time, not runtime.
-            </>
-        ),
-    } satisfies FeatureItemProps,
-    STANDARD_SCHEMA_VALIDATION_BUILT_IN: {
-        name: "Standard schema validation built in",
-        icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
-        title: <>Standard schema validation built in</>,
-        description: (
-            <>
-                First-class integration with{" "}
-                <a href="https://standardschema.dev/">Standard Schema</a>. Use{" "}
-                <a href="https://zod.dev/">Zod</a>, Valibot, or ArkType to
-                enforce both compile-time and runtime data safety.
-            </>
-        ),
-    } satisfies FeatureItemProps,
-    ESM_NATIVE_NO_COMMONJS_BAGGAGE: {
-        name: "ESM native. No CommonJS baggage.",
-        icon: <Package size="1.5rem" strokeWidth={1.5} />,
-        title: <>ESM native. No CommonJS baggage.</>,
-        description: (
-            <>
-                Built on modern JavaScript primitives. Fully compatible with
-                Node.js, Bun, Deno, and the modern bundler ecosystem.
-            </>
-        ),
-    } satisfies FeatureItemProps,
     SMALL_RUNTIME_FOOTPRINT: {
         name: "Small runtime footprint",
         icon: <Leaf size="1.5rem" strokeWidth={1.5} />,
@@ -999,6 +977,18 @@ export const FEATURE_ITEMS = {
                 Only the client libraries and drivers (Redis, Postgres, MongoDB,
                 and more) are optional peer dependencies, installed when you
                 need them.
+            </>
+        ),
+    } satisfies FeatureItemProps,
+    BATTERY_INCLUDED: {
+        name: "Battery included",
+        icon: <Zap size="1.5rem" strokeWidth={1.5} />,
+        title: <>Battery included</>,
+        description: (
+            <>
+                eridu-tech aims to be battery included, shipping a broad set
+                of ready-to-use components and integrations out of the box so
+                you can start building without wiring different libraries everything yourself.
             </>
         ),
     } satisfies FeatureItemProps,

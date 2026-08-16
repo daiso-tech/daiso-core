@@ -77,13 +77,13 @@ function StatsBar() {
                     />
                     <StatItem value="45" label="Adapters" />
                     <StatItem
-                        value="18"
+                        value="16"
                         label="Adapter plugins"
                     />
                     <StatItem value="6" label="AOP-style Middlewares" />
                     <StatItem
                         value="4,640+"
-                        label="Integration & behavior tests"
+                        label="Integration & conformance tests"
                     />
                 </div>
             </div>
@@ -240,8 +240,9 @@ function FeatureSection({ items }: { items: FeatureItemProps[] }) {
                     <h2 className="daiso-section-title">Why eridu-tech?</h2>
                     <p className="daiso-section-subtitle">
                         Designed from the ground up for real-world backend
-                        challenges — no vendor lock-in, no Docker required for
-                        testing, no DI container overhead.
+                        challenges — vendor-agnostic, composable and extendable,
+                        built on a unified foundation, and compatible with your
+                        framework of choice.
                     </p>
                 </div>
                 <div className="row">
