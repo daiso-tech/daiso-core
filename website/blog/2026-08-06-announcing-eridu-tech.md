@@ -1,6 +1,6 @@
 ---
 slug: 2026-08-06-announcing-eridu-tech
-title: Announcing eridu-tech - A Modular Backend Platform for TypeScript
+title: Announcing eridu-tech - A Modular Backend foundation for TypeScript
 authors: [yousif]
 tags: [announcement]
 date: 2026-08-06
@@ -8,7 +8,7 @@ date: 2026-08-06
 
 # Announcing eridu-tech
 
-**eridu-tech is a framework-agnostic backend platform for TypeScript: composable infrastructure components, middleware, configuration, and HTTP routing that can be embedded into the framework you already use.**
+**eridu-tech is a framework-agnostic backend foundation for TypeScript: composable infrastructure components, middleware, configuration, and HTTP routing that can be embedded into the framework you already use.**
 
 ## My story
 
@@ -66,7 +66,7 @@ eridu-tech uses precise generics, schema validation, and ESM-native packages wit
 - **Middleware** — composable, framework-agnostic middleware that can be applied to methods or functions.
 - **HttpRouter** — a framework-agnostic HTTP router built on the performant Hono router engine and implementing the WinterTC Fetch API, designed to embed directly into full-stack frameworks such as Next.js.
 
-The platform is also being extended with **transaction context, observability, dependency injection, deployment tooling, and component introspection**. These are part of the roadmap rather than capabilities I want to present as finished today.
+The foundation is also being extended with **transaction context, observability, dependency injection, deployment tooling, and component introspection**. These are part of the roadmap rather than capabilities I want to present as finished today.
 
 ## 🧑‍💻 The developer workflow
 
