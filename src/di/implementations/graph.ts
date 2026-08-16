@@ -14,6 +14,7 @@ const edgeToString = (edge: TEdge): string =>
 export class Graph<TNodeProp, TEdgeProp> {
     private nodeProps = new Map<TNode, TNodeProp>();
     private edgeProps = new Map<TNode, Map<TNode, TEdgeProp>>();
+    private reversedEdges = new Map<TNode, Set<TNode>>();
 
     constructor(args?: {
         nodeProps?: Array<[TNode, TNodeProp]>;
@@ -157,14 +158,39 @@ export class Graph<TNodeProp, TEdgeProp> {
             this.edgeProps.get(edge[0]) ?? new Map<TNode, TEdgeProp>();
         neighbor.set(edge[1], value);
         this.edgeProps.set(edge[0], neighbor);
+
+        const inNeighbor = this.reversedEdges.get(edge[1]) ?? new Set<TNode>();
+        inNeighbor.add(edge[0]);
+        this.reversedEdges.set(edge[1], inNeighbor);
     }
 
     removeEdge(edge: TEdge): void {
         this.edgeProps.get(edge[0])?.delete(edge[1]);
+        this.reversedEdges.get(edge[1])?.delete(edge[0]);
+
+        if (this.edgeProps.get(edge[0])?.size === 0) {
+            this.edgeProps.delete(edge[0]);
+        }
+
+        if (this.reversedEdges.get(edge[1])?.size === 0) {
+            this.reversedEdges.delete(edge[1]);
+        }
     }
 
     removeNode(node: TNode): void {
         this.nodeProps.delete(node);
+
+        this.edgeProps.delete(node);
+        for (const fromNode of this.edgeProps.keys()) {
+            const toNode = node;
+            this.edgeProps.get(fromNode)?.delete(toNode);
+        }
+
+        this.reversedEdges.delete(node);
+        for (const fromNode of this.reversedEdges.keys()) {
+            const toNode = node;
+            this.edgeProps.get(fromNode)?.delete(toNode);
+        }
     }
 
     nodes(): Array<TNode> {
@@ -180,11 +206,23 @@ export class Graph<TNodeProp, TEdgeProp> {
     }
 
     getSuccessorEdgesOf(node: TNode): Array<TEdge> {
-        return this.edges().filter((item) => item[0] === node);
+        const neighbors = this.edgeProps.get(node)?.keys();
+        if (neighbors === undefined) {
+            return [];
+        }
+
+        const fromNode = node;
+        return [...neighbors].map((toNode) => [fromNode, toNode]);
     }
 
     getPredecessorEdgesOf(node: TNode): Array<TEdge> {
-        return this.edges().filter((item) => item[1] === node);
+        const inNeighbor = this.reversedEdges.get(node)?.keys();
+        if (inNeighbor === undefined) {
+            return [];
+        }
+
+        const toNode = node;
+        return [...inNeighbor].map((fromNode) => [fromNode, toNode]);
     }
 
     getPredecessorsOf(node: TNode): Array<TNode> {
