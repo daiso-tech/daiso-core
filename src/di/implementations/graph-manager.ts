@@ -1,5 +1,9 @@
 import {
+    CycleDependencyDiError,
+    InvalidEdgeRelationshipDiError,
+    UndeclaredDependenciesDiError,
     type DiToken,
+    type EdgeErrorInfo,
     type FactoryRegistration,
     type ServiceFactory,
 } from "@/di/contracts/_module-exports.js";
@@ -12,9 +16,9 @@ import {
     type DynamicNodeProps,
 } from "@/di/implementations/container.js";
 import {
-    cycleDetected,
-    undeclaredNodesExist,
-    someEdgeIsInvalid,
+    findAllCycles,
+    getMissingNodes as getMissingDependencies,
+    getInvalidEdges,
     visitedNodes,
 } from "@/di/implementations/graph-algorithms.js";
 import { Graph } from "@/di/implementations/graph.js";
@@ -25,16 +29,35 @@ import {
     LIFESPAN,
 } from "@/di/implementations/utils.js";
 
+export type GraphValidationStatus =
+    | {
+          valid: true;
+      }
+    | {
+          valid: false;
+          error: AggregateError | CycleDependencyDiError;
+      };
+
 // TODO throw specific error classes
 export class GraphManager {
     private graph: Graph<NodeProps, EdgeProps>;
     private overrideSet = new Set<TNode>();
+    private readonly maxInvalidEdgeInError?: number;
+    private readonly maxCyclesInError?: number;
+    private readonly maxUndeclaredDependenciesInError?: number;
 
     constructor(args?: {
         graph?: Graph<NodeProps, EdgeProps>;
         overrideSet?: Set<TNode>;
+        maxInvalidEdgeInError?: number;
+        maxCyclesInError?: number;
+        maxUndeclaredDependenciesInError?: number;
     }) {
         this.graph = args?.graph ?? new Graph<NodeProps, EdgeProps>();
+        this.maxInvalidEdgeInError = args?.maxInvalidEdgeInError;
+        this.maxCyclesInError = args?.maxCyclesInError;
+        this.maxUndeclaredDependenciesInError =
+            args?.maxUndeclaredDependenciesInError;
     }
 
     copy(): GraphManager {
@@ -49,30 +72,42 @@ export class GraphManager {
         return graphManagerCopy;
     }
 
-    // TODO give detailed graph validation information instead of boolean
-    validateGraph(): void {
+    private validateNoCycleExists(): Array<Array<TNode>> {
         const nodes = this.nodes();
         const getSuccessor = (node: TNode) => this.getSuccessorsOf(node);
 
-        const dependencyIsBroken = undeclaredNodesExist({
+        return findAllCycles({
             getSuccessor,
             nodes,
         });
-        if (dependencyIsBroken) {
-            throw new Error();
-        }
+    }
 
-        const cycleIsDetected = cycleDetected({
+    // TODO give detailed graph validation information instead of boolean
+    validateGraph(): GraphValidationStatus {
+        const nodes = this.nodes();
+        const getSuccessor = (node: TNode) => this.getSuccessorsOf(node);
+
+        const missing = getMissingDependencies({
             getSuccessor,
             nodes,
         });
-        if (cycleIsDetected) {
-            throw new Error();
+
+        if (missing.length !== 0) {
+            return {
+                valid: false,
+                error: UndeclaredDependenciesDiError.create(
+                    missing.slice(
+                        undefined,
+                        this.maxUndeclaredDependenciesInError,
+                    ),
+                    missing.length,
+                ),
+            };
         }
 
-        const edgeIsInvalid = someEdgeIsInvalid({
+        const invalidEdges = getInvalidEdges({
             edges: this.edges(),
-            edgeIsValid: ([source, target]) => {
+            edgeIsNotValid: ([source, target]) => {
                 // dynamic node can not point to any other node
                 if (this.isDynamic(source)) {
                     return true;
@@ -104,9 +139,43 @@ export class GraphManager {
                 return false;
             },
         });
-        if (edgeIsInvalid) {
-            throw new Error();
+
+        if (invalidEdges.length !== 0) {
+            const errors = invalidEdges.map(
+                ([nodeFrom, nodeTo]) =>
+                    ({
+                        edge: [nodeFrom, nodeTo],
+                        edgeType: [
+                            this.getLifespan(nodeFrom),
+                            this.getLifespan(nodeTo),
+                        ],
+                    }) satisfies EdgeErrorInfo,
+            );
+            return {
+                valid: false,
+                error: InvalidEdgeRelationshipDiError.create(
+                    errors.slice(undefined, this.maxInvalidEdgeInError),
+                    errors.length,
+                ),
+            };
         }
+
+        const cycles = findAllCycles({
+            getSuccessor,
+            nodes,
+        });
+
+        if (cycles.length !== 0) {
+            return {
+                valid: false,
+                error: CycleDependencyDiError.create(
+                    cycles.slice(undefined, this.maxCyclesInError),
+                    cycles.length,
+                ),
+            };
+        }
+
+        return { valid: true };
     }
 
     registerFactory<
@@ -228,6 +297,10 @@ export class GraphManager {
 
     public isDynamic(node: TNode): boolean {
         return this.getNodePropertyOrThrow(node).lifespan === LIFESPAN.DYNAMIC;
+    }
+
+    public getLifespan(key: TNode): TLifespan {
+        return this.graph.getNodePropertyOrThrow(key).lifespan;
     }
 
     public getSingletonNodeOrThrow(nodeId: TNode): SingletonNodeProps {
