@@ -64,8 +64,7 @@ const EXISTING_FOUNDATION_RECORD = {
         description: (
             <>
                 Composable middleware pipeline with before/after hooks, error
-                handling — the foundation for every
-                component's plugin system.
+                handling — the foundation for every component's plugin system.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -90,9 +89,9 @@ const EXISTING_FOUNDATION_RECORD = {
         maturity: 80,
         description: (
             <>
-                Serialize and deserialize data with a built-in SuperJSON
-                adapter (Date, Map, Set, BigInt) and custom serializers — the
-                backbone for all data interchange across the ecosystem.
+                Serialize and deserialize data with a built-in SuperJSON adapter
+                (Date, Map, Set, BigInt) and custom serializers — the backbone
+                for all data interchange across the ecosystem.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -132,9 +131,8 @@ const EXISTING_FOUNDATION_RECORD = {
         maturity: 90,
         description: (
             <>
-                Standardized type-safe access to domain configuration
-                variables — with optional schema validation and full
-                TypeScript inference.
+                Standardized type-safe access to domain configuration variables
+                — with optional schema validation and full TypeScript inference.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -164,8 +162,8 @@ const EXISTING_STORAGE_RECORD = {
         maturity: 90,
         description: (
             <>
-                Caching with pluggable stores (in-memory, Redis,
-                etc.), TTL policies, and stampede protection.
+                Caching with pluggable stores (in-memory, Redis, etc.), TTL
+                policies, and stampede protection.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -300,9 +298,9 @@ const EXISTING_WEB_RECORD = {
         maturity: 90,
         description: (
             <>
-                Framework-agnostic HTTP router built on the Hono router engine
-                — implements the Winter TC fetch standard with middleware
-                chains and typed path parameters.
+                Framework-agnostic HTTP router built on the Hono router engine —
+                implements the Winter TC fetch standard with middleware chains
+                and typed path parameters.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -319,8 +317,8 @@ const EXISTING_UTILITIES_RECORD = {
         description: (
             <>
                 Define, manipulate, and compare durations with a typed,
-                immutable API — integrates easily with time libraries like
-                Luxon and Dayjs.
+                immutable API — integrates easily with time libraries like Luxon
+                and Dayjs.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -630,8 +628,8 @@ const UPCOMING_INTEGRATIONS_RECORD = {
         description: (
             <>
                 Native and performant MongoDB-backed implementations of every
-                Eridu-tech component — rate limiters, circuit breakers, event bus,
-                message queues, job schedulers, request-reply, transaction
+                Eridu-tech component — rate limiters, circuit breakers, event
+                bus, message queues, job schedulers, request-reply, transaction
                 context, and cache — all using MongoDB as the persistence layer.
                 No additional dependencies required.
             </>
@@ -658,10 +656,10 @@ const UPCOMING_INTEGRATIONS_RECORD = {
         title: <>SSH Deployment</>,
         description: (
             <>
-                Deploy and manage Eridu-tech applications on any VPS or bare-metal
-                server via SSH. Push builds, manage processes, configure
-                environment, and run health checks — all from a single CLI
-                command, no Docker or orchestration required.
+                Deploy and manage Eridu-tech applications on any VPS or
+                bare-metal server via SSH. Push builds, manage processes,
+                configure environment, and run health checks — all from a single
+                CLI command, no Docker or orchestration required.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -769,9 +767,9 @@ const UPCOMING_DEV_TOOLING_RECORD = {
         description: (
             <>
                 Predefined CLI commands to scaffold Eridu-tech projects and
-                components. Initialize a new Eridu-tech project from scratch or add
-                individual components (DI, Cache, Scheduler, Auth, etc.) to an
-                existing project — with sensible defaults, config files, and
+                components. Initialize a new Eridu-tech project from scratch or
+                add individual components (DI, Cache, Scheduler, Auth, etc.) to
+                an existing project — with sensible defaults, config files, and
                 boilerplate code generated automatically.
             </>
         ),
@@ -990,6 +988,19 @@ export const FEATURE_ITEMS = {
             </>
         ),
     } satisfies FeatureItemProps,
+    SMALL_RUNTIME_FOOTPRINT: {
+        name: "Small runtime footprint",
+        icon: <Leaf size="1.5rem" strokeWidth={1.5} />,
+        title: <>Small runtime footprint</>,
+        description: (
+            <>
+                A minimal core ships by default. Client libraries and drivers
+                (Redis, Postgres, and more) are optional peer dependencies that
+                you install when needed. Fewer dependencies mean less to audit
+                and a smaller supply-chain attack surface.
+            </>
+        ),
+    } satisfies FeatureItemProps,
 };
 
 export const PERFECT_FOR = {
@@ -1120,8 +1131,8 @@ export const NOT_IDEAL_FOR = {
         title: <>Frontend-only applications:</>,
         description: (
             <>
-                eridu-tech is designed for backend and server-side
-                development, not browser applications.
+                eridu-tech is designed for backend and server-side development,
+                not browser applications.
             </>
         ),
     } satisfies WhoIsThisForItem,
