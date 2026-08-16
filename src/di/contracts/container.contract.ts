@@ -6,9 +6,9 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ServiceCanNotBeResolvedError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    InvalidLifetimeDiError,
+    InvalidEdgeRelationshipDiError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    CircularDependencyDiError,
+    CycleDependencyDiError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ServiceExistsDiError,
 } from "@/di/contracts/container.errors.js";
@@ -565,9 +565,9 @@ export type IServiceOverrider = {
  *
  * The following errors can be thrown any method listed in `IContainer` dependent on the algorithm used:
  * @throws {ServiceCanNotBeResolvedError} When a required service cannot be resolved.
- * @throws {InvalidLifetimeDiError} When a lifetime configuration is invalid
+ * @throws {InvalidEdgeRelationshipDiError} When a lifetime configuration is invalid
  *   (e.g. singleton depending on transient).
- * @throws {CircularDependencyDiError} When a circular dependency is detected
+ * @throws {CycleDependencyDiError} When a circular dependency is detected
  *   in the service graph.
  * @throws {ServiceExistsDiError} When attempting to register a duplicate token.
  *

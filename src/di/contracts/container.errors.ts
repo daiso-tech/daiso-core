@@ -3,7 +3,7 @@
  */
 
 import { type DiToken } from "@/di/contracts/container.contract.js";
-import { type TLifespan } from "@/di/implementations/utils.js";
+import { LIFESPAN, type TLifespan } from "@/di/implementations/utils.js";
 import { isClass, UnexpectedError } from "@/utilities/_module.js";
 
 /**
@@ -47,6 +47,11 @@ export class ServiceCanNotBeResolvedError extends Error {
     }
 }
 
+export type EdgeErrorInfo = {
+    edge: [DiToken, DiToken];
+    edgeType: [TLifespan, TLifespan];
+};
+
 /**
  * Thrown when a lifetime configuration is invalid, such as a
  * - Singleton is dependent on Transient
@@ -59,25 +64,43 @@ export class ServiceCanNotBeResolvedError extends Error {
  * @group Errors
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-export class InvalidLifetimeDiError extends Error {
+export class InvalidEdgeRelationshipDiError extends Error {
     /**
-     * Creates a new {@link InvalidLifetimeDiError} instance.
+     * Creates a new {@link InvalidEdgeRelationshipDiError} instance.
      *
      * @param token - The DI token with an invalid lifetime configuration.
      * @returns A new error instance.
      */
-    static create(args: {
-        from_: {
-            token: DiToken;
-            nodeType: TLifespan;
-        };
-        to: {
-            token: DiToken;
-            nodeType: TLifespan;
-        };
-    }): InvalidLifetimeDiError {
-        return new InvalidLifetimeDiError(
-            `Invalid edge: "${tokenToString(args.from_.token)}" of type ${args.from_.nodeType} is dependent on "${tokenToString(args.to.token)}" of type ${args.to.nodeType}.`,
+    static create(
+        edgeErrorInfos: Array<EdgeErrorInfo>,
+        totalDetected?: number,
+    ): InvalidEdgeRelationshipDiError {
+        const totalEdgesDetected = totalDetected ?? edgeErrorInfos.length;
+        const listIsShortened = edgeErrorInfos.length !== totalEdgesDetected;
+
+        const edgeErrorInfoStrings = edgeErrorInfos.map((item) => ({
+            edge: `${tokenToString(item.edge[0])} → ${tokenToString(item.edge[1])}`,
+            edgeType: `${item.edgeType[0]} → ${item.edgeType[1]}`,
+        }));
+
+        const message = listIsShortened
+            ? `${totalEdgesDetected.toString()} invalid edge relationships detected in graph. Only ${edgeErrorInfos.length.toString()} are shown.`
+            : `${totalEdgesDetected.toString()} invalid  edge relationships detected in graph.`;
+
+        const withRulesDescription =
+            message +
+            `\n\x1b[36mThe following edge relationship type count as invalid:\x1b[0m` +
+            `\n` +
+            `\n\x1b[36m \x1b[3m${LIFESPAN.SINGLETON} → ${LIFESPAN.TRANSIENT}\x1b[0m` +
+            `\n\x1b[36m \x1b[3m${LIFESPAN.SINGLETON} → ${LIFESPAN.SCOPED}\x1b[0m` +
+            `\n\x1b[36m \x1b[3m${LIFESPAN.SINGLETON} → ${LIFESPAN.DYNAMIC}\x1b[0m` +
+            `\n\x1b[36m \x1b[3m${LIFESPAN.SCOPED} → ${LIFESPAN.TRANSIENT}\x1b[0m` +
+            `\n\x1b[36m \x1b[3m${LIFESPAN.TRANSIENT} → ${LIFESPAN.DYNAMIC}\x1b[0m` +
+            `\n`;
+
+        return new InvalidEdgeRelationshipDiError(
+            withRulesDescription,
+            edgeErrorInfoStrings,
         );
     }
 
@@ -94,23 +117,48 @@ export class InvalidLifetimeDiError extends Error {
 }
 
 /**
- * Thrown when a circular dependency is detected in the service graph.
+ * Thrown when a cycle dependency is detected in the service graph.
  *
  * @group Errors
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-export class CircularDependencyDiError extends Error {
+export class CycleDependencyDiError extends Error {
     /**
-     * Creates a new {@link CircularDependencyDiError} instance.
+     * Creates a new {@link CycleDependencyDiError} instance.
      *
      * @param tokenA - The first token in the dependency cycle.
      * @param tokenB - The second token in the dependency cycle.
      * @returns A new error instance.
      */
-    static create(tokenA: DiToken, tokenB: DiToken): CircularDependencyDiError {
-        return new CircularDependencyDiError(
-            `Circular dependency detected: "${tokenToString(tokenA)}" → "${tokenToString(tokenB)}" → ... forms a cycle. Check for dependency cycles in your service graph or module imports.`,
-        );
+    static create(
+        cycles: Array<Array<DiToken>>,
+        totalDetected?: number,
+    ): CycleDependencyDiError {
+        if (cycles.length === 0) {
+            throw new UnexpectedError(
+                "Tokens should contain at least two tokens.",
+            );
+        }
+
+        const cyclesStrings = cycles
+            .map((cycle) => {
+                const firstToken = cycle.at(0);
+                if (firstToken === undefined) {
+                    throw new UnexpectedError("First token is undefined");
+                }
+                return [...cycle, firstToken]
+                    .map((node) => tokenToString(node))
+                    .join(" → ");
+            })
+            .map((cycle) => ({ cycle }));
+
+        const totalCyclesDetected = totalDetected ?? cycles.length;
+        const listIsShortened = cycles.length !== totalCyclesDetected;
+
+        const message = listIsShortened
+            ? `${totalCyclesDetected.toString()} cycles detected in graph. Only ${cycles.length.toString()} are shown.`
+            : `${totalCyclesDetected.toString()} cycles detected in graph`;
+        return new CycleDependencyDiError(message, cyclesStrings);
     }
 
     /**
@@ -156,29 +204,61 @@ export class ServiceExistsDiError extends Error {
         super(message, { cause });
     }
 }
+
+export type UndeclaredDependencyInfo<T = DiToken> = {
+    missingDependency: T;
+    dependents: Array<T>;
+};
 /**
  * Thrown when a node dependency or neighbor was referenced during graph traversal
  * but was not declared in the `nodeIds` list.
  */
-export class UndeclaredDependencyDiError extends Error {
-    public readonly nodeId: DiToken;
-
-    private constructor(nodeId: DiToken) {
-        super(
-            `Node "${String(tokenToString(nodeId))}" was referenced as a neighbor/dependency but not listed in nodeIds.`,
-        );
-        this.name = "UndeclaredDependencyError";
-        this.nodeId = nodeId;
+export class UndeclaredDependenciesDiError extends Error {
+    constructor(message: string, cause?: unknown) {
+        super(message, { cause });
     }
 
+    // private constructor(message: string) {
+    //     super(
+    //         `Node was referenced as a neighbor/dependency but not listed in nodeIds.`,
+    //     );
+    //     this.name = "UndeclaredDependencyError";
+    //     this.nodeId = nodeId;
+    // }
+
     /**
-     * Creates a new {@link UndeclaredDependencyDiError} instance.
+     * Creates a new {@link UndeclaredDependenciesDiError} instance.
      *
      * @param nodeId - The node that was referenced but not declared.
      * @returns A new error instance.
      */
-    static create(nodeId: DiToken): UndeclaredDependencyDiError {
-        return new UndeclaredDependencyDiError(nodeId);
+    static create(
+        undeclaredDependencies: Array<UndeclaredDependencyInfo>,
+        totalNodes?: number,
+    ): UndeclaredDependenciesDiError {
+        const totalUnDeclaredNodes =
+            totalNodes ?? undeclaredDependencies.length;
+        const listIsShortened =
+            undeclaredDependencies.length !== totalUnDeclaredNodes;
+
+        const message = listIsShortened
+            ? `${totalUnDeclaredNodes.toString()} undeclared dependencies detected in graph. Only ${undeclaredDependencies.length.toString()} are shown.`
+            : `${totalUnDeclaredNodes.toString()} undeclared dependencies detected in graph`;
+
+        const undeclaredDependencyStrings = undeclaredDependencies.map(
+            (undeclaredDependency) => ({
+                missingDependency: tokenToString(
+                    undeclaredDependency.missingDependency,
+                ),
+                dependents: undeclaredDependency.dependents.map((item) =>
+                    tokenToString(item),
+                ),
+            }),
+        );
+        return new UndeclaredDependenciesDiError(
+            message,
+            undeclaredDependencyStrings,
+        );
     }
 }
 // TODO for Container*Exception Give tips what do
