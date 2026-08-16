@@ -3,7 +3,6 @@
  */
 
 import { type DiToken } from "@/di/contracts/container.contract.js";
-import { LIFESPAN, type TLifespan } from "@/di/implementations/utils.js";
 import { isClass, UnexpectedError } from "@/utilities/_module.js";
 
 /**
@@ -18,7 +17,7 @@ function tokenToString(diToken: DiToken): string {
 
 export type EdgeErrorInfo = {
     edge: [DiToken, DiToken];
-    edgeType: [TLifespan, TLifespan];
+    edgeType: [string, string];
 };
 
 /**
@@ -33,6 +32,7 @@ export type EdgeErrorInfo = {
  * @group Errors
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
+
 export class InvalidEdgeRelationshipDiError extends Error {
     /**
      * Creates a new {@link InvalidEdgeRelationshipDiError} instance.
@@ -60,11 +60,11 @@ export class InvalidEdgeRelationshipDiError extends Error {
             message +
             `\n\x1b[36mThe following edge relationship type count as invalid:\x1b[0m` +
             `\n` +
-            `\n\x1b[36m \x1b[3m${LIFESPAN.SINGLETON} → ${LIFESPAN.TRANSIENT}\x1b[0m` +
-            `\n\x1b[36m \x1b[3m${LIFESPAN.SINGLETON} → ${LIFESPAN.SCOPED}\x1b[0m` +
-            `\n\x1b[36m \x1b[3m${LIFESPAN.SINGLETON} → ${LIFESPAN.DYNAMIC}\x1b[0m` +
-            `\n\x1b[36m \x1b[3m${LIFESPAN.SCOPED} → ${LIFESPAN.TRANSIENT}\x1b[0m` +
-            `\n\x1b[36m \x1b[3m${LIFESPAN.TRANSIENT} → ${LIFESPAN.DYNAMIC}\x1b[0m` +
+            `\n\x1b[36m \x1b[3m singleton → transient\x1b[0m` +
+            `\n\x1b[36m \x1b[3m singleton → scoped\x1b[0m` +
+            `\n\x1b[36m \x1b[3m singleton → dynamic\x1b[0m` +
+            `\n\x1b[36m \x1b[3m scoped → transient\x1b[0m` +
+            `\n\x1b[36m \x1b[3m transient → dynamic\x1b[0m` +
             `\n`;
 
         return new InvalidEdgeRelationshipDiError(
