@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import {
     genericToken,
+    LIFESPAN,
     type DiToken,
     type IContainer,
     type IDynamicServiceRegister,
@@ -226,25 +227,23 @@ describe("illegal method call after init (when container is active)", () => {
     const allRegistration = [
         {
             func: () => {
-                container
-                    .registerFactory({
-                        deps: [],
-                        factory: () => new A(),
-                        token: A,
-                    })
-                    .singleton();
+                container.registerFactory({
+                    deps: [],
+                    factory: () => new A(),
+                    token: A,
+                    type: LIFESPAN.SINGLETON,
+                });
             },
 
             name: "registerFactory.singleton",
         },
         {
             func: () => {
-                container
-                    .registerClass({
-                        deps: [],
-                        impl: A,
-                    })
-                    .singleton();
+                container.registerClass({
+                    deps: [],
+                    impl: A,
+                    type: LIFESPAN.SINGLETON,
+                });
             },
 
             name: "registerClass.singleton",
@@ -452,7 +451,7 @@ describe("onContainerInit & init", () => {
             .factory(() => "_")
             .createToken("A");
 
-        container.registerFactory(nodeA).singleton();
+        container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
         let value: string | null | undefined = undefined as
             | string
             | null
@@ -494,7 +493,7 @@ describe("onContainerDeInit & deInit", () => {
             .factory(() => "_")
             .createToken("A");
 
-        container.registerFactory(nodeA).singleton();
+        container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
         let value: string | null | undefined = undefined as
             | string
             | null
@@ -522,7 +521,7 @@ describe("has", () => {
             .factory(() => "_")
             .createToken("A");
 
-        container.registerFactory(nodeA).singleton();
+        container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
         await container.init();
 
         const value = await container.has(nodeA.token);
@@ -534,7 +533,7 @@ describe("has", () => {
             .factory(() => "_")
             .createToken("A");
 
-        container.registerFactory(nodeA).transient();
+        container.registerFactory({ ...nodeA, type: LIFESPAN.TRANSIENT });
         await container.init();
 
         const value = await container.has(nodeA.token);
@@ -546,7 +545,7 @@ describe("has", () => {
             .factory(() => "_")
             .createToken("A");
 
-        container.registerFactory(nodeA).scoped();
+        container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
         await container.init();
 
         const value = await container.has(nodeA.token);
@@ -574,9 +573,9 @@ describe("register", () => {
         const node = dependency()
             .factory(() => "")
             .createToken("");
-        container.registerFactory(node).singleton();
+        container.registerFactory({ ...node, type: LIFESPAN.SINGLETON });
         expect(() => {
-            container.registerFactory(node).singleton();
+            container.registerFactory({ ...node, type: LIFESPAN.SINGLETON });
         }).toThrowError(ServiceExistsDiError);
     });
 });
@@ -687,7 +686,7 @@ describe("register & container.init & resolve", () => {
                 .factory(() => "_")
                 .createToken("A");
 
-            container.registerFactory(nodeA).singleton();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
             await container.init();
 
             const correctValue = await nodeA.callFunc();
@@ -712,13 +711,13 @@ describe("register & container.init & resolve", () => {
             const nodeD = dependency(nodeC.token)
                 .factory((c) => [c, "4"].join(""))
                 .createToken("D");
-            container.registerFactory(nodeA).singleton();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
 
-            container.registerFactory(nodeB).singleton();
+            container.registerFactory({ ...nodeB, type: LIFESPAN.SINGLETON });
 
-            container.registerFactory(nodeC).singleton();
+            container.registerFactory({ ...nodeC, type: LIFESPAN.SINGLETON });
 
-            container.registerFactory(nodeD).singleton();
+            container.registerFactory({ ...nodeD, type: LIFESPAN.SINGLETON });
 
             await container.init();
 
@@ -743,7 +742,10 @@ describe("register & container.init & resolve", () => {
                 .createToken("A");
 
             container.registerProvider((provider) => {
-                provider.registerFactory(nodeA).singleton();
+                provider.registerFactory({
+                    ...nodeA,
+                    type: LIFESPAN.SINGLETON,
+                });
             });
 
             await container.init();
@@ -763,7 +765,7 @@ describe("register & container.init & resolve", () => {
                 .factory(() => null as null | string)
                 .createToken("A");
 
-            container.registerFactory(nodeA).singleton();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
             await container.init();
 
             const defaultValue = "_";
@@ -781,7 +783,7 @@ describe("register & container.init & resolve", () => {
                 .factory(() => null as null | string)
                 .createToken("A");
 
-            container.registerFactory(nodeA).singleton();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
             await container.init();
 
             await expect(
@@ -794,16 +796,15 @@ describe("register & container.init & resolve", () => {
             const tokenA = genericToken<Date>("A");
             const dateKey = genericToken<Date>("date");
 
-            container
-                .registerFactory({
-                    deps: [],
-                    token: tokenA,
-                    factory: (_, executionContext_) => {
-                        const date = executionContext_.getOrFail(dateKey);
-                        return date;
-                    },
-                })
-                .singleton();
+            container.registerFactory({
+                deps: [],
+                token: tokenA,
+                factory: (_, executionContext_) => {
+                    const date = executionContext_.getOrFail(dateKey);
+                    return date;
+                },
+                type: LIFESPAN.SINGLETON,
+            });
 
             const correctValue = new Date(1786699358026);
 
@@ -825,16 +826,15 @@ describe("register & container.init & resolve", () => {
             const tokenA = genericToken<Date>("A");
             const dateKey = genericToken<Date>("date");
 
-            container
-                .registerFactory({
-                    deps: [],
-                    token: tokenA,
-                    factory: (_, executionContext_) => {
-                        const date = executionContext_.getOrFail(dateKey);
-                        return date;
-                    },
-                })
-                .singleton();
+            container.registerFactory({
+                deps: [],
+                token: tokenA,
+                factory: (_, executionContext_) => {
+                    const date = executionContext_.getOrFail(dateKey);
+                    return date;
+                },
+                type: LIFESPAN.SINGLETON,
+            });
 
             const correctValue = new Date(1786699358026);
             const newValue = new Date(correctValue.getTime() + 1000);
@@ -868,7 +868,7 @@ describe("register & container.init & resolve", () => {
                 .factory(() => ({}))
                 .createToken("A");
 
-            container.registerFactory(nodeA).singleton();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
             await container.init();
 
             const itemA = await container.resolve(nodeA.token);
@@ -907,10 +907,10 @@ describe("register & container.init & resolve", () => {
                 }))
                 .createToken("D");
 
-            container.registerFactory(nodeA).singleton();
-            container.registerFactory(nodeB).singleton();
-            container.registerFactory(nodeC).singleton();
-            container.registerFactory(nodeD).singleton();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
+            container.registerFactory({ ...nodeB, type: LIFESPAN.SINGLETON });
+            container.registerFactory({ ...nodeC, type: LIFESPAN.SINGLETON });
+            container.registerFactory({ ...nodeD, type: LIFESPAN.SINGLETON });
 
             await container.init();
             const valueA = await container.resolve(nodeD.token);
@@ -964,7 +964,11 @@ describe("register & container.init & resolve", () => {
                 private _: unknown;
             }
 
-            container.registerClass({ impl: A, deps: [] }).singleton();
+            container.registerClass({
+                impl: A,
+                deps: [],
+                type: LIFESPAN.SINGLETON,
+            });
             await container.init();
 
             await expect(container.resolve(A)).resolves.toBeInstanceOf(A);
@@ -977,7 +981,7 @@ describe("register & container.init & resolve", () => {
                 .factory(() => "_")
                 .createToken("A");
 
-            container.registerFactory(nodeA).transient();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.TRANSIENT });
             await container.init();
 
             const correctValue = await nodeA.callFunc();
@@ -1003,13 +1007,13 @@ describe("register & container.init & resolve", () => {
                 .factory((c) => [c, "4"].join(""))
                 .createToken("D");
 
-            container.registerFactory(nodeA).transient();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.TRANSIENT });
 
-            container.registerFactory(nodeB).transient();
+            container.registerFactory({ ...nodeB, type: LIFESPAN.TRANSIENT });
 
-            container.registerFactory(nodeC).transient();
+            container.registerFactory({ ...nodeC, type: LIFESPAN.TRANSIENT });
 
-            container.registerFactory(nodeD).transient();
+            container.registerFactory({ ...nodeD, type: LIFESPAN.TRANSIENT });
 
             await container.init();
 
@@ -1028,16 +1032,15 @@ describe("register & container.init & resolve", () => {
             const tokenA = genericToken<Date>("A");
             const dateKey = genericToken<Date>("date");
 
-            container
-                .registerFactory({
-                    deps: [],
-                    token: tokenA,
-                    factory: (_, executionContext_) => {
-                        const date = executionContext_.getOrFail(dateKey);
-                        return date;
-                    },
-                })
-                .transient();
+            container.registerFactory({
+                deps: [],
+                token: tokenA,
+                factory: (_, executionContext_) => {
+                    const date = executionContext_.getOrFail(dateKey);
+                    return date;
+                },
+                type: LIFESPAN.TRANSIENT,
+            });
 
             const correctValue0 = new Date(1786699358026);
             const correctValue1 = new Date(correctValue0.getTime() + 1000);
@@ -1071,7 +1074,7 @@ describe("register & container.init & resolve", () => {
                 .factory(() => ({}))
                 .createToken("A");
 
-            container.registerFactory(nodeA).scoped();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
             await container.init();
             const valueA = container.resolve(nodeA.token);
             const valueB = container.resolve(nodeA.token);
@@ -1103,10 +1106,10 @@ describe("register & container.init & resolve", () => {
                 }))
                 .createToken("D");
 
-            container.registerFactory(nodeA).transient();
-            container.registerFactory(nodeB).transient();
-            container.registerFactory(nodeC).transient();
-            container.registerFactory(nodeD).transient();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.TRANSIENT });
+            container.registerFactory({ ...nodeB, type: LIFESPAN.TRANSIENT });
+            container.registerFactory({ ...nodeC, type: LIFESPAN.TRANSIENT });
+            container.registerFactory({ ...nodeD, type: LIFESPAN.TRANSIENT });
 
             await container.init();
             const valueA = await container.resolve(nodeD.token);
@@ -1121,7 +1124,7 @@ describe("register & container.init & resolve", () => {
                 .factory(() => "")
                 .createToken("A");
 
-            container.registerFactory(nodeA).scoped();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
             await container.init();
             await expect(container.resolve(nodeA.token)).resolves.toBe(null);
         });
@@ -1131,7 +1134,7 @@ describe("register & container.init & resolve", () => {
                 .factory(() => "_")
                 .createToken("A");
 
-            container.registerFactory(nodeA).scoped();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
             await container.init();
 
             let value: undefined | string | null = undefined as
@@ -1154,7 +1157,7 @@ describe("register & container.init & resolve", () => {
                 .factory(() => "")
                 .createToken("A");
 
-            container.registerFactory(nodeA).scoped();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
             await container.init();
             let value: string | undefined | null = undefined;
 
@@ -1169,16 +1172,15 @@ describe("register & container.init & resolve", () => {
             const tokenA = genericToken<Date>("A");
             const dateKey = genericToken<Date>("date");
 
-            container
-                .registerFactory({
-                    deps: [],
-                    token: tokenA,
-                    factory: (_, executionContext_) => {
-                        const date = executionContext_.getOrFail(dateKey);
-                        return date;
-                    },
-                })
-                .scoped();
+            container.registerFactory({
+                deps: [],
+                token: tokenA,
+                factory: (_, executionContext_) => {
+                    const date = executionContext_.getOrFail(dateKey);
+                    return date;
+                },
+                type: LIFESPAN.SCOPED,
+            });
 
             const correctValue0 = new Date(1786699358026);
 
@@ -1205,16 +1207,15 @@ describe("register & container.init & resolve", () => {
             const tokenA = genericToken<Date>("A");
             const dateKey = genericToken<Date>("date");
 
-            container
-                .registerFactory({
-                    deps: [],
-                    token: tokenA,
-                    factory: (_, executionContext_) => {
-                        const date = executionContext_.getOrFail(dateKey);
-                        return date;
-                    },
-                })
-                .scoped();
+            container.registerFactory({
+                deps: [],
+                token: tokenA,
+                factory: (_, executionContext_) => {
+                    const date = executionContext_.getOrFail(dateKey);
+                    return date;
+                },
+                type: LIFESPAN.SCOPED,
+            });
 
             const correctValue0 = new Date(1786699358026);
             const correctValue1 = new Date(correctValue0.getTime() + 1000);
@@ -1256,7 +1257,7 @@ describe("register & container.init & resolve", () => {
                 .factory(() => ({}))
                 .createToken("A");
 
-            container.registerFactory(nodeA).scoped();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
             await container.init();
             const valueA = container.resolve(nodeA.token);
             const valueB = container.resolve(nodeA.token);
@@ -1278,7 +1279,7 @@ describe("register & container.init & resolve", () => {
                 | object
                 | null;
 
-            container.registerFactory(nodeA).scoped();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
             await container.init();
 
             await container.run({
@@ -1305,7 +1306,7 @@ describe("register & container.init & resolve", () => {
                 | object
                 | null;
 
-            container.registerFactory(nodeA).scoped();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
             await container.init();
 
             await container.run({
@@ -1341,7 +1342,7 @@ describe("register & container.init & resolve", () => {
                 | object
                 | null;
 
-            container.registerFactory(nodeA).scoped();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
             await container.init();
 
             await container.run({
@@ -1382,10 +1383,10 @@ describe("register & container.init & resolve", () => {
             let value: Awaited<ReturnType<(typeof nodeD)["callFunc"]>> | null =
                 null as Awaited<ReturnType<(typeof nodeD)["callFunc"]>> | null;
 
-            container.registerFactory(nodeA).scoped();
-            container.registerFactory(nodeB).scoped();
-            container.registerFactory(nodeC).scoped();
-            container.registerFactory(nodeD).scoped();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
+            container.registerFactory({ ...nodeB, type: LIFESPAN.SCOPED });
+            container.registerFactory({ ...nodeC, type: LIFESPAN.SCOPED });
+            container.registerFactory({ ...nodeD, type: LIFESPAN.SCOPED });
             await container.init();
 
             await container.run({
@@ -1589,7 +1590,7 @@ describe("register & container.init & resolve", () => {
                 | object;
 
             container.registerDynamic(tokenA);
-            container.registerFactory(nodeB).scoped();
+            container.registerFactory({ ...nodeB, type: LIFESPAN.SCOPED });
             await container.init();
             await container.run({
                 dynamicRegistration: async (serviceRegister) => {
@@ -1629,7 +1630,7 @@ describe("register & container.init & resolve", () => {
                 | object;
 
             container.registerDynamic(tokenA);
-            container.registerFactory(nodeB).scoped();
+            container.registerFactory({ ...nodeB, type: LIFESPAN.SCOPED });
 
             await container.init();
             await container.run({
@@ -1678,9 +1679,9 @@ describe("register & container.init & resolve", () => {
             let valueC: undefined | { nodeAValue: object } | null =
                 undefined as undefined | { nodeAValue: object } | null;
 
-            container.registerFactory(nodeA).singleton();
-            container.registerFactory(nodeB).scoped();
-            container.registerFactory(nodeC).scoped();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
+            container.registerFactory({ ...nodeB, type: LIFESPAN.SCOPED });
+            container.registerFactory({ ...nodeC, type: LIFESPAN.SCOPED });
 
             await container.init();
 
@@ -1713,9 +1714,9 @@ describe("register & container.init & resolve", () => {
                 .factory((nodeAValue) => ({ nodeAValue }))
                 .createToken("B");
 
-            container.registerFactory(nodeA).singleton();
-            container.registerFactory(nodeB).transient();
-            container.registerFactory(nodeC).transient();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
+            container.registerFactory({ ...nodeB, type: LIFESPAN.TRANSIENT });
+            container.registerFactory({ ...nodeC, type: LIFESPAN.TRANSIENT });
 
             await container.init();
 
@@ -1737,8 +1738,8 @@ describe("register & container.init & resolve", () => {
                 .factory(() => "")
                 .createToken("B");
 
-            container.registerFactory(nodeA).scoped();
-            container.registerFactory(nodeB).transient();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
+            container.registerFactory({ ...nodeB, type: LIFESPAN.TRANSIENT });
             await container.init();
             await expect(container.resolve(nodeB.token)).resolves.toBe(null);
         });
@@ -1751,8 +1752,8 @@ describe("register & container.init & resolve", () => {
                 .factory(() => "")
                 .createToken("B");
 
-            container.registerFactory(nodeA).scoped();
-            container.registerFactory(nodeB).transient();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
+            container.registerFactory({ ...nodeB, type: LIFESPAN.TRANSIENT });
             await container.init();
 
             let value: undefined | null | string = undefined;
@@ -1785,9 +1786,9 @@ describe("register & container.init & resolve", () => {
             let valueC: undefined | { nodeAValue: object } | null =
                 undefined as undefined | { nodeAValue: object } | null;
 
-            container.registerFactory(nodeA).scoped();
-            container.registerFactory(nodeB).transient();
-            container.registerFactory(nodeC).transient();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
+            container.registerFactory({ ...nodeB, type: LIFESPAN.TRANSIENT });
+            container.registerFactory({ ...nodeC, type: LIFESPAN.TRANSIENT });
 
             await container.init();
 
@@ -1820,9 +1821,9 @@ describe("register & container.init & resolve", () => {
             let valueC: undefined | { nodeAValue: object } | null =
                 undefined as undefined | { nodeAValue: object } | null;
 
-            container.registerFactory(nodeA).scoped();
-            container.registerFactory(nodeB).transient();
-            container.registerFactory(nodeC).transient();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
+            container.registerFactory({ ...nodeB, type: LIFESPAN.TRANSIENT });
+            container.registerFactory({ ...nodeC, type: LIFESPAN.TRANSIENT });
 
             await container.init();
 
@@ -1860,7 +1861,7 @@ describe("graph validation", () => {
                 .factory(() => "A")
                 .createToken("A");
 
-            container.registerFactory(nodeA).singleton();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
 
             await expect(container.init()).rejects.toThrowError(
                 UndeclaredDependenciesDiError,
@@ -1881,8 +1882,8 @@ describe("graph validation", () => {
                 .factory(() => "B")
                 .reuseToken(tokenB);
 
-            container.registerFactory(nodeA).singleton();
-            container.registerFactory(nodeB).scoped();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
+            container.registerFactory({ ...nodeB, type: LIFESPAN.SCOPED });
 
             await expect(container.init()).rejects.toThrowError(
                 InvalidEdgeRelationshipDiError,
@@ -1897,7 +1898,7 @@ describe("graph validation", () => {
                 .factory(() => "A")
                 .reuseToken(tokenA);
 
-            container.registerFactory(nodeA).singleton();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
             container.registerDynamic(tokenB);
 
             await expect(container.init()).rejects.toThrowError(
@@ -1917,8 +1918,8 @@ describe("graph validation", () => {
                 .factory(() => "B")
                 .reuseToken(tokenB);
 
-            container.registerFactory(nodeA).singleton();
-            container.registerFactory(nodeB).transient();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
+            container.registerFactory({ ...nodeB, type: LIFESPAN.TRANSIENT });
 
             await expect(container.init()).rejects.toThrowError(
                 InvalidEdgeRelationshipDiError,
@@ -1937,8 +1938,8 @@ describe("graph validation", () => {
                 .factory(() => "B")
                 .reuseToken(tokenB);
 
-            container.registerFactory(nodeA).scoped();
-            container.registerFactory(nodeB).transient();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
+            container.registerFactory({ ...nodeB, type: LIFESPAN.TRANSIENT });
 
             await expect(container.init()).rejects.toThrowError(
                 InvalidEdgeRelationshipDiError,
@@ -1953,7 +1954,7 @@ describe("graph validation", () => {
                 .factory(() => "A")
                 .reuseToken(tokenA);
 
-            container.registerFactory(nodeA).transient();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.TRANSIENT });
             container.registerDynamic(tokenB);
 
             await expect(container.init()).rejects.toThrowError(
@@ -1979,8 +1980,8 @@ describe("graph validation", () => {
                 .factory(() => "B")
                 .reuseToken(tokenB);
 
-            container.registerFactory(nodeA).singleton();
-            container.registerFactory(nodeB).singleton();
+            container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
+            container.registerFactory({ ...nodeB, type: LIFESPAN.SINGLETON });
 
             await expect(container.init()).rejects.toThrowError(
                 CycleDependencyDiError,
@@ -1989,13 +1990,12 @@ describe("graph validation", () => {
 
         test("should throw when a singleton cycle A->A is detected", async () => {
             const tokenA = genericToken("A");
-            container
-                .registerFactory({
-                    deps: [tokenA],
-                    factory: () => "_",
-                    token: tokenA,
-                })
-                .singleton();
+            container.registerFactory({
+                deps: [tokenA],
+                factory: () => "_",
+                token: tokenA,
+                type: LIFESPAN.SINGLETON,
+            });
 
             await expect(container.init()).rejects.toThrowError(
                 CycleDependencyDiError,
@@ -2023,7 +2023,7 @@ describe("override", () => {
             .factory(() => `OverriddenA`)
             .reuseToken(nodeA.token);
 
-        container.registerFactory(nodeA).singleton();
+        container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
 
         container.overrideFactory(nodeAOverridden);
 
@@ -2061,9 +2061,13 @@ describe("override", () => {
             .factory(() => "1")
             .createToken("C");
 
-        container.registerFactory(nodeB).singleton();
-        container.registerFactory(nodeC).singleton();
-        container.registerClass({ deps: [nodeB.token], impl: A }).singleton();
+        container.registerFactory({ ...nodeB, type: LIFESPAN.SINGLETON });
+        container.registerFactory({ ...nodeC, type: LIFESPAN.SINGLETON });
+        container.registerClass({
+            deps: [nodeB.token],
+            impl: A,
+            type: LIFESPAN.SINGLETON,
+        });
 
         container.overrideClass({ deps: [nodeC.token], impl: A });
 
@@ -2112,7 +2116,7 @@ describe("override", () => {
             .factory(() => `Node A override second time`)
             .reuseToken(nodeA.token);
 
-        container.registerFactory(nodeA).singleton();
+        container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
 
         container.overrideFactory(nodeAOverride1);
 
@@ -2134,9 +2138,9 @@ describe("override", () => {
             .factory(() => `OverriddenA`)
             .reuseToken(nodeA.token);
 
-        container.registerFactory(nodeA).singleton();
+        container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
 
-        container.registerFactory(nodeB).singleton();
+        container.registerFactory({ ...nodeB, type: LIFESPAN.SINGLETON });
         container.overrideFactory(nodeAOverridden);
 
         await container.init();
@@ -2164,8 +2168,8 @@ describe("override", () => {
             .factory((a) => wrapInParenthesis("OverriddenB", a))
             .reuseToken(nodeB.token);
 
-        container.registerFactory(nodeA).singleton();
-        container.registerFactory(nodeB).singleton();
+        container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
+        container.registerFactory({ ...nodeB, type: LIFESPAN.SINGLETON });
         container.overrideFactory(nodeBOverridden);
 
         await container.init();
@@ -2197,10 +2201,10 @@ describe("override", () => {
             .factory(() => `OverriddenA`)
             .reuseToken(nodeA.token);
 
-        container.registerFactory(nodeA).singleton();
+        container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
 
-        container.registerFactory(nodeB).singleton();
-        container.registerFactory(nodeC).singleton();
+        container.registerFactory({ ...nodeB, type: LIFESPAN.SINGLETON });
+        container.registerFactory({ ...nodeC, type: LIFESPAN.SINGLETON });
         container.overrideFactory(nodeAOverridden);
 
         await container.init();
@@ -2235,9 +2239,9 @@ describe("override", () => {
             .factory((a) => wrapInParenthesis("B", a))
             .reuseToken(nodeB.token);
 
-        container.registerFactory(nodeA).singleton();
-        container.registerFactory(nodeB).singleton();
-        container.registerFactory(nodeC).singleton();
+        container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
+        container.registerFactory({ ...nodeB, type: LIFESPAN.SINGLETON });
+        container.registerFactory({ ...nodeC, type: LIFESPAN.SINGLETON });
         container.overrideFactory(overriddenNodeB);
 
         await container.init();
@@ -2281,9 +2285,9 @@ describe("graph validation & override", () => {
             .factory(() => "")
             .reuseToken(nodeC.token);
 
-        container.registerFactory(nodeA).singleton();
-        container.registerFactory(nodeB).transient();
-        container.registerFactory(nodeC).singleton();
+        container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
+        container.registerFactory({ ...nodeB, type: LIFESPAN.TRANSIENT });
+        container.registerFactory({ ...nodeC, type: LIFESPAN.SINGLETON });
 
         container.overrideFactory(nodeCOverridden);
         await expect(container.init()).rejects.toThrowError(
@@ -2303,8 +2307,8 @@ describe("graph validation & override", () => {
             .factory(() => "")
             .reuseToken(nodeA.token);
 
-        container.registerFactory(nodeA).singleton();
-        container.registerFactory(nodeB).singleton();
+        container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
+        container.registerFactory({ ...nodeB, type: LIFESPAN.SINGLETON });
         container.overrideFactory(nodeAOverridden);
 
         await expect(container.init()).rejects.toThrowError(
@@ -2322,7 +2326,7 @@ describe("graph validation & override", () => {
             .factory(() => "")
             .reuseToken(nodeA.token);
 
-        container.registerFactory(nodeA).singleton();
+        container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
         container.overrideFactory(nodeAOverridden);
         await expect(container.init()).rejects.toThrowError(
             UndeclaredDependenciesDiError,
@@ -2346,7 +2350,7 @@ describe("forked container", () => {
 
         const containerB = containerA.fork();
 
-        containerB.registerFactory(nodeA).transient();
+        containerB.registerFactory({ ...nodeA, type: LIFESPAN.TRANSIENT });
 
         await containerA.init();
         await containerB.init();
@@ -2365,7 +2369,7 @@ describe("forked container", () => {
 
         const containerB = containerA.fork();
 
-        containerA.registerFactory(nodeA).transient();
+        containerA.registerFactory({ ...nodeA, type: LIFESPAN.TRANSIENT });
 
         await containerA.init();
         await containerB.init();
@@ -2388,8 +2392,12 @@ describe("forked container", () => {
 
         const tokenC = genericToken<string>("C");
 
-        containerA.registerClass({ deps: [], impl: NodeA }).singleton();
-        containerA.registerFactory(nodeB).transient();
+        containerA.registerClass({
+            deps: [],
+            impl: NodeA,
+            type: LIFESPAN.SINGLETON,
+        });
+        containerA.registerFactory({ ...nodeB, type: LIFESPAN.TRANSIENT });
         containerA.registerValue({ token: tokenC, value: "C" });
 
         const containerB = containerA.fork();
@@ -2425,7 +2433,7 @@ describe("forked container & override", () => {
             .factory(() => "A overridden first")
             .reuseToken(nodeA.token);
 
-        containerA.registerFactory(nodeA).singleton();
+        containerA.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
         containerA.overrideFactory(nodeAOverride1);
 
         const containerB = containerA.fork();
@@ -2451,7 +2459,7 @@ describe("forked container & override", () => {
             .factory(() => "A overridden second")
             .reuseToken(nodeA.token);
 
-        containerA.registerFactory(nodeA).singleton();
+        containerA.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
         const containerB = containerA.fork();
         containerB.overrideFactory(nodeAOverride);
 
@@ -2472,7 +2480,7 @@ describe("forked container & override", () => {
             .factory(() => "A overridden second")
             .reuseToken(nodeA.token);
 
-        containerA.registerFactory(nodeA).singleton();
+        containerA.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
         const containerB = containerA.fork();
         containerA.overrideFactory(nodeAOverride);
 
@@ -2500,7 +2508,7 @@ describe("forked container & hooks", () => {
             .factory(() => "A")
             .createToken("A");
 
-        containerA.registerFactory(nodeA).singleton();
+        containerA.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
 
         const containerB = containerA.fork();
 
@@ -2520,7 +2528,7 @@ describe("forked container & hooks", () => {
             .factory(() => "A")
             .createToken("A");
 
-        containerA.registerFactory(nodeA).singleton();
+        containerA.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
 
         const containerB = containerA.fork();
 

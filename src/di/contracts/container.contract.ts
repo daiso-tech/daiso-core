@@ -24,6 +24,24 @@ import {
     type Promisable,
 } from "@/utilities/_module.js";
 
+/*
+ * All possible service lifetime scopes.
+ * - `"singleton"`: one instance for the app lifetime.
+ * - `"transient"`: new instance per resolution.
+ * - `"scoped"`: one instance per scope (e.g., request).
+ * - `"dynamic"`: dynamically registered in a child scope.
+ */
+/** Lifespan constants used to define service scope. */
+
+export const LIFESPAN = {
+    SINGLETON: "singleton",
+    TRANSIENT: "transient",
+    SCOPED: "scoped",
+    DYNAMIC: "dynamic",
+} as const;
+
+export type TLifespan = (typeof LIFESPAN)[keyof typeof LIFESPAN];
+
 /**
  * A token that identifies a registered type via a unique symbol.
  * Use {@link genericToken} to create an instance.
@@ -138,6 +156,36 @@ export type FactoryRegistration<
 
     /** The dependency tokens to resolve and inject into the factory. */
     deps: DepsTokens<TDeps>;
+
+    type: Extract<
+        TLifespan,
+        | typeof LIFESPAN.TRANSIENT
+        | typeof LIFESPAN.SCOPED
+        | typeof LIFESPAN.SINGLETON
+    >;
+};
+
+/**
+ * Configuration for overriding  a factory-based service.
+ *
+ * @typeParam TDeps - Tuple of dependency types the factory consumes.
+ * @typeParam TRegisteredType - The type produced by the factory.
+ *
+ * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
+ */
+export type FactoryRegistrationOverride<
+    TDeps extends Array<unknown> = Array<unknown>,
+    TRegisteredType = unknown,
+> = {
+    /** The token used to identify and resolve this service. */
+    token: DiToken<TRegisteredType>;
+
+    /** The factory function that creates the service instance. */
+    factory: ServiceFactory<TDeps, TRegisteredType>;
+
+    /** The dependency tokens to resolve and inject into the factory. */
+    deps: DepsTokens<TDeps>;
 };
 
 /**
@@ -151,6 +199,33 @@ export type FactoryRegistration<
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type ClassRegistration<
+    TDeps extends Array<unknown> = Array<unknown>,
+    TRegisteredType = unknown,
+> = {
+    /** The class constructor to instantiate. */
+    impl: Class<TDeps, TRegisteredType>;
+
+    /** The dependency tokens to resolve and inject into the constructor. */
+    deps: DepsTokens<TDeps>;
+    type: Extract<
+        TLifespan,
+        | typeof LIFESPAN.TRANSIENT
+        | typeof LIFESPAN.SCOPED
+        | typeof LIFESPAN.SINGLETON
+    >;
+};
+
+/**
+ * Configuration for overriding a class-based service.
+ * The container will construct the class, injecting its dependencies.
+ *
+ * @typeParam TDeps - Tuple of constructor dependency types.
+ * @typeParam TRegisteredType - The type of the class instance.
+ *
+ * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
+ */
+export type ClassRegistrationOverride<
     TDeps extends Array<unknown> = Array<unknown>,
     TRegisteredType = unknown,
 > = {
@@ -246,7 +321,7 @@ export type IServiceRegisterBase = {
         TRegisteredType = unknown,
     >(
         settings: FactoryRegistration<TDeps, TRegisteredType>,
-    ): IServiceLifetime;
+    ): void;
 
     /**
      * Registers a class whose instance will be constructed by the container.
@@ -255,7 +330,7 @@ export type IServiceRegisterBase = {
      */
     registerClass<TDeps extends Array<unknown> = [], TRegisteredType = unknown>(
         settings: ClassRegistration<TDeps, TRegisteredType>,
-    ): IServiceLifetime;
+    ): void;
 
     /**
      * Registers a pre-constructed value that is always resolved as a singleton.
@@ -540,14 +615,14 @@ export type IServiceOverrider = {
         TDeps extends Array<unknown> = [],
         TRegisteredType = unknown,
     >(
-        settings: FactoryRegistration<TDeps, TRegisteredType>,
+        settings: FactoryRegistrationOverride<TDeps, TRegisteredType>,
     ): void;
 
     /**
      * Overrides an existing class registration with a new class.
      */
     overrideClass<TDeps extends Array<unknown> = [], TRegisteredType = unknown>(
-        settings: ClassRegistration<TDeps, TRegisteredType>,
+        settings: ClassRegistrationOverride<TDeps, TRegisteredType>,
     ): void;
 
     /**

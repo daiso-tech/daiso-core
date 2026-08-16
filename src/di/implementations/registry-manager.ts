@@ -119,4 +119,8 @@ export class RegistryManager {
         const newLayer = new Registry(oldLayer);
         this.currentScopedRegistry.set(newLayer);
     }
+
+    public clear(): void {
+        this.currentScopedOrBaseRegistry().clear();
+    }
 }

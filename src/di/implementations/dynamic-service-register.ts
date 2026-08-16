@@ -1,10 +1,9 @@
 import {
     type DynamicRegistration,
-    type DynamicValue,
     type IDynamicServiceRegister,
 } from "@/di/contracts/container.contract.js";
 import { MethodCallOutsideOfRunError } from "@/di/contracts/container.errors.js";
-import { type TNode } from "@/di/implementations/utils.js";
+import { type TNode } from "@/di/implementations/common.js";
 import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
 import { callInvokable, isInvokable } from "@/utilities/_module.js";
 

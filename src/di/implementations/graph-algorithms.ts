@@ -1,5 +1,5 @@
-import { type UndeclaredDependencyInfo } from "@/di/implementations/container-errors-extenstion.js";
 import { UnexpectedError } from "@/utilities/errors.js";
+import type { UndeclaredDependencyInfo } from "../contracts/container.errors.js";
 
 /**
  * Kahn's Algorithm for eager initialization.

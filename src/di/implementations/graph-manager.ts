@@ -9,13 +9,20 @@ import {
     type ServiceFactory,
 } from "@/di/contracts/_module-exports.js";
 import {
+    type FactoryRegistrationOverride,
+    type TLifespan,
+    LIFESPAN,
+} from "@/di/contracts/container.contract.js";
+import {
     type NodeProps,
     type EdgeProps,
     type SingletonNodeProps,
     type TransientNodeProps,
     type ScopedNodeProps,
     type DynamicNodeProps,
-} from "@/di/implementations/container.js";
+    type TNode,
+    type TEdge,
+} from "@/di/implementations/common.js";
 import {
     findAllCycles,
     getMissingNodes as getMissingDependencies,
@@ -23,13 +30,7 @@ import {
     visitedNodes,
 } from "@/di/implementations/graph-algorithms.js";
 import { Graph } from "@/di/implementations/graph.js";
-import {
-    type TNode,
-    type TEdge,
-    type TLifespan,
-    LIFESPAN,
-    tokenToString,
-} from "@/di/implementations/utils.js";
+import { tokenToString } from "@/di/implementations/utils.js";
 import { UnexpectedError } from "@/utilities/errors.js";
 
 export type GraphValidationStatus =
@@ -38,7 +39,10 @@ export type GraphValidationStatus =
       }
     | {
           valid: false;
-          error: AggregateError | CycleDependencyDiError;
+          error:
+              | CycleDependencyDiError
+              | InvalidEdgeRelationshipDiError
+              | UndeclaredDependenciesDiError;
       };
 
 export class GraphManager {
@@ -69,6 +73,10 @@ export class GraphManager {
         const graphManagerCopy = new GraphManager({
             graph: graphCopy,
             overrideSet: overrideSetCopy,
+            maxCyclesInError: this.maxCyclesInError,
+            maxInvalidEdgeInError: this.maxInvalidEdgeInError,
+            maxUndeclaredDependenciesInError:
+                this.maxUndeclaredDependenciesInError,
         });
 
         return graphManagerCopy;
@@ -101,6 +109,13 @@ export class GraphManager {
         const invalidEdges = getInvalidEdges({
             edges: this.edges(),
             edgeIsNotValid: ([source, target]) => {
+                if (
+                    !this.hasNodeProperty(source) ||
+                    !this.hasNodeProperty(target)
+                ) {
+                    return false;
+                }
+
                 // dynamic node can not point to any other node
                 if (this.isDynamic(source)) {
                     return true;
@@ -174,17 +189,14 @@ export class GraphManager {
     registerFactory<
         TDeps extends Array<unknown> = [],
         TRegisteredType = unknown,
-    >(
-        settings: FactoryRegistration<TDeps, TRegisteredType>,
-        lifespan: TLifespan,
-    ): void {
+    >(settings: FactoryRegistration<TDeps, TRegisteredType>): void {
         const factory = settings.factory as ServiceFactory;
         const deps: Array<[TEdge, EdgeProps]> = [...settings.deps].map(
             (to, argIndex) => [[settings.token, to], { argIndex }],
         );
 
         this.setNodeProperty(settings.token, {
-            lifespan,
+            lifespan: settings.type,
             service: factory,
         });
 
@@ -203,7 +215,7 @@ export class GraphManager {
         TDeps extends Array<unknown> = [],
         TRegisteredType = unknown,
     >(
-        settings: FactoryRegistration<TDeps, TRegisteredType>,
+        settings: FactoryRegistrationOverride<TDeps, TRegisteredType>,
     ): { success: true } | { success: false; error: CanNotOverrideService } {
         const nodeDoNotExist = !this.hasNodeProperty(settings.token);
         const nodeAlreadyOverridden = this.overrideSet.has(settings.token);
@@ -230,8 +242,6 @@ export class GraphManager {
             };
         }
 
-        this.overrideSet.add(settings.token);
-
         const factory = settings.factory as ServiceFactory;
 
         this.graph.setNodeProperty(settings.token, {
@@ -239,11 +249,13 @@ export class GraphManager {
             service: factory,
         });
 
+        this.overrideSet.add(settings.token);
+
         const edgesToBeDeleted = this.getSuccessorEdgesOf(settings.token);
 
         // remove old edges
         edgesToBeDeleted.forEach((edge) => {
-            this.graph.removeEdgeProperty(edge);
+            this.graph.removeEdge(edge);
         });
 
         const newEdgesToBeAdded: Array<[TEdge, EdgeProps]> = [

@@ -1,8 +1,5 @@
-import {
-    type TNode,
-    type TEdge,
-    tokenToString,
-} from "@/di/implementations/utils.js";
+import { type TNode, type TEdge } from "@/di/implementations/common.js";
+import { tokenToString } from "@/di/implementations/utils.js";
 import { UnexpectedError } from "@/utilities/_module.js";
 
 const edgeToString = (edge: TEdge): string =>
@@ -17,8 +14,8 @@ export class Graph<TNodeProp = unknown, TEdgeProp = unknown> {
     private reversedEdges = new Map<TNode, Set<TNode>>();
 
     constructor(args?: {
-        nodeProps?: Array<[TNode, TNodeProp]>;
-        edgeProps?: Array<[TEdge, TEdgeProp]>;
+        nodeProps?: Array<[TNode, TNodeProp | null]>;
+        edgeProps?: Array<[TEdge, TEdgeProp | null]>;
     }) {
         const nodeProps = args?.nodeProps;
         const edgeProps = args?.edgeProps;
@@ -27,7 +24,11 @@ export class Graph<TNodeProp = unknown, TEdgeProp = unknown> {
             this.throwIfDuplicateNodesFound(nodeProps);
 
             for (const [node, property] of nodeProps) {
-                this.setNodeProperty(node, property);
+                if (property === null) {
+                    this.addNode(node);
+                } else {
+                    this.setNodeProperty(node, property);
+                }
             }
         }
 
@@ -35,7 +36,11 @@ export class Graph<TNodeProp = unknown, TEdgeProp = unknown> {
             this.throwIfDuplicateEdgeFound(edgeProps);
 
             for (const [edge, property] of edgeProps) {
-                this.setEdgeProperty(edge, property);
+                if (property === null) {
+                    this.addEdge(edge);
+                } else {
+                    this.setEdgeProperty(edge, property);
+                }
             }
         }
     }
@@ -47,23 +52,25 @@ export class Graph<TNodeProp = unknown, TEdgeProp = unknown> {
     public copy(): Graph<TNodeProp, TEdgeProp> {
         const nodeProps = this.nodes().map(
             (node) =>
-                [node, this.getNodePropertyOrThrow(node)] satisfies [
+                [node, this.getNodeProperty(node)] satisfies [
                     TNode,
-                    TNodeProp,
+                    TNodeProp | null,
                 ],
         );
         const edgeProps = this.edges().map(
             (edge) =>
-                [edge, this.getEdgePropertyOrThrow(edge)] satisfies [
+                [edge, this.getEdgeProperty(edge)] satisfies [
                     TEdge,
-                    TEdgeProp,
+                    TEdgeProp | null,
                 ],
         );
 
         return new Graph({ edgeProps, nodeProps });
     }
 
-    private throwIfDuplicateNodesFound(props: Array<[TNode, TNodeProp]>) {
+    private throwIfDuplicateNodesFound(
+        props: Array<[TNode, TNodeProp | null]>,
+    ) {
         const nodeSet = new Set<TNode>();
         const duplicates: Array<TNode> = [];
 
@@ -84,7 +91,7 @@ export class Graph<TNodeProp = unknown, TEdgeProp = unknown> {
         }
     }
 
-    private throwIfDuplicateEdgeFound(props: Array<[TEdge, TEdgeProp]>) {
+    private throwIfDuplicateEdgeFound(props: Array<[TEdge, TEdgeProp | null]>) {
         const edgesMap = new Map<TNode, Set<TNode>>();
         const duplicates: Array<TEdge> = [];
 
@@ -190,31 +197,31 @@ export class Graph<TNodeProp = unknown, TEdgeProp = unknown> {
         this.reversedEdges.set(targetNode, inNeighbor);
     }
 
-    // addEdge(edge: TEdge): void {
-    //     const [sourceNode, targetNode] = edge;
+    addEdge(edge: TEdge): void {
+        const [sourceNode, targetNode] = edge;
 
-    //     const neighbor =
-    //         this.edgeProps.get(sourceNode) ?? new Map<TNode, TEdgeProp>();
+        const neighbor =
+            this.edgeProps.get(sourceNode) ?? new Map<TNode, TEdgeProp>();
 
-    //     const inNeighbor =
-    //         this.reversedEdges.get(targetNode) ?? new Set<TNode>();
+        const inNeighbor =
+            this.reversedEdges.get(targetNode) ?? new Set<TNode>();
 
-    //     if (!neighbor.has(targetNode)) {
-    //         neighbor.set(targetNode, null);
-    //     }
-    //     this.edgeProps.set(sourceNode, neighbor);
+        if (!neighbor.has(targetNode)) {
+            neighbor.set(targetNode, null);
+        }
+        this.edgeProps.set(sourceNode, neighbor);
 
-    //     if (!inNeighbor.has(sourceNode)) {
-    //         inNeighbor.add(sourceNode);
-    //     }
+        if (!inNeighbor.has(sourceNode)) {
+            inNeighbor.add(sourceNode);
+        }
 
-    //     this.reversedEdges.set(targetNode, inNeighbor);
+        this.reversedEdges.set(targetNode, inNeighbor);
 
-    //     this.addNode(sourceNode);
-    //     this.addNode(targetNode);
-    // }
+        this.addNode(sourceNode);
+        this.addNode(targetNode);
+    }
 
-    removeEdgeProperty(edge: TEdge): void {
+    removeEdge(edge: TEdge): void {
         const [sourceNode, targetNode] = edge;
         this.edgeProps.get(sourceNode)?.delete(targetNode);
         this.reversedEdges.get(targetNode)?.delete(sourceNode);
@@ -228,7 +235,7 @@ export class Graph<TNodeProp = unknown, TEdgeProp = unknown> {
         }
     }
 
-    removeNodeProperty(node: TNode): void {
+    removeNode(node: TNode): void {
         this.nodeProps.delete(node);
         this.edgeProps.delete(node);
         this.reversedEdges.delete(node);

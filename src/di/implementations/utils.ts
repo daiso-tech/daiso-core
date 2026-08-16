@@ -17,26 +17,6 @@ export function tokenToString(token: DiToken): string {
     return token.id.toString();
 }
 
-/**
- * All possible service lifetime scopes.
- * - `"singleton"`: one instance for the app lifetime.
- * - `"transient"`: new instance per resolution.
- * - `"scoped"`: one instance per scope (e.g., request).
- * - `"dynamic"`: dynamically registered in a child scope.
- */
-/** Lifespan constants used to define service scope. */
-
-export const LIFESPAN = {
-    SINGLETON: "singleton",
-    TRANSIENT: "transient",
-    SCOPED: "scoped",
-    DYNAMIC: "dynamic",
-} as const;
-
-export type TLifespan = (typeof LIFESPAN)[keyof typeof LIFESPAN];
-export type TEdge = [DiToken, DiToken];
-export type TNode = DiToken;
-
 type CachedFunc<T, T2> = (cacheArgs: {
     nodeId: T;
     func: () => Promise<T2>;

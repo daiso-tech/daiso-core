@@ -1,15 +1,16 @@
 import {
     genericToken,
+    LIFESPAN,
     ServiceExistsDiError,
     type ClassRegistration,
+    type ClassRegistrationOverride,
     type DiHook,
     type DiToken,
     type FactoryRegistration,
+    type FactoryRegistrationOverride,
     type IContainer,
     type IDynamicServiceRegister,
-    type IServiceLifetime,
     type RunSettings,
-    type ServiceFactory,
     type ServiceProvider,
     type ValueRegistration,
 } from "@/di/contracts/_module.js";
@@ -21,6 +22,7 @@ import {
     MethodCallInsideOfRunError,
     ServiceCanNotBeResolvedError,
 } from "@/di/contracts/container.errors.js";
+import { type TNode } from "@/di/implementations/common.js";
 import { DynamicServiceRegister } from "@/di/implementations/dynamic-service-register.js";
 import { eagerInitialization } from "@/di/implementations/graph-algorithms.js";
 import { GraphManager } from "@/di/implementations/graph-manager.js";
@@ -28,12 +30,9 @@ import {
     REGISTER_ELEMENT_TYPE,
     RegistryManager,
 } from "@/di/implementations/registry-manager.js";
-import { ServiceLifetimeSetter } from "@/di/implementations/service-lifetime.js";
 import {
     createFunctionCache,
     tokenToString,
-    type LIFESPAN,
-    type TNode,
 } from "@/di/implementations/utils.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { callInvokable, UnexpectedError } from "@/utilities/_module.js";
@@ -52,7 +51,6 @@ export type ContainerSettings = {
  * @group Implementations
  */
 
-// TODO improve description of states
 const BEFORE_ACTIVE_STATE = Symbol("container.init not called yet");
 const IN_ACTIVE_STATE = Symbol(
     "container.init called but deInit not called yet",
@@ -64,73 +62,12 @@ type TState =
     | typeof IN_ACTIVE_STATE
     | typeof AFTER_ACTIVE_STATE;
 
-// TODO NodeProps EdgeProps in folder named common since shared between multiple classes?
-export type DynamicNodeProps = {
-    lifespan: typeof LIFESPAN.DYNAMIC;
-};
-
-export type ScopedNodeProps = {
-    lifespan: typeof LIFESPAN.SCOPED;
-    service: ServiceFactory;
-};
-
-export type TransientNodeProps = {
-    lifespan: typeof LIFESPAN.TRANSIENT;
-    service: ServiceFactory;
-};
-
-export type SingletonNodeProps = {
-    lifespan: typeof LIFESPAN.SINGLETON;
-    service: ServiceFactory;
-};
-
-export type NodeProps =
-    | DynamicNodeProps
-    | ScopedNodeProps
-    | TransientNodeProps
-    | SingletonNodeProps;
-
-export type EdgeProps = {
-    argIndex: number;
-};
-
 /**
  * TODO remove this error
  * Thrown when one or more registered services are missing a lifetime
  * configuration when the container is initialized.
  *
  * @group Errors
- */
-export class NodesMissingLifetimePropertyError extends UnexpectedError {
-    /**
-     * The tokens that are missing a lifetime property.
-     */
-    public readonly nodes: ReadonlySet<DiToken>;
-
-    private constructor(nodes: Set<DiToken>) {
-        const nodeList = [...nodes].map(tokenToString).join(", ");
-        super(
-            `Missing lifetime property for nodes: "${nodeList}". Each registered service must have a lifetime (singleton, scoped, or transient) configured before init.`,
-        );
-        this.name = NodesMissingLifetimePropertyError.name;
-        this.nodes = nodes;
-    }
-
-    /**
-     * Creates a new {@link NodesMissingLifetimePropertyError} error.
-     *
-     * @param nodes - The tokens missing a lifetime property.
-     * @returns A new error instance.
-     */
-    static create(nodes: Set<DiToken>): NodesMissingLifetimePropertyError {
-        return new NodesMissingLifetimePropertyError(nodes);
-    }
-}
-
-/**
- * TODO make methods that require active container (throwIfContainerNotActive is called at top)
- * to throw unexpected error instead of MethodCallInsideRunError (remove call to throwIfInsideRun) since
- * ContainerNotActiveException will always be thrown first.
  */
 
 export class Container implements IContainer {
@@ -143,7 +80,6 @@ export class Container implements IContainer {
             "Boolean indicator if container is inside DynamicServiceProvider",
         );
     private graphManager: GraphManager;
-    private nodesMissingLifetimeProperty = new Set<DiToken>();
     private initHandlers: Array<DiHook> = [];
     private deInitHandlers: Array<DiHook> = [];
     private registryManager: RegistryManager;
@@ -164,14 +100,6 @@ export class Container implements IContainer {
     private throwIfContainerAlreadyInitialized(methodName: string) {
         if (this.currentState !== BEFORE_ACTIVE_STATE) {
             throw new ContainerAlreadyInitializedException(methodName);
-        }
-    }
-
-    private throwIfAnyNodeMissLifetimeProp() {
-        if (this.nodesMissingLifetimeProperty.size !== 0) {
-            throw NodesMissingLifetimePropertyError.create(
-                this.nodesMissingLifetimeProperty,
-            );
         }
     }
 
@@ -407,7 +335,6 @@ export class Container implements IContainer {
     async init(): Promise<void> {
         this.throwIfContainerAlreadyInitialized(this.init.name);
         this.throwIfInsideRunScope(this.init.name);
-        this.throwIfAnyNodeMissLifetimeProp();
 
         console.log("validating graphs");
         const status = this.graphManager.validateGraph();
@@ -428,7 +355,6 @@ export class Container implements IContainer {
         }
     }
 
-    // TODO check if need clean up for registry or graph or other things
     async deInit(): Promise<void> {
         this.throwIfContainerNotActive(this.deInit.name);
         this.throwIfInsideRunScope(this.deInit.name);
@@ -439,10 +365,10 @@ export class Container implements IContainer {
             });
             await Promise.all(handlers);
         }
+        this.registryManager.clear();
         this.currentState = AFTER_ACTIVE_STATE;
     }
 
-    // TODO make possible  for adding/compounding multiple hooks ?
     onContainerInit(handler: DiHook): void {
         this.throwIfContainerAlreadyInitialized(this.onContainerInit.name);
         this.throwIfInsideRunScope(this.onContainerInit.name);
@@ -450,7 +376,6 @@ export class Container implements IContainer {
         this.initHandlers.push(handler);
     }
 
-    // TODO make possible for adding/compounding multiple hooks ?
     onContainerDeInit(handler: DiHook): void {
         this.throwIfContainerAlreadyInitialized(this.onContainerDeInit.name);
         this.throwIfInsideRunScope(this.onContainerDeInit.name);
@@ -496,32 +421,25 @@ export class Container implements IContainer {
     registerFactory<
         TDeps extends Array<unknown> = [],
         TRegisteredType = unknown,
-    >(settings: FactoryRegistration<TDeps, TRegisteredType>): IServiceLifetime {
+    >(settings: FactoryRegistration<TDeps, TRegisteredType>): void {
         this.throwIfContainerAlreadyInitialized(this.registerFactory.name);
         this.throwIfInsideRunScope(this.registerFactory.name);
         this.throwIfTokenAlreadyRegistered(settings.token);
 
-        this.nodesMissingLifetimeProperty.add(settings.token);
-
-        return new ServiceLifetimeSetter({
-            graphManager: this.graphManager,
-            notifyLifetimeIsSet: () =>
-                this.nodesMissingLifetimeProperty.delete(settings.token),
-            settings,
-            token: settings.token,
-        });
+        this.graphManager.registerFactory(settings);
     }
 
     registerClass<TDeps extends Array<unknown> = [], TRegisteredType = unknown>(
         settings: ClassRegistration<TDeps, TRegisteredType>,
-    ): IServiceLifetime {
+    ): void {
         this.throwIfContainerAlreadyInitialized(this.registerClass.name);
         this.throwIfInsideRunScope(this.registerClass.name);
 
-        return this.registerFactory({
+        this.registerFactory({
             deps: settings.deps,
             token: settings.impl,
             factory: (args) => new settings.impl(...args),
+            type: settings.type,
         });
     }
 
@@ -535,7 +453,8 @@ export class Container implements IContainer {
             deps: [],
             token: settings.token,
             factory: () => settings.value,
-        }).singleton();
+            type: LIFESPAN.SINGLETON,
+        });
     }
 
     registerDynamic(token: DiToken): void {
@@ -711,7 +630,7 @@ export class Container implements IContainer {
     overrideFactory<
         TDeps extends Array<unknown> = [],
         TRegisteredType = unknown,
-    >(settings: FactoryRegistration<TDeps, TRegisteredType>): void {
+    >(settings: FactoryRegistrationOverride<TDeps, TRegisteredType>): void {
         this.throwIfContainerAlreadyInitialized(this.overrideFactory.name);
         this.throwIfInsideRunScope(this.overrideFactory.name);
 
@@ -722,7 +641,7 @@ export class Container implements IContainer {
     }
 
     overrideClass<TDeps extends Array<unknown> = [], TRegisteredType = unknown>(
-        settings: ClassRegistration<TDeps, TRegisteredType>,
+        settings: ClassRegistrationOverride<TDeps, TRegisteredType>,
     ): void {
         this.throwIfContainerAlreadyInitialized(this.overrideClass.name);
         this.throwIfInsideRunScope(this.overrideClass.name);
@@ -747,17 +666,9 @@ export class Container implements IContainer {
         });
     }
 
-    // TODO decide if copying handlers is good idea.
-    // currently it does copy
     fork(): IContainer {
         this.throwIfContainerAlreadyInitialized(this.fork.name);
         this.throwIfInsideRunScope(this.fork.name);
-
-        if (this.nodesMissingLifetimeProperty.size !== 0) {
-            throw NodesMissingLifetimePropertyError.create(
-                this.nodesMissingLifetimeProperty,
-            );
-        }
 
         const copy = new Container(this.settings);
         copy.initHandlers.push(...this.initHandlers);

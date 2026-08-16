@@ -4,6 +4,7 @@ import { describe, test, expect, beforeEach, vi } from "vitest";
 
 import {
     genericToken,
+    LIFESPAN,
     type IServiceRegister,
     type IServiceProvider,
 } from "@/di/contracts/_module.js";
@@ -135,16 +136,17 @@ describe("class: Container", () => {
             container = createContainer();
         });
 
-        test("Should register a factory and return an IServiceLifetime", () => {
-            const lifetime = container.registerFactory({
+        test("Should register a factory with a singleton lifetime type", async () => {
+            container.registerFactory({
                 token: ILOGGER,
                 factory: () => ({ log: () => {} }),
                 deps: [],
+                type: LIFESPAN.SINGLETON,
             });
-            expect(lifetime).toBeDefined();
-            expect(typeof lifetime.singleton).toBe("function");
-            expect(typeof lifetime.scoped).toBe("function");
-            expect(typeof lifetime.transient).toBe("function");
+
+            await container.init();
+            const result = await container.resolveOrFail(ILOGGER);
+            expect(result).toBeDefined();
         });
 
         test("Should register a factory with dependencies", () => {
@@ -154,54 +156,50 @@ describe("class: Container", () => {
                     value: { query: () => Promise.resolve([]) },
                 });
 
-                container
-                    .registerFactory({
-                        token: IUSER_SERVICE,
-                        factory: (db) => ({
-                            getUser: async () => {
-                                await db.query("");
-                                return { name: "Test" };
-                            },
-                        }),
-                        deps: [IDATABASE],
-                    })
-                    .singleton();
+                container.registerFactory({
+                    token: IUSER_SERVICE,
+                    factory: (db) => ({
+                        getUser: async () => {
+                            await db.query("");
+                            return { name: "Test" };
+                        },
+                    }),
+                    deps: [IDATABASE],
+                    type: LIFESPAN.SINGLETON,
+                });
             }).not.toThrow();
         });
 
         test("Should support singleton lifetime", () => {
             expect(() => {
-                container
-                    .registerFactory({
-                        token: ILOGGER,
-                        factory: () => new ConsoleLogger(),
-                        deps: [],
-                    })
-                    .singleton();
+                container.registerFactory({
+                    token: ILOGGER,
+                    factory: () => new ConsoleLogger(),
+                    deps: [],
+                    type: LIFESPAN.SINGLETON,
+                });
             }).not.toThrow();
         });
 
         test("Should support scoped lifetime", () => {
             expect(() => {
-                container
-                    .registerFactory({
-                        token: ILOGGER,
-                        factory: () => new ConsoleLogger(),
-                        deps: [],
-                    })
-                    .scoped();
+                container.registerFactory({
+                    token: ILOGGER,
+                    factory: () => new ConsoleLogger(),
+                    deps: [],
+                    type: LIFESPAN.SCOPED,
+                });
             }).not.toThrow();
         });
 
         test("Should support transient lifetime", () => {
             expect(() => {
-                container
-                    .registerFactory({
-                        token: ILOGGER,
-                        factory: () => new ConsoleLogger(),
-                        deps: [],
-                    })
-                    .transient();
+                container.registerFactory({
+                    token: ILOGGER,
+                    factory: () => new ConsoleLogger(),
+                    deps: [],
+                    type: LIFESPAN.TRANSIENT,
+                });
             }).not.toThrow();
         });
     });
@@ -216,61 +214,57 @@ describe("class: Container", () => {
             container = createContainer();
         });
 
-        test("Should register a class and return an IServiceLifetime", () => {
-            const lifetime = container.registerClass({
+        test("Should register a class with a singleton lifetime type", async () => {
+            container.registerClass({
                 impl: ConsoleLogger,
                 deps: [],
+                type: LIFESPAN.SINGLETON,
             });
-            expect(lifetime).toBeDefined();
-            expect(typeof lifetime.singleton).toBe("function");
-            expect(typeof lifetime.scoped).toBe("function");
-            expect(typeof lifetime.transient).toBe("function");
+
+            await container.init();
+            const result = await container.resolveOrFail(ConsoleLogger);
+            expect(result).toBeDefined();
         });
 
         test("Should register a class with dependencies", () => {
             expect(() => {
-                container
-                    .registerClass({
-                        impl: Database,
-                        deps: [],
-                    })
-                    .singleton();
+                container.registerClass({
+                    impl: Database,
+                    deps: [],
+                    type: LIFESPAN.SINGLETON,
+                });
 
-                container
-                    .registerClass({
-                        impl: UserService,
-                        deps: [Database],
-                    })
-                    .singleton();
+                container.registerClass({
+                    impl: UserService,
+                    deps: [Database],
+                    type: LIFESPAN.SINGLETON,
+                });
             }).not.toThrow();
         });
 
         test("Should register a class with class token (impl serves as token)", () => {
             expect(() => {
-                container
-                    .registerClass({
-                        impl: ConsoleLogger,
-                        deps: [],
-                    })
-                    .singleton();
+                container.registerClass({
+                    impl: ConsoleLogger,
+                    deps: [],
+                    type: LIFESPAN.SINGLETON,
+                });
             }).not.toThrow();
         });
 
         test("Should register a class with class token and dependencies using generic tokens", () => {
             expect(() => {
-                container
-                    .registerClass({
-                        impl: Database,
-                        deps: [],
-                    })
-                    .singleton();
+                container.registerClass({
+                    impl: Database,
+                    deps: [],
+                    type: LIFESPAN.SINGLETON,
+                });
 
-                container
-                    .registerClass({
-                        impl: UserController,
-                        deps: [IUSER_SERVICE, ConsoleLogger],
-                    })
-                    .transient();
+                container.registerClass({
+                    impl: UserController,
+                    deps: [IUSER_SERVICE, ConsoleLogger],
+                    type: LIFESPAN.TRANSIENT,
+                });
             }).not.toThrow();
         });
     });
@@ -344,19 +338,17 @@ describe("class: Container", () => {
 
         test("Should register a contextual binding", () => {
             expect(() => {
-                container
-                    .registerClass({
-                        impl: Database,
-                        deps: [],
-                    })
-                    .singleton();
+                container.registerClass({
+                    impl: Database,
+                    deps: [],
+                    type: LIFESPAN.SINGLETON,
+                });
 
-                container
-                    .registerClass({
-                        impl: MockDatabase,
-                        deps: [],
-                    })
-                    .singleton();
+                container.registerClass({
+                    impl: MockDatabase,
+                    deps: [],
+                    type: LIFESPAN.SINGLETON,
+                });
 
                 container.registerContext({
                     when: UserService,
@@ -368,19 +360,17 @@ describe("class: Container", () => {
 
         test("Should allow different implementations for different consumers", () => {
             expect(() => {
-                container
-                    .registerClass({
-                        impl: Database,
-                        deps: [],
-                    })
-                    .singleton();
+                container.registerClass({
+                    impl: Database,
+                    deps: [],
+                    type: LIFESPAN.SINGLETON,
+                });
 
-                container
-                    .registerClass({
-                        impl: MockDatabase,
-                        deps: [],
-                    })
-                    .singleton();
+                container.registerClass({
+                    impl: MockDatabase,
+                    deps: [],
+                    type: LIFESPAN.SINGLETON,
+                });
 
                 container.registerContext({
                     when: UserService,
@@ -410,12 +400,11 @@ describe("class: Container", () => {
         test("Should register a service provider as a plain function", () => {
             expect(() => {
                 function loggingProvider(register: IServiceRegister): void {
-                    register
-                        .registerClass({
-                            impl: ConsoleLogger,
-                            deps: [],
-                        })
-                        .singleton();
+                    register.registerClass({
+                        impl: ConsoleLogger,
+                        deps: [],
+                        type: LIFESPAN.SINGLETON,
+                    });
                 }
 
                 container.registerProvider(loggingProvider);
@@ -426,12 +415,11 @@ describe("class: Container", () => {
             expect(() => {
                 class DatabaseProvider implements IServiceProvider {
                     invoke(register: IServiceRegister): void {
-                        register
-                            .registerClass({
-                                impl: Database,
-                                deps: [],
-                            })
-                            .singleton();
+                        register.registerClass({
+                            impl: Database,
+                            deps: [],
+                            type: LIFESPAN.SINGLETON,
+                        });
                     }
                 }
 
@@ -442,19 +430,17 @@ describe("class: Container", () => {
         test("Should register multiple services from a single provider", () => {
             expect(() => {
                 function appProvider(register: IServiceRegister): void {
-                    register
-                        .registerClass({
-                            impl: ConsoleLogger,
-                            deps: [],
-                        })
-                        .singleton();
+                    register.registerClass({
+                        impl: ConsoleLogger,
+                        deps: [],
+                        type: LIFESPAN.SINGLETON,
+                    });
 
-                    register
-                        .registerClass({
-                            impl: Database,
-                            deps: [],
-                        })
-                        .singleton();
+                    register.registerClass({
+                        impl: Database,
+                        deps: [],
+                        type: LIFESPAN.SINGLETON,
+                    });
 
                     register.registerValue({
                         token: ICONFIG,
@@ -472,12 +458,11 @@ describe("class: Container", () => {
         test("Should allow provider registrations to be used for resolution", () => {
             expect(() => {
                 function appProvider(register: IServiceRegister): void {
-                    register
-                        .registerClass({
-                            impl: ConsoleLogger,
-                            deps: [],
-                        })
-                        .singleton();
+                    register.registerClass({
+                        impl: ConsoleLogger,
+                        deps: [],
+                        type: LIFESPAN.SINGLETON,
+                    });
                 }
 
                 container.registerProvider(appProvider);
@@ -677,12 +662,11 @@ describe("class: Container", () => {
         });
 
         test("Should share scoped services within the same run() call", async () => {
-            container
-                .registerClass({
-                    impl: ScopedService,
-                    deps: [],
-                })
-                .scoped();
+            container.registerClass({
+                impl: ScopedService,
+                deps: [],
+                type: LIFESPAN.SCOPED,
+            });
             await container.init();
             await container.run({
                 scope: async () => {
@@ -706,13 +690,12 @@ describe("class: Container", () => {
             container = createContainer();
         });
         test("Should override an existing factory registration", async () => {
-            container
-                .registerFactory({
-                    token: ILOGGER,
-                    factory: () => new ConsoleLogger(),
-                    deps: [],
-                })
-                .singleton();
+            container.registerFactory({
+                token: ILOGGER,
+                factory: () => new ConsoleLogger(),
+                deps: [],
+                type: LIFESPAN.SINGLETON,
+            });
 
             expect(() => {
                 container.overrideFactory({
@@ -729,13 +712,12 @@ describe("class: Container", () => {
                 value: { apiUrl: "old", timeout: 1000 },
             });
 
-            container
-                .registerFactory({
-                    token: ILOGGER,
-                    factory: () => new ConsoleLogger(),
-                    deps: [],
-                })
-                .singleton();
+            container.registerFactory({
+                token: ILOGGER,
+                factory: () => new ConsoleLogger(),
+                deps: [],
+                type: LIFESPAN.SINGLETON,
+            });
 
             expect(() => {
                 container.overrideFactory({
@@ -758,12 +740,11 @@ describe("class: Container", () => {
         });
 
         test("Should override an existing class registration", () => {
-            container
-                .registerClass({
-                    impl: ConsoleLogger,
-                    deps: [],
-                })
-                .singleton();
+            container.registerClass({
+                impl: ConsoleLogger,
+                deps: [],
+                type: LIFESPAN.SINGLETON,
+            });
 
             expect(() => {
                 container.overrideClass({
@@ -1047,12 +1028,11 @@ describe("class: Container", () => {
             const container = createContainer();
 
             expect(() => {
-                container
-                    .registerClass({
-                        impl: ConsoleLogger,
-                        deps: [],
-                    })
-                    .singleton();
+                container.registerClass({
+                    impl: ConsoleLogger,
+                    deps: [],
+                    type: LIFESPAN.SINGLETON,
+                });
             }).not.toThrow();
         });
 
@@ -1060,26 +1040,23 @@ describe("class: Container", () => {
             const container = createContainer();
 
             expect(() => {
-                container
-                    .registerClass({
-                        impl: Database,
-                        deps: [],
-                    })
-                    .singleton();
+                container.registerClass({
+                    impl: Database,
+                    deps: [],
+                    type: LIFESPAN.SINGLETON,
+                });
 
-                container
-                    .registerClass({
-                        impl: UserService,
-                        deps: [Database],
-                    })
-                    .singleton();
+                container.registerClass({
+                    impl: UserService,
+                    deps: [Database],
+                    type: LIFESPAN.SINGLETON,
+                });
 
-                container
-                    .registerClass({
-                        impl: UserController,
-                        deps: [UserService, ConsoleLogger],
-                    })
-                    .transient();
+                container.registerClass({
+                    impl: UserController,
+                    deps: [UserService, ConsoleLogger],
+                    type: LIFESPAN.TRANSIENT,
+                });
             }).not.toThrow();
         });
 
@@ -1102,12 +1079,11 @@ describe("class: Container", () => {
         test("Should handle class token resolution with registered class", async () => {
             const container = createContainer();
 
-            container
-                .registerClass({
-                    impl: ConsoleLogger,
-                    deps: [],
-                })
-                .singleton();
+            container.registerClass({
+                impl: ConsoleLogger,
+                deps: [],
+                type: LIFESPAN.SINGLETON,
+            });
 
             await container.init();
             const logger = await container.resolveOrFail(ConsoleLogger);
@@ -1117,16 +1093,15 @@ describe("class: Container", () => {
         test("Should handle factory returning async values", async () => {
             const container = createContainer();
 
-            container
-                .registerFactory({
-                    token: ILOGGER,
-                    factory: async () => {
-                        await Promise.resolve();
-                        return new ConsoleLogger();
-                    },
-                    deps: [],
-                })
-                .singleton();
+            container.registerFactory({
+                token: ILOGGER,
+                factory: async () => {
+                    await Promise.resolve();
+                    return new ConsoleLogger();
+                },
+                deps: [],
+                type: LIFESPAN.SINGLETON,
+            });
 
             await container.init();
             const logger = await container.resolveOrFail(ILOGGER);
@@ -1138,15 +1113,14 @@ describe("class: Container", () => {
             const container = createContainer();
 
             expect(() => {
-                container
-                    .registerFactory({
-                        token: ILOGGER,
-                        factory: (_executionContext: IExecutionContext) => {
-                            return new ConsoleLogger();
-                        },
-                        deps: [],
-                    })
-                    .singleton();
+                container.registerFactory({
+                    token: ILOGGER,
+                    factory: (_executionContext: IExecutionContext) => {
+                        return new ConsoleLogger();
+                    },
+                    deps: [],
+                    type: LIFESPAN.SINGLETON,
+                });
             }).not.toThrow();
         });
 
@@ -1154,13 +1128,12 @@ describe("class: Container", () => {
             const container = createContainer();
 
             expect(() => {
-                container
-                    .registerFactory({
-                        token: ConsoleLogger,
-                        factory: () => new ConsoleLogger(),
-                        deps: [],
-                    })
-                    .singleton();
+                container.registerFactory({
+                    token: ConsoleLogger,
+                    factory: () => new ConsoleLogger(),
+                    deps: [],
+                    type: LIFESPAN.SINGLETON,
+                });
             }).not.toThrow();
         });
     });
@@ -1179,36 +1152,31 @@ describe("class: Container", () => {
             });
 
             // Register database
-            container
-                .registerClass({
-                    impl: Database,
-                    deps: [],
-                })
-                .singleton();
+            container.registerClass({
+                impl: Database,
+                deps: [],
+                type: LIFESPAN.SINGLETON,
+            });
 
             // Register user service (depends on DB)
-            container
-                .registerFactory({
-                    token: IUSER_SERVICE,
-                    factory: ([db]) => ({
-                        getUser: async (id: string) => {
-                            await db.query(
-                                `SELECT * FROM users WHERE id = ${id}`,
-                            );
-                            return { name: "John Doe" };
-                        },
-                    }),
-                    deps: [Database],
-                })
-                .scoped();
+            container.registerFactory({
+                token: IUSER_SERVICE,
+                factory: ([db]) => ({
+                    getUser: async (id: string) => {
+                        await db.query(`SELECT * FROM users WHERE id = ${id}`);
+                        return { name: "John Doe" };
+                    },
+                }),
+                deps: [Database],
+                type: LIFESPAN.SCOPED,
+            });
 
             // Register logger
-            container
-                .registerClass({
-                    impl: ConsoleLogger,
-                    deps: [],
-                })
-                .singleton();
+            container.registerClass({
+                impl: ConsoleLogger,
+                deps: [],
+                type: LIFESPAN.SINGLETON,
+            });
 
             // Register dynamic request ID
             container.registerDynamic(REQUEST_ID);
@@ -1241,19 +1209,17 @@ describe("class: Container", () => {
             const appContainer = createContainer();
 
             // Register real services
-            appContainer
-                .registerClass({
-                    impl: Database,
-                    deps: [],
-                })
-                .singleton();
+            appContainer.registerClass({
+                impl: Database,
+                deps: [],
+                type: LIFESPAN.SINGLETON,
+            });
 
-            appContainer
-                .registerClass({
-                    impl: UserService,
-                    deps: [Database],
-                })
-                .singleton();
+            appContainer.registerClass({
+                impl: UserService,
+                deps: [Database],
+                type: LIFESPAN.SINGLETON,
+            });
 
             // Create test container
             const testContainer = appContainer.fork();
@@ -1279,19 +1245,17 @@ describe("class: Container", () => {
             const container = createContainer();
 
             function appProvider(register: IServiceRegister): void {
-                register
-                    .registerClass({
-                        impl: ConsoleLogger,
-                        deps: [],
-                    })
-                    .singleton();
+                register.registerClass({
+                    impl: ConsoleLogger,
+                    deps: [],
+                    type: LIFESPAN.SINGLETON,
+                });
 
-                register
-                    .registerClass({
-                        impl: Database,
-                        deps: [],
-                    })
-                    .singleton();
+                register.registerClass({
+                    impl: Database,
+                    deps: [],
+                    type: LIFESPAN.SINGLETON,
+                });
 
                 register.registerValue({
                     token: ICONFIG,
