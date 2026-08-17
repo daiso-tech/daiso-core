@@ -1,9 +1,7 @@
 import {
     genericToken,
     LIFESPAN,
-    ServiceExistsDiError,
-    type ClassRegistration,
-    type ClassRegistrationOverride,
+    ServiceAlreadyRegisteredDiError,
     type DiHook,
     type DiToken,
     type FactoryRegistration,
@@ -15,11 +13,8 @@ import {
     type ValueRegistration,
 } from "@/di/contracts/_module.js";
 import {
-    ContainerAlreadyInitializedException,
-    ContainerNotActiveException,
-    ContainerNotTerminatedException,
-    MethodCallInsideOfDynamicRegistrationError,
-    MethodCallInsideOfRunError,
+    InvalidMethodCall,
+    METHOD_CALL_FLAG,
     ServiceCanNotBeResolvedError,
 } from "@/di/contracts/container.errors.js";
 import { type TNode } from "@/di/implementations/common.js";
@@ -99,37 +94,43 @@ export class Container implements IContainer {
 
     private throwIfContainerAlreadyInitialized(methodName: string) {
         if (this.currentState !== BEFORE_ACTIVE_STATE) {
-            throw new ContainerAlreadyInitializedException(methodName);
+            throw InvalidMethodCall.create({
+                methodName,
+                flag: METHOD_CALL_FLAG.ALREADY_INITIALIZED,
+            });
         }
     }
 
     private throwIfContainerNotActive(methodName: string) {
         if (this.currentState !== IN_ACTIVE_STATE) {
-            throw new ContainerNotActiveException(methodName);
-        }
-    }
-
-    private throwIfContainerNotTerminated(methodName: string) {
-        if (this.currentState !== AFTER_ACTIVE_STATE) {
-            throw new ContainerNotTerminatedException(methodName);
+            throw InvalidMethodCall.create({
+                methodName,
+                flag: METHOD_CALL_FLAG.NOT_ACTIVE,
+            });
         }
     }
 
     private throwIfTokenAlreadyRegistered(token: DiToken) {
         if (this.graphManager.hasNodeProperty(token)) {
-            throw ServiceExistsDiError.create(token);
+            throw ServiceAlreadyRegisteredDiError.create(token);
         }
     }
 
     private throwIfInsideRunScope(methodName: string) {
         if (this.isInsideRunScope()) {
-            throw MethodCallInsideOfRunError.create(methodName);
+            throw InvalidMethodCall.create({
+                methodName,
+                flag: METHOD_CALL_FLAG.INSIDE_RUN,
+            });
         }
     }
 
     private throwIfInsideDynamicServiceProvider(methodName: string) {
         if (this.isInsideDynamicServiceProvider()) {
-            throw MethodCallInsideOfDynamicRegistrationError.create(methodName);
+            throw InvalidMethodCall.create({
+                methodName,
+                flag: METHOD_CALL_FLAG.INSIDE_DYNAMIC_REGISTRATION,
+            });
         }
     }
 
@@ -143,6 +144,14 @@ export class Container implements IContainer {
 
     private getRunScopeDepthCounter(): number | null {
         return this.settings.executionContext.get(this.SCOPE_DEPTH_KEY);
+    }
+
+    private transformArrayDepToRecordDep<T>(
+        entries: Array<{ key: string | number; value: T }>,
+    ): Partial<Record<string, T>> {
+        return Object.fromEntries(
+            entries.map(({ key, value }) => [key, value]),
+        );
     }
 
     private increaseOrInitRunScopeDepthCounter(): void {
@@ -195,9 +204,15 @@ export class Container implements IContainer {
             getSuccessors: getSingletonNeighbors,
             getPredecessors: getSingletonPredecessor,
             initNode: async (nodeId) => {
-                const factoryArgs = this.graphManager
+                const factoryArrayArgs = this.graphManager
                     .dependencyOf(nodeId)
-                    .map((dep) => this.registryManager.getAsValueOrThrow(dep));
+                    .map((dep) => ({
+                        key: this.graphManager.getArgKey([nodeId, dep]),
+                        value: this.registryManager.getAsValueOrThrow(dep),
+                    }));
+
+                const factoryArgs =
+                    this.transformArrayDepToRecordDep(factoryArrayArgs);
 
                 const serviceFactory =
                     this.graphManager.getSingletonNodeOrThrow(nodeId).service;
@@ -239,43 +254,57 @@ export class Container implements IContainer {
             getSuccessors: getTransientNeighbors,
             getPredecessors: getTransientPredecessors,
             initNode: (nodeId) => {
-                const factoryArgs: Array<() => Promise<unknown>> =
-                    this.graphManager.dependencyOf(nodeId).map((dep) => {
-                        if (
-                            this.graphManager.isSingleton(dep) ||
-                            this.graphManager.isScoped(dep)
-                        ) {
-                            const getValueLazy = async () =>
-                                Promise.resolve(
-                                    this.registryManager.getAsValueOrThrow(dep),
-                                );
+                const factoryArrayArgs: Array<{
+                    key: string | number;
+                    value: () => Promise<unknown>;
+                }> = this.graphManager.dependencyOf(nodeId).map((dep) => {
+                    if (
+                        this.graphManager.isSingleton(dep) ||
+                        this.graphManager.isScoped(dep)
+                    ) {
+                        const getValueLazy = async () =>
+                            Promise.resolve(
+                                this.registryManager.getAsValueOrThrow(dep),
+                            );
 
-                            const cachedFunction = reuse({
-                                func: getValueLazy,
-                                nodeId: dep,
-                            });
+                        const cachedFunction = reuse({
+                            func: getValueLazy,
+                            nodeId: dep,
+                        });
 
-                            return cachedFunction;
-                        } else if (this.graphManager.isTransient(dep)) {
-                            const valueAsAsyncFunc =
-                                this.registryManager.getAsFunctionOrThrow(dep);
-                            return valueAsAsyncFunc;
-                        }
+                        return {
+                            key: this.graphManager.getArgKey([nodeId, dep]),
+                            value: cachedFunction,
+                        };
+                    } else if (this.graphManager.isTransient(dep)) {
+                        const valueAsAsyncFunc =
+                            this.registryManager.getAsFunctionOrThrow(dep);
+                        return {
+                            key: this.graphManager.getArgKey([nodeId, dep]),
+                            value: valueAsAsyncFunc,
+                        };
+                    }
 
-                        throw new Error();
-                    });
+                    throw new Error();
+                });
 
                 const serviceFactory =
                     this.graphManager.getTransientNodeOrThrow(nodeId).service;
 
                 const zeroArgsServiceFactory = async () => {
                     const resolvedInputs = await Promise.all(
-                        factoryArgs.map((getValueFromReg) => getValueFromReg()),
+                        factoryArrayArgs.map(async (entry) => ({
+                            key: entry.key,
+                            value: await entry.value(),
+                        })),
                     );
+
+                    const resolvedFactoryArgs =
+                        this.transformArrayDepToRecordDep(resolvedInputs);
 
                     const value = await callInvokable(
                         serviceFactory,
-                        resolvedInputs,
+                        resolvedFactoryArgs,
                         this.settings.executionContext,
                     );
 
@@ -310,9 +339,15 @@ export class Container implements IContainer {
             getSuccessors: getScopedNeighbors,
             getPredecessors: getScopedPredecessor,
             initNode: async (nodeId) => {
-                const factoryArgs = this.graphManager
+                const factoryArrayArgs = this.graphManager
                     .dependencyOf(nodeId)
-                    .map((dep) => this.registryManager.getAsValueOrThrow(dep));
+                    .map((dep) => ({
+                        key: this.graphManager.getArgKey([nodeId, dep]),
+                        value: this.registryManager.getAsValueOrThrow(dep),
+                    }));
+
+                const factoryArgs =
+                    this.transformArrayDepToRecordDep(factoryArrayArgs);
 
                 const serviceFactory =
                     this.graphManager.getScopedNodeOrThrow(nodeId).service;
@@ -336,7 +371,6 @@ export class Container implements IContainer {
         this.throwIfContainerAlreadyInitialized(this.init.name);
         this.throwIfInsideRunScope(this.init.name);
 
-        console.log("validating graphs");
         const status = this.graphManager.validateGraph();
         if (!status.valid) {
             throw status.error;
@@ -419,7 +453,8 @@ export class Container implements IContainer {
     }
 
     registerFactory<
-        TDeps extends Array<unknown> = [],
+        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+        TDeps extends Partial<Record<string, unknown>> = {},
         TRegisteredType = unknown,
     >(settings: FactoryRegistration<TDeps, TRegisteredType>): void {
         this.throwIfContainerAlreadyInitialized(this.registerFactory.name);
@@ -429,20 +464,6 @@ export class Container implements IContainer {
         this.graphManager.registerFactory(settings);
     }
 
-    registerClass<TDeps extends Array<unknown> = [], TRegisteredType = unknown>(
-        settings: ClassRegistration<TDeps, TRegisteredType>,
-    ): void {
-        this.throwIfContainerAlreadyInitialized(this.registerClass.name);
-        this.throwIfInsideRunScope(this.registerClass.name);
-
-        this.registerFactory({
-            deps: settings.deps,
-            token: settings.impl,
-            factory: (args) => new settings.impl(...args),
-            type: settings.type,
-        });
-    }
-
     registerValue<TRegisteredType = unknown>(
         settings: ValueRegistration<TRegisteredType>,
     ): void {
@@ -450,7 +471,7 @@ export class Container implements IContainer {
         this.throwIfInsideRunScope(this.registerValue.name);
 
         this.registerFactory({
-            deps: [],
+            deps: {},
             token: settings.token,
             factory: () => settings.value,
             type: LIFESPAN.SINGLETON,
@@ -628,7 +649,8 @@ export class Container implements IContainer {
     }
 
     overrideFactory<
-        TDeps extends Array<unknown> = [],
+        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+        TDeps extends Partial<Record<string, unknown>> = {},
         TRegisteredType = unknown,
     >(settings: FactoryRegistrationOverride<TDeps, TRegisteredType>): void {
         this.throwIfContainerAlreadyInitialized(this.overrideFactory.name);
@@ -640,19 +662,6 @@ export class Container implements IContainer {
         }
     }
 
-    overrideClass<TDeps extends Array<unknown> = [], TRegisteredType = unknown>(
-        settings: ClassRegistrationOverride<TDeps, TRegisteredType>,
-    ): void {
-        this.throwIfContainerAlreadyInitialized(this.overrideClass.name);
-        this.throwIfInsideRunScope(this.overrideClass.name);
-
-        this.overrideFactory({
-            deps: settings.deps,
-            token: settings.impl,
-            factory: (deps) => new settings.impl(...deps),
-        });
-    }
-
     overrideValue<TRegisteredType = unknown>(
         settings: ValueRegistration<TRegisteredType>,
     ): void {
@@ -660,7 +669,7 @@ export class Container implements IContainer {
         this.throwIfInsideRunScope(this.overrideValue.name);
 
         this.overrideFactory({
-            deps: [],
+            deps: {},
             token: settings.token,
             factory: () => settings.value,
         });

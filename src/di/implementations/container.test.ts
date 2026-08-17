@@ -74,13 +74,6 @@ class UserService implements IUserService {
     }
 }
 
-class OrderService {
-    constructor(private readonly db: IDatabase) {}
-    async getOrders(): Promise<unknown> {
-        return this.db.query("SELECT * FROM orders");
-    }
-}
-
 class UserController {
     constructor(
         private readonly userService: IUserService,
@@ -140,7 +133,7 @@ describe("class: Container", () => {
             container.registerFactory({
                 token: ILOGGER,
                 factory: () => ({ log: () => {} }),
-                deps: [],
+                deps: {},
                 type: LIFESPAN.SINGLETON,
             });
 
@@ -158,8 +151,9 @@ describe("class: Container", () => {
 
                 container.registerFactory({
                     token: IUSER_SERVICE,
-                    factory: (db) => ({
+                    factory: (args) => ({
                         getUser: async () => {
+                            const db = args[0];
                             await db.query("");
                             return { name: "Test" };
                         },
@@ -175,7 +169,7 @@ describe("class: Container", () => {
                 container.registerFactory({
                     token: ILOGGER,
                     factory: () => new ConsoleLogger(),
-                    deps: [],
+                    deps: {},
                     type: LIFESPAN.SINGLETON,
                 });
             }).not.toThrow();
@@ -186,7 +180,7 @@ describe("class: Container", () => {
                 container.registerFactory({
                     token: ILOGGER,
                     factory: () => new ConsoleLogger(),
-                    deps: [],
+                    deps: {},
                     type: LIFESPAN.SCOPED,
                 });
             }).not.toThrow();
@@ -197,72 +191,7 @@ describe("class: Container", () => {
                 container.registerFactory({
                     token: ILOGGER,
                     factory: () => new ConsoleLogger(),
-                    deps: [],
-                    type: LIFESPAN.TRANSIENT,
-                });
-            }).not.toThrow();
-        });
-    });
-
-    // -----------------------------------------------------------------------
-    // registerClass
-    // -----------------------------------------------------------------------
-    describe("method: registerClass", () => {
-        let container: Container;
-
-        beforeEach(() => {
-            container = createContainer();
-        });
-
-        test("Should register a class with a singleton lifetime type", async () => {
-            container.registerClass({
-                impl: ConsoleLogger,
-                deps: [],
-                type: LIFESPAN.SINGLETON,
-            });
-
-            await container.init();
-            const result = await container.resolveOrFail(ConsoleLogger);
-            expect(result).toBeDefined();
-        });
-
-        test("Should register a class with dependencies", () => {
-            expect(() => {
-                container.registerClass({
-                    impl: Database,
-                    deps: [],
-                    type: LIFESPAN.SINGLETON,
-                });
-
-                container.registerClass({
-                    impl: UserService,
-                    deps: [Database],
-                    type: LIFESPAN.SINGLETON,
-                });
-            }).not.toThrow();
-        });
-
-        test("Should register a class with class token (impl serves as token)", () => {
-            expect(() => {
-                container.registerClass({
-                    impl: ConsoleLogger,
-                    deps: [],
-                    type: LIFESPAN.SINGLETON,
-                });
-            }).not.toThrow();
-        });
-
-        test("Should register a class with class token and dependencies using generic tokens", () => {
-            expect(() => {
-                container.registerClass({
-                    impl: Database,
-                    deps: [],
-                    type: LIFESPAN.SINGLETON,
-                });
-
-                container.registerClass({
-                    impl: UserController,
-                    deps: [IUSER_SERVICE, ConsoleLogger],
+                    deps: {},
                     type: LIFESPAN.TRANSIENT,
                 });
             }).not.toThrow();
@@ -327,67 +256,6 @@ describe("class: Container", () => {
     });
 
     // -----------------------------------------------------------------------
-    // registerContext
-    // -----------------------------------------------------------------------
-    describe.todo("method: registerContext", () => {
-        let container: Container;
-
-        beforeEach(() => {
-            container = createContainer();
-        });
-
-        test("Should register a contextual binding", () => {
-            expect(() => {
-                container.registerClass({
-                    impl: Database,
-                    deps: [],
-                    type: LIFESPAN.SINGLETON,
-                });
-
-                container.registerClass({
-                    impl: MockDatabase,
-                    deps: [],
-                    type: LIFESPAN.SINGLETON,
-                });
-
-                container.registerContext({
-                    when: UserService,
-                    needs: IDATABASE,
-                    give: Database,
-                });
-            }).not.toThrow();
-        });
-
-        test("Should allow different implementations for different consumers", () => {
-            expect(() => {
-                container.registerClass({
-                    impl: Database,
-                    deps: [],
-                    type: LIFESPAN.SINGLETON,
-                });
-
-                container.registerClass({
-                    impl: MockDatabase,
-                    deps: [],
-                    type: LIFESPAN.SINGLETON,
-                });
-
-                container.registerContext({
-                    when: UserService,
-                    needs: IDATABASE,
-                    give: Database,
-                });
-
-                container.registerContext({
-                    when: OrderService,
-                    needs: IDATABASE,
-                    give: MockDatabase,
-                });
-            }).not.toThrow();
-        });
-    });
-
-    // -----------------------------------------------------------------------
     // registerProvider
     // -----------------------------------------------------------------------
     describe("method: registerProvider", () => {
@@ -400,9 +268,10 @@ describe("class: Container", () => {
         test("Should register a service provider as a plain function", () => {
             expect(() => {
                 function loggingProvider(register: IServiceRegister): void {
-                    register.registerClass({
-                        impl: ConsoleLogger,
-                        deps: [],
+                    register.registerFactory({
+                        token: ConsoleLogger,
+                        factory: () => new ConsoleLogger(),
+                        deps: {},
                         type: LIFESPAN.SINGLETON,
                     });
                 }
@@ -415,9 +284,10 @@ describe("class: Container", () => {
             expect(() => {
                 class DatabaseProvider implements IServiceProvider {
                     invoke(register: IServiceRegister): void {
-                        register.registerClass({
-                            impl: Database,
-                            deps: [],
+                        register.registerFactory({
+                            token: Database,
+                            factory: () => new Database(),
+                            deps: {},
                             type: LIFESPAN.SINGLETON,
                         });
                     }
@@ -430,15 +300,17 @@ describe("class: Container", () => {
         test("Should register multiple services from a single provider", () => {
             expect(() => {
                 function appProvider(register: IServiceRegister): void {
-                    register.registerClass({
-                        impl: ConsoleLogger,
-                        deps: [],
+                    register.registerFactory({
+                        token: ConsoleLogger,
+                        factory: () => new ConsoleLogger(),
+                        deps: {},
                         type: LIFESPAN.SINGLETON,
                     });
 
-                    register.registerClass({
-                        impl: Database,
-                        deps: [],
+                    register.registerFactory({
+                        token: Database,
+                        factory: () => new Database(),
+                        deps: {},
                         type: LIFESPAN.SINGLETON,
                     });
 
@@ -458,9 +330,10 @@ describe("class: Container", () => {
         test("Should allow provider registrations to be used for resolution", () => {
             expect(() => {
                 function appProvider(register: IServiceRegister): void {
-                    register.registerClass({
-                        impl: ConsoleLogger,
-                        deps: [],
+                    register.registerFactory({
+                        token: ConsoleLogger,
+                        factory: () => new ConsoleLogger(),
+                        deps: {},
                         type: LIFESPAN.SINGLETON,
                     });
                 }
@@ -662,9 +535,10 @@ describe("class: Container", () => {
         });
 
         test("Should share scoped services within the same run() call", async () => {
-            container.registerClass({
-                impl: ScopedService,
-                deps: [],
+            container.registerFactory({
+                token: ScopedService,
+                factory: () => new ScopedService(),
+                deps: {},
                 type: LIFESPAN.SCOPED,
             });
             await container.init();
@@ -689,11 +563,11 @@ describe("class: Container", () => {
         beforeEach(() => {
             container = createContainer();
         });
-        test("Should override an existing factory registration", async () => {
+        test("Should override an existing factory registration", () => {
             container.registerFactory({
                 token: ILOGGER,
                 factory: () => new ConsoleLogger(),
-                deps: [],
+                deps: {},
                 type: LIFESPAN.SINGLETON,
             });
 
@@ -701,7 +575,7 @@ describe("class: Container", () => {
                 container.overrideFactory({
                     token: ILOGGER,
                     factory: () => new FileLogger(),
-                    deps: [],
+                    deps: {},
                 });
             }).not.toThrow();
         });
@@ -715,7 +589,7 @@ describe("class: Container", () => {
             container.registerFactory({
                 token: ILOGGER,
                 factory: () => new ConsoleLogger(),
-                deps: [],
+                deps: {},
                 type: LIFESPAN.SINGLETON,
             });
 
@@ -724,32 +598,6 @@ describe("class: Container", () => {
                     token: ILOGGER,
                     factory: (_config) => new ConsoleLogger(),
                     deps: [ICONFIG],
-                });
-            }).not.toThrow();
-        });
-    });
-
-    // -----------------------------------------------------------------------
-    // overrideClass
-    // -----------------------------------------------------------------------
-    describe("method: overrideClass", () => {
-        let container: Container;
-
-        beforeEach(() => {
-            container = createContainer();
-        });
-
-        test("Should override an existing class registration", () => {
-            container.registerClass({
-                impl: ConsoleLogger,
-                deps: [],
-                type: LIFESPAN.SINGLETON,
-            });
-
-            expect(() => {
-                container.overrideClass({
-                    impl: FileLogger,
-                    deps: [],
                 });
             }).not.toThrow();
         });
@@ -1028,9 +876,10 @@ describe("class: Container", () => {
             const container = createContainer();
 
             expect(() => {
-                container.registerClass({
-                    impl: ConsoleLogger,
-                    deps: [],
+                container.registerFactory({
+                    token: ConsoleLogger,
+                    factory: () => new ConsoleLogger(),
+                    deps: {},
                     type: LIFESPAN.SINGLETON,
                 });
             }).not.toThrow();
@@ -1040,20 +889,23 @@ describe("class: Container", () => {
             const container = createContainer();
 
             expect(() => {
-                container.registerClass({
-                    impl: Database,
-                    deps: [],
+                container.registerFactory({
+                    token: Database,
+                    factory: () => new Database(),
+                    deps: {},
                     type: LIFESPAN.SINGLETON,
                 });
 
-                container.registerClass({
-                    impl: UserService,
+                container.registerFactory({
+                    token: UserService,
+                    factory: (args) => new UserService(args[0]),
                     deps: [Database],
                     type: LIFESPAN.SINGLETON,
                 });
 
-                container.registerClass({
-                    impl: UserController,
+                container.registerFactory({
+                    token: UserController,
+                    factory: (args) => new UserController(args[0], args[1]),
                     deps: [UserService, ConsoleLogger],
                     type: LIFESPAN.TRANSIENT,
                 });
@@ -1076,20 +928,6 @@ describe("class: Container", () => {
             expect(b).toBe("value-b");
         });
 
-        test("Should handle class token resolution with registered class", async () => {
-            const container = createContainer();
-
-            container.registerClass({
-                impl: ConsoleLogger,
-                deps: [],
-                type: LIFESPAN.SINGLETON,
-            });
-
-            await container.init();
-            const logger = await container.resolveOrFail(ConsoleLogger);
-            expect(logger).toBeInstanceOf(ConsoleLogger);
-        });
-
         test("Should handle factory returning async values", async () => {
             const container = createContainer();
 
@@ -1099,7 +937,7 @@ describe("class: Container", () => {
                     await Promise.resolve();
                     return new ConsoleLogger();
                 },
-                deps: [],
+                deps: {},
                 type: LIFESPAN.SINGLETON,
             });
 
@@ -1115,10 +953,10 @@ describe("class: Container", () => {
             expect(() => {
                 container.registerFactory({
                     token: ILOGGER,
-                    factory: (_executionContext: IExecutionContext) => {
+                    factory: () => {
                         return new ConsoleLogger();
                     },
-                    deps: [],
+                    deps: {},
                     type: LIFESPAN.SINGLETON,
                 });
             }).not.toThrow();
@@ -1131,7 +969,7 @@ describe("class: Container", () => {
                 container.registerFactory({
                     token: ConsoleLogger,
                     factory: () => new ConsoleLogger(),
-                    deps: [],
+                    deps: {},
                     type: LIFESPAN.SINGLETON,
                 });
             }).not.toThrow();
@@ -1152,29 +990,31 @@ describe("class: Container", () => {
             });
 
             // Register database
-            container.registerClass({
-                impl: Database,
-                deps: [],
+            container.registerFactory({
+                token: Database,
+                factory: () => new Database(),
+                deps: {},
                 type: LIFESPAN.SINGLETON,
             });
 
             // Register user service (depends on DB)
             container.registerFactory({
                 token: IUSER_SERVICE,
-                factory: ([db]) => ({
+                factory: ({ db }) => ({
                     getUser: async (id: string) => {
                         await db.query(`SELECT * FROM users WHERE id = ${id}`);
                         return { name: "John Doe" };
                     },
                 }),
-                deps: [Database],
+                deps: { db: Database },
                 type: LIFESPAN.SCOPED,
             });
 
             // Register logger
-            container.registerClass({
-                impl: ConsoleLogger,
-                deps: [],
+            container.registerFactory({
+                token: ConsoleLogger,
+                factory: () => new ConsoleLogger(),
+                deps: {},
                 type: LIFESPAN.SINGLETON,
             });
 
@@ -1209,15 +1049,17 @@ describe("class: Container", () => {
             const appContainer = createContainer();
 
             // Register real services
-            appContainer.registerClass({
-                impl: Database,
-                deps: [],
+            appContainer.registerFactory({
+                token: Database,
+                factory: () => new Database(),
+                deps: {},
                 type: LIFESPAN.SINGLETON,
             });
 
-            appContainer.registerClass({
-                impl: UserService,
-                deps: [Database],
+            appContainer.registerFactory({
+                token: UserService,
+                factory: ({ db }) => new UserService(db),
+                deps: { db: Database },
                 type: LIFESPAN.SINGLETON,
             });
 
@@ -1225,12 +1067,14 @@ describe("class: Container", () => {
             const testContainer = appContainer.fork();
 
             // Override only the database with a mock
-            testContainer.overrideClass({
-                impl: MockDatabase,
-                deps: [],
+            testContainer.overrideFactory({
+                token: Database,
+                factory: () => new MockDatabase(),
+                deps: {},
             });
 
             await testContainer.init();
+            await appContainer.init();
 
             // Resolve from test container — should get UserService with MockDatabase
             const userService = await testContainer.resolveOrFail(UserService);
@@ -1245,15 +1089,17 @@ describe("class: Container", () => {
             const container = createContainer();
 
             function appProvider(register: IServiceRegister): void {
-                register.registerClass({
-                    impl: ConsoleLogger,
-                    deps: [],
+                register.registerFactory({
+                    token: ConsoleLogger,
+                    factory: () => new ConsoleLogger(),
+                    deps: {},
                     type: LIFESPAN.SINGLETON,
                 });
 
-                register.registerClass({
-                    impl: Database,
-                    deps: [],
+                register.registerFactory({
+                    token: Database,
+                    factory: () => new Database(),
+                    deps: {},
                     type: LIFESPAN.SINGLETON,
                 });
 

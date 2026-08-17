@@ -1,14 +1,15 @@
 import {
-    CanNotOverrideService,
-    CycleDependencyDiError,
-    InvalidEdgeRelationshipDiError,
-    UndeclaredDependenciesDiError,
+    CAN_NOT_OVERRIDE_CAUSE_FLAG,
+    CanNotOverrideServiceDiError,
+    INVALID_GRAPH_FLAG,
+    InvalidGraph,
     type DiToken,
     type EdgeErrorInfo,
     type FactoryRegistration,
     type ServiceFactory,
 } from "@/di/contracts/_module-exports.js";
 import {
+    type DepsTokens,
     type FactoryRegistrationOverride,
     type TLifespan,
     LIFESPAN,
@@ -39,10 +40,7 @@ export type GraphValidationStatus =
       }
     | {
           valid: false;
-          error:
-              | CycleDependencyDiError
-              | InvalidEdgeRelationshipDiError
-              | UndeclaredDependenciesDiError;
+          error: InvalidGraph;
       };
 
 export class GraphManager {
@@ -96,13 +94,14 @@ export class GraphManager {
         if (missing.length !== 0) {
             return {
                 valid: false,
-                error: UndeclaredDependenciesDiError.create(
-                    missing.slice(
+                error: InvalidGraph.create({
+                    flag: INVALID_GRAPH_FLAG.UNDECLARED_DEPENDENCIES,
+                    undeclaredDependencies: missing.slice(
                         undefined,
                         this.maxUndeclaredDependenciesInError,
                     ),
-                    missing.length,
-                ),
+                    totalNodes: missing.length,
+                }),
             };
         }
 
@@ -161,10 +160,14 @@ export class GraphManager {
             );
             return {
                 valid: false,
-                error: InvalidEdgeRelationshipDiError.create(
-                    errors.slice(undefined, this.maxInvalidEdgeInError),
-                    errors.length,
-                ),
+                error: InvalidGraph.create({
+                    flag: INVALID_GRAPH_FLAG.INVALID_EDGE_RELATIONSHIP,
+                    edgeErrorInfos: errors.slice(
+                        undefined,
+                        this.maxInvalidEdgeInError,
+                    ),
+                    totalDetected: errors.length,
+                }),
             };
         }
 
@@ -176,31 +179,54 @@ export class GraphManager {
         if (cycles.length !== 0) {
             return {
                 valid: false,
-                error: CycleDependencyDiError.create(
-                    cycles.slice(undefined, this.maxCyclesInError),
-                    cycles.length,
-                ),
+                error: InvalidGraph.create({
+                    flag: INVALID_GRAPH_FLAG.CYCLE_DEPENDENCY,
+                    cycles: cycles.slice(undefined, this.maxCyclesInError),
+                    totalDetected: cycles.length,
+                }),
             };
         }
 
         return { valid: true };
     }
 
+    private depsToEdges<
+        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+        TDeps extends Partial<Record<string, unknown>> = {},
+        TRegisteredType = unknown,
+    >(args: { token: DiToken<TRegisteredType>; deps: DepsTokens<TDeps> }) {
+        const keys = Object.keys(args.deps);
+
+        const edges: Array<[TEdge, EdgeProps]> = keys.map((key) => {
+            const diDependencyToken = args.deps[key];
+            if (diDependencyToken === undefined) {
+                throw new Error();
+            }
+
+            return [[args.token, diDependencyToken], { argIndex: key }];
+        });
+
+        return edges;
+    }
+
     registerFactory<
-        TDeps extends Array<unknown> = [],
+        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+        TDeps extends Partial<Record<string, unknown>> = {},
         TRegisteredType = unknown,
     >(settings: FactoryRegistration<TDeps, TRegisteredType>): void {
         const factory = settings.factory as ServiceFactory;
-        const deps: Array<[TEdge, EdgeProps]> = [...settings.deps].map(
-            (to, argIndex) => [[settings.token, to], { argIndex }],
-        );
+        // const deps: Array<[TEdge, EdgeProps]> = [...settings.deps].map(
+        //     (to, argIndex) => [[settings.token, to], { argIndex }],
+        // );
+
+        const edges = this.depsToEdges(settings);
 
         this.setNodeProperty(settings.token, {
             lifespan: settings.type,
             service: factory,
         });
 
-        deps.forEach(([edge, value]) => {
+        edges.forEach(([edge, value]) => {
             this.setEdgeProperty(edge, value);
         });
     }
@@ -212,25 +238,34 @@ export class GraphManager {
     }
 
     overrideFactory<
-        TDeps extends Array<unknown> = [],
+        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+        TDeps extends Partial<Record<string, unknown>> = {},
         TRegisteredType = unknown,
     >(
         settings: FactoryRegistrationOverride<TDeps, TRegisteredType>,
-    ): { success: true } | { success: false; error: CanNotOverrideService } {
+    ):
+        | { success: true }
+        | { success: false; error: CanNotOverrideServiceDiError } {
         const nodeDoNotExist = !this.hasNodeProperty(settings.token);
         const nodeAlreadyOverridden = this.overrideSet.has(settings.token);
 
         if (nodeDoNotExist) {
             return {
                 success: false,
-                error: CanNotOverrideService.create(settings.token),
+                error: CanNotOverrideServiceDiError.create({
+                    token: settings.token,
+                    flag: CAN_NOT_OVERRIDE_CAUSE_FLAG.TOKEN_NOT_REGISTERED,
+                }),
             };
         }
 
         if (nodeAlreadyOverridden) {
             return {
                 success: false,
-                error: CanNotOverrideService.create(settings.token),
+                error: CanNotOverrideServiceDiError.create({
+                    token: settings.token,
+                    flag: CAN_NOT_OVERRIDE_CAUSE_FLAG.ALREADY_OVERRIDDEN,
+                }),
             };
         }
         const nodeProps = this.getNodePropertyOrThrow(settings.token);
@@ -238,7 +273,10 @@ export class GraphManager {
         if (nodeProps.lifespan === LIFESPAN.DYNAMIC) {
             return {
                 success: false,
-                error: CanNotOverrideService.create(settings.token),
+                error: CanNotOverrideServiceDiError.create({
+                    token: settings.token,
+                    flag: CAN_NOT_OVERRIDE_CAUSE_FLAG.DYNAMIC_TOKEN,
+                }),
             };
         }
 
@@ -258,9 +296,11 @@ export class GraphManager {
             this.graph.removeEdge(edge);
         });
 
-        const newEdgesToBeAdded: Array<[TEdge, EdgeProps]> = [
-            ...settings.deps,
-        ].map((to, argIndex) => [[settings.token, to], { argIndex }]);
+        // const newEdgesToBeAdded: Array<[TEdge, EdgeProps]> = [
+        //     ...settings.deps,
+        // ].map((to, argIndex) => [[settings.token, to], { argIndex }]);
+
+        const newEdgesToBeAdded = this.depsToEdges(settings);
 
         // new edges added
         newEdgesToBeAdded.forEach(([edge, value]) => {
@@ -282,18 +322,31 @@ export class GraphManager {
         return scopedNodeVisited;
     }
 
+    // dependencyOf(node: TNode): Array<TNode>
     dependencyOf(node: TNode): Array<TNode> {
+        // return this.getSuccessorEdgesOf(node)
+        //     .map((edge) => ({
+        //         edge,
+        //         property: this.getEdgePropertyOrThrow(edge),
+        //     }))
+        //     .sort(
+        //         (itemA, itemB) =>
+        //             itemA.property.argIndex - itemB.property.argIndex,
+        //     )
+        //     .map((item) => item.edge)
+        //     .map(([_, successorNode]) => successorNode);
+
         return this.getSuccessorEdgesOf(node)
             .map((edge) => ({
                 edge,
                 property: this.getEdgePropertyOrThrow(edge),
             }))
-            .sort(
-                (itemA, itemB) =>
-                    itemA.property.argIndex - itemB.property.argIndex,
-            )
             .map((item) => item.edge)
             .map(([_, successorNode]) => successorNode);
+    }
+
+    public getArgKey(edge: TEdge): EdgeProps["argIndex"] {
+        return this.getEdgePropertyOrThrow(edge).argIndex;
     }
 
     public isTransient(node: TNode): boolean {
@@ -369,9 +422,9 @@ export class GraphManager {
         return node.service;
     }
 
-    public getArgIndex(edge: TEdge): number {
-        return this.getEdgePropertyOrThrow(edge).argIndex;
-    }
+    // public getArgIndex(edge: TEdge): number {
+    //     return this.getEdgePropertyOrThrow(edge).argIndex;
+    // }
 
     setNodeProperty(key: TNode, value: NodeProps): void {
         this.graph.setNodeProperty(key, value);

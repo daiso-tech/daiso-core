@@ -15,320 +15,333 @@ function tokenToString(diToken: DiToken): string {
     return diToken.id.toString();
 }
 
+/**
+ * @internal
+ */
+function buildGraphMessage(args: {
+    count: number;
+    shownCount: number;
+    singularNoun: string;
+    pluralNoun: string;
+    items: Array<string>;
+    trailer?: string;
+}): string {
+    const noun = args.count === 1 ? args.singularNoun : args.pluralNoun;
+    const shortenedNote =
+        args.shownCount !== args.count
+            ? ` Only ${args.shownCount.toString()} are shown.`
+            : "";
+    return (
+        `${args.count.toString()} ${noun} detected in the service graph.` +
+        shortenedNote +
+        `\n` +
+        args.items.map((item) => ` - ${item}`).join("\n") +
+        (args.trailer === undefined ? "" : `\n${args.trailer}`)
+    );
+}
+
 export type EdgeErrorInfo = {
     edge: [DiToken, DiToken];
     edgeType: [string, string];
 };
 
-/**
- * Thrown when a lifetime configuration is invalid, such as a
- * - Singleton is dependent on Transient
- * - Singleton is dependent on Scoped
- * - Singleton is dependent on Dynamic
- * - Scoped is dependent on Transient
- * - Dynamic is dependent on Transient
- * - Transient is dependent on Dynamic
- *
- * @group Errors
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
- */
+export const INVALID_GRAPH_FLAG = {
+    INVALID_EDGE_RELATIONSHIP: "invalid_edge_relationship",
+    CYCLE_DEPENDENCY: "cycle_dependency",
+    UNDECLARED_DEPENDENCIES: "undeclared_dependencies",
+} as const;
 
-export class InvalidEdgeRelationshipDiError extends Error {
-    /**
-     * Creates a new {@link InvalidEdgeRelationshipDiError} instance.
-     *
-     * @param token - The DI token with an invalid lifetime configuration.
-     * @returns A new error instance.
-     */
-    static create(
-        edgeErrorInfos: Array<EdgeErrorInfo>,
-        totalDetected?: number,
-    ): InvalidEdgeRelationshipDiError {
-        const totalEdgesDetected = totalDetected ?? edgeErrorInfos.length;
-        const listIsShortened = edgeErrorInfos.length !== totalEdgesDetected;
-
-        const edgeErrorInfoStrings = edgeErrorInfos.map((item) => ({
-            edge: `${tokenToString(item.edge[0])} → ${tokenToString(item.edge[1])}`,
-            edgeType: `${item.edgeType[0]} → ${item.edgeType[1]}`,
-        }));
-
-        const message = listIsShortened
-            ? `${totalEdgesDetected.toString()} invalid edge relationships detected in graph. Only ${edgeErrorInfos.length.toString()} are shown.`
-            : `${totalEdgesDetected.toString()} invalid  edge relationships detected in graph.`;
-
-        const withRulesDescription =
-            message +
-            `\n\x1b[36mThe following edge relationship type count as invalid:\x1b[0m` +
-            `\n` +
-            `\n\x1b[36m \x1b[3m singleton → transient\x1b[0m` +
-            `\n\x1b[36m \x1b[3m singleton → scoped\x1b[0m` +
-            `\n\x1b[36m \x1b[3m singleton → dynamic\x1b[0m` +
-            `\n\x1b[36m \x1b[3m scoped → transient\x1b[0m` +
-            `\n\x1b[36m \x1b[3m transient → dynamic\x1b[0m` +
-            `\n`;
-
-        return new InvalidEdgeRelationshipDiError(
-            withRulesDescription,
-            edgeErrorInfoStrings,
-        );
-    }
-
-    /**
-     * Note: Do not instantiate `InvalidLifetimeDiError` directly via the constructor. Use the static `create()` factory method instead.
-     * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
-     *
-     * @param message - A descriptive error message.
-     * @param cause - The underlying cause of the error, if any.
-     */
-    constructor(message: string, cause?: unknown) {
-        super(message, { cause });
-    }
-}
+export type InvalidGraphFlag =
+    (typeof INVALID_GRAPH_FLAG)[keyof typeof INVALID_GRAPH_FLAG];
 
 /**
- * Thrown when a cycle dependency is detected in the service graph.
- *
- * @group Errors
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
+ * The payload of an {@link InvalidGraph} error. The `flag` discriminates the
+ * graph problem and works as a type guard: narrowing on `info.flag` exposes
+ * the corresponding data field.
  */
-export class CycleDependencyDiError extends Error {
-    /**
-     * Creates a new {@link CycleDependencyDiError} instance.
-     *
-     * @param tokenA - The first token in the dependency cycle.
-     * @param tokenB - The second token in the dependency cycle.
-     * @returns A new error instance.
-     */
-    static create(
-        cycles: Array<Array<DiToken>>,
-        totalDetected?: number,
-    ): CycleDependencyDiError {
-        if (cycles.length === 0) {
-            throw new UnexpectedError(
-                "Tokens should contain at least two tokens.",
-            );
-        }
-
-        const cyclesStrings = cycles
-            .map((cycle) => {
-                const firstToken = cycle.at(0);
-                if (firstToken === undefined) {
-                    throw new UnexpectedError("First token is undefined");
-                }
-                return [...cycle, firstToken]
-                    .map((node) => tokenToString(node))
-                    .join(" → ");
-            })
-            .map((cycle) => ({ cycle }));
-
-        const totalCyclesDetected = totalDetected ?? cycles.length;
-        const listIsShortened = cycles.length !== totalCyclesDetected;
-
-        const message = listIsShortened
-            ? `${totalCyclesDetected.toString()} cycles detected in graph. Only ${cycles.length.toString()} are shown.`
-            : `${totalCyclesDetected.toString()} cycles detected in graph`;
-        return new CycleDependencyDiError(message, cyclesStrings);
-    }
-
-    /**
-     * Note: Do not instantiate `CircularDependencyDiError` directly via the constructor. Use the static `create()` factory method instead.
-     * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
-     *
-     * @param message - A descriptive error message.
-     * @param cause - The underlying cause of the error, if any.
-     */
-    constructor(message: string, cause?: unknown) {
-        super(message, { cause });
-    }
-}
+export type InvalidGraphInfo =
+    | {
+          flag: typeof INVALID_GRAPH_FLAG.INVALID_EDGE_RELATIONSHIP;
+          edgeErrors: Array<{ edge: string; edgeType: string }>;
+      }
+    | {
+          flag: typeof INVALID_GRAPH_FLAG.CYCLE_DEPENDENCY;
+          cycles: Array<{ cycle: string }>;
+      }
+    | {
+          flag: typeof INVALID_GRAPH_FLAG.UNDECLARED_DEPENDENCIES;
+          undeclaredDependencies: Array<{
+              missingDependency: string;
+              dependents: Array<string>;
+          }>;
+      };
 
 export type UndeclaredDependencyInfo<T = DiToken> = {
     missingDependency: T;
     dependents: Array<T>;
 };
+
 /**
- * Thrown when a node dependency or neighbor was referenced during graph traversal
- * but was not declared in the `nodeIds` list.
+ * The settings accepted by {@link InvalidGraph.create}. The `flag` selects the
+ * graph problem and works as a type guard for the remaining arguments.
  */
-export class UndeclaredDependenciesDiError extends Error {
-    constructor(message: string, cause?: unknown) {
+export type InvalidGraphCreateSettings =
+    | {
+          flag: typeof INVALID_GRAPH_FLAG.INVALID_EDGE_RELATIONSHIP;
+          edgeErrorInfos: Array<EdgeErrorInfo>;
+          totalDetected?: number;
+      }
+    | {
+          flag: typeof INVALID_GRAPH_FLAG.CYCLE_DEPENDENCY;
+          cycles: Array<Array<DiToken>>;
+          totalDetected?: number;
+      }
+    | {
+          flag: typeof INVALID_GRAPH_FLAG.UNDECLARED_DEPENDENCIES;
+          undeclaredDependencies: Array<UndeclaredDependencyInfo>;
+          totalNodes?: number;
+      };
+
+/**
+ * Thrown when the service graph is invalid. The `flag` (and matching `info`
+ * field) identifies the specific problem:
+ * - Invalid edge relationship (invalid lifetime configuration).
+ * - Cycle dependency.
+ * - Undeclared dependencies.
+ *
+ * @group Errors
+ * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
+ */
+export class InvalidGraph extends Error {
+    /**
+     * The graph problem details, discriminated by `flag`.
+     */
+    public readonly info: InvalidGraphInfo;
+
+    /**
+     * Creates a new {@link InvalidGraph} instance.
+     *
+     * @param settings - A discriminated union of settings. The `flag` selects
+     * which graph problem occurred and acts as a type guard for the remaining
+     * fields.
+     * @returns A new error instance.
+     */
+    static create(settings: InvalidGraphCreateSettings): InvalidGraph {
+        switch (settings.flag) {
+            case INVALID_GRAPH_FLAG.INVALID_EDGE_RELATIONSHIP: {
+                const { edgeErrorInfos, totalDetected } = settings;
+                const totalEdgesDetected =
+                    totalDetected ?? edgeErrorInfos.length;
+
+                const edgeErrors = edgeErrorInfos.map((item) => ({
+                    edge: `${tokenToString(item.edge[0])} → ${tokenToString(item.edge[1])}`,
+                    edgeType: `${item.edgeType[0]} → ${item.edgeType[1]}`,
+                }));
+
+                const message = buildGraphMessage({
+                    count: totalEdgesDetected,
+                    shownCount: edgeErrorInfos.length,
+                    singularNoun: "invalid edge relationship",
+                    pluralNoun: "invalid edge relationships",
+                    items: edgeErrors.map(
+                        ({ edge, edgeType }) => `${edge} (${edgeType})`,
+                    ),
+                    trailer:
+                        "The following edge relationships are invalid:" +
+                        "\n - singleton → transient" +
+                        "\n - singleton → scoped" +
+                        "\n - singleton → dynamic" +
+                        "\n - scoped → transient" +
+                        "\n - transient → dynamic" +
+                        "\n - dynamic → singleton" +
+                        "\n - dynamic → transient" +
+                        "\n - dynamic → scoped" +
+                        "\n - dynamic → dynamic",
+                });
+
+                return new InvalidGraph(message, {
+                    flag: settings.flag,
+                    edgeErrors,
+                });
+            }
+            case INVALID_GRAPH_FLAG.CYCLE_DEPENDENCY: {
+                const { cycles, totalDetected } = settings;
+                const cyclesStrings = cycles
+                    .map((cycle) => {
+                        const firstToken = cycle.at(0);
+                        if (firstToken === undefined) {
+                            throw new UnexpectedError(
+                                "First token is undefined",
+                            );
+                        }
+                        return [...cycle, firstToken]
+                            .map((node) => tokenToString(node))
+                            .join(" → ");
+                    })
+                    .map((cycle) => ({ cycle }));
+
+                const totalCyclesDetected = totalDetected ?? cycles.length;
+
+                const message = buildGraphMessage({
+                    count: totalCyclesDetected,
+                    shownCount: cycles.length,
+                    singularNoun: "cycle",
+                    pluralNoun: "cycles",
+                    items: cyclesStrings.map(({ cycle }) => cycle),
+                });
+
+                return new InvalidGraph(message, {
+                    flag: settings.flag,
+                    cycles: cyclesStrings,
+                });
+            }
+            case INVALID_GRAPH_FLAG.UNDECLARED_DEPENDENCIES: {
+                const { undeclaredDependencies, totalNodes } = settings;
+                const totalUnDeclaredNodes =
+                    totalNodes ?? undeclaredDependencies.length;
+
+                const undeclaredDependencyStrings = undeclaredDependencies.map(
+                    (undeclaredDependency) => ({
+                        missingDependency: tokenToString(
+                            undeclaredDependency.missingDependency,
+                        ),
+                        dependents: undeclaredDependency.dependents.map(
+                            (item) => tokenToString(item),
+                        ),
+                    }),
+                );
+
+                const message = buildGraphMessage({
+                    count: totalUnDeclaredNodes,
+                    shownCount: undeclaredDependencies.length,
+                    singularNoun: "undeclared dependency",
+                    pluralNoun: "undeclared dependencies",
+                    items: undeclaredDependencyStrings.map(
+                        ({ missingDependency, dependents }) =>
+                            `"${missingDependency}" referenced by [${dependents.join(", ")}]`,
+                    ),
+                });
+
+                return new InvalidGraph(message, {
+                    flag: settings.flag,
+                    undeclaredDependencies: undeclaredDependencyStrings,
+                });
+            }
+        }
+    }
+
+    /**
+     * Note: Do not instantiate `InvalidGraph` directly via the constructor. Use the static `create()` factory method instead.
+     * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
+     *
+     * @param message - A descriptive error message.
+     * @param info - The graph problem details, discriminated by `flag`.
+     * @param cause - The underlying cause of the error, if any.
+     */
+    constructor(message: string, info: InvalidGraphInfo, cause?: unknown) {
         super(message, { cause });
-    }
-
-    // private constructor(message: string) {
-    //     super(
-    //         `Node was referenced as a neighbor/dependency but not listed in nodeIds.`,
-    //     );
-    //     this.name = "UndeclaredDependencyError";
-    //     this.nodeId = nodeId;
-    // }
-
-    /**
-     * Creates a new {@link UndeclaredDependenciesDiError} instance.
-     *
-     * @param nodeId - The node that was referenced but not declared.
-     * @returns A new error instance.
-     */
-    static create(
-        undeclaredDependencies: Array<UndeclaredDependencyInfo>,
-        totalNodes?: number,
-    ): UndeclaredDependenciesDiError {
-        const totalUnDeclaredNodes =
-            totalNodes ?? undeclaredDependencies.length;
-        const listIsShortened =
-            undeclaredDependencies.length !== totalUnDeclaredNodes;
-
-        const message = listIsShortened
-            ? `${totalUnDeclaredNodes.toString()} undeclared dependencies detected in graph. Only ${undeclaredDependencies.length.toString()} are shown.`
-            : `${totalUnDeclaredNodes.toString()} undeclared dependencies detected in graph`;
-
-        const undeclaredDependencyStrings = undeclaredDependencies.map(
-            (undeclaredDependency) => ({
-                missingDependency: tokenToString(
-                    undeclaredDependency.missingDependency,
-                ),
-                dependents: undeclaredDependency.dependents.map((item) =>
-                    tokenToString(item),
-                ),
-            }),
-        );
-        return new UndeclaredDependenciesDiError(
-            message,
-            undeclaredDependencyStrings,
-        );
-    }
-}
-// TODO for Container*Exception Give tips what do
-// For example for ContainerNotActiveException:"Illegal method call ... . Move method call to ..."
-
-/**
- * Thrown when a container method only valid to call between `container.init()` to `container.deInit()` but called either before  `container.init()` or after `container.deInit()`.
- *
- * @group Errors
- */
-export class ContainerNotActiveException extends Error {
-    /**
-     * @param methodName - The name of the method that was called illegally.
-     */
-    constructor(methodName: string) {
-        super(
-            `Illegal method call: "${methodName}" was called before container.init() or after container.deInit() was invoked.`,
-        );
+        this.name = InvalidGraph.name;
+        this.info = info;
     }
 }
 
-/**
- * Thrown when a container method only valid to call before `container.init()` but was called after `container.init()`.
- *
- * @group Errors
- */
-export class ContainerAlreadyInitializedException extends Error {
-    /**
-     * @param methodName - The name of the method that was called illegally.
-     */
-    constructor(methodName: string) {
-        super(
-            `Illegal method call: "${methodName}" was called after container.init() was invoked.`,
-        );
-    }
-}
-/**
- * Thrown when a container method only valid to call after `container.deInit()` but was called before `container.deInit()
- *
- * @group Errors
- */
+export const METHOD_CALL_FLAG = {
+    NOT_ACTIVE: "container_not_active",
+    ALREADY_INITIALIZED: "container_already_initialized",
+    INSIDE_RUN: "method_call_inside_run",
+    INSIDE_DYNAMIC_REGISTRATION: "method_call_inside_dynamic_registration",
+    OUTSIDE_RUN: "method_call_outside_of_run",
+} as const;
 
-export class ContainerNotTerminatedException extends Error {
-    /**
-     * @param methodName - The name of the method that was called illegally.
-     */
-    constructor(methodName: string) {
-        super(
-            `Illegal method call: "${methodName}" was called after container.deInit() was invoked.`,
-        );
-    }
-}
+export type MethodCallFlag =
+    (typeof METHOD_CALL_FLAG)[keyof typeof METHOD_CALL_FLAG];
+
 /**
- * Thrown when a container method that is forbidden inside a run scope is
- * called from within `container.run()`.
+ * Thrown when a container method is called at an invalid time or context.
+ * The `flag` identifies which rule was violated.
  *
  * @group Errors
+ * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-
-export class MethodCallInsideOfRunError extends UnexpectedError {
+export class InvalidMethodCall extends Error {
     /**
      * The name of the method that was called illegally.
      */
     public readonly methodName: string;
 
-    constructor(methodName: string) {
-        super(`the method ${methodName} was called inside run block`);
-        this.name = MethodCallInsideOfRunError.name;
-        this.methodName = methodName;
-    }
+    /**
+     * The reason why the method call is invalid.
+     */
+    public readonly flag: MethodCallFlag;
 
     /**
-     * Creates a new {@link MethodCallInsideOfRunError} error.
+     * The token involved in the invalid call, if any.
+     */
+    public readonly token: DiToken | null;
+
+    /**
+     * Creates a new {@link InvalidMethodCall} instance.
      *
-     * @param methodName - The name of the method that was called illegally.
+     * @param settings - The method name, the reason why the call is invalid,
+     * and the token involved in the invalid call, if any.
      * @returns A new error instance.
      */
-    static create(methodName: string): MethodCallInsideOfRunError {
-        return new MethodCallInsideOfRunError(methodName);
-    }
-}
-
-/**
- * Thrown when a container method that is forbidden inside a run scope is
- * called from within `container.run()`.
- *
- * @group Errors
- */
-
-export class MethodCallInsideOfDynamicRegistrationError extends UnexpectedError {
-    /**
-     * The name of the method that was called illegally.
-     */
-    public readonly methodName: string;
-
-    constructor(methodName: string) {
-        super(
-            `the method ${methodName} was called inside DynamicRegistration in run block`,
+    static create(settings: {
+        methodName: string;
+        flag: MethodCallFlag;
+        token?: DiToken;
+    }): InvalidMethodCall {
+        return new InvalidMethodCall(
+            settings.methodName,
+            settings.flag,
+            settings.token,
         );
-        this.name = MethodCallInsideOfDynamicRegistrationError.name;
-        this.methodName = methodName;
     }
 
     /**
-     * Creates a new {@link MethodCallInsideOfRunError} error.
+     * Note: Do not instantiate `InvalidMethodCall` directly via the constructor. Use the static `create()` factory method instead.
+     * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
      *
      * @param methodName - The name of the method that was called illegally.
-     * @returns A new error instance.
+     * @param flag - The reason why the method call is invalid.
+     * @param token - The token involved in the invalid call, if any.
+     * @param cause - The underlying cause of the error, if any.
      */
-    static create(
+    constructor(
         methodName: string,
-    ): MethodCallInsideOfDynamicRegistrationError {
-        return new MethodCallInsideOfDynamicRegistrationError(methodName);
-    }
-}
-
-/**
- * Thrown when attempting to set a dynamic value for a token outside of a
- * `container.run()` scope. Dynamic registrations are only allowed inside a
- * run scope.
- *
- * @group Errors
- */
-export class MethodCallOutsideOfRunError extends Error {
-    constructor(token: DiToken) {
-        super(
-            `Cannot set dynamic value for registered token ${tokenToString(token)}: registration is only allowed inside a run scope. Call set() within container.run().`,
-        );
-        this.name = MethodCallOutsideOfRunError.name;
+        flag: MethodCallFlag,
+        token?: DiToken,
+        cause?: unknown,
+    ) {
+        super(InvalidMethodCall.createMessage(methodName, flag, token), {
+            cause,
+        });
+        this.name = InvalidMethodCall.name;
+        this.methodName = methodName;
+        this.flag = flag;
+        this.token = token ?? null;
     }
 
-    static create(token: DiToken): MethodCallOutsideOfRunError {
-        return new MethodCallOutsideOfRunError(token);
+    private static createMessage(
+        methodName: string,
+        flag: MethodCallFlag,
+        token?: DiToken,
+    ): string {
+        switch (flag) {
+            case METHOD_CALL_FLAG.ALREADY_INITIALIZED:
+                return `Illegal method call: "${methodName}" was called after container.init() was invoked.`;
+            case METHOD_CALL_FLAG.INSIDE_RUN:
+                return `Illegal method call: "${methodName}" was called inside container.run(). Move the call outside of the run scope.`;
+            case METHOD_CALL_FLAG.INSIDE_DYNAMIC_REGISTRATION:
+                return `Illegal method call: "${methodName}" was called inside the dynamicRegistration callback of container.run(). Use the IDynamicServiceRegister to set dynamic values instead.`;
+            case METHOD_CALL_FLAG.OUTSIDE_RUN:
+                return token === undefined
+                    ? `Illegal method call: "${methodName}" was called outside of a run scope. Dynamic values can only be set within container.run().`
+                    : `Cannot set dynamic value for registered token "${tokenToString(token)}": registration is only allowed inside a run scope. Call set() within container.run().`;
+            case METHOD_CALL_FLAG.NOT_ACTIVE:
+            default:
+                return `Illegal method call: "${methodName}" was called before container.init() or after container.deInit() was invoked.`;
+        }
     }
 }
 
@@ -340,26 +353,34 @@ export class MethodCallOutsideOfRunError extends Error {
  */
 export class ServiceCanNotBeResolvedError extends Error {
     /**
+     * The DI token that could not be resolved.
+     */
+    public readonly token: DiToken;
+
+    /**
      * Creates a new {@link ServiceCanNotBeResolvedError} instance.
      *
      * @param token - The DI token that could not be resolved.
      * @returns A new error instance.
      */
     static create(token: DiToken): ServiceCanNotBeResolvedError {
-        return new ServiceCanNotBeResolvedError(
-            `Failed to resolve service for token: "${tokenToString(token)}".`,
-        );
+        return new ServiceCanNotBeResolvedError(token);
     }
 
     /**
-     * Note: Do not instantiate `ServiceNotFoundDiError` directly via the constructor. Use the static `create()` factory method instead.
+     * Note: Do not instantiate `ServiceCanNotBeResolvedError` directly via the constructor. Use the static `create()` factory method instead.
      * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
      *
-     * @param message - A descriptive error message.
+     * @param token - The DI token that could not be resolved.
      * @param cause - The underlying cause of the error, if any.
      */
-    constructor(message: string, cause?: unknown) {
-        super(message, { cause });
+    constructor(token: DiToken, cause?: unknown) {
+        super(
+            `Failed to resolve service for token: "${tokenToString(token)}".`,
+            { cause },
+        );
+        this.name = ServiceCanNotBeResolvedError.name;
+        this.token = token;
     }
 }
 
@@ -370,31 +391,48 @@ export class ServiceCanNotBeResolvedError extends Error {
  * @group Errors
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-export class ServiceExistsDiError extends Error {
+export class ServiceAlreadyRegisteredDiError extends Error {
     /**
-     * Creates a new {@link ServiceExistsDiError} instance.
+     * The DI token that already has a registration.
+     */
+    public readonly token: DiToken;
+
+    /**
+     * Creates a new {@link ServiceAlreadyRegisteredDiError} instance.
      *
      * @param token - The DI token that already has a registration.
      * @returns A new error instance.
      */
-    static create(token: DiToken): ServiceExistsDiError {
-        return new ServiceExistsDiError(
-            `Failed to register service for token: "${tokenToString(token)}". A registration with this token already exists and cannot be replaced.`,
-        );
+    static create(token: DiToken): ServiceAlreadyRegisteredDiError {
+        return new ServiceAlreadyRegisteredDiError(token);
     }
 
     /**
-     * Note: Do not instantiate `ServiceExistsDiError` directly via the constructor. Use the static {@link ServiceExistsDiError.create | `create()`} factory method instead.
+     * Note: Do not instantiate `ServiceAlreadyRegisteredDiError` directly via the constructor. Use the static {@link ServiceAlreadyRegisteredDiError.create | `create()`} factory method instead.
      * The constructor remains public only to maintain compatibility with error types and prevent type errors.
      *
-     * @param message - A descriptive error message.
+     * @param token - The DI token that already has a registration.
      * @param cause - The underlying cause of the error, if any.
      */
-    constructor(message: string, cause?: unknown) {
-        super(message, { cause });
+    constructor(token: DiToken, cause?: unknown) {
+        super(
+            `Failed to register service for token: "${tokenToString(token)}". A registration with this token already exists and cannot be replaced.`,
+            { cause },
+        );
+        this.name = ServiceAlreadyRegisteredDiError.name;
+        this.token = token;
     }
 }
 
+export const CAN_NOT_OVERRIDE_CAUSE_FLAG = {
+    UNKNOWN: "UNKNOWN_CAUSE",
+    DYNAMIC_TOKEN: "TOKEN_REGISTERED_AS_DYNAMIC",
+    TOKEN_NOT_REGISTERED: "NOT_REGISTERED",
+    ALREADY_OVERRIDDEN: "ALREADY_OVERRIDDEN",
+};
+
+export type CanNotOverrideFlag =
+    (typeof CAN_NOT_OVERRIDE_CAUSE_FLAG)[keyof typeof CAN_NOT_OVERRIDE_CAUSE_FLAG];
 /**
  * Thrown when a service cannot be overridden, either because its type does
  * not support overriding (e.g., dynamic nodes) or because the service has
@@ -403,28 +441,60 @@ export class ServiceExistsDiError extends Error {
  * @group Errors
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-export class CanNotOverrideService extends Error {
+export class CanNotOverrideServiceDiError extends Error {
     /**
-     * Creates a new {@link CanNotOverrideService} instance.
+     * The DI token that cannot be overridden.
+     */
+    public readonly token: DiToken;
+
+    /**
+     * The reason why the service cannot be overridden.
+     */
+    public readonly flag: CanNotOverrideFlag;
+
+    /**
+     * Creates a new {@link CanNotOverrideServiceDiError} instance.
      *
-     * @param token - The DI token that cannot be overridden.
+     * @param settings - The token that cannot be overridden and the reason why,
+     * if known.
      * @returns A new error instance.
      */
-    static create(token: DiToken): CanNotOverrideService {
-        return new CanNotOverrideService(
-            `Failed to override service for token: "${tokenToString(token)}". Either the service is not registered, the service type cannot be overridden (e.g., dynamic nodes), or the service has already been overridden.`,
-        );
+    static create(settings: {
+        token: DiToken;
+        flag?: CanNotOverrideFlag;
+    }): CanNotOverrideServiceDiError {
+        return new CanNotOverrideServiceDiError(settings.token, settings.flag);
     }
 
     /**
-     * Note: Do not instantiate `CanNotOverrideService` directly via the constructor. Use the static {@link CanNotOverrideService.create | `create()`} factory method instead.
+     * Note: Do not instantiate `CanNotOverrideServiceDiError` directly via the constructor. Use the static {@link CanNotOverrideServiceDiError.create | `create()`} factory method instead.
      * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
      *
-     * @param message - A descriptive error message.
+     * @param token - The DI token that cannot be overridden.
+     * @param flag - The reason why the service cannot be overridden. Defaults to {@link CAN_NOT_OVERRIDE_CAUSE_FLAG.UNKNOWN}.
      * @param cause - The underlying cause of the error, if any.
      */
-    constructor(message: string, cause?: unknown) {
+    constructor(
+        token: DiToken,
+        flag: CanNotOverrideFlag = CAN_NOT_OVERRIDE_CAUSE_FLAG.UNKNOWN,
+        cause?: unknown,
+    ) {
+        const tokenName = tokenToString(token);
+        const message = (() => {
+            switch (flag) {
+                case CAN_NOT_OVERRIDE_CAUSE_FLAG.DYNAMIC_TOKEN:
+                    return `Failed to override service for token: "${tokenName}". The token is registered as dynamic and cannot be overridden.`;
+                case CAN_NOT_OVERRIDE_CAUSE_FLAG.TOKEN_NOT_REGISTERED:
+                    return `Failed to override service for token: "${tokenName}". The token is not registered.`;
+                case CAN_NOT_OVERRIDE_CAUSE_FLAG.ALREADY_OVERRIDDEN:
+                    return `Failed to override service for token: "${tokenName}". The service has already been overridden.`;
+                default:
+                    return `Failed to override service for token: "${tokenName}". Either the service is not registered, the service type cannot be overridden (e.g., dynamic nodes), or the service has already been overridden.`;
+            }
+        })();
         super(message, { cause });
-        this.name = CanNotOverrideService.name;
+        this.name = CanNotOverrideServiceDiError.name;
+        this.token = token;
+        this.flag = flag;
     }
 }

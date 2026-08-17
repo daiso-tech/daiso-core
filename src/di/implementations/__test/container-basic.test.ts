@@ -8,17 +8,14 @@ import {
     type IDynamicServiceRegister,
 } from "@/di/contracts/container.contract.js";
 import {
-    ContainerAlreadyInitializedException,
-    ContainerNotActiveException,
-    MethodCallInsideOfRunError,
-    ServiceExistsDiError,
-    MethodCallOutsideOfRunError,
-    MethodCallInsideOfDynamicRegistrationError,
+    CAN_NOT_OVERRIDE_CAUSE_FLAG,
+    INVALID_GRAPH_FLAG,
+    InvalidGraph,
+    InvalidMethodCall,
+    METHOD_CALL_FLAG,
+    ServiceAlreadyRegisteredDiError,
     ServiceCanNotBeResolvedError,
-    UndeclaredDependenciesDiError,
-    InvalidEdgeRelationshipDiError,
-    CycleDependencyDiError,
-    CanNotOverrideService,
+    CanNotOverrideServiceDiError,
 } from "@/di/contracts/container.errors.js";
 import { Container } from "@/di/implementations/container.js";
 import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
@@ -26,21 +23,26 @@ import { AlsExecutionContextAdapter } from "@/execution-context/implementations/
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 
 type SimplifiedServiceFactoryWithVarArgs<
-    TDeps extends Array<unknown> = Array<unknown>,
-    TRegisteredType = unknown,
-> = (...args: TDeps) => Promise<TRegisteredType> | TRegisteredType;
-
-type SimplifiedServiceFactoryWithArray<
-    TDeps extends Array<unknown> = Array<unknown>,
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    TDeps extends Partial<Record<string, unknown>> = {},
     TRegisteredType = unknown,
 > = (args: TDeps) => Promise<TRegisteredType> | TRegisteredType;
 
-type DepsTokens<TDeps extends Array<unknown> = Array<unknown>> = {
+type SimplifiedServiceFactoryWithArray<
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    TDeps extends Partial<Record<string, unknown>> = {},
+    TRegisteredType = unknown,
+> = (args: TDeps) => Promise<TRegisteredType> | TRegisteredType;
+
+type DepsTokens<
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    TDeps extends Partial<Record<string, unknown>> = {},
+> = {
     [K in keyof TDeps]: DiToken<TDeps[K]>;
 };
-
 type FactoryRegistration<
-    TDeps extends Array<unknown> = Array<unknown>,
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    TDeps extends Partial<Record<string, unknown>> = {},
     TRegisteredType = unknown,
 > = {
     /** The token used to identify and resolve this service. */
@@ -59,8 +61,9 @@ function wrapInParenthesis(word: string, ...args: Array<unknown>): string {
     return `${word}(${str})`;
 }
 
-function dependency<TDeps extends Array<unknown> = Array<unknown>>(
-    ...deps: DepsTokens<TDeps>
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+function dependency<TDeps extends Partial<Record<string, unknown>> = {}>(
+    deps: DepsTokens<TDeps>,
 ): {
     factory: <TRegisteredType = unknown>(
         func: SimplifiedServiceFactoryWithVarArgs<TDeps, TRegisteredType>,
@@ -80,7 +83,7 @@ function dependency<TDeps extends Array<unknown> = Array<unknown>>(
                 reuseToken: (token) => {
                     return {
                         deps,
-                        factory: (fArgs) => func(...fArgs),
+                        factory: (fArgs) => func(fArgs),
                         callFunc: func,
                         token,
                     };
@@ -88,7 +91,7 @@ function dependency<TDeps extends Array<unknown> = Array<unknown>>(
                 createToken: (text) => {
                     return {
                         deps,
-                        factory: (fArgs) => func(...fArgs),
+                        factory: (fArgs) => func(fArgs),
                         callFunc: func,
                         token: genericToken(text),
                     };
@@ -174,16 +177,18 @@ describe("illegal method call before init or after deInit (when container not ac
     const testCases = [...testCases1, ...testCases2];
 
     test.each(testCases)(
-        "When $name is called before init then should fail with ContainerNotActiveException",
+        "When $name is called before init then should fail with InvalidMethodCall",
         async (testCase) => {
-            await expect(testCase.func()).rejects.toThrowError(
-                ContainerNotActiveException,
-            );
+            const promise = testCase.func();
+            await expect(promise).rejects.toThrowError(InvalidMethodCall);
+            await expect(promise).rejects.toMatchObject({
+                flag: METHOD_CALL_FLAG.NOT_ACTIVE,
+            });
         },
     );
 
     test.each(testCases)(
-        "When $name is called after init then should not fail with ContainerNotActiveException",
+        "When $name is called after init then should not fail with InvalidMethodCall",
         async (testCase) => {
             await container.init();
             await expect(async () => {
@@ -194,18 +199,20 @@ describe("illegal method call before init or after deInit (when container not ac
                     error = unknownError;
                 }
                 throw error;
-            }).rejects.not.toThrowError(ContainerNotActiveException);
+            }).rejects.not.toThrowError(InvalidMethodCall);
         },
     );
 
     test.each(testCases)(
-        "When $name is called after deInit then should fail with ContainerNotActiveException",
+        "When $name is called after deInit then should fail with InvalidMethodCall",
         async (testCase) => {
             await container.init();
             await container.deInit();
-            await expect(testCase.func()).rejects.toThrowError(
-                ContainerNotActiveException,
-            );
+            const promise = testCase.func();
+            await expect(promise).rejects.toThrowError(InvalidMethodCall);
+            await expect(promise).rejects.toMatchObject({
+                flag: METHOD_CALL_FLAG.NOT_ACTIVE,
+            });
         },
     );
 });
@@ -228,7 +235,7 @@ describe("illegal method call after init (when container is active)", () => {
         {
             func: () => {
                 container.registerFactory({
-                    deps: [],
+                    deps: {},
                     factory: () => new A(),
                     token: A,
                     type: LIFESPAN.SINGLETON,
@@ -237,17 +244,7 @@ describe("illegal method call after init (when container is active)", () => {
 
             name: "registerFactory.singleton",
         },
-        {
-            func: () => {
-                container.registerClass({
-                    deps: [],
-                    impl: A,
-                    type: LIFESPAN.SINGLETON,
-                });
-            },
 
-            name: "registerClass.singleton",
-        },
         {
             func: () => {
                 container.registerDynamic(A);
@@ -286,14 +283,8 @@ describe("illegal method call after init (when container is active)", () => {
     const overrides: Array<TestData> = [
         {
             func() {
-                container.overrideClass({ deps: [], impl: A });
-            },
-            name: "overrideClass",
-        },
-        {
-            func() {
                 container.overrideFactory({
-                    deps: [],
+                    deps: {},
                     token: A,
                     factory: () => new A(),
                 });
@@ -338,9 +329,13 @@ describe("illegal method call after init (when container is active)", () => {
         "When $name is called after init then should fail",
         async (testCase) => {
             await container.init();
-            await expect(async () => {
+            const promise = (async () => {
                 await testCase.func();
-            }).rejects.toThrowError(ContainerAlreadyInitializedException);
+            })();
+            await expect(promise).rejects.toThrowError(InvalidMethodCall);
+            await expect(promise).rejects.toMatchObject({
+                flag: METHOD_CALL_FLAG.ALREADY_INITIALIZED,
+            });
         },
     );
 });
@@ -350,13 +345,15 @@ describe("illegal method call inside run", () => {
         const container = createContainer().container;
         await container.init();
 
-        await expect(() =>
-            container.run({
-                scope: async () => {
-                    await container.deInit();
-                },
-            }),
-        ).rejects.toThrow(MethodCallInsideOfRunError);
+        const promise = container.run({
+            scope: async () => {
+                await container.deInit();
+            },
+        });
+        await expect(promise).rejects.toThrowError(InvalidMethodCall);
+        await expect(promise).rejects.toMatchObject({
+            flag: METHOD_CALL_FLAG.INSIDE_RUN,
+        });
     });
 });
 
@@ -366,14 +363,16 @@ describe("illegal method call inside DynamicServiceProvider in run block", () =>
         await container.init();
         const tokenA = genericToken("A");
 
-        await expect(() =>
-            container.run({
-                dynamicRegistration: async () => {
-                    await container.resolve(tokenA);
-                },
-                scope: async () => {},
-            }),
-        ).rejects.toThrow(MethodCallInsideOfDynamicRegistrationError);
+        const promise = container.run({
+            dynamicRegistration: async () => {
+                await container.resolve(tokenA);
+            },
+            scope: async () => {},
+        });
+        await expect(promise).rejects.toThrowError(InvalidMethodCall);
+        await expect(promise).rejects.toMatchObject({
+            flag: METHOD_CALL_FLAG.INSIDE_DYNAMIC_REGISTRATION,
+        });
     });
 
     test("resolveOr method should fail inside DynamicServiceProvider", async () => {
@@ -381,14 +380,16 @@ describe("illegal method call inside DynamicServiceProvider in run block", () =>
         await container.init();
         const tokenA = genericToken("A");
 
-        await expect(() =>
-            container.run({
-                dynamicRegistration: async () => {
-                    await container.resolveOr(tokenA, "_");
-                },
-                scope: async () => {},
-            }),
-        ).rejects.toThrow(MethodCallInsideOfDynamicRegistrationError);
+        const promise = container.run({
+            dynamicRegistration: async () => {
+                await container.resolveOr(tokenA, "_");
+            },
+            scope: async () => {},
+        });
+        await expect(promise).rejects.toThrowError(InvalidMethodCall);
+        await expect(promise).rejects.toMatchObject({
+            flag: METHOD_CALL_FLAG.INSIDE_DYNAMIC_REGISTRATION,
+        });
     });
 
     test("resolveOrFail method should fail inside DynamicServiceProvider", async () => {
@@ -396,14 +397,16 @@ describe("illegal method call inside DynamicServiceProvider in run block", () =>
         await container.init();
         const tokenA = genericToken("A");
 
-        await expect(() =>
-            container.run({
-                dynamicRegistration: async () => {
-                    await container.resolveOrFail(tokenA);
-                },
-                scope: async () => {},
-            }),
-        ).rejects.toThrow(MethodCallInsideOfDynamicRegistrationError);
+        const promise = container.run({
+            dynamicRegistration: async () => {
+                await container.resolveOrFail(tokenA);
+            },
+            scope: async () => {},
+        });
+        await expect(promise).rejects.toThrowError(InvalidMethodCall);
+        await expect(promise).rejects.toMatchObject({
+            flag: METHOD_CALL_FLAG.INSIDE_DYNAMIC_REGISTRATION,
+        });
     });
 });
 
@@ -420,9 +423,13 @@ describe("illegal method call outside run", () => {
             scope: () => {},
         });
         const token = genericToken("_");
-        await expect(async () => {
+        const promise = (async () => {
             await regCapture?.set({ token, value: "_" });
-        }).rejects.toThrowError(MethodCallOutsideOfRunError);
+        })();
+        await expect(promise).rejects.toThrowError(InvalidMethodCall);
+        await expect(promise).rejects.toMatchObject({
+            flag: METHOD_CALL_FLAG.OUTSIDE_RUN,
+        });
     });
 });
 
@@ -447,7 +454,7 @@ describe("onContainerInit & init", () => {
     });
 
     test("should resolve successfully in init handler", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "_")
             .createToken("A");
 
@@ -462,7 +469,7 @@ describe("onContainerInit & init", () => {
         });
 
         await container.init();
-        expect(value).toBe(await nodeA.callFunc());
+        expect(value).toBe(await nodeA.callFunc({}));
     });
 });
 
@@ -489,7 +496,7 @@ describe("onContainerDeInit & deInit", () => {
     });
 
     test("should resolve successfully in deInit handler", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "_")
             .createToken("A");
 
@@ -506,7 +513,7 @@ describe("onContainerDeInit & deInit", () => {
         await container.init();
         await container.deInit();
 
-        expect(value).toBe(await nodeA.callFunc());
+        expect(value).toBe(await nodeA.callFunc({}));
     });
 });
 
@@ -517,7 +524,7 @@ describe("has", () => {
     });
 
     test("should return true when called on singleton node", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "_")
             .createToken("A");
 
@@ -529,7 +536,7 @@ describe("has", () => {
     });
 
     test("should return true when called on transient node", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "_")
             .createToken("A");
 
@@ -541,7 +548,7 @@ describe("has", () => {
     });
 
     test("should return false when called on scoped node at top", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "_")
             .createToken("A");
 
@@ -569,14 +576,14 @@ describe("register", () => {
         container = createContainer().container;
     });
 
-    test("When token registered twice should fail with ServiceExistsDiError", () => {
-        const node = dependency()
+    test("When token registered twice should fail with ServiceAlreadyRegisteredDiError", () => {
+        const node = dependency({})
             .factory(() => "")
             .createToken("");
         container.registerFactory({ ...node, type: LIFESPAN.SINGLETON });
         expect(() => {
             container.registerFactory({ ...node, type: LIFESPAN.SINGLETON });
-        }).toThrowError(ServiceExistsDiError);
+        }).toThrowError(ServiceAlreadyRegisteredDiError);
     });
 });
 
@@ -682,34 +689,34 @@ describe("register & container.init & resolve", () => {
 
     describe("singleton", () => {
         test("Should resolve successfully when resolving singleton dependency at top with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => "_")
                 .createToken("A");
 
             container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
             await container.init();
 
-            const correctValue = await nodeA.callFunc();
+            const correctValue = await nodeA.callFunc({});
             await expect(container.resolve(nodeA.token)).resolves.toBe(
                 correctValue,
             );
         });
 
         test("Should resolve successfully deep singleton dependency chain at top with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => "1")
                 .createToken("A");
 
-            const nodeB = dependency(nodeA.token)
-                .factory((a) => [a, "2"].join(""))
+            const nodeB = dependency({ a: nodeA.token })
+                .factory(({ a }) => [a, "2"].join(""))
                 .createToken("B");
 
-            const nodeC = dependency(nodeB.token)
-                .factory((b) => [b, "3"].join(""))
+            const nodeC = dependency({ b: nodeB.token })
+                .factory(({ b }) => [b, "3"].join(""))
                 .createToken("C");
 
-            const nodeD = dependency(nodeC.token)
-                .factory((c) => [c, "4"].join(""))
+            const nodeD = dependency({ c: nodeC.token })
+                .factory(({ c }) => [c, "4"].join(""))
                 .createToken("D");
             container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
 
@@ -722,11 +729,13 @@ describe("register & container.init & resolve", () => {
             await container.init();
 
             const value = await container.resolve(nodeD.token);
-            const correctValue = await nodeD.callFunc(
-                await nodeC.callFunc(
-                    await nodeB.callFunc(await nodeA.callFunc()),
-                ),
-            );
+            const correctValue = await nodeD.callFunc({
+                c: await nodeC.callFunc({
+                    b: await nodeB.callFunc({
+                        a: await nodeA.callFunc({}),
+                    }),
+                }),
+            });
 
             expect(value).toBe(correctValue);
         });
@@ -737,7 +746,7 @@ describe("register & container.init & resolve", () => {
          * The method lambda argument to container.registerProvider can be implemented as proxy object of IContainer.
          */
         test("Should resolve successfully when resolving singleton dependency through container.registerProvider with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => "_")
                 .createToken("A");
 
@@ -750,7 +759,7 @@ describe("register & container.init & resolve", () => {
 
             await container.init();
 
-            const correctValue = await nodeA.callFunc();
+            const correctValue = await nodeA.callFunc({});
             await expect(container.resolve(nodeA.token)).resolves.toBe(
                 correctValue,
             );
@@ -761,7 +770,7 @@ describe("register & container.init & resolve", () => {
          * Only singleton is tested because behavior and implementation of container.resolveOr can done independent of node type.
          */
         test("Should resolve to default when resolving singleton dependency at top where its factory return null with container.resolveOr", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => null as null | string)
                 .createToken("A");
 
@@ -779,7 +788,7 @@ describe("register & container.init & resolve", () => {
          * Only singleton is tested because behavior and implementation of container.resolveOr can done independent of node type.
          */
         test("Should fail when resolving singleton dependency at top where its factory return null with container.resolveOrFail", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => null as null | string)
                 .createToken("A");
 
@@ -797,7 +806,7 @@ describe("register & container.init & resolve", () => {
             const dateKey = genericToken<Date>("date");
 
             container.registerFactory({
-                deps: [],
+                deps: {},
                 token: tokenA,
                 factory: (_, executionContext_) => {
                     const date = executionContext_.getOrFail(dateKey);
@@ -827,7 +836,7 @@ describe("register & container.init & resolve", () => {
             const dateKey = genericToken<Date>("date");
 
             container.registerFactory({
-                deps: [],
+                deps: {},
                 token: tokenA,
                 factory: (_, executionContext_) => {
                     const date = executionContext_.getOrFail(dateKey);
@@ -864,7 +873,7 @@ describe("register & container.init & resolve", () => {
         });
 
         test("Should equal by reference when comparing two items resolved from same token with container.resolve at different scope depth", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => ({}))
                 .createToken("A");
 
@@ -888,20 +897,23 @@ describe("register & container.init & resolve", () => {
         // "d" depends on "b","c" and factory_d = (factory_b,factory_c)=>({b:factory_b(),c:factory_c()}).
         // Since all nodes are singleton "b","c" should have same instance of "a" and hence "resolved_d.b" === "resolved_d.c".
         test("Should equal by reference when comparing two singleton object referenced by two singleton items resolved by same token with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => ({}))
                 .createToken("A");
 
-            const nodeB = dependency(nodeA.token)
-                .factory((nodeAValue) => nodeAValue)
+            const nodeB = dependency({ nodeAValue: nodeA.token })
+                .factory(({ nodeAValue }) => nodeAValue)
                 .createToken("A");
 
-            const nodeC = dependency(nodeA.token)
-                .factory((nodeAValue) => nodeAValue)
+            const nodeC = dependency({ nodeAValue: nodeA.token })
+                .factory(({ nodeAValue }) => nodeAValue)
                 .createToken("C");
 
-            const nodeD = dependency(nodeB.token, nodeC.token)
-                .factory((nodeBValue, nodeCValue) => ({
+            const nodeD = dependency({
+                nodeBValue: nodeB.token,
+                nodeCValue: nodeC.token,
+            })
+                .factory(({ nodeBValue, nodeCValue }) => ({
                     nodeAValue0: nodeBValue,
                     nodeAValue1: nodeCValue,
                 }))
@@ -925,7 +937,7 @@ describe("register & container.init & resolve", () => {
          * declare const value:unknown;
          *
          * container.registerFactory({
-         *            deps:[],
+         *            deps:{},
          *            token:token,
          *            factory: () => value,
          *        }).singleton();
@@ -940,71 +952,38 @@ describe("register & container.init & resolve", () => {
 
             await expect(container.resolve(tokenA)).resolves.toBe(value);
         });
-
-        /**
-         * container.registerClass is shortcut for:
-         * ```ts
-         * // Class with constructor arguments
-         * class A { constructor(args){}}
-         *
-         *
-         * // Tokens that will be injected into the constructor of class A
-         * declare const depsArgs:Array<DiToken>;
-         *
-         * container.registerFactory({
-         *            deps:depsArgs,
-         *            token: A,
-         *            factory: (depsArgs) => new A(...depsArgs),
-         *        });
-         * ```
-         * Therefore, container.registerClass should behave same as container.registerFactory for all singleton, scoped and transient nodes.
-         */
-        test("Should resolve singleton dependency successfully after registration with container.registerClass at top with container.resolve", async () => {
-            class A {
-                private _: unknown;
-            }
-
-            container.registerClass({
-                impl: A,
-                deps: [],
-                type: LIFESPAN.SINGLETON,
-            });
-            await container.init();
-
-            await expect(container.resolve(A)).resolves.toBeInstanceOf(A);
-        });
     });
 
     describe("transient", () => {
         test("Should resolve successfully when resolving transient dependency at top  with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => "_")
                 .createToken("A");
 
             container.registerFactory({ ...nodeA, type: LIFESPAN.TRANSIENT });
             await container.init();
 
-            const correctValue = await nodeA.callFunc();
+            const correctValue = await nodeA.callFunc({});
             await expect(container.resolve(nodeA.token)).resolves.toBe(
                 correctValue,
             );
         });
 
         test("Should resolve successfully deep transient dependency chain at top with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => "1")
                 .createToken("A");
 
-            const nodeB = dependency(nodeA.token)
-                .factory((a) => [a, "2"].join(""))
+            const nodeB = dependency({ a: nodeA.token })
+                .factory(({ a }) => [a, "2"].join(""))
                 .createToken("B");
 
-            const nodeC = dependency(nodeB.token)
-                .factory((b) => [b, "3"].join(""))
+            const nodeC = dependency({ b: nodeB.token })
+                .factory(({ b }) => [b, "3"].join(""))
                 .createToken("C");
 
-            const nodeD = dependency(nodeC.token)
-                .factory((c) => [c, "4"].join(""))
+            const nodeD = dependency({ c: nodeC.token })
+                .factory(({ c }) => [c, "4"].join(""))
                 .createToken("D");
 
             container.registerFactory({ ...nodeA, type: LIFESPAN.TRANSIENT });
@@ -1017,11 +996,13 @@ describe("register & container.init & resolve", () => {
 
             await container.init();
 
-            const correctValue = await nodeD.callFunc(
-                await nodeC.callFunc(
-                    await nodeB.callFunc(await nodeA.callFunc()),
-                ),
-            );
+            const correctValue = await nodeD.callFunc({
+                c: await nodeC.callFunc({
+                    b: await nodeB.callFunc({
+                        a: await nodeA.callFunc({}),
+                    }),
+                }),
+            });
 
             const value = await container.resolve(nodeD.token);
 
@@ -1033,7 +1014,7 @@ describe("register & container.init & resolve", () => {
             const dateKey = genericToken<Date>("date");
 
             container.registerFactory({
-                deps: [],
+                deps: {},
                 token: tokenA,
                 factory: (_, executionContext_) => {
                     const date = executionContext_.getOrFail(dateKey);
@@ -1070,7 +1051,7 @@ describe("register & container.init & resolve", () => {
         });
 
         test("Should not equal by reference when comparing two items resolved by same token with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => ({}))
                 .createToken("A");
 
@@ -1087,20 +1068,23 @@ describe("register & container.init & resolve", () => {
         // "d" depends on "b","c" and factory_d = (factory_b,factory_c)=>({b:factory_b(),c:factory_c()}).
         // Since all nodes are transient "b","c" should have own instance of "a" and hence "resolved_d.b" !== "resolved_d.c".
         test("Should not equal by reference when comparing two transient object referenced by two transient items resolved by same token with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => ({}))
                 .createToken("A");
 
-            const nodeB = dependency(nodeA.token)
-                .factory((nodeAValue) => nodeAValue)
+            const nodeB = dependency({ nodeAValue: nodeA.token })
+                .factory(({ nodeAValue }) => nodeAValue)
                 .createToken("A");
 
-            const nodeC = dependency(nodeA.token)
-                .factory((nodeAValue) => nodeAValue)
+            const nodeC = dependency({ nodeAValue: nodeA.token })
+                .factory(({ nodeAValue }) => nodeAValue)
                 .createToken("C");
 
-            const nodeD = dependency(nodeB.token, nodeC.token)
-                .factory((nodeBValue, nodeCValue) => ({
+            const nodeD = dependency({
+                nodeBValue: nodeB.token,
+                nodeCValue: nodeC.token,
+            })
+                .factory(({ nodeBValue, nodeCValue }) => ({
                     nodeAValue0: nodeBValue,
                     nodeAValue1: nodeCValue,
                 }))
@@ -1120,7 +1104,7 @@ describe("register & container.init & resolve", () => {
 
     describe("scoped", () => {
         test("should return null when resolving scoped dependency at top with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => "")
                 .createToken("A");
 
@@ -1130,7 +1114,7 @@ describe("register & container.init & resolve", () => {
         });
 
         test("Should resolve successfully when resolving scoped dependency inside run block scope with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => "_")
                 .createToken("A");
 
@@ -1148,12 +1132,12 @@ describe("register & container.init & resolve", () => {
                 },
             });
 
-            const correctValue = await nodeA.callFunc();
+            const correctValue = await nodeA.callFunc({});
             expect(value).toBe(correctValue);
         });
 
         test("should return null when resolving scoped dependency at top but inside execution context run block with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => "")
                 .createToken("A");
 
@@ -1173,7 +1157,7 @@ describe("register & container.init & resolve", () => {
             const dateKey = genericToken<Date>("date");
 
             container.registerFactory({
-                deps: [],
+                deps: {},
                 token: tokenA,
                 factory: (_, executionContext_) => {
                     const date = executionContext_.getOrFail(dateKey);
@@ -1208,7 +1192,7 @@ describe("register & container.init & resolve", () => {
             const dateKey = genericToken<Date>("date");
 
             container.registerFactory({
-                deps: [],
+                deps: {},
                 token: tokenA,
                 factory: (_, executionContext_) => {
                     const date = executionContext_.getOrFail(dateKey);
@@ -1253,7 +1237,7 @@ describe("register & container.init & resolve", () => {
         });
 
         test("Should not equal by reference when comparing two items resolved by same token with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => ({}))
                 .createToken("A");
 
@@ -1265,7 +1249,7 @@ describe("register & container.init & resolve", () => {
         });
 
         test("Should equal by reference when comparing two items resolved by same token in same scope depth with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => ({}))
                 .createToken("A");
 
@@ -1292,7 +1276,7 @@ describe("register & container.init & resolve", () => {
         });
 
         test("Should not equal by reference when comparing two items resolved by same token in same scope depth consecutively with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => ({}))
                 .createToken("A");
 
@@ -1328,7 +1312,7 @@ describe("register & container.init & resolve", () => {
         });
 
         test("Should not equal by reference when comparing two items resolved by same token in different scope depth with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => ({}))
                 .createToken("A");
 
@@ -1364,17 +1348,20 @@ describe("register & container.init & resolve", () => {
         // "d" depends on "b","c" and factory_d = (factory_b,factory_c)=>({b:factory_b(),c:factory_c()}).
         // Since all nodes are scoped "b","c" and resolved in same scope should have own instance of "a" and hence "resolved_d.b" !== "resolved_d.c".
         test("Should equal by reference when comparing two items resolved by same token in same scope depth with container.resolve2", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => ({}))
                 .createToken("A");
-            const nodeB = dependency(nodeA.token)
-                .factory((nodeValueA) => nodeValueA)
+            const nodeB = dependency({ nodeValueA: nodeA.token })
+                .factory(({ nodeValueA }) => nodeValueA)
                 .createToken("B");
-            const nodeC = dependency(nodeA.token)
-                .factory((nodeValueA) => nodeValueA)
+            const nodeC = dependency({ nodeValueA: nodeA.token })
+                .factory(({ nodeValueA }) => nodeValueA)
                 .createToken("C");
-            const nodeD = dependency(nodeB.token, nodeC.token)
-                .factory((nodeValueA0, nodeValueA1) => ({
+            const nodeD = dependency({
+                nodeValueA0: nodeB.token,
+                nodeValueA1: nodeC.token,
+            })
+                .factory(({ nodeValueA0, nodeValueA1 }) => ({
                     nodeValueA0,
                     nodeValueA1,
                 }))
@@ -1575,8 +1562,8 @@ describe("register & container.init & resolve", () => {
         // short version: two scoped at different levels but refer to same dynamic item and dynamic is set only once.
         test("should equal by reference when comparing field reference of two scoped item referencing dynamic at different scope level and dynamic set before", async () => {
             const tokenA = genericToken<object>("A");
-            const nodeB = dependency(tokenA)
-                .factory((tokenAValue) => tokenAValue)
+            const nodeB = dependency({ tokenAValue: tokenA })
+                .factory(({ tokenAValue }) => tokenAValue)
                 .createToken("B");
 
             let valueAScope0: undefined | null | object = undefined as
@@ -1615,8 +1602,8 @@ describe("register & container.init & resolve", () => {
         // short version: two scoped at different levels but refer to same dynamic item and dynamic is set twice: one before scope resolve to reference and other after.
         test("should equal by reference when comparing field reference of two scoped item referencing dynamic at different scope level and dynamic set twice", async () => {
             const tokenA = genericToken<object>("A");
-            const nodeB = dependency(tokenA)
-                .factory((tokenAValue) => tokenAValue)
+            const nodeB = dependency({ tokenAValue: tokenA })
+                .factory(({ tokenAValue }) => tokenAValue)
                 .createToken("B");
 
             let valueAScope0: undefined | null | object = undefined as
@@ -1661,16 +1648,16 @@ describe("register & container.init & resolve", () => {
 
     describe("singleton & scoped", () => {
         test("Should equal by reference when comparing two singleton object referenced by two scoped items resolved by two different token in different scope depth with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => ({}))
                 .createToken("A");
 
-            const nodeB = dependency(nodeA.token)
-                .factory((nodeAValue) => ({ nodeAValue }))
+            const nodeB = dependency({ nodeAValue: nodeA.token })
+                .factory(({ nodeAValue }) => ({ nodeAValue }))
                 .createToken("B");
 
-            const nodeC = dependency(nodeA.token)
-                .factory((nodeAValue) => ({ nodeAValue }))
+            const nodeC = dependency({ nodeAValue: nodeA.token })
+                .factory(({ nodeAValue }) => ({ nodeAValue }))
                 .createToken("B");
 
             let valueB: undefined | { nodeAValue: object } | null =
@@ -1702,16 +1689,16 @@ describe("register & container.init & resolve", () => {
 
     describe("singleton & transient", () => {
         test("Should equal by reference when comparing two singleton object referenced by two transient items resolved by two different token with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => ({}))
                 .createToken("A");
 
-            const nodeB = dependency(nodeA.token)
-                .factory((nodeAValue) => ({ nodeAValue }))
+            const nodeB = dependency({ nodeAValue: nodeA.token })
+                .factory(({ nodeAValue }) => ({ nodeAValue }))
                 .createToken("B");
 
-            const nodeC = dependency(nodeA.token)
-                .factory((nodeAValue) => ({ nodeAValue }))
+            const nodeC = dependency({ nodeAValue: nodeA.token })
+                .factory(({ nodeAValue }) => ({ nodeAValue }))
                 .createToken("B");
 
             container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
@@ -1730,11 +1717,11 @@ describe("register & container.init & resolve", () => {
 
     describe("scoped & transient", () => {
         test("should return null when resolving transient dependency dependent on scoped dependency at top with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => "")
                 .createToken("A");
 
-            const nodeB = dependency(nodeA.token)
+            const nodeB = dependency({ a: nodeA.token })
                 .factory(() => "")
                 .createToken("B");
 
@@ -1745,10 +1732,10 @@ describe("register & container.init & resolve", () => {
         });
 
         test("should resolve successfully when resolving transient dependency dependent on scoped dependency inside run block scope with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => "")
                 .createToken("A");
-            const nodeB = dependency(nodeA.token)
+            const nodeB = dependency({ a: nodeA.token })
                 .factory(() => "")
                 .createToken("B");
 
@@ -1763,21 +1750,23 @@ describe("register & container.init & resolve", () => {
                 },
             });
 
-            const correctValue = await nodeB.callFunc(await nodeA.callFunc());
+            const correctValue = await nodeB.callFunc({
+                a: await nodeA.callFunc({}),
+            });
             expect(value).toBe(correctValue);
         });
 
         test("Should equal by reference when comparing two scoped object referenced by two transient items resolved by two different token in same scope depth with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => ({}))
                 .createToken("A");
 
-            const nodeB = dependency(nodeA.token)
-                .factory((nodeAValue) => ({ nodeAValue }))
+            const nodeB = dependency({ nodeAValue: nodeA.token })
+                .factory(({ nodeAValue }) => ({ nodeAValue }))
                 .createToken("B");
 
-            const nodeC = dependency(nodeA.token)
-                .factory((nodeAValue) => ({ nodeAValue }))
+            const nodeC = dependency({ nodeAValue: nodeA.token })
+                .factory(({ nodeAValue }) => ({ nodeAValue }))
                 .createToken("B");
 
             let valueB: undefined | { nodeAValue: object } | null =
@@ -1803,16 +1792,16 @@ describe("register & container.init & resolve", () => {
         });
 
         test("Should not equal by reference when comparing two scoped object referenced by two transient items resolved by two different token in different scope depth with container.resolve", async () => {
-            const nodeA = dependency()
+            const nodeA = dependency({})
                 .factory(() => ({}))
                 .createToken("A");
 
-            const nodeB = dependency(nodeA.token)
-                .factory((nodeAValue) => ({ nodeAValue }))
+            const nodeB = dependency({ nodeAValue: nodeA.token })
+                .factory(({ nodeAValue }) => ({ nodeAValue }))
                 .createToken("B");
 
-            const nodeC = dependency(nodeA.token)
-                .factory((nodeAValue) => ({ nodeAValue }))
+            const nodeC = dependency({ nodeAValue: nodeA.token })
+                .factory(({ nodeAValue }) => ({ nodeAValue }))
                 .createToken("B");
 
             let valueB: undefined | { nodeAValue: object } | null =
@@ -1857,15 +1846,17 @@ describe("graph validation", () => {
         test("should throw when undeclared nodes exist", async () => {
             const undeclaredToken = genericToken<string>("undeclared");
 
-            const nodeA = dependency(undeclaredToken)
+            const nodeA = dependency({ undeclared: undeclaredToken })
                 .factory(() => "A")
                 .createToken("A");
 
             container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
 
-            await expect(container.init()).rejects.toThrowError(
-                UndeclaredDependenciesDiError,
-            );
+            const promise = container.init();
+            await expect(promise).rejects.toThrowError(InvalidGraph);
+            await expect(promise).rejects.toMatchObject({
+                info: { flag: INVALID_GRAPH_FLAG.UNDECLARED_DEPENDENCIES },
+            });
         });
     });
 
@@ -1874,92 +1865,112 @@ describe("graph validation", () => {
             const tokenA = genericToken<string>("A");
             const tokenB = genericToken<string>("B");
 
-            const nodeA = dependency(tokenB)
+            const nodeA = dependency({ b: tokenB })
                 .factory(() => "A")
                 .reuseToken(tokenA);
 
-            const nodeB = dependency()
+            const nodeB = dependency({})
                 .factory(() => "B")
                 .reuseToken(tokenB);
 
             container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
             container.registerFactory({ ...nodeB, type: LIFESPAN.SCOPED });
 
-            await expect(container.init()).rejects.toThrowError(
-                InvalidEdgeRelationshipDiError,
-            );
+            const promise = container.init();
+            await expect(promise).rejects.toThrowError(InvalidGraph);
+            await expect(promise).rejects.toMatchObject({
+                info: {
+                    flag: INVALID_GRAPH_FLAG.INVALID_EDGE_RELATIONSHIP,
+                },
+            });
         });
 
         test("should throw when an singleton -> dynamic edge is detected", async () => {
             const tokenA = genericToken<string>("A");
             const tokenB = genericToken<string>("B");
 
-            const nodeA = dependency(tokenB)
+            const nodeA = dependency({ b: tokenB })
                 .factory(() => "A")
                 .reuseToken(tokenA);
 
             container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
             container.registerDynamic(tokenB);
 
-            await expect(container.init()).rejects.toThrowError(
-                InvalidEdgeRelationshipDiError,
-            );
+            const promise = container.init();
+            await expect(promise).rejects.toThrowError(InvalidGraph);
+            await expect(promise).rejects.toMatchObject({
+                info: {
+                    flag: INVALID_GRAPH_FLAG.INVALID_EDGE_RELATIONSHIP,
+                },
+            });
         });
 
         test("should throw when an singleton -> transient edge is detected", async () => {
             const tokenA = genericToken<string>("A");
             const tokenB = genericToken<string>("B");
 
-            const nodeA = dependency(tokenB)
+            const nodeA = dependency({ b: tokenB })
                 .factory(() => "A")
                 .reuseToken(tokenA);
 
-            const nodeB = dependency()
+            const nodeB = dependency({})
                 .factory(() => "B")
                 .reuseToken(tokenB);
 
             container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
             container.registerFactory({ ...nodeB, type: LIFESPAN.TRANSIENT });
 
-            await expect(container.init()).rejects.toThrowError(
-                InvalidEdgeRelationshipDiError,
-            );
+            const promise = container.init();
+            await expect(promise).rejects.toThrowError(InvalidGraph);
+            await expect(promise).rejects.toMatchObject({
+                info: {
+                    flag: INVALID_GRAPH_FLAG.INVALID_EDGE_RELATIONSHIP,
+                },
+            });
         });
 
         test("should throw when an scoped -> transient edge is detected", async () => {
             const tokenA = genericToken<string>("A");
             const tokenB = genericToken<string>("B");
 
-            const nodeA = dependency(tokenB)
+            const nodeA = dependency({ b: tokenB })
                 .factory(() => "A")
                 .reuseToken(tokenA);
 
-            const nodeB = dependency()
+            const nodeB = dependency({})
                 .factory(() => "B")
                 .reuseToken(tokenB);
 
             container.registerFactory({ ...nodeA, type: LIFESPAN.SCOPED });
             container.registerFactory({ ...nodeB, type: LIFESPAN.TRANSIENT });
 
-            await expect(container.init()).rejects.toThrowError(
-                InvalidEdgeRelationshipDiError,
-            );
+            const promise = container.init();
+            await expect(promise).rejects.toThrowError(InvalidGraph);
+            await expect(promise).rejects.toMatchObject({
+                info: {
+                    flag: INVALID_GRAPH_FLAG.INVALID_EDGE_RELATIONSHIP,
+                },
+            });
         });
 
         test("should throw when an transient -> dynamic edge is detected", async () => {
             const tokenA = genericToken<string>("A");
             const tokenB = genericToken<string>("B");
 
-            const nodeA = dependency(tokenB)
+            const nodeA = dependency({ b: tokenB })
                 .factory(() => "A")
                 .reuseToken(tokenA);
 
             container.registerFactory({ ...nodeA, type: LIFESPAN.TRANSIENT });
             container.registerDynamic(tokenB);
 
-            await expect(container.init()).rejects.toThrowError(
-                InvalidEdgeRelationshipDiError,
-            );
+            const promise = container.init();
+            await expect(promise).rejects.toThrowError(InvalidGraph);
+            await expect(promise).rejects.toMatchObject({
+                info: {
+                    flag: INVALID_GRAPH_FLAG.INVALID_EDGE_RELATIONSHIP,
+                },
+            });
         });
     });
 
@@ -1972,34 +1983,38 @@ describe("graph validation", () => {
             const tokenA = genericToken<string>("A");
             const tokenB = genericToken<string>("B");
 
-            const nodeA = dependency(tokenB)
+            const nodeA = dependency({ b: tokenB })
                 .factory(() => "A")
                 .reuseToken(tokenA);
 
-            const nodeB = dependency(tokenA)
+            const nodeB = dependency({ a: tokenA })
                 .factory(() => "B")
                 .reuseToken(tokenB);
 
             container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
             container.registerFactory({ ...nodeB, type: LIFESPAN.SINGLETON });
 
-            await expect(container.init()).rejects.toThrowError(
-                CycleDependencyDiError,
-            );
+            const promise = container.init();
+            await expect(promise).rejects.toThrowError(InvalidGraph);
+            await expect(promise).rejects.toMatchObject({
+                info: { flag: INVALID_GRAPH_FLAG.CYCLE_DEPENDENCY },
+            });
         });
 
         test("should throw when a singleton cycle A->A is detected", async () => {
             const tokenA = genericToken("A");
             container.registerFactory({
-                deps: [tokenA],
+                deps: { a: tokenA },
                 factory: () => "_",
                 token: tokenA,
                 type: LIFESPAN.SINGLETON,
             });
 
-            await expect(container.init()).rejects.toThrowError(
-                CycleDependencyDiError,
-            );
+            const promise = container.init();
+            await expect(promise).rejects.toThrowError(InvalidGraph);
+            await expect(promise).rejects.toMatchObject({
+                info: { flag: INVALID_GRAPH_FLAG.CYCLE_DEPENDENCY },
+            });
         });
     });
 });
@@ -2015,11 +2030,11 @@ describe("override", () => {
     });
 
     test("should override nodeA with overrideFactory", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => `A`)
             .createToken("A");
 
-        const nodeAOverridden = dependency()
+        const nodeAOverridden = dependency({})
             .factory(() => `OverriddenA`)
             .reuseToken(nodeA.token);
 
@@ -2029,90 +2044,62 @@ describe("override", () => {
 
         await container.init();
 
-        const correctA = await nodeAOverridden.callFunc();
+        const correctA = await nodeAOverridden.callFunc({});
 
         const resolvedA = await container.resolve(nodeAOverridden.token);
 
         expect(resolvedA).toBe(correctA);
     });
 
-    /**
-     * Container.overrideClass is shortcut for:
-     * ```ts
-     * container.overrideFactory({
-     *       deps: constructorDepsArgs,
-     *       token: A,
-     *       factory: (args) => new A(...args),
-     *   });
-     * ```
-     * Where is A is a class and constructorDepsArgs is the dependencies.
-     * Therefore, container.overrideClass is tested only once.
-     */
-    test("should override with overrideClass", async () => {
-        class A {
-            constructor(public arg: unknown) {}
-        }
-
-        const nodeB = dependency()
-            .factory(() => "0")
-            .createToken("A");
-
-        const nodeC = dependency()
-            .factory(() => "1")
-            .createToken("C");
-
-        container.registerFactory({ ...nodeB, type: LIFESPAN.SINGLETON });
-        container.registerFactory({ ...nodeC, type: LIFESPAN.SINGLETON });
-        container.registerClass({
-            deps: [nodeB.token],
-            impl: A,
-            type: LIFESPAN.SINGLETON,
-        });
-
-        container.overrideClass({ deps: [nodeC.token], impl: A });
-
-        await container.init();
-
-        const resolvedA = await container.resolve(A);
-
-        expect(resolvedA?.arg).toBe(await nodeC.callFunc());
-    });
-
     test("when nonexistent node should throw", () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => `A`)
             .createToken("A");
 
-        expect(() => {
+        let error: unknown = null;
+        try {
             container.overrideFactory(nodeA);
-        }).toThrowError(CanNotOverrideService);
+        } catch (caught) {
+            error = caught;
+        }
+        expect(error).toBeInstanceOf(CanNotOverrideServiceDiError);
+        expect((error as CanNotOverrideServiceDiError).flag).toBe(
+            CAN_NOT_OVERRIDE_CAUSE_FLAG.TOKEN_NOT_REGISTERED,
+        );
     });
 
     test("when dynamic node should throw", () => {
         const tokenA = genericToken<string>("dynamic");
 
-        const nodeAOverridden = dependency()
+        const nodeAOverridden = dependency({})
             .factory(() => `OverriddenA`)
             .reuseToken(tokenA);
 
         container.registerDynamic(tokenA);
 
         // TODO add specific error object
-        expect(() => {
+        let error: unknown = null;
+        try {
             container.overrideFactory(nodeAOverridden);
-        }).toThrowError(CanNotOverrideService);
+        } catch (caught) {
+            error = caught;
+        }
+        expect(error).toBeInstanceOf(CanNotOverrideServiceDiError);
+        expect((error as CanNotOverrideServiceDiError).flag).toBe(
+            CAN_NOT_OVERRIDE_CAUSE_FLAG.DYNAMIC_TOKEN,
+        );
     });
 
     test("when double should fail", () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => `A`)
             .createToken("A");
 
-        const nodeAOverride1 = dependency()
+        const nodeAOverride1 = dependency({})
             .factory(() => `Node A override first time`)
             .reuseToken(nodeA.token);
 
-        const nodeAOverride2 = dependency()
+        const nodeAOverride2 = dependency({})
             .factory(() => `Node A override second time`)
             .reuseToken(nodeA.token);
 
@@ -2120,21 +2107,28 @@ describe("override", () => {
 
         container.overrideFactory(nodeAOverride1);
 
-        expect(() => {
+        let error: unknown = null;
+        try {
             container.overrideFactory(nodeAOverride2);
-        }).toThrowError(CanNotOverrideService);
+        } catch (caught) {
+            error = caught;
+        }
+        expect(error).toBeInstanceOf(CanNotOverrideServiceDiError);
+        expect((error as CanNotOverrideServiceDiError).flag).toBe(
+            CAN_NOT_OVERRIDE_CAUSE_FLAG.ALREADY_OVERRIDDEN,
+        );
     });
 
     test("when override A where B -> A should effect both A and B value", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => `A`)
             .createToken("A");
 
-        const nodeB = dependency(nodeA.token)
-            .factory((a) => wrapInParenthesis("B", a))
+        const nodeB = dependency({ a: nodeA.token })
+            .factory(({ a }) => wrapInParenthesis("B", a))
             .createToken("B");
 
-        const nodeAOverridden = dependency()
+        const nodeAOverridden = dependency({})
             .factory(() => `OverriddenA`)
             .reuseToken(nodeA.token);
 
@@ -2145,8 +2139,8 @@ describe("override", () => {
 
         await container.init();
 
-        const correctA = await nodeAOverridden.callFunc();
-        const correctB = await nodeB.callFunc(correctA);
+        const correctA = await nodeAOverridden.callFunc({});
+        const correctB = await nodeB.callFunc({ a: correctA });
 
         const resolvedA = await container.resolve(nodeAOverridden.token);
         const resolvedB = await container.resolve(nodeB.token);
@@ -2156,16 +2150,16 @@ describe("override", () => {
     });
 
     test("override B where B -> A should effect B but not A value", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => `A`)
             .createToken("A");
 
-        const nodeB = dependency(nodeA.token)
-            .factory((a) => wrapInParenthesis("B", a))
+        const nodeB = dependency({ a: nodeA.token })
+            .factory(({ a }) => wrapInParenthesis("B", a))
             .createToken("B");
 
-        const nodeBOverridden = dependency(nodeA.token)
-            .factory((a) => wrapInParenthesis("OverriddenB", a))
+        const nodeBOverridden = dependency({ a: nodeA.token })
+            .factory(({ a }) => wrapInParenthesis("OverriddenB", a))
             .reuseToken(nodeB.token);
 
         container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
@@ -2174,8 +2168,8 @@ describe("override", () => {
 
         await container.init();
 
-        const correctA = await nodeA.callFunc();
-        const correctB = await nodeBOverridden.callFunc(correctA);
+        const correctA = await nodeA.callFunc({});
+        const correctB = await nodeBOverridden.callFunc({ a: correctA });
 
         const resolvedA = await container.resolve(nodeA.token);
         const resolvedB = await container.resolve(nodeBOverridden.token);
@@ -2185,19 +2179,19 @@ describe("override", () => {
     });
 
     test("override A where B -> A -> C should not effect B value but effect both A and C value", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => `A`)
             .createToken("A");
 
-        const nodeB = dependency(nodeA.token)
-            .factory((a) => wrapInParenthesis("B", a))
+        const nodeB = dependency({ a: nodeA.token })
+            .factory(({ a }) => wrapInParenthesis("B", a))
             .createToken("B");
 
-        const nodeC = dependency(nodeB.token)
-            .factory((a) => wrapInParenthesis("C", a))
+        const nodeC = dependency({ b: nodeB.token })
+            .factory(({ b }) => wrapInParenthesis("C", b))
             .createToken("C");
 
-        const nodeAOverridden = dependency()
+        const nodeAOverridden = dependency({})
             .factory(() => `OverriddenA`)
             .reuseToken(nodeA.token);
 
@@ -2209,9 +2203,9 @@ describe("override", () => {
 
         await container.init();
 
-        const correctA = await nodeAOverridden.callFunc();
-        const correctB = await nodeB.callFunc(correctA);
-        const correctC = await nodeC.callFunc(correctB);
+        const correctA = await nodeAOverridden.callFunc({});
+        const correctB = await nodeB.callFunc({ a: correctA });
+        const correctC = await nodeC.callFunc({ b: correctB });
 
         const resolvedA = await container.resolve(nodeAOverridden.token);
         const resolvedB = await container.resolve(nodeB.token);
@@ -2223,20 +2217,20 @@ describe("override", () => {
     });
 
     test("override the dependency of B from B -> A to B -> C should effect only B", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => `A`)
             .createToken("A");
 
-        const nodeB = dependency(nodeA.token)
-            .factory((a) => wrapInParenthesis("B", a))
+        const nodeB = dependency({ a: nodeA.token })
+            .factory(({ a }) => wrapInParenthesis("B", a))
             .createToken("B");
 
-        const nodeC = dependency()
+        const nodeC = dependency({})
             .factory(() => `C`)
             .createToken("C");
 
-        const overriddenNodeB = dependency(nodeC.token)
-            .factory((a) => wrapInParenthesis("B", a))
+        const overriddenNodeB = dependency({ c: nodeC.token })
+            .factory(({ c }) => wrapInParenthesis("B", c))
             .reuseToken(nodeB.token);
 
         container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
@@ -2246,10 +2240,10 @@ describe("override", () => {
 
         await container.init();
 
-        const correctA = await nodeA.callFunc();
-        const correctC = await nodeC.callFunc();
-        const correctB = await nodeB.callFunc(correctC);
-        const inCorrectB = await nodeB.callFunc(correctA);
+        const correctA = await nodeA.callFunc({});
+        const correctC = await nodeC.callFunc({});
+        const correctB = await overriddenNodeB.callFunc({ c: correctC });
+        const inCorrectB = await nodeB.callFunc({ a: correctA });
 
         const resolvedA = await container.resolve(nodeA.token);
         const resolvedC = await container.resolve(nodeC.token);
@@ -2269,19 +2263,19 @@ describe("graph validation & override", () => {
     });
 
     test("when override introduce invalid edge graph validation should fail", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "")
             .createToken("A");
 
-        const nodeB = dependency()
+        const nodeB = dependency({})
             .factory(() => "")
             .createToken("B");
 
-        const nodeC = dependency(nodeA.token)
+        const nodeC = dependency({ a: nodeA.token })
             .factory(() => "")
             .createToken("C");
 
-        const nodeCOverridden = dependency(nodeB.token)
+        const nodeCOverridden = dependency({ b: nodeB.token })
             .factory(() => "")
             .reuseToken(nodeC.token);
 
@@ -2290,20 +2284,22 @@ describe("graph validation & override", () => {
         container.registerFactory({ ...nodeC, type: LIFESPAN.SINGLETON });
 
         container.overrideFactory(nodeCOverridden);
-        await expect(container.init()).rejects.toThrowError(
-            InvalidEdgeRelationshipDiError,
-        );
+        const promise = container.init();
+        await expect(promise).rejects.toThrowError(InvalidGraph);
+        await expect(promise).rejects.toMatchObject({
+            info: { flag: INVALID_GRAPH_FLAG.INVALID_EDGE_RELATIONSHIP },
+        });
     });
 
     test("when override introduce cycle graph validation should fail", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "")
             .createToken("A");
-        const nodeB = dependency(nodeA.token)
+        const nodeB = dependency({ a: nodeA.token })
             .factory(() => "")
             .createToken("B");
 
-        const nodeAOverridden = dependency(nodeB.token)
+        const nodeAOverridden = dependency({ b: nodeB.token })
             .factory(() => "")
             .reuseToken(nodeA.token);
 
@@ -2311,26 +2307,30 @@ describe("graph validation & override", () => {
         container.registerFactory({ ...nodeB, type: LIFESPAN.SINGLETON });
         container.overrideFactory(nodeAOverridden);
 
-        await expect(container.init()).rejects.toThrowError(
-            CycleDependencyDiError,
-        );
+        const promise = container.init();
+        await expect(promise).rejects.toThrowError(InvalidGraph);
+        await expect(promise).rejects.toMatchObject({
+            info: { flag: INVALID_GRAPH_FLAG.CYCLE_DEPENDENCY },
+        });
     });
 
     test("when override introduce non existent dependency graph validation should fail", async () => {
         const nonExistent = genericToken<string>("");
 
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "")
             .createToken("A");
-        const nodeAOverridden = dependency(nonExistent)
+        const nodeAOverridden = dependency({ nonexistent: nonExistent })
             .factory(() => "")
             .reuseToken(nodeA.token);
 
         container.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
         container.overrideFactory(nodeAOverridden);
-        await expect(container.init()).rejects.toThrowError(
-            UndeclaredDependenciesDiError,
-        );
+        const promise = container.init();
+        await expect(promise).rejects.toThrowError(InvalidGraph);
+        await expect(promise).rejects.toMatchObject({
+            info: { flag: INVALID_GRAPH_FLAG.UNDECLARED_DEPENDENCIES },
+        });
     });
 });
 
@@ -2344,7 +2344,7 @@ describe("forked container", () => {
     });
 
     test("adding a node in fork does not affect the original container", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "A")
             .createToken("A");
 
@@ -2363,7 +2363,7 @@ describe("forked container", () => {
     });
 
     test("adding a node in original does not affect the fork", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "A")
             .createToken("A");
 
@@ -2382,21 +2382,17 @@ describe("forked container", () => {
     });
 
     test("fork copies all nodes from the original", async () => {
-        class NodeA {
-            private _: unknown;
-        }
+        const nodeA = dependency({})
+            .factory(() => "_")
+            .createToken("A");
 
-        const nodeB = dependency()
+        const nodeB = dependency({})
             .factory(() => "B")
             .createToken("B");
 
         const tokenC = genericToken<string>("C");
 
-        containerA.registerClass({
-            deps: [],
-            impl: NodeA,
-            type: LIFESPAN.SINGLETON,
-        });
+        containerA.registerFactory({ ...nodeA, type: LIFESPAN.SINGLETON });
         containerA.registerFactory({ ...nodeB, type: LIFESPAN.TRANSIENT });
         containerA.registerValue({ token: tokenC, value: "C" });
 
@@ -2405,7 +2401,7 @@ describe("forked container", () => {
         await containerA.init();
         await containerB.init();
 
-        const hasNodeA = await containerB.has(NodeA);
+        const hasNodeA = await containerB.has(nodeA.token);
         const hasNodeB = await containerB.has(nodeB.token);
         const hasTokenC = await containerB.has(tokenC);
 
@@ -2425,11 +2421,11 @@ describe("forked container & override", () => {
     });
 
     test("fork copies all override nodes from the original", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "A")
             .createToken("A");
 
-        const nodeAOverride1 = dependency()
+        const nodeAOverride1 = dependency({})
             .factory(() => "A overridden first")
             .reuseToken(nodeA.token);
 
@@ -2444,18 +2440,18 @@ describe("forked container & override", () => {
         const resolvedContainerA = await containerA.resolve(nodeA.token);
         const resolvedContainerB = await containerB.resolve(nodeA.token);
 
-        const correctA = await nodeAOverride1.callFunc();
+        const correctA = await nodeAOverride1.callFunc({});
 
         expect(resolvedContainerA).toBe(correctA);
         expect(resolvedContainerB).toBe(correctA);
     });
 
     test("overriding a node in fork does not affect the original container", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "A")
             .createToken("A");
 
-        const nodeAOverride = dependency()
+        const nodeAOverride = dependency({})
             .factory(() => "A overridden second")
             .reuseToken(nodeA.token);
 
@@ -2466,17 +2462,17 @@ describe("forked container & override", () => {
         await containerA.init();
         await containerB.init();
 
-        const correctContainerB = await nodeAOverride.callFunc();
+        const correctContainerB = await nodeAOverride.callFunc({});
         const resolvedContainerB = await containerB.resolve(nodeA.token);
         expect(resolvedContainerB).toBe(correctContainerB);
     });
 
     test("overriding a node in original does not affect the forked container", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "A")
             .createToken("A");
 
-        const nodeAOverride = dependency()
+        const nodeAOverride = dependency({})
             .factory(() => "A overridden second")
             .reuseToken(nodeA.token);
 
@@ -2487,7 +2483,7 @@ describe("forked container & override", () => {
         await containerA.init();
         await containerB.init();
 
-        const correctContainerA = await nodeAOverride.callFunc();
+        const correctContainerA = await nodeAOverride.callFunc({});
         const resolvedContainerA = await containerA.resolve(nodeA.token);
         expect(resolvedContainerA).toBe(correctContainerA);
     });
@@ -2504,7 +2500,7 @@ describe("forked container & hooks", () => {
 
     // uncessary ?
     test("deInit of fork does not deInit the original container", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "A")
             .createToken("A");
 
@@ -2518,13 +2514,15 @@ describe("forked container & hooks", () => {
         await containerB.deInit();
 
         await expect(containerA.resolve(nodeA.token)).resolves.toBe("A");
-        await expect(containerB.resolve(nodeA.token)).rejects.toThrowError(
-            ContainerNotActiveException,
-        );
+        const promise = containerB.resolve(nodeA.token);
+        await expect(promise).rejects.toThrowError(InvalidMethodCall);
+        await expect(promise).rejects.toMatchObject({
+            flag: METHOD_CALL_FLAG.NOT_ACTIVE,
+        });
     });
 
     test("deInit of original does not deInit the fork", async () => {
-        const nodeA = dependency()
+        const nodeA = dependency({})
             .factory(() => "A")
             .createToken("A");
 
@@ -2538,9 +2536,11 @@ describe("forked container & hooks", () => {
         await containerA.deInit();
 
         await expect(containerB.resolve(nodeA.token)).resolves.toBe("A");
-        await expect(containerA.resolve(nodeA.token)).rejects.toThrowError(
-            ContainerNotActiveException,
-        );
+        const promise = containerA.resolve(nodeA.token);
+        await expect(promise).rejects.toThrowError(InvalidMethodCall);
+        await expect(promise).rejects.toMatchObject({
+            flag: METHOD_CALL_FLAG.NOT_ACTIVE,
+        });
     });
 
     // TODO dedice if it good thing to copy init and deInit hooks from original?

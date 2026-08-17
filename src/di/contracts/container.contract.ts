@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 /**
  * @module DI
  */
@@ -6,11 +7,9 @@ import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ServiceCanNotBeResolvedError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    InvalidEdgeRelationshipDiError,
+    InvalidGraph,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    CycleDependencyDiError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ServiceExistsDiError,
+    ServiceAlreadyRegisteredDiError,
 } from "@/di/contracts/container.errors.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import {
@@ -115,7 +114,8 @@ export type DiToken<TRegisteredType = unknown> =
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type ServiceFactory<
-    TDeps extends Array<unknown> = Array<unknown>,
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    TDeps extends Partial<Record<string, unknown>> = {},
     TRegisteredType = unknown,
 > = Invokable<
     [deps: TDeps, executionContext: IExecutionContext],
@@ -131,7 +131,8 @@ export type ServiceFactory<
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-export type DepsTokens<TDeps extends Array<unknown> = Array<unknown>> = {
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export type DepsTokens<TDeps extends Partial<Record<string, unknown>> = {}> = {
     [K in keyof TDeps]: DiToken<TDeps[K]>;
 };
 
@@ -145,7 +146,8 @@ export type DepsTokens<TDeps extends Array<unknown> = Array<unknown>> = {
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type FactoryRegistration<
-    TDeps extends Array<unknown> = Array<unknown>,
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    TDeps extends Partial<Record<string, unknown>> = {},
     TRegisteredType = unknown,
 > = {
     /** The token used to identify and resolve this service. */
@@ -175,7 +177,8 @@ export type FactoryRegistration<
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type FactoryRegistrationOverride<
-    TDeps extends Array<unknown> = Array<unknown>,
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    TDeps extends Partial<Record<string, unknown>> = {},
     TRegisteredType = unknown,
 > = {
     /** The token used to identify and resolve this service. */
@@ -185,54 +188,6 @@ export type FactoryRegistrationOverride<
     factory: ServiceFactory<TDeps, TRegisteredType>;
 
     /** The dependency tokens to resolve and inject into the factory. */
-    deps: DepsTokens<TDeps>;
-};
-
-/**
- * Configuration for registering a class-based service.
- * The container will construct the class, injecting its dependencies.
- *
- * @typeParam TDeps - Tuple of constructor dependency types.
- * @typeParam TRegisteredType - The type of the class instance.
- *
- * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
- */
-export type ClassRegistration<
-    TDeps extends Array<unknown> = Array<unknown>,
-    TRegisteredType = unknown,
-> = {
-    /** The class constructor to instantiate. */
-    impl: Class<TDeps, TRegisteredType>;
-
-    /** The dependency tokens to resolve and inject into the constructor. */
-    deps: DepsTokens<TDeps>;
-    type: Extract<
-        TLifespan,
-        | typeof LIFESPAN.TRANSIENT
-        | typeof LIFESPAN.SCOPED
-        | typeof LIFESPAN.SINGLETON
-    >;
-};
-
-/**
- * Configuration for overriding a class-based service.
- * The container will construct the class, injecting its dependencies.
- *
- * @typeParam TDeps - Tuple of constructor dependency types.
- * @typeParam TRegisteredType - The type of the class instance.
- *
- * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
- */
-export type ClassRegistrationOverride<
-    TDeps extends Array<unknown> = Array<unknown>,
-    TRegisteredType = unknown,
-> = {
-    /** The class constructor to instantiate. */
-    impl: Class<TDeps, TRegisteredType>;
-
-    /** The dependency tokens to resolve and inject into the constructor. */
     deps: DepsTokens<TDeps>;
 };
 
@@ -251,31 +206,6 @@ export type ValueRegistration<TRegisteredType = unknown> = {
 
     /** The pre-constructed value to register. */
     value: TRegisteredType;
-};
-
-/**
- * Fluent interface for configuring the lifetime of a registered service.
- * Returned by {@link IServiceRegisterBase.registerFactory} and
- * {@link IServiceRegisterBase.registerClass}.
- *
- * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
- */
-export type IServiceLifetime = {
-    /**
-     * A single instance is created and shared across all resolutions.
-     */
-    singleton(): void;
-
-    /**
-     * A single instance is created per {@link IContainerScope.run | scope} execution.
-     */
-    scoped(): void;
-
-    /**
-     * A new instance is created every time the service is resolved.
-     */
-    transient(): void;
 };
 
 /**
@@ -317,19 +247,11 @@ export type IServiceRegisterBase = {
      * @returns An {@link IServiceLifetime} to configure the service lifetime.
      */
     registerFactory<
-        TDeps extends Array<unknown> = [],
+        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+        TDeps extends Partial<Record<string, unknown>> = {},
         TRegisteredType = unknown,
     >(
         settings: FactoryRegistration<TDeps, TRegisteredType>,
-    ): void;
-
-    /**
-     * Registers a class whose instance will be constructed by the container.
-     *
-     * @returns An {@link IServiceLifetime} to configure the service lifetime.
-     */
-    registerClass<TDeps extends Array<unknown> = [], TRegisteredType = unknown>(
-        settings: ClassRegistration<TDeps, TRegisteredType>,
     ): void;
 
     /**
@@ -612,17 +534,10 @@ export type IServiceOverrider = {
      * Overrides an existing factory registration with a new factory.
      */
     overrideFactory<
-        TDeps extends Array<unknown> = [],
+        TDeps extends Partial<Record<string, unknown>> = {},
         TRegisteredType = unknown,
     >(
         settings: FactoryRegistrationOverride<TDeps, TRegisteredType>,
-    ): void;
-
-    /**
-     * Overrides an existing class registration with a new class.
-     */
-    overrideClass<TDeps extends Array<unknown> = [], TRegisteredType = unknown>(
-        settings: ClassRegistrationOverride<TDeps, TRegisteredType>,
     ): void;
 
     /**
@@ -640,11 +555,10 @@ export type IServiceOverrider = {
  *
  * The following errors can be thrown any method listed in `IContainer` dependent on the algorithm used:
  * @throws {ServiceCanNotBeResolvedError} When a required service cannot be resolved.
- * @throws {InvalidEdgeRelationshipDiError} When a lifetime configuration is invalid
- *   (e.g. singleton depending on transient).
- * @throws {CycleDependencyDiError} When a circular dependency is detected
- *   in the service graph.
- * @throws {ServiceExistsDiError} When attempting to register a duplicate token.
+ * @throws {InvalidGraph} When the service graph is invalid, e.g. an invalid
+ *   lifetime configuration (singleton depending on transient), a circular
+ *   dependency, or an undeclared dependency.
+ * @throws {ServiceAlreadyRegisteredDiError} When attempting to register a duplicate token.
  *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`

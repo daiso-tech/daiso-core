@@ -4,7 +4,7 @@ import {
     type LIFESPAN,
 } from "@/di/contracts/container.contract.js";
 export type EdgeProps = {
-    argIndex: number;
+    argIndex: number | string;
 };
 
 export type TEdge = [DiToken, DiToken];
