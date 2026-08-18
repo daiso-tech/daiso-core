@@ -28,18 +28,14 @@ import {
  * - `"singleton"`: one instance for the app lifetime.
  * - `"transient"`: new instance per resolution.
  * - `"scoped"`: one instance per scope (e.g., request).
- * - `"dynamic"`: dynamically registered in a child scope.
  */
-/** Lifespan constants used to define service scope. */
-
 export const LIFESPAN = {
     SINGLETON: "singleton",
     TRANSIENT: "transient",
     SCOPED: "scoped",
-    DYNAMIC: "dynamic",
 } as const;
 
-export type TLifespan = (typeof LIFESPAN)[keyof typeof LIFESPAN];
+export type Lifespan = (typeof LIFESPAN)[keyof typeof LIFESPAN];
 
 /**
  * A token that identifies a registered type via a unique symbol.
@@ -159,12 +155,7 @@ export type FactoryRegistration<
     /** The dependency tokens to resolve and inject into the factory. */
     deps: DepsTokens<TDeps>;
 
-    type: Extract<
-        TLifespan,
-        | typeof LIFESPAN.TRANSIENT
-        | typeof LIFESPAN.SCOPED
-        | typeof LIFESPAN.SINGLETON
-    >;
+    lifetime: Lifespan;
 };
 
 /**

@@ -1,6 +1,5 @@
 import {
     genericToken,
-    LIFESPAN,
     ServiceAlreadyRegisteredDiError,
     type DiHook,
     type DiToken,
@@ -17,7 +16,7 @@ import {
     METHOD_CALL_FLAG,
     ServiceCanNotBeResolvedError,
 } from "@/di/contracts/container.errors.js";
-import { type TNode } from "@/di/implementations/common.js";
+import { type TNode, INTERNAL_LIFESPAN } from "@/di/implementations/common.js";
 import { DynamicServiceRegister } from "@/di/implementations/dynamic-service-register.js";
 import { eagerInitialization } from "@/di/implementations/graph-algorithms.js";
 import { GraphManager } from "@/di/implementations/graph-manager.js";
@@ -56,14 +55,6 @@ type TState =
     | typeof BEFORE_ACTIVE_STATE
     | typeof IN_ACTIVE_STATE
     | typeof AFTER_ACTIVE_STATE;
-
-/**
- * TODO remove this error
- * Thrown when one or more registered services are missing a lifetime
- * configuration when the container is initialized.
- *
- * @group Errors
- */
 
 export class Container implements IContainer {
     private readonly SCOPE_DEPTH_KEY = genericToken<number>(
@@ -474,7 +465,7 @@ export class Container implements IContainer {
             deps: {},
             token: settings.token,
             factory: () => settings.value,
-            type: LIFESPAN.SINGLETON,
+            lifetime: INTERNAL_LIFESPAN.SINGLETON,
         });
     }
 

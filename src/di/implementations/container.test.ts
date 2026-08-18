@@ -134,7 +134,7 @@ describe("class: Container", () => {
                 token: ILOGGER,
                 factory: () => ({ log: () => {} }),
                 deps: {},
-                type: LIFESPAN.SINGLETON,
+                lifetime: LIFESPAN.SINGLETON,
             });
 
             await container.init();
@@ -151,15 +151,14 @@ describe("class: Container", () => {
 
                 container.registerFactory({
                     token: IUSER_SERVICE,
-                    factory: (args) => ({
+                    factory: ({ db }) => ({
                         getUser: async () => {
-                            const db = args[0];
                             await db.query("");
                             return { name: "Test" };
                         },
                     }),
-                    deps: [IDATABASE],
-                    type: LIFESPAN.SINGLETON,
+                    deps: { db: IDATABASE },
+                    lifetime: LIFESPAN.SINGLETON,
                 });
             }).not.toThrow();
         });
@@ -170,7 +169,7 @@ describe("class: Container", () => {
                     token: ILOGGER,
                     factory: () => new ConsoleLogger(),
                     deps: {},
-                    type: LIFESPAN.SINGLETON,
+                    lifetime: LIFESPAN.SINGLETON,
                 });
             }).not.toThrow();
         });
@@ -181,7 +180,7 @@ describe("class: Container", () => {
                     token: ILOGGER,
                     factory: () => new ConsoleLogger(),
                     deps: {},
-                    type: LIFESPAN.SCOPED,
+                    lifetime: LIFESPAN.SCOPED,
                 });
             }).not.toThrow();
         });
@@ -192,7 +191,7 @@ describe("class: Container", () => {
                     token: ILOGGER,
                     factory: () => new ConsoleLogger(),
                     deps: {},
-                    type: LIFESPAN.TRANSIENT,
+                    lifetime: LIFESPAN.TRANSIENT,
                 });
             }).not.toThrow();
         });
@@ -272,7 +271,7 @@ describe("class: Container", () => {
                         token: ConsoleLogger,
                         factory: () => new ConsoleLogger(),
                         deps: {},
-                        type: LIFESPAN.SINGLETON,
+                        lifetime: LIFESPAN.SINGLETON,
                     });
                 }
 
@@ -288,7 +287,7 @@ describe("class: Container", () => {
                             token: Database,
                             factory: () => new Database(),
                             deps: {},
-                            type: LIFESPAN.SINGLETON,
+                            lifetime: LIFESPAN.SINGLETON,
                         });
                     }
                 }
@@ -304,14 +303,14 @@ describe("class: Container", () => {
                         token: ConsoleLogger,
                         factory: () => new ConsoleLogger(),
                         deps: {},
-                        type: LIFESPAN.SINGLETON,
+                        lifetime: LIFESPAN.SINGLETON,
                     });
 
                     register.registerFactory({
                         token: Database,
                         factory: () => new Database(),
                         deps: {},
-                        type: LIFESPAN.SINGLETON,
+                        lifetime: LIFESPAN.SINGLETON,
                     });
 
                     register.registerValue({
@@ -334,7 +333,7 @@ describe("class: Container", () => {
                         token: ConsoleLogger,
                         factory: () => new ConsoleLogger(),
                         deps: {},
-                        type: LIFESPAN.SINGLETON,
+                        lifetime: LIFESPAN.SINGLETON,
                     });
                 }
 
@@ -539,7 +538,7 @@ describe("class: Container", () => {
                 token: ScopedService,
                 factory: () => new ScopedService(),
                 deps: {},
-                type: LIFESPAN.SCOPED,
+                lifetime: LIFESPAN.SCOPED,
             });
             await container.init();
             await container.run({
@@ -568,7 +567,7 @@ describe("class: Container", () => {
                 token: ILOGGER,
                 factory: () => new ConsoleLogger(),
                 deps: {},
-                type: LIFESPAN.SINGLETON,
+                lifetime: LIFESPAN.SINGLETON,
             });
 
             expect(() => {
@@ -590,14 +589,14 @@ describe("class: Container", () => {
                 token: ILOGGER,
                 factory: () => new ConsoleLogger(),
                 deps: {},
-                type: LIFESPAN.SINGLETON,
+                lifetime: LIFESPAN.SINGLETON,
             });
 
             expect(() => {
                 container.overrideFactory({
                     token: ILOGGER,
-                    factory: (_config) => new ConsoleLogger(),
-                    deps: [ICONFIG],
+                    factory: () => new ConsoleLogger(),
+                    deps: { config: ICONFIG },
                 });
             }).not.toThrow();
         });
@@ -880,7 +879,7 @@ describe("class: Container", () => {
                     token: ConsoleLogger,
                     factory: () => new ConsoleLogger(),
                     deps: {},
-                    type: LIFESPAN.SINGLETON,
+                    lifetime: LIFESPAN.SINGLETON,
                 });
             }).not.toThrow();
         });
@@ -893,21 +892,25 @@ describe("class: Container", () => {
                     token: Database,
                     factory: () => new Database(),
                     deps: {},
-                    type: LIFESPAN.SINGLETON,
+                    lifetime: LIFESPAN.SINGLETON,
                 });
 
                 container.registerFactory({
                     token: UserService,
-                    factory: (args) => new UserService(args[0]),
-                    deps: [Database],
-                    type: LIFESPAN.SINGLETON,
+                    factory: (args) => new UserService(args.db),
+                    deps: { db: Database },
+                    lifetime: LIFESPAN.SINGLETON,
                 });
 
                 container.registerFactory({
                     token: UserController,
-                    factory: (args) => new UserController(args[0], args[1]),
-                    deps: [UserService, ConsoleLogger],
-                    type: LIFESPAN.TRANSIENT,
+                    factory: (args) =>
+                        new UserController(args.userService, args.consoleLoger),
+                    deps: {
+                        userService: UserService,
+                        consoleLoger: ConsoleLogger,
+                    },
+                    lifetime: LIFESPAN.TRANSIENT,
                 });
             }).not.toThrow();
         });
@@ -938,7 +941,7 @@ describe("class: Container", () => {
                     return new ConsoleLogger();
                 },
                 deps: {},
-                type: LIFESPAN.SINGLETON,
+                lifetime: LIFESPAN.SINGLETON,
             });
 
             await container.init();
@@ -957,7 +960,7 @@ describe("class: Container", () => {
                         return new ConsoleLogger();
                     },
                     deps: {},
-                    type: LIFESPAN.SINGLETON,
+                    lifetime: LIFESPAN.SINGLETON,
                 });
             }).not.toThrow();
         });
@@ -970,7 +973,7 @@ describe("class: Container", () => {
                     token: ConsoleLogger,
                     factory: () => new ConsoleLogger(),
                     deps: {},
-                    type: LIFESPAN.SINGLETON,
+                    lifetime: LIFESPAN.SINGLETON,
                 });
             }).not.toThrow();
         });
@@ -994,7 +997,7 @@ describe("class: Container", () => {
                 token: Database,
                 factory: () => new Database(),
                 deps: {},
-                type: LIFESPAN.SINGLETON,
+                lifetime: LIFESPAN.SINGLETON,
             });
 
             // Register user service (depends on DB)
@@ -1007,7 +1010,7 @@ describe("class: Container", () => {
                     },
                 }),
                 deps: { db: Database },
-                type: LIFESPAN.SCOPED,
+                lifetime: LIFESPAN.SCOPED,
             });
 
             // Register logger
@@ -1015,7 +1018,7 @@ describe("class: Container", () => {
                 token: ConsoleLogger,
                 factory: () => new ConsoleLogger(),
                 deps: {},
-                type: LIFESPAN.SINGLETON,
+                lifetime: LIFESPAN.SINGLETON,
             });
 
             // Register dynamic request ID
@@ -1053,14 +1056,14 @@ describe("class: Container", () => {
                 token: Database,
                 factory: () => new Database(),
                 deps: {},
-                type: LIFESPAN.SINGLETON,
+                lifetime: LIFESPAN.SINGLETON,
             });
 
             appContainer.registerFactory({
                 token: UserService,
                 factory: ({ db }) => new UserService(db),
                 deps: { db: Database },
-                type: LIFESPAN.SINGLETON,
+                lifetime: LIFESPAN.SINGLETON,
             });
 
             // Create test container
@@ -1093,14 +1096,14 @@ describe("class: Container", () => {
                     token: ConsoleLogger,
                     factory: () => new ConsoleLogger(),
                     deps: {},
-                    type: LIFESPAN.SINGLETON,
+                    lifetime: LIFESPAN.SINGLETON,
                 });
 
                 register.registerFactory({
                     token: Database,
                     factory: () => new Database(),
                     deps: {},
-                    type: LIFESPAN.SINGLETON,
+                    lifetime: LIFESPAN.SINGLETON,
                 });
 
                 register.registerValue({

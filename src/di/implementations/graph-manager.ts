@@ -11,8 +11,6 @@ import {
 import {
     type DepsTokens,
     type FactoryRegistrationOverride,
-    type TLifespan,
-    LIFESPAN,
 } from "@/di/contracts/container.contract.js";
 import {
     type NodeProps,
@@ -23,6 +21,8 @@ import {
     type DynamicNodeProps,
     type TNode,
     type TEdge,
+    type InternalLifespan,
+    INTERNAL_LIFESPAN,
 } from "@/di/implementations/common.js";
 import {
     findAllCycles,
@@ -222,7 +222,7 @@ export class GraphManager {
         const edges = this.depsToEdges(settings);
 
         this.setNodeProperty(settings.token, {
-            lifespan: settings.type,
+            lifespan: settings.lifetime,
             service: factory,
         });
 
@@ -233,7 +233,7 @@ export class GraphManager {
 
     registerDynamic(token: DiToken): void {
         this.setNodeProperty(token, {
-            lifespan: LIFESPAN.DYNAMIC,
+            lifespan: INTERNAL_LIFESPAN.DYNAMIC,
         });
     }
 
@@ -270,7 +270,7 @@ export class GraphManager {
         }
         const nodeProps = this.getNodePropertyOrThrow(settings.token);
 
-        if (nodeProps.lifespan === LIFESPAN.DYNAMIC) {
+        if (nodeProps.lifespan === INTERNAL_LIFESPAN.DYNAMIC) {
             return {
                 success: false,
                 error: CanNotOverrideServiceDiError.create({
@@ -351,31 +351,39 @@ export class GraphManager {
 
     public isTransient(node: TNode): boolean {
         return (
-            this.getNodePropertyOrThrow(node).lifespan === LIFESPAN.TRANSIENT
+            this.getNodePropertyOrThrow(node).lifespan ===
+            INTERNAL_LIFESPAN.TRANSIENT
         );
     }
 
     public isSingleton(node: TNode): boolean {
         return (
-            this.getNodePropertyOrThrow(node).lifespan === LIFESPAN.SINGLETON
+            this.getNodePropertyOrThrow(node).lifespan ===
+            INTERNAL_LIFESPAN.SINGLETON
         );
     }
 
     public isScoped(node: TNode): boolean {
-        return this.getNodePropertyOrThrow(node).lifespan === LIFESPAN.SCOPED;
+        return (
+            this.getNodePropertyOrThrow(node).lifespan ===
+            INTERNAL_LIFESPAN.SCOPED
+        );
     }
 
     public isDynamic(node: TNode): boolean {
-        return this.getNodePropertyOrThrow(node).lifespan === LIFESPAN.DYNAMIC;
+        return (
+            this.getNodePropertyOrThrow(node).lifespan ===
+            INTERNAL_LIFESPAN.DYNAMIC
+        );
     }
 
-    public getLifespan(key: TNode): TLifespan {
+    public getLifespan(key: TNode): InternalLifespan {
         return this.graph.getNodePropertyOrThrow(key).lifespan;
     }
 
     public getSingletonNodeOrThrow(nodeId: TNode): SingletonNodeProps {
         const node = this.getNodePropertyOrThrow(nodeId);
-        if (node.lifespan === LIFESPAN.SINGLETON) {
+        if (node.lifespan === INTERNAL_LIFESPAN.SINGLETON) {
             return node;
         }
         throw new UnexpectedError(
@@ -385,7 +393,7 @@ export class GraphManager {
 
     public getTransientNodeOrThrow(nodeId: TNode): TransientNodeProps {
         const node = this.getNodePropertyOrThrow(nodeId);
-        if (node.lifespan === LIFESPAN.TRANSIENT) {
+        if (node.lifespan === INTERNAL_LIFESPAN.TRANSIENT) {
             return node;
         }
         throw new UnexpectedError(
@@ -394,7 +402,7 @@ export class GraphManager {
     }
     public getScopedNodeOrThrow(nodeId: TNode): ScopedNodeProps {
         const node = this.getNodePropertyOrThrow(nodeId);
-        if (node.lifespan === LIFESPAN.SCOPED) {
+        if (node.lifespan === INTERNAL_LIFESPAN.SCOPED) {
             return node;
         }
         throw new UnexpectedError(
@@ -404,7 +412,7 @@ export class GraphManager {
 
     public getDynamicNodeOrThrow(nodeId: TNode): DynamicNodeProps {
         const node = this.getNodePropertyOrThrow(nodeId);
-        if (node.lifespan === LIFESPAN.DYNAMIC) {
+        if (node.lifespan === INTERNAL_LIFESPAN.DYNAMIC) {
             return node;
         }
         throw new UnexpectedError(
@@ -414,7 +422,7 @@ export class GraphManager {
 
     public getServiceFactory(nodeId: TNode): ServiceFactory {
         const node = this.getNodePropertyOrThrow(nodeId);
-        if (node.lifespan === LIFESPAN.DYNAMIC) {
+        if (node.lifespan === INTERNAL_LIFESPAN.DYNAMIC) {
             throw new UnexpectedError(
                 `Node with token "${tokenToString(nodeId)}" is registered as a dynamic node and therefore does not have a service factory.`,
             );
