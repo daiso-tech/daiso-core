@@ -20,7 +20,7 @@ import {
 } from "@/di/contracts/container.errors.js";
 import {
     type TNode,
-    INTERNAL_LIFESPAN,
+    INTERNAL_LIFETIME,
 } from "@/di/implementations/eager/_shared.js";
 import { DynamicServiceRegister } from "@/di/implementations/eager/dynamic-service-register.js";
 import { eagerInitialization } from "@/di/implementations/eager/graph-algorithms.js";
@@ -469,7 +469,7 @@ export class Container implements IContainer {
             deps: {},
             token: settings.token,
             factory: () => settings.value,
-            lifetime: INTERNAL_LIFESPAN.SINGLETON,
+            lifetime: INTERNAL_LIFETIME.SINGLETON,
         });
     }
 
@@ -590,7 +590,7 @@ export class Container implements IContainer {
             );
         }
         const includeScopedNodes =
-            this.graphManager.ancestorIncludeScopedNodes(token);
+            this.graphManager.ancestorOfTransientNodeIncludeScopedNodes(token);
 
         const canNotResolve =
             includeScopedNodes.status && this.isOutsideRunScope();
@@ -639,9 +639,10 @@ export class Container implements IContainer {
         }
 
         await Promise.resolve();
-        const canResolve = this.isInsideRunScope();
 
-        if (!canResolve) {
+        const outsideRun = !this.isInsideRunScope();
+
+        if (outsideRun) {
             return {
                 success: false,
                 explanation: {
@@ -651,6 +652,24 @@ export class Container implements IContainer {
                 },
             };
         }
+
+        const dynamicNodes =
+            this.graphManager.getDynamicAncestralNodesOfScopedNode(token);
+        const dynamicTokensWithoutValue = dynamicNodes.filter(
+            (node) => !this.registryManager.has(node),
+        );
+
+        if (dynamicTokensWithoutValue.length > 0) {
+            return {
+                success: false,
+                explanation: {
+                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                        .NO_DYNAMIC_VALUE_SET_FOR_TOKENS,
+                    dynamicTokens: dynamicTokensWithoutValue,
+                },
+            };
+        }
+
         const value = this.registryManager.getAsValueOrThrow(token);
         if (value === null) {
             return {
@@ -697,8 +716,8 @@ export class Container implements IContainer {
                 success: false,
                 explanation: {
                     flag: ServiceCanNotBeResolvedDiError.FLAG
-                        .NO_DYNAMIC_VALUE_SET_FOR_TOKEN,
-                    token,
+                        .NO_DYNAMIC_VALUE_SET_FOR_TOKENS,
+                    dynamicTokens: [token],
                 },
             };
         }

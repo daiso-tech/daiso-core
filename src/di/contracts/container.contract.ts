@@ -14,19 +14,22 @@ import {
     type Promisable,
 } from "@/utilities/_module.js";
 
-/*
- * All possible service lifetime scopes.
- * - `"singleton"`: one instance for the app lifetime.
+/**
+ * All possible lifetime options for {@link IServiceRegisterBase.registerFactory}.
+ * - `"singleton"`: one instance for the container lifetime.
  * - `"transient"`: new instance per resolution.
- * - `"scoped"`: one instance per scope (e.g., request).
+ * - `"scoped"`: one instance per run scope.
+ *
+ * @group Contracts
+ * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-export const LIFESPAN = {
+export const LIFETIME = {
     SINGLETON: "singleton",
     TRANSIENT: "transient",
     SCOPED: "scoped",
 } as const;
 
-export type Lifespan = (typeof LIFESPAN)[keyof typeof LIFESPAN];
+export type Lifetime = (typeof LIFETIME)[keyof typeof LIFETIME];
 
 /**
  * A token that identifies a registered type via a unique symbol.
@@ -159,11 +162,11 @@ export type FactoryRegistration<
     /** The dependency tokens to resolve and inject into the factory. */
     deps: DepsTokens<TDeps>;
 
-    lifetime: Lifespan;
+    lifetime: Lifetime;
 };
 
 /**
- * Configuration for overriding  a factory-based service.
+ * Configuration for overriding a factory-based service.
  *
  * @typeParam TDeps - Record of dependency names mapped to the types the factory consumes.
  * @typeParam TRegisteredType - The type produced by the factory.
@@ -203,31 +206,6 @@ export type ValueRegistration<TRegisteredType = unknown> = {
 };
 
 /**
- * Configuration for contextual binding — when a specific consumer (`when`)
- * depends on a generic identifier (`needs`), provide a specific
- * implementation (`give`).
- *
- * This enables swapping implementations on a per-consumer basis without
- * changing the consumer's own registration.
- *
- * @typeParam TWhen - The consuming type that needs a contextual dependency.
- * @typeParam TNeeds - The abstract dependency being satisfied.
- *
- * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
- */
-export type ContextRegistration<TWhen, TNeeds> = {
-    /** The consumer token whose dependency is being contextually overridden. */
-    when: DiToken<TWhen>;
-
-    /** The di token representing the dependency to satisfy. */
-    needs: DiToken<TNeeds>;
-
-    /** The concrete token to provide in place of `needs` for the given `when`. */
-    give: DiToken<TNeeds>;
-};
-
-/**
  * Core service registration interface providing factory, class, value,
  * and dynamic registration methods.
  *
@@ -238,7 +216,8 @@ export type IServiceRegisterBase = {
     /**
      * Registers a factory function that creates the service instance.
      *
-     * @returns An {@link IServiceLifetime} to configure the service lifetime.
+     * @throws {InvalidMethodCallDiError} When called after `container.init()` or inside a `container.run()` scope.
+     * @throws {CanNotRegisterServiceDiError} When the token already has a registration.
      */
     registerFactory<
         TDeps extends DepRecord = EmptyDepRecord,
@@ -249,6 +228,9 @@ export type IServiceRegisterBase = {
 
     /**
      * Registers a pre-constructed value that is always resolved as a singleton.
+     *
+     * @throws {InvalidMethodCallDiError} When called after `container.init()` or inside a `container.run()` scope.
+     * @throws {CanNotRegisterServiceDiError} When the token already has a registration.
      */
     registerValue<TRegisteredType = unknown>(
         settings: ValueRegistration<TRegisteredType>,
@@ -257,6 +239,9 @@ export type IServiceRegisterBase = {
     /**
      * Registers a token whose value will be provided dynamically at runtime
      * via {@link IDynamicServiceRegister.set}.
+     *
+     * @throws {InvalidMethodCallDiError} When called after `container.init()` or inside a `container.run()` scope.
+     * @throws {CanNotRegisterServiceDiError} When the token already has a registration.
      */
     registerDynamic(token: DiToken): void;
 };
@@ -280,11 +265,15 @@ export type DiHook = Invokable<[resolver: IServiceResolver], Promisable<void>>;
 export type IContainerHooks = {
     /**
      * Registers a handler to be invoked after the container is initialized (when `container.init` method is called).
+     *
+     * Can be called multiple times to register multiple init hooks. All registered hooks run after `container.init()` completes.
      */
     onContainerInit(handler: DiHook): void;
 
     /**
      * Registers a handler to be invoked before the container is deinitialized (when `container.deInit` method is called).
+     *
+     * Can be called multiple times to register multiple deinit hooks. All registered hooks run before `container.deInit()` completes.
      */
     onContainerDeInit(handler: DiHook): void;
 };
@@ -379,7 +368,12 @@ export type IServiceResolver = {
 
     /**
      * TODO find better name?
-     * Checks whether a token have a resolved value
+     * Checks whether a token can be resolved.
+     *
+     * Note: this does NOT check whether the token is registered. It only
+     * returns `true` if the token can be resolved to a value. A
+     * registered token with that can not resolved to value yet
+     * will return `false`.
      */
     has(token: DiToken): Promise<boolean>;
 };
@@ -513,6 +507,9 @@ export type IContainerScope = {
 export type IServiceOverrider = {
     /**
      * Overrides an existing factory registration with a new factory.
+     *
+     * @throws {InvalidMethodCallDiError} When called after `container.init()` or inside a `container.run()` scope.
+     * @throws {CanNotOverrideServiceDiError} When the token is not registered, is registered as dynamic, or has already been overridden.
      */
     overrideFactory<
         TDeps extends DepRecord = EmptyDepRecord,
@@ -523,6 +520,9 @@ export type IServiceOverrider = {
 
     /**
      * Overrides an existing value registration with a new value.
+     *
+     * @throws {InvalidMethodCallDiError} When called after `container.init()` or inside a `container.run()` scope.
+     * @throws {CanNotOverrideServiceDiError} When the token is not registered, is registered as dynamic, or has already been overridden.
      */
     overrideValue<TRegisteredType = unknown>(
         settings: ValueRegistration<TRegisteredType>,
@@ -551,9 +551,10 @@ export type IContainer = IInitizable &
     IServiceResolver &
     IServiceOverrider & {
         /**
-         * Creates a child container that inherits all registrations from this
-         * container. The child container can override registrations without
-         * affecting the parent.
+         * Creates a child container that inherits all registrations and overrides from this
+         * container.
+         *
+         * @throws {InvalidMethodCallDiError} When called after `container.init()` or inside a `container.run()` scope.
          */
         fork(): IContainer;
     };

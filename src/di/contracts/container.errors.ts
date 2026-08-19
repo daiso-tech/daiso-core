@@ -20,10 +20,6 @@ function tokenToString(diToken: DiToken): string {
 export type InvalidMethodCallFlag =
     (typeof InvalidMethodCallDiError.FLAG)[keyof typeof InvalidMethodCallDiError.FLAG];
 
-/**
- * The object literal `{ flag, ...data }` describing an invalid method call.
- * The `flag` discriminates the remaining fields.
- */
 export type InvalidMethodCallData =
     | {
           flag: typeof InvalidMethodCallDiError.FLAG.NOT_ACTIVE;
@@ -79,11 +75,6 @@ export type EdgeErrorInfo = {
     edgeType: [string, string];
 };
 
-/**
- * The payload of an {@link InvalidGraphDiError} error. The `flag` discriminates the
- * graph problem and works as a type guard: narrowing on `info.flag` exposes
- * the corresponding data field.
- */
 export type InvalidGraphInfo =
     | {
           flag: typeof InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP;
@@ -106,10 +97,6 @@ export type UndeclaredDependencyInfo<T = DiToken> = {
     dependents: Array<T>;
 };
 
-/**
- * The settings accepted by {@link InvalidGraphDiError.create}. The `flag` selects the
- * graph problem and works as a type guard for the remaining arguments.
- */
 export type InvalidGraphCreateSettings =
     | {
           flag: typeof InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP;
@@ -127,12 +114,9 @@ export type InvalidGraphCreateSettings =
           totalNodes?: number;
       };
 
+
 /**
- * Thrown when the service graph is invalid. The `flag` (and matching `info`
- * field) identifies the specific problem:
- * - Invalid edge relationship (invalid lifetime configuration).
- * - Cycle dependency.
- * - Undeclared dependencies.
+ * Thrown when the service graph is invalid.
  *
  * @group Errors
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
@@ -432,8 +416,8 @@ export type ServiceCanNotBeResolvedErrorData =
           token: DiToken;
       }
     | {
-          flag: typeof ServiceCanNotBeResolvedDiError.FLAG.NO_DYNAMIC_VALUE_SET_FOR_TOKEN;
-          token: DiToken;
+          flag: typeof ServiceCanNotBeResolvedDiError.FLAG.NO_DYNAMIC_VALUE_SET_FOR_TOKENS;
+          dynamicTokens: Array<DiToken>;
       };
 
 /**
@@ -453,7 +437,7 @@ export class ServiceCanNotBeResolvedDiError extends Error {
         TRANSIENT_SERVICE_DEPEND_ON_SCOPED:
             "TRANSIENT_SERVICE_DEPEND_ON_SCOPED_SERVICE",
         RESOLVED_VALUE_IS_NULL: "RESOLVED_VALUE_IS_NULL",
-        NO_DYNAMIC_VALUE_SET_FOR_TOKEN: "NO_DYNAMIC_VALUE_SET_FOR_TOKEN",
+        NO_DYNAMIC_VALUE_SET_FOR_TOKENS: "NO_DYNAMIC_VALUE_SET_FOR_TOKENS",
     } as const;
 
     /**
@@ -525,8 +509,12 @@ export class ServiceCanNotBeResolvedDiError extends Error {
             case ServiceCanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL:
                 return `Failed to resolve service for token: "${tokenToString(settings.token)}". The resolved value is null.`;
             case ServiceCanNotBeResolvedDiError.FLAG
-                .NO_DYNAMIC_VALUE_SET_FOR_TOKEN:
-                return `Failed to resolve service for token: "${tokenToString(settings.token)}". The token is registered but no dynamic value has been set for it.`;
+                .NO_DYNAMIC_VALUE_SET_FOR_TOKENS: {
+                const dynamicTokensString = settings.dynamicTokens
+                    .map((token) => tokenToString(token))
+                    .join(", ");
+                return `Failed to resolve service for token: "${dynamicTokensString}". The token is registered but no dynamic value has been set for it.`;
+            }
             default:
                 throw new UnexpectedError(UNMANAGED_FLAG_ERROR_MESSAGE);
         }
@@ -546,8 +534,7 @@ export type CanNotRegisterServiceDiErrorData = {
 };
 
 /**
- * Thrown when a service cannot be registered, because a registration with
- * the token already exists.
+ * Thrown when a service cannot be registered.
  *
  * @group Errors
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
@@ -636,9 +623,7 @@ export type CanNotOverrideServiceDiErrorData =
       };
 
 /**
- * Thrown when a service cannot be overridden, either because its type does
- * not support overriding (e.g., dynamic nodes) or because the service has
- * already been overridden.
+ * Thrown when a service cannot be overridden.
  *
  * @group Errors
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`

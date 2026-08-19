@@ -21,8 +21,8 @@ import {
     type DynamicNodeProps,
     type TNode,
     type TEdge,
-    type InternalLifespan,
-    INTERNAL_LIFESPAN,
+    type InternalLifetime,
+    INTERNAL_LIFETIME,
 } from "@/di/implementations/eager/_shared.js";
 import {
     findAllCycles,
@@ -35,8 +35,8 @@ import { tokenToString } from "@/di/implementations/eager/utils.js";
 import { UnexpectedError } from "@/utilities/errors.js";
 
 /**
- * Lifespan pairs that form an invalid edge: a map of a source lifespan to
- * the set of target lifespans it can not point to.
+ * Lifetime pairs that form an invalid edge: a map of a source lifetime to
+ * the set of target lifetimes it can not point to.
  *
  * Rules:
  * - dynamic node can not point to any other node
@@ -46,21 +46,21 @@ import { UnexpectedError } from "@/utilities/errors.js";
  * - scoped node can not point to transient node
  */
 const INVALID_EDGE_TARGETS: Record<
-    InternalLifespan,
-    ReadonlySet<InternalLifespan>
+    InternalLifetime,
+    ReadonlySet<InternalLifetime>
 > = {
-    [INTERNAL_LIFESPAN.TRANSIENT]: new Set([INTERNAL_LIFESPAN.DYNAMIC]),
-    [INTERNAL_LIFESPAN.SINGLETON]: new Set([
-        INTERNAL_LIFESPAN.TRANSIENT,
-        INTERNAL_LIFESPAN.SCOPED,
-        INTERNAL_LIFESPAN.DYNAMIC,
+    [INTERNAL_LIFETIME.TRANSIENT]: new Set([INTERNAL_LIFETIME.DYNAMIC]),
+    [INTERNAL_LIFETIME.SINGLETON]: new Set([
+        INTERNAL_LIFETIME.TRANSIENT,
+        INTERNAL_LIFETIME.SCOPED,
+        INTERNAL_LIFETIME.DYNAMIC,
     ]),
-    [INTERNAL_LIFESPAN.SCOPED]: new Set([INTERNAL_LIFESPAN.TRANSIENT]),
-    [INTERNAL_LIFESPAN.DYNAMIC]: new Set([
-        INTERNAL_LIFESPAN.TRANSIENT,
-        INTERNAL_LIFESPAN.SINGLETON,
-        INTERNAL_LIFESPAN.SCOPED,
-        INTERNAL_LIFESPAN.DYNAMIC,
+    [INTERNAL_LIFETIME.SCOPED]: new Set([INTERNAL_LIFETIME.TRANSIENT]),
+    [INTERNAL_LIFETIME.DYNAMIC]: new Set([
+        INTERNAL_LIFETIME.TRANSIENT,
+        INTERNAL_LIFETIME.SINGLETON,
+        INTERNAL_LIFETIME.SCOPED,
+        INTERNAL_LIFETIME.DYNAMIC,
     ]),
 };
 
@@ -228,7 +228,7 @@ export class GraphManager {
         const edges = this.depsToEdges(settings);
 
         this.setNodeProperty(settings.token, {
-            lifespan: settings.lifetime,
+            lifetime: settings.lifetime,
             service: factory,
         });
 
@@ -239,7 +239,7 @@ export class GraphManager {
 
     registerDynamic(token: DiToken): void {
         this.setNodeProperty(token, {
-            lifespan: INTERNAL_LIFESPAN.DYNAMIC,
+            lifetime: INTERNAL_LIFETIME.DYNAMIC,
         });
     }
 
@@ -276,7 +276,7 @@ export class GraphManager {
         }
         const nodeProps = this.getNodePropertyOrThrow(settings.token);
 
-        if (nodeProps.lifespan === INTERNAL_LIFESPAN.DYNAMIC) {
+        if (nodeProps.lifetime === INTERNAL_LIFETIME.DYNAMIC) {
             return {
                 success: false,
                 error: CanNotOverrideServiceDiError.create({
@@ -289,7 +289,7 @@ export class GraphManager {
         const factory = settings.factory as ServiceFactory;
 
         this.graph.setNodeProperty(settings.token, {
-            lifespan: nodeProps.lifespan,
+            lifetime: nodeProps.lifetime,
             service: factory,
         });
 
@@ -312,16 +312,16 @@ export class GraphManager {
         return { success: true };
     }
 
-    ancestorIncludeScopedNodes(
+    ancestorOfTransientNodeIncludeScopedNodes(
         nodeId: TNode,
     ): { status: true; nodes: Array<TNode> } | { status: false } {
-        if (this.getLifespan(nodeId) !== INTERNAL_LIFESPAN.TRANSIENT) {
+        if (this.getLifespan(nodeId) !== INTERNAL_LIFETIME.TRANSIENT) {
             throw new UnexpectedError("Expected node to be transient");
         }
         const nodesVisited = visitedNodes({
             getNeighbors: (node) => this.getSuccessorsOf(node),
             breakBranchSearch: (node) => {
-                return this.getLifespan(node) === INTERNAL_LIFESPAN.SCOPED;
+                return this.getLifespan(node) === INTERNAL_LIFETIME.SCOPED;
             },
             node: nodeId,
         });
@@ -335,6 +335,20 @@ export class GraphManager {
         return {
             status: false,
         };
+    }
+
+    getDynamicAncestralNodesOfScopedNode(nodeId: TNode): Array<TNode> {
+        if (this.getLifespan(nodeId) !== INTERNAL_LIFETIME.SCOPED) {
+            throw new UnexpectedError("Expected node to be scoped");
+        }
+        const nodesVisited = visitedNodes({
+            getNeighbors: (node) => this.getSuccessorsOf(node),
+            node: nodeId,
+        });
+        const dynamicNodeVisited = nodesVisited.filter((visited) =>
+            this.isDynamic(visited),
+        );
+        return dynamicNodeVisited;
     }
 
     dependencyOf(node: TNode): Array<TNode> {
@@ -353,39 +367,39 @@ export class GraphManager {
 
     public isTransient(node: TNode): boolean {
         return (
-            this.getNodePropertyOrThrow(node).lifespan ===
-            INTERNAL_LIFESPAN.TRANSIENT
+            this.getNodePropertyOrThrow(node).lifetime ===
+            INTERNAL_LIFETIME.TRANSIENT
         );
     }
 
     public isSingleton(node: TNode): boolean {
         return (
-            this.getNodePropertyOrThrow(node).lifespan ===
-            INTERNAL_LIFESPAN.SINGLETON
+            this.getNodePropertyOrThrow(node).lifetime ===
+            INTERNAL_LIFETIME.SINGLETON
         );
     }
 
     public isScoped(node: TNode): boolean {
         return (
-            this.getNodePropertyOrThrow(node).lifespan ===
-            INTERNAL_LIFESPAN.SCOPED
+            this.getNodePropertyOrThrow(node).lifetime ===
+            INTERNAL_LIFETIME.SCOPED
         );
     }
 
     public isDynamic(node: TNode): boolean {
         return (
-            this.getNodePropertyOrThrow(node).lifespan ===
-            INTERNAL_LIFESPAN.DYNAMIC
+            this.getNodePropertyOrThrow(node).lifetime ===
+            INTERNAL_LIFETIME.DYNAMIC
         );
     }
 
-    public getLifespan(key: TNode): InternalLifespan {
-        return this.graph.getNodePropertyOrThrow(key).lifespan;
+    public getLifespan(key: TNode): InternalLifetime {
+        return this.graph.getNodePropertyOrThrow(key).lifetime;
     }
 
     public getSingletonNodeOrThrow(nodeId: TNode): SingletonNodeProps {
         const node = this.getNodePropertyOrThrow(nodeId);
-        if (node.lifespan === INTERNAL_LIFESPAN.SINGLETON) {
+        if (node.lifetime === INTERNAL_LIFETIME.SINGLETON) {
             return node;
         }
         throw new UnexpectedError(
@@ -395,7 +409,7 @@ export class GraphManager {
 
     public getTransientNodeOrThrow(nodeId: TNode): TransientNodeProps {
         const node = this.getNodePropertyOrThrow(nodeId);
-        if (node.lifespan === INTERNAL_LIFESPAN.TRANSIENT) {
+        if (node.lifetime === INTERNAL_LIFETIME.TRANSIENT) {
             return node;
         }
         throw new UnexpectedError(
@@ -404,7 +418,7 @@ export class GraphManager {
     }
     public getScopedNodeOrThrow(nodeId: TNode): ScopedNodeProps {
         const node = this.getNodePropertyOrThrow(nodeId);
-        if (node.lifespan === INTERNAL_LIFESPAN.SCOPED) {
+        if (node.lifetime === INTERNAL_LIFETIME.SCOPED) {
             return node;
         }
         throw new UnexpectedError(
@@ -414,7 +428,7 @@ export class GraphManager {
 
     public getDynamicNodeOrThrow(nodeId: TNode): DynamicNodeProps {
         const node = this.getNodePropertyOrThrow(nodeId);
-        if (node.lifespan === INTERNAL_LIFESPAN.DYNAMIC) {
+        if (node.lifetime === INTERNAL_LIFETIME.DYNAMIC) {
             return node;
         }
         throw new UnexpectedError(
@@ -424,7 +438,7 @@ export class GraphManager {
 
     public getServiceFactory(nodeId: TNode): ServiceFactory {
         const node = this.getNodePropertyOrThrow(nodeId);
-        if (node.lifespan === INTERNAL_LIFESPAN.DYNAMIC) {
+        if (node.lifetime === INTERNAL_LIFETIME.DYNAMIC) {
             throw new UnexpectedError(
                 `Node with token "${tokenToString(nodeId)}" is registered as a dynamic node and therefore does not have a service factory.`,
             );
