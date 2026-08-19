@@ -16,7 +16,7 @@ keywords:
 
 # DI Container usage
 
-The `@daiso-tech/core/di` component provides an Inversion of Control (IoC) container for managing service registrations, dependency resolution, and object lifetimes. It supports factory, value, and dynamic registrations with singleton, scoped, and transient lifetimes. Classes are registered through factory registrations, where the class itself acts as the token and a factory function constructs it.
+The `eridu-tech/di` component provides an Inversion of Control (IoC) container for managing service registrations, dependency resolution, and object lifetimes. It supports factory, value, and dynamic registrations with singleton, scoped, and transient lifetimes. Classes are registered through factory registrations, where the class itself acts as the token and a factory function constructs it.
 
 ## DI Basics
 
@@ -37,9 +37,9 @@ Before diving into the API, it is helpful to understand the key concepts used th
 To begin using the DI container, create a `Container` instance and provide an execution context:
 
 ```ts
-import { Container } from "@daiso-tech/core/di";
-import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter";
-import { ExecutionContext } from "@daiso-tech/core/execution-context";
+import { Container } from "eridu-tech/di";
+import { AlsExecutionContextAdapter } from "eridu-tech/execution-context/als-execution-context-adapter";
+import { ExecutionContext } from "eridu-tech/execution-context";
 
 const executionContext = new ExecutionContext(new AlsExecutionContextAdapter());
 
@@ -51,7 +51,7 @@ const container = new Container({
 The `Container` requires an [`IExecutionContext`](./execution_context.md) instance. The execution context is used to propagate contextual information (such as request IDs or user sessions) through the dependency resolution chain.
 
 :::info
-For further information about the execution context, refer to the [`@daiso-tech/core/execution-context`](./execution_context.md) documentation.
+For further information about the execution context, refer to the [`eridu-tech/execution-context`](./execution_context.md) documentation.
 :::
 
 The container follows a strict lifecycle:
@@ -74,7 +74,7 @@ Tokens are how you identify services in the container. There are two kinds of to
 A class constructor can be used directly as a token. The class itself serves as the registration key — no separate token object is needed:
 
 ```ts
-import { LIFESPAN } from "@daiso-tech/core/di/contracts";
+import { LIFESPAN } from "eridu-tech/di/contracts";
 
 class Logger {
     log(message: string): void {
@@ -100,7 +100,7 @@ const logger = await container.resolveOrFail(Logger);
 For interfaces, primitive values, or when you need to decouple the token from the implementation, use `genericToken()` to create a symbol-based token:
 
 ```ts
-import { LIFESPAN, genericToken } from "@daiso-tech/core/di/contracts";
+import { LIFESPAN, genericToken } from "eridu-tech/di/contracts";
 
 interface ILogger {
     log(message: string): void;
@@ -140,7 +140,7 @@ The container provides three core registration methods — `registerFactory`, `r
 Use `registerFactory` when you need full control over how a service is created. The factory receives resolved dependencies and the current execution context:
 
 ```ts
-import { LIFESPAN, genericToken } from "@daiso-tech/core/di/contracts";
+import { LIFESPAN, genericToken } from "eridu-tech/di/contracts";
 
 interface IUserService {
     getUser(id: string): Promise<{ name: string }>;
@@ -250,10 +250,10 @@ await container.run({
 
 ### Service lifetimes
 
-A lifetime is chosen by setting the `lifetime` field directly on a `registerFactory` call, using the `LIFESPAN` constant from `@daiso-tech/core/di/contracts`.
+A lifetime is chosen by setting the `lifetime` field directly on a `registerFactory` call, using the `LIFESPAN` constant from `eridu-tech/di/contracts`.
 
 ```ts
-import { LIFESPAN } from "@daiso-tech/core/di/contracts";
+import { LIFESPAN } from "eridu-tech/di/contracts";
 
 // Singleton: one instance shared across all resolutions
 container.registerFactory({
@@ -363,14 +363,14 @@ await container.run({
 
 ### Error handling
 
-The container defines the following error types in `@daiso-tech/core/di/contracts`:
+The container defines the following error types in `eridu-tech/di/contracts`:
 
 #### `ServiceCanNotBeResolvedDiError`
 
 Thrown when a service cannot be resolved — e.g. the token is not registered, a scoped service is resolved outside a `run()` scope, or a dynamic token has no value set:
 
 ```ts
-import { ServiceCanNotBeResolvedDiError } from "@daiso-tech/core/di/contracts";
+import { ServiceCanNotBeResolvedDiError } from "eridu-tech/di/contracts";
 
 try {
     await container.resolveOrFail(Logger);
@@ -386,7 +386,7 @@ try {
 Thrown by `container.init()` when the service graph is invalid — e.g. an invalid lifetime configuration (such as a singleton depending on a transient or scoped service), a dependency cycle, or a declared dependency that is not registered:
 
 ```ts
-import { LIFESPAN, InvalidGraphDiError } from "@daiso-tech/core/di/contracts";
+import { LIFESPAN, InvalidGraphDiError } from "eridu-tech/di/contracts";
 
 // ❌ Invalid: a singleton depending on a transient service
 container.registerFactory({
@@ -417,7 +417,7 @@ try {
 Thrown when a service cannot be registered — for example, when a token already has a registration:
 
 ```ts
-import { CanNotRegisterServiceDiError } from "@daiso-tech/core/di/contracts";
+import { CanNotRegisterServiceDiError } from "eridu-tech/di/contracts";
 
 container.registerValue({
     token: CONFIG,
@@ -442,7 +442,7 @@ try {
 Thrown when a registration cannot be overridden — e.g. the token is not registered, it was registered as dynamic, or it has already been overridden:
 
 ```ts
-import { CanNotOverrideServiceDiError } from "@daiso-tech/core/di/contracts";
+import { CanNotOverrideServiceDiError } from "eridu-tech/di/contracts";
 
 try {
     container.overrideValue({
@@ -461,7 +461,7 @@ try {
 Thrown when a container method is called at an invalid time or context — e.g. registering after `init()`, resolving before `init()`, or calling a method inside a `run()` scope that is not allowed there:
 
 ```ts
-import { InvalidMethodCallDiError } from "@daiso-tech/core/di/contracts";
+import { InvalidMethodCallDiError } from "eridu-tech/di/contracts";
 
 container.registerValue({
     token: CONFIG,
@@ -492,7 +492,7 @@ This section covers advanced patterns, architectural considerations, and real-wo
 Service providers encapsulate a group of related registrations into a reusable, isolated code block — similar to Laravel service providers:
 
 ```ts
-import { LIFESPAN, type IServiceRegister } from "@daiso-tech/core/di/contracts";
+import { LIFESPAN, type IServiceRegister } from "eridu-tech/di/contracts";
 
 // As a plain function
 async function loggingProvider(register: IServiceRegister): Promise<void> {
@@ -623,7 +623,7 @@ Child containers are particularly useful for **testing**: fork the main containe
 Use `genericToken()` for interfaces, abstract classes, and primitive values. Use class tokens only for concrete classes that serve as their own implementation:
 
 ```ts
-import { LIFESPAN } from "@daiso-tech/core/di/contracts";
+import { LIFESPAN } from "eridu-tech/di/contracts";
 
 // ✅ Good: Interface mapped via generic token
 const ILOGGER = genericToken<ILogger>("ILogger");
@@ -821,4 +821,4 @@ Scoped services are only available within a `container.run()` scope. Resolving t
 
 ### Further information
 
-For further information refer to [`@daiso-tech/core/di`](https://daiso-tech.github.io/daiso-core/modules/DI.html) API docs.
+For further information refer to [`eridu-tech/di`](https://eridu-tech.github.io/eridu-tech-core/modules/DI.html) API docs.

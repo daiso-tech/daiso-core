@@ -33,11 +33,7 @@ const fileStorage = new FileStorage({
 ```
 
 :::info
-<<<<<<< HEAD
-Here is a complete list of settings for the [`FileStorage`](https://daiso-tech.github.io/daiso-core/types/FileStorage.FileStorageSettings.html) class.
-=======
 Here is a complete list of settings for the [`FileStorage`](https://eridu-tech.github.io/eridu-tech/types/FileStorage.FileStorage.html) class.
->>>>>>> main
 :::
 
 ## FileStorage basics
