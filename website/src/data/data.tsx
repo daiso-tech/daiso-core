@@ -68,16 +68,16 @@ const EXISTING_FOUNDATION_RECORD = {
             </>
         ),
     } satisfies ComponentItemProps,
-    COLLECTION: {
-        name: "Collection",
-        icon: <Layers size="1.5rem" strokeWidth={1.5} />,
-        title: <>Collection</>,
-        link: "/docs/components/collection",
+    DI_CONTAINER: {
+        name: "DI Container",
+        icon: <Box size="1.5rem" strokeWidth={1.5} />,
+        title: <>DI Container</>,
+        link: "/docs/components/di",
         maturity: 90,
         description: (
             <>
-                Type-safe collection utilities with powerful query, transform,
-                and pagination primitives.
+                A lightweight, type-safe dependency injection container for
+                wiring application components without tight coupling.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -308,6 +308,19 @@ const EXISTING_WEB_RECORD = {
 
 const EXISTING_UTILITIES_RECORD = {
     // ─── Existing: Utilities ─────────────────────────────────
+    COLLECTION: {
+        name: "Collection",
+        icon: <Layers size="1.5rem" strokeWidth={1.5} />,
+        title: <>Collection</>,
+        link: "/docs/components/collection",
+        maturity: 90,
+        description: (
+            <>
+                Type-safe collection utilities with powerful query, transform,
+                and pagination primitives.
+            </>
+        ),
+    } satisfies ComponentItemProps,
     TIME_SPAN: {
         name: "TimeSpan",
         icon: <Clock size="1.5rem" strokeWidth={1.5} />,
@@ -352,17 +365,6 @@ const EXISTING_UTILITIES_RECORD = {
 
 const UPCOMING_FOUNDATION_RUNTIME_RECORD = {
     // ─── Upcoming: Foundation & Runtime ──────────────────────
-    DI_CONTAINER: {
-        name: "DI Container",
-        icon: <Box size="1.5rem" strokeWidth={1.5} />,
-        title: <>DI Container</>,
-        description: (
-            <>
-                A lightweight, type-safe dependency injection container for
-                wiring application components without tight coupling.
-            </>
-        ),
-    } satisfies ComponentItemProps,
     TRANSACTION_CONTEXT: {
         name: "Transaction Context",
         icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
@@ -794,8 +796,8 @@ export const COMPONENT_RECORD = {
 // ─── Existing — Production-Ready Components ──────────────────────
 
 export const FOUNDATION_EXISTING_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.DI_CONTAINER,
     COMPONENT_RECORD.MIDDLEWARE_AND_AOP,
-    COMPONENT_RECORD.COLLECTION,
     COMPONENT_RECORD.SERDE,
     COMPONENT_RECORD.CODEC,
     COMPONENT_RECORD.EXECUTION_CONTEXT,
@@ -829,6 +831,7 @@ export const WEB_EXISTING_ITEMS: ComponentItemProps[] = [
 ];
 
 export const UTILITIES_EXISTING_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.COLLECTION,
     COMPONENT_RECORD.TIME_SPAN,
     COMPONENT_RECORD.FILE_SIZE,
     COMPONENT_RECORD.BACKOFF_POLICIES,
@@ -847,7 +850,6 @@ export const EXISTING_ITEMS: ComponentItemProps[] = [
 // ─── Foundation & Runtime ────────────────────────────────────────
 
 export const FOUNDATION_RUNTIME_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.DI_CONTAINER,
     COMPONENT_RECORD.TRANSACTION_CONTEXT,
     COMPONENT_RECORD.CLI_COMMAND,
     COMPONENT_RECORD.STRUCTURED_CONCURRENCY,
@@ -905,7 +907,6 @@ export const DEV_TOOLING_ITEMS: ComponentItemProps[] = [
 // ─── Homepage preview subset ─────────────────────────────────────
 
 export const UPCOMING_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.DI_CONTAINER,
     COMPONENT_RECORD.TRANSACTION_CONTEXT,
     COMPONENT_RECORD.CLI_COMMAND,
     COMPONENT_RECORD.STRUCTURED_CONCURRENCY,
@@ -949,9 +950,9 @@ export const FEATURE_ITEMS = {
         title: <>Unified foundation</>,
         description: (
             <>
-                Every component is built on a single shared foundation,
-                reusing common abstractions like Serde, Execution Context, and
-                the AOP middleware system, so they work together seamlessly.
+                Every component is built on a single shared foundation, reusing
+                common abstractions like Serde, Execution Context, and the AOP
+                middleware system, so they work together seamlessly.
             </>
         ),
     } satisfies FeatureItemProps,
@@ -973,10 +974,10 @@ export const FEATURE_ITEMS = {
         description: (
             <>
                 Every component is built from scratch in a modular way, keeping
-                the runtime minimal with no framework or component baggage.
-                Only the client libraries and drivers (Redis, Postgres, MongoDB,
-                and more) are optional peer dependencies, installed when you
-                need them.
+                the runtime minimal with no framework or component baggage. Only
+                the client libraries and drivers (Redis, Postgres, MongoDB, and
+                more) are optional peer dependencies, installed when you need
+                them.
             </>
         ),
     } satisfies FeatureItemProps,
@@ -986,9 +987,10 @@ export const FEATURE_ITEMS = {
         title: <>Battery included</>,
         description: (
             <>
-                eridu-tech aims to be battery included, shipping a broad set
-                of ready-to-use components and integrations out of the box so
-                you can start building without wiring different libraries everything yourself.
+                eridu-tech aims to be battery included, shipping a broad set of
+                ready-to-use components and integrations out of the box so you
+                can start building without wiring different libraries everything
+                yourself.
             </>
         ),
     } satisfies FeatureItemProps,
