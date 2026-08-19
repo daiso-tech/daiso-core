@@ -16,7 +16,7 @@ keywords:
 
 # DI Container usage
 
-The `@daiso-tech/core/di` component provides an Inversion of Control (IoC) container for managing service registrations, dependency resolution, and object lifetimes. It supports factory, class, value, and dynamic registrations with singleton, scoped, and transient lifetimes.
+The `@daiso-tech/core/di` component provides an Inversion of Control (IoC) container for managing service registrations, dependency resolution, and object lifetimes. It supports factory, value, and dynamic registrations with singleton, scoped, and transient lifetimes. Classes are registered through factory registrations, where the class itself acts as the token and a factory function constructs it.
 
 ## DI Basics
 
@@ -41,9 +41,7 @@ import { Container } from "@daiso-tech/core/di";
 import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter";
 import { ExecutionContext } from "@daiso-tech/core/execution-context";
 
-const executionContext = new ExecutionContext(
-    new AlsExecutionContextAdapter(),
-);
+const executionContext = new ExecutionContext(new AlsExecutionContextAdapter());
 
 const container = new Container({
     executionContext,
@@ -56,6 +54,17 @@ The `Container` requires an [`IExecutionContext`](./execution_context.md) instan
 For further information about the execution context, refer to the [`@daiso-tech/core/execution-context`](./execution_context.md) documentation.
 :::
 
+The container follows a strict lifecycle:
+
+1. **Register** — call `registerFactory`, `registerValue`, `registerDynamic`, `registerProvider`, and register lifecycle hooks. All registrations must occur before initialization.
+2. **Initialize** — call `await container.init()`. This validates the service graph (throwing `InvalidGraphDiError` for invalid lifetime configurations, dependency cycles, or undeclared dependencies) and prepares the container for use.
+3. **Use** — resolve services (`resolve`, `resolveOr`, `resolveOrFail`, `has`) and run scoped executions (`container.run()`).
+4. **Deinitialize** — call `await container.deInit()` during application shutdown.
+
+:::warning
+Calling a registration method after `container.init()`, or a resolution/scope method before `container.init()`, throws `InvalidMethodCallDiError`.
+:::
+
 ### Service tokens
 
 Tokens are how you identify services in the container. There are two kinds of tokens:
@@ -65,19 +74,24 @@ Tokens are how you identify services in the container. There are two kinds of to
 A class constructor can be used directly as a token. The class itself serves as the registration key — no separate token object is needed:
 
 ```ts
+import { LIFESPAN } from "@daiso-tech/core/di/contracts";
+
 class Logger {
     log(message: string): void {
         console.log(message);
     }
 }
 
-// The class itself is the token
-container.registerClass({
-    impl: Logger,
-    deps: [],
-}).singleton();
+// The class itself is the token; use a factory to construct it
+container.registerFactory({
+    token: Logger,
+    factory: () => new Logger(),
+    deps: {},
+    lifetime: LIFESPAN.SINGLETON,
+});
 
-// Resolve using the class
+// Initialize the container, then resolve using the class
+await container.init();
 const logger = await container.resolveOrFail(Logger);
 ```
 
@@ -86,7 +100,7 @@ const logger = await container.resolveOrFail(Logger);
 For interfaces, primitive values, or when you need to decouple the token from the implementation, use `genericToken()` to create a symbol-based token:
 
 ```ts
-import { genericToken } from "@daiso-tech/core/di/contracts";
+import { LIFESPAN, genericToken } from "@daiso-tech/core/di/contracts";
 
 interface ILogger {
     log(message: string): void;
@@ -101,12 +115,15 @@ class ConsoleLogger implements ILogger {
     }
 }
 
-container.registerClass({
-    impl: ConsoleLogger,
-    deps: [],
-}).singleton();
+container.registerFactory({
+    token: ILOGGER,
+    factory: () => new ConsoleLogger(),
+    deps: {},
+    lifetime: LIFESPAN.SINGLETON,
+});
 
-// Resolve using the generic token
+// Initialize the container, then resolve using the generic token
+await container.init();
 const logger = await container.resolveOrFail(ILOGGER);
 ```
 
@@ -116,14 +133,14 @@ const logger = await container.resolveOrFail(ILOGGER);
 
 ### Registration
 
-The container provides four core registration methods for defining how services are created.
+The container provides three core registration methods — `registerFactory`, `registerValue`, and `registerDynamic` — plus `registerProvider` for grouping registrations (covered in the [Patterns](#patterns) section).
 
 #### Factory registration
 
 Use `registerFactory` when you need full control over how a service is created. The factory receives resolved dependencies and the current execution context:
 
 ```ts
-import { genericToken } from "@daiso-tech/core/di/contracts";
+import { LIFESPAN, genericToken } from "@daiso-tech/core/di/contracts";
 
 interface IUserService {
     getUser(id: string): Promise<{ name: string }>;
@@ -140,8 +157,8 @@ class Database {
 
 container.registerFactory({
     token: IUSER_SERVICE,
-    factory: async (db: Database, executionContext) => {
-        // The factory receives resolved dependencies in order,
+    factory: async ({ db }, executionContext) => {
+        // The factory receives a record of resolved dependencies,
         // followed by the execution context
         return {
             getUser: async (id: string) => {
@@ -149,36 +166,12 @@ container.registerFactory({
             },
         };
     },
-    deps: [IDATABASE],
-}).singleton(); // Choose the lifetime
+    deps: { db: IDATABASE },
+    lifetime: LIFESPAN.SINGLETON, // Choose the lifetime
+});
 ```
 
-The factory callback signature is `(...deps, executionContext) => T | Promise<T>`. The `executionContext` parameter is always the last argument.
-
-#### Class registration
-
-Use `registerClass` when a class should be constructed by the container with its dependencies automatically injected:
-
-```ts
-class UserController {
-    constructor(
-        private readonly userService: IUserService,
-        private readonly logger: Logger,
-    ) {}
-
-    async handleRequest(userId: string): Promise<void> {
-        const user = await this.userService.getUser(userId);
-        this.logger.log(`Found user: ${user.name}`);
-    }
-}
-
-container.registerClass({
-    impl: UserController,
-    deps: [IUSER_SERVICE, Logger],
-}).transient();
-```
-
-The container will instantiate the class with resolved dependencies passed to the constructor in the order specified by the `deps` array.
+The factory callback signature is `(deps, executionContext) => T | Promise<T>` where `deps` is a record keyed by the names declared in the `deps` setting (e.g., `{ db }`). The `executionContext` parameter is always the last argument. The `lifetime` is set directly on the registration using the `LIFESPAN` constant — there is no separate `.singleton()`/`.scoped()`/`.transient()` chain.
 
 #### Value registration
 
@@ -195,13 +188,10 @@ container.registerValue({
     },
 });
 
-// Later
+// Initialize the container, then resolve
+await container.init();
 const config = await container.resolveOrFail(CONFIG);
 ```
-
-:::note
-`registerValue` does not return an `IServiceLifetime` because value registrations are implicitly singletons. You cannot change their lifetime.
-:::
 
 #### Dynamic registration
 
@@ -214,9 +204,11 @@ const REQUEST_ID = genericToken<string>("RequestId");
 container.registerDynamic(REQUEST_ID);
 ```
 
-Dynamic values are set at runtime using the `IDynamicServiceRegister` interface, typically inside a scoped `run()` execution:
+Dynamic values are set at runtime using the `IDynamicServiceRegister` interface, inside a scoped `run()` execution:
 
 ```ts
+await container.init();
+
 await container.run({
     dynamicRegistration: async (register) => {
         // Set the dynamic value before the scope executes
@@ -235,13 +227,17 @@ await container.run({
 You can also provide a `DynamicValue` callback that receives the execution context:
 
 ```ts
+await container.init();
+
 await container.run({
     dynamicRegistration: async (register) => {
         await register.set({
             token: REQUEST_ID,
             value: (executionContext) => {
                 // Compute the value using the execution context
-                return executionContext.get("correlationId") ?? crypto.randomUUID();
+                return (
+                    executionContext.get("correlationId") ?? crypto.randomUUID()
+                );
             },
         });
     },
@@ -254,48 +250,45 @@ await container.run({
 
 ### Service lifetimes
 
-The `IServiceLifetime` interface — returned by `registerFactory` and `registerClass` — is a fluent API for choosing how many instances are created and when they are shared:
+A lifetime is chosen by setting the `lifetime` field directly on a `registerFactory` call, using the `LIFESPAN` constant from `@daiso-tech/core/di/contracts`.
 
 ```ts
+import { LIFESPAN } from "@daiso-tech/core/di/contracts";
+
 // Singleton: one instance shared across all resolutions
-container.registerClass({
-    impl: Logger,
-    deps: [],
-}).singleton();
+container.registerFactory({
+    token: Logger,
+    factory: () => new Logger(),
+    deps: {},
+    lifetime: LIFESPAN.SINGLETON,
+});
 
 // Scoped: one instance per container.run() scope
-container.registerClass({
-    impl: UserRepository,
-    deps: [Database],
-}).scoped();
+container.registerFactory({
+    token: UserRepository,
+    factory: ({ db }) => new UserRepository(db),
+    deps: { db: Database },
+    lifetime: LIFESPAN.SCOPED,
+});
 
 // Transient: a new instance every time
-container.registerClass({
-    impl: Mailer,
-    deps: [],
-}).transient();
+container.registerFactory({
+    token: Mailer,
+    factory: () => new Mailer(),
+    deps: {},
+    lifetime: LIFESPAN.TRANSIENT,
+});
 ```
 
-| Lifetime | Instances created | Shared across |
-|---|---|---|
-| **Singleton** | One | All resolutions, all scopes |
-| **Scoped** | One per `run()` scope | Resolutions within the same scope |
-| **Transient** | One per resolution | Not shared |
-
-:::warning
-Some lifetime combinations are invalid and will throw an `InvalidLifetimeDiError`:
-
-- Singleton depending on Transient
-- Singleton depending on Scoped
-- Singleton depending on Dynamic
-- Scoped depending on Transient
-- Dynamic depending on Transient
-- Transient depending on Dynamic
-:::
+| Lifetime      | Instances created     | Shared across                     |
+| ------------- | --------------------- | --------------------------------- |
+| **Singleton** | One                   | All resolutions, all scopes       |
+| **Scoped**    | One per `run()` scope | Resolutions within the same scope |
+| **Transient** | One per resolution    | Not shared                        |
 
 ### Resolution
 
-The `IServiceResolver` interface provides four methods for retrieving services:
+The `IServiceResolver` interface provides four methods for retrieving services. The container must be initialized (`await container.init()`) before any of them can be used:
 
 #### `resolve` — Nullable resolution
 
@@ -319,10 +312,10 @@ logger.log("Always has a logger");
 
 #### `resolveOrFail` — Strict resolution
 
-Returns the service if found, otherwise throws `ServiceNotFoundDiError`:
+Returns the service if found, otherwise throws `ServiceCanNotBeResolvedDiError`:
 
 ```ts
-// Throws ServiceNotFoundDiError if Logger is not registered
+// Throws ServiceCanNotBeResolvedDiError if Logger is not registered
 const logger = await container.resolveOrFail(Logger);
 ```
 
@@ -338,9 +331,10 @@ if (await container.has(Logger)) {
 
 ### Scoped execution
 
-The `IContainerScope.run()` method creates an isolated scope where scoped services are resolved once and then discarded:
+The `IContainerScope.run()` method creates an isolated scope where scoped services are resolved once and then discarded. The container must be initialized before calling `run()`:
 
 ```ts
+await container.init();
 await container.run({
     // Optional: register dynamic values before the scope runs
     dynamicRegistration: async (register) => {
@@ -367,82 +361,63 @@ await container.run({
 // A new scope would create new instances
 ```
 
-:::info
-The `scope` field is an `AsyncLazy<TValue>`, meaning the scope body is not executed immediately when `run()` is called — it is evaluated lazily. This allows the container to set up the scope context (including dynamic registrations) before the body runs.
-:::
-
 ### Error handling
 
-The container defines four error types in `@daiso-tech/core/di/contracts`:
+The container defines the following error types in `@daiso-tech/core/di/contracts`:
 
-#### `ServiceNotFoundDiError`
+#### `ServiceCanNotBeResolvedDiError`
 
-Thrown when a service cannot be resolved — either it was never registered or could not be constructed:
+Thrown when a service cannot be resolved — e.g. the token is not registered, a scoped service is resolved outside a `run()` scope, or a dynamic token has no value set:
 
 ```ts
-import { ServiceNotFoundDiError } from "@daiso-tech/core/di/contracts";
+import { ServiceCanNotBeResolvedDiError } from "@daiso-tech/core/di/contracts";
 
 try {
     await container.resolveOrFail(Logger);
 } catch (error) {
-    if (error instanceof ServiceNotFoundDiError) {
+    if (error instanceof ServiceCanNotBeResolvedDiError) {
         console.log("Logger was not registered");
     }
 }
 ```
 
-#### `InvalidLifetimeDiError`
+#### `InvalidGraphDiError`
 
-Thrown when a lifetime configuration is invalid. The following combinations are invalid:
-
-| Lifetime | Cannot depend on |
-|---|---|
-| Singleton | Transient, Scoped, Dynamic |
-| Scoped | Transient |
-| Dynamic | Transient |
-| Transient | Dynamic |
+Thrown by `container.init()` when the service graph is invalid — e.g. an invalid lifetime configuration (such as a singleton depending on a transient or scoped service), a dependency cycle, or a declared dependency that is not registered:
 
 ```ts
-import { InvalidLifetimeDiError } from "@daiso-tech/core/di/contracts";
+import { LIFESPAN, InvalidGraphDiError } from "@daiso-tech/core/di/contracts";
+
+// ❌ Invalid: a singleton depending on a transient service
+container.registerFactory({
+    token: SingletonService,
+    factory: ({ transient }) => new SingletonService(transient),
+    deps: { transient: TransientService },
+    lifetime: LIFESPAN.SINGLETON,
+});
+
+container.registerFactory({
+    token: TransientService,
+    factory: () => new TransientService(),
+    deps: {},
+    lifetime: LIFESPAN.TRANSIENT,
+});
 
 try {
-    container.registerClass({
-        impl: SingletonService,
-        deps: [TransientService], // Invalid!
-    }).singleton();
+    await container.init();
 } catch (error) {
-    if (error instanceof InvalidLifetimeDiError) {
-        console.log("Invalid lifetime configuration");
+    if (error instanceof InvalidGraphDiError) {
+        console.log("Invalid service graph");
     }
 }
 ```
 
-#### `CircularDependencyDiError`
+#### `CanNotRegisterServiceDiError`
 
-Thrown when two or more services form a dependency cycle:
-
-```ts
-import { CircularDependencyDiError } from "@daiso-tech/core/di/contracts";
-
-// A depends on B, B depends on A — circular!
-// container.registerClass({ impl: ServiceA, deps: [ServiceB] });
-// container.registerClass({ impl: ServiceB, deps: [ServiceA] });
-
-try {
-    await container.resolveOrFail(ServiceA);
-} catch (error) {
-    if (error instanceof CircularDependencyDiError) {
-        console.log("Circular dependency detected");
-    }
-}
-```
-
-#### `ServiceExistsDiError`
-
-Thrown when attempting to register a token that already has a registration:
+Thrown when a service cannot be registered — for example, when a token already has a registration:
 
 ```ts
-import { ServiceExistsDiError } from "@daiso-tech/core/di/contracts";
+import { CanNotRegisterServiceDiError } from "@daiso-tech/core/di/contracts";
 
 container.registerValue({
     token: CONFIG,
@@ -450,14 +425,60 @@ container.registerValue({
 });
 
 try {
-    // Duplicate registration — throws ServiceExistsDiError
+    // Duplicate registration — throws CanNotRegisterServiceDiError
     container.registerValue({
         token: CONFIG,
         value: { apiUrl: "https://another.example.com", timeout: 3000 },
     });
 } catch (error) {
-    if (error instanceof ServiceExistsDiError) {
-        console.log("Token is already registered. Use overrideValue() instead.");
+    if (error instanceof CanNotRegisterServiceDiError) {
+        console.log("Service could not be registered");
+    }
+}
+```
+
+#### `CanNotOverrideServiceDiError`
+
+Thrown when a registration cannot be overridden — e.g. the token is not registered, it was registered as dynamic, or it has already been overridden:
+
+```ts
+import { CanNotOverrideServiceDiError } from "@daiso-tech/core/di/contracts";
+
+try {
+    container.overrideValue({
+        token: CONFIG,
+        value: { apiUrl: "http://localhost:9999", timeout: 100 },
+    });
+} catch (error) {
+    if (error instanceof CanNotOverrideServiceDiError) {
+        console.log("Token cannot be overridden");
+    }
+}
+```
+
+#### `InvalidMethodCallDiError`
+
+Thrown when a container method is called at an invalid time or context — e.g. registering after `init()`, resolving before `init()`, or calling a method inside a `run()` scope that is not allowed there:
+
+```ts
+import { InvalidMethodCallDiError } from "@daiso-tech/core/di/contracts";
+
+container.registerValue({
+    token: CONFIG,
+    value: { apiUrl: "https://api.example.com", timeout: 5000 },
+});
+
+await container.init();
+
+try {
+    // Registering after init() throws
+    container.registerValue({
+        token: CONFIG,
+        value: { apiUrl: "https://another.example.com", timeout: 3000 },
+    });
+} catch (error) {
+    if (error instanceof InvalidMethodCallDiError) {
+        console.log("Invalid method call");
     }
 }
 ```
@@ -466,69 +487,46 @@ try {
 
 This section covers advanced patterns, architectural considerations, and real-world techniques for structuring larger applications with the DI container. Familiarity with the [DI Basics](#di-basics) is assumed.
 
-### Contextual binding
-
-Contextual binding allows you to provide a specific implementation of a dependency only when it is requested by a particular consumer. This enables swapping implementations on a per-consumer basis without changing the consumer's own registration:
-
-```ts
-const IDATABASE = genericToken<Database>("IDatabase");
-const MYSQL_DATABASE = genericToken<Database>("MysqlDatabase");
-const POSTGRES_DATABASE = genericToken<Database>("PostgresDatabase");
-
-class UserService {
-    constructor(private readonly db: Database) {}
-}
-
-class OrderService {
-    constructor(private readonly db: Database) {}
-}
-
-// Both services depend on IDATABASE, but we want different implementations
-container.registerContext({
-    when: UserService,       // When UserService needs...
-    needs: IDATABASE,         // ...the IDATABASE dependency...
-    give: MYSQL_DATABASE,     // ...provide MySQL
-});
-
-container.registerContext({
-    when: OrderService,       // When OrderService needs...
-    needs: IDATABASE,         // ...the IDATABASE dependency...
-    give: POSTGRES_DATABASE,  // ...provide Postgres
-});
-```
-
 ### Service providers
 
 Service providers encapsulate a group of related registrations into a reusable, isolated code block — similar to Laravel service providers:
 
 ```ts
-import type { IServiceRegister } from "@daiso-tech/core/di/contracts";
+import { LIFESPAN, type IServiceRegister } from "@daiso-tech/core/di/contracts";
 
 // As a plain function
 async function loggingProvider(register: IServiceRegister): Promise<void> {
-    register.registerClass({
-        impl: Logger,
-        deps: [],
-    }).singleton();
+    register.registerFactory({
+        token: Logger,
+        factory: () => new Logger(),
+        deps: {},
+        lifetime: LIFESPAN.SINGLETON,
+    });
 
-    register.registerClass({
-        impl: FileLogger,
-        deps: [],
-    }).singleton();
+    register.registerFactory({
+        token: FileLogger,
+        factory: () => new FileLogger(),
+        deps: {},
+        lifetime: LIFESPAN.SINGLETON,
+    });
 }
 
 // As an object with an invoke method
 class DatabaseProvider {
     async invoke(register: IServiceRegister): Promise<void> {
-        register.registerClass({
-            impl: Database,
-            deps: [],
-        }).singleton();
+        register.registerFactory({
+            token: Database,
+            factory: () => new Database(),
+            deps: {},
+            lifetime: LIFESPAN.SINGLETON,
+        });
 
-        register.registerClass({
-            impl: UserRepository,
-            deps: [Database],
-        }).scoped();
+        register.registerFactory({
+            token: UserRepository,
+            factory: ({ db }) => new UserRepository(db),
+            deps: { db: Database },
+            lifetime: LIFESPAN.SCOPED,
+        });
     }
 }
 
@@ -549,17 +547,11 @@ The `IServiceOverrider` interface allows replacing existing registrations — us
 // Override an existing factory registration
 container.overrideFactory({
     token: IDATABASE,
-    factory: async (_deps, executionContext) => {
+    factory: async (_deps, _executionContext) => {
         // Return a mock database for testing
         return new MockDatabase();
     },
-    deps: [],
-});
-
-// Override an existing class registration
-container.overrideClass({
-    impl: TestLogger,
-    deps: [],
+    deps: {},
 });
 
 // Override an existing value registration
@@ -568,10 +560,6 @@ container.overrideValue({
     value: { apiUrl: "http://localhost:9999", timeout: 100 },
 });
 ```
-
-:::note
-`overrideFactory`, `overrideClass`, and `overrideValue` are designed for testing scenarios. Unlike `register*` methods, overrides do not return an `IServiceLifetime` — the overridden registration keeps its original lifetime.
-:::
 
 ### Lifecycle hooks
 
@@ -599,7 +587,7 @@ await container.init();
 await container.deInit();
 ```
 
-The `DiHook` callback receives an `IServiceResolver` to resolve services during the hook.
+The `DiHook` callback receives an `IServiceResolver` to resolve services during the hook. Hooks must be registered before `container.init()` is called.
 
 ### Child containers
 
@@ -614,12 +602,16 @@ childContainer.overrideValue({
     value: { apiUrl: "http://test.local", timeout: 100 },
 });
 
+// Both containers must be initialized before resolving
+await container.init();
+await childContainer.init();
+
 // Original container still has the original config
 const parentConfig = await container.resolveOrFail(CONFIG);
 const childConfig = await childContainer.resolveOrFail(CONFIG);
 
 console.log(parentConfig.apiUrl); // "https://api.example.com"
-console.log(childConfig.apiUrl);  // "http://test.local"
+console.log(childConfig.apiUrl); // "http://test.local"
 ```
 
 Child containers are particularly useful for **testing**: fork the main container, override only the services you want to mock or stub, and run your tests in isolation without polluting the original registrations.
@@ -631,12 +623,24 @@ Child containers are particularly useful for **testing**: fork the main containe
 Use `genericToken()` for interfaces, abstract classes, and primitive values. Use class tokens only for concrete classes that serve as their own implementation:
 
 ```ts
+import { LIFESPAN } from "@daiso-tech/core/di/contracts";
+
 // ✅ Good: Interface mapped via generic token
 const ILOGGER = genericToken<ILogger>("ILogger");
-container.registerClass({ impl: ConsoleLogger, deps: [], token: ILOGGER });
+container.registerFactory({
+    token: ILOGGER,
+    factory: () => new ConsoleLogger(),
+    deps: {},
+    lifetime: LIFESPAN.SINGLETON,
+});
 
 // ✅ Good: Concrete class is its own token
-container.registerClass({ impl: Database, deps: [] });
+container.registerFactory({
+    token: Database,
+    factory: () => new Database(),
+    deps: {},
+    lifetime: LIFESPAN.SINGLETON,
+});
 ```
 
 #### Organize registrations with service providers
@@ -645,15 +649,32 @@ Group related registrations into service providers to keep your composition root
 
 ```ts
 // providers/logging.provider.ts
-export async function loggingProvider(register: IServiceRegister): Promise<void> {
-    register.registerClass({ impl: Logger, deps: [] }).singleton();
+export async function loggingProvider(
+    register: IServiceRegister,
+): Promise<void> {
+    register.registerFactory({
+        token: Logger,
+        factory: () => new Logger(),
+        deps: {},
+        lifetime: LIFESPAN.SINGLETON,
+    });
 }
 
 // providers/database.provider.ts
 export class DatabaseProvider implements IServiceProvider {
     async invoke(register: IServiceRegister): Promise<void> {
-        register.registerClass({ impl: Database, deps: [] }).singleton();
-        register.registerClass({ impl: UserRepository, deps: [Database] }).scoped();
+        register.registerFactory({
+            token: Database,
+            factory: () => new Database(),
+            deps: {},
+            lifetime: LIFESPAN.SINGLETON,
+        });
+        register.registerFactory({
+            token: UserRepository,
+            factory: ({ db }) => new UserRepository(db),
+            deps: { db: Database },
+            lifetime: LIFESPAN.SCOPED,
+        });
     }
 }
 
@@ -674,18 +695,23 @@ Wrap request handling in `container.run()` to isolate scoped services and dynami
 
 ```ts
 async function handleRequest(request: Request): Promise<Response> {
-    return container.run({
+    let response: Response;
+
+    await container.run({
         dynamicRegistration: async (register) => {
             await register.set({
                 token: REQUEST_ID,
-                value: request.headers.get("x-request-id") ?? crypto.randomUUID(),
+                value:
+                    request.headers.get("x-request-id") ?? crypto.randomUUID(),
             });
         },
         scope: async () => {
             const controller = await container.resolveOrFail(UserController);
-            return controller.handle(request);
+            response = controller.handle(request);
         },
     });
+
+    return response;
 }
 ```
 
@@ -703,7 +729,7 @@ await container.deInit();
 
 #### Registering the same token twice
 
-Attempting to register a token that already exists throws `ServiceExistsDiError`. Use `overrideValue()`, `overrideFactory()`, or `overrideClass()` if you intend to replace an existing registration:
+Attempting to register a token that already exists throws `CanNotRegisterServiceDiError`. Use `overrideValue()` or `overrideFactory()` if you intend to replace an existing registration:
 
 ```ts
 // ❌ Wrong: duplicate registration
@@ -719,35 +745,58 @@ container.overrideValue({ token: CONFIG, value: configB }); // Works
 
 The container enforces lifetime compatibility to prevent **captive dependency** bugs — where a long-lived service inadvertently captures a short-lived dependency, causing stale or shared state. The table below shows which lifetimes are valid:
 
-| Consumer Lifetime | Can depend on |
-|---|---|
-| **Singleton** | Singleton, Value |
-| **Scoped** | Singleton, Scoped, Dynamic, Value |
-| **Transient** | Singleton, Scoped, Transient, Value |
-| **Dynamic** | Singleton, Scoped, Dynamic, Value |
+| Consumer Lifetime | Can depend on                                    |
+| ----------------- | ------------------------------------------------ |
+| **Singleton**     | Singleton, Value                                 |
+| **Scoped**        | Singleton, Scoped, Dynamic, Value                |
+| **Transient**     | Singleton, Scoped, Transient, Value              |
+| **Dynamic**       | None (dynamic nodes cannot declare dependencies) |
 
-Any combination not listed in this table will throw `InvalidLifetimeDiError`. The most common violation is a singleton depending on a scoped or transient service:
+Any combination not listed in this table will throw `InvalidGraphDiError` (flag `INVALID_EDGE_RELATIONSHIP`) when the container is initialized. The most common violation is a singleton depending on a scoped or transient service:
 
 ```ts
 // ❌ Wrong: Singleton → Transient
-container.registerClass({ impl: SingletonA, deps: [TransientB] }).singleton();
-// Throws InvalidLifetimeDiError
+container.registerFactory({
+    token: SingletonA,
+    factory: ({ transient }) => new SingletonA(transient),
+    deps: { transient: TransientB },
+    lifetime: LIFESPAN.SINGLETON,
+});
+container.registerFactory({
+    token: TransientB,
+    factory: () => new TransientB(),
+    deps: {},
+    lifetime: LIFESPAN.TRANSIENT,
+});
+// container.init() throws InvalidGraphDiError
 
 // ✅ Correct: Upgrade TransientB to Scoped or Singleton
-container.registerClass({ impl: SingletonA, deps: [TransientB] }).singleton();
-container.registerClass({ impl: TransientB, deps: [] }).scoped(); // Upgraded
+container.registerFactory({
+    token: SingletonA,
+    factory: ({ transient }) => new SingletonA(transient),
+    deps: { transient: TransientB },
+    lifetime: LIFESPAN.SINGLETON,
+});
+container.registerFactory({
+    token: TransientB,
+    factory: () => new TransientB(),
+    deps: {},
+    lifetime: LIFESPAN.SCOPED, // Upgraded
+});
 ```
 
 #### Forgetting to set dynamic values
 
-A token registered with `registerDynamic()` must have its value set via `IDynamicServiceRegister.set()` before it is resolved. Attempting to resolve a dynamic token without setting its value will throw `ServiceNotFoundDiError`:
+A token registered with `registerDynamic()` must have its value set via `IDynamicServiceRegister.set()` before it is resolved. Attempting to resolve a dynamic token without a value set will throw `ServiceCanNotBeResolvedDiError`:
 
 ```ts
 // ❌ Wrong: dynamic token never set
 container.registerDynamic(REQUEST_ID);
-await container.resolveOrFail(REQUEST_ID); // Throws ServiceNotFoundDiError
+await container.init();
+await container.resolveOrFail(REQUEST_ID); // Throws ServiceCanNotBeResolvedDiError
 
 // ✅ Correct: set the value in a scope
+await container.init();
 await container.run({
     dynamicRegistration: async (register) => {
         await register.set({ token: REQUEST_ID, value: "req-123" });
@@ -760,17 +809,16 @@ await container.run({
 
 #### Resolving scoped services outside a scope
 
-Scoped services are only available within a `container.run()` scope. Resolving them outside a scope will throw `ServiceNotFoundDiError` or similar resolution errors.
+Scoped services are only available within a `container.run()` scope. Resolving them outside a scope will throw `ServiceCanNotBeResolvedDiError` (flag `SCOPED_SERVICE_OUTSIDE_RUN`).
 
 ### Performance considerations
 
 - **Singleton resolution** is the fastest — the instance is created once and cached.
 - **Scoped resolution** has minimal overhead per scope — instances are cached within the scope.
 - **Transient resolution** creates a new instance every time, which can be expensive if the service has a deep dependency graph. Use transient only when fresh state is required.
-- **Factory registrations** are resolved asynchronously and can perform I/O. Avoid heavy computation or blocking operations in factory callbacks.
+- **Factory functions** can be synchronous or asynchronous and can perform I/O. Avoid heavy computation or blocking operations in factory callbacks.
 - **Service providers** (both functions and `IServiceProvider` objects) are invoked during registration, not during resolution. Provider invocation is synchronous but can be async.
 
 ### Further information
 
 For further information refer to [`@daiso-tech/core/di`](https://daiso-tech.github.io/daiso-core/modules/DI.html) API docs.
-
